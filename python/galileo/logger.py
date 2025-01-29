@@ -18,9 +18,8 @@ from galileo.utils.api_client import ApiClient
 
 class GalileoLogger(Traces):
     """
-    This class can be used to upload workflows to Galileo Observe.
-    First initialize a new ObserveWorkflows object,
-    with an existing project.
+    This class can be used to upload traces to Galileo.
+    First initialize a new GalileoLogger object with an existing project and log stream.
 
     `logger = GalileoLogger(project="my_project", log_stream="my_log_stream")`
 
