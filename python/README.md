@@ -35,6 +35,8 @@ pip3 install --upgrade invoke
 inv setup
 ```
 
+3. Copy .env.example to .env and populate the values.
+
 ## Testing the API
 
 You can modify the main.py file to test the API locally:
