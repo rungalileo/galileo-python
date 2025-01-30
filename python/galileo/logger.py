@@ -167,3 +167,9 @@ class GalileoLogger(Traces):
             return logged_traces
         except Exception as e:
             print(e)
+
+    def terminate(self):
+        try:
+            self.flush()
+        except Exception as e:
+            print(e)
