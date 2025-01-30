@@ -39,7 +39,7 @@ from galileo_core.schemas.shared.traces.trace import (
     ToolSpan,
 )
 
-from python.galileo.logger import GalileoLogger
+from galileo.logger import GalileoLogger
 from galileo.utils import _get_timestamp
 
 # For users with mypy type checking, we need to define a TypeVar for the decorated function
@@ -224,9 +224,9 @@ class GalileoDecorator:
         result: Any,
     ):
         try:
-            end_time = input_params["end_time"] or _get_timestamp()
+            end_time = input_params.get("end_time") or _get_timestamp()
 
-            output = input_params["output"] or (
+            output = input_params.get("output") or (
                 # Serialize and deserialize to ensure proper JSON serialization.
                 # Objects are later serialized again so deserialization is necessary here to avoid unnecessary escaping of quotes.
                 json.loads(
@@ -241,19 +241,47 @@ class GalileoDecorator:
 
             traces = self.client_instance.traces
 
+            created_at_ns = input_params.get("start_time").timestamp() * 1e9
+            duration_ns = (
+                end_time - input_params.get("start_time")
+            ).total_seconds() * 1e9
+
             if not len(traces):
-                trace = self.client_instance.add_trace(**input_params)
+                trace = self.client_instance.add_trace(
+                    input=input_params.get("input"),
+                    name=input_params.get("name"),
+                )
             else:
                 trace = traces[-1]
 
             if span_type == "llm":
-                trace.add_llm_span(**input_params)
+                trace.add_llm_span(
+                    input=input_params.get("input"),
+                    output=output,
+                    name=input_params.get("name"),
+                    model="",
+                    created_at_ns=created_at_ns,
+                    duration_ns=duration_ns,
+                )
             elif span_type == "tool":
-                trace.add_tool_span(**input_params)
+                trace.add_tool_span(
+                    input=input_params.get("input"),
+                    output=output,
+                    name=input_params.get("name"),
+                    created_at_ns=created_at_ns,
+                    duration_ns=duration_ns,
+                )
             else:
-                trace.add_retriever_span(**input_params)
+                trace.add_retriever_span(
+                    input=input_params.get("input"),
+                    output=output,
+                    name=input_params.get("name"),
+                    documents=[],
+                    created_at_ns=created_at_ns,
+                    duration_ns=duration_ns,
+                )
 
-            trace.conclude(**input_params)
+            trace.conclude(output=output, duration_ns=duration_ns)
 
         except Exception as e:
             print(f"Failed to create trace: {e}")

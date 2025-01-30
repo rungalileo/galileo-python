@@ -88,7 +88,7 @@ class EventSerializer(JSONEncoder):
                 return obj.isoformat()
 
             elif isinstance(obj, BaseModel):
-                return convert_to_jsonable(
+                return self.default(
                     obj.model_dump(
                         mode="json",
                         exclude_none=True,
