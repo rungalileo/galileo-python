@@ -62,6 +62,8 @@ class GalileoDecorator:
         *,
         name: Optional[str] = None,
         span_type: Optional[Literal["llm"]] = None,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]: ...
 
     def log(
@@ -70,13 +72,27 @@ class GalileoDecorator:
         *,
         name: Optional[str] = None,
         span_type: Optional[Literal["llm"]] = None,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]:
 
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
             return (
-                self._async_log(func, name=name, span_type=span_type)
+                self._async_log(
+                    func,
+                    name=name,
+                    span_type=span_type,
+                    project=project,
+                    log_stream=log_stream,
+                )
                 if asyncio.iscoroutinefunction(func)
-                else self._sync_log(func, name=name, span_type=span_type)
+                else self._sync_log(
+                    func,
+                    name=name,
+                    span_type=span_type,
+                    project=project,
+                    log_stream=log_stream,
+                )
             )
 
         """
@@ -94,6 +110,8 @@ class GalileoDecorator:
         *,
         name: Optional[str],
         span_type: Optional[Literal["llm"]],
+        project: Optional[str],
+        log_stream: Optional[str],
     ) -> F:
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
@@ -111,7 +129,9 @@ class GalileoDecorator:
             except Exception as e:
                 print("Error while executing function in async_wrapper: ", e)
             finally:
-                result = self._finalize_call(span_type, input_params, result)
+                result = self._finalize_call(
+                    span_type, input_params, result, project, log_stream
+                )
 
                 if result is not None:
                     return result
@@ -124,6 +144,8 @@ class GalileoDecorator:
         *,
         name: Optional[str],
         span_type: Optional[Literal["llm"]],
+        project: Optional[str],
+        log_stream: Optional[str],
     ) -> F:
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
@@ -140,7 +162,9 @@ class GalileoDecorator:
             except Exception as e:
                 print("Error while executing function in sync_wrapper: ", e)
             finally:
-                result = self._finalize_call(span_type, input_params, result)
+                result = self._finalize_call(
+                    span_type, input_params, result, project, log_stream
+                )
 
                 if result is not None:
                     return result
@@ -209,19 +233,29 @@ class GalileoDecorator:
         span_type: Optional[Literal["llm"]],
         input_params: dict[str, str],
         result: Any,
+        project: Optional[str],
+        log_stream: Optional[str],
     ):
         if inspect.isgenerator(result):
-            return self._wrap_sync_generator_result(span_type, input_params, result)
+            return self._wrap_sync_generator_result(
+                span_type, input_params, result, project, log_stream
+            )
         elif inspect.isasyncgen(result):
-            return self._wrap_async_generator_result(span_type, input_params, result)
+            return self._wrap_async_generator_result(
+                span_type, input_params, result, project, log_stream
+            )
         else:
-            return self._handle_call_result(span_type, input_params, result)
+            return self._handle_call_result(
+                span_type, input_params, result, project, log_stream
+            )
 
     def _handle_call_result(
         self,
         span_type: Optional[Literal["llm"]],
         input_params: dict[str, str],
         result: Any,
+        project: Optional[str],
+        log_stream: Optional[str],
     ):
         try:
             end_time = input_params.get("end_time") or _get_timestamp()
@@ -239,7 +273,11 @@ class GalileoDecorator:
 
             input_params.update(end_time=end_time, output=output)
 
-            traces = self.client_instance.traces
+            client_instance = self.get_client_instance(
+                project=project, log_stream=log_stream
+            )
+
+            traces = client_instance.traces
 
             created_at_ns = input_params.get("start_time").timestamp() * 1e9
             duration_ns = (
@@ -247,7 +285,7 @@ class GalileoDecorator:
             ).total_seconds() * 1e9
 
             if not len(traces):
-                trace = self.client_instance.add_trace(
+                trace = client_instance.add_trace(
                     input=input_params.get("input"),
                     name=input_params.get("name"),
                 )
@@ -293,6 +331,8 @@ class GalileoDecorator:
         span_type: Optional[Literal["llm"]],
         input_params: dict[str, str],
         generator: Generator,
+        project: Optional[str],
+        log_stream: Optional[str],
     ):
         items = []
 
@@ -309,13 +349,17 @@ class GalileoDecorator:
             if all(isinstance(item, str) for item in items):
                 output = "".join(items)
 
-            self._handle_call_result(span_type, input_params, output)
+            self._handle_call_result(
+                span_type, input_params, output, project, log_stream
+            )
 
     async def _wrap_async_generator_result(
         self,
         span_type: Optional[Literal["llm"]],
         input_params: dict[str, str],
         generator: AsyncGenerator,
+        project: Optional[str],
+        log_stream: Optional[str],
     ) -> AsyncGenerator:
         items = []
 
@@ -332,13 +376,9 @@ class GalileoDecorator:
             if all(isinstance(item, str) for item in items):
                 output = "".join(items)
 
-            self._handle_call_result(span_type, input_params, output)
-
-    def flush(self):
-        if self.client_instance:
-            self.client_instance.flush()
-        else:
-            print("No Galileo Logger instance found in the current context")
+            self._handle_call_result(
+                span_type, input_params, output, project, log_stream
+            )
 
     def configure(
         self,
@@ -346,18 +386,18 @@ class GalileoDecorator:
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
     ):
-        galileo_logger_singleton = GalileoLoggerSingleton()
-        galileo_logger_singleton.reset()
+        GalileoLoggerSingleton().reset()
 
-        galileo_logger_singleton.get(
+        GalileoLoggerSingleton().get(
             project=project,
             log_stream=log_stream,
         )
 
-    @property
-    def client_instance(self) -> GalileoLogger:
+    def get_client_instance(
+        self, project: Optional[str], log_stream: Optional[str]
+    ) -> GalileoLogger:
         """Get the Galileo Logger instance for the current decorator context."""
-        return GalileoLoggerSingleton().get()
+        return GalileoLoggerSingleton().get(project=project, log_stream=log_stream)
 
 
 galileo_context = GalileoDecorator()
