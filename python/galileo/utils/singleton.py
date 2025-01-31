@@ -1,27 +1,58 @@
 import threading
 from typing import Optional, Dict, Tuple
-
 from os import getenv
 
 from galileo.logger import GalileoLogger
 
 
 class GalileoLoggerSingleton:
-    _instance = None
-    _lock = threading.Lock()
-    _galileo_loggers: Dict[Tuple[str, str], GalileoLogger] = {}
+    """
+    A singleton class that manages a collection of GalileoLogger instances.
+
+    This class ensures that only one instance exists across the application and
+    provides a thread-safe way to retrieve or create GalileoLogger clients based on
+    the given 'project' and 'log_stream' parameters. If the parameters are not provided,
+    the class attempts to read the values from the environment variables
+    GALILEO_PROJECT and GALILEO_LOG_STREAM. The loggers are stored in a dictionary
+    using a tuple (project, log_stream) as the key.
+    """
+
+    _instance = None  # Class-level attribute to hold the singleton instance.
+    _lock = threading.Lock()  # Lock for thread-safe instantiation and operations.
+    _galileo_loggers: Dict[Tuple[str, str], GalileoLogger] = {}  # Cache for loggers.
 
     def __new__(cls):
+        """
+        Override __new__ to ensure only one instance of GalileoLoggerSingleton is created.
+
+        Returns:
+            GalileoLoggerSingleton: The singleton instance.
+        """
         if not cls._instance:
             with cls._lock:
-                if not cls._instance:
+                if not cls._instance:  # Double-checked locking.
                     cls._instance = super(GalileoLoggerSingleton, cls).__new__(cls)
+                    # Initialize the logger dictionary in the new instance.
                     cls._instance._galileo_loggers = {}
         return cls._instance
 
     def _get_key(
         self, project: Optional[str], log_stream: Optional[str]
     ) -> Tuple[str, str]:
+        """
+        Generate a key tuple based on project and log_stream parameters.
+
+        If project or log_stream are None, the method attempts to retrieve them
+        from environment variables (GALILEO_PROJECT and GALILEO_LOG_STREAM). If still
+        None, defaults to "default".
+
+        Args:
+            project (Optional[str]): The project name.
+            log_stream (Optional[str]): The log stream name.
+
+        Returns:
+            Tuple[str, str]: A tuple key (project, log_stream) used for caching.
+        """
         if project is None:
             project = getenv("GALILEO_PROJECT", None)
         if log_stream is None:
@@ -35,24 +66,44 @@ class GalileoLoggerSingleton:
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
     ) -> GalileoLogger:
+        """
+        Retrieve an existing GalileoLogger or create a new one if it does not exist.
+
+        This method first computes the key from the project and log_stream parameters,
+        checks if a logger exists in the cache, and if not, creates a new GalileoLogger.
+        The creation and caching are done in a thread-safe manner.
+
+        Args:
+            project (Optional[str], optional): The project name. Defaults to None.
+            log_stream (Optional[str], optional): The log stream name. Defaults to None.
+
+        Returns:
+            GalileoLogger: An instance of GalileoLogger corresponding to the key.
+        """
+        # Compute the key based on provided parameters or environment variables.
         key = self._get_key(project, log_stream)
 
+        # First check without acquiring lock for performance.
         if key in self._galileo_loggers:
             return self._galileo_loggers[key]
 
+        # Acquire lock for thread-safe creation of new logger.
         with self._lock:
+            # Double-check in case another thread created the logger while waiting.
             if key in self._galileo_loggers:
                 return self._galileo_loggers[key]
 
+            # Prepare initialization arguments, only including non-None values.
             galileo_client_init_args = {
                 "project": project,
                 "log_stream": log_stream,
             }
-
+            # Create the logger with filtered kwargs.
             logger = GalileoLogger(
                 **{k: v for k, v in galileo_client_init_args.items() if v is not None}
             )
 
+            # Cache the newly created logger.
             self._galileo_loggers[key] = logger
             return logger
 
@@ -61,19 +112,37 @@ class GalileoLoggerSingleton:
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
     ) -> None:
+        """
+        Reset (terminate and remove) one or all GalileoLogger instances.
+
+        If both project and log_stream are None, then all cached loggers are terminated
+        and cleared. Otherwise, only the specific logger corresponding to the provided
+        key (project, log_stream) is terminated and removed.
+
+        Args:
+            project (Optional[str], optional): The project name. Defaults to None.
+            log_stream (Optional[str], optional): The log stream name. Defaults to None.
+        """
         with self._lock:
             if project is None and log_stream is None:
-                # Reset all loggers
+                # Terminate and clear all logger instances.
                 for logger in self._galileo_loggers.values():
                     logger.terminate()
                 self._galileo_loggers.clear()
             else:
-                # Reset specific logger
+                # Terminate and remove a specific logger.
                 key = self._get_key(project, log_stream)
                 if key in self._galileo_loggers:
                     self._galileo_loggers[key].terminate()
                     del self._galileo_loggers[key]
 
     def get_all_loggers(self) -> Dict[Tuple[str, str], GalileoLogger]:
-        """Return a dictionary of all active loggers."""
+        """
+        Retrieve a copy of the dictionary containing all active loggers.
+
+        Returns:
+            Dict[Tuple[str, str], GalileoLogger]: A dictionary mapping keys
+            (project, log_stream) to their corresponding GalileoLogger instances.
+        """
+        # Return a shallow copy of the loggers dictionary to prevent external modifications.
         return dict(self._galileo_loggers)
