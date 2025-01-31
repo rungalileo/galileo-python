@@ -30,7 +30,25 @@ def call_openai():
     return chat_completion.choices[0].message.content
 
 
+@log(span_type="llm", project="gen-ai-project2", log_stream="test2")
+def call_openai_project_scoped():
+    chat_completion = client.chat.completions.create(
+        messages=[
+            {
+                "role": "user",
+                "content": "Say this is another test",
+            }
+        ],
+        model="gpt-4o",
+    )
+
+    return chat_completion.choices[0].message.content
+
+
 content = call_openai()
+print(content)
+
+content = call_openai_project_scoped()
 print(content)
 
 # print(chat_completion.choices[0].message.content)
