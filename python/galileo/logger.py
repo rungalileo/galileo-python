@@ -1,4 +1,4 @@
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 from os import getenv
 from pydantic import Field
 
@@ -165,5 +165,11 @@ class GalileoLogger(Traces):
             logged_traces = self.traces
             self.traces = list()
             return logged_traces
+        except Exception as e:
+            print(e)
+
+    def terminate(self):
+        try:
+            self.flush()
         except Exception as e:
             print(e)

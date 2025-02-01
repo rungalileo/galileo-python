@@ -1,43 +1,186 @@
 from json import dumps
 from typing import Any, Union
 from uuid import UUID
+import datetime as dt
 
 from langchain_core.agents import AgentAction, AgentFinish
+from langchain_core.load.dump import default
 from langchain_core.messages import BaseMessage
 from langchain_core.outputs import ChatGeneration, LLMResult
 from langchain_core.prompt_values import ChatPromptValue
 from pydantic import BaseModel
 from pydantic.v1 import BaseModel as BaseModelV1
 
-Stringable = (str, int, float)
+import enum
+from asyncio import Queue
+from collections.abc import Sequence
+from dataclasses import asdict, is_dataclass
+from datetime import date, datetime
+from json import JSONEncoder
+from pathlib import Path
+
+try:
+    from langchain.load.serializable import Serializable
+except ImportError:
+    # If Serializable is not available, set it to NoneType
+    Serializable = type(None)
 
 
-def convert_to_jsonable(obj: Any) -> Union[str, dict, list]:
-    if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
-        return convert_to_jsonable(obj.messages)
-    elif isinstance(obj, (ChatGeneration)):
-        return convert_to_jsonable(obj.message)
-    elif isinstance(obj, LLMResult):
-        return convert_to_jsonable(obj.generations[0])
-    elif isinstance(obj, BaseMessage):
-        return convert_to_jsonable(obj.model_dump())
-    elif isinstance(obj, BaseModel):
-        return convert_to_jsonable(
-            obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
-        )
-    elif isinstance(obj, BaseModelV1):
-        return convert_to_jsonable(obj.dict(exclude_unset=True, exclude_none=True, exclude_defaults=True))
-    elif isinstance(obj, list):
-        return [convert_to_jsonable(o) for o in obj]
-    elif isinstance(obj, dict):
-        return {key: convert_to_jsonable(value) for key, value in obj.items() if value}
-    return obj
+def serialize_datetime(v: dt.datetime) -> str:
+    """
+    Serialize a datetime including timezone info.
 
+    Uses the timezone info provided if present, otherwise uses the current runtime's timezone info.
 
-def serialize_to_str(obj: Any) -> str:
-    if isinstance(obj, str):
-        return obj
-    elif isinstance(obj, (UUID, float)):
-        return str(obj)
+    UTC datetimes end in "Z" while all other timezones are represented as offset from UTC, e.g. +05:00.
+    """
+
+    def _serialize_zoned_datetime(v: dt.datetime) -> str:
+        if v.tzinfo is not None and v.tzinfo.tzname(None) == dt.timezone.utc.tzname(
+            None
+        ):
+            # UTC is a special case where we use "Z" at the end instead of "+00:00"
+            return v.isoformat().replace("+00:00", "Z")
+        else:
+            # Delegate to the typical +/- offset format
+            return v.isoformat()
+
+    if v.tzinfo is not None:
+        return _serialize_zoned_datetime(v)
     else:
-        return dumps(convert_to_jsonable(obj))
+        local_tz = dt.datetime.now().astimezone().tzinfo
+        localized_dt = v.replace(tzinfo=local_tz)
+        return _serialize_zoned_datetime(localized_dt)
+
+
+class EventSerializer(JSONEncoder):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.seen = set()  # Track seen objects to detect circular references
+
+    def default(self, obj: Any):
+        try:
+            if isinstance(obj, (datetime)):
+                return serialize_datetime(obj)
+
+            if isinstance(obj, (Exception, KeyboardInterrupt)):
+                return f"{type(obj).__name__}: {str(obj)}"
+
+            if isinstance(obj, enum.Enum):
+                return obj.value
+
+            if isinstance(obj, Queue):
+                return type(obj).__name__
+
+            if is_dataclass(obj):
+                return asdict(obj)
+
+            if isinstance(obj, UUID):
+                return str(obj)
+
+            if isinstance(obj, bytes):
+                try:
+                    return obj.decode("utf-8")
+                except UnicodeDecodeError:
+                    return "<not serializable bytes>"
+
+            if isinstance(obj, (date)):
+                return obj.isoformat()
+
+            elif isinstance(obj, BaseModel):
+                return self.default(
+                    obj.model_dump(
+                        mode="json",
+                        exclude_none=True,
+                        exclude_unset=True,
+                        exclude_defaults=True,
+                    )
+                )
+            elif isinstance(obj, BaseModelV1):
+                return convert_to_jsonable(
+                    obj.dict(
+                        exclude_unset=True, exclude_none=True, exclude_defaults=True
+                    )
+                )
+
+            if isinstance(obj, Path):
+                return str(obj)
+
+            # if langchain is not available, the Serializable type is NoneType
+            if Serializable is not type(None) and isinstance(obj, Serializable):
+                return obj.to_json()
+            if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
+                return self.default(obj.messages)
+            elif isinstance(obj, (ChatGeneration)):
+                return self.default(obj.message)
+            elif isinstance(obj, LLMResult):
+                return self.default(obj.generations[0])
+            elif isinstance(obj, BaseMessage):
+                return self.default(obj.model_dump())
+
+            # 64-bit integers might overflow the JavaScript safe integer range.
+            if isinstance(obj, (int)):
+                return obj if self.is_js_safe_integer(obj) else str(obj)
+
+            # Standard JSON-encodable types
+            if isinstance(obj, (str, float, type(None))):
+                return obj
+
+            if isinstance(obj, (tuple, set, frozenset)):
+                return list(obj)
+
+            if isinstance(obj, dict):
+                return {self.default(k): self.default(v) for k, v in obj.items()}
+
+            if isinstance(obj, list):
+                return [self.default(item) for item in obj]
+
+            # Important: this needs to be always checked after str and bytes types
+            # Useful for serializing protobuf messages
+            if isinstance(obj, Sequence):
+                return [self.default(item) for item in obj]
+
+            if hasattr(obj, "__slots__"):
+                return self.default(
+                    {slot: getattr(obj, slot, None) for slot in obj.__slots__}
+                )
+            elif hasattr(obj, "__dict__"):
+                obj_id = id(obj)
+
+                if obj_id in self.seen:
+                    # Break on circular references
+                    return type(obj).__name__
+                else:
+                    self.seen.add(obj_id)
+                    result = {k: self.default(v) for k, v in vars(obj).items()}
+                    self.seen.remove(obj_id)
+
+                    return result
+
+            else:
+                # Return object type rather than JSONEncoder.default(obj) which simply raises a TypeError
+                return f"<{type(obj).__name__}>"
+
+        except Exception as e:
+            print(f"Serialization failed for object of type {type(obj).__name__}")
+            return f'"<not serializable object of type: {type(obj).__name__}>"'
+
+    def encode(self, obj: Any) -> str:
+        self.seen.clear()  # Clear seen objects before each encode call
+
+        try:
+            return super().encode(self.default(obj))
+        except Exception:
+            return f'"<not serializable object of type: {type(obj).__name__}>"'  # escaping the string to avoid JSON parsing errors
+
+    @staticmethod
+    def is_js_safe_integer(value: int) -> bool:
+        """Ensure the value is within JavaScript's safe range for integers.
+
+        Python's 64-bit integers can exceed this range, necessitating this check.
+        https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
+        """
+        max_safe_int = 2**53 - 1
+        min_safe_int = -(2**53) + 1
+
+        return min_safe_int <= value <= max_safe_int

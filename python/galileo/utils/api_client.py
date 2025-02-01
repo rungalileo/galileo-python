@@ -48,6 +48,7 @@ class ApiClient:
     def get_api_url(self) -> str:
         console_url = getenv("GALILEO_CONSOLE_URL")
         if console_url is None:
+            # TODO: Set to the multi-tenant cluster when it's ready
             raise Exception("GALILEO_CONSOLE_URL must be set")
         if any(map(console_url.__contains__, ["localhost", "127.0.0.1"])):
             api_url = "http://localhost:8088"
