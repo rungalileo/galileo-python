@@ -1,11 +1,13 @@
 from typing import Any, Optional, Dict
 from os import getenv
 from pydantic import Field
+import atexit
 
 from galileo_core.helpers.execution import async_run
 
 from galileo_core.schemas.shared.traces.types import (
     Trace,
+    StepWithChildSpans,
 )
 from galileo_core.schemas.shared.traces.trace import Traces
 from galileo_core.schemas.shared.workflows.step import StepIOType
@@ -92,6 +94,9 @@ class GalileoLogger(Traces):
             super().__init__(**data)
             self._client = ApiClient(self.project, self.log_stream)
 
+            # cleans up when the python interpreter closes
+            atexit.register(self.terminate)
+
         except Exception as e:
             print(e)
 
@@ -168,8 +173,31 @@ class GalileoLogger(Traces):
         except Exception as e:
             print(e)
 
+    # def conclude(
+    #     self, output: Optional[StepIOType] = None, duration_ns: Optional[int] = None, status_code: Optional[int] = None
+    # ) -> Optional[StepWithChildSpans]:
+    #     """
+    #     Conclude the current trace or workflow span by setting the output of the current node. In the case of nested
+    #     workflow spans, this will point the workflow back to the parent of the current workflow span.
+
+    #     Parameters:
+    #     ----------
+    #         output: Optional[StepIOType]: Output of the node.
+    #         duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
+    #         status_code: Optional[int]: Status code of the node execution.
+    #     Returns:
+    #     -------
+    #         Optional[StepWithChildSpans]: The parent of the current workflow. None if no parent exists.
+    #     """
+    #     super().conclude(
+    #         output=output, duration_ns=duration_ns, status_code=status_code
+    #     )
+
     def terminate(self):
         try:
+            # Unregister the atexit handler first
+            atexit.unregister(self.terminate)
+
             self.flush()
         except Exception as e:
             print(e)

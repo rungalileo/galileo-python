@@ -160,12 +160,16 @@ class ApiClient:
     async def ingest_traces(
         self, traces_ingest_request: TracesIngestRequest
     ) -> dict[str, str]:
+        json = traces_ingest_request.model_dump()
+        print("🚀 Ingesting traces...")
+        print(json)
+
         return await self._make_async_request(
             RequestMethod.POST,
             endpoint=Routes.traces.format(
                 project_id=self.project_id, log_stream_id=self.log_stream_id
             ),
-            json=traces_ingest_request.model_dump(),
+            json=json,
         )
 
     def get_project_by_name(self, project_name: str) -> Any | None:
