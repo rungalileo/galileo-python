@@ -7,9 +7,12 @@ import jwt
 
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.execution import async_run
+from galileo_core.helpers.api_client import ApiClient as CoreApiClient
 from galileo.constants.routes import Routes
 from galileo.schema.trace import TracesIngestRequest, TracesIngestResponse
 from galileo.utils.request import HttpHeaders, make_request
+from httpx import Client, AsyncClient, HTTPError, Response, Timeout
+from urllib.parse import urljoin
 
 
 class ApiClient:
@@ -111,17 +114,15 @@ class ApiClient:
         else:
             content_headers = HttpHeaders.json()
         headers = {**self.auth_header, **content_headers}
-        return async_run(
-            make_request(
-                request_method=request_method,
-                base_url=self.base_url,
-                endpoint=endpoint,
-                json=json,
-                data=data,
-                files=files,
-                params=params,
-                headers=headers,
-            )
+        return ApiClient.make_request_sync(
+            request_method=request_method,
+            base_url=self.base_url,
+            endpoint=endpoint,
+            json=json,
+            data=data,
+            files=files,
+            params=params,
+            headers=headers,
         )
 
     async def _make_async_request(
@@ -172,6 +173,21 @@ class ApiClient:
             json=json,
         )
 
+    def ingest_traces_sync(
+        self, traces_ingest_request: TracesIngestRequest
+    ) -> dict[str, str]:
+        json = traces_ingest_request.model_dump()
+        print("🚀 Ingesting traces...")
+        print(json)
+
+        # return self._make_request(
+        #     RequestMethod.POST,
+        #     endpoint=Routes.traces.format(
+        #         project_id=self.project_id, log_stream_id=self.log_stream_id
+        #     ),
+        #     json=json,
+        # )
+
     def get_project_by_name(self, project_name: str) -> Any | None:
         projects = self._make_request(
             RequestMethod.GET,
@@ -209,3 +225,24 @@ class ApiClient:
             endpoint=Routes.log_streams.format(project_id=project_id),
             json={"name": log_stream_name},
         )
+
+    @staticmethod
+    def make_request_sync(
+        request_method: RequestMethod,
+        base_url: str,
+        endpoint: str,
+        skip_ssl_validation: bool = False,
+        read_timeout: float = 60.0,
+        **kwargs: Any,
+    ) -> Any:
+        url = urljoin(base_url, endpoint)
+        with Client(
+            base_url=base_url,
+            timeout=Timeout(read_timeout, connect=5.0),
+            verify=not skip_ssl_validation,
+        ) as client:
+            response = client.request(
+                method=request_method.value, url=url, timeout=read_timeout, **kwargs
+            )
+            CoreApiClient.validate_response(response)
+            return response.json()

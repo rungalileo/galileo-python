@@ -149,7 +149,8 @@ class GalileoLogger(Traces):
         """
         try:
             traces_ingest_request = TracesIngestRequest(traces=self.traces)
-            async_run(self._client.ingest_traces(traces_ingest_request))
+            # async_run(self._client.ingest_traces(traces_ingest_request))
+            self._client.ingest_traces_sync(traces_ingest_request)
             logged_traces = self.traces
             self.traces = list()
             return logged_traces
@@ -173,31 +174,12 @@ class GalileoLogger(Traces):
         except Exception as e:
             print(e)
 
-    # def conclude(
-    #     self, output: Optional[StepIOType] = None, duration_ns: Optional[int] = None, status_code: Optional[int] = None
-    # ) -> Optional[StepWithChildSpans]:
-    #     """
-    #     Conclude the current trace or workflow span by setting the output of the current node. In the case of nested
-    #     workflow spans, this will point the workflow back to the parent of the current workflow span.
-
-    #     Parameters:
-    #     ----------
-    #         output: Optional[StepIOType]: Output of the node.
-    #         duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
-    #         status_code: Optional[int]: Status code of the node execution.
-    #     Returns:
-    #     -------
-    #         Optional[StepWithChildSpans]: The parent of the current workflow. None if no parent exists.
-    #     """
-    #     super().conclude(
-    #         output=output, duration_ns=duration_ns, status_code=status_code
-    #     )
-
     def terminate(self):
         try:
             # Unregister the atexit handler first
             atexit.unregister(self.terminate)
 
-            self.flush()
+            if self.traces:
+                self.flush()
         except Exception as e:
             print(e)
