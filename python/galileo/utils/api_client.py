@@ -161,6 +161,7 @@ class ApiClient:
     async def ingest_traces(
         self, traces_ingest_request: TracesIngestRequest
     ) -> dict[str, str]:
+        traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
         print("🚀 Ingesting traces...")
         print(json)
@@ -168,7 +169,7 @@ class ApiClient:
         return await self._make_async_request(
             RequestMethod.POST,
             endpoint=Routes.traces.format(
-                project_id=self.project_id, log_stream_id=self.log_stream_id
+                project_id=self.project_id,
             ),
             json=json,
         )
@@ -176,17 +177,18 @@ class ApiClient:
     def ingest_traces_sync(
         self, traces_ingest_request: TracesIngestRequest
     ) -> dict[str, str]:
+        traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
         print("🚀 Ingesting traces...")
         print(json)
 
-        # return self._make_request(
-        #     RequestMethod.POST,
-        #     endpoint=Routes.traces.format(
-        #         project_id=self.project_id, log_stream_id=self.log_stream_id
-        #     ),
-        #     json=json,
-        # )
+        return self._make_request(
+            RequestMethod.POST,
+            endpoint=Routes.traces.format(
+                project_id=self.project_id,
+            ),
+            json=json,
+        )
 
     def get_project_by_name(self, project_name: str) -> Any | None:
         projects = self._make_request(
