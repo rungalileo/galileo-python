@@ -163,7 +163,7 @@ class ApiClient:
     ) -> dict[str, str]:
         traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
-        print("🚀 Ingesting traces...")
+        print(f"🚀 Ingesting traces for project={self.project_id}...")
         print(json)
 
         return await self._make_async_request(
@@ -179,7 +179,7 @@ class ApiClient:
     ) -> dict[str, str]:
         traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
-        print("🚀 Ingesting traces...")
+        print(f"🚀 Ingesting traces for project={self.project_id}...")
         print(json)
 
         return self._make_request(
@@ -213,11 +213,15 @@ class ApiClient:
     ) -> Any | None:
         log_streams = self._make_request(
             RequestMethod.GET,
+            # TODO: update to an endpoint that allows filtering by name
             endpoint=Routes.log_streams.format(project_id=project_id),
         )
         if len(log_streams) < 1:
             return None
-        return log_streams[0]
+        for log_stream in log_streams:
+            if log_stream["name"] == log_stream_name:
+                return log_stream
+        return None
 
     def create_log_stream(
         self, project_id: str, log_stream_name: str

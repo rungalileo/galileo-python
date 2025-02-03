@@ -51,11 +51,13 @@ _log_stream_context: ContextVar[Optional[str]] = ContextVar(
 )
 
 _span_stack_context: ContextVar[List[StepWithChildSpans]] = ContextVar(
-    "span_stack_context", default=list
+    "span_stack_context", default=[]
 )
 
 
 class GalileoDecorator:
+    _project: Optional[str]
+    _log_stream: Optional[str]
     _previous_project_context: Optional[str]
     _previous_log_stream_context: Optional[str]
 
@@ -112,27 +114,22 @@ class GalileoDecorator:
     ) -> Callable[[Callable[P, R]], Callable[P, R]]:
 
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
-            if project and _project_context.get() is None:
-                _project_context.set(project)
-
-            if log_stream and _log_stream_context.get() is None:
-                _log_stream_context.set(log_stream)
 
             return (
                 self._async_log(
                     func,
                     name=name,
                     span_type=span_type,
-                    project=project,
-                    log_stream=log_stream,
+                    project=project or _project_context.get(),
+                    log_stream=log_stream or _log_stream_context.get(),
                 )
                 if asyncio.iscoroutinefunction(func)
                 else self._sync_log(
                     func,
                     name=name,
                     span_type=span_type,
-                    project=project,
-                    log_stream=log_stream,
+                    project=project or _project_context.get(),
+                    log_stream=log_stream or _log_stream_context.get(),
                 )
             )
 
@@ -266,9 +263,10 @@ class GalileoDecorator:
         )
 
         traces = client_instance.traces
-        print(f"Traces: {traces}")
 
-        if not len(traces):
+        stack = _span_stack_context.get().copy()
+
+        if not len(stack) or not len(traces):
             trace = client_instance.start_trace(
                 input=input_params.get("input"),
                 name=input_params.get("name"),
@@ -279,13 +277,12 @@ class GalileoDecorator:
         if not span_type or span_type == "workflow":
             created_at_ns = input_params.get("start_time").timestamp() * 1e9
 
-            trace.add_workflow_span(
+            span = trace.add_workflow_span(
                 input=input_params.get("input"),
                 name=input_params.get("name"),
                 created_at_ns=created_at_ns,
             )
-            # stack = _span_stack_context.get().copy()
-            # _span_stack_context.set(stack + [span])
+            _span_stack_context.set(stack + [span])
 
     def _get_input_from_func_args(
         self,
@@ -391,22 +388,18 @@ class GalileoDecorator:
                     duration_ns=duration_ns,
                 )
 
-            # stack = _span_stack_context.get()
-            # stack.pop()
-            # _span_stack_context.set(stack)
+            if span_type == "workflow" or not span_type:
+                stack = _span_stack_context.get()
+                if stack:
+                    stack.pop()
+                    _span_stack_context.set(stack)
 
-            # if len(stack) == 0:
-            #     # Conclude the trace
-            #     client_instance.conclude(
-            #         output=output,
-            #         duration_ns=duration_ns,
-            #     )
-            if client_instance.current_parent is None:
-                # Conclude the trace
-                client_instance.conclude(
-                    output=output,
-                    duration_ns=duration_ns,
-                )
+                if len(stack) == 0:
+                    # Conclude the trace
+                    client_instance.traces[-1].conclude(
+                        output=output,
+                        duration_ns=duration_ns,
+                    )
 
         except Exception as e:
             print(f"Failed to create trace: {e}")
@@ -471,7 +464,10 @@ class GalileoDecorator:
         self, project: Optional[str], log_stream: Optional[str]
     ) -> GalileoLogger:
         """Get the Galileo Logger instance for the current decorator context."""
-        return GalileoLoggerSingleton().get(project=project, log_stream=log_stream)
+        return GalileoLoggerSingleton().get(
+            project=project or _project_context.get(),
+            log_stream=log_stream or _log_stream_context.get(),
+        )
 
 
 galileo_context = GalileoDecorator()
