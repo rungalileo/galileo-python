@@ -278,7 +278,7 @@ class GalileoDecorator:
         project: Optional[str],
         log_stream: Optional[str],
     ):
-        client_instance = self.get_client_instance(
+        client_instance = self.get_logger_instance(
             project=project, log_stream=log_stream
         )
 
@@ -369,7 +369,7 @@ class GalileoDecorator:
 
             input_params.update(end_time=end_time, output=output)
 
-            client_instance = self.get_client_instance(
+            client_instance = self.get_logger_instance(
                 project=project, log_stream=log_stream
             )
 
@@ -494,7 +494,7 @@ class GalileoDecorator:
                 span_type, input_params, output, project, log_stream
             )
 
-    def get_client_instance(
+    def get_logger_instance(
         self, project: Optional[str], log_stream: Optional[str]
     ) -> GalileoLogger:
         """Get the Galileo Logger instance for the current decorator context."""
