@@ -12,6 +12,7 @@ from pydantic import BaseModel
 from pydantic.v1 import BaseModel as BaseModelV1
 
 import enum
+import logging
 from asyncio import Queue
 from collections.abc import Sequence
 from dataclasses import asdict, is_dataclass
@@ -24,6 +25,8 @@ try:
 except ImportError:
     # If Serializable is not available, set it to NoneType
     Serializable = type(None)
+
+_logger = logging.getLogger(__name__)
 
 
 def serialize_datetime(v: dt.datetime) -> str:
@@ -162,7 +165,9 @@ class EventSerializer(JSONEncoder):
                 return f"<{type(obj).__name__}>"
 
         except Exception as e:
-            print(f"Serialization failed for object of type {type(obj).__name__}")
+            _logger.error(
+                f"Serialization failed for object of type {type(obj).__name__}"
+            )
             return f'"<not serializable object of type: {type(obj).__name__}>"'
 
     def encode(self, obj: Any) -> str:

@@ -2,6 +2,7 @@ from typing import Any, Optional, Dict
 from os import getenv
 from pydantic import Field
 import atexit
+import logging
 
 from galileo_core.helpers.execution import async_run
 
@@ -80,6 +81,8 @@ class GalileoLogger(Traces):
     project: str = Field(description="Name of the project.")
     log_stream: str = Field(description="Name of the log stream.")
 
+    _logger = logging.getLogger("galileo.logger")
+
     def __init__(self, **data: Any) -> None:
         try:
             project_name_from_env = getenv("GALILEO_PROJECT")
@@ -98,7 +101,7 @@ class GalileoLogger(Traces):
             atexit.register(self.terminate)
 
         except Exception as e:
-            print(e)
+            self._logger.error(e, exc_info=True)
 
     def start_trace(
         self,
@@ -155,7 +158,7 @@ class GalileoLogger(Traces):
             self.traces = list()
             return logged_traces
         except Exception as e:
-            print(e)
+            self._logger.error(e, exc_info=True)
 
     async def async_flush(self) -> list[Trace]:
         """
@@ -172,7 +175,7 @@ class GalileoLogger(Traces):
             self.traces = list()
             return logged_traces
         except Exception as e:
-            print(e)
+            self._logger.error(e, exc_info=True)
 
     def terminate(self):
         try:
@@ -182,4 +185,4 @@ class GalileoLogger(Traces):
             if self.traces:
                 self.flush()
         except Exception as e:
-            print(e)
+            self._logger.error(e, exc_info=True)

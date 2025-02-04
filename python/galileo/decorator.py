@@ -1,6 +1,7 @@
 import asyncio
 import inspect
 import json
+import logging
 from contextvars import ContextVar
 from functools import wraps
 from typing import (
@@ -31,6 +32,8 @@ from galileo_core.schemas.shared.traces.types import StepWithChildSpans
 
 from galileo.logger import GalileoLogger
 from galileo.utils import _get_timestamp
+
+_logger = logging.getLogger(__name__)
 
 SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow"]
 
@@ -166,7 +169,10 @@ class GalileoDecorator:
             try:
                 result = await func(*args, **kwargs)
             except Exception as e:
-                print("Error while executing function in async_wrapper: ", e)
+                _logger.error(
+                    f"Error while executing function in async_wrapper: {e}",
+                    exc_info=True,
+                )
             finally:
                 result = self._finalize_call(
                     span_type, input_params, result, project, log_stream
@@ -200,7 +206,10 @@ class GalileoDecorator:
             try:
                 result = func(*args, **kwargs)
             except Exception as e:
-                print("Error while executing function in sync_wrapper: ", e)
+                _logger.error(
+                    f"Error while executing function in sync_wrapper: {e}",
+                    exc_info=True,
+                )
             finally:
                 result = self._finalize_call(
                     span_type, input_params, result, project, log_stream
@@ -249,7 +258,7 @@ class GalileoDecorator:
 
             return params
         except Exception as e:
-            print(f"Failed to parse input params: {e}")
+            _logger.error(f"Failed to parse input params: {e}", exc_info=True)
 
     def _prepare_call(
         self,
@@ -402,7 +411,7 @@ class GalileoDecorator:
                     )
 
         except Exception as e:
-            print(f"Failed to create trace: {e}")
+            _logger.error(f"Failed to create trace: {e}", exc_info=True)
 
         return result
 
@@ -422,7 +431,7 @@ class GalileoDecorator:
 
                 yield item
         except Exception as e:
-            print(f"Failed to wrap generator result: {e}")
+            _logger.error(f"Failed to wrap generator result: {e}", exc_info=True)
         finally:
             output = items
 
@@ -449,7 +458,7 @@ class GalileoDecorator:
 
                 yield item
         except Exception as e:
-            print(f"Failed to wrap generator result: {e}")
+            _logger.error(f"Failed to wrap generator result: {e}", exc_info=True)
         finally:
             output = items
 

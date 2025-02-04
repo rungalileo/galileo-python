@@ -4,6 +4,7 @@ from time import time
 from typing import Any, Optional
 
 import jwt
+import logging
 
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.execution import async_run
@@ -13,6 +14,8 @@ from galileo.schema.trace import TracesIngestRequest, TracesIngestResponse
 from galileo.utils.request import HttpHeaders, make_request
 from httpx import Client, AsyncClient, HTTPError, Response, Timeout
 from urllib.parse import urljoin
+
+_logger = logging.getLogger(__name__)
 
 
 class ApiClient:
@@ -27,7 +30,9 @@ class ApiClient:
             project = self.get_project_by_name(project_name)
             if project is None:
                 self.project_id = self.create_project(project_name)["id"]
-                print(f"🚀 Creating new project... project {project_name} created!")
+                _logger.info(
+                    f"🚀 Creating new project... project {project_name} created!"
+                )
             else:
                 if project["type"] != "gen_ai":
                     raise Exception(
@@ -42,7 +47,7 @@ class ApiClient:
                 self.log_stream_id = self.create_log_stream(
                     project_id=self.project_id, log_stream_name=log_stream_name
                 )["id"]
-                print(
+                _logger.info(
                     f"🚀 Creating new log stream... log stream {log_stream_name} created!"
                 )
             else:
@@ -163,8 +168,8 @@ class ApiClient:
     ) -> dict[str, str]:
         traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
-        print(f"🚀 Ingesting traces for project={self.project_id}...")
-        print(json)
+        _logger.info(f"🚀 Ingesting traces for project={self.project_id}...")
+        _logger.info(json)
 
         return await self._make_async_request(
             RequestMethod.POST,
@@ -179,8 +184,8 @@ class ApiClient:
     ) -> dict[str, str]:
         traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
-        print(f"🚀 Ingesting traces for project={self.project_id}...")
-        print(json)
+        _logger.info(f"🚀 Ingesting traces for project={self.project_id}...")
+        _logger.info(json)
 
         return self._make_request(
             RequestMethod.POST,
