@@ -373,10 +373,14 @@ class GalileoDecorator:
                 project=project, log_stream=log_stream
             )
 
-            created_at_ns = int(round(input_params.get("start_time").timestamp() * 1e9))
-            duration_ns = int(
-                round((end_time - input_params.get("start_time")).total_seconds() * 1e9)
-            )
+            start_time = input_params.get("start_time")
+
+            if start_time:
+                created_at_ns = int(round(start_time.timestamp() * 1e9))
+                duration_ns = int(round((end_time - start_time).total_seconds() * 1e9))
+            else:
+                created_at_ns = int(round(end_time.timestamp() * 1e9))
+                duration_ns = None
 
             if span_type == "llm":
                 client_instance.add_llm_span(
