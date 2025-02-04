@@ -237,6 +237,7 @@ class ApiClient:
             json={"name": log_stream_name},
         )
 
+    # TODO: Move this method to galileo_core.helpers.api_client
     @staticmethod
     def make_request_sync(
         request_method: RequestMethod,
