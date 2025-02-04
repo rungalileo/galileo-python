@@ -178,6 +178,9 @@ class GalileoLogger(Traces):
             self._logger.error(e, exc_info=True)
 
     def terminate(self):
+        """
+        Terminate the logger and flush all traces to Galileo.
+        """
         try:
             # Unregister the atexit handler first
             atexit.unregister(self.terminate)

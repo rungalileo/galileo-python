@@ -64,11 +64,18 @@ class GalileoDecorator:
     _previous_project_context: Optional[str]
     _previous_log_stream_context: Optional[str]
 
+    #
+    # Context manager methods
+    #
+
     def __init__(self):
         self._previous_project_context = None
         self._previous_log_stream_context = None
 
     def __enter__(self):
+        """
+        Entry point for the context manager.
+        """
         self._previous_project_context = _project_context.get()
         self._previous_log_stream_context = _log_stream_context.get()
 
@@ -91,6 +98,10 @@ class GalileoDecorator:
         self._project = project
         self._log_stream = log_stream
         return self
+
+    #
+    # Decorator methods
+    #
 
     @overload
     def log(self, func: F) -> F: ...
@@ -275,6 +286,8 @@ class GalileoDecorator:
 
         stack = _span_stack_context.get().copy()
 
+        # Check if we need to start a new trace (empty call stack)
+        # If not, reuse the last trace
         if not len(stack) or not len(traces):
             trace = client_instance.start_trace(
                 input=input_params.get("input"),
@@ -283,6 +296,7 @@ class GalileoDecorator:
         else:
             trace = traces[-1]
 
+        # If the user hasn't specified a span type, create and add a workflow span
         if not span_type or span_type == "workflow":
             created_at_ns = input_params.get("start_time").timestamp() * 1e9
 
@@ -397,14 +411,21 @@ class GalileoDecorator:
                     duration_ns=duration_ns,
                 )
 
+            # If the span type is a workflow, conclude it
             if span_type == "workflow" or not span_type:
                 stack = _span_stack_context.get()
+                span = None
                 if stack:
-                    stack.pop()
+                    span = stack.pop()
                     _span_stack_context.set(stack)
 
+                if span:
+                    span.conclude(
+                        output=output,
+                        duration_ns=duration_ns,
+                    )
                 if len(stack) == 0:
-                    # Conclude the trace
+                    # Conclude the trace if the call stack is empty
                     client_instance.traces[-1].conclude(
                         output=output,
                         duration_ns=duration_ns,
