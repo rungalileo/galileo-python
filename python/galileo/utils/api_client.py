@@ -4,12 +4,18 @@ from time import time
 from typing import Any, Optional
 
 import jwt
+import logging
 
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.execution import async_run
+from galileo_core.helpers.api_client import ApiClient as CoreApiClient
 from galileo.constants.routes import Routes
 from galileo.schema.trace import TracesIngestRequest, TracesIngestResponse
 from galileo.utils.request import HttpHeaders, make_request
+from httpx import Client, AsyncClient, HTTPError, Response, Timeout
+from urllib.parse import urljoin
+
+_logger = logging.getLogger(__name__)
 
 
 class ApiClient:
@@ -24,7 +30,9 @@ class ApiClient:
             project = self.get_project_by_name(project_name)
             if project is None:
                 self.project_id = self.create_project(project_name)["id"]
-                print(f"🚀 Creating new project... project {project_name} created!")
+                _logger.info(
+                    f"🚀 Creating new project... project {project_name} created!"
+                )
             else:
                 if project["type"] != "gen_ai":
                     raise Exception(
@@ -39,7 +47,7 @@ class ApiClient:
                 self.log_stream_id = self.create_log_stream(
                     project_id=self.project_id, log_stream_name=log_stream_name
                 )["id"]
-                print(
+                _logger.info(
                     f"🚀 Creating new log stream... log stream {log_stream_name} created!"
                 )
             else:
@@ -111,17 +119,15 @@ class ApiClient:
         else:
             content_headers = HttpHeaders.json()
         headers = {**self.auth_header, **content_headers}
-        return async_run(
-            make_request(
-                request_method=request_method,
-                base_url=self.base_url,
-                endpoint=endpoint,
-                json=json,
-                data=data,
-                files=files,
-                params=params,
-                headers=headers,
-            )
+        return ApiClient.make_request_sync(
+            request_method=request_method,
+            base_url=self.base_url,
+            endpoint=endpoint,
+            json=json,
+            data=data,
+            files=files,
+            params=params,
+            headers=headers,
         )
 
     async def _make_async_request(
@@ -160,12 +166,33 @@ class ApiClient:
     async def ingest_traces(
         self, traces_ingest_request: TracesIngestRequest
     ) -> dict[str, str]:
+        traces_ingest_request.log_stream_id = self.log_stream_id
+        json = traces_ingest_request.model_dump()
+        _logger.info(f"🚀 Ingesting traces for project={self.project_id}...")
+        _logger.info(json)
+
         return await self._make_async_request(
             RequestMethod.POST,
             endpoint=Routes.traces.format(
-                project_id=self.project_id, log_stream_id=self.log_stream_id
+                project_id=self.project_id,
             ),
-            json=traces_ingest_request.model_dump(),
+            json=json,
+        )
+
+    def ingest_traces_sync(
+        self, traces_ingest_request: TracesIngestRequest
+    ) -> dict[str, str]:
+        traces_ingest_request.log_stream_id = self.log_stream_id
+        json = traces_ingest_request.model_dump()
+        _logger.info(f"🚀 Ingesting traces for project={self.project_id}...")
+        _logger.info(json)
+
+        return self._make_request(
+            RequestMethod.POST,
+            endpoint=Routes.traces.format(
+                project_id=self.project_id,
+            ),
+            json=json,
         )
 
     def get_project_by_name(self, project_name: str) -> Any | None:
@@ -191,11 +218,15 @@ class ApiClient:
     ) -> Any | None:
         log_streams = self._make_request(
             RequestMethod.GET,
+            # TODO: update to an endpoint that allows filtering by name
             endpoint=Routes.log_streams.format(project_id=project_id),
         )
         if len(log_streams) < 1:
             return None
-        return log_streams[0]
+        for log_stream in log_streams:
+            if log_stream["name"] == log_stream_name:
+                return log_stream
+        return None
 
     def create_log_stream(
         self, project_id: str, log_stream_name: str
@@ -205,3 +236,25 @@ class ApiClient:
             endpoint=Routes.log_streams.format(project_id=project_id),
             json={"name": log_stream_name},
         )
+
+    # TODO: Move this method to galileo_core.helpers.api_client
+    @staticmethod
+    def make_request_sync(
+        request_method: RequestMethod,
+        base_url: str,
+        endpoint: str,
+        skip_ssl_validation: bool = False,
+        read_timeout: float = 60.0,
+        **kwargs: Any,
+    ) -> Any:
+        url = urljoin(base_url, endpoint)
+        with Client(
+            base_url=base_url,
+            timeout=Timeout(read_timeout, connect=5.0),
+            verify=not skip_ssl_validation,
+        ) as client:
+            response = client.request(
+                method=request_method.value, url=url, timeout=read_timeout, **kwargs
+            )
+            CoreApiClient.validate_response(response)
+            return response.json()

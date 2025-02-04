@@ -1,11 +1,14 @@
 from typing import Any, Optional, Dict
 from os import getenv
 from pydantic import Field
+import atexit
+import logging
 
 from galileo_core.helpers.execution import async_run
 
 from galileo_core.schemas.shared.traces.types import (
     Trace,
+    StepWithChildSpans,
 )
 from galileo_core.schemas.shared.traces.trace import Traces
 from galileo_core.schemas.shared.workflows.step import StepIOType
@@ -78,6 +81,8 @@ class GalileoLogger(Traces):
     project: str = Field(description="Name of the project.")
     log_stream: str = Field(description="Name of the log stream.")
 
+    _logger = logging.getLogger("galileo.logger")
+
     def __init__(self, **data: Any) -> None:
         try:
             project_name_from_env = getenv("GALILEO_PROJECT")
@@ -92,8 +97,11 @@ class GalileoLogger(Traces):
             super().__init__(**data)
             self._client = ApiClient(self.project, self.log_stream)
 
+            # cleans up when the python interpreter closes
+            atexit.register(self.terminate)
+
         except Exception as e:
-            print(e)
+            self._logger.error(e, exc_info=True)
 
     def start_trace(
         self,
@@ -144,12 +152,13 @@ class GalileoLogger(Traces):
         """
         try:
             traces_ingest_request = TracesIngestRequest(traces=self.traces)
-            async_run(self._client.ingest_traces(traces_ingest_request))
+            # async_run(self._client.ingest_traces(traces_ingest_request))
+            self._client.ingest_traces_sync(traces_ingest_request)
             logged_traces = self.traces
             self.traces = list()
             return logged_traces
         except Exception as e:
-            print(e)
+            self._logger.error(e, exc_info=True)
 
     async def async_flush(self) -> list[Trace]:
         """
@@ -166,10 +175,17 @@ class GalileoLogger(Traces):
             self.traces = list()
             return logged_traces
         except Exception as e:
-            print(e)
+            self._logger.error(e, exc_info=True)
 
     def terminate(self):
+        """
+        Terminate the logger and flush all traces to Galileo.
+        """
         try:
-            self.flush()
+            # Unregister the atexit handler first
+            atexit.unregister(self.terminate)
+
+            if self.traces:
+                self.flush()
         except Exception as e:
-            print(e)
+            self._logger.error(e, exc_info=True)
