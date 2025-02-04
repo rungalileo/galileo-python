@@ -379,7 +379,7 @@ class GalileoDecorator:
                 created_at_ns = int(round(start_time.timestamp() * 1e9))
                 duration_ns = int(round((end_time - start_time).total_seconds() * 1e9))
             else:
-                created_at_ns = int(round(end_time.timestamp() * 1e9))
+                created_at_ns = None
                 duration_ns = None
 
             if span_type == "llm":
