@@ -332,10 +332,6 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize, wrapped, args, k
     decorator_context_span_stack = galileo_context.get_current_span_stack()
     decorator_context_trace = galileo_context.get_current_trace()
 
-    is_nested_trace = False
-    if len(decorator_context_span_stack):
-        is_nested_trace = True
-
     start_time = _get_timestamp()
     arg_extractor = OpenAiArgsExtractor(*args, **kwargs)
 
@@ -347,19 +343,12 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize, wrapped, args, k
         project=decorator_context_project, log_stream=decorator_context_log_stream
     )
 
-    traces = galileo_logger.traces
     complete_trace = False
-
-    # # If we don't have an active trace or this is not a nested trace, start a new trace
-    # if not (len(traces)) or not is_nested_trace:
-    #     trace = galileo_logger.start_trace(input=input_data.input, name=input_data.name)
-    #     complete_trace = True
-    # else:
-    #     # Reuse the current trace
-    #     trace = traces[-1]
     if decorator_context_trace:
         trace = decorator_context_trace
     else:
+        # If we don't have an active trace, start a new trace
+        # We will conclude it at the end
         trace = galileo_logger.start_trace(input=input_data.input, name=input_data.name)
         complete_trace = True
 
@@ -379,7 +368,8 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize, wrapped, args, k
 
         duration_ns = int(round((end_time - start_time).total_seconds() * 1e9))
 
-        if is_nested_trace:
+        # Add a span to the current trace or span (if this is a nested trace)
+        if len(decorator_context_span_stack):
             span = decorator_context_span_stack[-1]
             span.add_llm_span(
                 input=input_data.input,
@@ -411,6 +401,7 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize, wrapped, args, k
                 },
             )
 
+        # Conclude the trace if this is the top-level call
         if complete_trace:
             trace.conclude(output=completion, duration_ns=duration_ns)
 

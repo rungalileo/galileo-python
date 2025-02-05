@@ -273,7 +273,7 @@ class GalileoDecorator:
                 is_method=is_method, func_args=func_args, func_kwargs=func_kwargs
             )
 
-            params = {"id": id, "name": name, "start_time": start_time, "input": input}
+            params = {"name": name, "start_time": start_time, "input": input}
 
             return params
         except Exception as e:
@@ -421,6 +421,8 @@ class GalileoDecorator:
                     }
 
                     if span_type == "llm":
+                        # TODO: Allow a model to be parsed from the input_params
+                        # This only affects direct @log(span_type="llm") calls, not OpenAI
                         kwargs["model"] = ""
 
                     getattr(target, method)(**kwargs)
