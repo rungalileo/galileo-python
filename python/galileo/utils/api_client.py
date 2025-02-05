@@ -2,7 +2,6 @@ from importlib.metadata import version
 from os import getenv
 from time import time
 from typing import Any, Optional
-from pydantic import UUID4
 
 import jwt
 import logging
@@ -150,7 +149,7 @@ class ApiClient:
         )
 
     async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
-        traces_ingest_request.log_stream_id = UUID4(self.log_stream_id)
+        traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
         _logger.info(f"🚀 Ingesting traces for project={self.project_id}...")
         _logger.info(json)
@@ -160,10 +159,8 @@ class ApiClient:
         )
 
     def ingest_traces_sync(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
-        traces_ingest_request.log_stream_id = UUID4(self.log_stream_id)
+        traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
-        _logger.info(f"🚀 Ingesting traces for project={self.project_id}...")
-        _logger.info(json)
 
         return self._make_request(
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
