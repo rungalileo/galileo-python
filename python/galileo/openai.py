@@ -18,7 +18,9 @@ from galileo.utils.singleton import GalileoLoggerSingleton
 try:
     import openai
 except ImportError:
-    raise ModuleNotFoundError("Please install OpenAI to use this feature: 'pip install openai'")
+    raise ModuleNotFoundError(
+        "Please install OpenAI to use this feature: 'pip install openai'"
+    )
 
 try:
     from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI  # noqa: F401
@@ -55,7 +57,11 @@ _logger = logging.getLogger(__name__)
 
 OPENAI_CLIENT_METHODS = [
     OpenAiModuleDefinition(
-        module="openai.resources.chat.completions", object="Completions", method="create", type="chat", sync=True
+        module="openai.resources.chat.completions",
+        object="Completions",
+        method="create",
+        type="chat",
+        sync=True,
     )
     # Eventually add more OpenAI client library methods here
 ]
@@ -72,7 +78,8 @@ class OpenAiArgsExtractor:
                 **(metadata or {}),
                 "response_format": (
                     kwargs["response_format"].model_json_schema()
-                    if isclass(kwargs["response_format"]) and issubclass(kwargs["response_format"], BaseModel)
+                    if isclass(kwargs["response_format"])
+                    and issubclass(kwargs["response_format"], BaseModel)
                     else kwargs["response_format"]
                 ),
             }
@@ -120,7 +127,13 @@ def _extract_chat_prompt(kwargs: any):
 
     if prompt:
         # if the user provided functions, we need to send these together with messages to Galileo
-        prompt.update({"messages": [_process_message(message) for message in kwargs.get("messages", [])]})
+        prompt.update(
+            {
+                "messages": [
+                    _process_message(message) for message in kwargs.get("messages", [])
+                ]
+            }
+        )
         return prompt
     else:
         # vanilla case, only send messages in openai format to galileo
@@ -162,7 +175,9 @@ def _extract_chat_response(kwargs: any):
     return response
 
 
-def _extract_input_data_from_kwargs(resource: OpenAiModuleDefinition, start_time, kwargs) -> OpenAiInputData:
+def _extract_input_data_from_kwargs(
+    resource: OpenAiModuleDefinition, start_time, kwargs
+) -> OpenAiInputData:
     name = kwargs.get("name", "openai-client-generation")
 
     if name is None:
@@ -186,7 +201,9 @@ def _extract_input_data_from_kwargs(resource: OpenAiModuleDefinition, start_time
         prompt = _extract_chat_prompt(kwargs)
 
     parsed_temperature = float(
-        kwargs.get("temperature", 1) if not isinstance(kwargs.get("temperature", 1), NotGiven) else 1
+        kwargs.get("temperature", 1)
+        if not isinstance(kwargs.get("temperature", 1), NotGiven)
+        else 1
     )
 
     parsed_max_tokens = (
@@ -195,17 +212,29 @@ def _extract_input_data_from_kwargs(resource: OpenAiModuleDefinition, start_time
         else float("inf")
     )
 
-    parsed_top_p = kwargs.get("top_p", 1) if not isinstance(kwargs.get("top_p", 1), NotGiven) else 1
+    parsed_top_p = (
+        kwargs.get("top_p", 1)
+        if not isinstance(kwargs.get("top_p", 1), NotGiven)
+        else 1
+    )
 
     parsed_frequency_penalty = (
-        kwargs.get("frequency_penalty", 0) if not isinstance(kwargs.get("frequency_penalty", 0), NotGiven) else 0
+        kwargs.get("frequency_penalty", 0)
+        if not isinstance(kwargs.get("frequency_penalty", 0), NotGiven)
+        else 0
     )
 
     parsed_presence_penalty = (
-        kwargs.get("presence_penalty", 0) if not isinstance(kwargs.get("presence_penalty", 0), NotGiven) else 0
+        kwargs.get("presence_penalty", 0)
+        if not isinstance(kwargs.get("presence_penalty", 0), NotGiven)
+        else 0
     )
 
-    parsed_seed = kwargs.get("seed", None) if not isinstance(kwargs.get("seed", None), NotGiven) else None
+    parsed_seed = (
+        kwargs.get("seed", None)
+        if not isinstance(kwargs.get("seed", None), NotGiven)
+        else None
+    )
 
     parsed_n = kwargs.get("n", 1) if not isinstance(kwargs.get("n", 1), NotGiven) else 1
 
@@ -246,7 +275,9 @@ def _parse_usage(usage=None):
                 if isinstance(usage_dict[tokens_details], dict)
                 else usage_dict[tokens_details].__dict__
             )
-            usage_dict[tokens_details] = {k: v for k, v in tokens_details_dict.items() if v is not None}
+            usage_dict[tokens_details] = {
+                k: v for k, v in tokens_details_dict.items() if v is not None
+            }
 
     return usage_dict
 
@@ -279,7 +310,9 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
             else:
                 choice = choices[0]
                 completion = (
-                    _extract_chat_response(choice.message.__dict__) if _is_openai_v1() else choice.get("message", None)
+                    _extract_chat_response(choice.message.__dict__)
+                    if _is_openai_v1()
+                    else choice.get("message", None)
                 )
 
     usage = _parse_usage(response.get("usage", None))
@@ -297,6 +330,7 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize, wrapped, args, k
     decorator_context_project = galileo_context.get_current_project()
     decorator_context_log_stream = galileo_context.get_current_log_stream()
     decorator_context_span_stack = galileo_context.get_current_span_stack()
+    decorator_context_trace = galileo_context.get_current_trace()
 
     is_nested_trace = False
     if len(decorator_context_span_stack):
@@ -305,7 +339,9 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize, wrapped, args, k
     start_time = _get_timestamp()
     arg_extractor = OpenAiArgsExtractor(*args, **kwargs)
 
-    input_data = _extract_input_data_from_kwargs(open_ai_resource, start_time, arg_extractor.get_galileo_args())
+    input_data = _extract_input_data_from_kwargs(
+        open_ai_resource, start_time, arg_extractor.get_galileo_args()
+    )
 
     galileo_logger: GalileoLogger = initialize(
         project=decorator_context_project, log_stream=decorator_context_log_stream
@@ -314,37 +350,66 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize, wrapped, args, k
     traces = galileo_logger.traces
     complete_trace = False
 
-    # If we don't have an active trace or this is not a nested trace, start a new trace
-    if not (len(traces)) or not is_nested_trace:
+    # # If we don't have an active trace or this is not a nested trace, start a new trace
+    # if not (len(traces)) or not is_nested_trace:
+    #     trace = galileo_logger.start_trace(input=input_data.input, name=input_data.name)
+    #     complete_trace = True
+    # else:
+    #     # Reuse the current trace
+    #     trace = traces[-1]
+    if decorator_context_trace:
+        trace = decorator_context_trace
+    else:
         trace = galileo_logger.start_trace(input=input_data.input, name=input_data.name)
         complete_trace = True
-    else:
-        # Reuse the current trace
-        trace = traces[-1]
 
     try:
         openai_response = wrapped(**arg_extractor.get_openai_args())
 
         model, completion, usage = _extract_data_from_default_response(
-            open_ai_resource, ((openai_response and openai_response.__dict__) if _is_openai_v1() else openai_response)
+            open_ai_resource,
+            (
+                (openai_response and openai_response.__dict__)
+                if _is_openai_v1()
+                else openai_response
+            ),
         )
 
         end_time = _get_timestamp()
 
         duration_ns = int(round((end_time - start_time).total_seconds() * 1e9))
 
-        galileo_logger.add_llm_span(
-            input=input_data.input,
-            output=completion,
-            name=input_data.name,
-            model=model,
-            temperature=input_data.temperature,
-            duration_ns=duration_ns,
-            input_tokens=usage.get("prompt_tokens", 0),
-            output_tokens=usage.get("completion_tokens", 0),
-            total_tokens=usage.get("total_tokens", 0),
-            metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
-        )
+        if is_nested_trace:
+            span = decorator_context_span_stack[-1]
+            span.add_llm_span(
+                input=input_data.input,
+                output=completion,
+                name=input_data.name,
+                model=model,
+                temperature=input_data.temperature,
+                duration_ns=duration_ns,
+                input_tokens=usage.get("prompt_tokens", 0),
+                output_tokens=usage.get("completion_tokens", 0),
+                total_tokens=usage.get("total_tokens", 0),
+                metadata={
+                    str(k): str(v) for k, v in input_data.model_parameters.items()
+                },
+            )
+        else:
+            trace.add_llm_span(
+                input=input_data.input,
+                output=completion,
+                name=input_data.name,
+                model=model,
+                temperature=input_data.temperature,
+                duration_ns=duration_ns,
+                input_tokens=usage.get("prompt_tokens", 0),
+                output_tokens=usage.get("completion_tokens", 0),
+                total_tokens=usage.get("total_tokens", 0),
+                metadata={
+                    str(k): str(v) for k, v in input_data.model_parameters.items()
+                },
+            )
 
         if complete_trace:
             trace.conclude(output=completion, duration_ns=duration_ns)
@@ -359,14 +424,18 @@ class OpenAIGalileo:
     _galileo_logger: Optional[GalileoLogger] = None
 
     def initialize(self, project=Optional[str], log_stream=Optional[str]):
-        self._galileo_logger = GalileoLoggerSingleton().get(project=project or None, log_stream=log_stream or None)
+        self._galileo_logger = GalileoLoggerSingleton().get(
+            project=project or None, log_stream=log_stream or None
+        )
 
         return self._galileo_logger
 
     def register_tracing(self):
         for resource in OPENAI_CLIENT_METHODS:
             wrap_function_wrapper(
-                resource.module, f"{resource.object}.{resource.method}", (_wrap(resource, self.initialize))
+                resource.module,
+                f"{resource.object}.{resource.method}",
+                (_wrap(resource, self.initialize)),
             )
 
 
