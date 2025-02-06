@@ -127,37 +127,10 @@ def _extract_chat_prompt(kwargs: any):
 
     if prompt:
         # if the user provided functions, we need to send these together with messages to Galileo
-        prompt.update(
-            {
-                "messages": [
-                    _process_message(message) for message in kwargs.get("messages", [])
-                ]
-            }
-        )
+        prompt.update({"messages": [message for message in kwargs.get("messages", [])]})
         return prompt
     else:
-        # vanilla case, only send messages in openai format to galileo
-        return [_process_message(message) for message in kwargs.get("messages", [])]
-
-
-def _process_message(message):
-    if not isinstance(message, dict):
-        return message
-
-    processed_message = {**message}
-
-    content = processed_message.get("content", None)
-    if not isinstance(content, list):
-        return processed_message
-
-    processed_content = []
-
-    for content_part in content:
-        processed_content.append(content_part)
-
-    processed_message["content"] = processed_content
-
-    return processed_message
+        return [message for message in kwargs.get("messages", [])]
 
 
 def _extract_chat_response(kwargs: any):
@@ -407,8 +380,8 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize, wrapped, args, k
 
         return openai_response
     except Exception as ex:
-        _logger.error(ex)
-        raise ex
+        _logger.error(f"Error while processing OpenAI request: {ex}")
+        raise RuntimeError("Failed to process the OpenAI Request") from ex
 
 
 class OpenAIGalileo:

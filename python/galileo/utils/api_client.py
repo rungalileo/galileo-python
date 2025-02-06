@@ -30,18 +30,26 @@ class ApiClient:
             project = self.get_project_by_name(project_name)
             if project is None:
                 self.project_id = self.create_project(project_name)["id"]
-                _logger.info(f"🚀 Creating new project... project {project_name} created!")
+                _logger.info(
+                    f"🚀 Creating new project... project {project_name} created!"
+                )
             else:
                 if project["type"] != "gen_ai":
-                    raise Exception(f"Project {project_name} is not a Galileo 2.0 project")
+                    raise Exception(
+                        f"Project {project_name} is not a Galileo 2.0 project"
+                    )
                 self.project_id = project["id"]
 
-            log_stream = self.get_log_stream_by_name(project_id=self.project_id, log_stream_name=log_stream_name)
+            log_stream = self.get_log_stream_by_name(
+                project_id=self.project_id, log_stream_name=log_stream_name
+            )
             if log_stream is None:
                 self.log_stream_id = self.create_log_stream(
                     project_id=self.project_id, log_stream_name=log_stream_name
                 )["id"]
-                _logger.info(f"🚀 Creating new log stream... log stream {log_stream_name} created!")
+                _logger.info(
+                    f"🚀 Creating new log stream... log stream {log_stream_name} created!"
+                )
             else:
                 self.log_stream_id = log_stream["id"]
 
@@ -64,13 +72,20 @@ class ApiClient:
         raise Exception("GALILEO_API_KEY must be set")
 
     def healthcheck(self) -> bool:
-        async_run(make_request(RequestMethod.GET, base_url=self.base_url, endpoint=Routes.healthcheck))
+        async_run(
+            make_request(
+                RequestMethod.GET, base_url=self.base_url, endpoint=Routes.healthcheck
+            )
+        )
         return True
 
     def api_key_login(self, api_key: str) -> dict[str, str]:
         return async_run(
             make_request(
-                RequestMethod.POST, base_url=self.base_url, endpoint=Routes.api_key_login, json={"api_key": api_key}
+                RequestMethod.POST,
+                base_url=self.base_url,
+                endpoint=Routes.api_key_login,
+                json={"api_key": api_key},
             )
         )
 
@@ -148,27 +163,35 @@ class ApiClient:
             headers=headers,
         )
 
-    async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
+    async def ingest_traces(
+        self, traces_ingest_request: TracesIngestRequest
+    ) -> dict[str, str]:
         traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
-        _logger.info(f"🚀 Ingesting traces for project={self.project_id}...")
-        _logger.info(json)
 
         return await self._make_async_request(
-            RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
+            RequestMethod.POST,
+            endpoint=Routes.traces.format(project_id=self.project_id),
+            json=json,
         )
 
-    def ingest_traces_sync(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
+    def ingest_traces_sync(
+        self, traces_ingest_request: TracesIngestRequest
+    ) -> dict[str, str]:
         traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
 
         return self._make_request(
-            RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
+            RequestMethod.POST,
+            endpoint=Routes.traces.format(project_id=self.project_id),
+            json=json,
         )
 
     def get_project_by_name(self, project_name: str) -> Any | None:
         projects = self._make_request(
-            RequestMethod.GET, endpoint=Routes.projects, params={"project_name": project_name}
+            RequestMethod.GET,
+            endpoint=Routes.projects,
+            params={"project_name": project_name},
         )
         if len(projects) < 1:
             return None
@@ -182,7 +205,9 @@ class ApiClient:
             json={"name": project_name, "type": "gen_ai"},
         )
 
-    def get_log_stream_by_name(self, project_id: str, log_stream_name: str) -> Any | None:
+    def get_log_stream_by_name(
+        self, project_id: str, log_stream_name: str
+    ) -> Any | None:
         log_streams = self._make_request(
             RequestMethod.GET,
             # TODO: update to an endpoint that allows filtering by name
@@ -195,7 +220,9 @@ class ApiClient:
                 return log_stream
         return None
 
-    def create_log_stream(self, project_id: str, log_stream_name: str) -> dict[str, str]:
+    def create_log_stream(
+        self, project_id: str, log_stream_name: str
+    ) -> dict[str, str]:
         return self._make_request(
             RequestMethod.POST,
             endpoint=Routes.log_streams.format(project_id=project_id),
@@ -214,8 +241,12 @@ class ApiClient:
     ) -> Any:
         url = urljoin(base_url, endpoint)
         with Client(
-            base_url=base_url, timeout=Timeout(read_timeout, connect=5.0), verify=not skip_ssl_validation
+            base_url=base_url,
+            timeout=Timeout(read_timeout, connect=5.0),
+            verify=not skip_ssl_validation,
         ) as client:
-            response = client.request(method=request_method.value, url=url, timeout=read_timeout, **kwargs)
+            response = client.request(
+                method=request_method.value, url=url, timeout=read_timeout, **kwargs
+            )
             CoreApiClient.validate_response(response)
             return response.json()

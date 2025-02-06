@@ -102,6 +102,11 @@ class GalileoDecorator:
         return self  # Allows `as galileo` usage
 
     def __exit__(self, exc_type, exc_value, traceback):
+        # Flush the logger instance
+        self.get_logger_instance(
+            project=_project_context.get(), log_stream=_log_stream_context.get()
+        ).flush()
+
         # Restore the previous context values to avoid contamination across different usages
         _project_context.set(self._previous_project_context)
         _log_stream_context.set(self._previous_log_stream_context)

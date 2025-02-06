@@ -136,6 +136,28 @@ class GalileoLoggerSingleton:
                     self._galileo_loggers[key].terminate()
                     del self._galileo_loggers[key]
 
+    def flush(
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+    ) -> None:
+        """
+        Flush (upload and clear) a GalileoLogger instance.
+
+        If both project and log_stream are None, then all cached loggers are flushed
+        and cleared. Otherwise, only the specific logger corresponding to the provided
+        key (project, log_stream) is flushed and removed.
+
+        Args:
+            project (Optional[str], optional): The project name. Defaults to None.
+            log_stream (Optional[str], optional): The log stream name. Defaults to None.
+        """
+        with self._lock:
+            # Terminate and remove a specific logger.
+            key = self._get_key(project, log_stream)
+            if key in self._galileo_loggers:
+                self._galileo_loggers[key].flush()
+
     def get_all_loggers(self) -> Dict[Tuple[str, str], GalileoLogger]:
         """
         Retrieve a copy of the dictionary containing all active loggers.
