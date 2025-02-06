@@ -168,14 +168,10 @@ class ApiClient:
     ) -> dict[str, str]:
         traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
-        _logger.info(f"🚀 Ingesting traces for project={self.project_id}...")
-        _logger.info(json)
 
         return await self._make_async_request(
             RequestMethod.POST,
-            endpoint=Routes.traces.format(
-                project_id=self.project_id,
-            ),
+            endpoint=Routes.traces.format(project_id=self.project_id),
             json=json,
         )
 
@@ -184,14 +180,10 @@ class ApiClient:
     ) -> dict[str, str]:
         traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
-        _logger.info(f"🚀 Ingesting traces for project={self.project_id}...")
-        _logger.info(json)
 
         return self._make_request(
             RequestMethod.POST,
-            endpoint=Routes.traces.format(
-                project_id=self.project_id,
-            ),
+            endpoint=Routes.traces.format(project_id=self.project_id),
             json=json,
         )
 

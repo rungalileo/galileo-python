@@ -28,7 +28,11 @@ from galileo.utils.serialization import EventSerializer
 
 from galileo.utils.singleton import GalileoLoggerSingleton
 
-from galileo_core.schemas.shared.traces.types import StepWithChildSpans
+from galileo_core.schemas.shared.traces.types import (
+    StepWithChildSpans,
+    Trace,
+    WorkflowSpan,
+)
 
 from galileo.logger import GalileoLogger
 from galileo.utils import _get_timestamp
@@ -53,7 +57,9 @@ _log_stream_context: ContextVar[Optional[str]] = ContextVar(
     "log_stream_context", default=None
 )
 
-_span_stack_context: ContextVar[List[StepWithChildSpans]] = ContextVar(
+_trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
+
+_span_stack_context: ContextVar[List[WorkflowSpan]] = ContextVar(
     "span_stack_context", default=[]
 )
 
@@ -63,6 +69,8 @@ class GalileoDecorator:
     _log_stream: Optional[str]
     _previous_project_context: Optional[str]
     _previous_log_stream_context: Optional[str]
+    _previous_trace_context: Optional[Trace]
+    _previous_span_stack_context: Optional[List[WorkflowSpan]]
 
     #
     # Context manager methods
@@ -71,6 +79,8 @@ class GalileoDecorator:
     def __init__(self):
         self._previous_project_context = None
         self._previous_log_stream_context = None
+        self._previous_trace_context = None
+        self._previous_span_stack_context = None
 
     def __enter__(self):
         """
@@ -78,6 +88,11 @@ class GalileoDecorator:
         """
         self._previous_project_context = _project_context.get()
         self._previous_log_stream_context = _log_stream_context.get()
+        self._previous_trace_context = _trace_context.get()
+        self._previous_span_stack_context = _span_stack_context.get()
+
+        _span_stack_context.set([])
+        _trace_context.set(None)
 
         if self._project is not None:
             _project_context.set(self._project)
@@ -87,9 +102,16 @@ class GalileoDecorator:
         return self  # Allows `as galileo` usage
 
     def __exit__(self, exc_type, exc_value, traceback):
+        # Flush the logger instance
+        self.get_logger_instance(
+            project=_project_context.get(), log_stream=_log_stream_context.get()
+        ).flush()
+
         # Restore the previous context values to avoid contamination across different usages
         _project_context.set(self._previous_project_context)
         _log_stream_context.set(self._previous_log_stream_context)
+        _trace_context.set(self._previous_trace_context)
+        _span_stack_context.set(self._previous_span_stack_context)
 
     def __call__(
         self, *, project: Optional[str] = None, log_stream: Optional[str] = None
@@ -126,9 +148,7 @@ class GalileoDecorator:
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]:
-
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
-
             return (
                 self._async_log(
                     func,
@@ -148,8 +168,8 @@ class GalileoDecorator:
             )
 
         """
-        If the decorator is called without arguments, return the decorator function itself. 
-        This allows the decorator to be used with or without arguments. 
+        If the decorator is called without arguments, return the decorator function itself.
+        This allows the decorator to be used with or without arguments.
         """
         if func is None:
             return decorator
@@ -255,17 +275,10 @@ class GalileoDecorator:
             start_time = _get_timestamp()
 
             input = self._get_input_from_func_args(
-                is_method=is_method,
-                func_args=func_args,
-                func_kwargs=func_kwargs,
+                is_method=is_method, func_args=func_args, func_kwargs=func_kwargs
             )
 
-            params = {
-                "id": id,
-                "name": name,
-                "start_time": start_time,
-                "input": input,
-            }
+            params = {"name": name, "start_time": start_time, "input": input}
 
             return params
         except Exception as e:
@@ -282,44 +295,42 @@ class GalileoDecorator:
             project=project, log_stream=log_stream
         )
 
-        traces = client_instance.traces
-
         stack = _span_stack_context.get().copy()
+        trace = _trace_context.get()
 
-        # Check if we need to start a new trace (empty call stack)
-        # If not, reuse the last trace
-        if not len(stack) or not len(traces):
+        # If no trace is available, start a new one
+        if not trace:
             trace = client_instance.start_trace(
-                input=input_params.get("input"),
-                name=input_params.get("name"),
+                input=input_params.get("input"), name=input_params.get("name")
             )
-        else:
-            trace = traces[-1]
+            _trace_context.set(trace)
 
         # If the user hasn't specified a span type, create and add a workflow span
         if not span_type or span_type == "workflow":
             created_at_ns = input_params.get("start_time").timestamp() * 1e9
 
-            span = trace.add_workflow_span(
-                input=input_params.get("input"),
-                name=input_params.get("name"),
-                created_at_ns=created_at_ns,
-            )
+            parent_span = stack[-1] if len(stack) else None
+
+            if parent_span:
+                span = parent_span.add_workflow_span(
+                    input=input_params.get("input"),
+                    name=input_params.get("name"),
+                    created_at_ns=created_at_ns,
+                )
+            else:
+                span = trace.add_workflow_span(
+                    input=input_params.get("input"),
+                    name=input_params.get("name"),
+                    created_at_ns=created_at_ns,
+                )
             _span_stack_context.set(stack + [span])
 
     def _get_input_from_func_args(
-        self,
-        *,
-        is_method: bool = False,
-        func_args: Tuple = (),
-        func_kwargs: Dict = {},
+        self, *, is_method: bool = False, func_args: Tuple = (), func_kwargs: Dict = {}
     ) -> Any:
         # Remove implicitly passed "self" or "cls" argument for instance or class methods
         logged_args = func_args[1:] if is_method else func_args
-        raw_input = {
-            "args": logged_args,
-            "kwargs": func_kwargs,
-        }
+        raw_input = {"args": logged_args, "kwargs": func_kwargs}
 
         # Serialize and deserialize to ensure proper JSON serialization.
         return json.loads(json.dumps(raw_input, cls=EventSerializer))
@@ -361,17 +372,15 @@ class GalileoDecorator:
                 # Objects are later serialized again so deserialization is necessary here to avoid unnecessary escaping of quotes.
                 json.loads(
                     json.dumps(
-                        result if result is not None else None,
-                        cls=EventSerializer,
+                        result if result is not None else None, cls=EventSerializer
                     )
                 )
             )
 
             input_params.update(end_time=end_time, output=output)
 
-            client_instance = self.get_logger_instance(
-                project=project, log_stream=log_stream
-            )
+            stack = _span_stack_context.get()
+            trace = _trace_context.get()
 
             start_time = input_params.get("start_time")
 
@@ -382,59 +391,46 @@ class GalileoDecorator:
                 created_at_ns = None
                 duration_ns = None
 
-            if span_type == "llm":
-                client_instance.add_llm_span(
-                    input=input_params.get("input"),
-                    output=output,
-                    name=input_params.get("name"),
-                    model="",
-                    created_at_ns=created_at_ns,
-                    duration_ns=duration_ns,
-                )
-            elif span_type == "tool":
-                client_instance.add_tool_span(
-                    input=input_params.get("input"),
-                    output=output,
-                    name=input_params.get("name"),
-                    created_at_ns=created_at_ns,
-                    duration_ns=duration_ns,
-                )
-            elif span_type == "retriever":
-                client_instance.add_retriever_span(
-                    input=input_params.get("input"),
-                    output=output,
-                    name=input_params.get("name"),
-                    documents=[],
-                    created_at_ns=created_at_ns,
-                    duration_ns=duration_ns,
-                )
-            else:
-                # Conclude the workflow span
-                client_instance.conclude(
-                    output=output,
-                    duration_ns=duration_ns,
-                )
+            span = None
 
             # If the span type is a workflow, conclude it
             if span_type == "workflow" or not span_type:
-                stack = _span_stack_context.get()
-                span = None
                 if stack:
                     span = stack.pop()
                     _span_stack_context.set(stack)
 
                 if span:
-                    span.conclude(
-                        output=output,
-                        duration_ns=duration_ns,
-                    )
+                    span.conclude(output=output, duration_ns=duration_ns)
                 if len(stack) == 0:
-                    # Conclude the trace if the call stack is empty
-                    client_instance.traces[-1].conclude(
-                        output=output,
-                        duration_ns=duration_ns,
-                    )
+                    trace.conclude(output=output, duration_ns=duration_ns)
+            else:
+                # If the span type is not a workflow, add it to the current parent (trace or span)
+                if len(stack):
+                    span = stack[-1]
+                span_methods = {
+                    "llm": "add_llm_span",
+                    "tool": "add_tool_span",
+                    "retriever": "add_retriever_span",
+                }
 
+                if span_type in span_methods:
+                    method = span_methods[span_type]
+                    target = span or trace
+
+                    kwargs = {
+                        "input": input_params.get("input"),
+                        "output": output,
+                        "name": input_params.get("name"),
+                        "created_at_ns": created_at_ns,
+                        "duration_ns": duration_ns,
+                    }
+
+                    if span_type == "llm":
+                        # TODO: Allow a model to be parsed from the input_params
+                        # This only affects direct @log(span_type="llm") calls, not OpenAI
+                        kwargs["model"] = ""
+
+                    getattr(target, method)(**kwargs)
         except Exception as e:
             _logger.error(f"Failed to create trace: {e}", exc_info=True)
 
@@ -502,6 +498,38 @@ class GalileoDecorator:
             project=project or _project_context.get(),
             log_stream=log_stream or _log_stream_context.get(),
         )
+
+    def get_current_project(self) -> str | None:
+        """Retrieve the current project name from context.
+
+        Returns:
+            str | None: The current project context.
+        """
+        return _project_context.get()
+
+    def get_current_log_stream(self) -> str | None:
+        """Retrieve the current log stream name from context.
+
+        Returns:
+            str | None: The current log stream context.
+        """
+        return _log_stream_context.get()
+
+    def get_current_span_stack(self) -> List[WorkflowSpan]:
+        """Retrieve the current span stack from context.
+
+        Returns:
+            List[WorkflowSpan]: The current span stack.
+        """
+        return _span_stack_context.get()
+
+    def get_current_trace(self) -> Trace | None:
+        """Retrieve the current trace from context.
+
+        Returns:
+            Trace | None: The current trace.
+        """
+        return _trace_context.get()
 
 
 galileo_context = GalileoDecorator()

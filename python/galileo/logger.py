@@ -151,6 +151,9 @@ class GalileoLogger(Traces):
             List[Trace]: The list of uploaded traces.
         """
         try:
+            if not self.traces:
+                self._logger.warning("No traces to flush.")
+                return list()
             traces_ingest_request = TracesIngestRequest(traces=self.traces)
             # async_run(self._client.ingest_traces(traces_ingest_request))
             self._client.ingest_traces_sync(traces_ingest_request)
@@ -185,7 +188,6 @@ class GalileoLogger(Traces):
             # Unregister the atexit handler first
             atexit.unregister(self.terminate)
 
-            if self.traces:
-                self.flush()
+            self.flush()
         except Exception as e:
             self._logger.error(e, exc_info=True)

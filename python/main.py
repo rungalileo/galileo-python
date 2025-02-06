@@ -1,33 +1,26 @@
 import os
-from openai import OpenAI
-from galileo import log, galileo_context
+
+import galileo
+from galileo import galileo_context, openai
 from galileo.logger import GalileoLogger
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
-)
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 
-@log(span_type="llm")
+@galileo.log
 def call_openai():
     chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": "Say this is a test",
-            }
-        ],
-        model="gpt-4o",
+        messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-4o"
     )
 
     return chat_completion.choices[0].message.content
 
 
-@log()
+@galileo.log
 def make_nested_call():
     return call_openai()
 
@@ -56,7 +49,4 @@ trace.add_llm_span(
     duration_ns=1000,
 )
 
-trace.conclude(
-    output="Hello, this is a test",
-    duration_ns=1000,
-)
+trace.conclude(output="Hello, this is a test", duration_ns=1000)
