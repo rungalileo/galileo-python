@@ -491,7 +491,7 @@ class GalileoDecorator:
             )
 
     def get_logger_instance(
-        self, project: Optional[str], log_stream: Optional[str]
+        self, project: Optional[str] = None, log_stream: Optional[str] = None
     ) -> GalileoLogger:
         """Get the Galileo Logger instance for the current decorator context."""
         return GalileoLoggerSingleton().get(
@@ -530,6 +530,9 @@ class GalileoDecorator:
             Trace | None: The current trace.
         """
         return _trace_context.get()
+
+    def flush(self, project: Optional[str] = None, log_stream: Optional[str] = None):
+        self.get_logger_instance(project=project, log_stream=log_stream).flush()
 
 
 galileo_context = GalileoDecorator()
