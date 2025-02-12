@@ -532,6 +532,13 @@ class GalileoDecorator:
         return _trace_context.get()
 
     def flush(self, project: Optional[str] = None, log_stream: Optional[str] = None):
+        """
+        Upload all captured traces to Galileo.
+
+        Args:
+            project (Optional[str], optional): The project name. Defaults to None.
+            log_stream (Optional[str], optional): The log stream name. Defaults to None.
+        """
         self.get_logger_instance(project=project, log_stream=log_stream).flush()
 
 
