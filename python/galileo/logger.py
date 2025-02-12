@@ -94,6 +94,11 @@ class GalileoLogger(Traces):
             if data.get("log_stream") is None:
                 data["log_stream"] = log_stream_name_from_env
 
+            if data.get("project") is None or data.get("log_stream") is None:
+                raise Exception(
+                    "Project and log_stream are required to initialize GalileoLogger."
+                )
+
             super().__init__(**data)
             self._client = ApiClient(self.project, self.log_stream)
 
@@ -159,6 +164,7 @@ class GalileoLogger(Traces):
             self._client.ingest_traces_sync(traces_ingest_request)
             logged_traces = self.traces
             self.traces = list()
+            self.current_parent = None
             return logged_traces
         except Exception as e:
             self._logger.error(e, exc_info=True)
@@ -173,9 +179,10 @@ class GalileoLogger(Traces):
         """
         try:
             traces_ingest_request = TracesIngestRequest(traces=self.traces)
-            await async_run(self._client.ingest_traces(traces_ingest_request))
+            await self._client.ingest_traces(traces_ingest_request)
             logged_traces = self.traces
             self.traces = list()
+            self.current_parent = None
             return logged_traces
         except Exception as e:
             self._logger.error(e, exc_info=True)
