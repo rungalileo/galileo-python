@@ -62,6 +62,8 @@ build-backend = "poetry.core.masonry.api"
 env = [
     "GALILEO_CONSOLE_URL=http://localtest:8088",
     "GALILEO_API_KEY=api-1234567890",
+    "GALILEO_PROJECT=test-project",
+    "GALILEO_LOG_STREAM=test-log-stream",
 ]
 addopts = [
     # Run tests in parallel.
