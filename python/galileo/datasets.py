@@ -8,11 +8,9 @@ from galileo.models.dataset_name_filter_operator import DatasetNameFilterOperato
 from galileo.api.datasets import (
     list_datasets_datasets_get,
     query_datasets_datasets_query_post,
-    update_dataset_content_datasets_dataset_id_content_patch,
-    update_dataset_datasets_dataset_id_patch,
 )
 from galileo.models.dataset_updated_at_sort import DatasetUpdatedAtSort
-from galileo.types import Response, Unset
+from galileo.types import Unset
 
 from galileo.base import BaseClientModel
 
@@ -28,7 +26,6 @@ class Dataset:
     def __getattr__(self, attr):
         """
         Delegate attribute access to the underlying DatasetDB instance.
-        This allows you to use all the properties and methods of DatasetDB.
         """
         return getattr(self._dataset, attr)
 
@@ -56,7 +53,7 @@ class Datasets(BaseClientModel):
 
 
 #
-# Convenience functions
+# Convenience methods
 #
 
 
