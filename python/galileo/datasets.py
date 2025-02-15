@@ -147,8 +147,8 @@ class Datasets(BaseClientModel):
     def get(
         self,
         *,
-        id: str | None = None,
-        name: str | None = None,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
         with_content: bool = False,
     ) -> Optional[Dataset]:
         """
@@ -212,7 +212,7 @@ class Datasets(BaseClientModel):
     def delete(self, *, id: str) -> None: ...
     @overload
     def delete(self, *, name: str) -> None: ...
-    def delete(self, *, id: str | None = None, name: str | None = None) -> None:
+    def delete(self, *, id: Optional[str] = None, name: Optional[str] = None) -> None:
         """
         Deletes a dataset by id or name.
 
