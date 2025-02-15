@@ -29,14 +29,18 @@ from galileo.types import Unset, File
 
 from galileo_core.utils.dataset import DatasetType, parse_dataset
 
+from galileo.client import AuthenticatedClient
 from galileo.base import BaseClientModel
 
 
 class Dataset(BaseClientModel):
     content: DatasetContent | None = None
 
-    def __init__(self, dataset_db: DatasetDB) -> None:
+    def __init__(
+        self, dataset_db: DatasetDB, client: Optional[AuthenticatedClient] = None
+    ) -> None:
         self._dataset = dataset_db
+        self._client = client
 
     def get_content(self) -> Union[None, DatasetContent]:
         """
@@ -135,13 +139,22 @@ class Datasets(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
+        client = self._get_client()
         datasets: ListDatasetResponse = list_datasets_datasets_get.sync(
-            client=self._get_client(), limit=limit
+            client=client, limit=limit
         )
-        return [Dataset(dataset) for dataset in datasets.datasets] if datasets else []
+        return (
+            [
+                Dataset(dataset_db=dataset, client=client)
+                for dataset in datasets.datasets
+            ]
+            if datasets
+            else []
+        )
 
     @overload
     def get(self, *, id: str, with_content: bool = False) -> Optional[Dataset]: ...
+    @overload
     @overload
     def get(self, *, name: str, with_content: bool = False) -> Optional[Dataset]: ...
     def get(
@@ -181,13 +194,15 @@ class Datasets(BaseClientModel):
         if (id is None) == (name is None):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
+        client = self._get_client()
+
         if id:
             dataset_response = get_dataset_datasets_dataset_id_get.sync(
-                client=self._get_client(), dataset_id=id
+                client=client, dataset_id=id
             )
             if not dataset_response:
                 return None
-            dataset = Dataset(dataset_response)
+            dataset = Dataset(dataset_db=dataset_response, client=client)
         elif name:
             filter = DatasetNameFilter(
                 operator=DatasetNameFilterOperator.EQ, value=name
@@ -197,13 +212,13 @@ class Datasets(BaseClientModel):
             )
             datasets_response: ListDatasetResponse = (
                 query_datasets_datasets_query_post.sync(
-                    client=self._get_client(), body=params, limit=1
+                    client=client, body=params, limit=1
                 )
             )
 
             if not datasets_response or len(datasets_response.datasets) == 0:
                 return None
-            dataset = Dataset(datasets_response.datasets[0])
+            dataset = Dataset(dataset_db=datasets_response.datasets[0], client=client)
         if with_content:
             dataset.get_content()
         return dataset
@@ -265,6 +280,7 @@ class Datasets(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
+        client = self._get_client()
         file_path, dataset_format = parse_dataset(content)
         file = File(
             payload=file_path.open("rb"),
@@ -275,7 +291,7 @@ class Datasets(BaseClientModel):
         body = BodyUploadDatasetDatasetsPost(file=file)
 
         response = upload_dataset_datasets_post.sync(
-            client=self._get_client(), body=body, format_=dataset_format
+            client=client, body=body, format_=dataset_format
         )
 
         if isinstance(response, HTTPValidationError):
@@ -284,7 +300,7 @@ class Datasets(BaseClientModel):
         if not response:
             raise ValueError("Unable to create dataset")
 
-        return Dataset(response)
+        return Dataset(dataset_db=response, client=client)
 
 
 #
