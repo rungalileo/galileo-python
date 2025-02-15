@@ -22,7 +22,7 @@ class BaseClientModel:
         )
 
     @staticmethod
-    def _create_client() -> AuthenticatedClient:
+    def create_client() -> AuthenticatedClient:
         base_url = getenv("GALILEO_CONSOLE_URL")
         api_key = getenv("GALILEO_API_KEY")
         return AuthenticatedClient(
@@ -35,5 +35,5 @@ class BaseClientModel:
 
     def _get_client(self) -> AuthenticatedClient:
         if self.client is None:
-            self.client = self._create_client()
+            self.client = self.create_client()
         return self.client

@@ -1,12 +1,14 @@
 from typing import Union, Dict, Any, Optional, overload
 import mimetypes
 
-from galileo.models.dataset_db import DatasetDB
-from galileo.models.list_dataset_params import ListDatasetParams
-from galileo.models.list_dataset_response import ListDatasetResponse
-from galileo.models.dataset_name_filter import DatasetNameFilter
-from galileo.models.dataset_name_filter_operator import DatasetNameFilterOperator
-from galileo.api.datasets import (
+from galileo.resources.models.dataset_db import DatasetDB
+from galileo.resources.models.list_dataset_params import ListDatasetParams
+from galileo.resources.models.list_dataset_response import ListDatasetResponse
+from galileo.resources.models.dataset_name_filter import DatasetNameFilter
+from galileo.resources.models.dataset_name_filter_operator import (
+    DatasetNameFilterOperator,
+)
+from galileo.resources.api.datasets import (
     list_datasets_datasets_get,
     query_datasets_datasets_query_post,
     get_dataset_content_datasets_dataset_id_content_get,
@@ -15,21 +17,23 @@ from galileo.api.datasets import (
     upload_dataset_datasets_post,
     get_dataset_datasets_dataset_id_get,
 )
-from galileo.models.dataset_updated_at_sort import DatasetUpdatedAtSort
-from galileo.models.dataset_content import DatasetContent
-from galileo.models.update_dataset_content_request import UpdateDatasetContentRequest
+from galileo.resources.models.dataset_updated_at_sort import DatasetUpdatedAtSort
+from galileo.resources.models.dataset_content import DatasetContent
+from galileo.resources.models.update_dataset_content_request import (
+    UpdateDatasetContentRequest,
+)
 
-from galileo.models.dataset_update_row import DatasetUpdateRow
-from galileo.models.dataset_update_row_values import DatasetUpdateRowValues
-from galileo.models.http_validation_error import HTTPValidationError
-from galileo.models.body_upload_dataset_datasets_post import (
+from galileo.resources.models.dataset_update_row import DatasetUpdateRow
+from galileo.resources.models.dataset_update_row_values import DatasetUpdateRowValues
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.body_upload_dataset_datasets_post import (
     BodyUploadDatasetDatasetsPost,
 )
-from galileo.types import Unset, File
+from galileo.resources.types import Unset, File
 
 from galileo_core.utils.dataset import DatasetType, parse_dataset
 
-from galileo.client import AuthenticatedClient
+from galileo.resources.client import AuthenticatedClient
 from galileo.base import BaseClientModel
 
 
