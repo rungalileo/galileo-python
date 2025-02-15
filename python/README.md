@@ -94,3 +94,8 @@ inv setup
 ```
 
 3. Copy .env.example to .env and populate the values.
+
+## Auto-generating the API client
+
+1. Run `./scripts/import_api_client.sh` to update the openapi.yml file with the latest
+2. Run `./scripts/auto-generate-api-client.sh` to generate the API client
