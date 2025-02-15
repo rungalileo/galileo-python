@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "galileo"
-version = "0.0.1"
+version = "0.0.3"
 description = "Client library for the Galileo platform."
 authors = ["Galileo Technologies Inc. <team@galileo.ai>"]
 readme = "README.md"
@@ -21,8 +21,8 @@ python-dateutil = "^2.8.0"
 
 [tool.poetry.extras]
 langchain = ["langchain-core"]
-all = ["langchain-core"]
 openai = ["openai"]
+all = ["langchain-core", "openai"]
 
 
 [tool.poetry.group.test.dependencies]

@@ -1,8 +1,66 @@
 # Galileo Python SDK
 
-This package is still under development, so the instructions below are tailored to project contributors.
+The Python client library for the Galileo AI platform.
 
 ## Getting Started
+
+`pip install "galileo[all]"`
+
+### Usage
+
+```python
+import os
+
+import galileo
+from galileo import galileo_context, openai
+from galileo.logger import GalileoLogger
+
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+
+def call_openai():
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-4o"
+    )
+
+    return chat_completion.choices[0].message.content
+
+
+# This will create a single span trace with the OpenAI call
+call_openai()
+
+@galileo.log
+def make_nested_call():
+    return call_openai()
+
+
+# This will create a trace with a workflow span and a nested LLM span
+make_nested_call()
+
+# This will log to the project and log stream specified in the context manager
+with galileo_context(project="gen-ai-project", log_stream="test2"):
+    content = make_nested_call()
+    print(content)
+
+
+# This will log to the project and log stream specified in the logger constructor
+logger = GalileoLogger(project="gen-ai-project", log_stream="test3")
+trace = logger.start_trace("Say this is a test")
+
+trace.add_llm_span(
+    input="Say this is a test",
+    output="Hello, this is a test",
+    model="gpt-4o",
+    input_tokens=10,
+    output_tokens=3,
+    total_tokens=13,
+    duration_ns=1000,
+)
+
+trace.conclude(output="Hello, this is a test", duration_ns=1000)
+```
+
+## Local Installation
 
 ### Pre-Requisites
 
