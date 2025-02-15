@@ -1,4 +1,4 @@
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, Optional, overload
 import mimetypes
 
 from galileo.models.dataset_db import DatasetDB
@@ -13,6 +13,7 @@ from galileo.api.datasets import (
     update_dataset_content_datasets_dataset_id_content_patch,
     delete_dataset_datasets_dataset_id_delete,
     upload_dataset_datasets_post,
+    get_dataset_datasets_dataset_id_get,
 )
 from galileo.models.dataset_updated_at_sort import DatasetUpdatedAtSort
 from galileo.models.dataset_content import DatasetContent
@@ -139,12 +140,24 @@ class Datasets(BaseClientModel):
         )
         return [Dataset(dataset) for dataset in datasets.datasets] if datasets else []
 
-    def get(self, name: str, with_content: bool = False) -> Dataset | None:
+    @overload
+    def get(self, *, id: str, with_content: bool = False) -> Optional[Dataset]: ...
+    @overload
+    def get(self, *, name: str, with_content: bool = False) -> Optional[Dataset]: ...
+    def get(
+        self,
+        *,
+        id: str | None = None,
+        name: str | None = None,
+        with_content: bool = False,
+    ) -> Optional[Dataset]:
         """
-        Gets a dataset by name.
+        Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
 
         Parameters
         ----------
+        id : str
+            The id of the dataset.
         name : str
             The name of the dataset.
         with_content : bool
@@ -157,35 +170,56 @@ class Datasets(BaseClientModel):
 
         Raises
         ------
+        ValueError
+            If neither or both `id` and `name` are provided.
         errors.UnexpectedStatus
             If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
 
         """
-        filter = DatasetNameFilter(operator=DatasetNameFilterOperator.EQ, value=name)
-        params = ListDatasetParams(
-            filters=[filter], sort=DatasetUpdatedAtSort(ascending=False)
-        )
-        datasets: ListDatasetResponse = query_datasets_datasets_query_post.sync(
-            client=self._get_client(), body=params, limit=1
-        )
+        if (id is None) == (name is None):
+            raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
-        if datasets and len(datasets.datasets) > 0:
-            dataset = Dataset(datasets.datasets[0])
+        if id:
+            dataset_response = get_dataset_datasets_dataset_id_get.sync(
+                client=self._get_client(), dataset_id=id
+            )
+            if not dataset_response:
+                return None
+            dataset = Dataset(dataset_response)
+        elif name:
+            filter = DatasetNameFilter(
+                operator=DatasetNameFilterOperator.EQ, value=name
+            )
+            params = ListDatasetParams(
+                filters=[filter], sort=DatasetUpdatedAtSort(ascending=False)
+            )
+            datasets_response: ListDatasetResponse = (
+                query_datasets_datasets_query_post.sync(
+                    client=self._get_client(), body=params, limit=1
+                )
+            )
 
-            if with_content:
-                dataset.get_content()
-            return dataset
-        else:
-            return None
+            if not datasets_response or len(datasets_response.datasets) == 0:
+                return None
+            dataset = Dataset(datasets_response.datasets[0])
+        if with_content:
+            dataset.get_content()
+        return dataset
 
-    def delete(self, name: str) -> None:
+    @overload
+    def delete(self, *, id: str) -> None: ...
+    @overload
+    def delete(self, *, name: str) -> None: ...
+    def delete(self, *, id: str | None = None, name: str | None = None) -> None:
         """
-        Deletes a dataset by name.
+        Deletes a dataset by id or name.
 
         Parameters
         ----------
+        id : str
+            The id of the dataset.
         name : str
             The name of the dataset.
 
@@ -197,7 +231,10 @@ class Datasets(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
-        dataset = self.get(name=name)
+        if (id is None) == (name is None):
+            raise ValueError("Exactly one of 'id' or 'name' must be provided")
+
+        dataset = self.get(id=id, name=name)
         if not dataset:
             raise ValueError(f"Dataset {name} not found")
         return delete_dataset_datasets_dataset_id_delete.sync(
@@ -255,12 +292,16 @@ class Datasets(BaseClientModel):
 #
 
 
-def get_dataset(name: str) -> Dataset | None:
+def get_dataset(
+    *, id: Optional[str] = None, name: Optional[str] = None
+) -> Optional[Dataset]:
     """
-    Gets a dataset by name.
+    Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
 
     Parameters
     ----------
+    id : str
+        The id of the dataset.
     name : str
         The name of the dataset.
     with_content : bool
@@ -279,7 +320,7 @@ def get_dataset(name: str) -> Dataset | None:
         If the request takes longer than Client.timeout.
 
     """
-    return Datasets().get(name=name)
+    return Datasets().get(id=id, name=name)
 
 
 def list_datasets(limit: Union[Unset, int] = 100) -> list[Dataset]:
@@ -307,12 +348,14 @@ def list_datasets(limit: Union[Unset, int] = 100) -> list[Dataset]:
     return Datasets().list(limit=limit)
 
 
-def delete_dataset(name: str) -> None:
+def delete_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> None:
     """
-    Deletes a dataset by name.
+    Deletes a dataset by id or name (exactly one of `id` or `name` must be provided).
 
     Parameters
     ----------
+    id : str
+        The id of the dataset.
     name : str
         The name of the dataset.
 
@@ -324,7 +367,7 @@ def delete_dataset(name: str) -> None:
         If the request takes longer than Client.timeout.
 
     """
-    return Datasets().delete(name=name)
+    return Datasets().delete(id=id, name=name)
 
 
 def create_dataset(name: str, content: DatasetType) -> Dataset:
