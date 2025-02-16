@@ -10,6 +10,8 @@ if TYPE_CHECKING:
     from ..models.customized_factuality_gpt_scorer_aggregates_type_0 import CustomizedFactualityGPTScorerAggregatesType0
     from ..models.customized_factuality_gpt_scorer_extra_type_0 import CustomizedFactualityGPTScorerExtraType0
     from ..models.factuality_template import FactualityTemplate
+    from ..models.metadata_filter import MetadataFilter
+    from ..models.node_name_filter import NodeNameFilter
     from ..models.prompt_run_settings import PromptRunSettings
 
 
@@ -25,6 +27,7 @@ class CustomizedFactualityGPTScorer:
         chainpoll_template (Union[Unset, FactualityTemplate]):
         description (Union[None, Unset, str]):
         extra (Union['CustomizedFactualityGPTScorerExtraType0', None, Unset]):
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
         function_explanation_param_name (Union[Unset, str]):  Default: 'explanation'.
         generated_scorer_id (Union[None, Unset, str]):
         gpt_settings (Union[Unset, PromptRunSettings]): Prompt run settings.
@@ -45,6 +48,7 @@ class CustomizedFactualityGPTScorer:
     chainpoll_template: Union[Unset, "FactualityTemplate"] = UNSET
     description: Union[None, Unset, str] = UNSET
     extra: Union["CustomizedFactualityGPTScorerExtraType0", None, Unset] = UNSET
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     function_explanation_param_name: Union[Unset, str] = "explanation"
     generated_scorer_id: Union[None, Unset, str] = UNSET
     gpt_settings: Union[Unset, "PromptRunSettings"] = UNSET
@@ -65,6 +69,7 @@ class CustomizedFactualityGPTScorer:
             CustomizedFactualityGPTScorerAggregatesType0,
         )
         from ..models.customized_factuality_gpt_scorer_extra_type_0 import CustomizedFactualityGPTScorerExtraType0
+        from ..models.node_name_filter import NodeNameFilter
 
         aggregate_keys: Union[Unset, list[str]] = UNSET
         if not isinstance(self.aggregate_keys, Unset):
@@ -95,6 +100,23 @@ class CustomizedFactualityGPTScorer:
             extra = self.extra.to_dict()
         else:
             extra = self.extra
+
+        filters: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.filters, Unset):
+            filters = UNSET
+        elif isinstance(self.filters, list):
+            filters = []
+            for filters_type_0_item_data in self.filters:
+                filters_type_0_item: dict[str, Any]
+                if isinstance(filters_type_0_item_data, NodeNameFilter):
+                    filters_type_0_item = filters_type_0_item_data.to_dict()
+                else:
+                    filters_type_0_item = filters_type_0_item_data.to_dict()
+
+                filters.append(filters_type_0_item)
+
+        else:
+            filters = self.filters
 
         function_explanation_param_name = self.function_explanation_param_name
 
@@ -176,6 +198,8 @@ class CustomizedFactualityGPTScorer:
             field_dict["description"] = description
         if extra is not UNSET:
             field_dict["extra"] = extra
+        if filters is not UNSET:
+            field_dict["filters"] = filters
         if function_explanation_param_name is not UNSET:
             field_dict["function_explanation_param_name"] = function_explanation_param_name
         if generated_scorer_id is not UNSET:
@@ -212,6 +236,8 @@ class CustomizedFactualityGPTScorer:
         )
         from ..models.customized_factuality_gpt_scorer_extra_type_0 import CustomizedFactualityGPTScorerExtraType0
         from ..models.factuality_template import FactualityTemplate
+        from ..models.metadata_filter import MetadataFilter
+        from ..models.node_name_filter import NodeNameFilter
         from ..models.prompt_run_settings import PromptRunSettings
 
         d = src_dict.copy()
@@ -266,6 +292,44 @@ class CustomizedFactualityGPTScorer:
             return cast(Union["CustomizedFactualityGPTScorerExtraType0", None, Unset], data)
 
         extra = _parse_extra(d.pop("extra", UNSET))
+
+        def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                filters_type_0 = []
+                _filters_type_0 = data
+                for filters_type_0_item_data in _filters_type_0:
+
+                    def _parse_filters_type_0_item(data: object) -> Union["MetadataFilter", "NodeNameFilter"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+
+                            return filters_type_0_item_type_0
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
+
+                        return filters_type_0_item_type_1
+
+                    filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
+
+                    filters_type_0.append(filters_type_0_item)
+
+                return filters_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]], data)
+
+        filters = _parse_filters(d.pop("filters", UNSET))
 
         function_explanation_param_name = d.pop("function_explanation_param_name", UNSET)
 
@@ -378,6 +442,7 @@ class CustomizedFactualityGPTScorer:
             chainpoll_template=chainpoll_template,
             description=description,
             extra=extra,
+            filters=filters,
             function_explanation_param_name=function_explanation_param_name,
             generated_scorer_id=generated_scorer_id,
             gpt_settings=gpt_settings,

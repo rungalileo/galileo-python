@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ScorerConfig")
 
 @_attrs_define
 class ScorerConfig:
-    """
+    """Used for configuring a scorer for a scorer job.
+
     Attributes:
         id (str):
         scorer_type (ScorerTypes):

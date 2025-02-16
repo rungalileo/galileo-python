@@ -7,20 +7,11 @@ A client library for accessing the Galileo platform API
 First, create a client:
 
 ```python
-from galileo.client import Client
+from galileo.api_client import GalileoApiClient
 
-base_url = "https://app.galileo.ai" # or your Galileo instance URL
-client = Client(base_url=base_url)
-```
-
-If the endpoints you're going to hit require authentication, use `AuthenticatedClient` instead:
-
-```python
-from galileo.client import AuthenticatedClient
-
-base_url = "https://app.galileo.ai" # or your Galileo instance URL
-api_key = "{your api key}"
-client = AuthenticatedClient(base_url=base_url, api_key=api_key)
+# Make sure you've set the GALILEO_CONSOLE_URL and GALILEO_API_KEY env vars
+# Optionally, you can specify both base_url and api_key
+client = GalileoApiClient()
 ```
 
 Now call your endpoint and use your models:
@@ -30,10 +21,9 @@ from galileo.resources.models import MyDataModel
 from galileo.resources.api.my_tag import get_my_data_model
 from galileo.resources.types import Response
 
-with client as client:
-    my_data: MyDataModel = get_my_data_model.sync(client=client)
-    # or if you need more info (e.g. status_code)
-    response: Response[MyDataModel] = get_my_data_model.sync_detailed(client=client)
+my_data: MyDataModel = get_my_data_model.sync(client=client)
+# or if you need more info (e.g. status_code)
+response: Response[MyDataModel] = get_my_data_model.sync_detailed(client=client)
 ```
 
 Or do the same thing with an async version:
@@ -43,19 +33,15 @@ from galileo.resources.models import MyDataModel
 from galileo.resources.api.my_tag import get_my_data_model
 from galileo.resources.types import Response
 
-async with client as client:
-    my_data: MyDataModel = await get_my_data_model.asyncio(client=client)
-    response: Response[MyDataModel] = await get_my_data_model.asyncio_detailed(client=client)
+my_data: MyDataModel = await get_my_data_model.asyncio(client=client)
+# or if you need more info (e.g. status_code)
+response: Response[MyDataModel] = await get_my_data_model.asyncio_detailed(client=client)
 ```
 
 By default, when you're calling an HTTPS API it will attempt to verify that SSL is working correctly. Using certificate verification is highly recommended most of the time, but sometimes you may need to authenticate to a server (especially an internal server) using a custom certificate bundle.
 
 ```python
-base_url = "https://app.galileo.ai" # or your Galileo instance URL
-api_key = "{your api key}"
-client = AuthenticatedClient(
-    base_url=base_url,
-    api_key=api_key,
+client = GalileoApiClient(
     verify_ssl="/path/to/certificate_bundle.pem",
 )
 ```
@@ -63,13 +49,7 @@ client = AuthenticatedClient(
 You can also disable certificate validation altogether, but beware that **this is a security risk**.
 
 ```python
-base_url = "https://app.galileo.ai" # or your Galileo instance URL
-api_key = "{your api key}"
-client = AuthenticatedClient(
-    base_url=base_url,
-    api_key=api_key,
-    verify_ssl=False
-)
+client = GalileoApiClient(verify_ssl=False)
 ```
 
 Things to know:
@@ -87,10 +67,10 @@ Things to know:
 
 ## Advanced customizations
 
-There are more settings on the generated `Client` class which let you control more runtime behavior, check out the docstring on that class for more info. You can also customize the underlying `httpx.Client` or `httpx.AsyncClient` (depending on your use-case):
+There are more settings on the `GalileoApiClient` class which let you control more runtime behavior, check out the docstring on that class for more info. You can also customize the underlying `httpx.Client` or `httpx.AsyncClient` (depending on your use-case):
 
 ```python
-from galileo.client import Client
+from galileo.api_client import GalileoApiClient
 
 def log_request(request):
     print(f"Request event hook: {request.method} {request.url} - Waiting for response")
@@ -99,9 +79,7 @@ def log_response(response):
     request = response.request
     print(f"Response event hook: {request.method} {request.url} - Status {response.status_code}")
 
-base_url = "https://app.galileo.ai" # or your Galileo instance URL
-client = Client(
-    base_url=base_url,
+client = GalileoApiClient(
     httpx_args={"event_hooks": {"request": [log_request], "response": [log_response]}},
 )
 
@@ -112,12 +90,9 @@ You can even set the httpx client directly, but beware that this will override a
 
 ```python
 import httpx
-from galileo.client import Client
+from galileo.api_client import GalileoApiClient
 
-base_url = "https://app.galileo.ai" # or your Galileo instance URL
-client = Client(
-    base_url=base_url,
-)
+client = GalileoApiClient()
 # Note that base_url needs to be re-set, as would any shared cookies, headers, etc.
 client.set_httpx_client(httpx.Client(base_url=base_url, proxies="http://localhost:8030"))
 ```

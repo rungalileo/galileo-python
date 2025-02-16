@@ -26,28 +26,56 @@ class AgenticWorkflowSuccessTemplate:
                 workflow was thoughtfully planned and ended up helping answer the queries.\n".
             metric_few_shot_examples (Union[Unset, list['FewShotExample']]):
             metric_system_prompt (Union[Unset, str]):  Default: 'You will receive the chat history from a chatbot
-                application. At the end of the conversation, it will be the bot’s turn to act. The bot\'s turn may involve
-                several steps such as internal reflections and planning, selecting tools, calling tools, and always ends with
-                the bot replying to the user. \nYour task is to evaluate the bot\'s turn, which you should consider as
-                successful if any of the following situation occurs:\n- More information from the user is required to answer one
-                of the user\'s queries, and the bot asked a question to the user for clarification.\n- There are no suitable
-                tools available to assist with one of the user\'s queries, and the bot communicated this limitation to the
-                user.\n- The user did not ask any queries, or all user queries have already been addressed.\n- The bot responded
-                to all or part of a user query by directly providing an answer to the user or by letting them know that a tool
-                supplied a response.\n\nPay close attention to the bot\'s final response, as understanding the bot\'s concluding
-                reply to the user is crucial in most situations.\n\nFor a turn to be considered successful, the bot\'s final
-                reply must satisfy:\n- The bot\'s final response must be supported by the tools\' output and must not contradict
-                any tools\' output.\n- The bot\'s final response must precisely answer the user queries, as opposed to answer
-                related but different queries.\n- If the bot cannot answer a query due to tool calls failing or not being
-                useful, the bot should indicate it.\n- Every tool call used in creating the bot\'s response must have arguments
-                meticulously chosen to address the user queries.\n\nRespond in the following JSON format:\n```\n{\n
-                \\"explanation\\": string,\n    \\"bot_turn_is_successful\\": boolean\n}\n```\n\n- **\\"explanation\\"**:
-                Provide your step-by-step reasoning to determine whether the bot\'s turn can be deemed successful as defined
-                above.\n\n- **\\"bot_turn_is_successful\\"**: Respond `true` if the bot’s turn was successful, and respond
-                `false` otherwise.\n\nYou must respond with a valid JSON object; don\'t forget to escape special characters.'.
-            template (Union[Unset, str]):  Default: "Chatbot history:\n```\n{query}\n```\n\nThe bot's available
-                tools:\n```\n{tools}\n```\n\nThe bot's turn:\n```\n{response}\n```".
-            value_field_name (Union[Unset, str]):  Default: 'bot_turn_is_successful'.
+                application between a user and an AI. At the end of the chat history, it is AI’s turn to act.\n\nIn the chat
+                history, the user can either ask questions, which are answered with words, or make requests that require calling
+                tools and actions to resolve. Sometimes these are given as orders, and these should be treated as questions or
+                requests. The AI\'s turn may involve several steps which are a combination of internal reflections, planning,
+                selecting tools, calling tools, and ends with the AI replying to the user. \nYour task involves the following
+                steps:\n\n########################\n\nStep 1: user_last_input and user_ask\n\nFirst, identify the user\'s last
+                input in the chat history. From this input, create a list with one entry for each user question, request, or
+                order. If there are no user asks in the user\'s last input, leave the list empty and skip ahead, considering the
+                AI\'s turn successful.\n\n########################\n\nStep 2: ai_final_response and
+                answer_or_resolution\n\nIdentify the AI\'s final response to the user: it is the very last step in the AI\'s
+                turn.\n\nFor every user_ask, focus on ai_final_response and try to extract either an answer or a resolution
+                using the following definitions:\n- An answer is a part of the AI\'s final response that directly responds to
+                all or part of a user\'s question, or asks for further information or clarification.\n- A resolution is a part
+                of the AI\'s final response that confirms a successful resolution, or asks for further information or
+                clarification in order to answer a user\'s request.\n\nIf the AI\'s final response does not address the user
+                ask, simply write \\"No answer or resolution provided in the final response\\". Do not shorten the answer or
+                resolution; provide the entire relevant part.\n\n########################\n\nStep 3:
+                tools_input_output\n\nExamine every step in the AI\'s turn and identify which tool/function step seemingly
+                contributed to creating the answer or resolution. Every tool call should be linked to a user ask. If an AI step
+                immediately before or after the tool call mentions planning or using a tool for answering a user ask, the tool
+                call should be associated with that user ask. If the answer or resolution strongly resembles the output of a
+                tool, the tool call should also be associated with that user ask.\n\nCreate a list containing the concatenation
+                of the entire input and output of every tool used in formulating the answer or resolution. The tool input is
+                listed as an AI step before calling the tool, and the tool output is listed as a tool
+                step.\n\n########################\n\nStep 4: properties, boolean_properties and answer_successful\n\nFor every
+                answer or resolution from Step 2, check the following properties one by one to determine which are satisfied:\n-
+                factually_wrong: the answer contains factual errors.\n- addresses_different_ask: the answer or resolution
+                addresses a slightly different user ask (make sure to differentiate this from asking clarifying questions
+                related to the current ask).\n- not_adherent_to_tools_output: the answer or resolution includes citations from a
+                tool\'s output, but some are wrongly copied or attributed.\n- mentions_inability: the answer or resolution
+                mentions an inability to complete the user ask.\n- mentions_unsuccessful_attempt: the answer or resolution
+                mentions an unsuccessful or failed attempt to complete the user ask.\n\nThen copy all the properties (only the
+                boolean value) in the list boolean_properties.\n\nFinally, set answer_successful to `false` if any entry in
+                boolean_properties is set to `true`, otherwise set answer_successful to
+                `true`.\n\n########################\n\nYou must respond in the following JSON format:\n```\n{\n
+                \\"user_last_input\\": string,\n    \\"ai_final_response\\": string,\n    \\"asks_and_answers\\": list[dict],\n
+                \\"ai_turn_is_successful\\": boolean,\n    \\"explanation\\": string\n}\n```\n\nYour tasks are defined as
+                follows:\n\n- **\\"asks_and_answers\\"**: Perform all the tasks described in the steps above. Your answer should
+                be a list where each user ask appears as:\n\n```\n{\n    \\"user_ask\\": string,\n
+                \\"answer_or_resolution\\": string,\n    \\"tools_input_output\\": list[string],\n    \\"properties\\" : {\n
+                \\"factually_wrong\\": boolean,\n        \\"addresses_different_ask\\": boolean,\n
+                \\"not_adherent_to_tools_output\\": boolean,\n        \\"mentions_inability\\": boolean,\n
+                \\"mentions_unsuccessful_attempt\\": boolean\n    },\n    \\"boolean_properties\\": list[boolean],\n
+                \\"answer_successful\\": boolean\n}\n```\n\n- **\\"ai_turn_is_successful\\"**: Respond `true` if at least one
+                answer_successful is True, otherwise respond `false`.\n\n- **\\"explanation\\"**: If at least one answer was
+                considered successful, explain why. Otherwise explain why all answers were not successful.\n\nYou must respond
+                with a valid JSON object; be sure to escape special characters.'.
+            template (Union[Unset, str]):  Default: "Chatbot history:\n```\n{query}\n```\n\nAI's
+                turn:\n```\n{response}\n```".
+            value_field_name (Union[Unset, str]):  Default: 'ai_turn_is_successful'.
     """
 
     explanation_field_name: Union[Unset, str] = "explanation"
@@ -56,12 +84,10 @@ class AgenticWorkflowSuccessTemplate:
     )
     metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
     metric_system_prompt: Union[Unset, str] = (
-        "You will receive the chat history from a chatbot application. At the end of the conversation, it will be the bot’s turn to act. The bot's turn may involve several steps such as internal reflections and planning, selecting tools, calling tools, and always ends with the bot replying to the user. \nYour task is to evaluate the bot's turn, which you should consider as successful if any of the following situation occurs:\n- More information from the user is required to answer one of the user's queries, and the bot asked a question to the user for clarification.\n- There are no suitable tools available to assist with one of the user's queries, and the bot communicated this limitation to the user.\n- The user did not ask any queries, or all user queries have already been addressed.\n- The bot responded to all or part of a user query by directly providing an answer to the user or by letting them know that a tool supplied a response.\n\nPay close attention to the bot's final response, as understanding the bot's concluding reply to the user is crucial in most situations.\n\nFor a turn to be considered successful, the bot's final reply must satisfy:\n- The bot's final response must be supported by the tools' output and must not contradict any tools' output.\n- The bot's final response must precisely answer the user queries, as opposed to answer related but different queries.\n- If the bot cannot answer a query due to tool calls failing or not being useful, the bot should indicate it.\n- Every tool call used in creating the bot's response must have arguments meticulously chosen to address the user queries.\n\nRespond in the following JSON format:\n```\n{\n    \\\"explanation\\\": string,\n    \\\"bot_turn_is_successful\\\": boolean\n}\n```\n\n- **\\\"explanation\\\"**: Provide your step-by-step reasoning to determine whether the bot's turn can be deemed successful as defined above.\n\n- **\\\"bot_turn_is_successful\\\"**: Respond `true` if the bot’s turn was successful, and respond `false` otherwise.\n\nYou must respond with a valid JSON object; don't forget to escape special characters."
+        'You will receive the chat history from a chatbot application between a user and an AI. At the end of the chat history, it is AI’s turn to act.\n\nIn the chat history, the user can either ask questions, which are answered with words, or make requests that require calling tools and actions to resolve. Sometimes these are given as orders, and these should be treated as questions or requests. The AI\'s turn may involve several steps which are a combination of internal reflections, planning, selecting tools, calling tools, and ends with the AI replying to the user. \nYour task involves the following steps:\n\n########################\n\nStep 1: user_last_input and user_ask\n\nFirst, identify the user\'s last input in the chat history. From this input, create a list with one entry for each user question, request, or order. If there are no user asks in the user\'s last input, leave the list empty and skip ahead, considering the AI\'s turn successful.\n\n########################\n\nStep 2: ai_final_response and answer_or_resolution\n\nIdentify the AI\'s final response to the user: it is the very last step in the AI\'s turn.\n\nFor every user_ask, focus on ai_final_response and try to extract either an answer or a resolution using the following definitions:\n- An answer is a part of the AI\'s final response that directly responds to all or part of a user\'s question, or asks for further information or clarification.\n- A resolution is a part of the AI\'s final response that confirms a successful resolution, or asks for further information or clarification in order to answer a user\'s request.\n\nIf the AI\'s final response does not address the user ask, simply write \\"No answer or resolution provided in the final response\\". Do not shorten the answer or resolution; provide the entire relevant part.\n\n########################\n\nStep 3: tools_input_output\n\nExamine every step in the AI\'s turn and identify which tool/function step seemingly contributed to creating the answer or resolution. Every tool call should be linked to a user ask. If an AI step immediately before or after the tool call mentions planning or using a tool for answering a user ask, the tool call should be associated with that user ask. If the answer or resolution strongly resembles the output of a tool, the tool call should also be associated with that user ask.\n\nCreate a list containing the concatenation of the entire input and output of every tool used in formulating the answer or resolution. The tool input is listed as an AI step before calling the tool, and the tool output is listed as a tool step.\n\n########################\n\nStep 4: properties, boolean_properties and answer_successful\n\nFor every answer or resolution from Step 2, check the following properties one by one to determine which are satisfied:\n- factually_wrong: the answer contains factual errors.\n- addresses_different_ask: the answer or resolution addresses a slightly different user ask (make sure to differentiate this from asking clarifying questions related to the current ask).\n- not_adherent_to_tools_output: the answer or resolution includes citations from a tool\'s output, but some are wrongly copied or attributed.\n- mentions_inability: the answer or resolution mentions an inability to complete the user ask.\n- mentions_unsuccessful_attempt: the answer or resolution mentions an unsuccessful or failed attempt to complete the user ask.\n\nThen copy all the properties (only the boolean value) in the list boolean_properties.\n\nFinally, set answer_successful to `false` if any entry in boolean_properties is set to `true`, otherwise set answer_successful to `true`.\n\n########################\n\nYou must respond in the following JSON format:\n```\n{\n    \\"user_last_input\\": string,\n    \\"ai_final_response\\": string,\n    \\"asks_and_answers\\": list[dict],\n    \\"ai_turn_is_successful\\": boolean,\n    \\"explanation\\": string\n}\n```\n\nYour tasks are defined as follows:\n\n- **\\"asks_and_answers\\"**: Perform all the tasks described in the steps above. Your answer should be a list where each user ask appears as:\n\n```\n{\n    \\"user_ask\\": string,\n    \\"answer_or_resolution\\": string,\n    \\"tools_input_output\\": list[string],\n    \\"properties\\" : {\n        \\"factually_wrong\\": boolean,\n        \\"addresses_different_ask\\": boolean,\n        \\"not_adherent_to_tools_output\\": boolean,\n        \\"mentions_inability\\": boolean,\n        \\"mentions_unsuccessful_attempt\\": boolean\n    },\n    \\"boolean_properties\\": list[boolean],\n    \\"answer_successful\\": boolean\n}\n```\n\n- **\\"ai_turn_is_successful\\"**: Respond `true` if at least one answer_successful is True, otherwise respond `false`.\n\n- **\\"explanation\\"**: If at least one answer was considered successful, explain why. Otherwise explain why all answers were not successful.\n\nYou must respond with a valid JSON object; be sure to escape special characters.'
     )
-    template: Union[Unset, str] = (
-        "Chatbot history:\n```\n{query}\n```\n\nThe bot's available tools:\n```\n{tools}\n```\n\nThe bot's turn:\n```\n{response}\n```"
-    )
-    value_field_name: Union[Unset, str] = "bot_turn_is_successful"
+    template: Union[Unset, str] = "Chatbot history:\n```\n{query}\n```\n\nAI's turn:\n```\n{response}\n```"
+    value_field_name: Union[Unset, str] = "ai_turn_is_successful"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
