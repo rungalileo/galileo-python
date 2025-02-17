@@ -193,6 +193,7 @@ class GalileoDecorator:
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
             span_params = self._prepare_input(
+                func=func,
                 name=name or func.__name__,
                 span_type=span_type,
                 params=params,
@@ -233,6 +234,7 @@ class GalileoDecorator:
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
             span_params = self._prepare_input(
+                func=func,
                 name=name or func.__name__,
                 span_type=span_type,
                 params=params,
@@ -275,6 +277,7 @@ class GalileoDecorator:
     def _prepare_input(
         self,
         *,
+        func: Callable,
         name: str,
         span_type: Optional[SPAN_TYPE],
         params: Optional[Dict[str, Union[str, Callable]]] = None,
@@ -291,6 +294,7 @@ class GalileoDecorator:
 
             # Extract function args
             input = self._merge_args_with_kwargs(
+                func=func,
                 is_method=is_method,
                 func_args=func_args,
                 func_kwargs=func_kwargs,
@@ -343,38 +347,41 @@ class GalileoDecorator:
     def _merge_args_with_kwargs(
         self,
         *,
+        func: Callable,  # Add func parameter
         is_method: bool,
         func_args: Tuple,
         func_kwargs: Dict,
     ) -> Dict[str, Any]:
         """Merge positional and keyword arguments into a single dictionary."""
-        # Get the function's signature
-        func = func_args[0] if is_method else None
-        if func:
-            sig = inspect.signature(func)
+        try:
+            # Get the actual function, handling wrapped functions
+            actual_func = getattr(func, "__wrapped__", func)
+            sig = inspect.signature(actual_func)
 
-            parameters = list(sig.parameters.keys())
-
+            # Create a dictionary of all parameters with their default values
+            merged = {}
             for name, param in sig.parameters.items():
                 if name not in ("self", "cls"):  # Skip self and cls
                     if param.default is not inspect.Parameter.empty:
-                        parameters[name] = param.default
-
-            # Remove 'self' or 'cls' if it's a method
-            # if is_method:
-            #     parameters = parameters[1:]
+                        merged[name] = param.default
 
             # Create dictionary of positional args
-            args_dict = {
-                param: value
-                for param, value in zip(
-                    parameters, func_args[1:] if is_method else func_args
-                )
-            }
+            param_names = [
+                name for name in sig.parameters.keys() if name not in ("self", "cls")
+            ]
+            for param_name, value in zip(
+                param_names, func_args[1:] if is_method else func_args
+            ):
+                merged[param_name] = value
 
-            # Merge with kwargs
-            return {**args_dict, **func_kwargs}
-        return func_kwargs
+            # Update with provided keyword arguments
+            merged.update(func_kwargs)
+
+            return merged
+        except Exception as e:
+            _logger.error(f"Error merging args and kwargs: {e}", exc_info=True)
+            # Return just the kwargs if something goes wrong
+            return func_kwargs
 
     def _get_span_param_names(self, span_type: SPAN_TYPE) -> List[str]:
         """Return the parameter names available for each span type."""
