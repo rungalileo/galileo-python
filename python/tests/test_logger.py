@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from pydantic import UUID4
+from uuid import UUID
 
 from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest, TracesIngestResponse
@@ -17,10 +17,10 @@ def setup_mock_api_client(mock_api_client: Mock):
     mock_ingest_traces_sync = AsyncMock(return_value={})
     mock_ingest_traces_async = AsyncMock(return_value={})
     mock_instance.get_project_by_name = AsyncMock(
-        return_value={"id": UUID4("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")}
+        return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")}
     )
     mock_instance.get_log_stream_by_name = AsyncMock(
-        return_value={"id": UUID4("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")}
+        return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")}
     )
     mock_instance.ingest_traces_sync = mock_ingest_traces_sync
     mock_instance.ingest_traces = mock_ingest_traces_async
