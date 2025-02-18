@@ -13,12 +13,12 @@ if TYPE_CHECKING:
     from ..models.metric_success import MetricSuccess
 
 
-T = TypeVar("T", bound="LogDataGetResponseValues")
+T = TypeVar("T", bound="WorkflowSpanWithMetricsMetrics")
 
 
 @_attrs_define
-class LogDataGetResponseValues:
-    """Dictionary containing the mapping of column ids to data values."""
+class WorkflowSpanWithMetricsMetrics:
+    """ """
 
     additional_properties: dict[
         str,
@@ -71,7 +71,7 @@ class LogDataGetResponseValues:
         from ..models.metric_success import MetricSuccess
 
         d = src_dict.copy()
-        log_data_get_response_values = cls()
+        workflow_span_with_metrics_metrics = cls()
 
         additional_properties = {}
         for prop_name, prop_dict in d.items():
@@ -145,8 +145,8 @@ class LogDataGetResponseValues:
 
             additional_properties[prop_name] = additional_property
 
-        log_data_get_response_values.additional_properties = additional_properties
-        return log_data_get_response_values
+        workflow_span_with_metrics_metrics.additional_properties = additional_properties
+        return workflow_span_with_metrics_metrics
 
     @property
     def additional_keys(self) -> list[str]:

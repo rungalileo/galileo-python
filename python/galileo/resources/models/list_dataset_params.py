@@ -7,6 +7,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.dataset_created_at_sort import DatasetCreatedAtSort
+    from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
     from ..models.dataset_name_filter import DatasetNameFilter
     from ..models.dataset_name_sort import DatasetNameSort
     from ..models.dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
@@ -24,13 +25,15 @@ class ListDatasetParams:
     """
     Attributes:
         filters (Union[Unset, list[Union['DatasetNameFilter', 'DatasetUsedInProjectFilter']]]):
-        sort (Union['DatasetCreatedAtSort', 'DatasetNameSort', 'DatasetProjectLastUsedAtSort', 'DatasetProjectsSort',
-            'DatasetRowsSort', 'DatasetUpdatedAtSort', None, Unset]):  Default: None.
+        sort (Union['DatasetCreatedAtSort', 'DatasetLastEditedByUserAtSort', 'DatasetNameSort',
+            'DatasetProjectLastUsedAtSort', 'DatasetProjectsSort', 'DatasetRowsSort', 'DatasetUpdatedAtSort', None, Unset]):
+            Default: None.
     """
 
     filters: Union[Unset, list[Union["DatasetNameFilter", "DatasetUsedInProjectFilter"]]] = UNSET
     sort: Union[
         "DatasetCreatedAtSort",
+        "DatasetLastEditedByUserAtSort",
         "DatasetNameSort",
         "DatasetProjectLastUsedAtSort",
         "DatasetProjectsSort",
@@ -43,6 +46,7 @@ class ListDatasetParams:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_created_at_sort import DatasetCreatedAtSort
+        from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
         from ..models.dataset_name_filter import DatasetNameFilter
         from ..models.dataset_name_sort import DatasetNameSort
         from ..models.dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
@@ -77,6 +81,8 @@ class ListDatasetParams:
             sort = self.sort.to_dict()
         elif isinstance(self.sort, DatasetRowsSort):
             sort = self.sort.to_dict()
+        elif isinstance(self.sort, DatasetLastEditedByUserAtSort):
+            sort = self.sort.to_dict()
         else:
             sort = self.sort
 
@@ -93,6 +99,7 @@ class ListDatasetParams:
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.dataset_created_at_sort import DatasetCreatedAtSort
+        from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
         from ..models.dataset_name_filter import DatasetNameFilter
         from ..models.dataset_name_sort import DatasetNameSort
         from ..models.dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
@@ -129,6 +136,7 @@ class ListDatasetParams:
             data: object,
         ) -> Union[
             "DatasetCreatedAtSort",
+            "DatasetLastEditedByUserAtSort",
             "DatasetNameSort",
             "DatasetProjectLastUsedAtSort",
             "DatasetProjectsSort",
@@ -189,9 +197,18 @@ class ListDatasetParams:
                 return sort_type_0_type_5
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                sort_type_0_type_6 = DatasetLastEditedByUserAtSort.from_dict(data)
+
+                return sort_type_0_type_6
+            except:  # noqa: E722
+                pass
             return cast(
                 Union[
                     "DatasetCreatedAtSort",
+                    "DatasetLastEditedByUserAtSort",
                     "DatasetNameSort",
                     "DatasetProjectLastUsedAtSort",
                     "DatasetProjectsSort",

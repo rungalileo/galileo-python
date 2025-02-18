@@ -13,15 +13,19 @@ T = TypeVar("T", bound="MetricComputing")
 class MetricComputing:
     """
     Attributes:
+        message (Union[Unset, str]):  Default: 'Metric is computing.'.
         scorer_type (Union[None, ScorerType, Unset]):
         status_type (Union[Literal['computing'], Unset]):  Default: 'computing'.
     """
 
+    message: Union[Unset, str] = "Metric is computing."
     scorer_type: Union[None, ScorerType, Unset] = UNSET
     status_type: Union[Literal["computing"], Unset] = "computing"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        message = self.message
+
         scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
             scorer_type = UNSET
@@ -35,6 +39,8 @@ class MetricComputing:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if message is not UNSET:
+            field_dict["message"] = message
         if scorer_type is not UNSET:
             field_dict["scorer_type"] = scorer_type
         if status_type is not UNSET:
@@ -45,6 +51,7 @@ class MetricComputing:
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         d = src_dict.copy()
+        message = d.pop("message", UNSET)
 
         def _parse_scorer_type(data: object) -> Union[None, ScorerType, Unset]:
             if data is None:
@@ -68,6 +75,7 @@ class MetricComputing:
             raise ValueError(f"status_type must match const 'computing', got '{status_type}'")
 
         metric_computing = cls(
+            message=message,
             scorer_type=scorer_type,
             status_type=status_type,
         )

@@ -24,6 +24,7 @@ class ChainRow:
         node_type (NodeType):
         chain_id (Union[None, UUID, Unset]):
         creation_timestamp (Union[Unset, int]):
+        expected_output (Union[None, Unset, str]):
         finish_reason (Union[Unset, str]):  Default: ''.
         has_children (Union[Unset, bool]):  Default: False.
         inputs (Union['ChainRowInputsType0', None, Unset]):
@@ -38,7 +39,6 @@ class ChainRow:
         query_total_tokens (Union[Unset, int]):  Default: 0.
         response (Union[None, Unset, str]):
         step (Union[Unset, int]):  Default: 0.
-        target (Union[None, Unset, str]):
         tools (Union[None, Unset, str]):
     """
 
@@ -47,6 +47,7 @@ class ChainRow:
     node_type: NodeType
     chain_id: Union[None, UUID, Unset] = UNSET
     creation_timestamp: Union[Unset, int] = UNSET
+    expected_output: Union[None, Unset, str] = UNSET
     finish_reason: Union[Unset, str] = ""
     has_children: Union[Unset, bool] = False
     inputs: Union["ChainRowInputsType0", None, Unset] = UNSET
@@ -61,7 +62,6 @@ class ChainRow:
     query_total_tokens: Union[Unset, int] = 0
     response: Union[None, Unset, str] = UNSET
     step: Union[Unset, int] = 0
-    target: Union[None, Unset, str] = UNSET
     tools: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -83,6 +83,12 @@ class ChainRow:
             chain_id = self.chain_id
 
         creation_timestamp = self.creation_timestamp
+
+        expected_output: Union[None, Unset, str]
+        if isinstance(self.expected_output, Unset):
+            expected_output = UNSET
+        else:
+            expected_output = self.expected_output
 
         finish_reason = self.finish_reason
 
@@ -136,12 +142,6 @@ class ChainRow:
 
         step = self.step
 
-        target: Union[None, Unset, str]
-        if isinstance(self.target, Unset):
-            target = UNSET
-        else:
-            target = self.target
-
         tools: Union[None, Unset, str]
         if isinstance(self.tools, Unset):
             tools = UNSET
@@ -161,6 +161,8 @@ class ChainRow:
             field_dict["chain_id"] = chain_id
         if creation_timestamp is not UNSET:
             field_dict["creation_timestamp"] = creation_timestamp
+        if expected_output is not UNSET:
+            field_dict["expected_output"] = expected_output
         if finish_reason is not UNSET:
             field_dict["finish_reason"] = finish_reason
         if has_children is not UNSET:
@@ -189,8 +191,6 @@ class ChainRow:
             field_dict["response"] = response
         if step is not UNSET:
             field_dict["step"] = step
-        if target is not UNSET:
-            field_dict["target"] = target
         if tools is not UNSET:
             field_dict["tools"] = tools
 
@@ -226,6 +226,15 @@ class ChainRow:
         chain_id = _parse_chain_id(d.pop("chain_id", UNSET))
 
         creation_timestamp = d.pop("creation_timestamp", UNSET)
+
+        def _parse_expected_output(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        expected_output = _parse_expected_output(d.pop("expected_output", UNSET))
 
         finish_reason = d.pop("finish_reason", UNSET)
 
@@ -303,15 +312,6 @@ class ChainRow:
 
         step = d.pop("step", UNSET)
 
-        def _parse_target(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        target = _parse_target(d.pop("target", UNSET))
-
         def _parse_tools(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -327,6 +327,7 @@ class ChainRow:
             node_type=node_type,
             chain_id=chain_id,
             creation_timestamp=creation_timestamp,
+            expected_output=expected_output,
             finish_reason=finish_reason,
             has_children=has_children,
             inputs=inputs,
@@ -341,7 +342,6 @@ class ChainRow:
             query_total_tokens=query_total_tokens,
             response=response,
             step=step,
-            target=target,
             tools=tools,
         )
 

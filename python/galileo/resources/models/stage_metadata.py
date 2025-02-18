@@ -3,6 +3,8 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.stage_type import StageType
+
 T = TypeVar("T", bound="StageMetadata")
 
 
@@ -13,12 +15,14 @@ class StageMetadata:
         project_id (str):
         stage_id (str):
         stage_name (str):
+        stage_type (StageType):
         stage_version (int):
     """
 
     project_id: str
     stage_id: str
     stage_name: str
+    stage_type: StageType
     stage_version: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -29,6 +33,8 @@ class StageMetadata:
 
         stage_name = self.stage_name
 
+        stage_type = self.stage_type.value
+
         stage_version = self.stage_version
 
         field_dict: dict[str, Any] = {}
@@ -38,6 +44,7 @@ class StageMetadata:
                 "project_id": project_id,
                 "stage_id": stage_id,
                 "stage_name": stage_name,
+                "stage_type": stage_type,
                 "stage_version": stage_version,
             }
         )
@@ -53,12 +60,15 @@ class StageMetadata:
 
         stage_name = d.pop("stage_name")
 
+        stage_type = StageType(d.pop("stage_type"))
+
         stage_version = d.pop("stage_version")
 
         stage_metadata = cls(
             project_id=project_id,
             stage_id=stage_id,
             stage_name=stage_name,
+            stage_type=stage_type,
             stage_version=stage_version,
         )
 

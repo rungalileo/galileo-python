@@ -13,22 +13,18 @@ T = TypeVar("T", bound="MetricNotComputed")
 class MetricNotComputed:
     """
     Attributes:
-        message (Union[None, Unset, str]):  Default: 'Metric not computed.'.
+        message (Union[Unset, str]):  Default: 'Metric not computed.'.
         scorer_type (Union[None, ScorerType, Unset]):
         status_type (Union[Literal['not_computed'], Unset]):  Default: 'not_computed'.
     """
 
-    message: Union[None, Unset, str] = "Metric not computed."
+    message: Union[Unset, str] = "Metric not computed."
     scorer_type: Union[None, ScorerType, Unset] = UNSET
     status_type: Union[Literal["not_computed"], Unset] = "not_computed"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        message: Union[None, Unset, str]
-        if isinstance(self.message, Unset):
-            message = UNSET
-        else:
-            message = self.message
+        message = self.message
 
         scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
@@ -55,15 +51,7 @@ class MetricNotComputed:
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         d = src_dict.copy()
-
-        def _parse_message(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        message = _parse_message(d.pop("message", UNSET))
+        message = d.pop("message", UNSET)
 
         def _parse_scorer_type(data: object) -> Union[None, ScorerType, Unset]:
             if data is None:
