@@ -34,6 +34,7 @@ from galileo.resources.types import Unset, File
 from galileo_core.utils.dataset import DatasetType, parse_dataset
 
 from galileo.api_client import GalileoApiClient
+
 from galileo.base import BaseClientModel
 
 
@@ -204,6 +205,7 @@ class Datasets(BaseClientModel):
             if not dataset_response:
                 return None
             dataset = Dataset(dataset_db=dataset_response, client=self.client)
+
         elif name:
             filter = DatasetNameFilter(
                 operator=DatasetNameFilterOperator.EQ, value=name
@@ -219,9 +221,11 @@ class Datasets(BaseClientModel):
 
             if not datasets_response or len(datasets_response.datasets) == 0:
                 return None
+
             dataset = Dataset(
                 dataset_db=datasets_response.datasets[0], client=self.client
             )
+
         if with_content:
             dataset.get_content()
         return dataset
@@ -283,6 +287,7 @@ class Datasets(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
+
         file_path, dataset_format = parse_dataset(content)
         file = File(
             payload=file_path.open("rb"),
