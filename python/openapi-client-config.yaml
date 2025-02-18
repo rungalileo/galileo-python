@@ -1,0 +1,2 @@
+post_hooks:
+  - "rm ./galileo/resources/README.md"
