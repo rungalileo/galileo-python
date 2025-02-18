@@ -288,10 +288,6 @@ class GalileoDecorator:
         try:
             start_time = _get_timestamp()
 
-            # input = self._get_input_from_func_args(
-            #     is_method=is_method, func_args=func_args, func_kwargs=func_kwargs
-            # )
-
             # Extract function args
             input = self._merge_args_with_kwargs(
                 func=func,
@@ -331,14 +327,6 @@ class GalileoDecorator:
 
             span_params["created_at_ns"] = start_time.timestamp() * 1e9
 
-            # params = {
-            #     "name": name,
-            #     "start_time": start_time,
-            #     "input": input,
-            #     "span_params": span_params,
-            # }
-            # return params
-
             return span_params
         except Exception as e:
             _logger.error(f"Failed to parse input params: {e}", exc_info=True)
@@ -347,7 +335,7 @@ class GalileoDecorator:
     def _merge_args_with_kwargs(
         self,
         *,
-        func: Callable,  # Add func parameter
+        func: Callable,
         is_method: bool,
         func_args: Tuple,
         func_kwargs: Dict,
@@ -495,7 +483,6 @@ class GalileoDecorator:
             if created_at_ns:
                 span_params["duration_ns"] = int(round((end_time_ns - created_at_ns)))
             else:
-                # created_at_ns = None
                 span_params["created_at_ns"] = end_time_ns
                 span_params["duration_ns"] = 0
 
@@ -527,18 +514,10 @@ class GalileoDecorator:
                     method = span_methods[span_type]
                     target = span or trace
 
-                    # span_params.pop("start_time")
-
                     kwargs = {
-                        # "input": span_params.get("input"),
                         "output": output,
-                        # "name": span_params.get("name"),
-                        # "created_at_ns": created_at_ns,
-                        # "duration_ns": duration_ns,
                         **span_params,
                     }
-
-                    print(kwargs)
 
                     if span_type == "llm" and "model" not in kwargs:
                         # TODO: Allow a model to be parsed from the span_params
