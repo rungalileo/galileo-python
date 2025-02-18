@@ -1,12 +1,10 @@
-from json import dumps
+from uuid import UUID
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from pydantic import UUID4
-
 from galileo.logger import GalileoLogger
-from galileo.schema.trace import TracesIngestRequest, TracesIngestResponse
+from galileo.schema.trace import TracesIngestRequest
 from galileo_core.schemas.shared.traces.trace import Trace
 
 from galileo_core.schemas.shared.workflows.node_type import NodeType
@@ -16,12 +14,8 @@ def setup_mock_api_client(mock_api_client: Mock):
     mock_instance = mock_api_client.return_value
     mock_ingest_traces_sync = AsyncMock(return_value={})
     mock_ingest_traces_async = AsyncMock(return_value={})
-    mock_instance.get_project_by_name = AsyncMock(
-        return_value={"id": UUID4("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")}
-    )
-    mock_instance.get_log_stream_by_name = AsyncMock(
-        return_value={"id": UUID4("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")}
-    )
+    mock_instance.get_project_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
+    mock_instance.get_log_stream_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
     mock_instance.ingest_traces_sync = mock_ingest_traces_sync
     mock_instance.ingest_traces = mock_ingest_traces_async
     return mock_instance
@@ -35,11 +29,7 @@ def test_single_span_trace_to_galileo(mock_api_client: Mock) -> None:
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     logger.start_trace(
-        input="input",
-        name="test-trace",
-        duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
     )
     span = logger.add_llm_span(
         input="prompt",
@@ -72,7 +62,7 @@ def test_single_span_trace_to_galileo(mock_api_client: Mock) -> None:
                 status_code=200,
                 ground_truth=None,
                 spans=[span],
-            ),
+            )
         ],
     )
     assert payload == expected_payload
@@ -88,17 +78,10 @@ def test_nested_span_trace_to_galileo(mock_api_client: Mock) -> None:
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     trace = logger.start_trace(
-        input="input",
-        name="test-trace",
-        duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
     )
     workflow_span = logger.add_workflow_span(
-        input="prompt",
-        name="test-workflow-span",
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="prompt", name="test-workflow-span", created_at_ns=created_time_ns, metadata=metadata
     )
 
     workflow_span.add_llm_span(
@@ -114,11 +97,7 @@ def test_nested_span_trace_to_galileo(mock_api_client: Mock) -> None:
         status_code=200,
     )
 
-    workflow_span.conclude(
-        output="response",
-        duration_ns=1_000_000,
-        status_code=200,
-    )
+    workflow_span.conclude(output="response", duration_ns=1_000_000, status_code=200)
 
     trace.conclude("response", duration_ns=1_000_000, status_code=200)
 
@@ -145,17 +124,10 @@ def test_multi_span_trace_to_galileo(mock_api_client: Mock) -> None:
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     trace = logger.start_trace(
-        input="input",
-        name="test-trace",
-        duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
     )
     workflow_span = logger.add_workflow_span(
-        input="prompt",
-        name="test-workflow-span",
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="prompt", name="test-workflow-span", created_at_ns=created_time_ns, metadata=metadata
     )
 
     workflow_span.add_llm_span(
@@ -171,11 +143,7 @@ def test_multi_span_trace_to_galileo(mock_api_client: Mock) -> None:
         status_code=200,
     )
 
-    workflow_span.conclude(
-        output="response",
-        duration_ns=1_000_000,
-        status_code=200,
-    )
+    workflow_span.conclude(output="response", duration_ns=1_000_000, status_code=200)
 
     second_span = trace.add_llm_span(
         input="prompt2",
@@ -210,7 +178,7 @@ def test_multi_span_trace_to_galileo(mock_api_client: Mock) -> None:
                 status_code=200,
                 ground_truth=None,
                 spans=[workflow_span, second_span],
-            ),
+            )
         ],
     )
     assert payload == expected_payload
@@ -227,11 +195,7 @@ async def test_single_span_trace_to_galileo_with_async(mock_api_client: Mock) ->
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     logger.start_trace(
-        input="input",
-        name="test-trace",
-        duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
     )
     span = logger.add_llm_span(
         input="prompt",
@@ -264,7 +228,7 @@ async def test_single_span_trace_to_galileo_with_async(mock_api_client: Mock) ->
                 status_code=200,
                 ground_truth=None,
                 spans=[span],
-            ),
+            )
         ],
     )
     assert payload == expected_payload
