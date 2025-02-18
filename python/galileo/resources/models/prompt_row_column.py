@@ -52,6 +52,8 @@ class PromptRowColumn:
             errors out.
         job_info (Union[None, Unset, list[Union['JobInfo', None]]]): Job info used for computing the column. Only
             present for metrics columns that have a separate scorer job.
+        job_progress_message (Union[None, Unset, str]): Progress message to show the users on hover in case the job is
+            in progress.
         job_status (Union[JobStatus, None, Unset]): Job status used for computing the column. Only set for metrics
             columns that have a separate scorer job.
         job_type (Union[None, ScorerType, Unset]): If a column is associated with a basic or a plus scorer. Defaults to
@@ -86,6 +88,7 @@ class PromptRowColumn:
     group_name: Union[None, Unset, str] = UNSET
     job_error_message: Union[None, Unset, str] = UNSET
     job_info: Union[None, Unset, list[Union["JobInfo", None]]] = UNSET
+    job_progress_message: Union[None, Unset, str] = UNSET
     job_status: Union[JobStatus, None, Unset] = UNSET
     job_type: Union[None, ScorerType, Unset] = UNSET
     label: Union[None, Unset, str] = UNSET
@@ -273,6 +276,12 @@ class PromptRowColumn:
 
         else:
             job_info = self.job_info
+
+        job_progress_message: Union[None, Unset, str]
+        if isinstance(self.job_progress_message, Unset):
+            job_progress_message = UNSET
+        else:
+            job_progress_message = self.job_progress_message
 
         job_status: Union[None, Unset, str]
         if isinstance(self.job_status, Unset):
@@ -509,6 +518,8 @@ class PromptRowColumn:
             field_dict["job_error_message"] = job_error_message
         if job_info is not UNSET:
             field_dict["job_info"] = job_info
+        if job_progress_message is not UNSET:
+            field_dict["job_progress_message"] = job_progress_message
         if job_status is not UNSET:
             field_dict["job_status"] = job_status
         if job_type is not UNSET:
@@ -684,6 +695,15 @@ class PromptRowColumn:
             return cast(Union[None, Unset, list[Union["JobInfo", None]]], data)
 
         job_info = _parse_job_info(d.pop("job_info", UNSET))
+
+        def _parse_job_progress_message(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        job_progress_message = _parse_job_progress_message(d.pop("job_progress_message", UNSET))
 
         def _parse_job_status(data: object) -> Union[JobStatus, None, Unset]:
             if data is None:
@@ -1398,6 +1418,7 @@ class PromptRowColumn:
             group_name=group_name,
             job_error_message=job_error_message,
             job_info=job_info,
+            job_progress_message=job_progress_message,
             job_status=job_status,
             job_type=job_type,
             label=label,

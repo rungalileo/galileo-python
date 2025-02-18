@@ -8,6 +8,7 @@ from ..models.dataset_action import DatasetAction
 from ..models.generated_scorer_action import GeneratedScorerAction
 from ..models.group_action import GroupAction
 from ..models.group_member_action import GroupMemberAction
+from ..models.organization_action import OrganizationAction
 from ..models.project_action import ProjectAction
 from ..models.registered_scorer_action import RegisteredScorerAction
 from ..models.user_action import UserAction
@@ -20,8 +21,8 @@ T = TypeVar("T", bound="Permission")
 class Permission:
     """
     Attributes:
-        action (Union[ApiKeyAction, DatasetAction, GeneratedScorerAction, GroupAction, GroupMemberAction, ProjectAction,
-            RegisteredScorerAction, UserAction]):
+        action (Union[ApiKeyAction, DatasetAction, GeneratedScorerAction, GroupAction, GroupMemberAction,
+            OrganizationAction, ProjectAction, RegisteredScorerAction, UserAction]):
         allowed (bool):
         message (Union[None, Unset, str]):
     """
@@ -32,6 +33,7 @@ class Permission:
         GeneratedScorerAction,
         GroupAction,
         GroupMemberAction,
+        OrganizationAction,
         ProjectAction,
         RegisteredScorerAction,
         UserAction,
@@ -55,6 +57,8 @@ class Permission:
         elif isinstance(self.action, ApiKeyAction):
             action = self.action.value
         elif isinstance(self.action, GeneratedScorerAction):
+            action = self.action.value
+        elif isinstance(self.action, DatasetAction):
             action = self.action.value
         else:
             action = self.action.value
@@ -92,6 +96,7 @@ class Permission:
             GeneratedScorerAction,
             GroupAction,
             GroupMemberAction,
+            OrganizationAction,
             ProjectAction,
             RegisteredScorerAction,
             UserAction,
@@ -152,11 +157,19 @@ class Permission:
                 return action_type_6
             except:  # noqa: E722
                 pass
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                action_type_7 = DatasetAction(data)
+
+                return action_type_7
+            except:  # noqa: E722
+                pass
             if not isinstance(data, str):
                 raise TypeError()
-            action_type_7 = DatasetAction(data)
+            action_type_8 = OrganizationAction(data)
 
-            return action_type_7
+            return action_type_8
 
         action = _parse_action(d.pop("action"))
 

@@ -12,6 +12,8 @@ if TYPE_CHECKING:
     )
     from ..models.customized_groundedness_gpt_scorer_extra_type_0 import CustomizedGroundednessGPTScorerExtraType0
     from ..models.groundedness_template import GroundednessTemplate
+    from ..models.metadata_filter import MetadataFilter
+    from ..models.node_name_filter import NodeNameFilter
     from ..models.prompt_run_settings import PromptRunSettings
 
 
@@ -28,6 +30,7 @@ class CustomizedGroundednessGPTScorer:
             containing all the info necessary to send the groundedness prompt.
         description (Union[None, Unset, str]):
         extra (Union['CustomizedGroundednessGPTScorerExtraType0', None, Unset]):
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
         generated_scorer_id (Union[None, Unset, str]):
         gpt_settings (Union[Unset, PromptRunSettings]): Prompt run settings.
         indices (Union[None, Unset, list[int]]):
@@ -47,6 +50,7 @@ class CustomizedGroundednessGPTScorer:
     chainpoll_template: Union[Unset, "GroundednessTemplate"] = UNSET
     description: Union[None, Unset, str] = UNSET
     extra: Union["CustomizedGroundednessGPTScorerExtraType0", None, Unset] = UNSET
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     generated_scorer_id: Union[None, Unset, str] = UNSET
     gpt_settings: Union[Unset, "PromptRunSettings"] = UNSET
     indices: Union[None, Unset, list[int]] = UNSET
@@ -66,6 +70,7 @@ class CustomizedGroundednessGPTScorer:
             CustomizedGroundednessGPTScorerAggregatesType0,
         )
         from ..models.customized_groundedness_gpt_scorer_extra_type_0 import CustomizedGroundednessGPTScorerExtraType0
+        from ..models.node_name_filter import NodeNameFilter
 
         aggregate_keys: Union[Unset, list[str]] = UNSET
         if not isinstance(self.aggregate_keys, Unset):
@@ -96,6 +101,23 @@ class CustomizedGroundednessGPTScorer:
             extra = self.extra.to_dict()
         else:
             extra = self.extra
+
+        filters: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.filters, Unset):
+            filters = UNSET
+        elif isinstance(self.filters, list):
+            filters = []
+            for filters_type_0_item_data in self.filters:
+                filters_type_0_item: dict[str, Any]
+                if isinstance(filters_type_0_item_data, NodeNameFilter):
+                    filters_type_0_item = filters_type_0_item_data.to_dict()
+                else:
+                    filters_type_0_item = filters_type_0_item_data.to_dict()
+
+                filters.append(filters_type_0_item)
+
+        else:
+            filters = self.filters
 
         generated_scorer_id: Union[None, Unset, str]
         if isinstance(self.generated_scorer_id, Unset):
@@ -175,6 +197,8 @@ class CustomizedGroundednessGPTScorer:
             field_dict["description"] = description
         if extra is not UNSET:
             field_dict["extra"] = extra
+        if filters is not UNSET:
+            field_dict["filters"] = filters
         if generated_scorer_id is not UNSET:
             field_dict["generated_scorer_id"] = generated_scorer_id
         if gpt_settings is not UNSET:
@@ -209,6 +233,8 @@ class CustomizedGroundednessGPTScorer:
         )
         from ..models.customized_groundedness_gpt_scorer_extra_type_0 import CustomizedGroundednessGPTScorerExtraType0
         from ..models.groundedness_template import GroundednessTemplate
+        from ..models.metadata_filter import MetadataFilter
+        from ..models.node_name_filter import NodeNameFilter
         from ..models.prompt_run_settings import PromptRunSettings
 
         d = src_dict.copy()
@@ -263,6 +289,44 @@ class CustomizedGroundednessGPTScorer:
             return cast(Union["CustomizedGroundednessGPTScorerExtraType0", None, Unset], data)
 
         extra = _parse_extra(d.pop("extra", UNSET))
+
+        def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                filters_type_0 = []
+                _filters_type_0 = data
+                for filters_type_0_item_data in _filters_type_0:
+
+                    def _parse_filters_type_0_item(data: object) -> Union["MetadataFilter", "NodeNameFilter"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+
+                            return filters_type_0_item_type_0
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
+
+                        return filters_type_0_item_type_1
+
+                    filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
+
+                    filters_type_0.append(filters_type_0_item)
+
+                return filters_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]], data)
+
+        filters = _parse_filters(d.pop("filters", UNSET))
 
         def _parse_generated_scorer_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -373,6 +437,7 @@ class CustomizedGroundednessGPTScorer:
             chainpoll_template=chainpoll_template,
             description=description,
             extra=extra,
+            filters=filters,
             generated_scorer_id=generated_scorer_id,
             gpt_settings=gpt_settings,
             indices=indices,

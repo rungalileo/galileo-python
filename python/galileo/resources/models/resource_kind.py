@@ -8,8 +8,11 @@ class ResourceKind(str, Enum):
     GROUP = "group"
     GROUP_MEMBER = "group_member"
     INTEGRATION = "integration"
+    ORGANIZATION = "organization"
     PROJECT = "project"
     REGISTERED_SCORER = "registered_scorer"
+    STAGE = "stage"
+    STAGE_VERSION = "stage_version"
     USER = "user"
 
     def __str__(self) -> str:

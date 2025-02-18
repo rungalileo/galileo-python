@@ -44,6 +44,7 @@ if TYPE_CHECKING:
     from ..models.prompt_run_settings import PromptRunSettings
     from ..models.registered_scorer import RegisteredScorer
     from ..models.rouge_scorer import RougeScorer
+    from ..models.scorer_config import ScorerConfig
     from ..models.scorers_configuration import ScorersConfiguration
     from ..models.tool_error_rate_scorer import ToolErrorRateScorer
     from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
@@ -87,12 +88,13 @@ class CreateJobRequest:
         prompt_template_version_id (Union[None, Unset, str]):
         protect_scorer_payload (Union[File, None, Unset]):
         protect_trace_id (Union[None, Unset, str]):
-        scorers (Union[None, Unset, list[Union['AgenticWorkflowSuccessScorer', 'BleuScorer',
+        scorers (Union[None, Unset, list['ScorerConfig'], list[Union['AgenticWorkflowSuccessScorer', 'BleuScorer',
             'ChunkAttributionUtilizationScorer', 'CompletenessScorer', 'ContextAdherenceScorer', 'ContextRelevanceScorer',
             'CorrectnessScorer', 'GroundTruthAdherenceScorer', 'InputPIIScorer', 'InputSexistScorer', 'InputToneScorer',
             'InputToxicityScorer', 'InstructionAdherenceScorer', 'OutputPIIScorer', 'OutputSexistScorer',
             'OutputToneScorer', 'OutputToxicityScorer', 'PromptInjectionScorer', 'PromptPerplexityScorer', 'RougeScorer',
-            'ToolErrorRateScorer', 'ToolSelectionQualityScorer', 'UncertaintyScorer']]]):
+            'ToolErrorRateScorer', 'ToolSelectionQualityScorer', 'UncertaintyScorer']]]): For G2.0 we send all scorers as
+            ScorerConfig, for G1.0 we send preset scorers  as GalileoScorer
         should_retry (Union[Unset, bool]):  Default: True.
         task_type (Union[None, TaskType, Unset]):
         tasks (Union[None, Unset, list[str]]):
@@ -145,6 +147,7 @@ class CreateJobRequest:
     scorers: Union[
         None,
         Unset,
+        list["ScorerConfig"],
         list[
             Union[
                 "AgenticWorkflowSuccessScorer",
@@ -458,55 +461,61 @@ class CreateJobRequest:
         elif isinstance(self.scorers, list):
             scorers = []
             for scorers_type_0_item_data in self.scorers:
-                scorers_type_0_item: dict[str, Any]
-                if isinstance(scorers_type_0_item_data, AgenticWorkflowSuccessScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, BleuScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, ChunkAttributionUtilizationScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, CompletenessScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, ContextAdherenceScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, ContextRelevanceScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, CorrectnessScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, GroundTruthAdherenceScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, InputPIIScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, InputSexistScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, InputToneScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, InputToxicityScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, InstructionAdherenceScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, OutputPIIScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, OutputSexistScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, OutputToneScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, OutputToxicityScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, PromptInjectionScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, PromptPerplexityScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, RougeScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, ToolErrorRateScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                elif isinstance(scorers_type_0_item_data, ToolSelectionQualityScorer):
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-                else:
-                    scorers_type_0_item = scorers_type_0_item_data.to_dict()
-
+                scorers_type_0_item = scorers_type_0_item_data.to_dict()
                 scorers.append(scorers_type_0_item)
+
+        elif isinstance(self.scorers, list):
+            scorers = []
+            for scorers_type_1_item_data in self.scorers:
+                scorers_type_1_item: dict[str, Any]
+                if isinstance(scorers_type_1_item_data, AgenticWorkflowSuccessScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, BleuScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, ChunkAttributionUtilizationScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, CompletenessScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, ContextAdherenceScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, ContextRelevanceScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, CorrectnessScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, GroundTruthAdherenceScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, InputPIIScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, InputSexistScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, InputToneScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, InputToxicityScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, InstructionAdherenceScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, OutputPIIScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, OutputSexistScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, OutputToneScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, OutputToxicityScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, PromptInjectionScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, PromptPerplexityScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, RougeScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, ToolErrorRateScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, ToolSelectionQualityScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                else:
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+
+                scorers.append(scorers_type_1_item)
 
         else:
             scorers = self.scorers
@@ -647,6 +656,7 @@ class CreateJobRequest:
         from ..models.prompt_run_settings import PromptRunSettings
         from ..models.registered_scorer import RegisteredScorer
         from ..models.rouge_scorer import RougeScorer
+        from ..models.scorer_config import ScorerConfig
         from ..models.scorers_configuration import ScorersConfiguration
         from ..models.tool_error_rate_scorer import ToolErrorRateScorer
         from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
@@ -1130,6 +1140,7 @@ class CreateJobRequest:
         ) -> Union[
             None,
             Unset,
+            list["ScorerConfig"],
             list[
                 Union[
                     "AgenticWorkflowSuccessScorer",
@@ -1168,8 +1179,21 @@ class CreateJobRequest:
                 scorers_type_0 = []
                 _scorers_type_0 = data
                 for scorers_type_0_item_data in _scorers_type_0:
+                    scorers_type_0_item = ScorerConfig.from_dict(scorers_type_0_item_data)
 
-                    def _parse_scorers_type_0_item(
+                    scorers_type_0.append(scorers_type_0_item)
+
+                return scorers_type_0
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                scorers_type_1 = []
+                _scorers_type_1 = data
+                for scorers_type_1_item_data in _scorers_type_1:
+
+                    def _parse_scorers_type_1_item(
                         data: object,
                     ) -> Union[
                         "AgenticWorkflowSuccessScorer",
@@ -1199,196 +1223,197 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_0 = AgenticWorkflowSuccessScorer.from_dict(data)
+                            scorers_type_1_item_type_0 = AgenticWorkflowSuccessScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_0
+                            return scorers_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_1 = BleuScorer.from_dict(data)
+                            scorers_type_1_item_type_1 = BleuScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_1
+                            return scorers_type_1_item_type_1
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_2 = ChunkAttributionUtilizationScorer.from_dict(data)
+                            scorers_type_1_item_type_2 = ChunkAttributionUtilizationScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_2
+                            return scorers_type_1_item_type_2
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_3 = CompletenessScorer.from_dict(data)
+                            scorers_type_1_item_type_3 = CompletenessScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_3
+                            return scorers_type_1_item_type_3
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_4 = ContextAdherenceScorer.from_dict(data)
+                            scorers_type_1_item_type_4 = ContextAdherenceScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_4
+                            return scorers_type_1_item_type_4
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_5 = ContextRelevanceScorer.from_dict(data)
+                            scorers_type_1_item_type_5 = ContextRelevanceScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_5
+                            return scorers_type_1_item_type_5
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_6 = CorrectnessScorer.from_dict(data)
+                            scorers_type_1_item_type_6 = CorrectnessScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_6
+                            return scorers_type_1_item_type_6
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_7 = GroundTruthAdherenceScorer.from_dict(data)
+                            scorers_type_1_item_type_7 = GroundTruthAdherenceScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_7
+                            return scorers_type_1_item_type_7
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_8 = InputPIIScorer.from_dict(data)
+                            scorers_type_1_item_type_8 = InputPIIScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_8
+                            return scorers_type_1_item_type_8
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_9 = InputSexistScorer.from_dict(data)
+                            scorers_type_1_item_type_9 = InputSexistScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_9
+                            return scorers_type_1_item_type_9
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_10 = InputToneScorer.from_dict(data)
+                            scorers_type_1_item_type_10 = InputToneScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_10
+                            return scorers_type_1_item_type_10
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_11 = InputToxicityScorer.from_dict(data)
+                            scorers_type_1_item_type_11 = InputToxicityScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_11
+                            return scorers_type_1_item_type_11
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_12 = InstructionAdherenceScorer.from_dict(data)
+                            scorers_type_1_item_type_12 = InstructionAdherenceScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_12
+                            return scorers_type_1_item_type_12
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_13 = OutputPIIScorer.from_dict(data)
+                            scorers_type_1_item_type_13 = OutputPIIScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_13
+                            return scorers_type_1_item_type_13
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_14 = OutputSexistScorer.from_dict(data)
+                            scorers_type_1_item_type_14 = OutputSexistScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_14
+                            return scorers_type_1_item_type_14
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_15 = OutputToneScorer.from_dict(data)
+                            scorers_type_1_item_type_15 = OutputToneScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_15
+                            return scorers_type_1_item_type_15
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_16 = OutputToxicityScorer.from_dict(data)
+                            scorers_type_1_item_type_16 = OutputToxicityScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_16
+                            return scorers_type_1_item_type_16
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_17 = PromptInjectionScorer.from_dict(data)
+                            scorers_type_1_item_type_17 = PromptInjectionScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_17
+                            return scorers_type_1_item_type_17
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_18 = PromptPerplexityScorer.from_dict(data)
+                            scorers_type_1_item_type_18 = PromptPerplexityScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_18
+                            return scorers_type_1_item_type_18
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_19 = RougeScorer.from_dict(data)
+                            scorers_type_1_item_type_19 = RougeScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_19
+                            return scorers_type_1_item_type_19
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_20 = ToolErrorRateScorer.from_dict(data)
+                            scorers_type_1_item_type_20 = ToolErrorRateScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_20
+                            return scorers_type_1_item_type_20
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_0_item_type_21 = ToolSelectionQualityScorer.from_dict(data)
+                            scorers_type_1_item_type_21 = ToolSelectionQualityScorer.from_dict(data)
 
-                            return scorers_type_0_item_type_21
+                            return scorers_type_1_item_type_21
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        scorers_type_0_item_type_22 = UncertaintyScorer.from_dict(data)
+                        scorers_type_1_item_type_22 = UncertaintyScorer.from_dict(data)
 
-                        return scorers_type_0_item_type_22
+                        return scorers_type_1_item_type_22
 
-                    scorers_type_0_item = _parse_scorers_type_0_item(scorers_type_0_item_data)
+                    scorers_type_1_item = _parse_scorers_type_1_item(scorers_type_1_item_data)
 
-                    scorers_type_0.append(scorers_type_0_item)
+                    scorers_type_1.append(scorers_type_1_item)
 
-                return scorers_type_0
+                return scorers_type_1
             except:  # noqa: E722
                 pass
             return cast(
                 Union[
                     None,
                     Unset,
+                    list["ScorerConfig"],
                     list[
                         Union[
                             "AgenticWorkflowSuccessScorer",

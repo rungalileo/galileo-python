@@ -5,32 +5,23 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.collaborator_update import CollaboratorUpdate
+from ...models.group_collaborator import GroupCollaborator
 from ...models.http_validation_error import HTTPValidationError
-from ...models.list_scorers_request import ListScorersRequest
-from ...models.list_scorers_response import ListScorersResponse
-from ...types import UNSET, Response, Unset
+from ...types import Response
 
 
 def _get_kwargs(
+    dataset_id: str,
+    group_id: str,
     *,
-    body: ListScorersRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    body: CollaboratorUpdate,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    params: dict[str, Any] = {}
-
-    params["starting_token"] = starting_token
-
-    params["limit"] = limit
-
-    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
-
     _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/scorers",
-        "params": params,
+        "method": "patch",
+        "url": f"/datasets/{dataset_id}/groups/{group_id}",
     }
 
     _body = body.to_dict()
@@ -44,9 +35,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
+) -> Optional[Union[GroupCollaborator, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = ListScorersResponse.from_dict(response.json())
+        response_200 = GroupCollaborator.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -61,7 +52,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
+) -> Response[Union[GroupCollaborator, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -71,31 +62,33 @@ def _build_response(
 
 
 def sync_detailed(
+    dataset_id: str,
+    group_id: str,
     *,
     client: AuthenticatedClient,
-    body: ListScorersRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
-    """List Scorers With Filters
+    body: CollaboratorUpdate,
+) -> Response[Union[GroupCollaborator, HTTPValidationError]]:
+    """Update Group Dataset Collaborator
+
+     Update the sharing permissions of a group on a dataset.
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ListScorersRequest):
+        dataset_id (str):
+        group_id (str):
+        body (CollaboratorUpdate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, ListScorersResponse]]
+        Response[Union[GroupCollaborator, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        group_id=group_id,
         body=body,
-        starting_token=starting_token,
-        limit=limit,
     )
 
     response = client.get_httpx_client().request(
@@ -106,61 +99,65 @@ def sync_detailed(
 
 
 def sync(
+    dataset_id: str,
+    group_id: str,
     *,
     client: AuthenticatedClient,
-    body: ListScorersRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
-    """List Scorers With Filters
+    body: CollaboratorUpdate,
+) -> Optional[Union[GroupCollaborator, HTTPValidationError]]:
+    """Update Group Dataset Collaborator
+
+     Update the sharing permissions of a group on a dataset.
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ListScorersRequest):
+        dataset_id (str):
+        group_id (str):
+        body (CollaboratorUpdate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, ListScorersResponse]
+        Union[GroupCollaborator, HTTPValidationError]
     """
 
     return sync_detailed(
+        dataset_id=dataset_id,
+        group_id=group_id,
         client=client,
         body=body,
-        starting_token=starting_token,
-        limit=limit,
     ).parsed
 
 
 async def asyncio_detailed(
+    dataset_id: str,
+    group_id: str,
     *,
     client: AuthenticatedClient,
-    body: ListScorersRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
-    """List Scorers With Filters
+    body: CollaboratorUpdate,
+) -> Response[Union[GroupCollaborator, HTTPValidationError]]:
+    """Update Group Dataset Collaborator
+
+     Update the sharing permissions of a group on a dataset.
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ListScorersRequest):
+        dataset_id (str):
+        group_id (str):
+        body (CollaboratorUpdate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, ListScorersResponse]]
+        Response[Union[GroupCollaborator, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        group_id=group_id,
         body=body,
-        starting_token=starting_token,
-        limit=limit,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -169,32 +166,34 @@ async def asyncio_detailed(
 
 
 async def asyncio(
+    dataset_id: str,
+    group_id: str,
     *,
     client: AuthenticatedClient,
-    body: ListScorersRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
-    """List Scorers With Filters
+    body: CollaboratorUpdate,
+) -> Optional[Union[GroupCollaborator, HTTPValidationError]]:
+    """Update Group Dataset Collaborator
+
+     Update the sharing permissions of a group on a dataset.
 
     Args:
-        starting_token (Union[Unset, int]):  Default: 0.
-        limit (Union[Unset, int]):  Default: 100.
-        body (ListScorersRequest):
+        dataset_id (str):
+        group_id (str):
+        body (CollaboratorUpdate):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, ListScorersResponse]
+        Union[GroupCollaborator, HTTPValidationError]
     """
 
     return (
         await asyncio_detailed(
+            dataset_id=dataset_id,
+            group_id=group_id,
             client=client,
             body=body,
-            starting_token=starting_token,
-            limit=limit,
         )
     ).parsed

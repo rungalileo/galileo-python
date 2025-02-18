@@ -16,6 +16,8 @@ class JobInfo:
     Attributes:
         job_error_message (Union[None, Unset, str]): Error message to show the users on hover in case the job fails or
             errors out.
+        job_progress_message (Union[None, Unset, str]): Progress message to show the users on hover in case the job is
+            in progress.
         job_status (Union[JobStatus, None, Unset]): Job status used for computing the column. Only set for metrics
             columns that have a separate scorer job.
         job_type (Union[None, ScorerType, Unset]): Whether a job is designated as plus or basic.
@@ -23,6 +25,7 @@ class JobInfo:
     """
 
     job_error_message: Union[None, Unset, str] = UNSET
+    job_progress_message: Union[None, Unset, str] = UNSET
     job_status: Union[JobStatus, None, Unset] = UNSET
     job_type: Union[None, ScorerType, Unset] = UNSET
     scorer_name: Union[None, Unset, str] = UNSET
@@ -34,6 +37,12 @@ class JobInfo:
             job_error_message = UNSET
         else:
             job_error_message = self.job_error_message
+
+        job_progress_message: Union[None, Unset, str]
+        if isinstance(self.job_progress_message, Unset):
+            job_progress_message = UNSET
+        else:
+            job_progress_message = self.job_progress_message
 
         job_status: Union[None, Unset, str]
         if isinstance(self.job_status, Unset):
@@ -62,6 +71,8 @@ class JobInfo:
         field_dict.update({})
         if job_error_message is not UNSET:
             field_dict["job_error_message"] = job_error_message
+        if job_progress_message is not UNSET:
+            field_dict["job_progress_message"] = job_progress_message
         if job_status is not UNSET:
             field_dict["job_status"] = job_status
         if job_type is not UNSET:
@@ -83,6 +94,15 @@ class JobInfo:
             return cast(Union[None, Unset, str], data)
 
         job_error_message = _parse_job_error_message(d.pop("job_error_message", UNSET))
+
+        def _parse_job_progress_message(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        job_progress_message = _parse_job_progress_message(d.pop("job_progress_message", UNSET))
 
         def _parse_job_status(data: object) -> Union[JobStatus, None, Unset]:
             if data is None:
@@ -129,6 +149,7 @@ class JobInfo:
 
         job_info = cls(
             job_error_message=job_error_message,
+            job_progress_message=job_progress_message,
             job_status=job_status,
             job_type=job_type,
             scorer_name=scorer_name,

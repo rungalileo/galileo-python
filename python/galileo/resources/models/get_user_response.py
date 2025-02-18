@@ -23,6 +23,8 @@ class GetUserResponse:
         created_at (datetime.datetime):
         email (str):
         id (str):
+        organization_id (str):
+        organization_name (str):
         projects_count (int):
         runs_count (int):
         updated_at (datetime.datetime):
@@ -37,6 +39,8 @@ class GetUserResponse:
     created_at: datetime.datetime
     email: str
     id: str
+    organization_id: str
+    organization_name: str
     projects_count: int
     runs_count: int
     updated_at: datetime.datetime
@@ -54,6 +58,10 @@ class GetUserResponse:
         email = self.email
 
         id = self.id
+
+        organization_id = self.organization_id
+
+        organization_name = self.organization_name
 
         projects_count = self.projects_count
 
@@ -101,6 +109,8 @@ class GetUserResponse:
                 "created_at": created_at,
                 "email": email,
                 "id": id,
+                "organization_id": organization_id,
+                "organization_name": organization_name,
                 "projects_count": projects_count,
                 "runs_count": runs_count,
                 "updated_at": updated_at,
@@ -131,6 +141,10 @@ class GetUserResponse:
         email = d.pop("email")
 
         id = d.pop("id")
+
+        organization_id = d.pop("organization_id")
+
+        organization_name = d.pop("organization_name")
 
         projects_count = d.pop("projects_count")
 
@@ -190,6 +204,8 @@ class GetUserResponse:
             created_at=created_at,
             email=email,
             id=id,
+            organization_id=organization_id,
+            organization_name=organization_name,
             projects_count=projects_count,
             runs_count=runs_count,
             updated_at=updated_at,
