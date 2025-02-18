@@ -2545,11 +2545,11 @@ cffi = {version = ">=1.11", markers = "platform_python_implementation == \"PyPy\
 cffi = ["cffi (>=1.11)"]
 
 [extras]
-all = ["langchain-core"]
+all = ["langchain-core", "openai"]
 langchain = ["langchain-core"]
 openai = ["openai"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "f967af02dd0832aabc6a8016164b41da299d76ff7bf8e1109305757c1ea1bf48"
+content-hash = "d9159dabb433ba6d727fd0e9b48fe98f6f414634e2f3e65bb10471c6c4294820"
