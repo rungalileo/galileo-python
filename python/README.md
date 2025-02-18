@@ -79,6 +79,14 @@ pyenv local 3.10.13
 
 `poetry` will create a virtual environment using that Python version when it installs dependencies. You can validate that with:
 
+> Note: since The `shell` command was moved to a plugin: poetry-plugin-shell
+> https://python-poetry.org/docs/cli/#shell
+
+The easiest way to install the shell plugin is via the self add command of Poetry:
+```shell
+poetry self add poetry-plugin-shell
+```
+
 ```sh
 poetry shell
 poetry run python --version
