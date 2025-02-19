@@ -4,11 +4,8 @@ from pydantic import Field
 import atexit
 import logging
 
-from galileo_core.helpers.execution import async_run
-
 from galileo_core.schemas.shared.traces.types import (
     Trace,
-    StepWithChildSpans,
 )
 from galileo_core.schemas.shared.traces.trace import Traces
 from galileo_core.schemas.shared.workflows.step import StepIOType
@@ -16,7 +13,7 @@ from galileo_core.schemas.shared.workflows.step import StepIOType
 from galileo.schema.trace import (
     TracesIngestRequest,
 )
-from galileo.utils.api_client import ApiClient
+from galileo.utils.core_api_client import GalileoCoreApiClient
 
 
 class GalileoLogger(Traces):
@@ -100,7 +97,7 @@ class GalileoLogger(Traces):
                 )
 
             super().__init__(**data)
-            self._client = ApiClient(self.project, self.log_stream)
+            self._client = GalileoCoreApiClient(self.project, self.log_stream)
 
             # cleans up when the python interpreter closes
             atexit.register(self.terminate)
@@ -160,7 +157,6 @@ class GalileoLogger(Traces):
                 self._logger.warning("No traces to flush.")
                 return list()
             traces_ingest_request = TracesIngestRequest(traces=self.traces)
-            # async_run(self._client.ingest_traces(traces_ingest_request))
             self._client.ingest_traces_sync(traces_ingest_request)
             logged_traces = self.traces
             self.traces = list()
