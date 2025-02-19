@@ -1,10 +1,8 @@
-enum TagType {
+import { components } from './api.types';
+
+export enum TagType {
   GENERIC = 'generic',
   RAG = 'rag'
 }
 
-export interface RunTag {
-  key: string;
-  value: string;
-  tag_type: TagType;
-}
+export type RunTag = components['schemas']['RunTagCreateRequest'];

@@ -1,13 +1,3 @@
-enum MessageRole {
-  agent = 'agent',
-  assistant = 'assistant',
-  function = 'function',
-  system = 'system',
-  tool = 'tool',
-  user = 'user'
-}
+import { components } from './api.types';
 
-export interface Message {
-  content: string;
-  role: MessageRole;
-}
+export type Message = components['schemas']['Message'];

@@ -1,6 +1,3 @@
-export interface User {
-  id: string;
-  email: string;
-  first_name?: string | null;
-  last_name?: string | null;
-}
+import { components } from './api.types';
+
+export type User = components['schemas']['UserDB'];

@@ -1,10 +1,3 @@
-export enum ProjectTypes {
-  evaluate = 'prompt_evaluation',
-  observe = 'llm_monitor'
-}
+import { components } from './api.types';
 
-export interface Project {
-  id: string;
-  name: string;
-  type: ProjectTypes;
-}
+export type Project = components['schemas']['ProjectDB'];

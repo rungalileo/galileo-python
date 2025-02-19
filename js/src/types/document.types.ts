@@ -1,10 +1,3 @@
-type ChunkMetaDataValueType = boolean | string | number;
+import { components } from './api.types';
 
-interface DocumentMetadata {
-  [key: string]: ChunkMetaDataValueType;
-}
-
-export interface Document {
-  content: string;
-  metadata: DocumentMetadata;
-}
+export type Document = components['schemas']['Document'];
