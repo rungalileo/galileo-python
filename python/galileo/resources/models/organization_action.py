@@ -1,8 +1,9 @@
 from enum import Enum
 
 
-class LogDataSort(str, Enum):
-    STANDARD = "standard"
+class OrganizationAction(str, Enum):
+    DELETE = "delete"
+    RENAME = "rename"
 
     def __str__(self) -> str:
         return str(self.value)

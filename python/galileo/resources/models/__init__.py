@@ -63,6 +63,7 @@ from .base_prompt_template_version_response import BasePromptTemplateVersionResp
 from .base_scorer import BaseScorer
 from .base_scorer_aggregates_type_0 import BaseScorerAggregatesType0
 from .base_scorer_extra_type_0 import BaseScorerExtraType0
+from .base_scorer_version_response import BaseScorerVersionResponse
 from .bleu_scorer import BleuScorer
 from .body_create_or_update_registered_scorers_put import BodyCreateOrUpdateRegisteredScorersPut
 from .body_login_email_login_post import BodyLoginEmailLoginPost
@@ -128,10 +129,12 @@ from .create_compute_score_request import CreateComputeScoreRequest
 from .create_generated_scorer_request import CreateGeneratedScorerRequest
 from .create_job_request import CreateJobRequest
 from .create_job_response import CreateJobResponse
+from .create_llm_scorer_version_request import CreateLLMScorerVersionRequest
 from .create_metric_critique_request import CreateMetricCritiqueRequest
 from .create_metric_critiques_request import CreateMetricCritiquesRequest
 from .create_prompt_template_with_version_request_body import CreatePromptTemplateWithVersionRequestBody
 from .create_run_response import CreateRunResponse
+from .create_scorer_request import CreateScorerRequest
 from .create_signup_link_response import CreateSignupLinkResponse
 from .create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
 from .create_user_response import CreateUserResponse
@@ -221,6 +224,7 @@ from .dataset_db import DatasetDB
 from .dataset_delete_column import DatasetDeleteColumn
 from .dataset_delete_row import DatasetDeleteRow
 from .dataset_format import DatasetFormat
+from .dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
 from .dataset_name_filter import DatasetNameFilter
 from .dataset_name_filter_operator import DatasetNameFilterOperator
 from .dataset_name_sort import DatasetNameSort
@@ -349,6 +353,9 @@ from .get_token_for_training_job_training_training_job_id_token_post_request_bod
     GetTokenForTrainingJobTrainingTrainingJobIdTokenPostRequestBody,
 )
 from .get_token_response import GetTokenResponse
+from .get_usage_plans_usage_plans_get_response_get_usage_plans_usage_plans_get import (
+    GetUsagePlansUsagePlansGetResponseGetUsagePlansUsagePlansGet,
+)
 from .get_user_latest_runs_db import GetUserLatestRunsDB
 from .get_user_response import GetUserResponse
 from .get_users_response import GetUsersResponse
@@ -423,6 +430,7 @@ from .list_group_members_response import ListGroupMembersResponse
 from .list_groups_response import ListGroupsResponse
 from .list_meta_request import ListMetaRequest
 from .list_meta_response import ListMetaResponse
+from .list_organizations_response import ListOrganizationsResponse
 from .list_prompt_dataset_response import ListPromptDatasetResponse
 from .list_registered_scorers_response import ListRegisteredScorersResponse
 from .list_scorers_request import ListScorersRequest
@@ -439,6 +447,16 @@ from .llm_span_output_type_3 import LlmSpanOutputType3
 from .llm_span_output_type_7_item import LlmSpanOutputType7Item
 from .llm_span_output_type_8_item import LlmSpanOutputType8Item
 from .llm_span_tools_type_0_item import LlmSpanToolsType0Item
+from .llm_span_with_metrics import LlmSpanWithMetrics
+from .llm_span_with_metrics_input_type_3 import LlmSpanWithMetricsInputType3
+from .llm_span_with_metrics_input_type_7_item import LlmSpanWithMetricsInputType7Item
+from .llm_span_with_metrics_input_type_8_item import LlmSpanWithMetricsInputType8Item
+from .llm_span_with_metrics_metadata import LlmSpanWithMetricsMetadata
+from .llm_span_with_metrics_metrics import LlmSpanWithMetricsMetrics
+from .llm_span_with_metrics_output_type_3 import LlmSpanWithMetricsOutputType3
+from .llm_span_with_metrics_output_type_7_item import LlmSpanWithMetricsOutputType7Item
+from .llm_span_with_metrics_output_type_8_item import LlmSpanWithMetricsOutputType8Item
+from .llm_span_with_metrics_tools_type_0_item import LlmSpanWithMetricsToolsType0Item
 from .llm_step import LlmStep
 from .llm_step_input_type_1 import LlmStepInputType1
 from .llm_step_input_type_4_item import LlmStepInputType4Item
@@ -449,15 +467,12 @@ from .llm_step_tools_type_0_item import LlmStepToolsType0Item
 from .log_data_available_columns_request import LogDataAvailableColumnsRequest
 from .log_data_available_columns_response import LogDataAvailableColumnsResponse
 from .log_data_column_info import LogDataColumnInfo
-from .log_data_get_response import LogDataGetResponse
-from .log_data_get_response_values import LogDataGetResponseValues
 from .log_data_id_column_filter import LogDataIDColumnFilter
 from .log_data_logging_method import LogDataLoggingMethod
 from .log_data_node_type_filter import LogDataNodeTypeFilter
 from .log_data_node_type_filter_operator import LogDataNodeTypeFilterOperator
 from .log_data_query_request import LogDataQueryRequest
 from .log_data_query_response import LogDataQueryResponse
-from .log_data_sort import LogDataSort
 from .log_stream_create_request import LogStreamCreateRequest
 from .log_stream_response import LogStreamResponse
 from .log_stream_update_request import LogStreamUpdateRequest
@@ -517,6 +532,14 @@ from .open_ai_integration_create import OpenAIIntegrationCreate
 from .open_ai_integration_extra_type_0 import OpenAIIntegrationExtraType0
 from .open_ai_tool_choice import OpenAIToolChoice
 from .operator import Operator
+from .organization_action import OrganizationAction
+from .organization_create import OrganizationCreate
+from .organization_created_at_sort import OrganizationCreatedAtSort
+from .organization_db import OrganizationDB
+from .organization_is_member_filter import OrganizationIsMemberFilter
+from .organization_name_filter import OrganizationNameFilter
+from .organization_name_filter_operator import OrganizationNameFilterOperator
+from .organization_name_sort import OrganizationNameSort
 from .output_map import OutputMap
 from .output_pii_scorer import OutputPIIScorer
 from .output_sexist_scorer import OutputSexistScorer
@@ -590,6 +613,7 @@ from .put_prompt_score_request_aggregates_type_0 import PutPromptScoreRequestAgg
 from .put_prompt_score_response import PutPromptScoreResponse
 from .query_dataset_params import QueryDatasetParams
 from .query_filter_v1 import QueryFilterV1
+from .query_organization_params import QueryOrganizationParams
 from .range_prompt_filter_param import RangePromptFilterParam
 from .recompute_settings_observe import RecomputeSettingsObserve
 from .recompute_settings_observe_base import RecomputeSettingsObserveBase
@@ -619,6 +643,15 @@ from .retriever_span_metadata import RetrieverSpanMetadata
 from .retriever_span_output_type_3 import RetrieverSpanOutputType3
 from .retriever_span_output_type_7_item import RetrieverSpanOutputType7Item
 from .retriever_span_output_type_8_item import RetrieverSpanOutputType8Item
+from .retriever_span_with_metrics import RetrieverSpanWithMetrics
+from .retriever_span_with_metrics_input_type_3 import RetrieverSpanWithMetricsInputType3
+from .retriever_span_with_metrics_input_type_7_item import RetrieverSpanWithMetricsInputType7Item
+from .retriever_span_with_metrics_input_type_8_item import RetrieverSpanWithMetricsInputType8Item
+from .retriever_span_with_metrics_metadata import RetrieverSpanWithMetricsMetadata
+from .retriever_span_with_metrics_metrics import RetrieverSpanWithMetricsMetrics
+from .retriever_span_with_metrics_output_type_3 import RetrieverSpanWithMetricsOutputType3
+from .retriever_span_with_metrics_output_type_7_item import RetrieverSpanWithMetricsOutputType7Item
+from .retriever_span_with_metrics_output_type_8_item import RetrieverSpanWithMetricsOutputType8Item
 from .retriever_step import RetrieverStep
 from .retriever_step_metadata import RetrieverStepMetadata
 from .rollback_request import RollbackRequest
@@ -693,6 +726,7 @@ from .stage_db import StageDB
 from .stage_metadata import StageMetadata
 from .stage_type import StageType
 from .stage_with_rulesets import StageWithRulesets
+from .standard_column_sort import StandardColumnSort
 from .star_aggregate import StarAggregate
 from .star_aggregate_counts import StarAggregateCounts
 from .star_constraints import StarConstraints
@@ -746,6 +780,15 @@ from .tool_span_metadata import ToolSpanMetadata
 from .tool_span_output_type_3 import ToolSpanOutputType3
 from .tool_span_output_type_7_item import ToolSpanOutputType7Item
 from .tool_span_output_type_8_item import ToolSpanOutputType8Item
+from .tool_span_with_metrics import ToolSpanWithMetrics
+from .tool_span_with_metrics_input_type_3 import ToolSpanWithMetricsInputType3
+from .tool_span_with_metrics_input_type_7_item import ToolSpanWithMetricsInputType7Item
+from .tool_span_with_metrics_input_type_8_item import ToolSpanWithMetricsInputType8Item
+from .tool_span_with_metrics_metadata import ToolSpanWithMetricsMetadata
+from .tool_span_with_metrics_metrics import ToolSpanWithMetricsMetrics
+from .tool_span_with_metrics_output_type_3 import ToolSpanWithMetricsOutputType3
+from .tool_span_with_metrics_output_type_7_item import ToolSpanWithMetricsOutputType7Item
+from .tool_span_with_metrics_output_type_8_item import ToolSpanWithMetricsOutputType8Item
 from .tool_step import ToolStep
 from .tool_step_input_type_3 import ToolStepInputType3
 from .tool_step_input_type_7_item import ToolStepInputType7Item
@@ -769,6 +812,15 @@ from .trace_output_type_3 import TraceOutputType3
 from .trace_output_type_7_item import TraceOutputType7Item
 from .trace_output_type_8_item import TraceOutputType8Item
 from .trace_trace_metadata import TraceTraceMetadata
+from .trace_with_metrics import TraceWithMetrics
+from .trace_with_metrics_input_type_3 import TraceWithMetricsInputType3
+from .trace_with_metrics_input_type_7_item import TraceWithMetricsInputType7Item
+from .trace_with_metrics_input_type_8_item import TraceWithMetricsInputType8Item
+from .trace_with_metrics_metadata import TraceWithMetricsMetadata
+from .trace_with_metrics_metrics import TraceWithMetricsMetrics
+from .trace_with_metrics_output_type_3 import TraceWithMetricsOutputType3
+from .trace_with_metrics_output_type_7_item import TraceWithMetricsOutputType7Item
+from .trace_with_metrics_output_type_8_item import TraceWithMetricsOutputType8Item
 from .traces_ingest_request import TracesIngestRequest
 from .traces_ingest_response import TracesIngestResponse
 from .train_job_auth_token_response import TrainJobAuthTokenResponse
@@ -792,12 +844,16 @@ from .uncertainty_scorer import UncertaintyScorer
 from .update_alert_configuration_request import UpdateAlertConfigurationRequest
 from .update_dataset_content_request import UpdateDatasetContentRequest
 from .update_dataset_request import UpdateDatasetRequest
+from .update_dataset_version_request import UpdateDatasetVersionRequest
 from .update_generated_scorer_request import UpdateGeneratedScorerRequest
 from .update_run_response import UpdateRunResponse
+from .update_scorer_request import UpdateScorerRequest
 from .update_user_response import UpdateUserResponse
 from .upload_model import UploadModel
 from .upload_model_parameters import UploadModelParameters
 from .upload_model_response import UploadModelResponse
+from .usage_plan import UsagePlan
+from .usage_plan_name import UsagePlanName
 from .user_action import UserAction
 from .user_collaborator import UserCollaborator
 from .user_collaborator_create import UserCollaboratorCreate
@@ -831,6 +887,15 @@ from .workflow_span_metadata import WorkflowSpanMetadata
 from .workflow_span_output_type_3 import WorkflowSpanOutputType3
 from .workflow_span_output_type_7_item import WorkflowSpanOutputType7Item
 from .workflow_span_output_type_8_item import WorkflowSpanOutputType8Item
+from .workflow_span_with_metrics import WorkflowSpanWithMetrics
+from .workflow_span_with_metrics_input_type_3 import WorkflowSpanWithMetricsInputType3
+from .workflow_span_with_metrics_input_type_7_item import WorkflowSpanWithMetricsInputType7Item
+from .workflow_span_with_metrics_input_type_8_item import WorkflowSpanWithMetricsInputType8Item
+from .workflow_span_with_metrics_metadata import WorkflowSpanWithMetricsMetadata
+from .workflow_span_with_metrics_metrics import WorkflowSpanWithMetricsMetrics
+from .workflow_span_with_metrics_output_type_3 import WorkflowSpanWithMetricsOutputType3
+from .workflow_span_with_metrics_output_type_7_item import WorkflowSpanWithMetricsOutputType7Item
+from .workflow_span_with_metrics_output_type_8_item import WorkflowSpanWithMetricsOutputType8Item
 from .workflow_step import WorkflowStep
 from .workflow_step_input_type_3 import WorkflowStepInputType3
 from .workflow_step_input_type_7_item import WorkflowStepInputType7Item
@@ -912,6 +977,7 @@ __all__ = (
     "BaseScorer",
     "BaseScorerAggregatesType0",
     "BaseScorerExtraType0",
+    "BaseScorerVersionResponse",
     "BBox",
     "BleuScorer",
     "BodyCreateOrUpdateRegisteredScorersPut",
@@ -972,10 +1038,12 @@ __all__ = (
     "CreateGeneratedScorerRequest",
     "CreateJobRequest",
     "CreateJobResponse",
+    "CreateLLMScorerVersionRequest",
     "CreateMetricCritiqueRequest",
     "CreateMetricCritiquesRequest",
     "CreatePromptTemplateWithVersionRequestBody",
     "CreateRunResponse",
+    "CreateScorerRequest",
     "CreateSignupLinkResponse",
     "CreateUpdateRegisteredScorerResponse",
     "CreateUserResponse",
@@ -1044,6 +1112,7 @@ __all__ = (
     "DatasetDeleteColumn",
     "DatasetDeleteRow",
     "DatasetFormat",
+    "DatasetLastEditedByUserAtSort",
     "DatasetNameFilter",
     "DatasetNameFilterOperator",
     "DatasetNameSort",
@@ -1161,6 +1230,7 @@ __all__ = (
     "GetSplitsResponse",
     "GetTokenForTrainingJobTrainingTrainingJobIdTokenPostRequestBody",
     "GetTokenResponse",
+    "GetUsagePlansUsagePlansGetResponseGetUsagePlansUsagePlansGet",
     "GetUserLatestRunsDB",
     "GetUserResponse",
     "GetUsersResponse",
@@ -1235,6 +1305,7 @@ __all__ = (
     "ListGroupsResponse",
     "ListMetaRequest",
     "ListMetaResponse",
+    "ListOrganizationsResponse",
     "ListPromptDatasetResponse",
     "ListRegisteredScorersResponse",
     "ListScorersRequest",
@@ -1251,6 +1322,16 @@ __all__ = (
     "LlmSpanOutputType7Item",
     "LlmSpanOutputType8Item",
     "LlmSpanToolsType0Item",
+    "LlmSpanWithMetrics",
+    "LlmSpanWithMetricsInputType3",
+    "LlmSpanWithMetricsInputType7Item",
+    "LlmSpanWithMetricsInputType8Item",
+    "LlmSpanWithMetricsMetadata",
+    "LlmSpanWithMetricsMetrics",
+    "LlmSpanWithMetricsOutputType3",
+    "LlmSpanWithMetricsOutputType7Item",
+    "LlmSpanWithMetricsOutputType8Item",
+    "LlmSpanWithMetricsToolsType0Item",
     "LlmStep",
     "LlmStepInputType1",
     "LlmStepInputType4Item",
@@ -1261,15 +1342,12 @@ __all__ = (
     "LogDataAvailableColumnsRequest",
     "LogDataAvailableColumnsResponse",
     "LogDataColumnInfo",
-    "LogDataGetResponse",
-    "LogDataGetResponseValues",
     "LogDataIDColumnFilter",
     "LogDataLoggingMethod",
     "LogDataNodeTypeFilter",
     "LogDataNodeTypeFilterOperator",
     "LogDataQueryRequest",
     "LogDataQueryResponse",
-    "LogDataSort",
     "LogStreamCreateRequest",
     "LogStreamResponse",
     "LogStreamUpdateRequest",
@@ -1329,6 +1407,14 @@ __all__ = (
     "OpenAIIntegrationExtraType0",
     "OpenAIToolChoice",
     "Operator",
+    "OrganizationAction",
+    "OrganizationCreate",
+    "OrganizationCreatedAtSort",
+    "OrganizationDB",
+    "OrganizationIsMemberFilter",
+    "OrganizationNameFilter",
+    "OrganizationNameFilterOperator",
+    "OrganizationNameSort",
     "OutputMap",
     "OutputPIIScorer",
     "OutputSexistScorer",
@@ -1402,6 +1488,7 @@ __all__ = (
     "PutPromptScoreResponse",
     "QueryDatasetParams",
     "QueryFilterV1",
+    "QueryOrganizationParams",
     "RangePromptFilterParam",
     "RecomputeSettingsObserve",
     "RecomputeSettingsObserveBase",
@@ -1431,6 +1518,15 @@ __all__ = (
     "RetrieverSpanOutputType3",
     "RetrieverSpanOutputType7Item",
     "RetrieverSpanOutputType8Item",
+    "RetrieverSpanWithMetrics",
+    "RetrieverSpanWithMetricsInputType3",
+    "RetrieverSpanWithMetricsInputType7Item",
+    "RetrieverSpanWithMetricsInputType8Item",
+    "RetrieverSpanWithMetricsMetadata",
+    "RetrieverSpanWithMetricsMetrics",
+    "RetrieverSpanWithMetricsOutputType3",
+    "RetrieverSpanWithMetricsOutputType7Item",
+    "RetrieverSpanWithMetricsOutputType8Item",
     "RetrieverStep",
     "RetrieverStepMetadata",
     "RollbackRequest",
@@ -1505,6 +1601,7 @@ __all__ = (
     "StageMetadata",
     "StageType",
     "StageWithRulesets",
+    "StandardColumnSort",
     "StarAggregate",
     "StarAggregateCounts",
     "StarConstraints",
@@ -1556,6 +1653,15 @@ __all__ = (
     "ToolSpanOutputType3",
     "ToolSpanOutputType7Item",
     "ToolSpanOutputType8Item",
+    "ToolSpanWithMetrics",
+    "ToolSpanWithMetricsInputType3",
+    "ToolSpanWithMetricsInputType7Item",
+    "ToolSpanWithMetricsInputType8Item",
+    "ToolSpanWithMetricsMetadata",
+    "ToolSpanWithMetricsMetrics",
+    "ToolSpanWithMetricsOutputType3",
+    "ToolSpanWithMetricsOutputType7Item",
+    "ToolSpanWithMetricsOutputType8Item",
     "ToolStep",
     "ToolStepInputType3",
     "ToolStepInputType7Item",
@@ -1581,6 +1687,15 @@ __all__ = (
     "TracesIngestRequest",
     "TracesIngestResponse",
     "TraceTraceMetadata",
+    "TraceWithMetrics",
+    "TraceWithMetricsInputType3",
+    "TraceWithMetricsInputType7Item",
+    "TraceWithMetricsInputType8Item",
+    "TraceWithMetricsMetadata",
+    "TraceWithMetricsMetrics",
+    "TraceWithMetricsOutputType3",
+    "TraceWithMetricsOutputType7Item",
+    "TraceWithMetricsOutputType8Item",
     "TrainingModelResponse",
     "TrainingModelResponseParameters",
     "TrainJobAuthTokenResponse",
@@ -1602,12 +1717,16 @@ __all__ = (
     "UpdateAlertConfigurationRequest",
     "UpdateDatasetContentRequest",
     "UpdateDatasetRequest",
+    "UpdateDatasetVersionRequest",
     "UpdateGeneratedScorerRequest",
     "UpdateRunResponse",
+    "UpdateScorerRequest",
     "UpdateUserResponse",
     "UploadModel",
     "UploadModelParameters",
     "UploadModelResponse",
+    "UsagePlan",
+    "UsagePlanName",
     "UserAction",
     "UserCollaborator",
     "UserCollaboratorCreate",
@@ -1643,6 +1762,15 @@ __all__ = (
     "WorkflowSpanOutputType3",
     "WorkflowSpanOutputType7Item",
     "WorkflowSpanOutputType8Item",
+    "WorkflowSpanWithMetrics",
+    "WorkflowSpanWithMetricsInputType3",
+    "WorkflowSpanWithMetricsInputType7Item",
+    "WorkflowSpanWithMetricsInputType8Item",
+    "WorkflowSpanWithMetricsMetadata",
+    "WorkflowSpanWithMetricsMetrics",
+    "WorkflowSpanWithMetricsOutputType3",
+    "WorkflowSpanWithMetricsOutputType7Item",
+    "WorkflowSpanWithMetricsOutputType8Item",
     "WorkflowsReadResponse",
     "WorkflowStep",
     "WorkflowStepInputType3",

@@ -6,7 +6,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.log_data_get_response import LogDataGetResponse
+from ...models.trace_with_metrics import TraceWithMetrics
 from ...types import Response
 
 
@@ -24,9 +24,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, LogDataGetResponse]]:
+) -> Optional[Union[HTTPValidationError, TraceWithMetrics]]:
     if response.status_code == 200:
-        response_200 = LogDataGetResponse.from_dict(response.json())
+        response_200 = TraceWithMetrics.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -41,7 +41,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, LogDataGetResponse]]:
+) -> Response[Union[HTTPValidationError, TraceWithMetrics]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -55,7 +55,7 @@ def sync_detailed(
     trace_id: str,
     *,
     client: AuthenticatedClient,
-) -> Response[Union[HTTPValidationError, LogDataGetResponse]]:
+) -> Response[Union[HTTPValidationError, TraceWithMetrics]]:
     """Get Trace
 
     Args:
@@ -67,7 +67,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, LogDataGetResponse]]
+        Response[Union[HTTPValidationError, TraceWithMetrics]]
     """
 
     kwargs = _get_kwargs(
@@ -87,7 +87,7 @@ def sync(
     trace_id: str,
     *,
     client: AuthenticatedClient,
-) -> Optional[Union[HTTPValidationError, LogDataGetResponse]]:
+) -> Optional[Union[HTTPValidationError, TraceWithMetrics]]:
     """Get Trace
 
     Args:
@@ -99,7 +99,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, LogDataGetResponse]
+        Union[HTTPValidationError, TraceWithMetrics]
     """
 
     return sync_detailed(
@@ -114,7 +114,7 @@ async def asyncio_detailed(
     trace_id: str,
     *,
     client: AuthenticatedClient,
-) -> Response[Union[HTTPValidationError, LogDataGetResponse]]:
+) -> Response[Union[HTTPValidationError, TraceWithMetrics]]:
     """Get Trace
 
     Args:
@@ -126,7 +126,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, LogDataGetResponse]]
+        Response[Union[HTTPValidationError, TraceWithMetrics]]
     """
 
     kwargs = _get_kwargs(
@@ -144,7 +144,7 @@ async def asyncio(
     trace_id: str,
     *,
     client: AuthenticatedClient,
-) -> Optional[Union[HTTPValidationError, LogDataGetResponse]]:
+) -> Optional[Union[HTTPValidationError, TraceWithMetrics]]:
     """Get Trace
 
     Args:
@@ -156,7 +156,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, LogDataGetResponse]
+        Union[HTTPValidationError, TraceWithMetrics]
     """
 
     return (

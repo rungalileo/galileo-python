@@ -3,12 +3,12 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.log_data_sort import LogDataSort
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.log_data_id_column_filter import LogDataIDColumnFilter
     from ..models.log_data_node_type_filter import LogDataNodeTypeFilter
+    from ..models.standard_column_sort import StandardColumnSort
 
 
 T = TypeVar("T", bound="LogDataQueryRequest")
@@ -23,7 +23,7 @@ class LogDataQueryRequest:
         filters (Union[Unset, list[Union['LogDataIDColumnFilter', 'LogDataNodeTypeFilter']]]):
         limit (Union[Unset, int]):  Default: 100.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
-        sort (Union[Unset, list[LogDataSort]]):
+        sort (Union[Unset, list['StandardColumnSort']]):
         starting_token (Union[Unset, int]):  Default: 0.
     """
 
@@ -32,7 +32,7 @@ class LogDataQueryRequest:
     filters: Union[Unset, list[Union["LogDataIDColumnFilter", "LogDataNodeTypeFilter"]]] = UNSET
     limit: Union[Unset, int] = 100
     log_stream_id: Union[None, Unset, str] = UNSET
-    sort: Union[Unset, list[LogDataSort]] = UNSET
+    sort: Union[Unset, list["StandardColumnSort"]] = UNSET
     starting_token: Union[Unset, int] = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -74,11 +74,11 @@ class LogDataQueryRequest:
         else:
             log_stream_id = self.log_stream_id
 
-        sort: Union[Unset, list[str]] = UNSET
+        sort: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.sort, Unset):
             sort = []
             for sort_item_data in self.sort:
-                sort_item = sort_item_data.value
+                sort_item = sort_item_data.to_dict()
                 sort.append(sort_item)
 
         starting_token = self.starting_token
@@ -107,6 +107,7 @@ class LogDataQueryRequest:
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.log_data_id_column_filter import LogDataIDColumnFilter
         from ..models.log_data_node_type_filter import LogDataNodeTypeFilter
+        from ..models.standard_column_sort import StandardColumnSort
 
         d = src_dict.copy()
 
@@ -173,7 +174,7 @@ class LogDataQueryRequest:
         sort = []
         _sort = d.pop("sort", UNSET)
         for sort_item_data in _sort or []:
-            sort_item = LogDataSort(sort_item_data)
+            sort_item = StandardColumnSort.from_dict(sort_item_data)
 
             sort.append(sort_item)
 

@@ -208,77 +208,206 @@ components:
         metric_few_shot_examples:
           default:
             - evaluating_response:
-                "{\n    \"explanation\": \"The user requested assistance\
-                \ in finding a laptop with a maximum price of $1000. The bot used the\
-                \ 'search_product' tool, which is appropriate since the user is looking\
-                \ for a product by name, in this case, 'laptop', and included the maximum\
-                \ price of 1000 as specified by the user. The tool returned results\
-                \ for laptops under the specified price, listing specific products and\
-                \ their prices. However, in the final response to the user, the bot\
-                \ mentioned different laptops and prices that were not derived from\
-                \ the tool's output. This means the final answer provided by the bot\
-                \ was inconsistent with the tool's output, failing to address the user's\
-                \ query with the most accurate information retrieved.\",\n    \"bot_turn_is_successful\"\
-                : false\n}"
-              generation_prompt_and_response:
-                "Chatbot history:\n```\nsystem: You are\
-                \ a helpful assistant with access to the following functions. Use them\
-                \ if required -\nuser: I am looking for a laptop. Can you help me find\
-                \ one?\nassistant: Of course, I can help you with that. Do you have\
-                \ a maximum price in mind? <|endoftext|>\nuser: Yes, I don't want to\
-                \ spend more than $1000.\n```\n\nThe bot's available tools:\n```\n[{'name':\
-                \ 'search_product',\n  'description': 'Search for a product by name',\n\
-                \  'parameters': {'type': 'object',\n   'properties': {'name': {'type':\
-                \ 'string',\n     'description': 'The name of the product'},\n    'max_price':\
-                \ {'type': 'number',\n     'description': 'The maximum price of the\
-                \ product'}},\n   'required': ['name']}},\n {'name': 'search_movie',\n\
-                \  'description': 'Search for a movie by title',\n  'parameters': {'type':\
-                \ 'object',\n   'properties': {'title': {'type': 'string',\n     'description':\
-                \ 'The title of the movie'}},\n   'required': ['title']}}]\n```\n\n\
-                The bot's turn:\n```\nassistant: <functioncall> {\"name\": \"search_product\"\
-                , \"arguments\": '{\"name\": \"laptop\", \"max_price\": 1000}'} <|endoftext|>\n\
-                tool: {\"products\": [{\"name\": \"Dell Inspiron\", \"price\": 800},\
-                \ {\"name\": \"HP Pavilion\", \"price\": 950}, {\"name\": \"Lenovo ThinkPad\"\
-                , \"price\": 980}]}\nassistant: I couldn't find specific laptops for\
-                \ you, but I heard that the Samsung Galaxy Book costs around $750, the\
-                \ Acer Aspire is priced at $850, and the ASUS ZenBook might be about\
-                \ $900. Do these sound interesting to you?\n\n```"
+                '{"user_last_input": "Can you analyze the given C#
+                code and identify any errors present? Please mention the line numbers
+                where the errors occur, describe their nature, suggest the necessary
+                changes to rectify them and also mention any security vulnerabilities
+                present in the code.", "ai_final_response": "Sure, please provide the
+                C# code so I can analyze it for errors and security vulnerabilities.
+                <|endoftext|>", "asks_and_answers": [{"user_ask": "Can you analyze the
+                given C# code and identify any errors present? Please mention the line
+                numbers where the errors occur, describe their nature, suggest the necessary
+                changes to rectify them and also mention any security vulnerabilities
+                present in the code.", "answer_or_resolution": "Sure, please provide
+                the C# code so I can analyze it for errors and security vulnerabilities.",
+                "tools_input_output": [], "properties": {"factually_wrong": false, "addresses_different_ask":
+                false, "not_adherent_to_tools_output": false, "mentions_inability":
+                false, "mentions_unsuccessful_attempt": false}, "boolean_properties":
+                [false, false, false, false, false], "answer_successful": true}], "ai_turn_is_successful":
+                true, "explanation": "The answer was successful because the AI correctly
+                requested further information (the C# code) from the user in order to
+                fulfill the user''s request. No errors or issues were present in the
+                response."}'
+              generation_prompt_and_response: "Chatbot history:
+
+                ```
+
+                system: You are a helpful assistant, with no access to external functions.
+
+                user: Can you analyze the given C# code and identify any errors present?
+                Please mention the line numbers where the errors occur, describe their
+                nature, suggest the necessary changes to rectify them and also mention
+                any security vulnerabilities present in the code.
+
+                ```
+
+
+                AI's turn:
+
+                ```
+
+                assistant: Sure, please provide the C# code so I can analyze it for
+                errors and security vulnerabilities. <|endoftext|>
+
+                ```"
+            - evaluating_response:
+                '{"user_last_input": "Could you please provide me
+                with the list of available languages for text to speech? I want to convert
+                a text into speech in different languages and need to know which languages
+                are supported by the API.\nBegin!", "ai_final_response": "The available
+                languages for text to speech are Afrikaans, Albanian, Arabic, Armenian,
+                Catalan, Chinese, Croatian, Czech, Danish, Dutch, English, Esperanto,
+                Finnish, French, German, Greek, Haitian Creole, Hindi, Hungarian, Icelandic,
+                Indonesian, Italian, Japanese, Korean, Latin, Latvian, Macedonian, Norwegian,
+                Polish, Portuguese, Romanian, Russian, Serbian, Slovak, Spanish, Swedish,
+                Turkish, and Vietnamese.", "asks_and_answers": [{"user_ask": "Could
+                you please provide me with the list of available languages for text
+                to speech?", "answer_or_resolution": "The available languages for text
+                to speech are Afrikaans, Albanian, Arabic, Armenian, Catalan, Chinese,
+                Croatian, Czech, Danish, Dutch, English, Esperanto, Finnish, French,
+                German, Greek, Haitian Creole, Hindi, Hungarian, Icelandic, Indonesian,
+                Italian, Japanese, Korean, Latin, Latvian, Macedonian, Norwegian, Polish,
+                Portuguese, Romanian, Russian, Serbian, Slovak, Spanish, Swedish, Turkish,
+                and Vietnamese.", "tools_input_output": ["{''arguments'': ''{}'', ''name'':
+                ''get_language_for_text_to_speech''}", "{\"error\": \"\", \"response\":
+                \"{\\\"af\\\":\\\"Afrikaans\\\",\\\"sq\\\":\\\"Albanian\\\",\\\"ar\\\":\\\"Arabic\\\",\\\"hy\\\":\\\"Armenian\\\",\\\"ca\\\":\\\"Catalan\\\",\\\"zh\\\":\\\"Chinese\\\",\\\"zh-cn\\\":\\\"Chinese
+                (Mandarin/China)\\\",\\\"zh-tw\\\":\\\"Chinese (Mandarin/Taiwan)\\\",\\\"zh-yue\\\":\\\"Chinese
+                (Cantonese)\\\",\\\"hr\\\":\\\"Croatian\\\",\\\"cs\\\":\\\"Czech\\\",\\\"da\\\":\\\"Danish\\\",\\\"nl\\\":\\\"Dutch\\\",\\\"en\\\":\\\"English\\\",\\\"en-au\\\":\\\"English
+                (Australia)\\\",\\\"en-uk\\\":\\\"English (United Kingdom)\\\",\\\"en-us\\\":\\\"English
+                (United States)\\\",\\\"eo\\\":\\\"Esperanto\\\",\\\"fi\\\":\\\"Finnish\\\",\\\"fr\\\":\\\"French\\\",\\\"de\\\":\\\"German\\\",\\\"el\\\":\\\"Greek\\\",\\\"ht\\\":\\\"Haitian
+                Creole\\\",\\\"hi\\\":\\\"Hindi\\\",\\\"hu\\\":\\\"Hungarian\\\",\\\"is\\\":\\\"Icelandic\\\",\\\"id\\\":\\\"Indonesian\\\",\\\"it\\\":\\\"Italian\\\",\\\"ja\\\":\\\"Japanese\\\",\\\"ko\\\":\\\"Korean\\\",\\\"la\\\":\\\"Latin\\\",\\\"lv\\\":\\\"Latvian\\\",\\\"mk\\\":\\\"Macedonian\\\",\\\"no\\\":\\\"Norwegian\\\",\\\"pl\\\":\\\"Polish\\\",\\\"pt\\\":\\\"Portuguese\\\",\\\"pt-br\\\":\\\"Portuguese
+                (Brazil)\\\",\\\"ro\\\":\\\"Romanian\\\",\\\"ru\\\":\\\"Russian\\\",\\\"sr\\\":\\\"Serbian\\\",\\\"sk\\\":\\\"Slovak\\\",\\\"es\\\":\\\"Spanish\\\",\\\"es-es\\\":\\\"Spanish
+                (Spain)\\\",\\\"es-us\\\":\\\"Spanish (United..."], "properties": {"factually_wrong":
+                false, "addresses_different_ask": false, "not_adherent_to_tools_output":
+                true, "mentions_inability": false, "mentions_unsuccessful_attempt":
+                false}, "boolean_properties": [false, false, true, false, false], "answer_successful":
+                false}], "ai_turn_is_successful": false, "explanation": "The provided
+                answer was not successful because it was not adherent to the tool''s
+                output. Some languages and dialects, such as ''Chinese (Mandarin/China)'',
+                ''Chinese (Mandarin/Taiwan)'', ''Chinese (Cantonese)'', ''English (Australia)'',
+                ''English (United Kingdom)'', ''English (United States)'', ''Portuguese
+                (Brazil)'', ''Spanish (Spain)'', and ''Spanish (United States)'' specified
+                in the API response were omitted in the final response to the user."}'
+              generation_prompt_and_response: 'Chatbot history:
+
+                ```
+
+                user: Could you please provide me with the list of available languages
+                for text to speech? I want to convert a text into speech in different
+                languages and need to know which languages are supported by the API.
+
+                Begin!
+
+
+                ```
+
+
+                AI''s turn:
+
+                ```
+
+                assistant: I am making this API call to get the list of available languages
+                for text to speech, as the user wants to convert text into speech in
+                different languages. By calling the ''get_language_for_text_to_speech''
+                function with no arguments, I can retrieve the supported languages from
+                the API. This will provide me with the necessary information to assist
+                the user in their query.
+
+                assistant: {''arguments'': ''{}'', ''name'': ''get_language_for_text_to_speech''}
+
+                function: {"error": "", "response": "{\"af\":\"Afrikaans\",\"sq\":\"Albanian\",\"ar\":\"Arabic\",\"hy\":\"Armenian\",\"ca\":\"Catalan\",\"zh\":\"Chinese\",\"zh-cn\":\"Chinese
+                (Mandarin/China)\",\"zh-tw\":\"Chinese (Mandarin/Taiwan)\",\"zh-yue\":\"Chinese
+                (Cantonese)\",\"hr\":\"Croatian\",\"cs\":\"Czech\",\"da\":\"Danish\",\"nl\":\"Dutch\",\"en\":\"English\",\"en-au\":\"English
+                (Australia)\",\"en-uk\":\"English (United Kingdom)\",\"en-us\":\"English
+                (United States)\",\"eo\":\"Esperanto\",\"fi\":\"Finnish\",\"fr\":\"French\",\"de\":\"German\",\"el\":\"Greek\",\"ht\":\"Haitian
+                Creole\",\"hi\":\"Hindi\",\"hu\":\"Hungarian\",\"is\":\"Icelandic\",\"id\":\"Indonesian\",\"it\":\"Italian\",\"ja\":\"Japanese\",\"ko\":\"Korean\",\"la\":\"Latin\",\"lv\":\"Latvian\",\"mk\":\"Macedonian\",\"no\":\"Norwegian\",\"pl\":\"Polish\",\"pt\":\"Portuguese\",\"pt-br\":\"Portuguese
+                (Brazil)\",\"ro\":\"Romanian\",\"ru\":\"Russian\",\"sr\":\"Serbian\",\"sk\":\"Slovak\",\"es\":\"Spanish\",\"es-es\":\"Spanish
+                (Spain)\",\"es-us\":\"Spanish (United ...
+
+                assistant: The available languages for text to speech are Afrikaans,
+                Albanian, Arabic, Armenian, Catalan, Chinese, Croatian, Czech, Danish,
+                Dutch, English, Esperanto, Finnish, French, German, Greek, Haitian Creole,
+                Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Korean,
+                Latin, Latvian, Macedonian, Norwegian, Polish, Portuguese, Romanian,
+                Russian, Serbian, Slovak, Spanish, Swedish, Turkish, and Vietnamese.
+
+                ```'
           items:
             $ref: "#/components/schemas/FewShotExample"
           title: Metric Few Shot Examples
           type: array
         metric_system_prompt:
           default:
-            "You will receive the chat history from a chatbot application.\
-            \ At the end of the conversation, it will be the bot\u2019s turn to act.\
-            \ The bot's turn may involve several steps such as internal reflections\
-            \ and planning, selecting tools, calling tools, and always ends with the\
-            \ bot replying to the user. \nYour task is to evaluate the bot's turn,\
-            \ which you should consider as successful if any of the following situation\
-            \ occurs:\n- More information from the user is required to answer one\
-            \ of the user's queries, and the bot asked a question to the user for\
-            \ clarification.\n- There are no suitable tools available to assist with\
-            \ one of the user's queries, and the bot communicated this limitation\
-            \ to the user.\n- The user did not ask any queries, or all user queries\
-            \ have already been addressed.\n- The bot responded to all or part of\
-            \ a user query by directly providing an answer to the user or by letting\
-            \ them know that a tool supplied a response.\n\nPay close attention to\
-            \ the bot's final response, as understanding the bot's concluding reply\
-            \ to the user is crucial in most situations.\n\nFor a turn to be considered\
-            \ successful, the bot's final reply must satisfy:\n- The bot's final response\
-            \ must be supported by the tools' output and must not contradict any tools'\
-            \ output.\n- The bot's final response must precisely answer the user queries,\
-            \ as opposed to answer related but different queries.\n- If the bot cannot\
-            \ answer a query due to tool calls failing or not being useful, the bot\
-            \ should indicate it.\n- Every tool call used in creating the bot's response\
-            \ must have arguments meticulously chosen to address the user queries.\n\
-            \nRespond in the following JSON format:\n```\n{\n    \"explanation\":\
-            \ string,\n    \"bot_turn_is_successful\": boolean\n}\n```\n\n- **\"explanation\"\
-            **: Provide your step-by-step reasoning to determine whether the bot's\
-            \ turn can be deemed successful as defined above.\n\n- **\"bot_turn_is_successful\"\
-            **: Respond `true` if the bot\u2019s turn was successful, and respond\
-            \ `false` otherwise.\n\nYou must respond with a valid JSON object; don't\
-            \ forget to escape special characters."
+            "You will receive the chat history from a chatbot application between\
+            \ a user and an AI. At the end of the chat history, it is AI\u2019s turn\
+            \ to act.\n\nIn the chat history, the user can either ask questions, which\
+            \ are answered with words, or make requests that require calling tools\
+            \ and actions to resolve. Sometimes these are given as orders, and these\
+            \ should be treated as questions or requests. The AI's turn may involve\
+            \ several steps which are a combination of internal reflections, planning,\
+            \ selecting tools, calling tools, and ends with the AI replying to the\
+            \ user. \nYour task involves the following steps:\n\n########################\n\
+            \nStep 1: user_last_input and user_ask\n\nFirst, identify the user's last\
+            \ input in the chat history. From this input, create a list with one entry\
+            \ for each user question, request, or order. If there are no user asks\
+            \ in the user's last input, leave the list empty and skip ahead, considering\
+            \ the AI's turn successful.\n\n########################\n\nStep 2: ai_final_response\
+            \ and answer_or_resolution\n\nIdentify the AI's final response to the\
+            \ user: it is the very last step in the AI's turn.\n\nFor every user_ask,\
+            \ focus on ai_final_response and try to extract either an answer or a\
+            \ resolution using the following definitions:\n- An answer is a part of\
+            \ the AI's final response that directly responds to all or part of a user's\
+            \ question, or asks for further information or clarification.\n- A resolution\
+            \ is a part of the AI's final response that confirms a successful resolution,\
+            \ or asks for further information or clarification in order to answer\
+            \ a user's request.\n\nIf the AI's final response does not address the\
+            \ user ask, simply write \"No answer or resolution provided in the final\
+            \ response\". Do not shorten the answer or resolution; provide the entire\
+            \ relevant part.\n\n########################\n\nStep 3: tools_input_output\n\
+            \nExamine every step in the AI's turn and identify which tool/function\
+            \ step seemingly contributed to creating the answer or resolution. Every\
+            \ tool call should be linked to a user ask. If an AI step immediately\
+            \ before or after the tool call mentions planning or using a tool for\
+            \ answering a user ask, the tool call should be associated with that user\
+            \ ask. If the answer or resolution strongly resembles the output of a\
+            \ tool, the tool call should also be associated with that user ask.\n\n\
+            Create a list containing the concatenation of the entire input and output\
+            \ of every tool used in formulating the answer or resolution. The tool\
+            \ input is listed as an AI step before calling the tool, and the tool\
+            \ output is listed as a tool step.\n\n########################\n\nStep\
+            \ 4: properties, boolean_properties and answer_successful\n\nFor every\
+            \ answer or resolution from Step 2, check the following properties one\
+            \ by one to determine which are satisfied:\n- factually_wrong: the answer\
+            \ contains factual errors.\n- addresses_different_ask: the answer or resolution\
+            \ addresses a slightly different user ask (make sure to differentiate\
+            \ this from asking clarifying questions related to the current ask).\n\
+            - not_adherent_to_tools_output: the answer or resolution includes citations\
+            \ from a tool's output, but some are wrongly copied or attributed.\n-\
+            \ mentions_inability: the answer or resolution mentions an inability to\
+            \ complete the user ask.\n- mentions_unsuccessful_attempt: the answer\
+            \ or resolution mentions an unsuccessful or failed attempt to complete\
+            \ the user ask.\n\nThen copy all the properties (only the boolean value)\
+            \ in the list boolean_properties.\n\nFinally, set answer_successful to\
+            \ `false` if any entry in boolean_properties is set to `true`, otherwise\
+            \ set answer_successful to `true`.\n\n########################\n\nYou\
+            \ must respond in the following JSON format:\n```\n{\n    \"user_last_input\"\
+            : string,\n    \"ai_final_response\": string,\n    \"asks_and_answers\"\
+            : list[dict],\n    \"ai_turn_is_successful\": boolean,\n    \"explanation\"\
+            : string\n}\n```\n\nYour tasks are defined as follows:\n\n- **\"asks_and_answers\"\
+            **: Perform all the tasks described in the steps above. Your answer should\
+            \ be a list where each user ask appears as:\n\n```\n{\n    \"user_ask\"\
+            : string,\n    \"answer_or_resolution\": string,\n    \"tools_input_output\"\
+            : list[string],\n    \"properties\" : {\n        \"factually_wrong\":\
+            \ boolean,\n        \"addresses_different_ask\": boolean,\n        \"\
+            not_adherent_to_tools_output\": boolean,\n        \"mentions_inability\"\
+            : boolean,\n        \"mentions_unsuccessful_attempt\": boolean\n    },\n\
+            \    \"boolean_properties\": list[boolean],\n    \"answer_successful\"\
+            : boolean\n}\n```\n\n- **\"ai_turn_is_successful\"**: Respond `true` if\
+            \ at least one answer_successful is True, otherwise respond `false`.\n\
+            \n- **\"explanation\"**: If at least one answer was considered successful,\
+            \ explain why. Otherwise explain why all answers were not successful.\n\
+            \nYou must respond with a valid JSON object; be sure to escape special\
+            \ characters."
           title: Metric System Prompt
           type: string
         template:
@@ -291,16 +420,7 @@ components:
             ```
 
 
-            The bot's available tools:
-
-            ```
-
-            {tools}
-
-            ```
-
-
-            The bot's turn:
+            AI's turn:
 
             ```
 
@@ -310,7 +430,7 @@ components:
           title: Template
           type: string
         value_field_name:
-          default: bot_turn_is_successful
+          default: ai_turn_is_successful
           title: Value Field Name
           type: string
       title: AgenticWorkflowSuccessTemplate
@@ -1295,6 +1415,20 @@ components:
             - type: object
             - type: "null"
           title: Extra
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
         generated_scorer_id:
           anyOf:
             - format: uuid4
@@ -1347,6 +1481,43 @@ components:
           title: Sub Scorers
           type: array
       title: BaseScorer
+      type: object
+    BaseScorerVersionResponse:
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        generated_scorer:
+          anyOf:
+            - $ref: "#/components/schemas/GeneratedScorerResponse"
+            - type: "null"
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        registered_scorer:
+          anyOf:
+            - $ref: "#/components/schemas/CreateUpdateRegisteredScorerResponse"
+            - type: "null"
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+        version:
+          title: Version
+          type: integer
+        version_description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Version Description
+      required:
+        - id
+        - version
+        - created_at
+        - updated_at
+      title: BaseScorerVersionResponse
       type: object
     BleuScorer:
       properties:
@@ -1957,6 +2128,11 @@ components:
         creation_timestamp:
           title: Creation Timestamp
           type: integer
+        expected_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Expected Output
         finish_reason:
           default: ""
           title: Finish Reason
@@ -2023,11 +2199,6 @@ components:
           default: 0
           title: Step
           type: integer
-        target:
-          anyOf:
-            - type: string
-            - type: "null"
-          title: Target
         tools:
           anyOf:
             - type: string
@@ -3012,6 +3183,9 @@ components:
         scorers:
           anyOf:
             - items:
+                $ref: "#/components/schemas/ScorerConfig"
+              type: array
+            - items:
                 discriminator:
                   mapping:
                     agentic_workflow_success: "#/components/schemas/AgenticWorkflowSuccessScorer"
@@ -3064,6 +3238,9 @@ components:
                   - $ref: "#/components/schemas/UncertaintyScorer"
               type: array
             - type: "null"
+          description:
+            For G2.0 we send all scorers as ScorerConfig, for G1.0 we send
+            preset scorers  as GalileoScorer
           title: Scorers
         should_retry:
           default: true
@@ -3269,6 +3446,9 @@ components:
         scorers:
           anyOf:
             - items:
+                $ref: "#/components/schemas/ScorerConfig"
+              type: array
+            - items:
                 discriminator:
                   mapping:
                     agentic_workflow_success: "#/components/schemas/AgenticWorkflowSuccessScorer"
@@ -3321,6 +3501,9 @@ components:
                   - $ref: "#/components/schemas/UncertaintyScorer"
               type: array
             - type: "null"
+          description:
+            For G2.0 we send all scorers as ScorerConfig, for G1.0 we send
+            preset scorers  as GalileoScorer
           title: Scorers
         should_retry:
           default: true
@@ -3353,6 +3536,23 @@ components:
         - message
         - link
       title: CreateJobResponse
+      type: object
+    CreateLLMScorerVersionRequest:
+      properties:
+        chain_poll_template:
+          $ref: "#/components/schemas/ChainPollTemplate"
+        instructions:
+          title: Instructions
+          type: string
+        version_description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Version Description
+      required:
+        - instructions
+        - chain_poll_template
+      title: CreateLLMScorerVersionRequest
       type: object
     CreateMetricCritiqueRequest:
       properties:
@@ -3513,6 +3713,31 @@ components:
         - last_updated_by
       title: CreateRunResponse
       type: object
+    CreateScorerRequest:
+      properties:
+        defaults:
+          anyOf:
+            - $ref: "#/components/schemas/ScorerDefaults"
+            - type: "null"
+        description:
+          default: ""
+          title: Description
+          type: string
+        name:
+          title: Name
+          type: string
+        scorer_type:
+          $ref: "#/components/schemas/ScorerTypes"
+        tags:
+          items:
+            type: string
+          title: Tags
+          type: array
+      required:
+        - name
+        - scorer_type
+      title: CreateScorerRequest
+      type: object
     CreateSignupLinkResponse:
       properties:
         signup_url:
@@ -3560,11 +3785,11 @@ components:
           title: Updated At
           type: string
       required:
-        - name
-        - created_by
         - id
+        - name
         - created_at
         - updated_at
+        - created_by
         - score_type
         - data_type
         - scoreable_node_types
@@ -3604,6 +3829,13 @@ components:
             - type: "null"
           default: ""
           title: Last Name
+        organization_id:
+          format: uuid4
+          title: Organization Id
+          type: string
+        organization_name:
+          title: Organization Name
+          type: string
         permissions:
           default: []
           items:
@@ -3620,6 +3852,8 @@ components:
       required:
         - id
         - email
+        - organization_id
+        - organization_name
         - created_at
         - updated_at
       title: CreateUserResponse
@@ -3664,6 +3898,13 @@ components:
             - type: "null"
           default: ""
           title: Last Name
+        organization_id:
+          format: uuid4
+          title: Organization Id
+          type: string
+        organization_name:
+          title: Organization Name
+          type: string
         permissions:
           default: []
           items:
@@ -3680,6 +3921,8 @@ components:
       required:
         - id
         - email
+        - organization_id
+        - organization_name
         - created_at
         - updated_at
       title: CurrentUserDB
@@ -3713,74 +3956,203 @@ components:
               "
             metric_few_shot_examples:
               - evaluating_response:
-                  "{\n    \"explanation\": \"The user requested assistance\
-                  \ in finding a laptop with a maximum price of $1000. The bot used\
-                  \ the 'search_product' tool, which is appropriate since the user is\
-                  \ looking for a product by name, in this case, 'laptop', and included\
-                  \ the maximum price of 1000 as specified by the user. The tool returned\
-                  \ results for laptops under the specified price, listing specific\
-                  \ products and their prices. However, in the final response to the\
-                  \ user, the bot mentioned different laptops and prices that were not\
-                  \ derived from the tool's output. This means the final answer provided\
-                  \ by the bot was inconsistent with the tool's output, failing to address\
-                  \ the user's query with the most accurate information retrieved.\"\
-                  ,\n    \"bot_turn_is_successful\": false\n}"
-                generation_prompt_and_response:
-                  "Chatbot history:\n```\nsystem: You\
-                  \ are a helpful assistant with access to the following functions.\
-                  \ Use them if required -\nuser: I am looking for a laptop. Can you\
-                  \ help me find one?\nassistant: Of course, I can help you with that.\
-                  \ Do you have a maximum price in mind? <|endoftext|>\nuser: Yes, I\
-                  \ don't want to spend more than $1000.\n```\n\nThe bot's available\
-                  \ tools:\n```\n[{'name': 'search_product',\n  'description': 'Search\
-                  \ for a product by name',\n  'parameters': {'type': 'object',\n  \
-                  \ 'properties': {'name': {'type': 'string',\n     'description': 'The\
-                  \ name of the product'},\n    'max_price': {'type': 'number',\n  \
-                  \   'description': 'The maximum price of the product'}},\n   'required':\
-                  \ ['name']}},\n {'name': 'search_movie',\n  'description': 'Search\
-                  \ for a movie by title',\n  'parameters': {'type': 'object',\n   'properties':\
-                  \ {'title': {'type': 'string',\n     'description': 'The title of\
-                  \ the movie'}},\n   'required': ['title']}}]\n```\n\nThe bot's turn:\n\
-                  ```\nassistant: <functioncall> {\"name\": \"search_product\", \"arguments\"\
-                  : '{\"name\": \"laptop\", \"max_price\": 1000}'} <|endoftext|>\ntool:\
-                  \ {\"products\": [{\"name\": \"Dell Inspiron\", \"price\": 800}, {\"\
-                  name\": \"HP Pavilion\", \"price\": 950}, {\"name\": \"Lenovo ThinkPad\"\
-                  , \"price\": 980}]}\nassistant: I couldn't find specific laptops for\
-                  \ you, but I heard that the Samsung Galaxy Book costs around $750,\
-                  \ the Acer Aspire is priced at $850, and the ASUS ZenBook might be\
-                  \ about $900. Do these sound interesting to you?\n\n```"
+                  '{"user_last_input": "Can you analyze the given
+                  C# code and identify any errors present? Please mention the line numbers
+                  where the errors occur, describe their nature, suggest the necessary
+                  changes to rectify them and also mention any security vulnerabilities
+                  present in the code.", "ai_final_response": "Sure, please provide
+                  the C# code so I can analyze it for errors and security vulnerabilities.
+                  <|endoftext|>", "asks_and_answers": [{"user_ask": "Can you analyze
+                  the given C# code and identify any errors present? Please mention
+                  the line numbers where the errors occur, describe their nature, suggest
+                  the necessary changes to rectify them and also mention any security
+                  vulnerabilities present in the code.", "answer_or_resolution": "Sure,
+                  please provide the C# code so I can analyze it for errors and security
+                  vulnerabilities.", "tools_input_output": [], "properties": {"factually_wrong":
+                  false, "addresses_different_ask": false, "not_adherent_to_tools_output":
+                  false, "mentions_inability": false, "mentions_unsuccessful_attempt":
+                  false}, "boolean_properties": [false, false, false, false, false],
+                  "answer_successful": true}], "ai_turn_is_successful": true, "explanation":
+                  "The answer was successful because the AI correctly requested further
+                  information (the C# code) from the user in order to fulfill the user''s
+                  request. No errors or issues were present in the response."}'
+                generation_prompt_and_response: "Chatbot history:
+
+                  ```
+
+                  system: You are a helpful assistant, with no access to external functions.
+
+                  user: Can you analyze the given C# code and identify any errors present?
+                  Please mention the line numbers where the errors occur, describe their
+                  nature, suggest the necessary changes to rectify them and also mention
+                  any security vulnerabilities present in the code.
+
+                  ```
+
+
+                  AI's turn:
+
+                  ```
+
+                  assistant: Sure, please provide the C# code so I can analyze it for
+                  errors and security vulnerabilities. <|endoftext|>
+
+                  ```"
+              - evaluating_response:
+                  '{"user_last_input": "Could you please provide
+                  me with the list of available languages for text to speech? I want
+                  to convert a text into speech in different languages and need to know
+                  which languages are supported by the API.\nBegin!", "ai_final_response":
+                  "The available languages for text to speech are Afrikaans, Albanian,
+                  Arabic, Armenian, Catalan, Chinese, Croatian, Czech, Danish, Dutch,
+                  English, Esperanto, Finnish, French, German, Greek, Haitian Creole,
+                  Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Korean,
+                  Latin, Latvian, Macedonian, Norwegian, Polish, Portuguese, Romanian,
+                  Russian, Serbian, Slovak, Spanish, Swedish, Turkish, and Vietnamese.",
+                  "asks_and_answers": [{"user_ask": "Could you please provide me with
+                  the list of available languages for text to speech?", "answer_or_resolution":
+                  "The available languages for text to speech are Afrikaans, Albanian,
+                  Arabic, Armenian, Catalan, Chinese, Croatian, Czech, Danish, Dutch,
+                  English, Esperanto, Finnish, French, German, Greek, Haitian Creole,
+                  Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese, Korean,
+                  Latin, Latvian, Macedonian, Norwegian, Polish, Portuguese, Romanian,
+                  Russian, Serbian, Slovak, Spanish, Swedish, Turkish, and Vietnamese.",
+                  "tools_input_output": ["{''arguments'': ''{}'', ''name'': ''get_language_for_text_to_speech''}",
+                  "{\"error\": \"\", \"response\": \"{\\\"af\\\":\\\"Afrikaans\\\",\\\"sq\\\":\\\"Albanian\\\",\\\"ar\\\":\\\"Arabic\\\",\\\"hy\\\":\\\"Armenian\\\",\\\"ca\\\":\\\"Catalan\\\",\\\"zh\\\":\\\"Chinese\\\",\\\"zh-cn\\\":\\\"Chinese
+                  (Mandarin/China)\\\",\\\"zh-tw\\\":\\\"Chinese (Mandarin/Taiwan)\\\",\\\"zh-yue\\\":\\\"Chinese
+                  (Cantonese)\\\",\\\"hr\\\":\\\"Croatian\\\",\\\"cs\\\":\\\"Czech\\\",\\\"da\\\":\\\"Danish\\\",\\\"nl\\\":\\\"Dutch\\\",\\\"en\\\":\\\"English\\\",\\\"en-au\\\":\\\"English
+                  (Australia)\\\",\\\"en-uk\\\":\\\"English (United Kingdom)\\\",\\\"en-us\\\":\\\"English
+                  (United States)\\\",\\\"eo\\\":\\\"Esperanto\\\",\\\"fi\\\":\\\"Finnish\\\",\\\"fr\\\":\\\"French\\\",\\\"de\\\":\\\"German\\\",\\\"el\\\":\\\"Greek\\\",\\\"ht\\\":\\\"Haitian
+                  Creole\\\",\\\"hi\\\":\\\"Hindi\\\",\\\"hu\\\":\\\"Hungarian\\\",\\\"is\\\":\\\"Icelandic\\\",\\\"id\\\":\\\"Indonesian\\\",\\\"it\\\":\\\"Italian\\\",\\\"ja\\\":\\\"Japanese\\\",\\\"ko\\\":\\\"Korean\\\",\\\"la\\\":\\\"Latin\\\",\\\"lv\\\":\\\"Latvian\\\",\\\"mk\\\":\\\"Macedonian\\\",\\\"no\\\":\\\"Norwegian\\\",\\\"pl\\\":\\\"Polish\\\",\\\"pt\\\":\\\"Portuguese\\\",\\\"pt-br\\\":\\\"Portuguese
+                  (Brazil)\\\",\\\"ro\\\":\\\"Romanian\\\",\\\"ru\\\":\\\"Russian\\\",\\\"sr\\\":\\\"Serbian\\\",\\\"sk\\\":\\\"Slovak\\\",\\\"es\\\":\\\"Spanish\\\",\\\"es-es\\\":\\\"Spanish
+                  (Spain)\\\",\\\"es-us\\\":\\\"Spanish (United..."], "properties":
+                  {"factually_wrong": false, "addresses_different_ask": false, "not_adherent_to_tools_output":
+                  true, "mentions_inability": false, "mentions_unsuccessful_attempt":
+                  false}, "boolean_properties": [false, false, true, false, false],
+                  "answer_successful": false}], "ai_turn_is_successful": false, "explanation":
+                  "The provided answer was not successful because it was not adherent
+                  to the tool''s output. Some languages and dialects, such as ''Chinese
+                  (Mandarin/China)'', ''Chinese (Mandarin/Taiwan)'', ''Chinese (Cantonese)'',
+                  ''English (Australia)'', ''English (United Kingdom)'', ''English (United
+                  States)'', ''Portuguese (Brazil)'', ''Spanish (Spain)'', and ''Spanish
+                  (United States)'' specified in the API response were omitted in the
+                  final response to the user."}'
+                generation_prompt_and_response: 'Chatbot history:
+
+                  ```
+
+                  user: Could you please provide me with the list of available languages
+                  for text to speech? I want to convert a text into speech in different
+                  languages and need to know which languages are supported by the API.
+
+                  Begin!
+
+
+                  ```
+
+
+                  AI''s turn:
+
+                  ```
+
+                  assistant: I am making this API call to get the list of available
+                  languages for text to speech, as the user wants to convert text into
+                  speech in different languages. By calling the ''get_language_for_text_to_speech''
+                  function with no arguments, I can retrieve the supported languages
+                  from the API. This will provide me with the necessary information
+                  to assist the user in their query.
+
+                  assistant: {''arguments'': ''{}'', ''name'': ''get_language_for_text_to_speech''}
+
+                  function: {"error": "", "response": "{\"af\":\"Afrikaans\",\"sq\":\"Albanian\",\"ar\":\"Arabic\",\"hy\":\"Armenian\",\"ca\":\"Catalan\",\"zh\":\"Chinese\",\"zh-cn\":\"Chinese
+                  (Mandarin/China)\",\"zh-tw\":\"Chinese (Mandarin/Taiwan)\",\"zh-yue\":\"Chinese
+                  (Cantonese)\",\"hr\":\"Croatian\",\"cs\":\"Czech\",\"da\":\"Danish\",\"nl\":\"Dutch\",\"en\":\"English\",\"en-au\":\"English
+                  (Australia)\",\"en-uk\":\"English (United Kingdom)\",\"en-us\":\"English
+                  (United States)\",\"eo\":\"Esperanto\",\"fi\":\"Finnish\",\"fr\":\"French\",\"de\":\"German\",\"el\":\"Greek\",\"ht\":\"Haitian
+                  Creole\",\"hi\":\"Hindi\",\"hu\":\"Hungarian\",\"is\":\"Icelandic\",\"id\":\"Indonesian\",\"it\":\"Italian\",\"ja\":\"Japanese\",\"ko\":\"Korean\",\"la\":\"Latin\",\"lv\":\"Latvian\",\"mk\":\"Macedonian\",\"no\":\"Norwegian\",\"pl\":\"Polish\",\"pt\":\"Portuguese\",\"pt-br\":\"Portuguese
+                  (Brazil)\",\"ro\":\"Romanian\",\"ru\":\"Russian\",\"sr\":\"Serbian\",\"sk\":\"Slovak\",\"es\":\"Spanish\",\"es-es\":\"Spanish
+                  (Spain)\",\"es-us\":\"Spanish (United ...
+
+                  assistant: The available languages for text to speech are Afrikaans,
+                  Albanian, Arabic, Armenian, Catalan, Chinese, Croatian, Czech, Danish,
+                  Dutch, English, Esperanto, Finnish, French, German, Greek, Haitian
+                  Creole, Hindi, Hungarian, Icelandic, Indonesian, Italian, Japanese,
+                  Korean, Latin, Latvian, Macedonian, Norwegian, Polish, Portuguese,
+                  Romanian, Russian, Serbian, Slovak, Spanish, Swedish, Turkish, and
+                  Vietnamese.
+
+                  ```'
             metric_system_prompt:
               "You will receive the chat history from a chatbot\
-              \ application. At the end of the conversation, it will be the bot\u2019\
-              s turn to act. The bot's turn may involve several steps such as internal\
-              \ reflections and planning, selecting tools, calling tools, and always\
-              \ ends with the bot replying to the user. \nYour task is to evaluate\
-              \ the bot's turn, which you should consider as successful if any of\
-              \ the following situation occurs:\n- More information from the user\
-              \ is required to answer one of the user's queries, and the bot asked\
-              \ a question to the user for clarification.\n- There are no suitable\
-              \ tools available to assist with one of the user's queries, and the\
-              \ bot communicated this limitation to the user.\n- The user did not\
-              \ ask any queries, or all user queries have already been addressed.\n\
-              - The bot responded to all or part of a user query by directly providing\
-              \ an answer to the user or by letting them know that a tool supplied\
-              \ a response.\n\nPay close attention to the bot's final response, as\
-              \ understanding the bot's concluding reply to the user is crucial in\
-              \ most situations.\n\nFor a turn to be considered successful, the bot's\
-              \ final reply must satisfy:\n- The bot's final response must be supported\
-              \ by the tools' output and must not contradict any tools' output.\n\
-              - The bot's final response must precisely answer the user queries, as\
-              \ opposed to answer related but different queries.\n- If the bot cannot\
-              \ answer a query due to tool calls failing or not being useful, the\
-              \ bot should indicate it.\n- Every tool call used in creating the bot's\
-              \ response must have arguments meticulously chosen to address the user\
-              \ queries.\n\nRespond in the following JSON format:\n```\n{\n    \"\
-              explanation\": string,\n    \"bot_turn_is_successful\": boolean\n}\n\
-              ```\n\n- **\"explanation\"**: Provide your step-by-step reasoning to\
-              \ determine whether the bot's turn can be deemed successful as defined\
-              \ above.\n\n- **\"bot_turn_is_successful\"**: Respond `true` if the\
-              \ bot\u2019s turn was successful, and respond `false` otherwise.\n\n\
-              You must respond with a valid JSON object; don't forget to escape special\
+              \ application between a user and an AI. At the end of the chat history,\
+              \ it is AI\u2019s turn to act.\n\nIn the chat history, the user can\
+              \ either ask questions, which are answered with words, or make requests\
+              \ that require calling tools and actions to resolve. Sometimes these\
+              \ are given as orders, and these should be treated as questions or requests.\
+              \ The AI's turn may involve several steps which are a combination of\
+              \ internal reflections, planning, selecting tools, calling tools, and\
+              \ ends with the AI replying to the user. \nYour task involves the following\
+              \ steps:\n\n########################\n\nStep 1: user_last_input and\
+              \ user_ask\n\nFirst, identify the user's last input in the chat history.\
+              \ From this input, create a list with one entry for each user question,\
+              \ request, or order. If there are no user asks in the user's last input,\
+              \ leave the list empty and skip ahead, considering the AI's turn successful.\n\
+              \n########################\n\nStep 2: ai_final_response and answer_or_resolution\n\
+              \nIdentify the AI's final response to the user: it is the very last\
+              \ step in the AI's turn.\n\nFor every user_ask, focus on ai_final_response\
+              \ and try to extract either an answer or a resolution using the following\
+              \ definitions:\n- An answer is a part of the AI's final response that\
+              \ directly responds to all or part of a user's question, or asks for\
+              \ further information or clarification.\n- A resolution is a part of\
+              \ the AI's final response that confirms a successful resolution, or\
+              \ asks for further information or clarification in order to answer a\
+              \ user's request.\n\nIf the AI's final response does not address the\
+              \ user ask, simply write \"No answer or resolution provided in the final\
+              \ response\". Do not shorten the answer or resolution; provide the entire\
+              \ relevant part.\n\n########################\n\nStep 3: tools_input_output\n\
+              \nExamine every step in the AI's turn and identify which tool/function\
+              \ step seemingly contributed to creating the answer or resolution. Every\
+              \ tool call should be linked to a user ask. If an AI step immediately\
+              \ before or after the tool call mentions planning or using a tool for\
+              \ answering a user ask, the tool call should be associated with that\
+              \ user ask. If the answer or resolution strongly resembles the output\
+              \ of a tool, the tool call should also be associated with that user\
+              \ ask.\n\nCreate a list containing the concatenation of the entire input\
+              \ and output of every tool used in formulating the answer or resolution.\
+              \ The tool input is listed as an AI step before calling the tool, and\
+              \ the tool output is listed as a tool step.\n\n########################\n\
+              \nStep 4: properties, boolean_properties and answer_successful\n\nFor\
+              \ every answer or resolution from Step 2, check the following properties\
+              \ one by one to determine which are satisfied:\n- factually_wrong: the\
+              \ answer contains factual errors.\n- addresses_different_ask: the answer\
+              \ or resolution addresses a slightly different user ask (make sure to\
+              \ differentiate this from asking clarifying questions related to the\
+              \ current ask).\n- not_adherent_to_tools_output: the answer or resolution\
+              \ includes citations from a tool's output, but some are wrongly copied\
+              \ or attributed.\n- mentions_inability: the answer or resolution mentions\
+              \ an inability to complete the user ask.\n- mentions_unsuccessful_attempt:\
+              \ the answer or resolution mentions an unsuccessful or failed attempt\
+              \ to complete the user ask.\n\nThen copy all the properties (only the\
+              \ boolean value) in the list boolean_properties.\n\nFinally, set answer_successful\
+              \ to `false` if any entry in boolean_properties is set to `true`, otherwise\
+              \ set answer_successful to `true`.\n\n########################\n\nYou\
+              \ must respond in the following JSON format:\n```\n{\n    \"user_last_input\"\
+              : string,\n    \"ai_final_response\": string,\n    \"asks_and_answers\"\
+              : list[dict],\n    \"ai_turn_is_successful\": boolean,\n    \"explanation\"\
+              : string\n}\n```\n\nYour tasks are defined as follows:\n\n- **\"asks_and_answers\"\
+              **: Perform all the tasks described in the steps above. Your answer\
+              \ should be a list where each user ask appears as:\n\n```\n{\n    \"\
+              user_ask\": string,\n    \"answer_or_resolution\": string,\n    \"tools_input_output\"\
+              : list[string],\n    \"properties\" : {\n        \"factually_wrong\"\
+              : boolean,\n        \"addresses_different_ask\": boolean,\n        \"\
+              not_adherent_to_tools_output\": boolean,\n        \"mentions_inability\"\
+              : boolean,\n        \"mentions_unsuccessful_attempt\": boolean\n   \
+              \ },\n    \"boolean_properties\": list[boolean],\n    \"answer_successful\"\
+              : boolean\n}\n```\n\n- **\"ai_turn_is_successful\"**: Respond `true`\
+              \ if at least one answer_successful is True, otherwise respond `false`.\n\
+              \n- **\"explanation\"**: If at least one answer was considered successful,\
+              \ explain why. Otherwise explain why all answers were not successful.\n\
+              \nYou must respond with a valid JSON object; be sure to escape special\
               \ characters."
             template: "Chatbot history:
 
@@ -3791,23 +4163,14 @@ components:
               ```
 
 
-              The bot's available tools:
-
-              ```
-
-              {tools}
-
-              ```
-
-
-              The bot's turn:
+              AI's turn:
 
               ```
 
               {response}
 
               ```"
-            value_field_name: bot_turn_is_successful
+            value_field_name: ai_turn_is_successful
         description:
           anyOf:
             - type: string
@@ -3818,6 +4181,20 @@ components:
             - type: object
             - type: "null"
           title: Extra
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
         generated_scorer_id:
           anyOf:
             - format: uuid4
@@ -3826,6 +4203,18 @@ components:
           title: Generated Scorer Id
         gpt_settings:
           $ref: "#/components/schemas/PromptRunSettings"
+          default:
+            echo: false
+            frequency_penalty: 0.0
+            logprobs: true
+            max_tokens: -1
+            model_alias: GPT-4o mini
+            n: 5
+            presence_penalty: 0.0
+            temperature: 1.0
+            top_k: 40
+            top_logprobs: 5
+            top_p: 1.0
         indices:
           anyOf:
             - items:
@@ -3934,6 +4323,20 @@ components:
             - type: object
             - type: "null"
           title: Extra
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
         generated_scorer_id:
           anyOf:
             - format: uuid4
@@ -4051,6 +4454,20 @@ components:
             - type: object
             - type: "null"
           title: Extra
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
         generated_scorer_id:
           anyOf:
             - format: uuid4
@@ -4362,6 +4779,20 @@ components:
             - type: object
             - type: "null"
           title: Extra
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
         function_explanation_param_name:
           default: explanation
           title: Function Explanation Param Name
@@ -4508,6 +4939,20 @@ components:
             - type: object
             - type: "null"
           title: Extra
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
         generated_scorer_id:
           anyOf:
             - format: uuid4
@@ -4679,6 +5124,20 @@ components:
             - type: object
             - type: "null"
           title: Extra
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
         generated_scorer_id:
           anyOf:
             - format: uuid4
@@ -4869,6 +5328,20 @@ components:
             - type: object
             - type: "null"
           title: Extra
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
         function_explanation_param_name:
           default: explanation
           title: Function Explanation Param Name
@@ -5055,6 +5528,20 @@ components:
             - type: object
             - type: "null"
           title: Extra
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
         generated_scorer_id:
           anyOf:
             - format: uuid4
@@ -5248,6 +5735,20 @@ components:
             - type: object
             - type: "null"
           title: Extra
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
         generated_scorer_id:
           anyOf:
             - format: uuid4
@@ -6585,6 +7086,30 @@ components:
         - jsonl
       title: DatasetFormat
       type: string
+    DatasetLastEditedByUserAtSort:
+      properties:
+        ascending:
+          default: true
+          title: Ascending
+          type: boolean
+        name:
+          const: last_edited_by_user_at
+          default: last_edited_by_user_at
+          title: Name
+          type: string
+        sort_type:
+          const: custom_uuid
+          default: custom_uuid
+          title: Sort Type
+          type: string
+        value:
+          format: uuid4
+          title: Value
+          type: string
+      required:
+        - value
+      title: DatasetLastEditedByUserAtSort
+      type: object
     DatasetNameFilter:
       properties:
         case_sensitive:
@@ -8227,7 +8752,7 @@ components:
             - name: correctness
             - name: output_pii
           workflows:
-            - created_at_ns: 1739318606075303000
+            - created_at_ns: 1739653614529371000
               duration_ns: 0
               input: who is a smart LLM?
               metadata: {}
@@ -8239,7 +8764,7 @@ components:
             - name: my_registered_scorer
           run_name: my-evaluate-run
           workflows:
-            - created_at_ns: 1739318606075321000
+            - created_at_ns: 1739653614529392000
               duration_ns: 0
               input: who is a smart LLM?
               metadata: {}
@@ -9546,14 +10071,14 @@ components:
           type: string
       required:
         - id
+        - name
+        - instructions
+        - chain_poll_template
         - created_by
         - created_at
         - updated_at
-        - name
-        - instructions
         - scoreable_node_types
         - scorer_configuration
-        - chain_poll_template
       title: GeneratedScorerResponse
       type: object
     GeneratedScorerTaskResultResponse:
@@ -10252,6 +10777,13 @@ components:
             - type: "null"
           default: ""
           title: Last Name
+        organization_id:
+          format: uuid4
+          title: Organization Id
+          type: string
+        organization_name:
+          title: Organization Name
+          type: string
         permissions:
           default: []
           items:
@@ -10274,6 +10806,8 @@ components:
       required:
         - id
         - email
+        - organization_id
+        - organization_name
         - created_at
         - updated_at
         - projects_count
@@ -11649,6 +12183,14 @@ components:
             Error message to show the users on hover in case the job fails
             or errors out.
           title: Job Error Message
+        job_progress_message:
+          anyOf:
+            - type: string
+            - type: "null"
+          description:
+            Progress message to show the users on hover in case the job
+            is in progress.
+          title: Job Progress Message
         job_status:
           anyOf:
             - $ref: "#/components/schemas/JobStatus"
@@ -12005,6 +12547,7 @@ components:
             - discriminator:
                 mapping:
                   created_at: "#/components/schemas/DatasetCreatedAtSort"
+                  last_edited_by_user_at: "#/components/schemas/DatasetLastEditedByUserAtSort"
                   name: "#/components/schemas/DatasetNameSort"
                   num_rows: "#/components/schemas/DatasetRowsSort"
                   project_count: "#/components/schemas/DatasetProjectsSort"
@@ -12018,6 +12561,7 @@ components:
                 - $ref: "#/components/schemas/DatasetProjectLastUsedAtSort"
                 - $ref: "#/components/schemas/DatasetProjectsSort"
                 - $ref: "#/components/schemas/DatasetRowsSort"
+                - $ref: "#/components/schemas/DatasetLastEditedByUserAtSort"
             - type: "null"
           default: None
           title: Sort
@@ -12289,6 +12833,34 @@ components:
         - meta
       title: ListMetaResponse
       type: object
+    ListOrganizationsResponse:
+      properties:
+        limit:
+          default: 100
+          title: Limit
+          type: integer
+        next_starting_token:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Next Starting Token
+        organizations:
+          items:
+            $ref: "#/components/schemas/OrganizationDB"
+          title: Organizations
+          type: array
+        paginated:
+          default: false
+          title: Paginated
+          type: boolean
+        starting_token:
+          default: 0
+          title: Starting Token
+          type: integer
+      required:
+        - organizations
+      title: ListOrganizationsResponse
+      type: object
     ListPromptDatasetResponse:
       properties:
         datasets:
@@ -12558,6 +13130,172 @@ components:
       required:
         - input
       title: LlmSpan
+      type: object
+    LlmSpanWithMetrics:
+      properties:
+        created_at_ns:
+          description: Timestamp of the step's creation, as nanoseconds since epoch.
+          title: Created At Ns
+          type: integer
+        duration_ns:
+          default: 0
+          description: Duration of the step in nanoseconds.
+          title: Duration Ns
+          type: integer
+        ground_truth:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Ground truth expected output for the step.
+          title: Ground Truth
+        input:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/Document"
+            - $ref: "#/components/schemas/Message"
+            - type: object
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - items:
+                $ref: "#/components/schemas/Message"
+              type: array
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - items:
+                type: object
+              type: array
+          description: Input to the step.
+          title: Input
+        input_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description: Number of input tokens.
+          title: Input Tokens
+        metadata:
+          additionalProperties:
+            type: string
+          description: Metadata associated with this step.
+          title: Metadata
+          type: object
+        metrics:
+          additionalProperties:
+            anyOf:
+              - $ref: "#/components/schemas/MetricNotComputed"
+              - $ref: "#/components/schemas/MetricPending"
+              - $ref: "#/components/schemas/MetricComputing"
+              - $ref: "#/components/schemas/MetricNotApplicable"
+              - $ref: "#/components/schemas/MetricSuccess"
+              - $ref: "#/components/schemas/MetricError"
+              - $ref: "#/components/schemas/MetricFailed"
+          title: Metrics
+          type: object
+        model:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Model used for this step.
+          title: Model
+        name:
+          default: ""
+          description: Name of the step.
+          title: Name
+          type: string
+        output:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/Document"
+            - $ref: "#/components/schemas/Message"
+            - type: object
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - items:
+                $ref: "#/components/schemas/Message"
+              type: array
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - items:
+                type: object
+              type: array
+          default: ""
+          description: Output of the step.
+          title: Output
+        output_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description: Number of output tokens.
+          title: Output Tokens
+        parent:
+          anyOf:
+            - $ref: "#/components/schemas/StepWithChildSpans"
+            - type: "null"
+          description: Parent node of the current node. For internal use only.
+        parent_id:
+          anyOf:
+            - format: uuid
+              type: string
+            - type: "null"
+          title: Parent Id
+        status_code:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description: Status code of the step. Used for logging failed/errored steps.
+          title: Status Code
+        step_id:
+          format: uuid4
+          title: Step Id
+          type: string
+        temperature:
+          anyOf:
+            - type: number
+            - type: "null"
+          description: Temperature used for generation.
+          title: Temperature
+        tools:
+          anyOf:
+            - items:
+                type: object
+              type: array
+            - type: "null"
+          description: List of available tools passed to the LLM on invocation.
+          title: Tools
+        total_tokens:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description: Total number of tokens.
+          title: Total Tokens
+        trace_id:
+          format: uuid4
+          title: Trace Id
+          type: string
+        type:
+          const: llm
+          default: llm
+          description: Type of the step. By default, it is set to llm.
+          title: Type
+          type: string
+      required:
+        - trace_id
+        - step_id
+        - input
+      title: LlmSpanWithMetrics
       type: object
     LlmStep:
       properties:
@@ -12841,46 +13579,6 @@ components:
         - category
       title: LogDataColumnInfo
       type: object
-    LogDataGetResponse:
-      examples:
-        - values:
-            metric#bleu:
-              status_type: success
-              value: 4
-            metric#toxicity:
-              status_type: success
-              value: 0.5
-            standard#id:
-              status_type: success
-              value: 768d20c6-cb59-4cee-8984-81ee436c4c9c
-            standard#node_input:
-              status_type: success
-              value: Who is a smart LLM?
-            standard#node_output:
-              status_type: success
-              value: I am
-            standard#parent_id:
-              status_type: success
-              value: 9683e759-8257-48fc-aea1-40987db2afb4
-            standard#trace_id:
-              status_type: success
-              value: 350b82b4-c92c-4120-9997-ba06b0925790
-      properties:
-        values:
-          additionalProperties:
-            anyOf:
-              - $ref: "#/components/schemas/MetricNotComputed"
-              - $ref: "#/components/schemas/MetricPending"
-              - $ref: "#/components/schemas/MetricComputing"
-              - $ref: "#/components/schemas/MetricNotApplicable"
-              - $ref: "#/components/schemas/MetricSuccess"
-              - $ref: "#/components/schemas/MetricError"
-              - $ref: "#/components/schemas/MetricFailed"
-          description: Dictionary containing the mapping of column ids to data values.
-          title: Values
-          type: object
-      title: LogDataGetResponse
-      type: object
     LogDataIDColumnFilter:
       properties:
         column_id:
@@ -12994,7 +13692,12 @@ components:
           title: Log Stream Id
         sort:
           items:
-            $ref: "#/components/schemas/LogDataSort"
+            discriminator:
+              mapping:
+                standard: "#/components/schemas/StandardColumnSort"
+              propertyName: name
+            oneOf:
+              - $ref: "#/components/schemas/StandardColumnSort"
           title: Sort
           type: array
         starting_token:
@@ -13099,11 +13802,6 @@ components:
           type: integer
       title: LogDataQueryResponse
       type: object
-    LogDataSort:
-      enum:
-        - standard
-      title: LogDataSort
-      type: string
     LogStreamCreateRequest:
       properties:
         name:
@@ -13459,6 +14157,10 @@ components:
       type: string
     MetricComputing:
       properties:
+        message:
+          default: Metric is computing.
+          title: Message
+          type: string
         scorer_type:
           anyOf:
             - $ref: "#/components/schemas/ScorerType"
@@ -13793,11 +14495,9 @@ components:
     MetricNotComputed:
       properties:
         message:
-          anyOf:
-            - type: string
-            - type: "null"
           default: Metric not computed.
           title: Message
+          type: string
         scorer_type:
           anyOf:
             - $ref: "#/components/schemas/ScorerType"
@@ -14576,6 +15276,128 @@ components:
         - like
       title: Operator
       type: string
+    OrganizationAction:
+      enum:
+        - rename
+        - delete
+      title: OrganizationAction
+      type: string
+    OrganizationCreate:
+      properties:
+        name:
+          minLength: 1
+          title: Name
+          type: string
+      required:
+        - name
+      title: OrganizationCreate
+      type: object
+    OrganizationCreatedAtSort:
+      properties:
+        ascending:
+          default: true
+          title: Ascending
+          type: boolean
+        name:
+          const: created_at
+          default: created_at
+          title: Name
+          type: string
+        sort_type:
+          const: column
+          default: column
+          title: Sort Type
+          type: string
+      title: OrganizationCreatedAtSort
+      type: object
+    OrganizationDB:
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        permissions:
+          default: []
+          items:
+            $ref: "#/components/schemas/Permission"
+          title: Permissions
+          type: array
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+        - id
+        - name
+        - created_at
+        - updated_at
+      title: OrganizationDB
+      type: object
+    OrganizationIsMemberFilter:
+      properties:
+        name:
+          const: is_member
+          default: is_member
+          title: Name
+          type: string
+        value:
+          title: Value
+          type: boolean
+      required:
+        - value
+      title: OrganizationIsMemberFilter
+      type: object
+    OrganizationNameFilter:
+      properties:
+        case_sensitive:
+          default: true
+          title: Case Sensitive
+          type: boolean
+        name:
+          const: name
+          default: name
+          title: Name
+          type: string
+        operator:
+          enum:
+            - eq
+            - ne
+            - contains
+          title: Operator
+          type: string
+        value:
+          title: Value
+          type: string
+      required:
+        - value
+        - operator
+      title: OrganizationNameFilter
+      type: object
+    OrganizationNameSort:
+      properties:
+        ascending:
+          default: true
+          title: Ascending
+          type: boolean
+        name:
+          const: name
+          default: name
+          title: Name
+          type: string
+        sort_type:
+          const: column
+          default: column
+          title: Sort Type
+          type: string
+      title: OrganizationNameSort
+      type: object
     OutputMap:
       properties:
         completion_reason:
@@ -14787,6 +15609,7 @@ components:
             - $ref: "#/components/schemas/ApiKeyAction"
             - $ref: "#/components/schemas/GeneratedScorerAction"
             - $ref: "#/components/schemas/DatasetAction"
+            - $ref: "#/components/schemas/OrganizationAction"
           title: Action
         allowed:
           title: Allowed
@@ -16317,6 +17140,14 @@ components:
             Job info used for computing the column. Only present for metrics
             columns that have a separate scorer job.
           title: Job Info
+        job_progress_message:
+          anyOf:
+            - type: string
+            - type: "null"
+          description:
+            Progress message to show the users on hover in case the job
+            is in progress.
+          title: Job Progress Message
         job_status:
           anyOf:
             - $ref: "#/components/schemas/JobStatus"
@@ -16860,6 +17691,35 @@ components:
         - operator
       title: QueryFilterV1
       type: object
+    QueryOrganizationParams:
+      properties:
+        filters:
+          items:
+            discriminator:
+              mapping:
+                is_member: "#/components/schemas/OrganizationIsMemberFilter"
+                name: "#/components/schemas/OrganizationNameFilter"
+              propertyName: name
+            oneOf:
+              - $ref: "#/components/schemas/OrganizationNameFilter"
+              - $ref: "#/components/schemas/OrganizationIsMemberFilter"
+          title: Filters
+          type: array
+        sort:
+          anyOf:
+            - discriminator:
+                mapping:
+                  created_at: "#/components/schemas/OrganizationCreatedAtSort"
+                  name: "#/components/schemas/OrganizationNameSort"
+                propertyName: name
+              oneOf:
+                - $ref: "#/components/schemas/OrganizationCreatedAtSort"
+                - $ref: "#/components/schemas/OrganizationNameSort"
+            - type: "null"
+          default: None
+          title: Sort
+      title: QueryOrganizationParams
+      type: object
     RangePromptFilterParam:
       properties:
         column:
@@ -17373,6 +18233,9 @@ components:
         - generated_scorer
         - api_key
         - dataset
+        - stage
+        - stage_version
+        - organization
       title: ResourceKind
       type: string
     Response:
@@ -17492,6 +18355,134 @@ components:
       required:
         - input
       title: RetrieverSpan
+      type: object
+    RetrieverSpanWithMetrics:
+      properties:
+        created_at_ns:
+          description: Timestamp of the step's creation, as nanoseconds since epoch.
+          title: Created At Ns
+          type: integer
+        duration_ns:
+          default: 0
+          description: Duration of the step in nanoseconds.
+          title: Duration Ns
+          type: integer
+        ground_truth:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Ground truth expected output for the step.
+          title: Ground Truth
+        input:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/Document"
+            - $ref: "#/components/schemas/Message"
+            - type: object
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - items:
+                $ref: "#/components/schemas/Message"
+              type: array
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - items:
+                type: object
+              type: array
+          description: Input to the step.
+          title: Input
+        metadata:
+          additionalProperties:
+            type: string
+          description: Metadata associated with this step.
+          title: Metadata
+          type: object
+        metrics:
+          additionalProperties:
+            anyOf:
+              - $ref: "#/components/schemas/MetricNotComputed"
+              - $ref: "#/components/schemas/MetricPending"
+              - $ref: "#/components/schemas/MetricComputing"
+              - $ref: "#/components/schemas/MetricNotApplicable"
+              - $ref: "#/components/schemas/MetricSuccess"
+              - $ref: "#/components/schemas/MetricError"
+              - $ref: "#/components/schemas/MetricFailed"
+          title: Metrics
+          type: object
+        name:
+          default: ""
+          description: Name of the step.
+          title: Name
+          type: string
+        output:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/Document"
+            - $ref: "#/components/schemas/Message"
+            - type: object
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - items:
+                $ref: "#/components/schemas/Message"
+              type: array
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - items:
+                type: object
+              type: array
+          default: ""
+          description: Output of the step.
+          title: Output
+        parent:
+          anyOf:
+            - $ref: "#/components/schemas/StepWithChildSpans"
+            - type: "null"
+          description: Parent node of the current node. For internal use only.
+        parent_id:
+          anyOf:
+            - format: uuid
+              type: string
+            - type: "null"
+          title: Parent Id
+        status_code:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description: Status code of the step. Used for logging failed/errored steps.
+          title: Status Code
+        step_id:
+          format: uuid4
+          title: Step Id
+          type: string
+        trace_id:
+          format: uuid4
+          title: Trace Id
+          type: string
+        type:
+          const: retriever
+          default: retriever
+          description: Type of the step. By default, it is set to retriever.
+          title: Type
+          type: string
+      required:
+        - trace_id
+        - step_id
+        - input
+      title: RetrieverSpanWithMetrics
       type: object
     RetrieverStep:
       properties:
@@ -18417,6 +19408,7 @@ components:
       title: ScoreRating
       type: object
     ScorerConfig:
+      description: Used for configuring a scorer for a scorer job.
       properties:
         id:
           format: uuid4
@@ -18609,6 +19601,10 @@ components:
             type: string
           title: Included Fields
           type: array
+        latest_version:
+          anyOf:
+            - $ref: "#/components/schemas/BaseScorerVersionResponse"
+            - type: "null"
         name:
           title: Name
           type: string
@@ -19534,6 +20530,8 @@ components:
         stage_name:
           title: Stage Name
           type: string
+        stage_type:
+          $ref: "#/components/schemas/StageType"
         stage_version:
           title: Stage Version
           type: integer
@@ -19542,6 +20540,7 @@ components:
         - stage_id
         - stage_name
         - stage_version
+        - stage_type
       title: StageMetadata
       type: object
     StageType:
@@ -19588,6 +20587,29 @@ components:
         - name
         - project_id
       title: StageWithRulesets
+      type: object
+    StandardColumnSort:
+      properties:
+        ascending:
+          default: true
+          title: Ascending
+          type: boolean
+        column_id:
+          title: Column Id
+          type: string
+        name:
+          const: standard
+          default: standard
+          title: Name
+          type: string
+        sort_type:
+          const: column
+          default: column
+          title: Sort Type
+          type: string
+      required:
+        - column_id
+      title: StandardColumnSort
       type: object
     StarAggregate:
       properties:
@@ -20685,6 +21707,134 @@ components:
         - input
       title: ToolSpan
       type: object
+    ToolSpanWithMetrics:
+      properties:
+        created_at_ns:
+          description: Timestamp of the step's creation, as nanoseconds since epoch.
+          title: Created At Ns
+          type: integer
+        duration_ns:
+          default: 0
+          description: Duration of the step in nanoseconds.
+          title: Duration Ns
+          type: integer
+        ground_truth:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Ground truth expected output for the step.
+          title: Ground Truth
+        input:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/Document"
+            - $ref: "#/components/schemas/Message"
+            - type: object
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - items:
+                $ref: "#/components/schemas/Message"
+              type: array
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - items:
+                type: object
+              type: array
+          description: Input to the step.
+          title: Input
+        metadata:
+          additionalProperties:
+            type: string
+          description: Metadata associated with this step.
+          title: Metadata
+          type: object
+        metrics:
+          additionalProperties:
+            anyOf:
+              - $ref: "#/components/schemas/MetricNotComputed"
+              - $ref: "#/components/schemas/MetricPending"
+              - $ref: "#/components/schemas/MetricComputing"
+              - $ref: "#/components/schemas/MetricNotApplicable"
+              - $ref: "#/components/schemas/MetricSuccess"
+              - $ref: "#/components/schemas/MetricError"
+              - $ref: "#/components/schemas/MetricFailed"
+          title: Metrics
+          type: object
+        name:
+          default: ""
+          description: Name of the step.
+          title: Name
+          type: string
+        output:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/Document"
+            - $ref: "#/components/schemas/Message"
+            - type: object
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - items:
+                $ref: "#/components/schemas/Message"
+              type: array
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - items:
+                type: object
+              type: array
+          default: ""
+          description: Output of the step.
+          title: Output
+        parent:
+          anyOf:
+            - $ref: "#/components/schemas/StepWithChildSpans"
+            - type: "null"
+          description: Parent node of the current node. For internal use only.
+        parent_id:
+          anyOf:
+            - format: uuid
+              type: string
+            - type: "null"
+          title: Parent Id
+        status_code:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description: Status code of the step. Used for logging failed/errored steps.
+          title: Status Code
+        step_id:
+          format: uuid4
+          title: Step Id
+          type: string
+        trace_id:
+          format: uuid4
+          title: Trace Id
+          type: string
+        type:
+          const: tool
+          default: tool
+          description: Type of the step. By default, it is set to tool.
+          title: Type
+          type: string
+      required:
+        - trace_id
+        - step_id
+        - input
+      title: ToolSpanWithMetrics
+      type: object
     ToolStep:
       properties:
         created_at_ns:
@@ -20845,13 +21995,13 @@ components:
         top_correlation_pairs:
           additionalProperties:
             type: number
-          default: {}
+          default: None
           title: Top Correlation Pairs
           type: object
         top_erroneous_words:
           additionalProperties:
             type: integer
-          default: {}
+          default: None
           title: Top Erroneous Words
           type: object
         top_misclassified_pairs:
@@ -21018,18 +22168,157 @@ components:
           type: integer
       title: TraceMetadata
       type: object
+    TraceWithMetrics:
+      properties:
+        created_at_ns:
+          description: Timestamp of the step's creation, as nanoseconds since epoch.
+          title: Created At Ns
+          type: integer
+        duration_ns:
+          default: 0
+          description: Duration of the step in nanoseconds.
+          title: Duration Ns
+          type: integer
+        ground_truth:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Ground truth expected output for the step.
+          title: Ground Truth
+        input:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/Document"
+            - $ref: "#/components/schemas/Message"
+            - type: object
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - items:
+                $ref: "#/components/schemas/Message"
+              type: array
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - items:
+                type: object
+              type: array
+          description: Input to the step.
+          title: Input
+        metadata:
+          additionalProperties:
+            type: string
+          description: Metadata associated with this step.
+          title: Metadata
+          type: object
+        metrics:
+          additionalProperties:
+            anyOf:
+              - $ref: "#/components/schemas/MetricNotComputed"
+              - $ref: "#/components/schemas/MetricPending"
+              - $ref: "#/components/schemas/MetricComputing"
+              - $ref: "#/components/schemas/MetricNotApplicable"
+              - $ref: "#/components/schemas/MetricSuccess"
+              - $ref: "#/components/schemas/MetricError"
+              - $ref: "#/components/schemas/MetricFailed"
+          title: Metrics
+          type: object
+        name:
+          default: ""
+          description: Name of the step.
+          title: Name
+          type: string
+        output:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/Document"
+            - $ref: "#/components/schemas/Message"
+            - type: object
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - items:
+                $ref: "#/components/schemas/Message"
+              type: array
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - items:
+                type: object
+              type: array
+          default: ""
+          description: Output of the step.
+          title: Output
+        parent_id:
+          anyOf:
+            - format: uuid
+              type: string
+            - type: "null"
+          title: Parent Id
+        spans:
+          items:
+            discriminator:
+              mapping:
+                llm: "#/components/schemas/LlmSpanWithMetrics"
+                retriever: "#/components/schemas/RetrieverSpanWithMetrics"
+                tool: "#/components/schemas/ToolSpanWithMetrics"
+                workflow: "#/components/schemas/WorkflowSpanWithMetrics"
+              propertyName: type
+            oneOf:
+              - $ref: "#/components/schemas/WorkflowSpanWithMetrics"
+              - $ref: "#/components/schemas/LlmSpanWithMetrics"
+              - $ref: "#/components/schemas/RetrieverSpanWithMetrics"
+              - $ref: "#/components/schemas/ToolSpanWithMetrics"
+          title: Spans
+          type: array
+        status_code:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description: Status code of the step. Used for logging failed/errored steps.
+          title: Status Code
+        step_id:
+          format: uuid4
+          title: Step Id
+          type: string
+        trace_id:
+          format: uuid4
+          title: Trace Id
+          type: string
+        type:
+          const: trace
+          default: trace
+          description: Type of the span. By default, it is set to trace.
+          title: Type
+          type: string
+      required:
+        - trace_id
+        - step_id
+        - input
+      title: TraceWithMetrics
+      type: object
     TracesIngestRequest:
       examples:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at_ns: 1739318606574843000
+            - created_at_ns: 1739653615039334000
               duration_ns: 0
               input: who is a smart LLM?
               metadata: {}
               name: trace
               output: I am!
               spans:
-                - created_at_ns: 1739318606566844000
+                - created_at_ns: 1739653615030671000
                   duration_ns: 0
                   input: "Question: who is a smart LLM?"
                   metadata: {}
@@ -21039,14 +22328,14 @@ components:
               type: trace
         - experiment_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at_ns: 1739318606574982000
+            - created_at_ns: 1739653615039495000
               duration_ns: 0
               input: who is a smart LLM?
               metadata: {}
               name: trace
               output: I am!
               spans:
-                - created_at_ns: 1739318606574976000
+                - created_at_ns: 1739653615039491000
                   duration_ns: 0
                   input: "Question: who is a smart LLM?"
                   metadata: {}
@@ -22360,6 +23649,15 @@ components:
           title: Name
       title: UpdateDatasetRequest
       type: object
+    UpdateDatasetVersionRequest:
+      properties:
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+      title: UpdateDatasetVersionRequest
+      type: object
     UpdateGeneratedScorerRequest:
       properties:
         chain_poll_template:
@@ -22453,6 +23751,31 @@ components:
         - last_updated_by
       title: UpdateRunResponse
       type: object
+    UpdateScorerRequest:
+      properties:
+        defaults:
+          anyOf:
+            - $ref: "#/components/schemas/ScorerDefaults"
+            - type: "null"
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Description
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+        tags:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          title: Tags
+      title: UpdateScorerRequest
+      type: object
     UpdateUserResponse:
       properties:
         auth_method:
@@ -22487,6 +23810,13 @@ components:
             - type: "null"
           default: ""
           title: Last Name
+        organization_id:
+          format: uuid4
+          title: Organization Id
+          type: string
+        organization_name:
+          title: Organization Name
+          type: string
         permissions:
           default: []
           items:
@@ -22503,6 +23833,8 @@ components:
       required:
         - id
         - email
+        - organization_id
+        - organization_name
         - created_at
         - updated_at
       title: UpdateUserResponse
@@ -22538,6 +23870,38 @@ components:
         - upload_url
       title: UploadModelResponse
       type: object
+    UsagePlan:
+      properties:
+        max_data_visibility_days:
+          title: Max Data Visibility Days
+          type: integer
+        max_organizations_per_user:
+          title: Max Organizations Per User
+          type: integer
+        max_payload_size_bytes:
+          title: Max Payload Size Bytes
+          type: integer
+        max_traces_per_month:
+          title: Max Traces Per Month
+          type: integer
+        max_users_per_organization:
+          title: Max Users Per Organization
+          type: integer
+      required:
+        - max_traces_per_month
+        - max_organizations_per_user
+        - max_users_per_organization
+        - max_data_visibility_days
+        - max_payload_size_bytes
+      title: UsagePlan
+      type: object
+    UsagePlanName:
+      enum:
+        - developer
+        - pro
+        - enterprise
+      title: UsagePlanName
+      type: string
     UserAction:
       enum:
         - update
@@ -22678,6 +24042,13 @@ components:
             - type: "null"
           default: ""
           title: Last Name
+        organization_id:
+          format: uuid4
+          title: Organization Id
+          type: string
+        organization_name:
+          title: Organization Name
+          type: string
         permissions:
           default: []
           items:
@@ -22694,6 +24065,8 @@ components:
       required:
         - id
         - email
+        - organization_id
+        - organization_name
         - created_at
         - updated_at
       title: UserDB
@@ -22809,6 +24182,13 @@ components:
             - type: "null"
           default: ""
           title: Last Name
+        organization_id:
+          format: uuid4
+          title: Organization Id
+          type: string
+        organization_name:
+          title: Organization Name
+          type: string
         permissions:
           default: []
           items:
@@ -22825,6 +24205,8 @@ components:
       required:
         - id
         - email
+        - organization_id
+        - organization_name
         - created_at
         - updated_at
       title: UserPasswordResetResponse
@@ -23160,6 +24542,150 @@ components:
         - input
       title: WorkflowSpan
       type: object
+    WorkflowSpanWithMetrics:
+      properties:
+        created_at_ns:
+          description: Timestamp of the step's creation, as nanoseconds since epoch.
+          title: Created At Ns
+          type: integer
+        duration_ns:
+          default: 0
+          description: Duration of the step in nanoseconds.
+          title: Duration Ns
+          type: integer
+        ground_truth:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Ground truth expected output for the step.
+          title: Ground Truth
+        input:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/Document"
+            - $ref: "#/components/schemas/Message"
+            - type: object
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - items:
+                $ref: "#/components/schemas/Message"
+              type: array
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - items:
+                type: object
+              type: array
+          description: Input to the step.
+          title: Input
+        metadata:
+          additionalProperties:
+            type: string
+          description: Metadata associated with this step.
+          title: Metadata
+          type: object
+        metrics:
+          additionalProperties:
+            anyOf:
+              - $ref: "#/components/schemas/MetricNotComputed"
+              - $ref: "#/components/schemas/MetricPending"
+              - $ref: "#/components/schemas/MetricComputing"
+              - $ref: "#/components/schemas/MetricNotApplicable"
+              - $ref: "#/components/schemas/MetricSuccess"
+              - $ref: "#/components/schemas/MetricError"
+              - $ref: "#/components/schemas/MetricFailed"
+          title: Metrics
+          type: object
+        name:
+          default: ""
+          description: Name of the step.
+          title: Name
+          type: string
+        output:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/Document"
+            - $ref: "#/components/schemas/Message"
+            - type: object
+            - items:
+                type: string
+              type: array
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - items:
+                $ref: "#/components/schemas/Message"
+              type: array
+            - items:
+                additionalProperties:
+                  type: string
+                type: object
+              type: array
+            - items:
+                type: object
+              type: array
+          default: ""
+          description: Output of the step.
+          title: Output
+        parent:
+          anyOf:
+            - $ref: "#/components/schemas/StepWithChildSpans"
+            - type: "null"
+          description: Parent node of the current node. For internal use only.
+        parent_id:
+          anyOf:
+            - format: uuid
+              type: string
+            - type: "null"
+          title: Parent Id
+        spans:
+          items:
+            discriminator:
+              mapping:
+                llm: "#/components/schemas/LlmSpanWithMetrics"
+                retriever: "#/components/schemas/RetrieverSpanWithMetrics"
+                tool: "#/components/schemas/ToolSpanWithMetrics"
+                workflow: "#/components/schemas/WorkflowSpanWithMetrics"
+              propertyName: type
+            oneOf:
+              - $ref: "#/components/schemas/WorkflowSpanWithMetrics"
+              - $ref: "#/components/schemas/LlmSpanWithMetrics"
+              - $ref: "#/components/schemas/RetrieverSpanWithMetrics"
+              - $ref: "#/components/schemas/ToolSpanWithMetrics"
+          title: Spans
+          type: array
+        status_code:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description: Status code of the step. Used for logging failed/errored steps.
+          title: Status Code
+        step_id:
+          format: uuid4
+          title: Step Id
+          type: string
+        trace_id:
+          format: uuid4
+          title: Trace Id
+          type: string
+        type:
+          const: workflow
+          default: workflow
+          description: Type of the span. By default, it is set to workflow.
+          title: Type
+          type: string
+      required:
+        - trace_id
+        - step_id
+        - input
+      title: WorkflowSpanWithMetrics
+      type: object
     WorkflowStep:
       properties:
         created_at_ns:
@@ -23285,7 +24811,7 @@ components:
       examples:
         - project_name: my-observe-project
           workflows:
-            - created_at_ns: 1739318604889612000
+            - created_at_ns: 1739653613265321000
               duration_ns: 0
               input: who is a smart LLM?
               metadata: {}
@@ -23294,7 +24820,7 @@ components:
               type: llm
         - project_id: 00000000-0000-0000-0000-000000000000
           workflows:
-            - created_at_ns: 1739318604889630000
+            - created_at_ns: 1739653613265339000
               duration_ns: 0
               input: who is a smart LLM?
               metadata: {}
@@ -23594,7 +25120,7 @@ components:
       type: oauth2
 info:
   title: Galileo API Server
-  version: 1.378.0
+  version: 1.397.0
 openapi: 3.1.0
 paths:
   /changelog:
@@ -24037,7 +25563,10 @@ paths:
               $ref: "#/components/schemas/RollbackRequest"
         required: true
       responses:
-        "204":
+        "200":
+          content:
+            application/json:
+              schema: {}
           description: Successful Response
         "422":
           content:
@@ -24132,6 +25661,179 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Download Dataset
+      tags:
+        - datasets
+  /datasets/{dataset_id}/groups:
+    get:
+      description: List the groups with which the dataset has been shared.
+      operationId: list_group_dataset_collaborators_datasets__dataset_id__groups_get
+      parameters:
+        - in: path
+          name: dataset_id
+          required: true
+          schema:
+            format: uuid4
+            title: Dataset Id
+            type: string
+        - in: query
+          name: starting_token
+          required: false
+          schema:
+            default: 0
+            title: Starting Token
+            type: integer
+        - in: query
+          name: limit
+          required: false
+          schema:
+            default: 100
+            title: Limit
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListGroupCollaboratorsResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List Group Dataset Collaborators
+      tags:
+        - datasets
+    post:
+      description: Share a dataset with groups.
+      operationId: create_group_dataset_collaborators_datasets__dataset_id__groups_post
+      parameters:
+        - in: path
+          name: dataset_id
+          required: true
+          schema:
+            format: uuid4
+            title: Dataset Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: "#/components/schemas/GroupCollaboratorCreate"
+              title: Body
+              type: array
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/GroupCollaborator"
+                title:
+                  Response Create Group Dataset Collaborators Datasets  Dataset
+                  Id  Groups Post
+                type: array
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Group Dataset Collaborators
+      tags:
+        - datasets
+  /datasets/{dataset_id}/groups/{group_id}:
+    delete:
+      description: Remove a group's access to a dataset.
+      operationId: delete_group_dataset_collaborator_datasets__dataset_id__groups__group_id__delete
+      parameters:
+        - in: path
+          name: dataset_id
+          required: true
+          schema:
+            format: uuid4
+            title: Dataset Id
+            type: string
+        - in: path
+          name: group_id
+          required: true
+          schema:
+            format: uuid4
+            title: Group Id
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Delete Group Dataset Collaborator
+      tags:
+        - datasets
+    patch:
+      description: Update the sharing permissions of a group on a dataset.
+      operationId: update_group_dataset_collaborator_datasets__dataset_id__groups__group_id__patch
+      parameters:
+        - in: path
+          name: dataset_id
+          required: true
+          schema:
+            format: uuid4
+            title: Dataset Id
+            type: string
+        - in: path
+          name: group_id
+          required: true
+          schema:
+            format: uuid4
+            title: Group Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CollaboratorUpdate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GroupCollaborator"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Update Group Dataset Collaborator
       tags:
         - datasets
   /datasets/{dataset_id}/users:
@@ -24354,6 +26056,49 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Query Dataset Versions
+      tags:
+        - datasets
+  /datasets/{dataset_id}/versions/{version_index}:
+    patch:
+      operationId: update_dataset_version_datasets__dataset_id__versions__version_index__patch
+      parameters:
+        - in: path
+          name: dataset_id
+          required: true
+          schema:
+            format: uuid4
+            title: Dataset Id
+            type: string
+        - in: path
+          name: version_index
+          required: true
+          schema:
+            title: Version Index
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateDatasetVersionRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DatasetVersionDB"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Update Dataset Version
       tags:
         - datasets
   /datasets/{dataset_id}/versions/{version_index}/content:
@@ -26737,6 +28482,84 @@ paths:
       summary: Log Workflows
       tags:
         - observe
+  /organizations:
+    post:
+      operationId: create_organization_organizations_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrganizationCreate"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrganizationDB"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Organization
+      tags:
+        - organizations
+  /organizations/query:
+    post:
+      operationId: query_organizations_organizations_query_post
+      parameters:
+        - in: query
+          name: starting_token
+          required: false
+          schema:
+            default: 0
+            title: Starting Token
+            type: integer
+        - in: query
+          name: limit
+          required: false
+          schema:
+            default: 100
+            title: Limit
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QueryOrganizationParams"
+              default:
+                filters: []
+                sort:
+                  ascending: false
+                  name: created_at
+                  sort_type: column
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListOrganizationsResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Query Organizations
+      tags:
+        - organizations
   /password_reset:
     post:
       description: "Reset a user's password.
@@ -27515,6 +29338,201 @@ paths:
       tags:
         - projects
         - user
+  /projects/{project_id}/experiments:
+    get:
+      description: Retrieve all experiments for a project.
+      operationId: list_experiments_projects__project_id__experiments_get
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/ExperimentResponse"
+                title:
+                  Response List Experiments Projects  Project Id  Experiments
+                  Get
+                type: array
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List Experiments
+      tags:
+        - experiment
+    post:
+      description: Create a new experiment for a project.
+      operationId: create_experiment_projects__project_id__experiments_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExperimentCreateRequest"
+              examples:
+                - name: my_first_experiment
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExperimentResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Experiment
+      tags:
+        - experiment
+  /projects/{project_id}/experiments/{experiment_id}:
+    delete:
+      description: Delete a specific experiment.
+      operationId: delete_experiment_projects__project_id__experiments__experiment_id__delete
+      parameters:
+        - in: path
+          name: experiment_id
+          required: true
+          schema:
+            format: uuid4
+            title: Experiment Id
+            type: string
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Delete Experiment
+      tags:
+        - experiment
+    get:
+      description: Retrieve a specific experiment.
+      operationId: get_experiment_projects__project_id__experiments__experiment_id__get
+      parameters:
+        - in: path
+          name: experiment_id
+          required: true
+          schema:
+            format: uuid4
+            title: Experiment Id
+            type: string
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExperimentResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Experiment
+      tags:
+        - experiment
+    put:
+      description: Update a specific experiment.
+      operationId: update_experiment_projects__project_id__experiments__experiment_id__put
+      parameters:
+        - in: path
+          name: experiment_id
+          required: true
+          schema:
+            format: uuid4
+            title: Experiment Id
+            type: string
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExperimentUpdateRequest"
+              examples:
+                - name: my_first_experiment
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExperimentResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Update Experiment
+      tags:
+        - experiment
   /projects/{project_id}/feedback/templates:
     get:
       operationId: list_feedback_templates_projects__project_id__feedback_templates_get
@@ -28025,6 +30043,201 @@ paths:
       summary: Update Group Project Collaborator
       tags:
         - projects
+  /projects/{project_id}/log_streams:
+    get:
+      description: Retrieve all log streams for a project.
+      operationId: list_log_streams_projects__project_id__log_streams_get
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/LogStreamResponse"
+                title:
+                  Response List Log Streams Projects  Project Id  Log Streams
+                  Get
+                type: array
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List Log Streams
+      tags:
+        - log_stream
+    post:
+      description: Create a new log stream for a project.
+      operationId: create_log_stream_projects__project_id__log_streams_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogStreamCreateRequest"
+              examples:
+                - name: my_first_log_stream
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogStreamResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Log Stream
+      tags:
+        - log_stream
+  /projects/{project_id}/log_streams/{log_stream_id}:
+    delete:
+      description: Delete a specific log stream.
+      operationId: delete_log_stream_projects__project_id__log_streams__log_stream_id__delete
+      parameters:
+        - in: path
+          name: log_stream_id
+          required: true
+          schema:
+            format: uuid4
+            title: Log Stream Id
+            type: string
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      responses:
+        "204":
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Delete Log Stream
+      tags:
+        - log_stream
+    get:
+      description: Retrieve a specific log stream.
+      operationId: get_log_stream_projects__project_id__log_streams__log_stream_id__get
+      parameters:
+        - in: path
+          name: log_stream_id
+          required: true
+          schema:
+            format: uuid4
+            title: Log Stream Id
+            type: string
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogStreamResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Log Stream
+      tags:
+        - log_stream
+    put:
+      description: Update a specific log stream.
+      operationId: update_log_stream_projects__project_id__log_streams__log_stream_id__put
+      parameters:
+        - in: path
+          name: log_stream_id
+          required: true
+          schema:
+            format: uuid4
+            title: Log Stream Id
+            type: string
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogStreamUpdateRequest"
+              examples:
+                - name: my_first_log_stream
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogStreamResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Update Log Stream
+      tags:
+        - log_stream
   /projects/{project_id}/metric_critiques:
     post:
       operationId: create_metric_critiques_projects__project_id__metric_critiques_post
@@ -28489,12 +30702,12 @@ paths:
               $ref: "#/components/schemas/TransactionRecordBatch"
               examples:
                 - records:
-                    - chain_id: <function uuid4 at 0x102e669e0>
+                    - chain_id: <function uuid4 at 0x103b2e9e0>
                       created_at: "2023-08-07T15:14:30.519922"
                       input_text: This is a prompt.
                       latency_ms: 894
                       model: gpt-3.5-turbo
-                      node_id: 10db6a27-9f5c-4784-a47b-cbb5de92eb92
+                      node_id: e923dccf-4604-463a-9a65-c16e2a9b935c
                       num_input_tokens: 7
                       num_output_tokens: 8
                       num_total_tokens: 15
@@ -34617,7 +36830,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LogDataGetResponse"
+                discriminator:
+                  mapping:
+                    llm: "#/components/schemas/LlmSpanWithMetrics"
+                    retriever: "#/components/schemas/RetrieverSpanWithMetrics"
+                    tool: "#/components/schemas/ToolSpanWithMetrics"
+                    workflow: "#/components/schemas/WorkflowSpanWithMetrics"
+                  propertyName: type
+                oneOf:
+                  - $ref: "#/components/schemas/WorkflowSpanWithMetrics"
+                  - $ref: "#/components/schemas/LlmSpanWithMetrics"
+                  - $ref: "#/components/schemas/RetrieverSpanWithMetrics"
+                  - $ref: "#/components/schemas/ToolSpanWithMetrics"
+                title: Response Get Span Projects  Project Id  Spans  Span Id  Get
           description: Successful Response
         "422":
           content:
@@ -35353,7 +37578,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LogDataGetResponse"
+                $ref: "#/components/schemas/TraceWithMetrics"
           description: Successful Response
         "422":
           content:
@@ -35936,7 +38161,38 @@ paths:
         - users
   /scorers:
     post:
-      operationId: list_scorers_with_filters_scorers_post
+      operationId: create_scorers_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateScorerRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScorerResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create
+      tags:
+        - data
+        - prompts
+        - rows
+  /scorers/list:
+    post:
+      operationId: list_scorers_with_filters_scorers_list_post
       parameters:
         - in: query
           name: starting_token
@@ -36031,6 +38287,83 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Get Scorer
+      tags:
+        - data
+        - prompts
+        - rows
+    patch:
+      operationId: update_scorers__scorer_id__patch
+      parameters:
+        - in: path
+          name: scorer_id
+          required: true
+          schema:
+            format: uuid4
+            title: Scorer Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateScorerRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScorerResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Update
+      tags:
+        - data
+        - prompts
+        - rows
+  /scorers/{scorer_id}/version/llm:
+    post:
+      operationId: create_llm_scorer_version_scorers__scorer_id__version_llm_post
+      parameters:
+        - in: path
+          name: scorer_id
+          required: true
+          schema:
+            format: uuid4
+            title: Scorer Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLLMScorerVersionRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseScorerVersionResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Llm Scorer Version
       tags:
         - data
         - prompts
@@ -36136,6 +38469,16 @@ paths:
   /token:
     get:
       operationId: get_token_token_get
+      parameters:
+        - in: query
+          name: organization_id
+          required: false
+          schema:
+            anyOf:
+              - format: uuid4
+                type: string
+              - type: "null"
+            title: Organization Id
       responses:
         "200":
           content:
@@ -36143,6 +38486,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/GetTokenResponse"
           description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
       security:
         - APIKeyHeader: []
         - OAuth2PasswordBearer: []
@@ -36185,6 +38534,32 @@ paths:
       summary: Get Token For Training Job
       tags:
         - projects
+  /usage_plans:
+    get:
+      description:
+        "Get the static usage plans for the supported subscription plans.\n\
+        \nReturns:\n    dict[UsagePlanName, UsagePlan]: A dictionary mapping subscription\
+        \ plan types\n        to their corresponding usage plans."
+      operationId: get_usage_plans_usage_plans_get
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  $ref: "#/components/schemas/UsagePlan"
+                propertyNames:
+                  $ref: "#/components/schemas/UsagePlanName"
+                title: Response Get Usage Plans Usage Plans Get
+                type: object
+          description: Successful Response
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Usage Plans
+      tags:
+        - usage_plans
   /user_roles:
     get:
       description: Get all user roles.
@@ -36348,7 +38723,7 @@ paths:
               $ref: "#/components/schemas/CreateApiKeyRequest"
               examples:
                 - description: My cool api_key
-                  expires_at: "2024-04-01 09:00:00"
+                  expires_at: "2025-04-01 09:00:00+00:00"
         required: true
       responses:
         "200":
@@ -36958,6 +39333,16 @@ paths:
   /v1/token:
     get:
       operationId: get_token_v1_token_get
+      parameters:
+        - in: query
+          name: organization_id
+          required: false
+          schema:
+            anyOf:
+              - format: uuid4
+                type: string
+              - type: "null"
+            title: Organization Id
       responses:
         "200":
           content:
@@ -36965,6 +39350,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/GetTokenResponse"
           description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
       security:
         - APIKeyHeader: []
         - OAuth2PasswordBearer: []
@@ -37472,7 +39863,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LogDataGetResponse"
+                discriminator:
+                  mapping:
+                    llm: "#/components/schemas/LlmSpanWithMetrics"
+                    retriever: "#/components/schemas/RetrieverSpanWithMetrics"
+                    tool: "#/components/schemas/ToolSpanWithMetrics"
+                    workflow: "#/components/schemas/WorkflowSpanWithMetrics"
+                  propertyName: type
+                oneOf:
+                  - $ref: "#/components/schemas/WorkflowSpanWithMetrics"
+                  - $ref: "#/components/schemas/LlmSpanWithMetrics"
+                  - $ref: "#/components/schemas/RetrieverSpanWithMetrics"
+                  - $ref: "#/components/schemas/ToolSpanWithMetrics"
+                title: Response Get Span V2 Projects  Project Id  Spans  Span Id  Get
           description: Successful Response
         "422":
           content:
@@ -37621,7 +40024,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LogDataGetResponse"
+                $ref: "#/components/schemas/TraceWithMetrics"
           description: Successful Response
         "422":
           content:
@@ -37639,6 +40042,16 @@ paths:
   /v2/token:
     get:
       operationId: get_token_v2_token_get
+      parameters:
+        - in: query
+          name: organization_id
+          required: false
+          schema:
+            anyOf:
+              - format: uuid4
+                type: string
+              - type: "null"
+            title: Organization Id
       responses:
         "200":
           content:
@@ -37646,6 +40059,12 @@ paths:
               schema:
                 $ref: "#/components/schemas/GetTokenResponse"
           description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
       security:
         - APIKeyHeader: []
         - OAuth2PasswordBearer: []

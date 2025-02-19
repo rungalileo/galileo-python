@@ -9,6 +9,7 @@ from ..models.scorer_types import ScorerTypes
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.base_scorer_version_response import BaseScorerVersionResponse
     from ..models.scorer_defaults import ScorerDefaults
 
 
@@ -29,6 +30,7 @@ class ScorerResponse:
         description (Union[None, Unset, str]):
         included_fields (Union[Unset, list[str]]): Fields that can be used in the scorer to configure it. i.e. model,
             num_judges, etc. This enables the ui to know which fields a user can configure when they're setting a scorer
+        latest_version (Union['BaseScorerVersionResponse', None, Unset]):
         updated_at (Union[None, Unset, datetime.datetime]):
     """
 
@@ -41,10 +43,12 @@ class ScorerResponse:
     defaults: Union["ScorerDefaults", None, Unset] = UNSET
     description: Union[None, Unset, str] = UNSET
     included_fields: Union[Unset, list[str]] = UNSET
+    latest_version: Union["BaseScorerVersionResponse", None, Unset] = UNSET
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.base_scorer_version_response import BaseScorerVersionResponse
         from ..models.scorer_defaults import ScorerDefaults
 
         id = self.id
@@ -87,6 +91,14 @@ class ScorerResponse:
         if not isinstance(self.included_fields, Unset):
             included_fields = self.included_fields
 
+        latest_version: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.latest_version, Unset):
+            latest_version = UNSET
+        elif isinstance(self.latest_version, BaseScorerVersionResponse):
+            latest_version = self.latest_version.to_dict()
+        else:
+            latest_version = self.latest_version
+
         updated_at: Union[None, Unset, str]
         if isinstance(self.updated_at, Unset):
             updated_at = UNSET
@@ -115,6 +127,8 @@ class ScorerResponse:
             field_dict["description"] = description
         if included_fields is not UNSET:
             field_dict["included_fields"] = included_fields
+        if latest_version is not UNSET:
+            field_dict["latest_version"] = latest_version
         if updated_at is not UNSET:
             field_dict["updated_at"] = updated_at
 
@@ -122,6 +136,7 @@ class ScorerResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+        from ..models.base_scorer_version_response import BaseScorerVersionResponse
         from ..models.scorer_defaults import ScorerDefaults
 
         d = src_dict.copy()
@@ -187,6 +202,23 @@ class ScorerResponse:
 
         included_fields = cast(list[str], d.pop("included_fields", UNSET))
 
+        def _parse_latest_version(data: object) -> Union["BaseScorerVersionResponse", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                latest_version_type_0 = BaseScorerVersionResponse.from_dict(data)
+
+                return latest_version_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["BaseScorerVersionResponse", None, Unset], data)
+
+        latest_version = _parse_latest_version(d.pop("latest_version", UNSET))
+
         def _parse_updated_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
@@ -214,6 +246,7 @@ class ScorerResponse:
             defaults=defaults,
             description=description,
             included_fields=included_fields,
+            latest_version=latest_version,
             updated_at=updated_at,
         )
 

@@ -24,6 +24,8 @@ class CurrentUserDB:
         created_at (datetime.datetime):
         email (str):
         id (str):
+        organization_id (str):
+        organization_name (str):
         updated_at (datetime.datetime):
         auth_method (Union[Unset, AuthMethod]):
         email_is_verified (Union[None, Unset, bool]):
@@ -37,6 +39,8 @@ class CurrentUserDB:
     created_at: datetime.datetime
     email: str
     id: str
+    organization_id: str
+    organization_name: str
     updated_at: datetime.datetime
     auth_method: Union[Unset, AuthMethod] = UNSET
     email_is_verified: Union[None, Unset, bool] = UNSET
@@ -53,6 +57,10 @@ class CurrentUserDB:
         email = self.email
 
         id = self.id
+
+        organization_id = self.organization_id
+
+        organization_name = self.organization_name
 
         updated_at = self.updated_at.isoformat()
 
@@ -103,6 +111,8 @@ class CurrentUserDB:
                 "created_at": created_at,
                 "email": email,
                 "id": id,
+                "organization_id": organization_id,
+                "organization_name": organization_name,
                 "updated_at": updated_at,
             }
         )
@@ -134,6 +144,10 @@ class CurrentUserDB:
         email = d.pop("email")
 
         id = d.pop("id")
+
+        organization_id = d.pop("organization_id")
+
+        organization_name = d.pop("organization_name")
 
         updated_at = isoparse(d.pop("updated_at"))
 
@@ -196,6 +210,8 @@ class CurrentUserDB:
             created_at=created_at,
             email=email,
             id=id,
+            organization_id=organization_id,
+            organization_name=organization_name,
             updated_at=updated_at,
             auth_method=auth_method,
             email_is_verified=email_is_verified,
