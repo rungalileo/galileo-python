@@ -1,7 +1,7 @@
 import logging
 from dataclasses import dataclass
 from inspect import isclass
-from typing import Optional
+from typing import Optional, Dict, Any, Callable
 from datetime import datetime
 
 import openai.resources
@@ -25,10 +25,10 @@ except ImportError:
 try:
     from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI  # noqa: F401
 except ImportError:
-    AsyncAzureOpenAI = None
-    AsyncOpenAI = None
-    AzureOpenAI = None
-    OpenAI = None
+    AsyncAzureOpenAI = None # type: ignore
+    AsyncOpenAI = None # type: ignore
+    AzureOpenAI = None # type: ignore
+    OpenAI = None # type: ignore
 
 
 @dataclass
@@ -68,10 +68,8 @@ OPENAI_CLIENT_METHODS = [
 
 
 class OpenAiArgsExtractor:
-    def __init__(self, name=None, metadata=None, **kwargs):
-        self.args = {}
-        self.args["name"] = name
-        self.args["metadata"] = (
+    def __init__(self, name: Optional[str] = None, metadata: Optional[dict]=None, **kwargs: Any) -> None:
+        self.args = {"name": name, "metadata": (
             metadata
             if "response_format" not in kwargs
             else {
@@ -79,17 +77,17 @@ class OpenAiArgsExtractor:
                 "response_format": (
                     kwargs["response_format"].model_json_schema()
                     if isclass(kwargs["response_format"])
-                    and issubclass(kwargs["response_format"], BaseModel)
+                       and issubclass(kwargs["response_format"], BaseModel)
                     else kwargs["response_format"]
                 ),
             }
-        )
+        )}
         self.kwargs = kwargs
 
-    def get_galileo_args(self):
+    def get_galileo_args(self) -> dict[str, Any]:
         return {**self.args, **self.kwargs}
 
-    def get_openai_args(self):
+    def get_openai_args(self) -> dict[str, Any]:
         # If OpenAI model distillation is enabled, we need to add the metadata to the kwargs
         # https://platform.openai.com/docs/guides/distillation
         if self.kwargs.get("store", False):
@@ -102,9 +100,9 @@ class OpenAiArgsExtractor:
         return self.kwargs
 
 
-def _galileo_wrapper(func):
-    def _with_galileo(open_ai_definitions, initialize):
-        def wrapper(wrapped, instance, args, kwargs):
+def _galileo_wrapper(func: Callable) -> Callable:
+    def _with_galileo(open_ai_definitions: OpenAiModuleDefinition, initialize: Callable) -> Callable:
+        def wrapper(wrapped: Callable, args: dict, kwargs: dict) -> Any:
             return func(open_ai_definitions, initialize, wrapped, args, kwargs)
 
         return wrapper
@@ -112,8 +110,8 @@ def _galileo_wrapper(func):
     return _with_galileo
 
 
-def _extract_chat_prompt(kwargs: any):
-    """Extracts the user input from prompts. Returns an array of messages or dict with messages and functions"""
+def _extract_chat_prompt(kwargs: Dict) -> list | dict:
+    """Extracts the user input from prompts. Returns a list of messages or dict with messages and functions"""
     prompt = {}
 
     if kwargs.get("functions") is not None:
@@ -133,7 +131,7 @@ def _extract_chat_prompt(kwargs: any):
         return [message for message in kwargs.get("messages", [])]
 
 
-def _extract_chat_response(kwargs: any):
+def _extract_chat_response(kwargs: Dict) -> dict:
     """Extracts the llm output from the response."""
     response = {"role": kwargs.get("role", None)}
 
@@ -149,9 +147,9 @@ def _extract_chat_response(kwargs: any):
 
 
 def _extract_input_data_from_kwargs(
-    resource: OpenAiModuleDefinition, start_time, kwargs
+    resource: OpenAiModuleDefinition, start_time: datetime, kwargs: dict[str, Any]
 ) -> OpenAiInputData:
-    name = kwargs.get("name", "openai-client-generation")
+    name: str = kwargs.get("name", "openai-client-generation")
 
     if name is None:
         name = "openai-client-generation"
@@ -159,7 +157,7 @@ def _extract_input_data_from_kwargs(
     if name is not None and not isinstance(name, str):
         raise TypeError("name must be a string")
 
-    metadata = kwargs.get("metadata", {})
+    metadata: dict = kwargs.get("metadata", {})
 
     if metadata is not None and not isinstance(metadata, dict):
         raise TypeError("metadata must be a dictionary")
@@ -211,7 +209,7 @@ def _extract_input_data_from_kwargs(
 
     parsed_n = kwargs.get("n", 1) if not isinstance(kwargs.get("n", 1), NotGiven) else 1
 
-    modelParameters = {
+    model_parameters = {
         "temperature": parsed_temperature,
         "max_tokens": parsed_max_tokens,
         "top_p": parsed_top_p,
@@ -219,25 +217,27 @@ def _extract_input_data_from_kwargs(
         "presence_penalty": parsed_presence_penalty,
     }
     if parsed_n is not None and parsed_n > 1:
-        modelParameters["n"] = parsed_n
+        model_parameters["n"] = parsed_n
 
     if parsed_seed is not None:
-        modelParameters["seed"] = parsed_seed
+        model_parameters["seed"] = parsed_seed
 
     return OpenAiInputData(
         name=name,
         metadata=metadata,
         start_time=start_time,
-        input=prompt,
-        model_parameters=modelParameters,
+        # TODO: galileo/openai.py:229: error:
+        # Argument "input" to "OpenAiInputData" has incompatible type "Any | None"; expected "str"  [arg-type]
+        input=prompt, # type: ignore
+        model_parameters=model_parameters,
         model=model or None,
         temperature=parsed_temperature,
     )
 
 
-def _parse_usage(usage=None):
+def _parse_usage(usage: Optional[dict] = None) -> Optional[dict]:
     if usage is None:
-        return
+        return None
 
     usage_dict = usage.copy() if isinstance(usage, dict) else usage.__dict__
 
@@ -255,7 +255,7 @@ def _parse_usage(usage=None):
     return usage_dict
 
 
-def _extract_data_from_default_response(resource: OpenAiModuleDefinition, response):
+def _extract_data_from_default_response(resource: OpenAiModuleDefinition, response: dict[str, Any]) -> Any:
     if response is None:
         return None, "<NoneType response returned from OpenAI>", None
 
@@ -290,15 +290,15 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
 
     usage = _parse_usage(response.get("usage", None))
 
-    return (model, completion, usage)
+    return model, completion, usage
 
 
-def _is_openai_v1():
+def _is_openai_v1() -> bool:
     return Version(openai.__version__) >= Version("1.0.0")
 
 
 @_galileo_wrapper
-def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize, wrapped, args, kwargs):
+def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrapped: Callable, args: dict, kwargs: dict) -> Any:
     # Retrieve the decorator context
     decorator_context_project = galileo_context.get_current_project()
     decorator_context_log_stream = galileo_context.get_current_log_stream()
@@ -387,14 +387,14 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize, wrapped, args, k
 class OpenAIGalileo:
     _galileo_logger: Optional[GalileoLogger] = None
 
-    def initialize(self, project=Optional[str], log_stream=Optional[str]):
+    def initialize(self, project: Optional[str], log_stream: Optional[str]) -> Optional[GalileoLogger]:
         self._galileo_logger = GalileoLoggerSingleton().get(
             project=project or None, log_stream=log_stream or None
         )
 
         return self._galileo_logger
 
-    def register_tracing(self):
+    def register_tracing(self) -> None:
         for resource in OPENAI_CLIENT_METHODS:
             wrap_function_wrapper(
                 resource.module,
