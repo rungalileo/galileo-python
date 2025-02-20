@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 import inspect
 import json
 import logging
@@ -8,20 +9,18 @@ from typing import (
     Any,
     AsyncGenerator,
     Callable,
-    DefaultDict,
     Dict,
     Generator,
-    Iterable,
     List,
     Literal,
     Optional,
     Tuple,
     TypeVar,
-    Union,
     cast,
-    overload,
+    overload, Union,
 )
 
+from mypy.dmypy_util import TracebackType
 from typing_extensions import ParamSpec
 
 from galileo.utils.serialization import EventSerializer
@@ -29,7 +28,6 @@ from galileo.utils.serialization import EventSerializer
 from galileo.utils.singleton import GalileoLoggerSingleton
 
 from galileo_core.schemas.shared.traces.types import (
-    StepWithChildSpans,
     Trace,
     WorkflowSpan,
 )
@@ -76,13 +74,13 @@ class GalileoDecorator:
     # Context manager methods
     #
 
-    def __init__(self):
+    def __init__(self) -> None:
         self._previous_project_context = None
         self._previous_log_stream_context = None
         self._previous_trace_context = None
         self._previous_span_stack_context = None
 
-    def __enter__(self):
+    def __enter__(self) -> "GalileoDecorator":
         """
         Entry point for the context manager.
         """
@@ -101,7 +99,7 @@ class GalileoDecorator:
 
         return self  # Allows `as galileo` usage
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type: Optional[BaseException], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
         # Flush the logger instance
         self.get_logger_instance(
             project=_project_context.get(), log_stream=_log_stream_context.get()
@@ -115,7 +113,7 @@ class GalileoDecorator:
 
     def __call__(
         self, *, project: Optional[str] = None, log_stream: Optional[str] = None
-    ):
+    ) -> "GalileoDecorator":
         """Allows context manager usage like `with galileo_context(...)`"""
         self._project = project
         self._log_stream = log_stream
@@ -534,7 +532,7 @@ class GalileoDecorator:
         generator: Generator,
         project: Optional[str],
         log_stream: Optional[str],
-    ):
+    ) -> Generator:
         items = []
 
         try:
@@ -590,7 +588,7 @@ class GalileoDecorator:
             log_stream=log_stream or _log_stream_context.get(),
         )
 
-    def get_current_project(self) -> str | None:
+    def get_current_project(self) -> Optional[str]:
         """Retrieve the current project name from context.
 
         Returns:
@@ -598,7 +596,7 @@ class GalileoDecorator:
         """
         return _project_context.get()
 
-    def get_current_log_stream(self) -> str | None:
+    def get_current_log_stream(self) -> Optional[str]:
         """Retrieve the current log stream name from context.
 
         Returns:
@@ -622,7 +620,7 @@ class GalileoDecorator:
         """
         return _trace_context.get()
 
-    def flush(self, project: Optional[str] = None, log_stream: Optional[str] = None):
+    def flush(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
         """
         Upload all captured traces to Galileo.
 

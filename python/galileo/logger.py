@@ -1,4 +1,4 @@
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, Union
 from os import getenv
 from pydantic import Field
 import atexit

@@ -1,0 +1,49 @@
+name: Test and Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  test:
+    runs-on: galileo
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install `poetry`
+        run: pipx install poetry==2.0.1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          cache: "poetry"
+          python-version: "3.10"
+
+      - name: Install / Start dependencies
+        run: |
+          pipx install invoke
+          cd python
+          inv install
+
+      # We run the `mypy` check here since it requires all of the packages to be installed.
+      # Doing that in the pre-commit step would be duplicative and spend more time in CI.
+      - name: Validate Types
+        run: inv type-check
+
+      - name: Test
+        run: inv test
+
+      - name: Upload Test Coverage Reports
+        uses: codecov/codecov-action@v5.3.1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Upload Test Results
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
