@@ -17,7 +17,7 @@ from typing import (
     Tuple,
     TypeVar,
     cast,
-    overload,
+    overload, Union,
 )
 
 from mypy.dmypy_util import TracebackType
