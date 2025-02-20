@@ -1,6 +1,7 @@
 from enum import Enum
 from http.client import HTTPException
-from typing import Any
+from typing import Any, Optional
+from os import getenv
 
 from httpx import Response
 
@@ -18,8 +19,12 @@ async def _validate_response(response: Response) -> None:
         raise HTTPException(msg)
 
 
-async def make_request(request_method: RequestMethod, base_url: str, endpoint: str, **kwargs: Any) -> Any:
-    return await ApiClient.make_request(request_method=request_method, base_url=base_url, endpoint=endpoint, **kwargs)
+async def make_request(
+    request_method: RequestMethod, base_url: str, endpoint: str, **kwargs: Any
+) -> Any:
+    return await ApiClient.make_request(
+        request_method=request_method, base_url=base_url, endpoint=endpoint, **kwargs
+    )
 
 
 class HttpHeaders(str, Enum):

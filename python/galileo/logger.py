@@ -4,11 +4,8 @@ from pydantic import Field
 import atexit
 import logging
 
-from galileo_core.helpers.execution import async_run
-
 from galileo_core.schemas.shared.traces.types import (
     Trace,
-    StepWithChildSpans,
 )
 from galileo_core.schemas.shared.traces.trace import Traces
 from galileo_core.schemas.shared.workflows.step import StepIOType
@@ -16,7 +13,11 @@ from galileo_core.schemas.shared.workflows.step import StepIOType
 from galileo.schema.trace import (
     TracesIngestRequest,
 )
-from galileo.utils.api_client import ApiClient
+from galileo.utils.core_api_client import GalileoCoreApiClient
+from galileo.constants import DEFAULT_PROJECT_NAME, DEFAULT_LOG_STREAM_NAME
+from galileo.api_client import GalileoApiClient
+from galileo.projects import Projects
+from galileo.log_streams import LogStreams
 
 
 class GalileoLogger(Traces):
@@ -78,29 +79,78 @@ class GalileoLogger(Traces):
     ```
     """
 
-    project: str = Field(description="Name of the project.")
-    log_stream: str = Field(description="Name of the log stream.")
+    project_name: Optional[str] = None
+    log_stream_name: Optional[str] = None
+
+    project_id: Optional[str] = None
+    log_stream_id: Optional[str] = None
 
     _logger = logging.getLogger("galileo.logger")
 
-    def __init__(self, **data: Any) -> None:
+    def __init__(
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+    ) -> None:
         try:
-            project_name_from_env = getenv("GALILEO_PROJECT")
-            log_stream_name_from_env = getenv("GALILEO_LOG_STREAM")
+            super().__init__()
 
-            if data.get("project") is None:
-                data["project"] = project_name_from_env
+            project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
+            log_stream_name_from_env = getenv(
+                "GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME
+            )
 
-            if data.get("log_stream") is None:
-                data["log_stream"] = log_stream_name_from_env
+            if project is None:
+                self.project_name = project_name_from_env
+            else:
+                self.project_name = project
 
-            if data.get("project") is None or data.get("log_stream") is None:
+            if log_stream is None:
+                self.log_stream_name = log_stream_name_from_env
+            else:
+                self.log_stream_name = log_stream
+
+            if self.project_name is None or self.log_stream_name is None:
                 raise Exception(
                     "Project and log_stream are required to initialize GalileoLogger."
                 )
 
-            super().__init__(**data)
-            self._client = ApiClient(self.project, self.log_stream)
+            # Get project and log stream IDs
+            api_client = GalileoApiClient()
+            projects_client = Projects(client=api_client)
+            log_streams_client = LogStreams(client=api_client)
+
+            project_obj = projects_client.get(name=self.project_name)
+            if project_obj is None:
+                # Create project if it doesn't exist
+                self.project_id = projects_client.create(name=self.project_name).id
+                self._logger.info(
+                    f"🚀 Creating new project... project {self.project_name} created!"
+                )
+            else:
+                if project_obj.type != "gen_ai":
+                    raise Exception(
+                        f"Project {self.project_name} is not a Galileo 2.0 project"
+                    )
+                self.project_id = project_obj.id
+
+            log_stream_obj = log_streams_client.get(
+                name=self.log_stream_name, project_id=self.project_id
+            )
+            if log_stream_obj is None:
+                # Create log stream if it doesn't exist
+                self.log_stream_id = log_streams_client.create(
+                    name=self.log_stream_name, project_id=self.project_id
+                ).id
+                self._logger.info(
+                    f"🚀 Creating new log stream... log stream {self.log_stream_name} created!"
+                )
+            else:
+                self.log_stream_id = log_stream_obj.id
+
+            self._client = GalileoCoreApiClient(
+                project_id=self.project_id, log_stream_id=self.log_stream_id
+            )
 
             # cleans up when the python interpreter closes
             atexit.register(self.terminate)
@@ -160,7 +210,6 @@ class GalileoLogger(Traces):
                 self._logger.warning("No traces to flush.")
                 return list()
             traces_ingest_request = TracesIngestRequest(traces=self.traces)
-            # async_run(self._client.ingest_traces(traces_ingest_request))
             self._client.ingest_traces_sync(traces_ingest_request)
             logged_traces = self.traces
             self.traces = list()
