@@ -43,7 +43,7 @@ class GalileoApiClient(AuthenticatedClient):
     """
 
     _base_url: Optional[str] = field(
-        factory=lambda: getenv("GALILEO_CONSOLE_URL", None), alias="base_url"
+        factory=lambda: GalileoApiClient.get_api_url(), kw_only=True, alias="base_url"
     )
     _api_key: Optional[str] = field(
         factory=lambda: getenv("GALILEO_API_KEY", None), kw_only=True, alias="api_key"
@@ -111,3 +111,14 @@ class GalileoApiClient(AuthenticatedClient):
                 **self._httpx_args,
             )
         return self._async_client
+
+    @staticmethod
+    def get_api_url(base_url: Optional[str] = None) -> str:
+        api_url = base_url or getenv("GALILEO_CONSOLE_URL", None)
+        if api_url is None:
+            raise ValueError("base_url or GALILEO_CONSOLE_URL must be set")
+        if any(map(api_url.__contains__, ["localhost", "127.0.0.1"])):
+            api_url = "http://localhost:8088"
+        else:
+            api_url = api_url.replace("console", "api")
+        return api_url

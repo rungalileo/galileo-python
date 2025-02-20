@@ -21,7 +21,7 @@ class GalileoLoggerSingleton:
     _lock = threading.Lock()  # Lock for thread-safe instantiation and operations.
     _galileo_loggers: Dict[Tuple[str, str], GalileoLogger] = {}  # Cache for loggers.
 
-    def __new__(cls):
+    def __new__(cls) -> 'GalileoLoggerSingleton':
         """
         Override __new__ to ensure only one instance of GalileoLoggerSingleton is created.
 

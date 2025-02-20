@@ -1,10 +1,8 @@
-from json import dumps
 from typing import Any, Union
 from uuid import UUID
 import datetime as dt
 
 from langchain_core.agents import AgentAction, AgentFinish
-from langchain_core.load.dump import default
 from langchain_core.messages import BaseMessage
 from langchain_core.outputs import ChatGeneration, LLMResult
 from langchain_core.prompt_values import ChatPromptValue
@@ -57,11 +55,11 @@ def serialize_datetime(v: dt.datetime) -> str:
 
 
 class EventSerializer(JSONEncoder):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
-        self.seen = set()  # Track seen objects to detect circular references
+        self.seen: set[int] = set()  # Track seen objects to detect circular references
 
-    def default(self, obj: Any):
+    def default(self, obj: Any) -> Any:
         try:
             if isinstance(obj, (datetime)):
                 return serialize_datetime(obj)
@@ -76,7 +74,7 @@ class EventSerializer(JSONEncoder):
                 return type(obj).__name__
 
             if is_dataclass(obj):
-                return asdict(obj)
+                return asdict(obj) # type: ignore
 
             if isinstance(obj, UUID):
                 return str(obj)
@@ -99,13 +97,6 @@ class EventSerializer(JSONEncoder):
                         exclude_defaults=True,
                     )
                 )
-            elif isinstance(obj, BaseModelV1):
-                return convert_to_jsonable(
-                    obj.dict(
-                        exclude_unset=True, exclude_none=True, exclude_defaults=True
-                    )
-                )
-
             if isinstance(obj, Path):
                 return str(obj)
 
