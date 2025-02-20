@@ -34,7 +34,7 @@ def make_nested_call():
     return call_openai()
 
 
-# This will create a trace with a workflow span and a nested LLM span
+# This will create a trace with a workflow span and a nested LLM span containing the OpenAI call
 make_nested_call()
 
 # This will log to the project and log stream specified in the context manager
