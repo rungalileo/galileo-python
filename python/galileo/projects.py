@@ -165,8 +165,6 @@ class Projects(BaseClientModel):
                 created_by=None,
             )
 
-            print(body)
-
             response = create_project_projects_post.sync(client=self.client, body=body)
 
             if isinstance(response, HTTPValidationError):
@@ -179,7 +177,6 @@ class Projects(BaseClientModel):
             return Project(project=response)
 
         except Exception as e:
-            print(e)
             raise e
 
 

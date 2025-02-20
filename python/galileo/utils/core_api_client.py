@@ -48,10 +48,10 @@ class GalileoCoreApiClient:
 
     def __init__(
         self,
-        project_name: str,
-        log_stream_name: Optional[str] = None,
         base_url: Optional[str] = None,
         api_key: Optional[str] = None,
+        project_id: Optional[str] = None,
+        log_stream_id: Optional[str] = None,
     ):
         self.api_url = GalileoApiClient.get_api_url(base_url)
         self.api_key = api_key or getenv("GALILEO_API_KEY", None)
@@ -59,29 +59,8 @@ class GalileoCoreApiClient:
         if not self.api_url or not self.api_key:
             raise ValueError("api_url and api_key must be set")
 
-        api_client = GalileoApiClient(base_url=self.api_url, api_key=self.api_key)
-        projects_client = Projects(client=api_client)
-        log_streams_client = LogStreams(client=api_client)
-
-        project = projects_client.get(name=project_name)
-        if project is None:
-            self.project_id = projects_client.create(name=project_name)["id"]
-            _logger.info(f"🚀 Creating new project... project {project_name} created!")
-        else:
-            if project["type"] != "gen_ai":
-                raise Exception(f"Project {project_name} is not a Galileo 2.0 project")
-            self.project_id = project["id"]
-
-        log_stream = log_streams_client.get(name=log_stream_name)
-        if log_stream is None:
-            self.log_stream_id = log_streams_client.create(
-                name=log_stream_name, project_id=self.project_id
-            )["id"]
-            _logger.info(
-                f"🚀 Creating new log stream... log stream {log_stream_name} created!"
-            )
-        else:
-            self.log_stream_id = log_stream["id"]
+        self.project_id = project_id
+        self.log_stream_id = log_stream_id
 
     @property
     def auth_header(self) -> dict[str, str]:
