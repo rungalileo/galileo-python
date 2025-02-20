@@ -48,7 +48,6 @@ def setup_mock_logstreams_client(mock_logstreams_client: Mock):
                 name="test",
                 created_at=now,
                 updated_at=now,
-                # additional_properties={},
             )
         )
     )
