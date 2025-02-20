@@ -289,7 +289,7 @@ class GalileoDecorator:
             start_time = _get_timestamp()
 
             # Extract function args
-            input = self._merge_args_with_kwargs(
+            input_ = self._merge_args_with_kwargs(
                 func=func,
                 is_method=is_method,
                 func_args=func_args,
@@ -302,28 +302,25 @@ class GalileoDecorator:
                 for span_param, mapping in params.items():
                     if callable(mapping):
                         # If mapping is a function, call it with the merged args
-                        span_params[span_param] = mapping(input)
-                    elif span_param.startswith("$"):
-                        # Handle static values (prefixed with $)
-                        span_params[span_param] = func_param[1:]
+                        span_params[span_param] = mapping(input_)
                     else:
                         # If mapping is a string, use it as a key to get value from merged args
-                        if mapping in input:
-                            span_params[span_param] = input[mapping]
+                        if mapping in input_:
+                            span_params[span_param] = input_[mapping]
 
             # Auto-map matching parameters if they exist in merged_args
             # This will fill in any missing span parameters based on the function signature
             if span_type:
                 span_param_names = self._get_span_param_names(span_type)
                 for param_name in span_param_names:
-                    if param_name in input and param_name not in span_params:
-                        span_params[param_name] = input[param_name]
+                    if param_name in input_ and param_name not in span_params:
+                        span_params[param_name] = input_[param_name]
 
             if "name" not in span_params:
                 span_params["name"] = name
 
             if "input" not in span_params:
-                span_params["input"] = input
+                span_params["input"] = input_
 
             span_params["created_at_ns"] = start_time.timestamp() * 1e9
 
