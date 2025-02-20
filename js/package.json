@@ -17,6 +17,7 @@
   "dependencies": {
     "axios": "^1.7.9",
     "jsonwebtoken": "^9.0.2",
+    "openai": "^4.85.2",
     "openapi-fetch": "^0.13.3",
     "openapi-typescript-helpers": "^0.0.15"
   },

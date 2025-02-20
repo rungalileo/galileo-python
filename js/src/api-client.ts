@@ -22,25 +22,31 @@ export type DatasetContent = components['schemas']['DatasetContent'];
 export type Dataset = components['schemas']['DatasetDB'];
 export type DatasetRow = components['schemas']['DatasetRow'];
 
+export type Trace = components['schemas']['Trace'];
+export type req = components['schemas']['TracesIngestRequest'];
+
 type CollectionPaths =
   | paths['/datasets']
   | paths['/datasets/{dataset_id}/content'];
 type CollectionResponse = ListDatasetResponse | DatasetContent;
 
 export class GalileoApiClient {
-  public type: ProjectTypes | undefined = undefined;
+  private apiUrl: string = '';
+  private client: Client<paths> | undefined = undefined;
+  public datasetId: string = '';
+  public logstreamId: string = '';
   public projectId: string = '';
   public runId: string = '';
-  public datasetId: string = '';
-  private apiUrl: string = '';
   private token: string = '';
-  private client: Client<paths> | undefined = undefined;
+  public type: ProjectTypes | undefined = undefined;
 
   public async init(
     projectName?: string | undefined,
-    datasetId?: string
+    datasetId?: string,
+    logstreamId?: string
   ): Promise<void> {
     this.apiUrl = this.getApiUrl();
+
     if (await this.healthCheck()) {
       this.token = await this.getToken();
       this.client = createClient({
@@ -50,6 +56,10 @@ export class GalileoApiClient {
 
       if (datasetId) {
         this.datasetId = datasetId;
+      }
+
+      if (logstreamId) {
+        this.logstreamId = logstreamId;
       }
 
       if (projectName) {
@@ -274,6 +284,21 @@ export class GalileoApiClient {
       `/datasets/{dataset_id}/content`,
       (response: DatasetContent) => response.rows ?? [],
       { path: { dataset_id: datasetId } }
+    );
+  }
+
+  public async ingestTraces(traces: Trace[]): Promise<void> {
+    if (!this.client) {
+      throw new Error('Client not initialized');
+    }
+
+    const { data, error } = await this.client.POST(Routes.traces, {
+      params: { path: { project_id: this.projectId } },
+      body: { traces, log_stream_id: this.logstreamId }
+    });
+    const response = this.processResponse(data, error);
+    console.log(
+      `✅  ${response.traces_count} Traces ingested for project ${response.project_id}. `
     );
   }
 
