@@ -2,6 +2,7 @@ from importlib.metadata import version
 from os import getenv
 from time import time
 from typing import Any, Optional
+from uuid import UUID
 
 import jwt
 import logging
@@ -166,8 +167,8 @@ class ApiClient:
     async def ingest_traces(
         self, traces_ingest_request: TracesIngestRequest
     ) -> dict[str, str]:
-        traces_ingest_request.log_stream_id = self.log_stream_id
-        json = traces_ingest_request.model_dump()
+        traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
+        json = traces_ingest_request.model_dump(mode="json")
 
         return await self._make_async_request(
             RequestMethod.POST,
@@ -178,8 +179,8 @@ class ApiClient:
     def ingest_traces_sync(
         self, traces_ingest_request: TracesIngestRequest
     ) -> dict[str, str]:
-        traces_ingest_request.log_stream_id = self.log_stream_id
-        json = traces_ingest_request.model_dump()
+        traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
+        json = traces_ingest_request.model_dump(mode="json")
 
         return self._make_request(
             RequestMethod.POST,
