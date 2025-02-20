@@ -10,6 +10,9 @@ on:
 jobs:
   test:
     runs-on: galileo
+    defaults:
+      run:
+        working-directory: ./python
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
