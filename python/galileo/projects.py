@@ -38,7 +38,7 @@ class Project:
     def __init__(
         self,
         project: Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse] = None,
-    ):
+    ) -> None:
         if project is None:
             return
 
