@@ -137,6 +137,7 @@ class GalileoDecorator:
         span_type: Optional[SPAN_TYPE] = None,
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
+        params: Optional[Dict[str, Union[str, Callable]]] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]: ...
 
     def log(
@@ -147,6 +148,7 @@ class GalileoDecorator:
         span_type: Optional[SPAN_TYPE] = None,
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
+        params: Optional[Dict[str, Union[str, Callable]]] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]:
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
             return (
@@ -156,6 +158,7 @@ class GalileoDecorator:
                     span_type=span_type,
                     project=project or _project_context.get(),
                     log_stream=log_stream or _log_stream_context.get(),
+                    params=params,
                 )
                 if asyncio.iscoroutinefunction(func)
                 else self._sync_log(
@@ -164,6 +167,7 @@ class GalileoDecorator:
                     span_type=span_type,
                     project=project or _project_context.get(),
                     log_stream=log_stream or _log_stream_context.get(),
+                    params=params,
                 )
             )
 
@@ -184,17 +188,20 @@ class GalileoDecorator:
         span_type: Optional[SPAN_TYPE],
         project: Optional[str],
         log_stream: Optional[str],
+        params: Optional[Dict[str, Union[str, Callable]]] = None,
     ) -> F:
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
-            input_params = self._prepare_input(
+            span_params = self._prepare_input(
+                func=func,
                 name=name or func.__name__,
                 span_type=span_type,
+                params=params,
                 is_method=self._is_method(func),
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, input_params, project, log_stream)
+            self._prepare_call(span_type, span_params, project, log_stream)
             result = None
 
             try:
@@ -206,7 +213,7 @@ class GalileoDecorator:
                 )
             finally:
                 result = self._finalize_call(
-                    span_type, input_params, result, project, log_stream
+                    span_type, span_params, result, project, log_stream
                 )
 
                 if result is not None:
@@ -222,16 +229,20 @@ class GalileoDecorator:
         span_type: Optional[SPAN_TYPE],
         project: Optional[str],
         log_stream: Optional[str],
+        params: Optional[Dict[str, Union[str, Callable]]] = None,
     ) -> F:
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
-            input_params = self._prepare_input(
+            span_params = self._prepare_input(
+                func=func,
                 name=name or func.__name__,
+                span_type=span_type,
+                params=params,
                 is_method=self._is_method(func),
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, input_params, project, log_stream)
+            self._prepare_call(span_type, span_params, project, log_stream)
             result = None
 
             try:
@@ -243,7 +254,7 @@ class GalileoDecorator:
                 )
             finally:
                 result = self._finalize_call(
-                    span_type, input_params, result, project, log_stream
+                    span_type, span_params, result, project, log_stream
                 )
 
                 if result is not None:
@@ -266,7 +277,10 @@ class GalileoDecorator:
     def _prepare_input(
         self,
         *,
+        func: Callable,
         name: str,
+        span_type: Optional[SPAN_TYPE],
+        params: Optional[Dict[str, Union[str, Callable]]] = None,
         is_method: bool = False,
         func_args: Tuple = (),
         func_kwargs: Dict = {},
@@ -274,20 +288,101 @@ class GalileoDecorator:
         try:
             start_time = _get_timestamp()
 
-            input = self._get_input_from_func_args(
-                is_method=is_method, func_args=func_args, func_kwargs=func_kwargs
+            # Extract function args
+            input_ = self._merge_args_with_kwargs(
+                func=func,
+                is_method=is_method,
+                func_args=func_args,
+                func_kwargs=func_kwargs,
             )
 
-            params = {"name": name, "start_time": start_time, "input": input}
+            # Process parameter mappings supplied by the user via `params`
+            span_params = {}
+            if params:
+                for span_param, mapping in params.items():
+                    if callable(mapping):
+                        # If mapping is a function, call it with the merged args
+                        span_params[span_param] = mapping(input_)
+                    else:
+                        # If mapping is a string, use it as a key to get value from merged args
+                        if mapping in input_:
+                            span_params[span_param] = input_[mapping]
 
-            return params
+            # Auto-map matching parameters if they exist in merged_args
+            # This will fill in any missing span parameters based on the function signature
+            if span_type:
+                span_param_names = self._get_span_param_names(span_type)
+                for param_name in span_param_names:
+                    if param_name in input_ and param_name not in span_params:
+                        span_params[param_name] = input_[param_name]
+
+            if "name" not in span_params:
+                span_params["name"] = name
+
+            if "input" not in span_params:
+                span_params["input"] = input_
+
+            span_params["created_at_ns"] = start_time.timestamp() * 1e9
+
+            return span_params
         except Exception as e:
             _logger.error(f"Failed to parse input params: {e}", exc_info=True)
+            return None
+
+    def _merge_args_with_kwargs(
+        self,
+        *,
+        func: Callable,
+        is_method: bool,
+        func_args: Tuple,
+        func_kwargs: Dict,
+    ) -> Dict[str, Any]:
+        """Merge positional and keyword arguments into a single dictionary."""
+        try:
+            # Get the actual function, handling wrapped functions
+            actual_func = getattr(func, "__wrapped__", func)
+            sig = inspect.signature(actual_func)
+
+            # Create a dictionary of all parameters with their default values
+            merged = {}
+            for name, param in sig.parameters.items():
+                if name not in ("self", "cls"):  # Skip self and cls
+                    if param.default is not inspect.Parameter.empty:
+                        merged[name] = param.default
+
+            # Create dictionary of positional args
+            param_names = [
+                name for name in sig.parameters.keys() if name not in ("self", "cls")
+            ]
+            for param_name, value in zip(
+                param_names, func_args[1:] if is_method else func_args
+            ):
+                merged[param_name] = value
+
+            # Update with provided keyword arguments
+            merged.update(func_kwargs)
+
+            return merged
+        except Exception as e:
+            _logger.error(f"Error merging args and kwargs: {e}", exc_info=True)
+            # Return just the kwargs if something goes wrong
+            return func_kwargs
+
+    def _get_span_param_names(self, span_type: SPAN_TYPE) -> List[str]:
+        """Return the parameter names available for each span type."""
+        common_params = ["name", "input", "metadata"]
+        span_params = {
+            "llm": common_params + ["model", "temperature", "tools", "ground_truth"],
+            "retriever": common_params + ["documents"],
+            "tool": common_params,
+            "workflow": common_params,
+        }
+        return span_params.get(span_type, common_params)
 
     def _prepare_call(
         self,
         span_type: Optional[SPAN_TYPE],
-        input_params: dict[str, str],
+        span_params: dict[str, str],
         project: Optional[str],
         log_stream: Optional[str],
     ):
@@ -298,29 +393,31 @@ class GalileoDecorator:
         stack = _span_stack_context.get().copy()
         trace = _trace_context.get()
 
+        input = span_params.get("input", "")
+        name = span_params.get("name", "")
+
         # If no trace is available, start a new one
         if not trace:
-            trace = client_instance.start_trace(
-                input=input_params.get("input"), name=input_params.get("name")
-            )
+            trace = client_instance.start_trace(input=input, name=name)
             _trace_context.set(trace)
 
         # If the user hasn't specified a span type, create and add a workflow span
         if not span_type or span_type == "workflow":
-            created_at_ns = input_params.get("start_time").timestamp() * 1e9
-
             parent_span = stack[-1] if len(stack) else None
+            created_at_ns = span_params.get(
+                "created_at_ns", _get_timestamp().timestamp() * 1e9
+            )
 
             if parent_span:
                 span = parent_span.add_workflow_span(
-                    input=input_params.get("input"),
-                    name=input_params.get("name"),
+                    input=input,
+                    name=name,
                     created_at_ns=created_at_ns,
                 )
             else:
                 span = trace.add_workflow_span(
-                    input=input_params.get("input"),
-                    name=input_params.get("name"),
+                    input=input,
+                    name=name,
                     created_at_ns=created_at_ns,
                 )
             _span_stack_context.set(stack + [span])
@@ -338,36 +435,34 @@ class GalileoDecorator:
     def _finalize_call(
         self,
         span_type: Optional[SPAN_TYPE],
-        input_params: dict[str, str],
+        span_params: dict[str, str],
         result: Any,
         project: Optional[str],
         log_stream: Optional[str],
     ):
         if inspect.isgenerator(result):
             return self._wrap_sync_generator_result(
-                span_type, input_params, result, project, log_stream
+                span_type, span_params, result, project, log_stream
             )
         elif inspect.isasyncgen(result):
             return self._wrap_async_generator_result(
-                span_type, input_params, result, project, log_stream
+                span_type, span_params, result, project, log_stream
             )
         else:
             return self._handle_call_result(
-                span_type, input_params, result, project, log_stream
+                span_type, span_params, result, project, log_stream
             )
 
     def _handle_call_result(
         self,
         span_type: Optional[SPAN_TYPE],
-        input_params: dict[str, str],
+        span_params: dict[str, str],
         result: Any,
         project: Optional[str],
         log_stream: Optional[str],
     ):
         try:
-            end_time = input_params.get("end_time") or _get_timestamp()
-
-            output = input_params.get("output") or (
+            output = span_params.get("output") or (
                 # Serialize and deserialize to ensure proper JSON serialization.
                 # Objects are later serialized again so deserialization is necessary here to avoid unnecessary escaping of quotes.
                 json.loads(
@@ -377,19 +472,16 @@ class GalileoDecorator:
                 )
             )
 
-            input_params.update(end_time=end_time, output=output)
-
             stack = _span_stack_context.get()
             trace = _trace_context.get()
 
-            start_time = input_params.get("start_time")
-
-            if start_time:
-                created_at_ns = int(round(start_time.timestamp() * 1e9))
-                duration_ns = int(round((end_time - start_time).total_seconds() * 1e9))
+            created_at_ns = span_params.get("created_at_ns")
+            end_time_ns = int(round(_get_timestamp().timestamp() * 1e9))
+            if created_at_ns:
+                span_params["duration_ns"] = int(round((end_time_ns - created_at_ns)))
             else:
-                created_at_ns = None
-                duration_ns = None
+                span_params["created_at_ns"] = end_time_ns
+                span_params["duration_ns"] = 0
 
             span = None
 
@@ -400,9 +492,11 @@ class GalileoDecorator:
                     _span_stack_context.set(stack)
 
                 if span:
-                    span.conclude(output=output, duration_ns=duration_ns)
+                    span.conclude(output=output, duration_ns=span_params["duration_ns"])
                 if len(stack) == 0:
-                    trace.conclude(output=output, duration_ns=duration_ns)
+                    trace.conclude(
+                        output=output, duration_ns=span_params["duration_ns"]
+                    )
             else:
                 # If the span type is not a workflow, add it to the current parent (trace or span)
                 if len(stack):
@@ -418,15 +512,12 @@ class GalileoDecorator:
                     target = span or trace
 
                     kwargs = {
-                        "input": input_params.get("input"),
                         "output": output,
-                        "name": input_params.get("name"),
-                        "created_at_ns": created_at_ns,
-                        "duration_ns": duration_ns,
+                        **span_params,
                     }
 
-                    if span_type == "llm":
-                        # TODO: Allow a model to be parsed from the input_params
+                    if span_type == "llm" and "model" not in kwargs:
+                        # TODO: Allow a model to be parsed from the span_params
                         # This only affects direct @log(span_type="llm") calls, not OpenAI
                         kwargs["model"] = ""
 
@@ -439,7 +530,7 @@ class GalileoDecorator:
     def _wrap_sync_generator_result(
         self,
         span_type: Optional[SPAN_TYPE],
-        input_params: dict[str, str],
+        span_params: dict[str, str],
         generator: Generator,
         project: Optional[str],
         log_stream: Optional[str],
@@ -460,13 +551,13 @@ class GalileoDecorator:
                 output = "".join(items)
 
             self._handle_call_result(
-                span_type, input_params, output, project, log_stream
+                span_type, span_params, output, project, log_stream
             )
 
     async def _wrap_async_generator_result(
         self,
         span_type: Optional[SPAN_TYPE],
-        input_params: dict[str, str],
+        span_params: dict[str, str],
         generator: AsyncGenerator,
         project: Optional[str],
         log_stream: Optional[str],
@@ -487,7 +578,7 @@ class GalileoDecorator:
                 output = "".join(items)
 
             self._handle_call_result(
-                span_type, input_params, output, project, log_stream
+                span_type, span_params, output, project, log_stream
             )
 
     def get_logger_instance(
