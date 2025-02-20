@@ -209,9 +209,15 @@ class GalileoLogger(Traces):
             if not self.traces:
                 self._logger.warning("No traces to flush.")
                 return list()
+
+            self._logger.info("Flushing %d traces...", len(self.traces))
+
             traces_ingest_request = TracesIngestRequest(traces=self.traces)
             self._client.ingest_traces_sync(traces_ingest_request)
             logged_traces = self.traces
+
+            self._logger.info("Successfully flushed %d traces.", len(logged_traces))
+
             self.traces = list()
             self.current_parent = None
             return logged_traces
@@ -227,9 +233,18 @@ class GalileoLogger(Traces):
             List[Trace]: The list of uploaded workflows.
         """
         try:
+            if not self.traces:
+                self._logger.warning("No traces to flush.")
+                return list()
+
+            self._logger.info("Flushing %d traces...", len(self.traces))
+
             traces_ingest_request = TracesIngestRequest(traces=self.traces)
             await self._client.ingest_traces(traces_ingest_request)
             logged_traces = self.traces
+
+            self._logger.info("Successfully flushed %d traces.", len(logged_traces))
+
             self.traces = list()
             self.current_parent = None
             return logged_traces
