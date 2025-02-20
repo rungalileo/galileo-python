@@ -31,11 +31,8 @@ def test_decorator_llm_span(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert type(payload.traces[0].spans[0]) == LlmSpan
-    assert payload.traces[0].input == {"args": [], "kwargs": {"query": "input"}}
-    assert payload.traces[0].spans[0].input == {
-        "args": [],
-        "kwargs": {"query": "input"},
-    }
+    assert payload.traces[0].input == {"query": "input"}
+    assert payload.traces[0].spans[0].input == {"query": "input"}
     assert payload.traces[0].spans[0].output == output
 
 
