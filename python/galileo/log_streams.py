@@ -1,4 +1,4 @@
-from typing import Optional, overload, List
+from typing import Optional, overload, List, Union
 
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
@@ -12,18 +12,22 @@ from galileo.resources.api.log_stream import (
 from galileo.resources.models.http_validation_error import HTTPValidationError
 
 from galileo.base import BaseClientModel
-from galileo.projects import get_project
+from galileo.projects import Projects
 
 
 class LogStream(LogStreamResponse):
-    def __init__(self, log_stream: LogStreamResponse):
-        self.log_stream = log_stream
-
-    def __getattr__(self, attr):
-        """
-        Delegate attribute access to the underlying LogStream instance.
-        """
-        return getattr(self.log_stream, attr)
+    def __init__(self, log_stream: Union[None, LogStreamResponse] = None):
+        if log_stream is not None:
+            super().__init__(
+                created_at=log_stream.created_at,
+                id=log_stream.id,
+                name=log_stream.name,
+                project_id=log_stream.project_id,
+                updated_at=log_stream.updated_at,
+                created_by=log_stream.created_by,
+            )
+            self.additional_properties = log_stream.additional_properties.copy()
+            return
 
 
 class LogStreams(BaseClientModel):
@@ -69,7 +73,7 @@ class LogStreams(BaseClientModel):
                 client=self.client, project_id=project_id
             )
         else:
-            project = get_project(self.client, project_name=project_name)
+            project = Projects(client=self.client).get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
             log_streams = list_log_streams_v2_projects_project_id_log_streams_get.sync(
@@ -140,7 +144,7 @@ class LogStreams(BaseClientModel):
             )
 
         if not project_id:
-            project = get_project(self.client, project_name=project_name)
+            project = Projects(client=self.client).get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
             project_id = project.id
@@ -179,7 +183,7 @@ class LogStreams(BaseClientModel):
         *,
         project_name: str,
     ) -> LogStream: ...
-    @overload
+
     def create(
         self,
         name: str,
@@ -219,7 +223,7 @@ class LogStreams(BaseClientModel):
             )
 
         if not project_id:
-            project = get_project(self.client, project_name=project_name)
+            project = Projects(client=self.client).get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
             project_id = project.id

@@ -12,34 +12,52 @@ from galileo.resources.api.projects import (
     create_project_projects_post,
 )
 
+from galileo.resources.models.project_create_response import ProjectCreateResponse
+from galileo.resources.models.permission import Permission
+from galileo.resources.models.run_db import RunDB
+from galileo.resources.models.run_db_thin import RunDBThin
 
-from galileo.resources.types import Unset
+from galileo.resources.types import Unset, UNSET
 
 from galileo.resources.models.http_validation_error import HTTPValidationError
 
 from galileo.base import BaseClientModel
+import datetime
 
 
-class Project(ProjectDBThin):
-    def __init__(self, project_db: ProjectDBThin):
-        self.project_db = project_db
+class Project:
+    created_at: datetime.datetime
+    created_by: str
+    id: str
+    updated_at: datetime.datetime
+    bookmark: Union[Unset, bool] = False
+    name: Union[None, Unset, str] = UNSET
+    permissions: Union[Unset, list["Permission"]] = UNSET
+    type: Union[None, ProjectType, Unset] = UNSET
 
-    def __getattr__(self, attr):
-        """
-        Delegate attribute access to the underlying ProjectDB instance.
-        """
-        return getattr(self.project_db, attr)
+    def __init__(
+        self,
+        project: Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse] = None,
+    ):
+        if project is None:
+            return
+
+        self.created_at = project.created_at
+        self.created_by = project.created_by
+        self.id = project.id
+        self.updated_at = project.updated_at
+        self.name = project.name
+        self.type = project.type_
+
+        if isinstance(project, ProjectDBThin) or isinstance(project, ProjectDB):
+            self.bookmark = project.bookmark
+            self.permissions = project.permissions
 
 
 class Projects(BaseClientModel):
-    def list(self, limit: Union[Unset, int] = 100) -> list[Project]:
+    def list(self) -> list[Project]:
         """
         Lists all projects.
-
-        Parameters
-        ----------
-        limit : Union[Unset, int]
-            The maximum number of projects to return. Default is 100.
 
         Returns
         -------
@@ -57,7 +75,7 @@ class Projects(BaseClientModel):
         projects: list["ProjectDBThin"] = get_all_projects_projects_all_get.sync(
             client=self.client, type_=ProjectType.GEN_AI
         )
-        return [Project(project_db=project) for project in projects] if projects else []
+        return [Project(project=project) for project in projects] if projects else []
 
     @overload
     def get(self, *, id: str) -> Optional[Project]: ...
@@ -103,17 +121,17 @@ class Projects(BaseClientModel):
             )
             if not project_response:
                 return None
-            project = Project(project_db=project_response)
+            project = Project(project=project_response)
 
         elif name:
             projects_response = get_projects_projects_get.sync(
                 client=self.client, project_name=name, type_=ProjectType.GEN_AI
             )
 
-            if not projects_response or len(projects_response.projects) == 0:
+            if not projects_response or len(projects_response) == 0:
                 return None
 
-            project = Project(project_db=projects_response.projects[0])
+            project = Project(project=projects_response[0])
 
         return project
 
@@ -139,17 +157,30 @@ class Projects(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
+        try:
+            body = ProjectCreate(
+                name=name,
+                type_=ProjectType.GEN_AI,
+                create_example_templates=False,
+                created_by=None,
+            )
 
-        body = ProjectCreate(name=name, type_=ProjectType.GEN_AI)
-        response = create_project_projects_post.sync(client=self.client, body=body)
+            print(body)
 
-        if isinstance(response, HTTPValidationError):
-            raise response
+            response = create_project_projects_post.sync(client=self.client, body=body)
 
-        if not response:
-            raise ValueError("Unable to create project")
+            if isinstance(response, HTTPValidationError):
+                print(response)
+                raise response
 
-        return Project(project_db=response)
+            if not response:
+                raise ValueError("Unable to create project")
+
+            return Project(project=response)
+
+        except Exception as e:
+            print(e)
+            raise e
 
 
 #
