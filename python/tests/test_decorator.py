@@ -31,11 +31,8 @@ def test_decorator_llm_span(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert type(payload.traces[0].spans[0]) == LlmSpan
-    assert payload.traces[0].input == {"args": [], "kwargs": {"query": "input"}}
-    assert payload.traces[0].spans[0].input == {
-        "args": [],
-        "kwargs": {"query": "input"},
-    }
+    assert payload.traces[0].input == {"query": "input"}
+    assert payload.traces[0].spans[0].input == {"query": "input"}
     assert payload.traces[0].spans[0].output == output
 
 
@@ -67,11 +64,8 @@ def test_decorator_nested_span(
     assert len(payload.traces[0].spans[0].spans) == 1
     assert type(payload.traces[0].spans[0]) == WorkflowSpan
     assert type(payload.traces[0].spans[0].spans[0]) == LlmSpan
-    assert payload.traces[0].input == {"args": [], "kwargs": {"nested_query": "input"}}
-    assert payload.traces[0].spans[0].spans[0].input == {
-        "args": [],
-        "kwargs": {"query": "input"},
-    }
+    assert payload.traces[0].input == {"nested_query": "input"}
+    assert payload.traces[0].spans[0].spans[0].input == {'query': 'input'}
     assert payload.traces[0].spans[0].output == output
     assert payload.traces[0].spans[0].spans[0].output == output
 
@@ -88,7 +82,6 @@ def test_decorator_multiple_nested_spans(
 
     @log(span_type="llm")
     def llm_call(query: str):
-        return "response"
         return "response"
 
     @log()
@@ -108,10 +101,7 @@ def test_decorator_multiple_nested_spans(
     assert type(payload.traces[0].spans[0]) == WorkflowSpan
     assert type(payload.traces[0].spans[0].spans[0]) == LlmSpan
     assert type(payload.traces[0].spans[0].spans[1]) == LlmSpan
-    assert payload.traces[0].input == {"args": [], "kwargs": {"nested_query": "input"}}
-    assert payload.traces[0].spans[0].spans[0].input == {
-        "args": [],
-        "kwargs": {"query": "input"},
-    }
+    assert payload.traces[0].input == {"nested_query": "input"}
+    assert payload.traces[0].spans[0].spans[0].input == {'query': 'input'}
     assert payload.traces[0].spans[0].output == output
     assert payload.traces[0].spans[0].spans[0].output == "response"
