@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install `poetry`
-        run: pipx install poetry==${{vars.POETRY_V2_VERSION}}
+        run: pipx install poetry==2.0.1
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -26,6 +26,7 @@ jobs:
       - name: Install / Start dependencies
         run: |
           pipx install invoke
+          cd python
           inv install
 
       # We run the `mypy` check here since it requires all of the packages to be installed.

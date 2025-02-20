@@ -5,7 +5,7 @@ from typing import Any, Optional
 
 import jwt
 import logging
-from httpx import Client, AsyncClient, HTTPError, Response, Timeout
+from httpx import Client, AsyncClient, HTTPError, Response, Timeout, URL
 from urllib.parse import urljoin
 
 from galileo_core.constants.request_method import RequestMethod
@@ -43,8 +43,8 @@ class GalileoCoreApiClient:
     project_id: Optional[str] = None
     log_stream_id: Optional[str] = None
 
-    api_url: Optional[str] = None
-    api_key: Optional[str] = None
+    api_url: str
+    api_key: str
 
     def __init__(
         self,
@@ -54,7 +54,7 @@ class GalileoCoreApiClient:
         log_stream_id: Optional[str] = None,
     ):
         self.api_url = GalileoApiClient.get_api_url(base_url)
-        self.api_key = api_key or getenv("GALILEO_API_KEY", None)
+        self.api_key = api_key or getenv("GALILEO_API_KEY", "") # type: ignore
 
         if not self.api_url or not self.api_key:
             raise ValueError("api_url and api_key must be set")
@@ -63,7 +63,7 @@ class GalileoCoreApiClient:
         self.log_stream_id = log_stream_id
 
     @property
-    def auth_header(self) -> dict[str, str]:
+    def auth_header(self) -> dict[str, Optional[str]]:
         return {self.api_key_header_name: self.api_key}
 
     def _make_request(
