@@ -29,7 +29,6 @@ jobs:
       - name: Install / Start dependencies
         run: |
           pipx install invoke
-          cd python
           inv install
 
       # We run the `mypy` check here since it requires all of the packages to be installed.
