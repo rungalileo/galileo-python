@@ -11,18 +11,26 @@ export function wrapOpenAI(
     get(target, prop: keyof OpenAI) {
       const originalMethod = target[prop];
 
-      if (typeof originalMethod === 'function' && prop === 'chat') {
+      if (
+        prop === 'chat' &&
+        typeof originalMethod === 'object' &&
+        originalMethod !== null
+      ) {
         return new Proxy(originalMethod, {
           get(chatTarget, chatProp) {
-            if (chatProp === 'completions') {
+            if (
+              chatProp === 'completions' &&
+              typeof chatTarget[chatProp] === 'object'
+            ) {
               return new Proxy(chatTarget[chatProp], {
                 get(completionsTarget, completionsProp) {
-                  if (completionsProp === 'create') {
+                  if (
+                    completionsProp === 'create' &&
+                    typeof completionsTarget[completionsProp] === 'function'
+                  ) {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     return async function wrappedCreate(...args: any[]) {
                       const [requestData] = args;
-
-                      // Start tracing
                       const trace = logger.startTrace(
                         JSON.stringify(requestData.messages)
                       );
@@ -34,10 +42,9 @@ export function wrapOpenAI(
                           ...args
                         );
                       } catch (error) {
-                        console.log('🚀 ~ wrappedCreate ~ error:', error);
                         logger.conclude({
                           trace,
-                          // @ts-expect-error - Fixme
+                          // @ts-expect-error - FIXME: Type this
                           output: `Error: ${error.message}`,
                           durationNs: Number(
                             process.hrtime.bigint() - startTime
@@ -46,13 +53,11 @@ export function wrapOpenAI(
                         throw error;
                       }
 
-                      // Extract OpenAI response data
                       const output = response.choices
                         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        .map((choice: any) => choice.message)
+                        .map((choice: any) => JSON.stringify(choice.message))
                         .join('\n');
 
-                      // Log the LLM span
                       logger.addLLMSpan({
                         input: JSON.stringify(requestData.messages),
                         trace,
@@ -64,12 +69,13 @@ export function wrapOpenAI(
                         metadata: requestData.metadata || {}
                       });
 
-                      // Conclude the trace
                       logger.conclude({
                         trace,
                         output,
                         durationNs: Number(process.hrtime.bigint() - startTime)
                       });
+
+                      logger.flush();
 
                       return response;
                     };
