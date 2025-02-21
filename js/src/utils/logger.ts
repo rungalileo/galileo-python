@@ -1,6 +1,8 @@
 import { GalileoApiClient } from '../api-client';
+import { components } from '../types/api.types';
 
 interface Trace {
+  id: number;
   input: string;
   output?: string;
   model?: string | null;
@@ -9,9 +11,11 @@ interface Trace {
   totalTokens?: number;
   durationNs?: number;
   metadata?: Record<string, string>;
+  spans: components['schemas']['LlmSpan'][];
 }
 
 interface AddLLMSpanArgs {
+  input: string;
   trace: Trace;
   output: string;
   model: string | null;
@@ -44,12 +48,13 @@ export class GalileoLogger {
   }
 
   startTrace(input: string): Trace {
-    const trace: Trace = { input };
+    const trace: Trace = { input, spans: [], id: this.traces.length };
     this.traces.push(trace);
     return trace;
   }
 
   addLLMSpan({
+    input,
     trace,
     output,
     model,
@@ -58,13 +63,28 @@ export class GalileoLogger {
     durationNs,
     metadata
   }: AddLLMSpanArgs) {
-    trace.output = output;
-    trace.model = model;
-    trace.inputTokens = inputTokens;
-    trace.outputTokens = outputTokens;
-    trace.totalTokens = inputTokens + outputTokens;
-    trace.durationNs = durationNs;
-    trace.metadata = metadata;
+    this.traces = this.traces.map((tr) => {
+      if (tr.id === trace.id) {
+        return {
+          ...trace,
+          spans: [
+            ...trace.spans,
+            {
+              output,
+              input,
+              model,
+              input_tokens: inputTokens,
+              output_tokens: outputTokens,
+              total_tokens: inputTokens + outputTokens,
+              duration_ns: durationNs,
+              type: 'llm',
+              metadata
+            }
+          ]
+        };
+      }
+      return trace;
+    });
   }
 
   conclude({
