@@ -20,7 +20,7 @@ python-dateutil = "^2.8.0"
 
 [tool.poetry.extras]
 openai = ["openai"]
-all = ["openai"]
+all = ["langchain-core", "openai"]
 
 
 [tool.poetry.group.test.dependencies]
