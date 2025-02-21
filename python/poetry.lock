@@ -2126,9 +2126,10 @@ type = ["pytest-mypy"]
 
 [extras]
 all = ["openai"]
+langchain = []
 openai = ["openai"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "c22202e23865c90fc14ef3f83bcd7329d142dfba28333d0fdff3c7d26b16b9ce"
+content-hash = "f02b4fa82fdbf0fb37b33070f955cb92b3bf29a8b3ac24733d73253bf5992129"

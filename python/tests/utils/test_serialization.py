@@ -12,7 +12,7 @@ def test_event_serializer_default() -> None:
     assert json.dumps(Unknown(), cls=EventSerializer) == "{}"
 
     # test None against NoneType
-    assert json.dumps(None, cls=EventSerializer) == '"\\"<not serializable object of type: NoneType>\\""'
+    assert json.dumps(None, cls=EventSerializer) == 'null'
 
     # test list
     assert json.dumps([], cls=EventSerializer) == '[]'
