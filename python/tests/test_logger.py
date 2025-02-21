@@ -8,11 +8,8 @@ from galileo.schema.trace import TracesIngestRequest
 from galileo_core.schemas.shared.traces.trace import Trace
 
 from galileo_core.schemas.shared.workflows.node_type import NodeType
-from .utils.setup import (
-    setup_mock_core_api_client,
-    setup_mock_logstreams_client,
-    setup_mock_projects_client,
-)
+
+from tests.testutils.setup import setup_mock_core_api_client, setup_mock_projects_client, setup_mock_logstreams_client
 
 
 @patch("galileo.logger.LogStreams")
@@ -145,7 +142,6 @@ def test_multi_span_trace_to_galileo(
 
     created_time_ns = 0
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     trace = logger.start_trace(
         input="input",

@@ -11,7 +11,6 @@ pydantic = "^2.5.2"
 pytz = "^2024.0"
 pyjwt = "^2.8.0"
 tiktoken = ">=0.7,<0.9"
-langchain-core = { version = "^0.3.0", optional = true }
 httpx = ">0.27.0,<=0.29.0"
 galileo-core = "^3.0.0"
 openai = { version = "^1.61.0", optional = true }
@@ -20,9 +19,8 @@ attrs = ">=22.2.0"
 python-dateutil = "^2.8.0"
 
 [tool.poetry.extras]
-langchain = ["langchain-core"]
 openai = ["openai"]
-all = ["langchain-core", "openai"]
+all = ["openai"]
 
 
 [tool.poetry.group.test.dependencies]

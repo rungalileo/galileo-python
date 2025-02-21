@@ -1,13 +1,9 @@
-from typing import Any, Union
+from types import NoneType
+from typing import Any
 from uuid import UUID
 import datetime as dt
 
-from langchain_core.agents import AgentAction, AgentFinish
-from langchain_core.messages import BaseMessage
-from langchain_core.outputs import ChatGeneration, LLMResult
-from langchain_core.prompt_values import ChatPromptValue
 from pydantic import BaseModel
-from pydantic.v1 import BaseModel as BaseModelV1
 
 import enum
 import logging
@@ -17,6 +13,17 @@ from dataclasses import asdict, is_dataclass
 from datetime import date, datetime
 from json import JSONEncoder
 from pathlib import Path
+
+try:
+    from langchain_core.agents import AgentAction, AgentFinish
+    from langchain_core.messages import BaseMessage
+    from langchain_core.outputs import ChatGeneration, LLMResult
+    from langchain_core.prompt_values import ChatPromptValue
+except ImportError:
+    # If langchain_core is not available, set all types to NoneType
+    AgentAction, AgentFinish, BaseMessage = type(None), type(None), type(None)
+    ChatGeneration, LLMResult = type(None), type(None)
+    ChatPromptValue = type(None)
 
 try:
     from langchain.load.serializable import Serializable
@@ -61,7 +68,7 @@ class EventSerializer(JSONEncoder):
 
     def default(self, obj: Any) -> Any:
         try:
-            if isinstance(obj, (datetime)):
+            if isinstance(obj, datetime):
                 return serialize_datetime(obj)
 
             if isinstance(obj, (Exception, KeyboardInterrupt)):
@@ -85,7 +92,7 @@ class EventSerializer(JSONEncoder):
                 except UnicodeDecodeError:
                     return "<not serializable bytes>"
 
-            if isinstance(obj, (date)):
+            if isinstance(obj, date):
                 return obj.isoformat()
 
             elif isinstance(obj, BaseModel):
@@ -103,9 +110,10 @@ class EventSerializer(JSONEncoder):
             # if langchain is not available, the Serializable type is NoneType
             if Serializable is not type(None) and isinstance(obj, Serializable):
                 return obj.to_json()
+
             if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
                 return self.default(obj.messages)
-            elif isinstance(obj, (ChatGeneration)):
+            elif isinstance(obj, ChatGeneration):
                 return self.default(obj.message)
             elif isinstance(obj, LLMResult):
                 return self.default(obj.generations[0])
@@ -113,7 +121,7 @@ class EventSerializer(JSONEncoder):
                 return self.default(obj.model_dump())
 
             # 64-bit integers might overflow the JavaScript safe integer range.
-            if isinstance(obj, (int)):
+            if isinstance(obj, int):
                 return obj if self.is_js_safe_integer(obj) else str(obj)
 
             # Standard JSON-encodable types
