@@ -1,67 +1,91 @@
+/* global Proxy */
+
 import OpenAI from 'openai';
 import { GalileoLogger } from './logger';
 
-interface OpenAIInputData {
-  name: string;
-  metadata: Record<string, string>;
-  input: string;
-  model: string | null;
-  temperature: number;
-}
+export function wrapOpenAI(
+  openAIClient: OpenAI,
+  logger: GalileoLogger
+): OpenAI {
+  const handler: ProxyHandler<OpenAI> = {
+    get(target, prop: keyof OpenAI) {
+      const originalMethod = target[prop];
 
-class OpenAIGalileo {
-  private logger: GalileoLogger;
-  private openai: OpenAI;
+      if (typeof originalMethod === 'function' && prop === 'chat') {
+        return new Proxy(originalMethod, {
+          get(chatTarget, chatProp) {
+            if (chatProp === 'completions') {
+              return new Proxy(chatTarget[chatProp], {
+                get(completionsTarget, completionsProp) {
+                  if (completionsProp === 'create') {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    return async function wrappedCreate(...args: any[]) {
+                      const [requestData] = args;
 
-  constructor(apiKey: string, logger: GalileoLogger) {
-    this.logger = logger;
-    this.openai = new OpenAI({ apiKey });
-  }
+                      // Start tracing
+                      const trace = logger.startTrace(
+                        JSON.stringify(requestData.messages)
+                      );
 
-  private extractInputData(
-    name: string,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    args: Record<string, any>
-  ): OpenAIInputData {
-    return {
-      name,
-      metadata: args.metadata || {},
-      input: args.messages || args.prompt,
-      model: args.model || null,
-      temperature: args.temperature ?? 1
-    };
-  }
+                      const startTime = process.hrtime.bigint();
+                      let response;
+                      try {
+                        response = await completionsTarget[completionsProp](
+                          ...args
+                        );
+                      } catch (error) {
+                        console.log('🚀 ~ wrappedCreate ~ error:', error);
+                        logger.conclude({
+                          trace,
+                          // @ts-expect-error - Fixme
+                          output: `Error: ${error.message}`,
+                          durationNs: Number(
+                            process.hrtime.bigint() - startTime
+                          )
+                        });
+                        throw error;
+                      }
 
-  async createChatCompletion(params: OpenAI.Chat.ChatCompletionCreateParams) {
-    const startTime = Date.now();
-    const inputData = this.extractInputData('chat-completion', params);
-    const trace = this.logger.startTrace(inputData.input);
+                      // Extract OpenAI response data
+                      const output = response.choices
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        .map((choice: any) => choice.message)
+                        .join('\n');
 
-    try {
-      const response = await this.openai.chat.completions.create(params);
-      const duration = Date.now() - startTime;
+                      // Log the LLM span
+                      logger.addLLMSpan({
+                        input: JSON.stringify(requestData.messages),
+                        trace,
+                        output,
+                        model: requestData.model || 'unknown',
+                        inputTokens: response.usage?.prompt_tokens || 0,
+                        outputTokens: response.usage?.completion_tokens || 0,
+                        durationNs: Number(process.hrtime.bigint() - startTime),
+                        metadata: requestData.metadata || {}
+                      });
 
-      this.logger.addLLMSpan({
-        // @ts-expect-error - TODO: Fix this
-        output: response.choices,
-        model: inputData.model,
-        // @ts-expect-error - TODO: Fix this
-        duration_ns: duration * 1e6,
-        metadata: inputData.metadata
-      });
+                      // Conclude the trace
+                      logger.conclude({
+                        trace,
+                        output,
+                        durationNs: Number(process.hrtime.bigint() - startTime)
+                      });
 
-      this.logger.conclude({
-        trace,
-        // @ts-expect-error - TODO: Fix this
-        output: response.choices,
-        durationNs: duration * 1e6
-      });
-      return response;
-    } catch (error) {
-      console.error('Error:', error);
-      throw error;
+                      return response;
+                    };
+                  }
+                  return completionsTarget[completionsProp];
+                }
+              });
+            }
+            return chatTarget[chatProp];
+          }
+        });
+      }
+
+      return originalMethod;
     }
-  }
-}
+  };
 
-export { OpenAIGalileo };
+  return new Proxy(openAIClient, handler);
+}
