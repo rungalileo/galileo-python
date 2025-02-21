@@ -1,14 +1,9 @@
-from typing import Any, Union
+from typing import Any
 from uuid import UUID
 import datetime as dt
 
-from langchain_core.agents import AgentAction, AgentFinish
-from langchain_core.messages import BaseMessage
-from langchain_core.outputs import ChatGeneration, LLMResult
-from langchain_core.prompt_values import ChatPromptValue
 from pydantic import BaseModel
-from pydantic.v1 import BaseModel as BaseModelV1
-
+from galileo.utils.dependencies import is_langchain_available
 import enum
 import logging
 from asyncio import Queue
@@ -18,11 +13,6 @@ from datetime import date, datetime
 from json import JSONEncoder
 from pathlib import Path
 
-try:
-    from langchain.load.serializable import Serializable
-except ImportError:
-    # If Serializable is not available, set it to NoneType
-    Serializable = type(None)
 
 _logger = logging.getLogger(__name__)
 
@@ -61,7 +51,7 @@ class EventSerializer(JSONEncoder):
 
     def default(self, obj: Any) -> Any:
         try:
-            if isinstance(obj, (datetime)):
+            if isinstance(obj, datetime):
                 return serialize_datetime(obj)
 
             if isinstance(obj, (Exception, KeyboardInterrupt)):
@@ -85,7 +75,7 @@ class EventSerializer(JSONEncoder):
                 except UnicodeDecodeError:
                     return "<not serializable bytes>"
 
-            if isinstance(obj, (date)):
+            if isinstance(obj, date):
                 return obj.isoformat()
 
             elif isinstance(obj, BaseModel):
@@ -100,20 +90,29 @@ class EventSerializer(JSONEncoder):
             if isinstance(obj, Path):
                 return str(obj)
 
-            # if langchain is not available, the Serializable type is NoneType
-            if Serializable is not type(None) and isinstance(obj, Serializable):
-                return obj.to_json()
-            if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
-                return self.default(obj.messages)
-            elif isinstance(obj, (ChatGeneration)):
-                return self.default(obj.message)
-            elif isinstance(obj, LLMResult):
-                return self.default(obj.generations[0])
-            elif isinstance(obj, BaseMessage):
-                return self.default(obj.model_dump())
+            if is_langchain_available:
+                from langchain_core.load.serializable import Serializable
+
+                if isinstance(obj, Serializable):
+                    return obj.to_json()
+
+                from langchain_core.agents import AgentAction, AgentFinish
+                from langchain_core.messages import BaseMessage
+                from langchain_core.outputs import ChatGeneration, LLMResult
+                from langchain_core.prompt_values import ChatPromptValue
+
+
+                if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
+                    return self.default(obj.messages)
+                elif isinstance(obj, ChatGeneration):
+                    return self.default(obj.message)
+                elif isinstance(obj, LLMResult):
+                    return self.default(obj.generations[0])
+                elif isinstance(obj, BaseMessage):
+                    return self.default(obj.model_dump())
 
             # 64-bit integers might overflow the JavaScript safe integer range.
-            if isinstance(obj, (int)):
+            if isinstance(obj, int):
                 return obj if self.is_js_safe_integer(obj) else str(obj)
 
             # Standard JSON-encodable types

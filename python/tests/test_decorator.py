@@ -2,11 +2,8 @@ from unittest.mock import AsyncMock, Mock, patch
 
 from galileo import log, galileo_context
 from galileo_core.schemas.shared.traces.trace import Trace, LlmSpan, WorkflowSpan
-from .utils.setup import (
-    setup_mock_core_api_client,
-    setup_mock_logstreams_client,
-    setup_mock_projects_client,
-)
+
+from tests.testutils.setup import setup_mock_core_api_client, setup_mock_projects_client, setup_mock_logstreams_client
 
 
 @patch("galileo.logger.LogStreams")
