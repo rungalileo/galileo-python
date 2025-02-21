@@ -47,12 +47,7 @@ class SliceCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "logic": logic,
-                "name": name,
-            }
-        )
+        field_dict.update({"logic": logic, "name": name})
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
         if project_id is not UNSET:
@@ -87,12 +82,7 @@ class SliceCreate:
 
         project_id = _parse_project_id(d.pop("project_id", UNSET))
 
-        slice_create = cls(
-            logic=logic,
-            name=name,
-            created_by=created_by,
-            project_id=project_id,
-        )
+        slice_create = cls(logic=logic, name=name, created_by=created_by, project_id=project_id)
 
         slice_create.additional_properties = d
         return slice_create

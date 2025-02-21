@@ -143,12 +143,7 @@ class ChunkAttributionUtilizationScorer:
         else:
             type_ = ChunkAttributionUtilizationScorerType(_type_)
 
-        chunk_attribution_utilization_scorer = cls(
-            filters=filters,
-            model_name=model_name,
-            name=name,
-            type_=type_,
-        )
+        chunk_attribution_utilization_scorer = cls(filters=filters, model_name=model_name, name=name, type_=type_)
 
         chunk_attribution_utilization_scorer.additional_properties = d
         return chunk_attribution_utilization_scorer

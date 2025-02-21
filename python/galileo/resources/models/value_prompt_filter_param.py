@@ -36,14 +36,7 @@ class ValuePromptFilterParam:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column": column,
-                "filter_type": filter_type,
-                "relation": relation,
-                "value": value,
-            }
-        )
+        field_dict.update({"column": column, "filter_type": filter_type, "relation": relation, "value": value})
 
         return field_dict
 
@@ -63,12 +56,7 @@ class ValuePromptFilterParam:
 
         value = _parse_value(d.pop("value"))
 
-        value_prompt_filter_param = cls(
-            column=column,
-            filter_type=filter_type,
-            relation=relation,
-            value=value,
-        )
+        value_prompt_filter_param = cls(column=column, filter_type=filter_type, relation=relation, value=value)
 
         value_prompt_filter_param.additional_properties = d
         return value_prompt_filter_param

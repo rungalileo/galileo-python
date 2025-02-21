@@ -50,9 +50,7 @@ class LogDataAvailableColumnsResponse:
 
             columns.append(columns_item)
 
-        log_data_available_columns_response = cls(
-            columns=columns,
-        )
+        log_data_available_columns_response = cls(columns=columns)
 
         log_data_available_columns_response.additional_properties = d
         return log_data_available_columns_response

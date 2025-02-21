@@ -10,13 +10,8 @@ from ...models.training_model_response import TrainingModelResponse
 from ...types import Response
 
 
-def _get_kwargs(
-    model_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/models/{model_id}",
-    }
+def _get_kwargs(model_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/models/{model_id}"}
 
     return _kwargs
 
@@ -50,9 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    model_id: str,
-    *,
-    client: AuthenticatedClient,
+    model_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, TrainingModelResponse]]:
     """Get Model Endpoint
 
@@ -72,22 +65,14 @@ def sync_detailed(
         Response[Union[HTTPValidationError, TrainingModelResponse]]
     """
 
-    kwargs = _get_kwargs(
-        model_id=model_id,
-    )
+    kwargs = _get_kwargs(model_id=model_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    model_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Union[HTTPValidationError, TrainingModelResponse]]:
+def sync(model_id: str, *, client: AuthenticatedClient) -> Optional[Union[HTTPValidationError, TrainingModelResponse]]:
     """Get Model Endpoint
 
      Gets a model from the database and returns the presigned url to download it :param project_id:
@@ -106,16 +91,11 @@ def sync(
         Union[HTTPValidationError, TrainingModelResponse]
     """
 
-    return sync_detailed(
-        model_id=model_id,
-        client=client,
-    ).parsed
+    return sync_detailed(model_id=model_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    model_id: str,
-    *,
-    client: AuthenticatedClient,
+    model_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, TrainingModelResponse]]:
     """Get Model Endpoint
 
@@ -135,9 +115,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, TrainingModelResponse]]
     """
 
-    kwargs = _get_kwargs(
-        model_id=model_id,
-    )
+    kwargs = _get_kwargs(model_id=model_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -145,9 +123,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    model_id: str,
-    *,
-    client: AuthenticatedClient,
+    model_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, TrainingModelResponse]]:
     """Get Model Endpoint
 
@@ -167,9 +143,4 @@ async def asyncio(
         Union[HTTPValidationError, TrainingModelResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            model_id=model_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(model_id=model_id, client=client)).parsed

@@ -61,10 +61,7 @@ class RecomputeSettingsObserve:
         if mode != "observe_filters" and not isinstance(mode, Unset):
             raise ValueError(f"mode must match const 'observe_filters', got '{mode}'")
 
-        recompute_settings_observe = cls(
-            filters=filters,
-            mode=mode,
-        )
+        recompute_settings_observe = cls(filters=filters, mode=mode)
 
         recompute_settings_observe.additional_properties = d
         return recompute_settings_observe

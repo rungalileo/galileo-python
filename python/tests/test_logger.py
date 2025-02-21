@@ -26,11 +26,7 @@ def test_single_span_trace_to_galileo(
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     logger.start_trace(
-        input="input",
-        name="test-trace",
-        duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
     )
     span = logger.add_llm_span(
         input="prompt",
@@ -85,17 +81,10 @@ def test_nested_span_trace_to_galileo(
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     trace = logger.start_trace(
-        input="input",
-        name="test-trace",
-        duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
     )
     workflow_span = logger.add_workflow_span(
-        input="prompt",
-        name="test-workflow-span",
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="prompt", name="test-workflow-span", created_at_ns=created_time_ns, metadata=metadata
     )
 
     workflow_span.add_llm_span(
@@ -144,17 +133,10 @@ def test_multi_span_trace_to_galileo(
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     trace = logger.start_trace(
-        input="input",
-        name="test-trace",
-        duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
     )
     workflow_span = logger.add_workflow_span(
-        input="prompt",
-        name="test-workflow-span",
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="prompt", name="test-workflow-span", created_at_ns=created_time_ns, metadata=metadata
     )
 
     workflow_span.add_llm_span(
@@ -228,11 +210,7 @@ async def test_single_span_trace_to_galileo_with_async(
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     logger.start_trace(
-        input="input",
-        name="test-trace",
-        duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
-        metadata=metadata,
+        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
     )
     span = logger.add_llm_span(
         input="prompt",

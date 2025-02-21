@@ -45,11 +45,7 @@ class TransactionRecordBatch:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "records": records,
-            }
-        )
+        field_dict.update({"records": records})
         if client_version is not UNSET:
             field_dict["client_version"] = client_version
         if logging_method is not UNSET:
@@ -85,11 +81,7 @@ class TransactionRecordBatch:
         else:
             logging_method = TransactionLoggingMethod(_logging_method)
 
-        transaction_record_batch = cls(
-            records=records,
-            client_version=client_version,
-            logging_method=logging_method,
-        )
+        transaction_record_batch = cls(records=records, client_version=client_version, logging_method=logging_method)
 
         transaction_record_batch.additional_properties = d
         return transaction_record_batch

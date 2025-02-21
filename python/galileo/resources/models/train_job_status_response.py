@@ -67,14 +67,7 @@ class TrainJobStatusResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "history": history,
-                "id": id,
-                "status": status,
-                "status_message": status_message,
-            }
-        )
+        field_dict.update({"history": history, "id": id, "status": status, "status_message": status_message})
         if project_id is not UNSET:
             field_dict["project_id"] = project_id
         if project_name is not UNSET:

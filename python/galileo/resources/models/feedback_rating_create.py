@@ -54,11 +54,7 @@ class FeedbackRatingCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "rating": rating,
-            }
-        )
+        field_dict.update({"rating": rating})
         if explanation is not UNSET:
             field_dict["explanation"] = explanation
 
@@ -126,10 +122,7 @@ class FeedbackRatingCreate:
 
         explanation = _parse_explanation(d.pop("explanation", UNSET))
 
-        feedback_rating_create = cls(
-            rating=rating,
-            explanation=explanation,
-        )
+        feedback_rating_create = cls(rating=rating, explanation=explanation)
 
         feedback_rating_create.additional_properties = d
         return feedback_rating_create

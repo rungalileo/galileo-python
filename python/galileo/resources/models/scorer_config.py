@@ -57,12 +57,7 @@ class ScorerConfig:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "scorer_type": scorer_type,
-            }
-        )
+        field_dict.update({"id": id, "scorer_type": scorer_type})
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if model_type is not UNSET:
@@ -115,11 +110,7 @@ class ScorerConfig:
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
         scorer_config = cls(
-            id=id,
-            scorer_type=scorer_type,
-            model_name=model_name,
-            model_type=model_type,
-            num_judges=num_judges,
+            id=id, scorer_type=scorer_type, model_name=model_name, model_type=model_type, num_judges=num_judges
         )
 
         scorer_config.additional_properties = d

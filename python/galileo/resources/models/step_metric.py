@@ -25,12 +25,7 @@ class StepMetric:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-                "value": value,
-            }
-        )
+        field_dict.update({"name": name, "value": value})
 
         return field_dict
 
@@ -41,10 +36,7 @@ class StepMetric:
 
         value = d.pop("value")
 
-        step_metric = cls(
-            name=name,
-            value=value,
-        )
+        step_metric = cls(name=name, value=value)
 
         step_metric.additional_properties = d
         return step_metric

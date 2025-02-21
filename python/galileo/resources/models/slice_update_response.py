@@ -61,15 +61,7 @@ class SliceUpdateResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_at": created_at,
-                "id": id,
-                "logic": logic,
-                "name": name,
-                "updated_at": updated_at,
-            }
-        )
+        field_dict.update({"created_at": created_at, "id": id, "logic": logic, "name": name, "updated_at": updated_at})
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
         if project_id is not UNSET:

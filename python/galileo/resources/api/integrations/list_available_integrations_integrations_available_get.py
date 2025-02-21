@@ -10,10 +10,7 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/integrations/available",
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/integrations/available"}
 
     return _kwargs
 
@@ -42,10 +39,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[AvailableIntegrations]:
+def sync_detailed(*, client: AuthenticatedClient) -> Response[AvailableIntegrations]:
     """List Available Integrations
 
      List all of the available integrations to be created in Galileo.
@@ -60,17 +54,12 @@ def sync_detailed(
 
     kwargs = _get_kwargs()
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[AvailableIntegrations]:
+def sync(*, client: AuthenticatedClient) -> Optional[AvailableIntegrations]:
     """List Available Integrations
 
      List all of the available integrations to be created in Galileo.
@@ -83,15 +72,10 @@ def sync(
         AvailableIntegrations
     """
 
-    return sync_detailed(
-        client=client,
-    ).parsed
+    return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[AvailableIntegrations]:
+async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[AvailableIntegrations]:
     """List Available Integrations
 
      List all of the available integrations to be created in Galileo.
@@ -111,10 +95,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[AvailableIntegrations]:
+async def asyncio(*, client: AuthenticatedClient) -> Optional[AvailableIntegrations]:
     """List Available Integrations
 
      List all of the available integrations to be created in Galileo.
@@ -127,8 +108,4 @@ async def asyncio(
         AvailableIntegrations
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client)).parsed

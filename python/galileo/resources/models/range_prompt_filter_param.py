@@ -33,14 +33,7 @@ class RangePromptFilterParam:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column": column,
-                "filter_type": filter_type,
-                "high": high,
-                "low": low,
-            }
-        )
+        field_dict.update({"column": column, "filter_type": filter_type, "high": high, "low": low})
 
         return field_dict
 
@@ -57,12 +50,7 @@ class RangePromptFilterParam:
 
         low = d.pop("low")
 
-        range_prompt_filter_param = cls(
-            column=column,
-            filter_type=filter_type,
-            high=high,
-            low=low,
-        )
+        range_prompt_filter_param = cls(column=column, filter_type=filter_type, high=high, low=low)
 
         range_prompt_filter_param.additional_properties = d
         return range_prompt_filter_param

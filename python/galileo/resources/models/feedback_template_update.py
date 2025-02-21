@@ -26,12 +26,7 @@ class FeedbackTemplateUpdate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "criteria": criteria,
-                "name": name,
-            }
-        )
+        field_dict.update({"criteria": criteria, "name": name})
 
         return field_dict
 
@@ -48,10 +43,7 @@ class FeedbackTemplateUpdate:
 
         name = d.pop("name")
 
-        feedback_template_update = cls(
-            criteria=criteria,
-            name=name,
-        )
+        feedback_template_update = cls(criteria=criteria, name=name)
 
         feedback_template_update.additional_properties = d
         return feedback_template_update

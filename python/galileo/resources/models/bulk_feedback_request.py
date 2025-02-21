@@ -41,12 +41,7 @@ class BulkFeedbackRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "operations": operations,
-                "selector": selector,
-            }
-        )
+        field_dict.update({"operations": operations, "selector": selector})
 
         return field_dict
 
@@ -82,10 +77,7 @@ class BulkFeedbackRequest:
 
         selector = IndexSelector.from_dict(d.pop("selector"))
 
-        bulk_feedback_request = cls(
-            operations=operations,
-            selector=selector,
-        )
+        bulk_feedback_request = cls(operations=operations, selector=selector)
 
         bulk_feedback_request.additional_properties = d
         return bulk_feedback_request

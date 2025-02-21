@@ -64,13 +64,7 @@ class GeneratedScorerTaskResultResponse:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "created_at": created_at,
-                "id": id,
-                "result_type": result_type,
-                "status": status,
-                "updated_at": updated_at,
-            }
+            {"created_at": created_at, "id": id, "result_type": result_type, "status": status, "updated_at": updated_at}
         )
         if result is not UNSET:
             field_dict["result"] = result
@@ -119,12 +113,7 @@ class GeneratedScorerTaskResultResponse:
         result = _parse_result(d.pop("result", UNSET))
 
         generated_scorer_task_result_response = cls(
-            created_at=created_at,
-            id=id,
-            result_type=result_type,
-            status=status,
-            updated_at=updated_at,
-            result=result,
+            created_at=created_at, id=id, result_type=result_type, status=status, updated_at=updated_at, result=result
         )
 
         generated_scorer_task_result_response.additional_properties = d

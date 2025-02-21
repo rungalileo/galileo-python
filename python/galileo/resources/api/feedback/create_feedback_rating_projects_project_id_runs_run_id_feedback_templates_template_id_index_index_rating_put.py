@@ -12,12 +12,7 @@ from ...types import Response
 
 
 def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    template_id: str,
-    index: int,
-    *,
-    body: FeedbackRatingCreate,
+    project_id: str, run_id: str, template_id: str, index: int, *, body: FeedbackRatingCreate
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -92,17 +87,9 @@ def sync_detailed(
         Response[Union[FeedbackRatingDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        template_id=template_id,
-        index=index,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, template_id=template_id, index=index, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -137,12 +124,7 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        template_id=template_id,
-        index=index,
-        client=client,
-        body=body,
+        project_id=project_id, run_id=run_id, template_id=template_id, index=index, client=client, body=body
     ).parsed
 
 
@@ -175,13 +157,7 @@ async def asyncio_detailed(
         Response[Union[FeedbackRatingDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        template_id=template_id,
-        index=index,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, template_id=template_id, index=index, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -219,11 +195,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            template_id=template_id,
-            index=index,
-            client=client,
-            body=body,
+            project_id=project_id, run_id=run_id, template_id=template_id, index=index, client=client, body=body
         )
     ).parsed

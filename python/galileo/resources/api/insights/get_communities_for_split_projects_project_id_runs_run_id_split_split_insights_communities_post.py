@@ -12,13 +12,7 @@ from ...models.split import Split
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    body: ContentRequest,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, run_id: str, split: Split, *, body: ContentRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
@@ -69,12 +63,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
-    body: ContentRequest,
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient, body: ContentRequest
 ) -> Response[Union[HTTPValidationError, list["CommunityResponse"]]]:
     """Get Communities For Split
 
@@ -94,27 +83,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['CommunityResponse']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, split=split, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
-    body: ContentRequest,
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient, body: ContentRequest
 ) -> Optional[Union[HTTPValidationError, list["CommunityResponse"]]]:
     """Get Communities For Split
 
@@ -134,22 +111,11 @@ def sync(
         Union[HTTPValidationError, list['CommunityResponse']]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, run_id=run_id, split=split, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
-    body: ContentRequest,
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient, body: ContentRequest
 ) -> Response[Union[HTTPValidationError, list["CommunityResponse"]]]:
     """Get Communities For Split
 
@@ -169,12 +135,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['CommunityResponse']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, split=split, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -182,12 +143,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
-    body: ContentRequest,
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient, body: ContentRequest
 ) -> Optional[Union[HTTPValidationError, list["CommunityResponse"]]]:
     """Get Communities For Split
 
@@ -207,12 +163,4 @@ async def asyncio(
         Union[HTTPValidationError, list['CommunityResponse']]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            split=split,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, run_id=run_id, split=split, client=client, body=body)).parsed

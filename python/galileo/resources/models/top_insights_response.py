@@ -91,11 +91,7 @@ class TopInsightsResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "top_misclassified_pairs_percentage": top_misclassified_pairs_percentage,
-            }
-        )
+        field_dict.update({"top_misclassified_pairs_percentage": top_misclassified_pairs_percentage})
         if compare_to is not UNSET:
             field_dict["compare_to"] = compare_to
         if filter_params is not UNSET:

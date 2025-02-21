@@ -32,11 +32,7 @@ class ScorerVersionResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "scorer_content": scorer_content,
-            }
-        )
+        field_dict.update({"scorer_content": scorer_content})
 
         return field_dict
 
@@ -59,9 +55,7 @@ class ScorerVersionResponse:
 
         scorer_content = _parse_scorer_content(d.pop("scorer_content"))
 
-        scorer_version_response = cls(
-            scorer_content=scorer_content,
-        )
+        scorer_version_response = cls(scorer_content=scorer_content)
 
         scorer_version_response.additional_properties = d
         return scorer_version_response

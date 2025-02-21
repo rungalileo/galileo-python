@@ -20,13 +20,8 @@ from ...models.writer_integration import WriterIntegration
 from ...types import Response
 
 
-def _get_kwargs(
-    name: IntegrationName,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/integrations/{name}",
-    }
+def _get_kwargs(name: IntegrationName) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/integrations/{name}"}
 
     return _kwargs
 
@@ -185,9 +180,7 @@ def _build_response(
 
 
 def sync_detailed(
-    name: IntegrationName,
-    *,
-    client: AuthenticatedClient,
+    name: IntegrationName, *, client: AuthenticatedClient
 ) -> Response[
     Union[
         HTTPValidationError,
@@ -220,21 +213,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, Union['AnthropicIntegration', 'AwsBedrockIntegration', 'AwsSageMakerIntegration', 'AzureIntegration', 'DatabricksIntegration', 'LabelStudioIntegration', 'MistralIntegration', 'OpenAIIntegration', 'VertexAIIntegration', 'WriterIntegration']]]
     """
 
-    kwargs = _get_kwargs(
-        name=name,
-    )
+    kwargs = _get_kwargs(name=name)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    name: IntegrationName,
-    *,
-    client: AuthenticatedClient,
+    name: IntegrationName, *, client: AuthenticatedClient
 ) -> Optional[
     Union[
         HTTPValidationError,
@@ -267,16 +254,11 @@ def sync(
         Union[HTTPValidationError, Union['AnthropicIntegration', 'AwsBedrockIntegration', 'AwsSageMakerIntegration', 'AzureIntegration', 'DatabricksIntegration', 'LabelStudioIntegration', 'MistralIntegration', 'OpenAIIntegration', 'VertexAIIntegration', 'WriterIntegration']]
     """
 
-    return sync_detailed(
-        name=name,
-        client=client,
-    ).parsed
+    return sync_detailed(name=name, client=client).parsed
 
 
 async def asyncio_detailed(
-    name: IntegrationName,
-    *,
-    client: AuthenticatedClient,
+    name: IntegrationName, *, client: AuthenticatedClient
 ) -> Response[
     Union[
         HTTPValidationError,
@@ -309,9 +291,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, Union['AnthropicIntegration', 'AwsBedrockIntegration', 'AwsSageMakerIntegration', 'AzureIntegration', 'DatabricksIntegration', 'LabelStudioIntegration', 'MistralIntegration', 'OpenAIIntegration', 'VertexAIIntegration', 'WriterIntegration']]]
     """
 
-    kwargs = _get_kwargs(
-        name=name,
-    )
+    kwargs = _get_kwargs(name=name)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -319,9 +299,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    name: IntegrationName,
-    *,
-    client: AuthenticatedClient,
+    name: IntegrationName, *, client: AuthenticatedClient
 ) -> Optional[
     Union[
         HTTPValidationError,
@@ -354,9 +332,4 @@ async def asyncio(
         Union[HTTPValidationError, Union['AnthropicIntegration', 'AwsBedrockIntegration', 'AwsSageMakerIntegration', 'AzureIntegration', 'DatabricksIntegration', 'LabelStudioIntegration', 'MistralIntegration', 'OpenAIIntegration', 'VertexAIIntegration', 'WriterIntegration']]
     """
 
-    return (
-        await asyncio_detailed(
-            name=name,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(name=name, client=client)).parsed

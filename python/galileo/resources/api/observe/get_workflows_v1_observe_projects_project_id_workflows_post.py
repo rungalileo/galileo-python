@@ -112,16 +112,9 @@ def sync_detailed(
         Response[Union[HTTPValidationError, WorkflowsReadResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-        start_time=start_time,
-        end_time=end_time,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body, start_time=start_time, end_time=end_time)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -153,11 +146,7 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        client=client,
-        body=body,
-        start_time=start_time,
-        end_time=end_time,
+        project_id=project_id, client=client, body=body, start_time=start_time, end_time=end_time
     ).parsed
 
 
@@ -187,12 +176,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, WorkflowsReadResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-        start_time=start_time,
-        end_time=end_time,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body, start_time=start_time, end_time=end_time)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -227,10 +211,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            body=body,
-            start_time=start_time,
-            end_time=end_time,
+            project_id=project_id, client=client, body=body, start_time=start_time, end_time=end_time
         )
     ).parsed

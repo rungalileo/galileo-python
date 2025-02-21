@@ -130,11 +130,7 @@ class EditCreateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "edit_action": edit_action,
-            }
-        )
+        field_dict.update({"edit_action": edit_action})
         if edit_spans is not UNSET:
             field_dict["edit_spans"] = edit_spans
         if filter_ is not UNSET:

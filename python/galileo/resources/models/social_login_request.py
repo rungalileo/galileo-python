@@ -27,12 +27,7 @@ class SocialLoginRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id_token": id_token,
-                "provider": provider,
-            }
-        )
+        field_dict.update({"id_token": id_token, "provider": provider})
 
         return field_dict
 
@@ -43,10 +38,7 @@ class SocialLoginRequest:
 
         provider = SocialProvider(d.pop("provider"))
 
-        social_login_request = cls(
-            id_token=id_token,
-            provider=provider,
-        )
+        social_login_request = cls(id_token=id_token, provider=provider)
 
         social_login_request.additional_properties = d
         return social_login_request

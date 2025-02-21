@@ -76,14 +76,7 @@ class GroupDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_at": created_at,
-                "id": id,
-                "name": name,
-                "size": size,
-            }
-        )
+        field_dict.update({"created_at": created_at, "id": id, "name": name, "size": size})
         if description is not UNSET:
             field_dict["description"] = description
         if permissions is not UNSET:

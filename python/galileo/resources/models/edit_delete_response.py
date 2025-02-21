@@ -21,11 +21,7 @@ class EditDeleteResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "message": message,
-            }
-        )
+        field_dict.update({"message": message})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class EditDeleteResponse:
         d = src_dict.copy()
         message = d.pop("message")
 
-        edit_delete_response = cls(
-            message=message,
-        )
+        edit_delete_response = cls(message=message)
 
         edit_delete_response.additional_properties = d
         return edit_delete_response

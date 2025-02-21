@@ -11,11 +11,7 @@ from ...models.user_create import UserCreate
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    *,
-    body: UserCreate,
-    signup_token: Union[None, Unset, str] = UNSET,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: UserCreate, signup_token: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -29,11 +25,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/users",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/users", "params": params}
 
     _body = body.to_dict()
 
@@ -73,10 +65,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: UserCreate,
-    signup_token: Union[None, Unset, str] = UNSET,
+    *, client: Union[AuthenticatedClient, Client], body: UserCreate, signup_token: Union[None, Unset, str] = UNSET
 ) -> Response[Union[CreateUserResponse, HTTPValidationError]]:
     """Create Or Verify User
 
@@ -100,23 +89,15 @@ def sync_detailed(
         Response[Union[CreateUserResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        signup_token=signup_token,
-    )
+    kwargs = _get_kwargs(body=body, signup_token=signup_token)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: UserCreate,
-    signup_token: Union[None, Unset, str] = UNSET,
+    *, client: Union[AuthenticatedClient, Client], body: UserCreate, signup_token: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[CreateUserResponse, HTTPValidationError]]:
     """Create Or Verify User
 
@@ -140,18 +121,11 @@ def sync(
         Union[CreateUserResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-        signup_token=signup_token,
-    ).parsed
+    return sync_detailed(client=client, body=body, signup_token=signup_token).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: UserCreate,
-    signup_token: Union[None, Unset, str] = UNSET,
+    *, client: Union[AuthenticatedClient, Client], body: UserCreate, signup_token: Union[None, Unset, str] = UNSET
 ) -> Response[Union[CreateUserResponse, HTTPValidationError]]:
     """Create Or Verify User
 
@@ -175,10 +149,7 @@ async def asyncio_detailed(
         Response[Union[CreateUserResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        signup_token=signup_token,
-    )
+    kwargs = _get_kwargs(body=body, signup_token=signup_token)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -186,10 +157,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: UserCreate,
-    signup_token: Union[None, Unset, str] = UNSET,
+    *, client: Union[AuthenticatedClient, Client], body: UserCreate, signup_token: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[CreateUserResponse, HTTPValidationError]]:
     """Create Or Verify User
 
@@ -213,10 +181,4 @@ async def asyncio(
         Union[CreateUserResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-            signup_token=signup_token,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body, signup_token=signup_token)).parsed

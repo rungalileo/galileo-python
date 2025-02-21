@@ -31,11 +31,7 @@ class DatasetAppendRow:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "values": values,
-            }
-        )
+        field_dict.update({"values": values})
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
 
@@ -52,10 +48,7 @@ class DatasetAppendRow:
         if edit_type != "append_row" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'append_row', got '{edit_type}'")
 
-        dataset_append_row = cls(
-            values=values,
-            edit_type=edit_type,
-        )
+        dataset_append_row = cls(values=values, edit_type=edit_type)
 
         dataset_append_row.additional_properties = d
         return dataset_append_row

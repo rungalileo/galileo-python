@@ -80,12 +80,7 @@ class MultiLabelTaskMetrics:
 
         recall = cast(list[float], d.pop("recall", UNSET))
 
-        multi_label_task_metrics = cls(
-            f1=f1,
-            labels=labels,
-            precision=precision,
-            recall=recall,
-        )
+        multi_label_task_metrics = cls(f1=f1, labels=labels, precision=precision, recall=recall)
 
         multi_label_task_metrics.additional_properties = d
         return multi_label_task_metrics

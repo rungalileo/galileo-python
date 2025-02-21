@@ -36,13 +36,7 @@ class Rule:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "metric": metric,
-                "operator": operator,
-                "target_value": target_value,
-            }
-        )
+        field_dict.update({"metric": metric, "operator": operator, "target_value": target_value})
 
         return field_dict
 
@@ -68,11 +62,7 @@ class Rule:
 
         target_value = _parse_target_value(d.pop("target_value"))
 
-        rule = cls(
-            metric=metric,
-            operator=operator,
-            target_value=target_value,
-        )
+        rule = cls(metric=metric, operator=operator, target_value=target_value)
 
         rule.additional_properties = d
         return rule

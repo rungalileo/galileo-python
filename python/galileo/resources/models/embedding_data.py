@@ -218,13 +218,7 @@ class EmbeddingData:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "x": x,
-                "y": y,
-            }
-        )
+        field_dict.update({"id": id, "x": x, "y": y})
         if bbox is not UNSET:
             field_dict["bbox"] = bbox
         if bleu is not UNSET:

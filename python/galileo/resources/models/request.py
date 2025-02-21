@@ -110,11 +110,7 @@ class Request:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "payload": payload,
-            }
-        )
+        field_dict.update({"payload": payload})
         if headers is not UNSET:
             field_dict["headers"] = headers
         if metadata is not UNSET:

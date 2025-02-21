@@ -102,16 +102,10 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        scorer_name=scorer_name,
-        body=body,
-        monitor_batch_id=monitor_batch_id,
+        project_id=project_id, run_id=run_id, scorer_name=scorer_name, body=body, monitor_batch_id=monitor_batch_id
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -179,11 +173,7 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        scorer_name=scorer_name,
-        body=body,
-        monitor_batch_id=monitor_batch_id,
+        project_id=project_id, run_id=run_id, scorer_name=scorer_name, body=body, monitor_batch_id=monitor_batch_id
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)

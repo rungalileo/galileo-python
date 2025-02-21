@@ -21,11 +21,7 @@ class StarConstraints:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "feedback_type": feedback_type,
-            }
-        )
+        field_dict.update({"feedback_type": feedback_type})
 
         return field_dict
 
@@ -36,9 +32,7 @@ class StarConstraints:
         if feedback_type != "star":
             raise ValueError(f"feedback_type must match const 'star', got '{feedback_type}'")
 
-        star_constraints = cls(
-            feedback_type=feedback_type,
-        )
+        star_constraints = cls(feedback_type=feedback_type)
 
         star_constraints.additional_properties = d
         return star_constraints

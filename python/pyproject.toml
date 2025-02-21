@@ -90,6 +90,7 @@ line-length = 120
 fix = true
 src = ["src"]
 unsafe-fixes = true
+target-version = "py39"
 
 [tool.ruff.format]
 skip-magic-trailing-comma = true
@@ -119,13 +120,8 @@ no_implicit_optional = false
 plugins = ["pydantic.mypy"]
 follow_imports = "skip"
 # TODO: enable all modules/pacakges as soon as we ready
-modules = [
-    "galileo.openai",
-    "galileo.experiments"
-]
-packages = [
-    "galileo.utils"
-]
+modules = ["galileo.openai", "galileo.experiments"]
+packages = ["galileo.utils"]
 
 # Release.
 [tool.semantic_release]

@@ -42,11 +42,7 @@ class OverrideAction:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "choices": choices,
-            }
-        )
+        field_dict.update({"choices": choices})
         if subscriptions is not UNSET:
             field_dict["subscriptions"] = subscriptions
         if type_ is not UNSET:
@@ -72,11 +68,7 @@ class OverrideAction:
         if type_ != "OVERRIDE" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'OVERRIDE', got '{type_}'")
 
-        override_action = cls(
-            choices=choices,
-            subscriptions=subscriptions,
-            type_=type_,
-        )
+        override_action = cls(choices=choices, subscriptions=subscriptions, type_=type_)
 
         override_action.additional_properties = d
         return override_action

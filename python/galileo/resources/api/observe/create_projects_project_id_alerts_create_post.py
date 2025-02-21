@@ -11,17 +11,10 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    *,
-    body: CreateAlertConfigurationRequest,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, *, body: CreateAlertConfigurationRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/alerts/create",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/alerts/create"}
 
     _body = body.to_dict()
 
@@ -61,10 +54,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: CreateAlertConfigurationRequest,
+    project_id: str, *, client: AuthenticatedClient, body: CreateAlertConfigurationRequest
 ) -> Response[Union[AlertConfigurationResponse, HTTPValidationError]]:
     """Create
 
@@ -82,23 +72,15 @@ def sync_detailed(
         Response[Union[AlertConfigurationResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: CreateAlertConfigurationRequest,
+    project_id: str, *, client: AuthenticatedClient, body: CreateAlertConfigurationRequest
 ) -> Optional[Union[AlertConfigurationResponse, HTTPValidationError]]:
     """Create
 
@@ -116,18 +98,11 @@ def sync(
         Union[AlertConfigurationResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: CreateAlertConfigurationRequest,
+    project_id: str, *, client: AuthenticatedClient, body: CreateAlertConfigurationRequest
 ) -> Response[Union[AlertConfigurationResponse, HTTPValidationError]]:
     """Create
 
@@ -145,10 +120,7 @@ async def asyncio_detailed(
         Response[Union[AlertConfigurationResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -156,10 +128,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: CreateAlertConfigurationRequest,
+    project_id: str, *, client: AuthenticatedClient, body: CreateAlertConfigurationRequest
 ) -> Optional[Union[AlertConfigurationResponse, HTTPValidationError]]:
     """Create
 
@@ -177,10 +146,4 @@ async def asyncio(
         Union[AlertConfigurationResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

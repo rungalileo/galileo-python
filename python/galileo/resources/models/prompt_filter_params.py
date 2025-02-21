@@ -93,9 +93,7 @@ class PromptFilterParams:
 
             filters.append(filters_item)
 
-        prompt_filter_params = cls(
-            filters=filters,
-        )
+        prompt_filter_params = cls(filters=filters)
 
         prompt_filter_params.additional_properties = d
         return prompt_filter_params

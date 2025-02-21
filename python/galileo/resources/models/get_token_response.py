@@ -33,12 +33,7 @@ class GetTokenResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "access_token": access_token,
-                "expires_at": expires_at,
-            }
-        )
+        field_dict.update({"access_token": access_token, "expires_at": expires_at})
         if token_type is not UNSET:
             field_dict["token_type"] = token_type
 
@@ -53,11 +48,7 @@ class GetTokenResponse:
 
         token_type = d.pop("token_type", UNSET)
 
-        get_token_response = cls(
-            access_token=access_token,
-            expires_at=expires_at,
-            token_type=token_type,
-        )
+        get_token_response = cls(access_token=access_token, expires_at=expires_at, token_type=token_type)
 
         get_token_response.additional_properties = d
         return get_token_response

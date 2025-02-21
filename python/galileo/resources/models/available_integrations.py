@@ -26,11 +26,7 @@ class AvailableIntegrations:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "integrations": integrations,
-            }
-        )
+        field_dict.update({"integrations": integrations})
 
         return field_dict
 
@@ -44,9 +40,7 @@ class AvailableIntegrations:
 
             integrations.append(integrations_item)
 
-        available_integrations = cls(
-            integrations=integrations,
-        )
+        available_integrations = cls(integrations=integrations)
 
         available_integrations.additional_properties = d
         return available_integrations

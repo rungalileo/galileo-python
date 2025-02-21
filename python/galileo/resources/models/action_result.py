@@ -27,12 +27,7 @@ class ActionResult:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "type": type_,
-                "value": value,
-            }
-        )
+        field_dict.update({"type": type_, "value": value})
 
         return field_dict
 
@@ -43,10 +38,7 @@ class ActionResult:
 
         value = d.pop("value")
 
-        action_result = cls(
-            type_=type_,
-            value=value,
-        )
+        action_result = cls(type_=type_, value=value)
 
         action_result.additional_properties = d
         return action_result

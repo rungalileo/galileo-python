@@ -21,11 +21,7 @@ class OrganizationCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class OrganizationCreate:
         d = src_dict.copy()
         name = d.pop("name")
 
-        organization_create = cls(
-            name=name,
-        )
+        organization_create = cls(name=name)
 
         organization_create.additional_properties = d
         return organization_create

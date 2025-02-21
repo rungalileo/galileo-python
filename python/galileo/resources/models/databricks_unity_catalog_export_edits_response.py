@@ -145,12 +145,7 @@ class DatabricksUnityCatalogExportEditsResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "edit_ids": edit_ids,
-                "results": results,
-            }
-        )
+        field_dict.update({"edit_ids": edit_ids, "results": results})
         if all_but is not UNSET:
             field_dict["all_but"] = all_but
         if col_mapping is not UNSET:

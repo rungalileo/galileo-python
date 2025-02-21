@@ -40,11 +40,7 @@ class InviteUsersRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "emails": emails,
-            }
-        )
+        field_dict.update({"emails": emails})
         if group_ids is not UNSET:
             field_dict["group_ids"] = group_ids
         if role is not UNSET:
@@ -70,12 +66,7 @@ class InviteUsersRequest:
 
         send_email = d.pop("send_email", UNSET)
 
-        invite_users_request = cls(
-            emails=emails,
-            group_ids=group_ids,
-            role=role,
-            send_email=send_email,
-        )
+        invite_users_request = cls(emails=emails, group_ids=group_ids, role=role, send_email=send_email)
 
         invite_users_request.additional_properties = d
         return invite_users_request

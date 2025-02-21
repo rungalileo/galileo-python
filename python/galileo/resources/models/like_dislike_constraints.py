@@ -21,11 +21,7 @@ class LikeDislikeConstraints:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "feedback_type": feedback_type,
-            }
-        )
+        field_dict.update({"feedback_type": feedback_type})
 
         return field_dict
 
@@ -36,9 +32,7 @@ class LikeDislikeConstraints:
         if feedback_type != "like_dislike":
             raise ValueError(f"feedback_type must match const 'like_dislike', got '{feedback_type}'")
 
-        like_dislike_constraints = cls(
-            feedback_type=feedback_type,
-        )
+        like_dislike_constraints = cls(feedback_type=feedback_type)
 
         like_dislike_constraints.additional_properties = d
         return like_dislike_constraints

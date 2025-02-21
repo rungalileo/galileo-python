@@ -12,9 +12,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *,
-    body: DatabricksUnityCatalogEditExportRequest,
-    ignore_conflicting_edits: Union[Unset, bool] = True,
+    *, body: DatabricksUnityCatalogEditExportRequest, ignore_conflicting_edits: Union[Unset, bool] = True
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -87,14 +85,9 @@ def sync_detailed(
         Response[Union[DatabricksUnityCatalogExportEditsResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        ignore_conflicting_edits=ignore_conflicting_edits,
-    )
+    kwargs = _get_kwargs(body=body, ignore_conflicting_edits=ignore_conflicting_edits)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -119,11 +112,7 @@ def sync(
         Union[DatabricksUnityCatalogExportEditsResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-        ignore_conflicting_edits=ignore_conflicting_edits,
-    ).parsed
+    return sync_detailed(client=client, body=body, ignore_conflicting_edits=ignore_conflicting_edits).parsed
 
 
 async def asyncio_detailed(
@@ -146,10 +135,7 @@ async def asyncio_detailed(
         Response[Union[DatabricksUnityCatalogExportEditsResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        ignore_conflicting_edits=ignore_conflicting_edits,
-    )
+    kwargs = _get_kwargs(body=body, ignore_conflicting_edits=ignore_conflicting_edits)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -176,10 +162,4 @@ async def asyncio(
         Union[DatabricksUnityCatalogExportEditsResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-            ignore_conflicting_edits=ignore_conflicting_edits,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body, ignore_conflicting_edits=ignore_conflicting_edits)).parsed

@@ -10,22 +10,14 @@ from ...models.transfer_user_response import TransferUserResponse
 from ...types import UNSET, Response
 
 
-def _get_kwargs(
-    user_id: str,
-    *,
-    new_user_id: str,
-) -> dict[str, Any]:
+def _get_kwargs(user_id: str, *, new_user_id: str) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["new_user_id"] = new_user_id
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/users/{user_id}/transfer",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/users/{user_id}/transfer", "params": params}
 
     return _kwargs
 
@@ -59,10 +51,7 @@ def _build_response(
 
 
 def sync_detailed(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    new_user_id: str,
+    user_id: str, *, client: AuthenticatedClient, new_user_id: str
 ) -> Response[Union[HTTPValidationError, TransferUserResponse]]:
     """Transfer User Data
 
@@ -80,23 +69,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, TransferUserResponse]]
     """
 
-    kwargs = _get_kwargs(
-        user_id=user_id,
-        new_user_id=new_user_id,
-    )
+    kwargs = _get_kwargs(user_id=user_id, new_user_id=new_user_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    new_user_id: str,
+    user_id: str, *, client: AuthenticatedClient, new_user_id: str
 ) -> Optional[Union[HTTPValidationError, TransferUserResponse]]:
     """Transfer User Data
 
@@ -114,18 +95,11 @@ def sync(
         Union[HTTPValidationError, TransferUserResponse]
     """
 
-    return sync_detailed(
-        user_id=user_id,
-        client=client,
-        new_user_id=new_user_id,
-    ).parsed
+    return sync_detailed(user_id=user_id, client=client, new_user_id=new_user_id).parsed
 
 
 async def asyncio_detailed(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    new_user_id: str,
+    user_id: str, *, client: AuthenticatedClient, new_user_id: str
 ) -> Response[Union[HTTPValidationError, TransferUserResponse]]:
     """Transfer User Data
 
@@ -143,10 +117,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, TransferUserResponse]]
     """
 
-    kwargs = _get_kwargs(
-        user_id=user_id,
-        new_user_id=new_user_id,
-    )
+    kwargs = _get_kwargs(user_id=user_id, new_user_id=new_user_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -154,10 +125,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    new_user_id: str,
+    user_id: str, *, client: AuthenticatedClient, new_user_id: str
 ) -> Optional[Union[HTTPValidationError, TransferUserResponse]]:
     """Transfer User Data
 
@@ -175,10 +143,4 @@ async def asyncio(
         Union[HTTPValidationError, TransferUserResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            user_id=user_id,
-            client=client,
-            new_user_id=new_user_id,
-        )
-    ).parsed
+    return (await asyncio_detailed(user_id=user_id, client=client, new_user_id=new_user_id)).parsed

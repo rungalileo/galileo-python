@@ -30,12 +30,7 @@ class TopKToken:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "prob": prob,
-                "token": token,
-            }
-        )
+        field_dict.update({"prob": prob, "token": token})
 
         return field_dict
 
@@ -46,10 +41,7 @@ class TopKToken:
 
         token = d.pop("token")
 
-        top_k_token = cls(
-            prob=prob,
-            token=token,
-        )
+        top_k_token = cls(prob=prob, token=token)
 
         top_k_token.additional_properties = d
         return top_k_token

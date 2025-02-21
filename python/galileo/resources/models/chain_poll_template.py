@@ -64,11 +64,7 @@ class ChainPollTemplate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "template": template,
-            }
-        )
+        field_dict.update({"template": template})
         if explanation_field_name is not UNSET:
             field_dict["explanation_field_name"] = explanation_field_name
         if metric_description is not UNSET:

@@ -32,13 +32,7 @@ class GroupUpdate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "description": description,
-                "name": name,
-                "visibility": visibility,
-            }
-        )
+        field_dict.update({"description": description, "name": name, "visibility": visibility})
 
         return field_dict
 
@@ -57,11 +51,7 @@ class GroupUpdate:
 
         visibility = GroupVisibility(d.pop("visibility"))
 
-        group_update = cls(
-            description=description,
-            name=name,
-            visibility=visibility,
-        )
+        group_update = cls(description=description, name=name, visibility=visibility)
 
         group_update.additional_properties = d
         return group_update

@@ -106,10 +106,7 @@ class ThresholdRequest:
         task = _parse_task(d.pop("task", UNSET))
 
         threshold_request = cls(
-            compare_to=compare_to,
-            filter_params=filter_params,
-            map_threshold=map_threshold,
-            task=task,
+            compare_to=compare_to, filter_params=filter_params, map_threshold=map_threshold, task=task
         )
 
         threshold_request.additional_properties = d

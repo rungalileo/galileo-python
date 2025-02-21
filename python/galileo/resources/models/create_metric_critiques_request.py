@@ -58,12 +58,7 @@ class CreateMetricCritiquesRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "critiques": critiques,
-                "metric": metric,
-            }
-        )
+        field_dict.update({"critiques": critiques, "metric": metric})
         if recompute_settings is not UNSET:
             field_dict["recompute_settings"] = recompute_settings
 
@@ -124,11 +119,7 @@ class CreateMetricCritiquesRequest:
 
         recompute_settings = _parse_recompute_settings(d.pop("recompute_settings", UNSET))
 
-        create_metric_critiques_request = cls(
-            critiques=critiques,
-            metric=metric,
-            recompute_settings=recompute_settings,
-        )
+        create_metric_critiques_request = cls(critiques=critiques, metric=metric, recompute_settings=recompute_settings)
 
         create_metric_critiques_request.additional_properties = d
         return create_metric_critiques_request

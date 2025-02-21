@@ -45,12 +45,7 @@ class MetricInputs:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "query": query,
-                "response": response,
-            }
-        )
+        field_dict.update({"query": query, "response": response})
         if ground_truth is not UNSET:
             field_dict["ground_truth"] = ground_truth
         if tools is not UNSET:
@@ -83,12 +78,7 @@ class MetricInputs:
 
         tools = _parse_tools(d.pop("tools", UNSET))
 
-        metric_inputs = cls(
-            query=query,
-            response=response,
-            ground_truth=ground_truth,
-            tools=tools,
-        )
+        metric_inputs = cls(query=query, response=response, ground_truth=ground_truth, tools=tools)
 
         metric_inputs.additional_properties = d
         return metric_inputs

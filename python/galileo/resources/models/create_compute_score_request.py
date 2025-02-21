@@ -41,12 +41,7 @@ class CreateComputeScoreRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "recompute_settings": recompute_settings,
-                "scorers_config": scorers_config,
-            }
-        )
+        field_dict.update({"recompute_settings": recompute_settings, "scorers_config": scorers_config})
 
         return field_dict
 
@@ -88,10 +83,7 @@ class CreateComputeScoreRequest:
 
         scorers_config = ScorersConfig.from_dict(d.pop("scorers_config"))
 
-        create_compute_score_request = cls(
-            recompute_settings=recompute_settings,
-            scorers_config=scorers_config,
-        )
+        create_compute_score_request = cls(recompute_settings=recompute_settings, scorers_config=scorers_config)
 
         create_compute_score_request.additional_properties = d
         return create_compute_score_request

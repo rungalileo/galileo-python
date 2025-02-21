@@ -120,10 +120,7 @@ class QueryOrganizationParams:
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
-        query_organization_params = cls(
-            filters=filters,
-            sort=sort,
-        )
+        query_organization_params = cls(filters=filters, sort=sort)
 
         query_organization_params.additional_properties = d
         return query_organization_params

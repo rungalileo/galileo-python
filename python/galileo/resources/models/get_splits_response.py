@@ -74,10 +74,7 @@ class GetSplitsResponse:
             splits.append(splits_item)
 
         get_splits_response = cls(
-            inference_comparison_splits=inference_comparison_splits,
-            project_id=project_id,
-            run_id=run_id,
-            splits=splits,
+            inference_comparison_splits=inference_comparison_splits, project_id=project_id, run_id=run_id, splits=splits
         )
 
         get_splits_response.additional_properties = d

@@ -74,10 +74,7 @@ class VertexAIIntegration:
         if name != "vertex_ai" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'vertex_ai', got '{name}'")
 
-        vertex_ai_integration = cls(
-            extra=extra,
-            name=name,
-        )
+        vertex_ai_integration = cls(extra=extra, name=name)
 
         vertex_ai_integration.additional_properties = d
         return vertex_ai_integration

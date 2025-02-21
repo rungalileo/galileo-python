@@ -9,14 +9,8 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    group_id: str,
-    user_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "delete",
-        "url": f"/groups/{group_id}/members/{user_id}",
-    }
+def _get_kwargs(group_id: str, user_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/groups/{group_id}/members/{user_id}"}
 
     return _kwargs
 
@@ -49,10 +43,7 @@ def _build_response(
 
 
 def sync_detailed(
-    group_id: str,
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
+    group_id: str, user_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Group Member
 
@@ -68,24 +59,14 @@ def sync_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        group_id=group_id,
-        user_id=user_id,
-    )
+    kwargs = _get_kwargs(group_id=group_id, user_id=user_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    group_id: str,
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Union[Any, HTTPValidationError]]:
+def sync(group_id: str, user_id: str, *, client: AuthenticatedClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Group Member
 
     Args:
@@ -100,18 +81,11 @@ def sync(
         Union[Any, HTTPValidationError]
     """
 
-    return sync_detailed(
-        group_id=group_id,
-        user_id=user_id,
-        client=client,
-    ).parsed
+    return sync_detailed(group_id=group_id, user_id=user_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    group_id: str,
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
+    group_id: str, user_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Group Member
 
@@ -127,10 +101,7 @@ async def asyncio_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        group_id=group_id,
-        user_id=user_id,
-    )
+    kwargs = _get_kwargs(group_id=group_id, user_id=user_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -138,10 +109,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    group_id: str,
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
+    group_id: str, user_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Group Member
 
@@ -157,10 +125,4 @@ async def asyncio(
         Union[Any, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            group_id=group_id,
-            user_id=user_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(group_id=group_id, user_id=user_id, client=client)).parsed

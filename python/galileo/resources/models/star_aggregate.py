@@ -39,13 +39,7 @@ class StarAggregate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "average": average,
-                "counts": counts,
-                "unrated_count": unrated_count,
-            }
-        )
+        field_dict.update({"average": average, "counts": counts, "unrated_count": unrated_count})
         if feedback_type is not UNSET:
             field_dict["feedback_type"] = feedback_type
 
@@ -66,12 +60,7 @@ class StarAggregate:
         if feedback_type != "star" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'star', got '{feedback_type}'")
 
-        star_aggregate = cls(
-            average=average,
-            counts=counts,
-            unrated_count=unrated_count,
-            feedback_type=feedback_type,
-        )
+        star_aggregate = cls(average=average, counts=counts, unrated_count=unrated_count, feedback_type=feedback_type)
 
         star_aggregate.additional_properties = d
         return star_aggregate

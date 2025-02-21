@@ -103,15 +103,7 @@ class BBox:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "bbox": bbox,
-                "id": id,
-                "is_active": is_active,
-                "is_gold": is_gold,
-                "is_pred": is_pred,
-            }
-        )
+        field_dict.update({"bbox": bbox, "id": id, "is_active": is_active, "is_gold": is_gold, "is_pred": is_pred})
         if confidence is not UNSET:
             field_dict["confidence"] = confidence
         if data_error_potential is not UNSET:

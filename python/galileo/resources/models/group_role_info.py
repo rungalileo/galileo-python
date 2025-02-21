@@ -31,13 +31,7 @@ class GroupRoleInfo:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "description": description,
-                "display_name": display_name,
-                "name": name,
-            }
-        )
+        field_dict.update({"description": description, "display_name": display_name, "name": name})
 
         return field_dict
 
@@ -50,11 +44,7 @@ class GroupRoleInfo:
 
         name = GroupRole(d.pop("name"))
 
-        group_role_info = cls(
-            description=description,
-            display_name=display_name,
-            name=name,
-        )
+        group_role_info = cls(description=description, display_name=display_name, name=name)
 
         group_role_info.additional_properties = d
         return group_role_info

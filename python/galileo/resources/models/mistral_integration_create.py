@@ -21,11 +21,7 @@ class MistralIntegrationCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "token": token,
-            }
-        )
+        field_dict.update({"token": token})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class MistralIntegrationCreate:
         d = src_dict.copy()
         token = d.pop("token")
 
-        mistral_integration_create = cls(
-            token=token,
-        )
+        mistral_integration_create = cls(token=token)
 
         mistral_integration_create.additional_properties = d
         return mistral_integration_create

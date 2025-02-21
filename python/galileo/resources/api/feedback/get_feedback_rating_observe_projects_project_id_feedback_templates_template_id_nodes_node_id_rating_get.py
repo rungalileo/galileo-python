@@ -10,11 +10,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    template_id: str,
-    node_id: str,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, template_id: str, node_id: str) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": f"/projects/{project_id}/feedback/templates/{template_id}/nodes/{node_id}/rating",
@@ -52,11 +48,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    template_id: str,
-    node_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, template_id: str, node_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[FeedbackRatingDB, HTTPValidationError]]:
     """Get Feedback Rating Observe
 
@@ -73,25 +65,15 @@ def sync_detailed(
         Response[Union[FeedbackRatingDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        template_id=template_id,
-        node_id=node_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, template_id=template_id, node_id=node_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    template_id: str,
-    node_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, template_id: str, node_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[FeedbackRatingDB, HTTPValidationError]]:
     """Get Feedback Rating Observe
 
@@ -108,20 +90,11 @@ def sync(
         Union[FeedbackRatingDB, HTTPValidationError]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        template_id=template_id,
-        node_id=node_id,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, template_id=template_id, node_id=node_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    template_id: str,
-    node_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, template_id: str, node_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[FeedbackRatingDB, HTTPValidationError]]:
     """Get Feedback Rating Observe
 
@@ -138,11 +111,7 @@ async def asyncio_detailed(
         Response[Union[FeedbackRatingDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        template_id=template_id,
-        node_id=node_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, template_id=template_id, node_id=node_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -150,11 +119,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    template_id: str,
-    node_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, template_id: str, node_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[FeedbackRatingDB, HTTPValidationError]]:
     """Get Feedback Rating Observe
 
@@ -172,10 +137,5 @@ async def asyncio(
     """
 
     return (
-        await asyncio_detailed(
-            project_id=project_id,
-            template_id=template_id,
-            node_id=node_id,
-            client=client,
-        )
+        await asyncio_detailed(project_id=project_id, template_id=template_id, node_id=node_id, client=client)
     ).parsed

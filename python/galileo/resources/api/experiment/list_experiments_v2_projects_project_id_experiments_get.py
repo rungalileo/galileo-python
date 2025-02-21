@@ -10,13 +10,8 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/v2/projects/{project_id}/experiments",
-    }
+def _get_kwargs(project_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/v2/projects/{project_id}/experiments"}
 
     return _kwargs
 
@@ -55,9 +50,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, list["ExperimentResponse"]]]:
     """List Experiments
 
@@ -74,21 +67,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['ExperimentResponse']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, list["ExperimentResponse"]]]:
     """List Experiments
 
@@ -105,16 +92,11 @@ def sync(
         Union[HTTPValidationError, list['ExperimentResponse']]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, list["ExperimentResponse"]]]:
     """List Experiments
 
@@ -131,9 +113,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['ExperimentResponse']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -141,9 +121,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, list["ExperimentResponse"]]]:
     """List Experiments
 
@@ -160,9 +138,4 @@ async def asyncio(
         Union[HTTPValidationError, list['ExperimentResponse']]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, client=client)).parsed

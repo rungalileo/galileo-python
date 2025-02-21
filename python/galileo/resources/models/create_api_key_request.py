@@ -54,11 +54,7 @@ class CreateApiKeyRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "description": description,
-            }
-        )
+        field_dict.update({"description": description})
         if expires_at is not UNSET:
             field_dict["expires_at"] = expires_at
         if project_id is not UNSET:
@@ -117,10 +113,7 @@ class CreateApiKeyRequest:
         project_role = _parse_project_role(d.pop("project_role", UNSET))
 
         create_api_key_request = cls(
-            description=description,
-            expires_at=expires_at,
-            project_id=project_id,
-            project_role=project_role,
+            description=description, expires_at=expires_at, project_id=project_id, project_role=project_role
         )
 
         create_api_key_request.additional_properties = d

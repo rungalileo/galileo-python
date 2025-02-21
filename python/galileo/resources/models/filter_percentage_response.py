@@ -223,12 +223,7 @@ class FilterPercentageResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "percentage": percentage,
-                "sample_count": sample_count,
-            }
-        )
+        field_dict.update({"percentage": percentage, "sample_count": sample_count})
         if compare_to is not UNSET:
             field_dict["compare_to"] = compare_to
         if feature_noise_pct is not UNSET:

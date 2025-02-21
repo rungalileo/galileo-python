@@ -21,11 +21,7 @@ class PasswordResetResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "pathname": pathname,
-            }
-        )
+        field_dict.update({"pathname": pathname})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class PasswordResetResponse:
         d = src_dict.copy()
         pathname = d.pop("pathname")
 
-        password_reset_response = cls(
-            pathname=pathname,
-        )
+        password_reset_response = cls(pathname=pathname)
 
         password_reset_response.additional_properties = d
         return password_reset_response

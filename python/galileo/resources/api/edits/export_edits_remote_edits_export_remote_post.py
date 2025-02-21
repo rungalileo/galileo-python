@@ -12,9 +12,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *,
-    body: RemoteEditExportRequest,
-    ignore_conflicting_edits: Union[Unset, bool] = True,
+    *, body: RemoteEditExportRequest, ignore_conflicting_edits: Union[Unset, bool] = True
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -24,11 +22,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/edits/export/remote",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/edits/export/remote", "params": params}
 
     _body = body.to_dict()
 
@@ -68,10 +62,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: RemoteEditExportRequest,
-    ignore_conflicting_edits: Union[Unset, bool] = True,
+    *, client: AuthenticatedClient, body: RemoteEditExportRequest, ignore_conflicting_edits: Union[Unset, bool] = True
 ) -> Response[Union[HTTPValidationError, RemoteEditExportResponse]]:
     """Export Edits Remote
 
@@ -96,23 +87,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, RemoteEditExportResponse]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        ignore_conflicting_edits=ignore_conflicting_edits,
-    )
+    kwargs = _get_kwargs(body=body, ignore_conflicting_edits=ignore_conflicting_edits)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    body: RemoteEditExportRequest,
-    ignore_conflicting_edits: Union[Unset, bool] = True,
+    *, client: AuthenticatedClient, body: RemoteEditExportRequest, ignore_conflicting_edits: Union[Unset, bool] = True
 ) -> Optional[Union[HTTPValidationError, RemoteEditExportResponse]]:
     """Export Edits Remote
 
@@ -137,18 +120,11 @@ def sync(
         Union[HTTPValidationError, RemoteEditExportResponse]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-        ignore_conflicting_edits=ignore_conflicting_edits,
-    ).parsed
+    return sync_detailed(client=client, body=body, ignore_conflicting_edits=ignore_conflicting_edits).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: RemoteEditExportRequest,
-    ignore_conflicting_edits: Union[Unset, bool] = True,
+    *, client: AuthenticatedClient, body: RemoteEditExportRequest, ignore_conflicting_edits: Union[Unset, bool] = True
 ) -> Response[Union[HTTPValidationError, RemoteEditExportResponse]]:
     """Export Edits Remote
 
@@ -173,10 +149,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, RemoteEditExportResponse]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        ignore_conflicting_edits=ignore_conflicting_edits,
-    )
+    kwargs = _get_kwargs(body=body, ignore_conflicting_edits=ignore_conflicting_edits)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -184,10 +157,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    body: RemoteEditExportRequest,
-    ignore_conflicting_edits: Union[Unset, bool] = True,
+    *, client: AuthenticatedClient, body: RemoteEditExportRequest, ignore_conflicting_edits: Union[Unset, bool] = True
 ) -> Optional[Union[HTTPValidationError, RemoteEditExportResponse]]:
     """Export Edits Remote
 
@@ -212,10 +182,4 @@ async def asyncio(
         Union[HTTPValidationError, RemoteEditExportResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-            ignore_conflicting_edits=ignore_conflicting_edits,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body, ignore_conflicting_edits=ignore_conflicting_edits)).parsed

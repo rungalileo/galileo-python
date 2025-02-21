@@ -51,12 +51,7 @@ class DatabricksIntegrationCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "hostname": hostname,
-                "token": token,
-            }
-        )
+        field_dict.update({"hostname": hostname, "token": token})
         if default_catalog_name is not UNSET:
             field_dict["default_catalog_name"] = default_catalog_name
         if llm is not UNSET:

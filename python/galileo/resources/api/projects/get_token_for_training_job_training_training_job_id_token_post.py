@@ -14,16 +14,11 @@ from ...types import Response
 
 
 def _get_kwargs(
-    training_job_id: str,
-    *,
-    body: GetTokenForTrainingJobTrainingTrainingJobIdTokenPostRequestBody,
+    training_job_id: str, *, body: GetTokenForTrainingJobTrainingTrainingJobIdTokenPostRequestBody
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/training/{training_job_id}/token",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/training/{training_job_id}/token"}
 
     _body = body.to_dict()
 
@@ -84,14 +79,9 @@ def sync_detailed(
         Response[Union[HTTPValidationError, TrainJobAuthTokenResponse]]
     """
 
-    kwargs = _get_kwargs(
-        training_job_id=training_job_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(training_job_id=training_job_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -118,11 +108,7 @@ def sync(
         Union[HTTPValidationError, TrainJobAuthTokenResponse]
     """
 
-    return sync_detailed(
-        training_job_id=training_job_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(training_job_id=training_job_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
@@ -147,10 +133,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, TrainJobAuthTokenResponse]]
     """
 
-    kwargs = _get_kwargs(
-        training_job_id=training_job_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(training_job_id=training_job_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -179,10 +162,4 @@ async def asyncio(
         Union[HTTPValidationError, TrainJobAuthTokenResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            training_job_id=training_job_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(training_job_id=training_job_id, client=client, body=body)).parsed

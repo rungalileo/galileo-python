@@ -10,10 +10,7 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/logout",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/logout"}
 
     return _kwargs
 
@@ -38,10 +35,7 @@ def _build_response(*, client: Union[AuthenticatedClient, Client], response: htt
     )
 
 
-def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[Token]:
+def sync_detailed(*, client: AuthenticatedClient) -> Response[Token]:
     """Logout
 
     Raises:
@@ -54,17 +48,12 @@ def sync_detailed(
 
     kwargs = _get_kwargs()
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Token]:
+def sync(*, client: AuthenticatedClient) -> Optional[Token]:
     """Logout
 
     Raises:
@@ -75,15 +64,10 @@ def sync(
         Token
     """
 
-    return sync_detailed(
-        client=client,
-    ).parsed
+    return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[Token]:
+async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[Token]:
     """Logout
 
     Raises:
@@ -101,10 +85,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Token]:
+async def asyncio(*, client: AuthenticatedClient) -> Optional[Token]:
     """Logout
 
     Raises:
@@ -115,8 +96,4 @@ async def asyncio(
         Token
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client)).parsed

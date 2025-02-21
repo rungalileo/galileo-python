@@ -10,13 +10,8 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    generated_scorer_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/generated-scorers/{generated_scorer_id}",
-    }
+def _get_kwargs(generated_scorer_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/generated-scorers/{generated_scorer_id}"}
 
     return _kwargs
 
@@ -50,9 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    generated_scorer_id: str,
-    *,
-    client: AuthenticatedClient,
+    generated_scorer_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[GeneratedScorerResponse, HTTPValidationError]]:
     """Get
 
@@ -67,21 +60,15 @@ def sync_detailed(
         Response[Union[GeneratedScorerResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        generated_scorer_id=generated_scorer_id,
-    )
+    kwargs = _get_kwargs(generated_scorer_id=generated_scorer_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    generated_scorer_id: str,
-    *,
-    client: AuthenticatedClient,
+    generated_scorer_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[GeneratedScorerResponse, HTTPValidationError]]:
     """Get
 
@@ -96,16 +83,11 @@ def sync(
         Union[GeneratedScorerResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        generated_scorer_id=generated_scorer_id,
-        client=client,
-    ).parsed
+    return sync_detailed(generated_scorer_id=generated_scorer_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    generated_scorer_id: str,
-    *,
-    client: AuthenticatedClient,
+    generated_scorer_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[GeneratedScorerResponse, HTTPValidationError]]:
     """Get
 
@@ -120,9 +102,7 @@ async def asyncio_detailed(
         Response[Union[GeneratedScorerResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        generated_scorer_id=generated_scorer_id,
-    )
+    kwargs = _get_kwargs(generated_scorer_id=generated_scorer_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -130,9 +110,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    generated_scorer_id: str,
-    *,
-    client: AuthenticatedClient,
+    generated_scorer_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[GeneratedScorerResponse, HTTPValidationError]]:
     """Get
 
@@ -147,9 +125,4 @@ async def asyncio(
         Union[GeneratedScorerResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            generated_scorer_id=generated_scorer_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(generated_scorer_id=generated_scorer_id, client=client)).parsed

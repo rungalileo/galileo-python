@@ -21,11 +21,7 @@ class ExperimentUpdateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class ExperimentUpdateRequest:
         d = src_dict.copy()
         name = d.pop("name")
 
-        experiment_update_request = cls(
-            name=name,
-        )
+        experiment_update_request = cls(name=name)
 
         experiment_update_request.additional_properties = d
         return experiment_update_request

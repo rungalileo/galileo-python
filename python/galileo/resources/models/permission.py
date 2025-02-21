@@ -73,12 +73,7 @@ class Permission:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "action": action,
-                "allowed": allowed,
-            }
-        )
+        field_dict.update({"action": action, "allowed": allowed})
         if message is not UNSET:
             field_dict["message"] = message
 
@@ -184,11 +179,7 @@ class Permission:
 
         message = _parse_message(d.pop("message", UNSET))
 
-        permission = cls(
-            action=action,
-            allowed=allowed,
-            message=message,
-        )
+        permission = cls(action=action, allowed=allowed, message=message)
 
         permission.additional_properties = d
         return permission

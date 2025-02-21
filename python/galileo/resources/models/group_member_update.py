@@ -23,11 +23,7 @@ class GroupMemberUpdate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "role": role,
-            }
-        )
+        field_dict.update({"role": role})
 
         return field_dict
 
@@ -36,9 +32,7 @@ class GroupMemberUpdate:
         d = src_dict.copy()
         role = GroupRole(d.pop("role"))
 
-        group_member_update = cls(
-            role=role,
-        )
+        group_member_update = cls(role=role)
 
         group_member_update.additional_properties = d
         return group_member_update

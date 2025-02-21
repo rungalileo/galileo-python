@@ -29,13 +29,7 @@ class RunTagCreateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "key": key,
-                "tag_type": tag_type,
-                "value": value,
-            }
-        )
+        field_dict.update({"key": key, "tag_type": tag_type, "value": value})
 
         return field_dict
 
@@ -48,11 +42,7 @@ class RunTagCreateRequest:
 
         value = d.pop("value")
 
-        run_tag_create_request = cls(
-            key=key,
-            tag_type=tag_type,
-            value=value,
-        )
+        run_tag_create_request = cls(key=key, tag_type=tag_type, value=value)
 
         run_tag_create_request.additional_properties = d
         return run_tag_create_request

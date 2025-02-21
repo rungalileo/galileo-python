@@ -114,12 +114,7 @@ class MetricWeight:
 
         weight = d.pop("weight", UNSET)
 
-        metric_weight = cls(
-            description=description,
-            group_label=group_label,
-            label=label,
-            weight=weight,
-        )
+        metric_weight = cls(description=description, group_label=group_label, label=label, weight=weight)
 
         metric_weight.additional_properties = d
         return metric_weight

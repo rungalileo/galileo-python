@@ -73,11 +73,7 @@ class CartographCluster:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "cluster_description": cluster_description,
-                "cluster_id": cluster_id,
-                "cluster_size": cluster_size,
-            }
+            {"cluster_description": cluster_description, "cluster_id": cluster_id, "cluster_size": cluster_size}
         )
         if average_confidence is not UNSET:
             field_dict["average_confidence"] = average_confidence

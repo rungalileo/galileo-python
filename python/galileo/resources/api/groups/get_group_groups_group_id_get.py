@@ -10,13 +10,8 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    group_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/groups/{group_id}",
-    }
+def _get_kwargs(group_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/groups/{group_id}"}
 
     return _kwargs
 
@@ -49,11 +44,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Response[Union[GroupDB, HTTPValidationError]]:
+def sync_detailed(group_id: str, *, client: AuthenticatedClient) -> Response[Union[GroupDB, HTTPValidationError]]:
     """Get Group
 
     Args:
@@ -67,22 +58,14 @@ def sync_detailed(
         Response[Union[GroupDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        group_id=group_id,
-    )
+    kwargs = _get_kwargs(group_id=group_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Union[GroupDB, HTTPValidationError]]:
+def sync(group_id: str, *, client: AuthenticatedClient) -> Optional[Union[GroupDB, HTTPValidationError]]:
     """Get Group
 
     Args:
@@ -96,16 +79,11 @@ def sync(
         Union[GroupDB, HTTPValidationError]
     """
 
-    return sync_detailed(
-        group_id=group_id,
-        client=client,
-    ).parsed
+    return sync_detailed(group_id=group_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
+    group_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[GroupDB, HTTPValidationError]]:
     """Get Group
 
@@ -120,20 +98,14 @@ async def asyncio_detailed(
         Response[Union[GroupDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        group_id=group_id,
-    )
+    kwargs = _get_kwargs(group_id=group_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Union[GroupDB, HTTPValidationError]]:
+async def asyncio(group_id: str, *, client: AuthenticatedClient) -> Optional[Union[GroupDB, HTTPValidationError]]:
     """Get Group
 
     Args:
@@ -147,9 +119,4 @@ async def asyncio(
         Union[GroupDB, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            group_id=group_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(group_id=group_id, client=client)).parsed

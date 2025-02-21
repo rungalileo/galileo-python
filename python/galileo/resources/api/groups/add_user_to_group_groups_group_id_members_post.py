@@ -11,17 +11,10 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    group_id: str,
-    *,
-    body: list["GroupMemberCreate"],
-) -> dict[str, Any]:
+def _get_kwargs(group_id: str, *, body: list["GroupMemberCreate"]) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/groups/{group_id}/members",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/groups/{group_id}/members"}
 
     _body = []
     for body_item_data in body:
@@ -69,10 +62,7 @@ def _build_response(
 
 
 def sync_detailed(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: list["GroupMemberCreate"],
+    group_id: str, *, client: AuthenticatedClient, body: list["GroupMemberCreate"]
 ) -> Response[Union[HTTPValidationError, list["GroupMemberDB"]]]:
     """Add User To Group
 
@@ -88,23 +78,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['GroupMemberDB']]]
     """
 
-    kwargs = _get_kwargs(
-        group_id=group_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(group_id=group_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: list["GroupMemberCreate"],
+    group_id: str, *, client: AuthenticatedClient, body: list["GroupMemberCreate"]
 ) -> Optional[Union[HTTPValidationError, list["GroupMemberDB"]]]:
     """Add User To Group
 
@@ -120,18 +102,11 @@ def sync(
         Union[HTTPValidationError, list['GroupMemberDB']]
     """
 
-    return sync_detailed(
-        group_id=group_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(group_id=group_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: list["GroupMemberCreate"],
+    group_id: str, *, client: AuthenticatedClient, body: list["GroupMemberCreate"]
 ) -> Response[Union[HTTPValidationError, list["GroupMemberDB"]]]:
     """Add User To Group
 
@@ -147,10 +122,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['GroupMemberDB']]]
     """
 
-    kwargs = _get_kwargs(
-        group_id=group_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(group_id=group_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -158,10 +130,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: list["GroupMemberCreate"],
+    group_id: str, *, client: AuthenticatedClient, body: list["GroupMemberCreate"]
 ) -> Optional[Union[HTTPValidationError, list["GroupMemberDB"]]]:
     """Add User To Group
 
@@ -177,10 +146,4 @@ async def asyncio(
         Union[HTTPValidationError, list['GroupMemberDB']]
     """
 
-    return (
-        await asyncio_detailed(
-            group_id=group_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(group_id=group_id, client=client, body=body)).parsed

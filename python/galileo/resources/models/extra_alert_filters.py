@@ -49,9 +49,7 @@ class ExtraAlertFilters:
 
         map_threshold = _parse_map_threshold(d.pop("map_threshold", UNSET))
 
-        extra_alert_filters = cls(
-            map_threshold=map_threshold,
-        )
+        extra_alert_filters = cls(map_threshold=map_threshold)
 
         extra_alert_filters.additional_properties = d
         return extra_alert_filters

@@ -50,11 +50,7 @@ class ListGroupMembersResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "members": members,
-            }
-        )
+        field_dict.update({"members": members})
         if limit is not UNSET:
             field_dict["limit"] = limit
         if next_starting_token is not UNSET:

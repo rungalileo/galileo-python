@@ -11,11 +11,7 @@ from ...models.user_password_reset_response import UserPasswordResetResponse
 from ...types import UNSET, Response
 
 
-def _get_kwargs(
-    *,
-    body: UserPasswordResetRequest,
-    reset_token: str,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: UserPasswordResetRequest, reset_token: str) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -24,11 +20,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/password_reset",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/password_reset", "params": params}
 
     _body = body.to_dict()
 
@@ -68,10 +60,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: UserPasswordResetRequest,
-    reset_token: str,
+    *, client: Union[AuthenticatedClient, Client], body: UserPasswordResetRequest, reset_token: str
 ) -> Response[Union[HTTPValidationError, UserPasswordResetResponse]]:
     """Password Reset
 
@@ -92,23 +81,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, UserPasswordResetResponse]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        reset_token=reset_token,
-    )
+    kwargs = _get_kwargs(body=body, reset_token=reset_token)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: UserPasswordResetRequest,
-    reset_token: str,
+    *, client: Union[AuthenticatedClient, Client], body: UserPasswordResetRequest, reset_token: str
 ) -> Optional[Union[HTTPValidationError, UserPasswordResetResponse]]:
     """Password Reset
 
@@ -129,18 +110,11 @@ def sync(
         Union[HTTPValidationError, UserPasswordResetResponse]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-        reset_token=reset_token,
-    ).parsed
+    return sync_detailed(client=client, body=body, reset_token=reset_token).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: UserPasswordResetRequest,
-    reset_token: str,
+    *, client: Union[AuthenticatedClient, Client], body: UserPasswordResetRequest, reset_token: str
 ) -> Response[Union[HTTPValidationError, UserPasswordResetResponse]]:
     """Password Reset
 
@@ -161,10 +135,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, UserPasswordResetResponse]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        reset_token=reset_token,
-    )
+    kwargs = _get_kwargs(body=body, reset_token=reset_token)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -172,10 +143,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: UserPasswordResetRequest,
-    reset_token: str,
+    *, client: Union[AuthenticatedClient, Client], body: UserPasswordResetRequest, reset_token: str
 ) -> Optional[Union[HTTPValidationError, UserPasswordResetResponse]]:
     """Password Reset
 
@@ -196,10 +164,4 @@ async def asyncio(
         Union[HTTPValidationError, UserPasswordResetResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-            reset_token=reset_token,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body, reset_token=reset_token)).parsed

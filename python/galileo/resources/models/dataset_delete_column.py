@@ -27,11 +27,7 @@ class DatasetDeleteColumn:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_name": column_name,
-            }
-        )
+        field_dict.update({"column_name": column_name})
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
 
@@ -46,10 +42,7 @@ class DatasetDeleteColumn:
         if edit_type != "delete_column" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'delete_column', got '{edit_type}'")
 
-        dataset_delete_column = cls(
-            column_name=column_name,
-            edit_type=edit_type,
-        )
+        dataset_delete_column = cls(column_name=column_name, edit_type=edit_type)
 
         dataset_delete_column.additional_properties = d
         return dataset_delete_column

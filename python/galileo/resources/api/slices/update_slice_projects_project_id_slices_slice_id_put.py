@@ -11,18 +11,10 @@ from ...models.slice_update_response import SliceUpdateResponse
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    slice_id: str,
-    *,
-    body: SliceUpdate,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, slice_id: str, *, body: SliceUpdate) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "put",
-        "url": f"/projects/{project_id}/slices/{slice_id}",
-    }
+    _kwargs: dict[str, Any] = {"method": "put", "url": f"/projects/{project_id}/slices/{slice_id}"}
 
     _body = body.to_dict()
 
@@ -62,11 +54,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    slice_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: SliceUpdate,
+    project_id: str, slice_id: str, *, client: AuthenticatedClient, body: SliceUpdate
 ) -> Response[Union[HTTPValidationError, SliceUpdateResponse]]:
     """Update Slice
 
@@ -89,25 +77,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, SliceUpdateResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        slice_id=slice_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, slice_id=slice_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    slice_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: SliceUpdate,
+    project_id: str, slice_id: str, *, client: AuthenticatedClient, body: SliceUpdate
 ) -> Optional[Union[HTTPValidationError, SliceUpdateResponse]]:
     """Update Slice
 
@@ -130,20 +108,11 @@ def sync(
         Union[HTTPValidationError, SliceUpdateResponse]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        slice_id=slice_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, slice_id=slice_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    slice_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: SliceUpdate,
+    project_id: str, slice_id: str, *, client: AuthenticatedClient, body: SliceUpdate
 ) -> Response[Union[HTTPValidationError, SliceUpdateResponse]]:
     """Update Slice
 
@@ -166,11 +135,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, SliceUpdateResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        slice_id=slice_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, slice_id=slice_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -178,11 +143,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    slice_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: SliceUpdate,
+    project_id: str, slice_id: str, *, client: AuthenticatedClient, body: SliceUpdate
 ) -> Optional[Union[HTTPValidationError, SliceUpdateResponse]]:
     """Update Slice
 
@@ -205,11 +166,4 @@ async def asyncio(
         Union[HTTPValidationError, SliceUpdateResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            slice_id=slice_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, slice_id=slice_id, client=client, body=body)).parsed

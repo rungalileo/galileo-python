@@ -107,10 +107,7 @@ class PromptInjectionScorer:
         if name != "prompt_injection" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'prompt_injection', got '{name}'")
 
-        prompt_injection_scorer = cls(
-            filters=filters,
-            name=name,
-        )
+        prompt_injection_scorer = cls(filters=filters, name=name)
 
         prompt_injection_scorer.additional_properties = d
         return prompt_injection_scorer

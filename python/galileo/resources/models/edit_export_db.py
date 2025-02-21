@@ -41,13 +41,7 @@ class EditExportDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_at": created_at,
-                "edit_id": edit_id,
-                "id": id,
-            }
-        )
+        field_dict.update({"created_at": created_at, "edit_id": edit_id, "id": id})
         if user_id is not UNSET:
             field_dict["user_id"] = user_id
 
@@ -71,12 +65,7 @@ class EditExportDB:
 
         user_id = _parse_user_id(d.pop("user_id", UNSET))
 
-        edit_export_db = cls(
-            created_at=created_at,
-            edit_id=edit_id,
-            id=id,
-            user_id=user_id,
-        )
+        edit_export_db = cls(created_at=created_at, edit_id=edit_id, id=id, user_id=user_id)
 
         edit_export_db.additional_properties = d
         return edit_export_db

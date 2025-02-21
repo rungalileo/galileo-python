@@ -11,14 +11,7 @@ from ...models.method import Method
 from ...types import UNSET, Response
 
 
-def _get_kwargs(
-    *,
-    api_url: str,
-    method: Method,
-    bucket_name: str,
-    object_name: str,
-    project_id: str,
-) -> dict[str, Any]:
+def _get_kwargs(*, api_url: str, method: Method, bucket_name: str, object_name: str, project_id: str) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["api_url"] = api_url
@@ -34,11 +27,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/presigned_url",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/presigned_url", "params": params}
 
     return _kwargs
 
@@ -72,13 +61,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    api_url: str,
-    method: Method,
-    bucket_name: str,
-    object_name: str,
-    project_id: str,
+    *, client: AuthenticatedClient, api_url: str, method: Method, bucket_name: str, object_name: str, project_id: str
 ) -> Response[Union[GetPresignedUrlResponse, HTTPValidationError]]:
     """Get Presigned Url
 
@@ -98,28 +81,16 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        api_url=api_url,
-        method=method,
-        bucket_name=bucket_name,
-        object_name=object_name,
-        project_id=project_id,
+        api_url=api_url, method=method, bucket_name=bucket_name, object_name=object_name, project_id=project_id
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    api_url: str,
-    method: Method,
-    bucket_name: str,
-    object_name: str,
-    project_id: str,
+    *, client: AuthenticatedClient, api_url: str, method: Method, bucket_name: str, object_name: str, project_id: str
 ) -> Optional[Union[GetPresignedUrlResponse, HTTPValidationError]]:
     """Get Presigned Url
 
@@ -149,13 +120,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    api_url: str,
-    method: Method,
-    bucket_name: str,
-    object_name: str,
-    project_id: str,
+    *, client: AuthenticatedClient, api_url: str, method: Method, bucket_name: str, object_name: str, project_id: str
 ) -> Response[Union[GetPresignedUrlResponse, HTTPValidationError]]:
     """Get Presigned Url
 
@@ -175,11 +140,7 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        api_url=api_url,
-        method=method,
-        bucket_name=bucket_name,
-        object_name=object_name,
-        project_id=project_id,
+        api_url=api_url, method=method, bucket_name=bucket_name, object_name=object_name, project_id=project_id
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -188,13 +149,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    api_url: str,
-    method: Method,
-    bucket_name: str,
-    object_name: str,
-    project_id: str,
+    *, client: AuthenticatedClient, api_url: str, method: Method, bucket_name: str, object_name: str, project_id: str
 ) -> Optional[Union[GetPresignedUrlResponse, HTTPValidationError]]:
     """Get Presigned Url
 

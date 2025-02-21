@@ -25,12 +25,7 @@ class AzureModelDeployment:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "model": model,
-            }
-        )
+        field_dict.update({"id": id, "model": model})
 
         return field_dict
 
@@ -41,10 +36,7 @@ class AzureModelDeployment:
 
         model = d.pop("model")
 
-        azure_model_deployment = cls(
-            id=id,
-            model=model,
-        )
+        azure_model_deployment = cls(id=id, model=model)
 
         azure_model_deployment.additional_properties = d
         return azure_model_deployment

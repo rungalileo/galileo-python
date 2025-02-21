@@ -236,11 +236,7 @@ class EvaluateRunRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "workflows": workflows,
-            }
-        )
+        field_dict.update({"workflows": workflows})
         if generated_scorers is not UNSET:
             field_dict["generated_scorers"] = generated_scorers
         if project_id is not UNSET:

@@ -107,10 +107,7 @@ class ContextRelevanceScorer:
         if name != "context_relevance" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'context_relevance', got '{name}'")
 
-        context_relevance_scorer = cls(
-            filters=filters,
-            name=name,
-        )
+        context_relevance_scorer = cls(filters=filters, name=name)
 
         context_relevance_scorer.additional_properties = d
         return context_relevance_scorer

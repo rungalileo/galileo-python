@@ -94,11 +94,7 @@ class EmbeddingPointResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "embedding_data": embedding_data,
-            }
-        )
+        field_dict.update({"embedding_data": embedding_data})
         if circle is not UNSET:
             field_dict["circle"] = circle
         if compare_to is not UNSET:

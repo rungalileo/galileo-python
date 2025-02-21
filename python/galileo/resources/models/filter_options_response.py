@@ -47,9 +47,7 @@ class FilterOptionsResponse:
         else:
             filter_options = FilterOptionsResponseFilterOptions.from_dict(_filter_options)
 
-        filter_options_response = cls(
-            filter_options=filter_options,
-        )
+        filter_options_response = cls(filter_options=filter_options)
 
         filter_options_response.additional_properties = d
         return filter_options_response

@@ -11,11 +11,7 @@ from ...models.social_login_request import SocialLoginRequest
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    *,
-    body: SocialLoginRequest,
-    signup_token: Union[None, Unset, str] = UNSET,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: SocialLoginRequest, signup_token: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -29,11 +25,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/users/social",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/users/social", "params": params}
 
     _body = body.to_dict()
 
@@ -98,14 +90,9 @@ def sync_detailed(
         Response[Union[CreateUserResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        signup_token=signup_token,
-    )
+    kwargs = _get_kwargs(body=body, signup_token=signup_token)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -136,11 +123,7 @@ def sync(
         Union[CreateUserResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-        signup_token=signup_token,
-    ).parsed
+    return sync_detailed(client=client, body=body, signup_token=signup_token).parsed
 
 
 async def asyncio_detailed(
@@ -169,10 +152,7 @@ async def asyncio_detailed(
         Response[Union[CreateUserResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        signup_token=signup_token,
-    )
+    kwargs = _get_kwargs(body=body, signup_token=signup_token)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -205,10 +185,4 @@ async def asyncio(
         Union[CreateUserResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-            signup_token=signup_token,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body, signup_token=signup_token)).parsed

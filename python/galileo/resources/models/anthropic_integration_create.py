@@ -21,11 +21,7 @@ class AnthropicIntegrationCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "token": token,
-            }
-        )
+        field_dict.update({"token": token})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class AnthropicIntegrationCreate:
         d = src_dict.copy()
         token = d.pop("token")
 
-        anthropic_integration_create = cls(
-            token=token,
-        )
+        anthropic_integration_create = cls(token=token)
 
         anthropic_integration_create.additional_properties = d
         return anthropic_integration_create

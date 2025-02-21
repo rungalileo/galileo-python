@@ -5,9 +5,7 @@ from galileo.resources.models.dataset_db import DatasetDB
 from galileo.resources.models.list_dataset_params import ListDatasetParams
 from galileo.resources.models.list_dataset_response import ListDatasetResponse
 from galileo.resources.models.dataset_name_filter import DatasetNameFilter
-from galileo.resources.models.dataset_name_filter_operator import (
-    DatasetNameFilterOperator,
-)
+from galileo.resources.models.dataset_name_filter_operator import DatasetNameFilterOperator
 from galileo.resources.api.datasets import (
     list_datasets_datasets_get,
     query_datasets_datasets_query_post,
@@ -19,16 +17,12 @@ from galileo.resources.api.datasets import (
 )
 from galileo.resources.models.dataset_updated_at_sort import DatasetUpdatedAtSort
 from galileo.resources.models.dataset_content import DatasetContent
-from galileo.resources.models.update_dataset_content_request import (
-    UpdateDatasetContentRequest,
-)
+from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
 
 from galileo.resources.models.dataset_update_row import DatasetUpdateRow
 from galileo.resources.models.dataset_update_row_values import DatasetUpdateRowValues
 from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.models.body_upload_dataset_datasets_post import (
-    BodyUploadDatasetDatasetsPost,
-)
+from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
 from galileo.resources.types import Unset, File
 
 from galileo_core.utils.dataset import DatasetType, parse_dataset
@@ -41,9 +35,7 @@ from galileo.base import BaseClientModel
 class Dataset(BaseClientModel):
     content: DatasetContent | None = None
 
-    def __init__(
-        self, dataset_db: DatasetDB, client: Optional[GalileoApiClient] = None
-    ) -> None:
+    def __init__(self, dataset_db: DatasetDB, client: Optional[GalileoApiClient] = None) -> None:
         self.dataset = dataset_db
         super().__init__(client=client)
 
@@ -68,10 +60,8 @@ class Dataset(BaseClientModel):
         if not self.dataset:
             return None
 
-        content: DatasetContent = (
-            get_dataset_content_datasets_dataset_id_content_get.sync(
-                client=self.client, dataset_id=self.dataset.id
-            )
+        content: DatasetContent = get_dataset_content_datasets_dataset_id_content_get.sync(
+            client=self.client, dataset_id=self.dataset.id
         )
 
         self.content = content
@@ -144,17 +134,8 @@ class Datasets(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
-        datasets: ListDatasetResponse = list_datasets_datasets_get.sync(
-            client=self.client, limit=limit
-        )
-        return (
-            [
-                Dataset(dataset_db=dataset, client=self.client)
-                for dataset in datasets.datasets
-            ]
-            if datasets
-            else []
-        )
+        datasets: ListDatasetResponse = list_datasets_datasets_get.sync(client=self.client, limit=limit)
+        return [Dataset(dataset_db=dataset, client=self.client) for dataset in datasets.datasets] if datasets else []
 
     @overload
     def get(self, *, id: str, with_content: bool = False) -> Optional[Dataset]: ...
@@ -162,11 +143,7 @@ class Datasets(BaseClientModel):
     @overload
     def get(self, *, name: str, with_content: bool = False) -> Optional[Dataset]: ...
     def get(
-        self,
-        *,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-        with_content: bool = False,
+        self, *, id: Optional[str] = None, name: Optional[str] = None, with_content: bool = False
     ) -> Optional[Dataset]:
         """
         Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
@@ -199,32 +176,22 @@ class Datasets(BaseClientModel):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
         if id:
-            dataset_response = get_dataset_datasets_dataset_id_get.sync(
-                client=self.client, dataset_id=id
-            )
+            dataset_response = get_dataset_datasets_dataset_id_get.sync(client=self.client, dataset_id=id)
             if not dataset_response:
                 return None
             dataset = Dataset(dataset_db=dataset_response, client=self.client)
 
         elif name:
-            filter = DatasetNameFilter(
-                operator=DatasetNameFilterOperator.EQ, value=name
-            )
-            params = ListDatasetParams(
-                filters=[filter], sort=DatasetUpdatedAtSort(ascending=False)
-            )
-            datasets_response: ListDatasetResponse = (
-                query_datasets_datasets_query_post.sync(
-                    client=self.client, body=params, limit=1
-                )
+            filter = DatasetNameFilter(operator=DatasetNameFilterOperator.EQ, value=name)
+            params = ListDatasetParams(filters=[filter], sort=DatasetUpdatedAtSort(ascending=False))
+            datasets_response: ListDatasetResponse = query_datasets_datasets_query_post.sync(
+                client=self.client, body=params, limit=1
             )
 
             if not datasets_response or len(datasets_response.datasets) == 0:
                 return None
 
-            dataset = Dataset(
-                dataset_db=datasets_response.datasets[0], client=self.client
-            )
+            dataset = Dataset(dataset_db=datasets_response.datasets[0], client=self.client)
 
         if with_content:
             dataset.get_content()
@@ -259,9 +226,7 @@ class Datasets(BaseClientModel):
         dataset = self.get(id=id, name=name)
         if not dataset:
             raise ValueError(f"Dataset {name} not found")
-        return delete_dataset_datasets_dataset_id_delete.sync(
-            client=self.client, dataset_id=dataset.id
-        )
+        return delete_dataset_datasets_dataset_id_delete.sync(client=self.client, dataset_id=dataset.id)
 
     def create(self, name: str, content: DatasetType) -> Dataset:
         """
@@ -297,9 +262,7 @@ class Datasets(BaseClientModel):
 
         body = BodyUploadDatasetDatasetsPost(file=file)
 
-        response = upload_dataset_datasets_post.sync(
-            client=self.client, body=body, format_=dataset_format
-        )
+        response = upload_dataset_datasets_post.sync(client=self.client, body=body, format_=dataset_format)
 
         if isinstance(response, HTTPValidationError):
             raise response
@@ -315,9 +278,7 @@ class Datasets(BaseClientModel):
 #
 
 
-def get_dataset(
-    *, id: Optional[str] = None, name: Optional[str] = None
-) -> Optional[Dataset]:
+def get_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Dataset]:
     """
     Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
 

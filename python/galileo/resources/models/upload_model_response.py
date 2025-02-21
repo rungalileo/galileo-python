@@ -29,13 +29,7 @@ class UploadModelResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "filename": filename,
-                "id": id,
-                "upload_url": upload_url,
-            }
-        )
+        field_dict.update({"filename": filename, "id": id, "upload_url": upload_url})
 
         return field_dict
 
@@ -48,11 +42,7 @@ class UploadModelResponse:
 
         upload_url = d.pop("upload_url")
 
-        upload_model_response = cls(
-            filename=filename,
-            id=id,
-            upload_url=upload_url,
-        )
+        upload_model_response = cls(filename=filename, id=id, upload_url=upload_url)
 
         upload_model_response.additional_properties = d
         return upload_model_response

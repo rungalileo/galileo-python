@@ -62,7 +62,7 @@ def test_decorator_nested_span(
     assert type(payload.traces[0].spans[0]) == WorkflowSpan
     assert type(payload.traces[0].spans[0].spans[0]) == LlmSpan
     assert payload.traces[0].input == {"nested_query": "input"}
-    assert payload.traces[0].spans[0].spans[0].input == {'query': 'input'}
+    assert payload.traces[0].spans[0].spans[0].input == {"query": "input"}
     assert payload.traces[0].spans[0].output == output
     assert payload.traces[0].spans[0].spans[0].output == output
 
@@ -99,6 +99,6 @@ def test_decorator_multiple_nested_spans(
     assert type(payload.traces[0].spans[0].spans[0]) == LlmSpan
     assert type(payload.traces[0].spans[0].spans[1]) == LlmSpan
     assert payload.traces[0].input == {"nested_query": "input"}
-    assert payload.traces[0].spans[0].spans[0].input == {'query': 'input'}
+    assert payload.traces[0].spans[0].spans[0].input == {"query": "input"}
     assert payload.traces[0].spans[0].output == output
     assert payload.traces[0].spans[0].spans[0].output == "response"

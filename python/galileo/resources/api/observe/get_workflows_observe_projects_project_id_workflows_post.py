@@ -43,11 +43,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/observe/projects/{project_id}/workflows",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/observe/projects/{project_id}/workflows", "params": params}
 
     _body = body.to_dict()
 
@@ -112,16 +108,9 @@ def sync_detailed(
         Response[Union[HTTPValidationError, WorkflowsReadResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-        start_time=start_time,
-        end_time=end_time,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body, start_time=start_time, end_time=end_time)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -153,11 +142,7 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        client=client,
-        body=body,
-        start_time=start_time,
-        end_time=end_time,
+        project_id=project_id, client=client, body=body, start_time=start_time, end_time=end_time
     ).parsed
 
 
@@ -187,12 +172,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, WorkflowsReadResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-        start_time=start_time,
-        end_time=end_time,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body, start_time=start_time, end_time=end_time)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -227,10 +207,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            body=body,
-            start_time=start_time,
-            end_time=end_time,
+            project_id=project_id, client=client, body=body, start_time=start_time, end_time=end_time
         )
     ).parsed

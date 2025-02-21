@@ -104,13 +104,7 @@ class Span:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "id": id,
-                "is_active": is_active,
-                "pred": pred,
-                "span_end": span_end,
-                "span_start": span_start,
-            }
+            {"id": id, "is_active": is_active, "pred": pred, "span_end": span_end, "span_start": span_start}
         )
         if confidence is not UNSET:
             field_dict["confidence"] = confidence

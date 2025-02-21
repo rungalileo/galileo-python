@@ -64,12 +64,7 @@ class Seq2SeqSegment:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "end": end,
-                "start": start,
-            }
-        )
+        field_dict.update({"end": end, "start": start})
         if data_error_potential is not UNSET:
             field_dict["data_error_potential"] = data_error_potential
         if generated_uncertainty is not UNSET:

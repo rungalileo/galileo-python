@@ -10,11 +10,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    *,
-    user_email: str,
-    send_email: Union[Unset, bool] = True,
-) -> dict[str, Any]:
+def _get_kwargs(*, user_email: str, send_email: Union[Unset, bool] = True) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["user_email"] = user_email
@@ -23,11 +19,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/signup_link",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/signup_link", "params": params}
 
     return _kwargs
 
@@ -61,10 +53,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    user_email: str,
-    send_email: Union[Unset, bool] = True,
+    *, client: AuthenticatedClient, user_email: str, send_email: Union[Unset, bool] = True
 ) -> Response[Union[CreateSignupLinkResponse, HTTPValidationError]]:
     """Generate Signup Link
 
@@ -89,23 +78,15 @@ def sync_detailed(
         Response[Union[CreateSignupLinkResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        user_email=user_email,
-        send_email=send_email,
-    )
+    kwargs = _get_kwargs(user_email=user_email, send_email=send_email)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    user_email: str,
-    send_email: Union[Unset, bool] = True,
+    *, client: AuthenticatedClient, user_email: str, send_email: Union[Unset, bool] = True
 ) -> Optional[Union[CreateSignupLinkResponse, HTTPValidationError]]:
     """Generate Signup Link
 
@@ -130,18 +111,11 @@ def sync(
         Union[CreateSignupLinkResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        user_email=user_email,
-        send_email=send_email,
-    ).parsed
+    return sync_detailed(client=client, user_email=user_email, send_email=send_email).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    user_email: str,
-    send_email: Union[Unset, bool] = True,
+    *, client: AuthenticatedClient, user_email: str, send_email: Union[Unset, bool] = True
 ) -> Response[Union[CreateSignupLinkResponse, HTTPValidationError]]:
     """Generate Signup Link
 
@@ -166,10 +140,7 @@ async def asyncio_detailed(
         Response[Union[CreateSignupLinkResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        user_email=user_email,
-        send_email=send_email,
-    )
+    kwargs = _get_kwargs(user_email=user_email, send_email=send_email)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -177,10 +148,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    user_email: str,
-    send_email: Union[Unset, bool] = True,
+    *, client: AuthenticatedClient, user_email: str, send_email: Union[Unset, bool] = True
 ) -> Optional[Union[CreateSignupLinkResponse, HTTPValidationError]]:
     """Generate Signup Link
 
@@ -205,10 +173,4 @@ async def asyncio(
         Union[CreateSignupLinkResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            user_email=user_email,
-            send_email=send_email,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, user_email=user_email, send_email=send_email)).parsed

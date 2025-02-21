@@ -96,10 +96,7 @@ class GenAIProjectSettings:
 
         scorers_config = _parse_scorers_config(d.pop("scorers_config", UNSET))
 
-        gen_ai_project_settings = cls(
-            alerts_configuration=alerts_configuration,
-            scorers_config=scorers_config,
-        )
+        gen_ai_project_settings = cls(alerts_configuration=alerts_configuration, scorers_config=scorers_config)
 
         gen_ai_project_settings.additional_properties = d
         return gen_ai_project_settings

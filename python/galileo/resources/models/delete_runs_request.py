@@ -21,11 +21,7 @@ class DeleteRunsRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "run_ids": run_ids,
-            }
-        )
+        field_dict.update({"run_ids": run_ids})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class DeleteRunsRequest:
         d = src_dict.copy()
         run_ids = cast(list[str], d.pop("run_ids"))
 
-        delete_runs_request = cls(
-            run_ids=run_ids,
-        )
+        delete_runs_request = cls(run_ids=run_ids)
 
         delete_runs_request.additional_properties = d
         return delete_runs_request

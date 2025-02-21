@@ -61,10 +61,7 @@ class ThresholdResponse:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "easy_samples_threshold": easy_samples_threshold,
-                "hard_samples_threshold": hard_samples_threshold,
-            }
+            {"easy_samples_threshold": easy_samples_threshold, "hard_samples_threshold": hard_samples_threshold}
         )
         if compare_to is not UNSET:
             field_dict["compare_to"] = compare_to

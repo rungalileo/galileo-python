@@ -4,15 +4,11 @@ from pydantic import Field
 import atexit
 import logging
 
-from galileo_core.schemas.shared.traces.types import (
-    Trace,
-)
+from galileo_core.schemas.shared.traces.types import Trace
 from galileo_core.schemas.shared.traces.trace import Traces
 from galileo_core.schemas.shared.workflows.step import StepIOType
 
-from galileo.schema.trace import (
-    TracesIngestRequest,
-)
+from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo.constants import DEFAULT_PROJECT_NAME, DEFAULT_LOG_STREAM_NAME
 from galileo.api_client import GalileoApiClient
@@ -87,18 +83,12 @@ class GalileoLogger(Traces):
 
     _logger = logging.getLogger("galileo.logger")
 
-    def __init__(
-        self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-    ) -> None:
+    def __init__(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
         try:
             super().__init__()
 
             project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
-            log_stream_name_from_env = getenv(
-                "GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME
-            )
+            log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
             if project is None:
                 self.project_name = project_name_from_env
@@ -111,9 +101,7 @@ class GalileoLogger(Traces):
                 self.log_stream_name = log_stream
 
             if self.project_name is None or self.log_stream_name is None:
-                raise Exception(
-                    "Project and log_stream are required to initialize GalileoLogger."
-                )
+                raise Exception("Project and log_stream are required to initialize GalileoLogger.")
 
             # Get project and log stream IDs
             api_client = GalileoApiClient()
@@ -124,33 +112,21 @@ class GalileoLogger(Traces):
             if project_obj is None:
                 # Create project if it doesn't exist
                 self.project_id = projects_client.create(name=self.project_name).id
-                self._logger.info(
-                    f"🚀 Creating new project... project {self.project_name} created!"
-                )
+                self._logger.info(f"🚀 Creating new project... project {self.project_name} created!")
             else:
                 if project_obj.type != "gen_ai":
-                    raise Exception(
-                        f"Project {self.project_name} is not a Galileo 2.0 project"
-                    )
+                    raise Exception(f"Project {self.project_name} is not a Galileo 2.0 project")
                 self.project_id = project_obj.id
 
-            log_stream_obj = log_streams_client.get(
-                name=self.log_stream_name, project_id=self.project_id
-            )
+            log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
             if log_stream_obj is None:
                 # Create log stream if it doesn't exist
-                self.log_stream_id = log_streams_client.create(
-                    name=self.log_stream_name, project_id=self.project_id
-                ).id
-                self._logger.info(
-                    f"🚀 Creating new log stream... log stream {self.log_stream_name} created!"
-                )
+                self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
+                self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
             else:
                 self.log_stream_id = log_stream_obj.id
 
-            self._client = GalileoCoreApiClient(
-                project_id=self.project_id, log_stream_id=self.log_stream_id
-            )
+            self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
 
             # cleans up when the python interpreter closes
             atexit.register(self.terminate)

@@ -10,21 +10,14 @@ from ...models.password_reset_response import PasswordResetResponse
 from ...types import UNSET, Response
 
 
-def _get_kwargs(
-    *,
-    user_email: str,
-) -> dict[str, Any]:
+def _get_kwargs(*, user_email: str) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["user_email"] = user_email
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/generate_password_reset",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/generate_password_reset", "params": params}
 
     return _kwargs
 
@@ -58,9 +51,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    user_email: str,
+    *, client: AuthenticatedClient, user_email: str
 ) -> Response[Union[HTTPValidationError, PasswordResetResponse]]:
     """Generate Password Reset Link
 
@@ -75,21 +66,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, PasswordResetResponse]]
     """
 
-    kwargs = _get_kwargs(
-        user_email=user_email,
-    )
+    kwargs = _get_kwargs(user_email=user_email)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    user_email: str,
+    *, client: AuthenticatedClient, user_email: str
 ) -> Optional[Union[HTTPValidationError, PasswordResetResponse]]:
     """Generate Password Reset Link
 
@@ -104,16 +89,11 @@ def sync(
         Union[HTTPValidationError, PasswordResetResponse]
     """
 
-    return sync_detailed(
-        client=client,
-        user_email=user_email,
-    ).parsed
+    return sync_detailed(client=client, user_email=user_email).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    user_email: str,
+    *, client: AuthenticatedClient, user_email: str
 ) -> Response[Union[HTTPValidationError, PasswordResetResponse]]:
     """Generate Password Reset Link
 
@@ -128,9 +108,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, PasswordResetResponse]]
     """
 
-    kwargs = _get_kwargs(
-        user_email=user_email,
-    )
+    kwargs = _get_kwargs(user_email=user_email)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -138,9 +116,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    user_email: str,
+    *, client: AuthenticatedClient, user_email: str
 ) -> Optional[Union[HTTPValidationError, PasswordResetResponse]]:
     """Generate Password Reset Link
 
@@ -155,9 +131,4 @@ async def asyncio(
         Union[HTTPValidationError, PasswordResetResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            user_email=user_email,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, user_email=user_email)).parsed

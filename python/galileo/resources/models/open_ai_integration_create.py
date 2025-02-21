@@ -31,11 +31,7 @@ class OpenAIIntegrationCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "token": token,
-            }
-        )
+        field_dict.update({"token": token})
         if organization_id is not UNSET:
             field_dict["organization_id"] = organization_id
 
@@ -55,10 +51,7 @@ class OpenAIIntegrationCreate:
 
         organization_id = _parse_organization_id(d.pop("organization_id", UNSET))
 
-        open_ai_integration_create = cls(
-            token=token,
-            organization_id=organization_id,
-        )
+        open_ai_integration_create = cls(token=token, organization_id=organization_id)
 
         open_ai_integration_create.additional_properties = d
         return open_ai_integration_create

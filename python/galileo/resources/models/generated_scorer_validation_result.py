@@ -28,12 +28,7 @@ class GeneratedScorerValidationResult:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "explanation": explanation,
-                "rating": rating,
-            }
-        )
+        field_dict.update({"explanation": explanation, "rating": rating})
 
         return field_dict
 
@@ -55,10 +50,7 @@ class GeneratedScorerValidationResult:
 
         rating = _parse_rating(d.pop("rating"))
 
-        generated_scorer_validation_result = cls(
-            explanation=explanation,
-            rating=rating,
-        )
+        generated_scorer_validation_result = cls(explanation=explanation, rating=rating)
 
         generated_scorer_validation_result.additional_properties = d
         return generated_scorer_validation_result

@@ -11,18 +11,10 @@ from ...models.prompt_chain_ingest_batch_response import PromptChainIngestBatchR
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    *,
-    body: PromptChainIngestBatchRequest,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, run_id: str, *, body: PromptChainIngestBatchRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/runs/{run_id}/chains/ingest/batch",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/runs/{run_id}/chains/ingest/batch"}
 
     _body = body.to_dict()
 
@@ -62,11 +54,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: PromptChainIngestBatchRequest,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: PromptChainIngestBatchRequest
 ) -> Response[Union[HTTPValidationError, PromptChainIngestBatchResponse]]:
     """Ingest Batch
 
@@ -83,25 +71,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, PromptChainIngestBatchResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: PromptChainIngestBatchRequest,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: PromptChainIngestBatchRequest
 ) -> Optional[Union[HTTPValidationError, PromptChainIngestBatchResponse]]:
     """Ingest Batch
 
@@ -118,20 +96,11 @@ def sync(
         Union[HTTPValidationError, PromptChainIngestBatchResponse]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, run_id=run_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: PromptChainIngestBatchRequest,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: PromptChainIngestBatchRequest
 ) -> Response[Union[HTTPValidationError, PromptChainIngestBatchResponse]]:
     """Ingest Batch
 
@@ -148,11 +117,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, PromptChainIngestBatchResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -160,11 +125,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: PromptChainIngestBatchRequest,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: PromptChainIngestBatchRequest
 ) -> Optional[Union[HTTPValidationError, PromptChainIngestBatchResponse]]:
     """Ingest Batch
 
@@ -181,11 +142,4 @@ async def asyncio(
         Union[HTTPValidationError, PromptChainIngestBatchResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client, body=body)).parsed

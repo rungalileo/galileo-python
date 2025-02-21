@@ -86,11 +86,7 @@ class MetricError:
         if status_type != "error" and not isinstance(status_type, Unset):
             raise ValueError(f"status_type must match const 'error', got '{status_type}'")
 
-        metric_error = cls(
-            message=message,
-            scorer_type=scorer_type,
-            status_type=status_type,
-        )
+        metric_error = cls(message=message, scorer_type=scorer_type, status_type=status_type)
 
         metric_error.additional_properties = d
         return metric_error

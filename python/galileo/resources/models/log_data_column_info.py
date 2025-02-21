@@ -90,12 +90,7 @@ class LogDataColumnInfo:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "category": category,
-                "id": id,
-            }
-        )
+        field_dict.update({"category": category, "id": id})
         if data_type is not UNSET:
             field_dict["data_type"] = data_type
         if description is not UNSET:

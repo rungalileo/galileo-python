@@ -21,11 +21,7 @@ class GenerationRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "instructions": instructions,
-            }
-        )
+        field_dict.update({"instructions": instructions})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class GenerationRequest:
         d = src_dict.copy()
         instructions = d.pop("instructions")
 
-        generation_request = cls(
-            instructions=instructions,
-        )
+        generation_request = cls(instructions=instructions)
 
         generation_request.additional_properties = d
         return generation_request

@@ -59,12 +59,7 @@ class ModelInfo:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "alias": alias,
-                "name": name,
-            }
-        )
+        field_dict.update({"alias": alias, "name": name})
         if assistant_role is not UNSET:
             field_dict["assistant_role"] = assistant_role
         if integration is not UNSET:

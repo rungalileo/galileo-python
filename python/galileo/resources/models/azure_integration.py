@@ -102,11 +102,7 @@ class AzureIntegration:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "endpoint": endpoint,
-            }
-        )
+        field_dict.update({"endpoint": endpoint})
         if api_version is not UNSET:
             field_dict["api_version"] = api_version
         if authentication_scope is not UNSET:

@@ -38,11 +38,7 @@ class BaseAwsIntegrationCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "token": token,
-            }
-        )
+        field_dict.update({"token": token})
         if credential_type is not UNSET:
             field_dict["credential_type"] = credential_type
         if region is not UNSET:
@@ -66,11 +62,7 @@ class BaseAwsIntegrationCreate:
 
         region = d.pop("region", UNSET)
 
-        base_aws_integration_create = cls(
-            token=token,
-            credential_type=credential_type,
-            region=region,
-        )
+        base_aws_integration_create = cls(token=token, credential_type=credential_type, region=region)
 
         base_aws_integration_create.additional_properties = d
         return base_aws_integration_create

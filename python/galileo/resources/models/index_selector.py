@@ -28,11 +28,7 @@ class IndexSelector:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "indexes": indexes,
-            }
-        )
+        field_dict.update({"indexes": indexes})
         if selector_type is not UNSET:
             field_dict["selector_type"] = selector_type
 
@@ -47,10 +43,7 @@ class IndexSelector:
         if selector_type != "indexes" and not isinstance(selector_type, Unset):
             raise ValueError(f"selector_type must match const 'indexes', got '{selector_type}'")
 
-        index_selector = cls(
-            indexes=indexes,
-            selector_type=selector_type,
-        )
+        index_selector = cls(indexes=indexes, selector_type=selector_type)
 
         index_selector.additional_properties = d
         return index_selector

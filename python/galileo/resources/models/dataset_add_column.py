@@ -35,12 +35,7 @@ class DatasetAddColumn:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_values": column_values,
-                "new_column_name": new_column_name,
-            }
-        )
+        field_dict.update({"column_values": column_values, "new_column_name": new_column_name})
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
 
@@ -68,11 +63,7 @@ class DatasetAddColumn:
         if edit_type != "add_column" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'add_column', got '{edit_type}'")
 
-        dataset_add_column = cls(
-            column_values=column_values,
-            new_column_name=new_column_name,
-            edit_type=edit_type,
-        )
+        dataset_add_column = cls(column_values=column_values, new_column_name=new_column_name, edit_type=edit_type)
 
         dataset_add_column.additional_properties = d
         return dataset_add_column

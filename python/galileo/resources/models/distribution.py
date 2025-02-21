@@ -48,12 +48,7 @@ class Distribution:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "bins": bins,
-                "counts": counts,
-            }
-        )
+        field_dict.update({"bins": bins, "counts": counts})
         if metrics is not UNSET:
             field_dict["metrics"] = metrics
 
@@ -85,11 +80,7 @@ class Distribution:
 
         metrics = _parse_metrics(d.pop("metrics", UNSET))
 
-        distribution = cls(
-            bins=bins,
-            counts=counts,
-            metrics=metrics,
-        )
+        distribution = cls(bins=bins, counts=counts, metrics=metrics)
 
         distribution.additional_properties = d
         return distribution

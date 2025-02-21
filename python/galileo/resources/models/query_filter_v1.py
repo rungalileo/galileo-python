@@ -67,13 +67,7 @@ class QueryFilterV1:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "col_name": col_name,
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"col_name": col_name, "operator": operator, "value": value})
         if alternate_json_field is not UNSET:
             field_dict["alternate_json_field"] = alternate_json_field
         if json_field is not UNSET:

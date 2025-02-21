@@ -74,10 +74,7 @@ class AnthropicIntegration:
         if name != "anthropic" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'anthropic', got '{name}'")
 
-        anthropic_integration = cls(
-            extra=extra,
-            name=name,
-        )
+        anthropic_integration = cls(extra=extra, name=name)
 
         anthropic_integration.additional_properties = d
         return anthropic_integration

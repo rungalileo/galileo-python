@@ -11,11 +11,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response
 
 
-def _get_kwargs(
-    *,
-    body: BodyCreateOrUpdateRegisteredScorersPut,
-    name: str,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: BodyCreateOrUpdateRegisteredScorersPut, name: str) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -24,11 +20,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "put",
-        "url": "/registered-scorers",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "put", "url": "/registered-scorers", "params": params}
 
     _body = body.to_multipart()
 
@@ -67,10 +59,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: BodyCreateOrUpdateRegisteredScorersPut,
-    name: str,
+    *, client: AuthenticatedClient, body: BodyCreateOrUpdateRegisteredScorersPut, name: str
 ) -> Response[Union[CreateUpdateRegisteredScorerResponse, HTTPValidationError]]:
     """Create Or Update
 
@@ -86,23 +75,15 @@ def sync_detailed(
         Response[Union[CreateUpdateRegisteredScorerResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        name=name,
-    )
+    kwargs = _get_kwargs(body=body, name=name)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    body: BodyCreateOrUpdateRegisteredScorersPut,
-    name: str,
+    *, client: AuthenticatedClient, body: BodyCreateOrUpdateRegisteredScorersPut, name: str
 ) -> Optional[Union[CreateUpdateRegisteredScorerResponse, HTTPValidationError]]:
     """Create Or Update
 
@@ -118,18 +99,11 @@ def sync(
         Union[CreateUpdateRegisteredScorerResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-        name=name,
-    ).parsed
+    return sync_detailed(client=client, body=body, name=name).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: BodyCreateOrUpdateRegisteredScorersPut,
-    name: str,
+    *, client: AuthenticatedClient, body: BodyCreateOrUpdateRegisteredScorersPut, name: str
 ) -> Response[Union[CreateUpdateRegisteredScorerResponse, HTTPValidationError]]:
     """Create Or Update
 
@@ -145,10 +119,7 @@ async def asyncio_detailed(
         Response[Union[CreateUpdateRegisteredScorerResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        name=name,
-    )
+    kwargs = _get_kwargs(body=body, name=name)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -156,10 +127,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    body: BodyCreateOrUpdateRegisteredScorersPut,
-    name: str,
+    *, client: AuthenticatedClient, body: BodyCreateOrUpdateRegisteredScorersPut, name: str
 ) -> Optional[Union[CreateUpdateRegisteredScorerResponse, HTTPValidationError]]:
     """Create Or Update
 
@@ -175,10 +143,4 @@ async def asyncio(
         Union[CreateUpdateRegisteredScorerResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-            name=name,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body, name=name)).parsed

@@ -21,11 +21,7 @@ class GeneratedScorerValidationResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "task_result_id": task_result_id,
-            }
-        )
+        field_dict.update({"task_result_id": task_result_id})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class GeneratedScorerValidationResponse:
         d = src_dict.copy()
         task_result_id = d.pop("task_result_id")
 
-        generated_scorer_validation_response = cls(
-            task_result_id=task_result_id,
-        )
+        generated_scorer_validation_response = cls(task_result_id=task_result_id)
 
         generated_scorer_validation_response.additional_properties = d
         return generated_scorer_validation_response

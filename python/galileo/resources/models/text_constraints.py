@@ -21,11 +21,7 @@ class TextConstraints:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "feedback_type": feedback_type,
-            }
-        )
+        field_dict.update({"feedback_type": feedback_type})
 
         return field_dict
 
@@ -36,9 +32,7 @@ class TextConstraints:
         if feedback_type != "text":
             raise ValueError(f"feedback_type must match const 'text', got '{feedback_type}'")
 
-        text_constraints = cls(
-            feedback_type=feedback_type,
-        )
+        text_constraints = cls(feedback_type=feedback_type)
 
         text_constraints.additional_properties = d
         return text_constraints

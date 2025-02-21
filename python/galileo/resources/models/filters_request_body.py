@@ -50,9 +50,7 @@ class FiltersRequestBody:
 
             filters.append(filters_item)
 
-        filters_request_body = cls(
-            filters=filters,
-        )
+        filters_request_body = cls(filters=filters)
 
         filters_request_body.additional_properties = d
         return filters_request_body

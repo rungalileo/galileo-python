@@ -35,11 +35,7 @@ class StandardColumnSort:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_id": column_id,
-            }
-        )
+        field_dict.update({"column_id": column_id})
         if ascending is not UNSET:
             field_dict["ascending"] = ascending
         if name is not UNSET:
@@ -64,12 +60,7 @@ class StandardColumnSort:
         if sort_type != "column" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'column', got '{sort_type}'")
 
-        standard_column_sort = cls(
-            column_id=column_id,
-            ascending=ascending,
-            name=name,
-            sort_type=sort_type,
-        )
+        standard_column_sort = cls(column_id=column_id, ascending=ascending, name=name, sort_type=sort_type)
 
         standard_column_sort.additional_properties = d
         return standard_column_sort

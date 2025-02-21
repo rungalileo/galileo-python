@@ -27,11 +27,7 @@ class ValidationRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "payload": payload,
-            }
-        )
+        field_dict.update({"payload": payload})
         if file_type is not UNSET:
             field_dict["file_type"] = file_type
 
@@ -44,10 +40,7 @@ class ValidationRequest:
 
         file_type = d.pop("file_type", UNSET)
 
-        validation_request = cls(
-            payload=payload,
-            file_type=file_type,
-        )
+        validation_request = cls(payload=payload, file_type=file_type)
 
         validation_request.additional_properties = d
         return validation_request

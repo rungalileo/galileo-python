@@ -10,10 +10,7 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/users/all",
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/users/all"}
 
     return _kwargs
 
@@ -47,10 +44,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[list["GetUserResponse"]]:
+def sync_detailed(*, client: AuthenticatedClient) -> Response[list["GetUserResponse"]]:
     r"""List All Users
 
      List all users in the system.
@@ -69,17 +63,12 @@ def sync_detailed(
 
     kwargs = _get_kwargs()
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[list["GetUserResponse"]]:
+def sync(*, client: AuthenticatedClient) -> Optional[list["GetUserResponse"]]:
     r"""List All Users
 
      List all users in the system.
@@ -96,15 +85,10 @@ def sync(
         list['GetUserResponse']
     """
 
-    return sync_detailed(
-        client=client,
-    ).parsed
+    return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[list["GetUserResponse"]]:
+async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[list["GetUserResponse"]]:
     r"""List All Users
 
      List all users in the system.
@@ -128,10 +112,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[list["GetUserResponse"]]:
+async def asyncio(*, client: AuthenticatedClient) -> Optional[list["GetUserResponse"]]:
     r"""List All Users
 
      List all users in the system.
@@ -148,8 +129,4 @@ async def asyncio(
         list['GetUserResponse']
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client)).parsed

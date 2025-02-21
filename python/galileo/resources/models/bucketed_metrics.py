@@ -237,12 +237,7 @@ class BucketedMetrics:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "end_bucket_time": end_bucket_time,
-                "start_bucket_time": start_bucket_time,
-            }
-        )
+        field_dict.update({"end_bucket_time": end_bucket_time, "start_bucket_time": start_bucket_time})
         if average_agentic_workflow_success is not UNSET:
             field_dict["average_agentic_workflow_success"] = average_agentic_workflow_success
         if average_completeness_gpt is not UNSET:

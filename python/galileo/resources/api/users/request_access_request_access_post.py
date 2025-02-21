@@ -9,21 +9,14 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response
 
 
-def _get_kwargs(
-    *,
-    user_email: str,
-) -> dict[str, Any]:
+def _get_kwargs(*, user_email: str) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["user_email"] = user_email
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/request_access",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/request_access", "params": params}
 
     return _kwargs
 
@@ -56,9 +49,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    user_email: str,
+    *, client: Union[AuthenticatedClient, Client], user_email: str
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Request Access
 
@@ -79,22 +70,14 @@ def sync_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        user_email=user_email,
-    )
+    kwargs = _get_kwargs(user_email=user_email)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    user_email: str,
-) -> Optional[Union[Any, HTTPValidationError]]:
+def sync(*, client: Union[AuthenticatedClient, Client], user_email: str) -> Optional[Union[Any, HTTPValidationError]]:
     """Request Access
 
      Endpoint for a user to request access to the console.
@@ -114,16 +97,11 @@ def sync(
         Union[Any, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        user_email=user_email,
-    ).parsed
+    return sync_detailed(client=client, user_email=user_email).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    user_email: str,
+    *, client: Union[AuthenticatedClient, Client], user_email: str
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Request Access
 
@@ -144,9 +122,7 @@ async def asyncio_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        user_email=user_email,
-    )
+    kwargs = _get_kwargs(user_email=user_email)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -154,9 +130,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    user_email: str,
+    *, client: Union[AuthenticatedClient, Client], user_email: str
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Request Access
 
@@ -177,9 +151,4 @@ async def asyncio(
         Union[Any, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            user_email=user_email,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, user_email=user_email)).parsed

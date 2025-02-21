@@ -48,11 +48,7 @@ class AwsSageMakerIntegrationCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "token": token,
-            }
-        )
+        field_dict.update({"token": token})
         if credential_type is not UNSET:
             field_dict["credential_type"] = credential_type
         if models is not UNSET:
@@ -87,10 +83,7 @@ class AwsSageMakerIntegrationCreate:
         region = d.pop("region", UNSET)
 
         aws_sage_maker_integration_create = cls(
-            token=token,
-            credential_type=credential_type,
-            models=models,
-            region=region,
+            token=token, credential_type=credential_type, models=models, region=region
         )
 
         aws_sage_maker_integration_create.additional_properties = d

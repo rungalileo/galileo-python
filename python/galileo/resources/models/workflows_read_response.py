@@ -51,11 +51,7 @@ class WorkflowsReadResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "workflows": workflows,
-            }
-        )
+        field_dict.update({"workflows": workflows})
         if limit is not UNSET:
             field_dict["limit"] = limit
         if next_starting_token is not UNSET:

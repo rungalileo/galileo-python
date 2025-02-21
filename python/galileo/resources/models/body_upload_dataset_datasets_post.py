@@ -24,11 +24,7 @@ class BodyUploadDatasetDatasetsPost:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "file": file,
-            }
-        )
+        field_dict.update({"file": file})
 
         return field_dict
 
@@ -39,11 +35,7 @@ class BodyUploadDatasetDatasetsPost:
         for prop_name, prop in self.additional_properties.items():
             field_dict[prop_name] = (None, str(prop).encode(), "text/plain")
 
-        field_dict.update(
-            {
-                "file": file,
-            }
-        )
+        field_dict.update({"file": file})
 
         return field_dict
 
@@ -52,9 +44,7 @@ class BodyUploadDatasetDatasetsPost:
         d = src_dict.copy()
         file = File(payload=BytesIO(d.pop("file")))
 
-        body_upload_dataset_datasets_post = cls(
-            file=file,
-        )
+        body_upload_dataset_datasets_post = cls(file=file)
 
         body_upload_dataset_datasets_post.additional_properties = d
         return body_upload_dataset_datasets_post

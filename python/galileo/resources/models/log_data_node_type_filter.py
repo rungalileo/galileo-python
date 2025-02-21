@@ -40,12 +40,7 @@ class LogDataNodeTypeFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"operator": operator, "value": value})
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -82,11 +77,7 @@ class LogDataNodeTypeFilter:
         if name != "node_type" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'node_type', got '{name}'")
 
-        log_data_node_type_filter = cls(
-            operator=operator,
-            value=value,
-            name=name,
-        )
+        log_data_node_type_filter = cls(operator=operator, value=value, name=name)
 
         log_data_node_type_filter.additional_properties = d
         return log_data_node_type_filter

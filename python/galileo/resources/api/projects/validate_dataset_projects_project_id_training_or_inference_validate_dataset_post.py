@@ -12,12 +12,7 @@ from ...models.validation_response import ValidationResponse
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    training_or_inference: DatasetType,
-    *,
-    body: ValidationRequest,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, training_or_inference: DatasetType, *, body: ValidationRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
@@ -63,11 +58,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    training_or_inference: DatasetType,
-    *,
-    client: AuthenticatedClient,
-    body: ValidationRequest,
+    project_id: str, training_or_inference: DatasetType, *, client: AuthenticatedClient, body: ValidationRequest
 ) -> Response[Union[HTTPValidationError, ValidationResponse]]:
     """Validate Dataset
 
@@ -86,25 +77,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, ValidationResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        training_or_inference=training_or_inference,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, training_or_inference=training_or_inference, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    training_or_inference: DatasetType,
-    *,
-    client: AuthenticatedClient,
-    body: ValidationRequest,
+    project_id: str, training_or_inference: DatasetType, *, client: AuthenticatedClient, body: ValidationRequest
 ) -> Optional[Union[HTTPValidationError, ValidationResponse]]:
     """Validate Dataset
 
@@ -124,19 +105,12 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        training_or_inference=training_or_inference,
-        client=client,
-        body=body,
+        project_id=project_id, training_or_inference=training_or_inference, client=client, body=body
     ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    training_or_inference: DatasetType,
-    *,
-    client: AuthenticatedClient,
-    body: ValidationRequest,
+    project_id: str, training_or_inference: DatasetType, *, client: AuthenticatedClient, body: ValidationRequest
 ) -> Response[Union[HTTPValidationError, ValidationResponse]]:
     """Validate Dataset
 
@@ -155,11 +129,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, ValidationResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        training_or_inference=training_or_inference,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, training_or_inference=training_or_inference, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -167,11 +137,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    training_or_inference: DatasetType,
-    *,
-    client: AuthenticatedClient,
-    body: ValidationRequest,
+    project_id: str, training_or_inference: DatasetType, *, client: AuthenticatedClient, body: ValidationRequest
 ) -> Optional[Union[HTTPValidationError, ValidationResponse]]:
     """Validate Dataset
 
@@ -192,9 +158,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            training_or_inference=training_or_inference,
-            client=client,
-            body=body,
+            project_id=project_id, training_or_inference=training_or_inference, client=client, body=body
         )
     ).parsed

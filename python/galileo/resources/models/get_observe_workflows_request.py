@@ -66,11 +66,7 @@ class GetObserveWorkflowsRequest:
 
         starting_token = d.pop("starting_token", UNSET)
 
-        get_observe_workflows_request = cls(
-            filters=filters,
-            limit=limit,
-            starting_token=starting_token,
-        )
+        get_observe_workflows_request = cls(filters=filters, limit=limit, starting_token=starting_token)
 
         get_observe_workflows_request.additional_properties = d
         return get_observe_workflows_request

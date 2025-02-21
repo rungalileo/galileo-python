@@ -30,11 +30,7 @@ class GroupMemberCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "user_id": user_id,
-            }
-        )
+        field_dict.update({"user_id": user_id})
         if role is not UNSET:
             field_dict["role"] = role
 
@@ -52,10 +48,7 @@ class GroupMemberCreate:
         else:
             role = GroupRole(_role)
 
-        group_member_create = cls(
-            user_id=user_id,
-            role=role,
-        )
+        group_member_create = cls(user_id=user_id, role=role)
 
         group_member_create.additional_properties = d
         return group_member_create

@@ -10,10 +10,7 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/current_user/groups",
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/current_user/groups"}
 
     return _kwargs
 
@@ -47,10 +44,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[list["GroupDB"]]:
+def sync_detailed(*, client: AuthenticatedClient) -> Response[list["GroupDB"]]:
     """List Current User Groups
 
     Raises:
@@ -63,17 +57,12 @@ def sync_detailed(
 
     kwargs = _get_kwargs()
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[list["GroupDB"]]:
+def sync(*, client: AuthenticatedClient) -> Optional[list["GroupDB"]]:
     """List Current User Groups
 
     Raises:
@@ -84,15 +73,10 @@ def sync(
         list['GroupDB']
     """
 
-    return sync_detailed(
-        client=client,
-    ).parsed
+    return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[list["GroupDB"]]:
+async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[list["GroupDB"]]:
     """List Current User Groups
 
     Raises:
@@ -110,10 +94,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[list["GroupDB"]]:
+async def asyncio(*, client: AuthenticatedClient) -> Optional[list["GroupDB"]]:
     """List Current User Groups
 
     Raises:
@@ -124,8 +105,4 @@ async def asyncio(
         list['GroupDB']
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client)).parsed

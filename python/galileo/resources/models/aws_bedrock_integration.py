@@ -97,12 +97,7 @@ class AwsBedrockIntegration:
 
         region = d.pop("region", UNSET)
 
-        aws_bedrock_integration = cls(
-            credential_type=credential_type,
-            extra=extra,
-            name=name,
-            region=region,
-        )
+        aws_bedrock_integration = cls(credential_type=credential_type, extra=extra, name=name, region=region)
 
         aws_bedrock_integration.additional_properties = d
         return aws_bedrock_integration

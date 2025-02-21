@@ -162,11 +162,7 @@ class ContextAdherenceScorer:
             type_ = ContextAdherenceScorerType(_type_)
 
         context_adherence_scorer = cls(
-            filters=filters,
-            model_name=model_name,
-            name=name,
-            num_judges=num_judges,
-            type_=type_,
+            filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_
         )
 
         context_adherence_scorer.additional_properties = d

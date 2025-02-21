@@ -80,14 +80,7 @@ class RunMetricDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_at": created_at,
-                "key": key,
-                "run_id": run_id,
-                "updated_at": updated_at,
-            }
-        )
+        field_dict.update({"created_at": created_at, "key": key, "run_id": run_id, "updated_at": updated_at})
         if epoch is not UNSET:
             field_dict["epoch"] = epoch
         if extra is not UNSET:

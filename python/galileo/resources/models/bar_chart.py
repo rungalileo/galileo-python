@@ -33,12 +33,7 @@ class BarChart:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "labels": labels,
-                "values": values,
-            }
-        )
+        field_dict.update({"labels": labels, "values": values})
 
         return field_dict
 
@@ -58,10 +53,7 @@ class BarChart:
 
             values.append(values_item)
 
-        bar_chart = cls(
-            labels=labels,
-            values=values,
-        )
+        bar_chart = cls(labels=labels, values=values)
 
         bar_chart.additional_properties = d
         return bar_chart

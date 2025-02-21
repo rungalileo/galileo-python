@@ -100,11 +100,7 @@ class DistributionRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "col": col,
-            }
-        )
+        field_dict.update({"col": col})
         if compare_to is not UNSET:
             field_dict["compare_to"] = compare_to
         if filter_params is not UNSET:

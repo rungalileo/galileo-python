@@ -10,21 +10,14 @@ from ...models.model_info import ModelInfo
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    *,
-    with_custom_models: Union[Unset, bool] = False,
-) -> dict[str, Any]:
+def _get_kwargs(*, with_custom_models: Union[Unset, bool] = False) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["with_custom_models"] = with_custom_models
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/prompts/models/all",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/prompts/models/all", "params": params}
 
     return _kwargs
 
@@ -63,9 +56,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    with_custom_models: Union[Unset, bool] = False,
+    *, client: AuthenticatedClient, with_custom_models: Union[Unset, bool] = False
 ) -> Response[Union[HTTPValidationError, list["ModelInfo"]]]:
     """Get All Models
 
@@ -80,21 +71,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['ModelInfo']]]
     """
 
-    kwargs = _get_kwargs(
-        with_custom_models=with_custom_models,
-    )
+    kwargs = _get_kwargs(with_custom_models=with_custom_models)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    with_custom_models: Union[Unset, bool] = False,
+    *, client: AuthenticatedClient, with_custom_models: Union[Unset, bool] = False
 ) -> Optional[Union[HTTPValidationError, list["ModelInfo"]]]:
     """Get All Models
 
@@ -109,16 +94,11 @@ def sync(
         Union[HTTPValidationError, list['ModelInfo']]
     """
 
-    return sync_detailed(
-        client=client,
-        with_custom_models=with_custom_models,
-    ).parsed
+    return sync_detailed(client=client, with_custom_models=with_custom_models).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    with_custom_models: Union[Unset, bool] = False,
+    *, client: AuthenticatedClient, with_custom_models: Union[Unset, bool] = False
 ) -> Response[Union[HTTPValidationError, list["ModelInfo"]]]:
     """Get All Models
 
@@ -133,9 +113,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['ModelInfo']]]
     """
 
-    kwargs = _get_kwargs(
-        with_custom_models=with_custom_models,
-    )
+    kwargs = _get_kwargs(with_custom_models=with_custom_models)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -143,9 +121,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    with_custom_models: Union[Unset, bool] = False,
+    *, client: AuthenticatedClient, with_custom_models: Union[Unset, bool] = False
 ) -> Optional[Union[HTTPValidationError, list["ModelInfo"]]]:
     """Get All Models
 
@@ -160,9 +136,4 @@ async def asyncio(
         Union[HTTPValidationError, list['ModelInfo']]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            with_custom_models=with_custom_models,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, with_custom_models=with_custom_models)).parsed

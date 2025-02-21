@@ -74,10 +74,7 @@ class DatabricksIntegration:
         if name != "databricks" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'databricks', got '{name}'")
 
-        databricks_integration = cls(
-            extra=extra,
-            name=name,
-        )
+        databricks_integration = cls(extra=extra, name=name)
 
         databricks_integration.additional_properties = d
         return databricks_integration

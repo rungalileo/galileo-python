@@ -36,13 +36,7 @@ class CategoricalPromptFilterParam:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "categories": categories,
-                "column": column,
-                "filter_type": filter_type,
-            }
-        )
+        field_dict.update({"categories": categories, "column": column, "filter_type": filter_type})
         if operator is not UNSET:
             field_dict["operator"] = operator
 
@@ -62,10 +56,7 @@ class CategoricalPromptFilterParam:
         operator = d.pop("operator", UNSET)
 
         categorical_prompt_filter_param = cls(
-            categories=categories,
-            column=column,
-            filter_type=filter_type,
-            operator=operator,
+            categories=categories, column=column, filter_type=filter_type, operator=operator
         )
 
         categorical_prompt_filter_param.additional_properties = d

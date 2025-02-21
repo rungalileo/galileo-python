@@ -11,11 +11,7 @@ from ...models.token import Token
 from ...types import UNSET, Response
 
 
-def _get_kwargs(
-    *,
-    body: EmailVerificationRequest,
-    verification_token: str,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: EmailVerificationRequest, verification_token: str) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -24,11 +20,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/verify_email",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/verify_email", "params": params}
 
     _body = body.to_dict()
 
@@ -68,10 +60,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: EmailVerificationRequest,
-    verification_token: str,
+    *, client: Union[AuthenticatedClient, Client], body: EmailVerificationRequest, verification_token: str
 ) -> Response[Union[HTTPValidationError, Token]]:
     """Verify Email
 
@@ -87,23 +76,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, Token]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        verification_token=verification_token,
-    )
+    kwargs = _get_kwargs(body=body, verification_token=verification_token)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: EmailVerificationRequest,
-    verification_token: str,
+    *, client: Union[AuthenticatedClient, Client], body: EmailVerificationRequest, verification_token: str
 ) -> Optional[Union[HTTPValidationError, Token]]:
     """Verify Email
 
@@ -119,18 +100,11 @@ def sync(
         Union[HTTPValidationError, Token]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-        verification_token=verification_token,
-    ).parsed
+    return sync_detailed(client=client, body=body, verification_token=verification_token).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: EmailVerificationRequest,
-    verification_token: str,
+    *, client: Union[AuthenticatedClient, Client], body: EmailVerificationRequest, verification_token: str
 ) -> Response[Union[HTTPValidationError, Token]]:
     """Verify Email
 
@@ -146,10 +120,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, Token]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        verification_token=verification_token,
-    )
+    kwargs = _get_kwargs(body=body, verification_token=verification_token)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -157,10 +128,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: EmailVerificationRequest,
-    verification_token: str,
+    *, client: Union[AuthenticatedClient, Client], body: EmailVerificationRequest, verification_token: str
 ) -> Optional[Union[HTTPValidationError, Token]]:
     """Verify Email
 
@@ -176,10 +144,4 @@ async def asyncio(
         Union[HTTPValidationError, Token]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-            verification_token=verification_token,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body, verification_token=verification_token)).parsed

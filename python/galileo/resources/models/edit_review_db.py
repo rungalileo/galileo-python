@@ -28,12 +28,7 @@ class EditReviewDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_at": created_at,
-                "created_by": created_by,
-            }
-        )
+        field_dict.update({"created_at": created_at, "created_by": created_by})
 
         return field_dict
 
@@ -44,10 +39,7 @@ class EditReviewDB:
 
         created_by = d.pop("created_by")
 
-        edit_review_db = cls(
-            created_at=created_at,
-            created_by=created_by,
-        )
+        edit_review_db = cls(created_at=created_at, created_by=created_by)
 
         edit_review_db.additional_properties = d
         return edit_review_db

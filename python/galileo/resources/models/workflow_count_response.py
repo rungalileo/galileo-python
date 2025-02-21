@@ -31,11 +31,7 @@ class WorkflowCountResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "count": count,
-            }
-        )
+        field_dict.update({"count": count})
         if max_rows is not UNSET:
             field_dict["max_rows"] = max_rows
         if max_rows_exceeded is not UNSET:
@@ -52,11 +48,7 @@ class WorkflowCountResponse:
 
         max_rows_exceeded = d.pop("max_rows_exceeded", UNSET)
 
-        workflow_count_response = cls(
-            count=count,
-            max_rows=max_rows,
-            max_rows_exceeded=max_rows_exceeded,
-        )
+        workflow_count_response = cls(count=count, max_rows=max_rows, max_rows_exceeded=max_rows_exceeded)
 
         workflow_count_response.additional_properties = d
         return workflow_count_response

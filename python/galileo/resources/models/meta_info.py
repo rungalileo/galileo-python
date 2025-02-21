@@ -157,13 +157,7 @@ class MetaInfo:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "is_categorical": is_categorical,
-                "is_continuous": is_continuous,
-                "name": name,
-            }
-        )
+        field_dict.update({"is_categorical": is_categorical, "is_continuous": is_continuous, "name": name})
         if high_cardinality is not UNSET:
             field_dict["high_cardinality"] = high_cardinality
         if max_ is not UNSET:

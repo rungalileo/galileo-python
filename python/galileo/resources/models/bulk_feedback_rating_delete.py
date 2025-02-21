@@ -27,11 +27,7 @@ class BulkFeedbackRatingDelete:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "feedback_template_id": feedback_template_id,
-            }
-        )
+        field_dict.update({"feedback_template_id": feedback_template_id})
         if operation_type is not UNSET:
             field_dict["operation_type"] = operation_type
 
@@ -46,10 +42,7 @@ class BulkFeedbackRatingDelete:
         if operation_type != "delete" and not isinstance(operation_type, Unset):
             raise ValueError(f"operation_type must match const 'delete', got '{operation_type}'")
 
-        bulk_feedback_rating_delete = cls(
-            feedback_template_id=feedback_template_id,
-            operation_type=operation_type,
-        )
+        bulk_feedback_rating_delete = cls(feedback_template_id=feedback_template_id, operation_type=operation_type)
 
         bulk_feedback_rating_delete.additional_properties = d
         return bulk_feedback_rating_delete

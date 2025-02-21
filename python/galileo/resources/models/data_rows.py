@@ -32,12 +32,7 @@ class DataRows:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "data_rows": data_rows,
-                "has_next_page": has_next_page,
-            }
-        )
+        field_dict.update({"data_rows": data_rows, "has_next_page": has_next_page})
 
         return field_dict
 
@@ -55,10 +50,7 @@ class DataRows:
 
         has_next_page = d.pop("has_next_page")
 
-        data_rows = cls(
-            data_rows=data_rows,
-            has_next_page=has_next_page,
-        )
+        data_rows = cls(data_rows=data_rows, has_next_page=has_next_page)
 
         data_rows.additional_properties = d
         return data_rows

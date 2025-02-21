@@ -31,12 +31,7 @@ class Message:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "content": content,
-                "role": role,
-            }
-        )
+        field_dict.update({"content": content, "role": role})
 
         return field_dict
 
@@ -58,10 +53,7 @@ class Message:
 
         role = _parse_role(d.pop("role"))
 
-        message = cls(
-            content=content,
-            role=role,
-        )
+        message = cls(content=content, role=role)
 
         message.additional_properties = d
         return message

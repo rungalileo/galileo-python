@@ -209,12 +209,7 @@ class TransactionRecordIngest:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "created_at": created_at,
-                "input_text": input_text,
-                "node_id": node_id,
-                "node_type": node_type,
-            }
+            {"created_at": created_at, "input_text": input_text, "node_id": node_id, "node_type": node_type}
         )
         if chain_id is not UNSET:
             field_dict["chain_id"] = chain_id

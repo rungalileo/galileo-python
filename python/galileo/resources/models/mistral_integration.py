@@ -74,10 +74,7 @@ class MistralIntegration:
         if name != "mistral" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'mistral', got '{name}'")
 
-        mistral_integration = cls(
-            extra=extra,
-            name=name,
-        )
+        mistral_integration = cls(extra=extra, name=name)
 
         mistral_integration.additional_properties = d
         return mistral_integration

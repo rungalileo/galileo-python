@@ -21,11 +21,7 @@ class RunLinkResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "link": link,
-            }
-        )
+        field_dict.update({"link": link})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class RunLinkResponse:
         d = src_dict.copy()
         link = d.pop("link")
 
-        run_link_response = cls(
-            link=link,
-        )
+        run_link_response = cls(link=link)
 
         run_link_response.additional_properties = d
         return run_link_response

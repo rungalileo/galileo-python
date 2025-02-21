@@ -35,11 +35,7 @@ class UserPasswordResetRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "email": email,
-            }
-        )
+        field_dict.update({"email": email})
         if email_is_verified is not UNSET:
             field_dict["email_is_verified"] = email_is_verified
         if password is not UNSET:
@@ -63,11 +59,7 @@ class UserPasswordResetRequest:
 
         password = _parse_password(d.pop("password", UNSET))
 
-        user_password_reset_request = cls(
-            email=email,
-            email_is_verified=email_is_verified,
-            password=password,
-        )
+        user_password_reset_request = cls(email=email, email_is_verified=email_is_verified, password=password)
 
         user_password_reset_request.additional_properties = d
         return user_password_reset_request

@@ -107,8 +107,7 @@ class EvaluateProjectSettings:
         scorers_config = _parse_scorers_config(d.pop("scorers_config", UNSET))
 
         evaluate_project_settings = cls(
-            metric_weights_configuration=metric_weights_configuration,
-            scorers_config=scorers_config,
+            metric_weights_configuration=metric_weights_configuration, scorers_config=scorers_config
         )
 
         evaluate_project_settings.additional_properties = d

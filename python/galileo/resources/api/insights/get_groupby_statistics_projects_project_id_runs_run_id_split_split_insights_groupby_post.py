@@ -131,9 +131,7 @@ def sync_detailed(
         inference_name=inference_name,
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 

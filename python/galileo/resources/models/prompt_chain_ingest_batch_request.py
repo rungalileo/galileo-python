@@ -335,11 +335,7 @@ class PromptChainIngestBatchRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "total_chains": total_chains,
-            }
-        )
+        field_dict.update({"total_chains": total_chains})
         if generated_scorers is not UNSET:
             field_dict["generated_scorers"] = generated_scorers
         if prompt_customized_scorers_configuration is not UNSET:

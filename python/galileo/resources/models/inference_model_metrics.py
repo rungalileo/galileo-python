@@ -21,11 +21,7 @@ class InferenceModelMetrics:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "confidence": confidence,
-            }
-        )
+        field_dict.update({"confidence": confidence})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class InferenceModelMetrics:
         d = src_dict.copy()
         confidence = d.pop("confidence")
 
-        inference_model_metrics = cls(
-            confidence=confidence,
-        )
+        inference_model_metrics = cls(confidence=confidence)
 
         inference_model_metrics.additional_properties = d
         return inference_model_metrics

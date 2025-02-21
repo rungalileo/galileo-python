@@ -10,10 +10,7 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/group_roles",
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/group_roles"}
 
     return _kwargs
 
@@ -47,10 +44,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[list["GroupRoleInfo"]]:
+def sync_detailed(*, client: AuthenticatedClient) -> Response[list["GroupRoleInfo"]]:
     """Get Group Roles
 
     Raises:
@@ -63,17 +57,12 @@ def sync_detailed(
 
     kwargs = _get_kwargs()
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[list["GroupRoleInfo"]]:
+def sync(*, client: AuthenticatedClient) -> Optional[list["GroupRoleInfo"]]:
     """Get Group Roles
 
     Raises:
@@ -84,15 +73,10 @@ def sync(
         list['GroupRoleInfo']
     """
 
-    return sync_detailed(
-        client=client,
-    ).parsed
+    return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[list["GroupRoleInfo"]]:
+async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[list["GroupRoleInfo"]]:
     """Get Group Roles
 
     Raises:
@@ -110,10 +94,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[list["GroupRoleInfo"]]:
+async def asyncio(*, client: AuthenticatedClient) -> Optional[list["GroupRoleInfo"]]:
     """Get Group Roles
 
     Raises:
@@ -124,8 +105,4 @@ async def asyncio(
         list['GroupRoleInfo']
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client)).parsed

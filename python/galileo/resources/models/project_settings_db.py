@@ -142,14 +142,7 @@ class ProjectSettingsDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_at": created_at,
-                "id": id,
-                "project_id": project_id,
-                "updated_at": updated_at,
-            }
-        )
+        field_dict.update({"created_at": created_at, "id": id, "project_id": project_id, "updated_at": updated_at})
         if alerts_configuration is not UNSET:
             field_dict["alerts_configuration"] = alerts_configuration
         if customized_scorers_configuration is not UNSET:

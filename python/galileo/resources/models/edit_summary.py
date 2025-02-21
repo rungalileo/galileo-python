@@ -27,12 +27,7 @@ class EditSummary:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "count": count,
-                "edit_action": edit_action,
-            }
-        )
+        field_dict.update({"count": count, "edit_action": edit_action})
 
         return field_dict
 
@@ -43,10 +38,7 @@ class EditSummary:
 
         edit_action = EditAction(d.pop("edit_action"))
 
-        edit_summary = cls(
-            count=count,
-            edit_action=edit_action,
-        )
+        edit_summary = cls(count=count, edit_action=edit_action)
 
         edit_summary.additional_properties = d
         return edit_summary
