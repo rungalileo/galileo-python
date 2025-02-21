@@ -21,11 +21,7 @@ class DeleteUserResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "message": message,
-            }
-        )
+        field_dict.update({"message": message})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class DeleteUserResponse:
         d = src_dict.copy()
         message = d.pop("message")
 
-        delete_user_response = cls(
-            message=message,
-        )
+        delete_user_response = cls(message=message)
 
         delete_user_response.additional_properties = d
         return delete_user_response

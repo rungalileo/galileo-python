@@ -42,11 +42,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/observe/metrics",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/observe/metrics", "params": params}
 
     _body = body.to_dict()
 
@@ -114,17 +110,10 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-        start_time=start_time,
-        end_time=end_time,
-        interval=interval,
-        group_by=group_by,
+        project_id=project_id, body=body, start_time=start_time, end_time=end_time, interval=interval, group_by=group_by
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -197,12 +186,7 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-        start_time=start_time,
-        end_time=end_time,
-        interval=interval,
-        group_by=group_by,
+        project_id=project_id, body=body, start_time=start_time, end_time=end_time, interval=interval, group_by=group_by
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)

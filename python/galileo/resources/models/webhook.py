@@ -34,11 +34,7 @@ class Webhook:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "url": url,
-            }
-        )
+        field_dict.update({"url": url})
         if notes is not UNSET:
             field_dict["notes"] = notes
         if status is not UNSET:
@@ -60,11 +56,7 @@ class Webhook:
         else:
             status = WebhookStatus(_status)
 
-        webhook = cls(
-            url=url,
-            notes=notes,
-            status=status,
-        )
+        webhook = cls(url=url, notes=notes, status=status)
 
         webhook.additional_properties = d
         return webhook

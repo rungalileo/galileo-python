@@ -292,11 +292,7 @@ class MetricSuccess:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "value": value,
-            }
-        )
+        field_dict.update({"value": value})
         if cost is not UNSET:
             field_dict["cost"] = cost
         if critique is not UNSET:

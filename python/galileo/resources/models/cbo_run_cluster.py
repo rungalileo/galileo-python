@@ -33,14 +33,7 @@ class CBORunCluster:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "labels": labels,
-                "num_samples": num_samples,
-                "score": score,
-            }
-        )
+        field_dict.update({"id": id, "labels": labels, "num_samples": num_samples, "score": score})
 
         return field_dict
 
@@ -55,12 +48,7 @@ class CBORunCluster:
 
         score = d.pop("score")
 
-        cbo_run_cluster = cls(
-            id=id,
-            labels=labels,
-            num_samples=num_samples,
-            score=score,
-        )
+        cbo_run_cluster = cls(id=id, labels=labels, num_samples=num_samples, score=score)
 
         cbo_run_cluster.additional_properties = d
         return cbo_run_cluster

@@ -25,12 +25,7 @@ class TrainJobAuthTokenResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "file_url": file_url,
-                "token": token,
-            }
-        )
+        field_dict.update({"file_url": file_url, "token": token})
 
         return field_dict
 
@@ -41,10 +36,7 @@ class TrainJobAuthTokenResponse:
 
         token = d.pop("token")
 
-        train_job_auth_token_response = cls(
-            file_url=file_url,
-            token=token,
-        )
+        train_job_auth_token_response = cls(file_url=file_url, token=token)
 
         train_job_auth_token_response.additional_properties = d
         return train_job_auth_token_response

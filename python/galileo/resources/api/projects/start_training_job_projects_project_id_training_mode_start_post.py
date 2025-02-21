@@ -14,17 +14,11 @@ from ...types import Response
 
 
 def _get_kwargs(
-    project_id: str,
-    training_mode: str,
-    *,
-    body: StartTrainingJobProjectsProjectIdTrainingModeStartPostRequestBody,
+    project_id: str, training_mode: str, *, body: StartTrainingJobProjectsProjectIdTrainingModeStartPostRequestBody
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/{training_mode}/start",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/{training_mode}/start"}
 
     _body = body.to_dict()
 
@@ -87,15 +81,9 @@ def sync_detailed(
         Response[Union[HTTPValidationError, TrainResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        training_mode=training_mode,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, training_mode=training_mode, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -124,12 +112,7 @@ def sync(
         Union[HTTPValidationError, TrainResponse]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        training_mode=training_mode,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, training_mode=training_mode, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
@@ -156,11 +139,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, TrainResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        training_mode=training_mode,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, training_mode=training_mode, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -191,11 +170,4 @@ async def asyncio(
         Union[HTTPValidationError, TrainResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            training_mode=training_mode,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, training_mode=training_mode, client=client, body=body)).parsed

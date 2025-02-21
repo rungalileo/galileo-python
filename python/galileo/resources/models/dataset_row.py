@@ -29,12 +29,7 @@ class DatasetRow:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "index": index,
-                "values": values,
-            }
-        )
+        field_dict.update({"index": index, "values": values})
 
         return field_dict
 
@@ -56,10 +51,7 @@ class DatasetRow:
 
             values.append(values_item)
 
-        dataset_row = cls(
-            index=index,
-            values=values,
-        )
+        dataset_row = cls(index=index, values=values)
 
         dataset_row.additional_properties = d
         return dataset_row

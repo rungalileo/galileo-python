@@ -42,10 +42,7 @@ class HasEmbeddingsResponse:
 
         has_model_embs = d.pop("has_model_embs", UNSET)
 
-        has_embeddings_response = cls(
-            has_data_embs=has_data_embs,
-            has_model_embs=has_model_embs,
-        )
+        has_embeddings_response = cls(has_data_embs=has_data_embs, has_model_embs=has_model_embs)
 
         has_embeddings_response.additional_properties = d
         return has_embeddings_response

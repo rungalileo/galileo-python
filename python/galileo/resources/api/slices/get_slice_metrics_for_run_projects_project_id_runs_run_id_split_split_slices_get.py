@@ -104,17 +104,9 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['SliceMetrics']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        inference_name=inference_name,
-        task=task,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, split=split, inference_name=inference_name, task=task)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -150,12 +142,7 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        client=client,
-        inference_name=inference_name,
-        task=task,
+        project_id=project_id, run_id=run_id, split=split, client=client, inference_name=inference_name, task=task
     ).parsed
 
 
@@ -189,13 +176,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['SliceMetrics']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        inference_name=inference_name,
-        task=task,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, split=split, inference_name=inference_name, task=task)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -234,11 +215,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            split=split,
-            client=client,
-            inference_name=inference_name,
-            task=task,
+            project_id=project_id, run_id=run_id, split=split, client=client, inference_name=inference_name, task=task
         )
     ).parsed

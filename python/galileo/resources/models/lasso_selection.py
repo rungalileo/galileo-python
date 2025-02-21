@@ -29,12 +29,7 @@ class LassoSelection:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "x": x,
-                "y": y,
-            }
-        )
+        field_dict.update({"x": x, "y": y})
 
         return field_dict
 
@@ -45,10 +40,7 @@ class LassoSelection:
 
         y = cast(list[float], d.pop("y"))
 
-        lasso_selection = cls(
-            x=x,
-            y=y,
-        )
+        lasso_selection = cls(x=x, y=y)
 
         lasso_selection.additional_properties = d
         return lasso_selection

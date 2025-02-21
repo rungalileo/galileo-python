@@ -12,11 +12,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    *,
-    body: BodyUploadDatasetDatasetsPost,
-    format_: Union[Unset, DatasetFormat] = UNSET,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: BodyUploadDatasetDatasetsPost, format_: Union[Unset, DatasetFormat] = UNSET) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
@@ -29,11 +25,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/datasets",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/datasets", "params": params}
 
     _body = body.to_multipart()
 
@@ -72,10 +64,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: BodyUploadDatasetDatasetsPost,
-    format_: Union[Unset, DatasetFormat] = UNSET,
+    *, client: AuthenticatedClient, body: BodyUploadDatasetDatasetsPost, format_: Union[Unset, DatasetFormat] = UNSET
 ) -> Response[Union[DatasetDB, HTTPValidationError]]:
     """Upload Dataset
 
@@ -91,23 +80,15 @@ def sync_detailed(
         Response[Union[DatasetDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        format_=format_,
-    )
+    kwargs = _get_kwargs(body=body, format_=format_)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    body: BodyUploadDatasetDatasetsPost,
-    format_: Union[Unset, DatasetFormat] = UNSET,
+    *, client: AuthenticatedClient, body: BodyUploadDatasetDatasetsPost, format_: Union[Unset, DatasetFormat] = UNSET
 ) -> Optional[Union[DatasetDB, HTTPValidationError]]:
     """Upload Dataset
 
@@ -123,18 +104,11 @@ def sync(
         Union[DatasetDB, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-        format_=format_,
-    ).parsed
+    return sync_detailed(client=client, body=body, format_=format_).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: BodyUploadDatasetDatasetsPost,
-    format_: Union[Unset, DatasetFormat] = UNSET,
+    *, client: AuthenticatedClient, body: BodyUploadDatasetDatasetsPost, format_: Union[Unset, DatasetFormat] = UNSET
 ) -> Response[Union[DatasetDB, HTTPValidationError]]:
     """Upload Dataset
 
@@ -150,10 +124,7 @@ async def asyncio_detailed(
         Response[Union[DatasetDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        format_=format_,
-    )
+    kwargs = _get_kwargs(body=body, format_=format_)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -161,10 +132,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    body: BodyUploadDatasetDatasetsPost,
-    format_: Union[Unset, DatasetFormat] = UNSET,
+    *, client: AuthenticatedClient, body: BodyUploadDatasetDatasetsPost, format_: Union[Unset, DatasetFormat] = UNSET
 ) -> Optional[Union[DatasetDB, HTTPValidationError]]:
     """Upload Dataset
 
@@ -180,10 +148,4 @@ async def asyncio(
         Union[DatasetDB, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-            format_=format_,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body, format_=format_)).parsed

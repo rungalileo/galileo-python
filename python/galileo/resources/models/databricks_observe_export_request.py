@@ -69,12 +69,7 @@ class DatabricksObserveExportRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "database_name": database_name,
-                "table_name": table_name,
-            }
-        )
+        field_dict.update({"database_name": database_name, "table_name": table_name})
         if catalog_name is not UNSET:
             field_dict["catalog_name"] = catalog_name
         if columns is not UNSET:

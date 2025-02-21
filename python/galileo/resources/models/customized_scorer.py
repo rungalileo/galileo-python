@@ -40,11 +40,7 @@ class CustomizedScorer:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "scorer_name": scorer_name,
-            }
-        )
+        field_dict.update({"scorer_name": scorer_name})
         if model_alias is not UNSET:
             field_dict["model_alias"] = model_alias
         if num_judges is not UNSET:
@@ -75,11 +71,7 @@ class CustomizedScorer:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        customized_scorer = cls(
-            scorer_name=scorer_name,
-            model_alias=model_alias,
-            num_judges=num_judges,
-        )
+        customized_scorer = cls(scorer_name=scorer_name, model_alias=model_alias, num_judges=num_judges)
 
         customized_scorer.additional_properties = d
         return customized_scorer

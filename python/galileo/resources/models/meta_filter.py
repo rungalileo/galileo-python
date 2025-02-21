@@ -63,11 +63,7 @@ class MetaFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
         if greater_than is not UNSET:
             field_dict["greater_than"] = greater_than
         if is_equal is not UNSET:
@@ -139,13 +135,7 @@ class MetaFilter:
 
         less_than = _parse_less_than(d.pop("less_than", UNSET))
 
-        meta_filter = cls(
-            name=name,
-            greater_than=greater_than,
-            is_equal=is_equal,
-            isin=isin,
-            less_than=less_than,
-        )
+        meta_filter = cls(name=name, greater_than=greater_than, is_equal=is_equal, isin=isin, less_than=less_than)
 
         meta_filter.additional_properties = d
         return meta_filter

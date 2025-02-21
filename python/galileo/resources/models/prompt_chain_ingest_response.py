@@ -33,14 +33,7 @@ class PromptChainIngestResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "job_id": job_id,
-                "link": link,
-                "message": message,
-                "num_rows": num_rows,
-            }
-        )
+        field_dict.update({"job_id": job_id, "link": link, "message": message, "num_rows": num_rows})
 
         return field_dict
 
@@ -55,12 +48,7 @@ class PromptChainIngestResponse:
 
         num_rows = d.pop("num_rows")
 
-        prompt_chain_ingest_response = cls(
-            job_id=job_id,
-            link=link,
-            message=message,
-            num_rows=num_rows,
-        )
+        prompt_chain_ingest_response = cls(job_id=job_id, link=link, message=message, num_rows=num_rows)
 
         prompt_chain_ingest_response.additional_properties = d
         return prompt_chain_ingest_response

@@ -39,13 +39,7 @@ class EditSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "end_index": end_index,
-                "label": label,
-                "start_index": start_index,
-            }
-        )
+        field_dict.update({"end_index": end_index, "label": label, "start_index": start_index})
         if id is not UNSET:
             field_dict["id"] = id
 
@@ -69,12 +63,7 @@ class EditSpan:
 
         id = _parse_id(d.pop("id", UNSET))
 
-        edit_span = cls(
-            end_index=end_index,
-            label=label,
-            start_index=start_index,
-            id=id,
-        )
+        edit_span = cls(end_index=end_index, label=label, start_index=start_index, id=id)
 
         edit_span.additional_properties = d
         return edit_span

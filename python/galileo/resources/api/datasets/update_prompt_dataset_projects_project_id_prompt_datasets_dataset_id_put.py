@@ -120,17 +120,10 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        project_id=project_id,
-        dataset_id=dataset_id,
-        body=body,
-        file_name=file_name,
-        num_rows=num_rows,
-        format_=format_,
+        project_id=project_id, dataset_id=dataset_id, body=body, file_name=file_name, num_rows=num_rows, format_=format_
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -203,12 +196,7 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        project_id=project_id,
-        dataset_id=dataset_id,
-        body=body,
-        file_name=file_name,
-        num_rows=num_rows,
-        format_=format_,
+        project_id=project_id, dataset_id=dataset_id, body=body, file_name=file_name, num_rows=num_rows, format_=format_
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)

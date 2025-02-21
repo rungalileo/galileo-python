@@ -30,13 +30,7 @@ class TaskResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "project_id": project_id,
-                "run_id": run_id,
-                "tasks": tasks,
-            }
-        )
+        field_dict.update({"project_id": project_id, "run_id": run_id, "tasks": tasks})
 
         return field_dict
 
@@ -49,11 +43,7 @@ class TaskResponse:
 
         tasks = cast(list[str], d.pop("tasks"))
 
-        task_response = cls(
-            project_id=project_id,
-            run_id=run_id,
-            tasks=tasks,
-        )
+        task_response = cls(project_id=project_id, run_id=run_id, tasks=tasks)
 
         task_response.additional_properties = d
         return task_response

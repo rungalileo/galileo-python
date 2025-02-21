@@ -98,14 +98,7 @@ class LabelStudioExportRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "project_id": project_id,
-                "project_name": project_name,
-                "run_id": run_id,
-                "split": split,
-            }
-        )
+        field_dict.update({"project_id": project_id, "project_name": project_name, "run_id": run_id, "split": split})
         if compare_to is not UNSET:
             field_dict["compare_to"] = compare_to
         if filter_params is not UNSET:

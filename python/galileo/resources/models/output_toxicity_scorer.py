@@ -107,10 +107,7 @@ class OutputToxicityScorer:
         if name != "output_toxicity" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'output_toxicity', got '{name}'")
 
-        output_toxicity_scorer = cls(
-            filters=filters,
-            name=name,
-        )
+        output_toxicity_scorer = cls(filters=filters, name=name)
 
         output_toxicity_scorer.additional_properties = d
         return output_toxicity_scorer

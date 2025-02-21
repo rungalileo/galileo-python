@@ -18,17 +18,15 @@ from galileo.utils.singleton import GalileoLoggerSingleton
 try:
     import openai
 except ImportError:
-    raise ModuleNotFoundError(
-        "Please install OpenAI to use this feature: 'pip install openai'"
-    )
+    raise ModuleNotFoundError("Please install OpenAI to use this feature: 'pip install openai'")
 
 try:
     from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI  # noqa: F401
 except ImportError:
-    AsyncAzureOpenAI = None # type: ignore
-    AsyncOpenAI = None # type: ignore
-    AzureOpenAI = None # type: ignore
-    OpenAI = None # type: ignore
+    AsyncAzureOpenAI = None  # type: ignore
+    AsyncOpenAI = None  # type: ignore
+    AzureOpenAI = None  # type: ignore
+    OpenAI = None  # type: ignore
 
 
 @dataclass
@@ -57,31 +55,29 @@ _logger = logging.getLogger(__name__)
 
 OPENAI_CLIENT_METHODS = [
     OpenAiModuleDefinition(
-        module="openai.resources.chat.completions",
-        object="Completions",
-        method="create",
-        type="chat",
-        sync=True,
+        module="openai.resources.chat.completions", object="Completions", method="create", type="chat", sync=True
     )
     # Eventually add more OpenAI client library methods here
 ]
 
 
 class OpenAiArgsExtractor:
-    def __init__(self, name: Optional[str] = None, metadata: Optional[dict]=None, **kwargs: Any) -> None:
-        self.args = {"name": name, "metadata": (
-            metadata
-            if "response_format" not in kwargs
-            else {
-                **(metadata or {}),
-                "response_format": (
-                    kwargs["response_format"].model_json_schema()
-                    if isclass(kwargs["response_format"])
-                       and issubclass(kwargs["response_format"], BaseModel)
-                    else kwargs["response_format"]
-                ),
-            }
-        )}
+    def __init__(self, name: Optional[str] = None, metadata: Optional[dict] = None, **kwargs: Any) -> None:
+        self.args = {
+            "name": name,
+            "metadata": (
+                metadata
+                if "response_format" not in kwargs
+                else {
+                    **(metadata or {}),
+                    "response_format": (
+                        kwargs["response_format"].model_json_schema()
+                        if isclass(kwargs["response_format"]) and issubclass(kwargs["response_format"], BaseModel)
+                        else kwargs["response_format"]
+                    ),
+                }
+            ),
+        }
         self.kwargs = kwargs
 
     def get_galileo_args(self) -> dict[str, Any]:
@@ -172,9 +168,7 @@ def _extract_input_data_from_kwargs(
         prompt = _extract_chat_prompt(kwargs)
 
     parsed_temperature = float(
-        kwargs.get("temperature", 1)
-        if not isinstance(kwargs.get("temperature", 1), NotGiven)
-        else 1
+        kwargs.get("temperature", 1) if not isinstance(kwargs.get("temperature", 1), NotGiven) else 1
     )
 
     parsed_max_tokens = (
@@ -183,29 +177,17 @@ def _extract_input_data_from_kwargs(
         else float("inf")
     )
 
-    parsed_top_p = (
-        kwargs.get("top_p", 1)
-        if not isinstance(kwargs.get("top_p", 1), NotGiven)
-        else 1
-    )
+    parsed_top_p = kwargs.get("top_p", 1) if not isinstance(kwargs.get("top_p", 1), NotGiven) else 1
 
     parsed_frequency_penalty = (
-        kwargs.get("frequency_penalty", 0)
-        if not isinstance(kwargs.get("frequency_penalty", 0), NotGiven)
-        else 0
+        kwargs.get("frequency_penalty", 0) if not isinstance(kwargs.get("frequency_penalty", 0), NotGiven) else 0
     )
 
     parsed_presence_penalty = (
-        kwargs.get("presence_penalty", 0)
-        if not isinstance(kwargs.get("presence_penalty", 0), NotGiven)
-        else 0
+        kwargs.get("presence_penalty", 0) if not isinstance(kwargs.get("presence_penalty", 0), NotGiven) else 0
     )
 
-    parsed_seed = (
-        kwargs.get("seed", None)
-        if not isinstance(kwargs.get("seed", None), NotGiven)
-        else None
-    )
+    parsed_seed = kwargs.get("seed", None) if not isinstance(kwargs.get("seed", None), NotGiven) else None
 
     parsed_n = kwargs.get("n", 1) if not isinstance(kwargs.get("n", 1), NotGiven) else 1
 
@@ -228,7 +210,7 @@ def _extract_input_data_from_kwargs(
         start_time=start_time,
         # TODO: galileo/openai.py:229: error:
         # Argument "input" to "OpenAiInputData" has incompatible type "Any | None"; expected "str"  [arg-type]
-        input=prompt, # type: ignore
+        input=prompt,  # type: ignore
         model_parameters=model_parameters,
         model=model or None,
         temperature=parsed_temperature,
@@ -248,9 +230,7 @@ def _parse_usage(usage: Optional[dict] = None) -> Optional[dict]:
                 if isinstance(usage_dict[tokens_details], dict)
                 else usage_dict[tokens_details].__dict__
             )
-            usage_dict[tokens_details] = {
-                k: v for k, v in tokens_details_dict.items() if v is not None
-            }
+            usage_dict[tokens_details] = {k: v for k, v in tokens_details_dict.items() if v is not None}
 
     return usage_dict
 
@@ -283,9 +263,7 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
             else:
                 choice = choices[0]
                 completion = (
-                    _extract_chat_response(choice.message.__dict__)
-                    if _is_openai_v1()
-                    else choice.get("message", None)
+                    _extract_chat_response(choice.message.__dict__) if _is_openai_v1() else choice.get("message", None)
                 )
 
     usage = _parse_usage(response.get("usage", None))
@@ -298,7 +276,9 @@ def _is_openai_v1() -> bool:
 
 
 @_galileo_wrapper
-def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrapped: Callable, args: dict, kwargs: dict) -> Any:
+def _wrap(
+    open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrapped: Callable, args: dict, kwargs: dict
+) -> Any:
     # Retrieve the decorator context
     decorator_context_project = galileo_context.get_current_project()
     decorator_context_log_stream = galileo_context.get_current_log_stream()
@@ -308,9 +288,7 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrappe
     start_time = _get_timestamp()
     arg_extractor = OpenAiArgsExtractor(*args, **kwargs)
 
-    input_data = _extract_input_data_from_kwargs(
-        open_ai_resource, start_time, arg_extractor.get_galileo_args()
-    )
+    input_data = _extract_input_data_from_kwargs(open_ai_resource, start_time, arg_extractor.get_galileo_args())
 
     galileo_logger: GalileoLogger = initialize(
         project=decorator_context_project, log_stream=decorator_context_log_stream
@@ -329,12 +307,7 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrappe
         openai_response = wrapped(**arg_extractor.get_openai_args())
 
         model, completion, usage = _extract_data_from_default_response(
-            open_ai_resource,
-            (
-                (openai_response and openai_response.__dict__)
-                if _is_openai_v1()
-                else openai_response
-            ),
+            open_ai_resource, ((openai_response and openai_response.__dict__) if _is_openai_v1() else openai_response)
         )
 
         end_time = _get_timestamp()
@@ -354,9 +327,7 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrappe
                 input_tokens=usage.get("prompt_tokens", 0),
                 output_tokens=usage.get("completion_tokens", 0),
                 total_tokens=usage.get("total_tokens", 0),
-                metadata={
-                    str(k): str(v) for k, v in input_data.model_parameters.items()
-                },
+                metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
             )
         else:
             trace.add_llm_span(
@@ -369,9 +340,7 @@ def _wrap(open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrappe
                 input_tokens=usage.get("prompt_tokens", 0),
                 output_tokens=usage.get("completion_tokens", 0),
                 total_tokens=usage.get("total_tokens", 0),
-                metadata={
-                    str(k): str(v) for k, v in input_data.model_parameters.items()
-                },
+                metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
             )
 
         # Conclude the trace if this is the top-level call
@@ -388,18 +357,14 @@ class OpenAIGalileo:
     _galileo_logger: Optional[GalileoLogger] = None
 
     def initialize(self, project: Optional[str], log_stream: Optional[str]) -> Optional[GalileoLogger]:
-        self._galileo_logger = GalileoLoggerSingleton().get(
-            project=project or None, log_stream=log_stream or None
-        )
+        self._galileo_logger = GalileoLoggerSingleton().get(project=project or None, log_stream=log_stream or None)
 
         return self._galileo_logger
 
     def register_tracing(self) -> None:
         for resource in OPENAI_CLIENT_METHODS:
             wrap_function_wrapper(
-                resource.module,
-                f"{resource.object}.{resource.method}",
-                (_wrap(resource, self.initialize)),
+                resource.module, f"{resource.object}.{resource.method}", (_wrap(resource, self.initialize))
             )
 
 

@@ -64,13 +64,7 @@ class CreateGeneratedScorerRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "chain_poll_template": chain_poll_template,
-                "instructions": instructions,
-                "name": name,
-            }
-        )
+        field_dict.update({"chain_poll_template": chain_poll_template, "instructions": instructions, "name": name})
         if scoreable_node_types is not UNSET:
             field_dict["scoreable_node_types"] = scoreable_node_types
         if scorer_configuration is not UNSET:

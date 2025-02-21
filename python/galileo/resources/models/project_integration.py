@@ -25,12 +25,7 @@ class ProjectIntegration:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "models": models,
-                "scorer_models": scorer_models,
-            }
-        )
+        field_dict.update({"models": models, "scorer_models": scorer_models})
 
         return field_dict
 
@@ -41,10 +36,7 @@ class ProjectIntegration:
 
         scorer_models = cast(list[str], d.pop("scorer_models"))
 
-        project_integration = cls(
-            models=models,
-            scorer_models=scorer_models,
-        )
+        project_integration = cls(models=models, scorer_models=scorer_models)
 
         project_integration.additional_properties = d
         return project_integration

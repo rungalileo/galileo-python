@@ -28,11 +28,7 @@ class MetricCritiqueColumns:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "metric_critique_columns": metric_critique_columns,
-            }
-        )
+        field_dict.update({"metric_critique_columns": metric_critique_columns})
 
         return field_dict
 
@@ -48,9 +44,7 @@ class MetricCritiqueColumns:
 
             metric_critique_columns.append(metric_critique_columns_item)
 
-        metric_critique_columns = cls(
-            metric_critique_columns=metric_critique_columns,
-        )
+        metric_critique_columns = cls(metric_critique_columns=metric_critique_columns)
 
         metric_critique_columns.additional_properties = d
         return metric_critique_columns

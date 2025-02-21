@@ -21,11 +21,7 @@ class TrainResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-            }
-        )
+        field_dict.update({"id": id})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class TrainResponse:
         d = src_dict.copy()
         id = d.pop("id")
 
-        train_response = cls(
-            id=id,
-        )
+        train_response = cls(id=id)
 
         train_response.additional_properties = d
         return train_response

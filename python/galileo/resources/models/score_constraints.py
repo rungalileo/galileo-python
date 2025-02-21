@@ -29,13 +29,7 @@ class ScoreConstraints:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "feedback_type": feedback_type,
-                "max": max_,
-                "min": min_,
-            }
-        )
+        field_dict.update({"feedback_type": feedback_type, "max": max_, "min": min_})
 
         return field_dict
 
@@ -50,11 +44,7 @@ class ScoreConstraints:
 
         min_ = d.pop("min")
 
-        score_constraints = cls(
-            feedback_type=feedback_type,
-            max_=max_,
-            min_=min_,
-        )
+        score_constraints = cls(feedback_type=feedback_type, max_=max_, min_=min_)
 
         score_constraints.additional_properties = d
         return score_constraints

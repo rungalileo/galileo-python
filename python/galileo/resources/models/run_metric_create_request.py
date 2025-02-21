@@ -66,11 +66,7 @@ class RunMetricCreateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "key": key,
-            }
-        )
+        field_dict.update({"key": key})
         if epoch is not UNSET:
             field_dict["epoch"] = epoch
         if extra is not UNSET:
@@ -143,13 +139,7 @@ class RunMetricCreateRequest:
 
         value = _parse_value(d.pop("value", UNSET))
 
-        run_metric_create_request = cls(
-            key=key,
-            epoch=epoch,
-            extra=extra,
-            object_value=object_value,
-            value=value,
-        )
+        run_metric_create_request = cls(key=key, epoch=epoch, extra=extra, object_value=object_value, value=value)
 
         run_metric_create_request.additional_properties = d
         return run_metric_create_request

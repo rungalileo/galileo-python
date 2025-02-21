@@ -71,11 +71,7 @@ class WorkflowsIngestRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "workflows": workflows,
-            }
-        )
+        field_dict.update({"workflows": workflows})
         if project_id is not UNSET:
             field_dict["project_id"] = project_id
         if project_name is not UNSET:
@@ -168,11 +164,7 @@ class WorkflowsIngestRequest:
 
         project_name = _parse_project_name(d.pop("project_name", UNSET))
 
-        workflows_ingest_request = cls(
-            workflows=workflows,
-            project_id=project_id,
-            project_name=project_name,
-        )
+        workflows_ingest_request = cls(workflows=workflows, project_id=project_id, project_name=project_name)
 
         workflows_ingest_request.additional_properties = d
         return workflows_ingest_request

@@ -43,11 +43,7 @@ class WriterIntegration:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "organization_id": organization_id,
-            }
-        )
+        field_dict.update({"organization_id": organization_id})
         if extra is not UNSET:
             field_dict["extra"] = extra
         if name is not UNSET:
@@ -83,11 +79,7 @@ class WriterIntegration:
         if name != "writer" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'writer', got '{name}'")
 
-        writer_integration = cls(
-            organization_id=organization_id,
-            extra=extra,
-            name=name,
-        )
+        writer_integration = cls(organization_id=organization_id, extra=extra, name=name)
 
         writer_integration.additional_properties = d
         return writer_integration

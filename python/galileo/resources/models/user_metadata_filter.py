@@ -41,13 +41,7 @@ class UserMetadataFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "key": key,
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"key": key, "operator": operator, "value": value})
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -77,12 +71,7 @@ class UserMetadataFilter:
         if name != "user_metadata" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'user_metadata', got '{name}'")
 
-        user_metadata_filter = cls(
-            key=key,
-            operator=operator,
-            value=value,
-            name=name,
-        )
+        user_metadata_filter = cls(key=key, operator=operator, value=value, name=name)
 
         user_metadata_filter.additional_properties = d
         return user_metadata_filter

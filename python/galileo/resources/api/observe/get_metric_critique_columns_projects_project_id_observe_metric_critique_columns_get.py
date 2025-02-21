@@ -10,13 +10,8 @@ from ...models.metric_critique_columns import MetricCritiqueColumns
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/projects/{project_id}/observe/metric_critique_columns",
-    }
+def _get_kwargs(project_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/observe/metric_critique_columns"}
 
     return _kwargs
 
@@ -50,9 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, MetricCritiqueColumns]]:
     """Get Metric Critique Columns
 
@@ -69,21 +62,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, MetricCritiqueColumns]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, MetricCritiqueColumns]]:
     """Get Metric Critique Columns
 
@@ -100,16 +87,11 @@ def sync(
         Union[HTTPValidationError, MetricCritiqueColumns]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, MetricCritiqueColumns]]:
     """Get Metric Critique Columns
 
@@ -126,9 +108,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, MetricCritiqueColumns]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -136,9 +116,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, MetricCritiqueColumns]]:
     """Get Metric Critique Columns
 
@@ -155,9 +133,4 @@ async def asyncio(
         Union[HTTPValidationError, MetricCritiqueColumns]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, client=client)).parsed

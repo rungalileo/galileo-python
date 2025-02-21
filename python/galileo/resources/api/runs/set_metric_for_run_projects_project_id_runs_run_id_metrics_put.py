@@ -11,18 +11,10 @@ from ...models.run_metric_db import RunMetricDB
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    *,
-    body: RunMetricCreateRequest,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, run_id: str, *, body: RunMetricCreateRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "put",
-        "url": f"/projects/{project_id}/runs/{run_id}/metrics",
-    }
+    _kwargs: dict[str, Any] = {"method": "put", "url": f"/projects/{project_id}/runs/{run_id}/metrics"}
 
     _body = body.to_dict()
 
@@ -62,11 +54,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: RunMetricCreateRequest,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: RunMetricCreateRequest
 ) -> Response[Union[HTTPValidationError, RunMetricDB]]:
     """Set Metric For Run
 
@@ -85,25 +73,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, RunMetricDB]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: RunMetricCreateRequest,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: RunMetricCreateRequest
 ) -> Optional[Union[HTTPValidationError, RunMetricDB]]:
     """Set Metric For Run
 
@@ -122,20 +100,11 @@ def sync(
         Union[HTTPValidationError, RunMetricDB]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, run_id=run_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: RunMetricCreateRequest,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: RunMetricCreateRequest
 ) -> Response[Union[HTTPValidationError, RunMetricDB]]:
     """Set Metric For Run
 
@@ -154,11 +123,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, RunMetricDB]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -166,11 +131,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: RunMetricCreateRequest,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: RunMetricCreateRequest
 ) -> Optional[Union[HTTPValidationError, RunMetricDB]]:
     """Set Metric For Run
 
@@ -189,11 +150,4 @@ async def asyncio(
         Union[HTTPValidationError, RunMetricDB]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client, body=body)).parsed

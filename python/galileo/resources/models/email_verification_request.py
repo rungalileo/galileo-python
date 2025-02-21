@@ -21,11 +21,7 @@ class EmailVerificationRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "email": email,
-            }
-        )
+        field_dict.update({"email": email})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class EmailVerificationRequest:
         d = src_dict.copy()
         email = d.pop("email")
 
-        email_verification_request = cls(
-            email=email,
-        )
+        email_verification_request = cls(email=email)
 
         email_verification_request.additional_properties = d
         return email_verification_request

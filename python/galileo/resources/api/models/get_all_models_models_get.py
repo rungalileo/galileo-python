@@ -10,11 +10,7 @@ from ...models.training_model_response import TrainingModelResponse
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    *,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> dict[str, Any]:
+def _get_kwargs(*, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["starting_token"] = starting_token
@@ -23,11 +19,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/models",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/models", "params": params}
 
     return _kwargs
 
@@ -66,10 +58,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Response[Union[HTTPValidationError, list["TrainingModelResponse"]]]:
     """Get All Models
 
@@ -89,23 +78,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['TrainingModelResponse']]]
     """
 
-    kwargs = _get_kwargs(
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Optional[Union[HTTPValidationError, list["TrainingModelResponse"]]]:
     """Get All Models
 
@@ -125,18 +106,11 @@ def sync(
         Union[HTTPValidationError, list['TrainingModelResponse']]
     """
 
-    return sync_detailed(
-        client=client,
-        starting_token=starting_token,
-        limit=limit,
-    ).parsed
+    return sync_detailed(client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Response[Union[HTTPValidationError, list["TrainingModelResponse"]]]:
     """Get All Models
 
@@ -156,10 +130,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['TrainingModelResponse']]]
     """
 
-    kwargs = _get_kwargs(
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(starting_token=starting_token, limit=limit)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -167,10 +138,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Optional[Union[HTTPValidationError, list["TrainingModelResponse"]]]:
     """Get All Models
 
@@ -190,10 +158,4 @@ async def asyncio(
         Union[HTTPValidationError, list['TrainingModelResponse']]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            starting_token=starting_token,
-            limit=limit,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, starting_token=starting_token, limit=limit)).parsed

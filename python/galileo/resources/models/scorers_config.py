@@ -449,9 +449,7 @@ class ScorersConfig:
             scorers.append(scorers_item)
 
         scorers_config = cls(
-            generated_scorers=generated_scorers,
-            registered_scorers=registered_scorers,
-            scorers=scorers,
+            generated_scorers=generated_scorers, registered_scorers=registered_scorers, scorers=scorers
         )
 
         scorers_config.additional_properties = d

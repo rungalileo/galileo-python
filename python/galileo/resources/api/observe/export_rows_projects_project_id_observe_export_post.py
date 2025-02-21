@@ -64,11 +64,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/observe/export",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/observe/export", "params": params}
 
     _body = body.to_dict()
 
@@ -151,9 +147,7 @@ def sync_detailed(
         export_format=export_format,
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 

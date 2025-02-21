@@ -107,10 +107,7 @@ class InputSexistScorer:
         if name != "input_sexist" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'input_sexist', got '{name}'")
 
-        input_sexist_scorer = cls(
-            filters=filters,
-            name=name,
-        )
+        input_sexist_scorer = cls(filters=filters, name=name)
 
         input_sexist_scorer.additional_properties = d
         return input_sexist_scorer

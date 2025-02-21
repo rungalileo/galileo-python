@@ -45,13 +45,7 @@ class GenericPermission:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "action": action,
-                "allowed": allowed,
-                "resource": resource,
-            }
-        )
+        field_dict.update({"action": action, "allowed": allowed, "resource": resource})
         if message is not UNSET:
             field_dict["message"] = message
 
@@ -75,12 +69,7 @@ class GenericPermission:
 
         message = _parse_message(d.pop("message", UNSET))
 
-        generic_permission = cls(
-            action=action,
-            allowed=allowed,
-            resource=resource,
-            message=message,
-        )
+        generic_permission = cls(action=action, allowed=allowed, resource=resource, message=message)
 
         generic_permission.additional_properties = d
         return generic_permission

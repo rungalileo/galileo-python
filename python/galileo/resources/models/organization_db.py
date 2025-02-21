@@ -50,14 +50,7 @@ class OrganizationDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_at": created_at,
-                "id": id,
-                "name": name,
-                "updated_at": updated_at,
-            }
-        )
+        field_dict.update({"created_at": created_at, "id": id, "name": name, "updated_at": updated_at})
         if permissions is not UNSET:
             field_dict["permissions"] = permissions
 
@@ -83,13 +76,7 @@ class OrganizationDB:
 
             permissions.append(permissions_item)
 
-        organization_db = cls(
-            created_at=created_at,
-            id=id,
-            name=name,
-            updated_at=updated_at,
-            permissions=permissions,
-        )
+        organization_db = cls(created_at=created_at, id=id, name=name, updated_at=updated_at, permissions=permissions)
 
         organization_db.additional_properties = d
         return organization_db

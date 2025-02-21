@@ -62,11 +62,7 @@ class UpdateDatasetContentRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "edits": edits,
-            }
-        )
+        field_dict.update({"edits": edits})
 
         return field_dict
 
@@ -144,9 +140,7 @@ class UpdateDatasetContentRequest:
 
             edits.append(edits_item)
 
-        update_dataset_content_request = cls(
-            edits=edits,
-        )
+        update_dataset_content_request = cls(edits=edits)
 
         update_dataset_content_request.additional_properties = d
         return update_dataset_content_request

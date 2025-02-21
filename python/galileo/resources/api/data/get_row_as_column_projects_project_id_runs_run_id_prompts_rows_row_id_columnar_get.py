@@ -11,12 +11,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    row_id: int,
-    *,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    project_id: str, run_id: str, row_id: int, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -90,16 +85,10 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        row_id=row_id,
-        starting_token=starting_token,
-        limit=limit,
+        project_id=project_id, run_id=run_id, row_id=row_id, starting_token=starting_token, limit=limit
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -131,12 +120,7 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        row_id=row_id,
-        client=client,
-        starting_token=starting_token,
-        limit=limit,
+        project_id=project_id, run_id=run_id, row_id=row_id, client=client, starting_token=starting_token, limit=limit
     ).parsed
 
 
@@ -167,11 +151,7 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        row_id=row_id,
-        starting_token=starting_token,
-        limit=limit,
+        project_id=project_id, run_id=run_id, row_id=row_id, starting_token=starting_token, limit=limit
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)

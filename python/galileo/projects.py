@@ -35,10 +35,7 @@ class Project:
     permissions: Union[Unset, list["Permission"]] = UNSET
     type: Union[None, ProjectType, Unset] = UNSET
 
-    def __init__(
-        self,
-        project: Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse] = None,
-    ) -> None:
+    def __init__(self, project: Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse] = None) -> None:
         if project is None:
             return
 
@@ -81,12 +78,7 @@ class Projects(BaseClientModel):
     def get(self, *, id: str) -> Optional[Project]: ...
     @overload
     def get(self, *, name: str) -> Optional[Project]: ...
-    def get(
-        self,
-        *,
-        id: Optional[str] = None,
-        name: Optional[str] = None,
-    ) -> Optional[Project]:
+    def get(self, *, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Project]:
         """
         Retrieves a project by id or name (exactly one of `id` or `name` must be provided).
 
@@ -115,10 +107,7 @@ class Projects(BaseClientModel):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
         if id:
-            project_response = get_project_projects_project_id_get.sync(
-                project_id=id,
-                client=self.client,
-            )
+            project_response = get_project_projects_project_id_get.sync(project_id=id, client=self.client)
             if not project_response:
                 return None
             project = Project(project=project_response)
@@ -158,12 +147,7 @@ class Projects(BaseClientModel):
 
         """
         try:
-            body = ProjectCreate(
-                name=name,
-                type_=ProjectType.GEN_AI,
-                create_example_templates=False,
-                created_by=None,
-            )
+            body = ProjectCreate(name=name, type_=ProjectType.GEN_AI, create_example_templates=False, created_by=None)
 
             response = create_project_projects_post.sync(client=self.client, body=body)
 
@@ -185,9 +169,7 @@ class Projects(BaseClientModel):
 #
 
 
-def get_project(
-    *, id: Optional[str] = None, name: Optional[str] = None
-) -> Optional[Project]:
+def get_project(*, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Project]:
     """
     Retrieves a project by id or name (exactly one of `id` or `name` must be provided).
 

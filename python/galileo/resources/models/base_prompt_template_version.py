@@ -43,11 +43,7 @@ class BasePromptTemplateVersion:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "template": template,
-            }
-        )
+        field_dict.update({"template": template})
         if version is not UNSET:
             field_dict["version"] = version
 
@@ -86,10 +82,7 @@ class BasePromptTemplateVersion:
 
         version = _parse_version(d.pop("version", UNSET))
 
-        base_prompt_template_version = cls(
-            template=template,
-            version=version,
-        )
+        base_prompt_template_version = cls(template=template, version=version)
 
         base_prompt_template_version.additional_properties = d
         return base_prompt_template_version

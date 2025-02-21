@@ -31,12 +31,7 @@ class SplitRunResults:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "split_name": split_name,
-                "split_run_results": split_run_results,
-            }
-        )
+        field_dict.update({"split_name": split_name, "split_run_results": split_run_results})
 
         return field_dict
 
@@ -49,10 +44,7 @@ class SplitRunResults:
 
         split_run_results = RunResults.from_dict(d.pop("split_run_results"))
 
-        split_run_results = cls(
-            split_name=split_name,
-            split_run_results=split_run_results,
-        )
+        split_run_results = cls(split_name=split_name, split_run_results=split_run_results)
 
         split_run_results.additional_properties = d
         return split_run_results

@@ -48,12 +48,7 @@ class PromptGroupResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "columns": columns,
-                "group_label": group_label,
-            }
-        )
+        field_dict.update({"columns": columns, "group_label": group_label})
         if group_description is not UNSET:
             field_dict["group_description"] = group_description
         if group_icon is not UNSET:

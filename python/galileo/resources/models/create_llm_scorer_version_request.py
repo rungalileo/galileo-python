@@ -40,12 +40,7 @@ class CreateLLMScorerVersionRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "chain_poll_template": chain_poll_template,
-                "instructions": instructions,
-            }
-        )
+        field_dict.update({"chain_poll_template": chain_poll_template, "instructions": instructions})
         if version_description is not UNSET:
             field_dict["version_description"] = version_description
 
@@ -70,9 +65,7 @@ class CreateLLMScorerVersionRequest:
         version_description = _parse_version_description(d.pop("version_description", UNSET))
 
         create_llm_scorer_version_request = cls(
-            chain_poll_template=chain_poll_template,
-            instructions=instructions,
-            version_description=version_description,
+            chain_poll_template=chain_poll_template, instructions=instructions, version_description=version_description
         )
 
         create_llm_scorer_version_request.additional_properties = d

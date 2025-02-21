@@ -29,13 +29,7 @@ class InferenceNamesResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "inference_names": inference_names,
-                "project_id": project_id,
-                "run_id": run_id,
-            }
-        )
+        field_dict.update({"inference_names": inference_names, "project_id": project_id, "run_id": run_id})
 
         return field_dict
 
@@ -48,11 +42,7 @@ class InferenceNamesResponse:
 
         run_id = d.pop("run_id")
 
-        inference_names_response = cls(
-            inference_names=inference_names,
-            project_id=project_id,
-            run_id=run_id,
-        )
+        inference_names_response = cls(inference_names=inference_names, project_id=project_id, run_id=run_id)
 
         inference_names_response.additional_properties = d
         return inference_names_response

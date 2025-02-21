@@ -42,13 +42,7 @@ class IntegrationDB:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "created_at": created_at,
-                "created_by": created_by,
-                "id": id,
-                "name": name,
-                "updated_at": updated_at,
-            }
+            {"created_at": created_at, "created_by": created_by, "id": id, "name": name, "updated_at": updated_at}
         )
 
         return field_dict
@@ -66,13 +60,7 @@ class IntegrationDB:
 
         updated_at = isoparse(d.pop("updated_at"))
 
-        integration_db = cls(
-            created_at=created_at,
-            created_by=created_by,
-            id=id,
-            name=name,
-            updated_at=updated_at,
-        )
+        integration_db = cls(created_at=created_at, created_by=created_by, id=id, name=name, updated_at=updated_at)
 
         integration_db.additional_properties = d
         return integration_db

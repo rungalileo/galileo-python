@@ -15,13 +15,7 @@ from galileo_core.schemas.shared.workflows.step import (
     ToolStep,
     WorkflowStep,
 )
-from galileo_core.schemas.shared.traces.types import (
-    Trace,
-    LlmSpan,
-    WorkflowSpan,
-    RetrieverSpan,
-    ToolSpan,
-)
+from galileo_core.schemas.shared.traces.types import Trace, LlmSpan, WorkflowSpan, RetrieverSpan, ToolSpan
 from galileo.logger import GalileoLogger
 from galileo.decorator import galileo_context, log, GalileoDecorator
 

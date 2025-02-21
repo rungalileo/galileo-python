@@ -48,11 +48,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/edits/{edit_id}/content",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/edits/{edit_id}/content", "params": params}
 
     return _kwargs
 
@@ -113,17 +109,9 @@ def sync_detailed(
         Response[Union[EditContent, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        edit_id=edit_id,
-        page_num=page_num,
-        meta_cols=meta_cols,
-        text_pat=text_pat,
-        regex=regex,
-    )
+    kwargs = _get_kwargs(edit_id=edit_id, page_num=page_num, meta_cols=meta_cols, text_pat=text_pat, regex=regex)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -157,12 +145,7 @@ def sync(
     """
 
     return sync_detailed(
-        edit_id=edit_id,
-        client=client,
-        page_num=page_num,
-        meta_cols=meta_cols,
-        text_pat=text_pat,
-        regex=regex,
+        edit_id=edit_id, client=client, page_num=page_num, meta_cols=meta_cols, text_pat=text_pat, regex=regex
     ).parsed
 
 
@@ -194,13 +177,7 @@ async def asyncio_detailed(
         Response[Union[EditContent, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        edit_id=edit_id,
-        page_num=page_num,
-        meta_cols=meta_cols,
-        text_pat=text_pat,
-        regex=regex,
-    )
+    kwargs = _get_kwargs(edit_id=edit_id, page_num=page_num, meta_cols=meta_cols, text_pat=text_pat, regex=regex)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -237,11 +214,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            edit_id=edit_id,
-            client=client,
-            page_num=page_num,
-            meta_cols=meta_cols,
-            text_pat=text_pat,
-            regex=regex,
+            edit_id=edit_id, client=client, page_num=page_num, meta_cols=meta_cols, text_pat=text_pat, regex=regex
         )
     ).parsed

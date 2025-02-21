@@ -10,11 +10,7 @@ from ...models.run_db import RunDB
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    project_id: str,
-    *,
-    run_name: Union[None, Unset, str] = UNSET,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, *, run_name: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     json_run_name: Union[None, Unset, str]
@@ -26,11 +22,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/projects/{project_id}/runs",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/runs", "params": params}
 
     return _kwargs
 
@@ -69,10 +61,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    run_name: Union[None, Unset, str] = UNSET,
+    project_id: str, *, client: AuthenticatedClient, run_name: Union[None, Unset, str] = UNSET
 ) -> Response[Union[HTTPValidationError, list["RunDB"]]]:
     """Get Project Runs
 
@@ -92,23 +81,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['RunDB']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_name=run_name,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_name=run_name)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    run_name: Union[None, Unset, str] = UNSET,
+    project_id: str, *, client: AuthenticatedClient, run_name: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["RunDB"]]]:
     """Get Project Runs
 
@@ -128,18 +109,11 @@ def sync(
         Union[HTTPValidationError, list['RunDB']]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        client=client,
-        run_name=run_name,
-    ).parsed
+    return sync_detailed(project_id=project_id, client=client, run_name=run_name).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    run_name: Union[None, Unset, str] = UNSET,
+    project_id: str, *, client: AuthenticatedClient, run_name: Union[None, Unset, str] = UNSET
 ) -> Response[Union[HTTPValidationError, list["RunDB"]]]:
     """Get Project Runs
 
@@ -159,10 +133,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['RunDB']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_name=run_name,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_name=run_name)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -170,10 +141,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    run_name: Union[None, Unset, str] = UNSET,
+    project_id: str, *, client: AuthenticatedClient, run_name: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["RunDB"]]]:
     """Get Project Runs
 
@@ -193,10 +161,4 @@ async def asyncio(
         Union[HTTPValidationError, list['RunDB']]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            run_name=run_name,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, client=client, run_name=run_name)).parsed

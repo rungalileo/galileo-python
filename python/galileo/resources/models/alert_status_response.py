@@ -84,11 +84,7 @@ class AlertStatusResponse:
 
         status = _parse_status(d.pop("status", UNSET))
 
-        alert_status_response = cls(
-            id=id,
-            message=message,
-            status=status,
-        )
+        alert_status_response = cls(id=id, message=message, status=status)
 
         alert_status_response.additional_properties = d
         return alert_status_response

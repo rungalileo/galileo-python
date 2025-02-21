@@ -29,13 +29,7 @@ class Circle:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "radius": radius,
-                "x": x,
-                "y": y,
-            }
-        )
+        field_dict.update({"radius": radius, "x": x, "y": y})
 
         return field_dict
 
@@ -48,11 +42,7 @@ class Circle:
 
         y = d.pop("y")
 
-        circle = cls(
-            radius=radius,
-            x=x,
-            y=y,
-        )
+        circle = cls(radius=radius, x=x, y=y)
 
         circle.additional_properties = d
         return circle

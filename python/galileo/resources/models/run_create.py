@@ -80,12 +80,7 @@ class RunCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-                "task_type": task_type,
-            }
-        )
+        field_dict.update({"name": name, "task_type": task_type})
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
         if dataset_hash is not UNSET:

@@ -100,15 +100,9 @@ def sync_detailed(
         Response[Union[FilterOptionsResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        start_time=start_time,
-        end_time=end_time,
-    )
+    kwargs = _get_kwargs(project_id=project_id, start_time=start_time, end_time=end_time)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -137,12 +131,7 @@ def sync(
         Union[FilterOptionsResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        client=client,
-        start_time=start_time,
-        end_time=end_time,
-    ).parsed
+    return sync_detailed(project_id=project_id, client=client, start_time=start_time, end_time=end_time).parsed
 
 
 async def asyncio_detailed(
@@ -169,11 +158,7 @@ async def asyncio_detailed(
         Response[Union[FilterOptionsResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        start_time=start_time,
-        end_time=end_time,
-    )
+    kwargs = _get_kwargs(project_id=project_id, start_time=start_time, end_time=end_time)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -205,10 +190,5 @@ async def asyncio(
     """
 
     return (
-        await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            start_time=start_time,
-            end_time=end_time,
-        )
+        await asyncio_detailed(project_id=project_id, client=client, start_time=start_time, end_time=end_time)
     ).parsed

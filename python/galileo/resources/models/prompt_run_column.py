@@ -437,11 +437,7 @@ class PromptRunColumn:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
         if alert is not UNSET:
             field_dict["alert"] = alert
         if data_type is not UNSET:

@@ -134,11 +134,7 @@ class UserUpdate:
         role = _parse_role(d.pop("role", UNSET))
 
         user_update = cls(
-            email=email,
-            email_is_verified=email_is_verified,
-            first_name=first_name,
-            last_name=last_name,
-            role=role,
+            email=email, email_is_verified=email_is_verified, first_name=first_name, last_name=last_name, role=role
         )
 
         user_update.additional_properties = d

@@ -35,11 +35,7 @@ class WeeklyChangelog:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "week_of": week_of,
-            }
-        )
+        field_dict.update({"week_of": week_of})
         if changes is not UNSET:
             field_dict["changes"] = changes
 
@@ -59,10 +55,7 @@ class WeeklyChangelog:
         else:
             changes = WeeklyChangelogChanges.from_dict(_changes)
 
-        weekly_changelog = cls(
-            week_of=week_of,
-            changes=changes,
-        )
+        weekly_changelog = cls(week_of=week_of, changes=changes)
 
         weekly_changelog.additional_properties = d
         return weekly_changelog

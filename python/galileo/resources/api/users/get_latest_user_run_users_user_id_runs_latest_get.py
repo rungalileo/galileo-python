@@ -32,11 +32,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/users/{user_id}/runs/latest",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/users/{user_id}/runs/latest", "params": params}
 
     return _kwargs
 
@@ -95,16 +91,9 @@ def sync_detailed(
         Response[Union[GetUserLatestRunsDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        user_id=user_id,
-        project_type=project_type,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(user_id=user_id, project_type=project_type, starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -136,11 +125,7 @@ def sync(
     """
 
     return sync_detailed(
-        user_id=user_id,
-        client=client,
-        project_type=project_type,
-        starting_token=starting_token,
-        limit=limit,
+        user_id=user_id, client=client, project_type=project_type, starting_token=starting_token, limit=limit
     ).parsed
 
 
@@ -170,12 +155,7 @@ async def asyncio_detailed(
         Response[Union[GetUserLatestRunsDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        user_id=user_id,
-        project_type=project_type,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(user_id=user_id, project_type=project_type, starting_token=starting_token, limit=limit)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -210,10 +190,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            user_id=user_id,
-            client=client,
-            project_type=project_type,
-            starting_token=starting_token,
-            limit=limit,
+            user_id=user_id, client=client, project_type=project_type, starting_token=starting_token, limit=limit
         )
     ).parsed

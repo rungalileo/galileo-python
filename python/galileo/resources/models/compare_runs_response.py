@@ -38,13 +38,7 @@ class CompareRunsResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "project_id": project_id,
-                "runs": runs,
-                "split": split,
-            }
-        )
+        field_dict.update({"project_id": project_id, "runs": runs, "split": split})
 
         return field_dict
 
@@ -64,11 +58,7 @@ class CompareRunsResponse:
 
         split = Split(d.pop("split"))
 
-        compare_runs_response = cls(
-            project_id=project_id,
-            runs=runs,
-            split=split,
-        )
+        compare_runs_response = cls(project_id=project_id, runs=runs, split=split)
 
         compare_runs_response.additional_properties = d
         return compare_runs_response

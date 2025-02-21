@@ -25,12 +25,7 @@ class MetricCritiqueColumn:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "col_name": col_name,
-                "metric_critique_computing": metric_critique_computing,
-            }
-        )
+        field_dict.update({"col_name": col_name, "metric_critique_computing": metric_critique_computing})
 
         return field_dict
 
@@ -41,10 +36,7 @@ class MetricCritiqueColumn:
 
         metric_critique_computing = d.pop("metric_critique_computing")
 
-        metric_critique_column = cls(
-            col_name=col_name,
-            metric_critique_computing=metric_critique_computing,
-        )
+        metric_critique_column = cls(col_name=col_name, metric_critique_computing=metric_critique_computing)
 
         metric_critique_column.additional_properties = d
         return metric_critique_column

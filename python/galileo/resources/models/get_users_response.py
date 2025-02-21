@@ -50,11 +50,7 @@ class GetUsersResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "users": users,
-            }
-        )
+        field_dict.update({"users": users})
         if limit is not UNSET:
             field_dict["limit"] = limit
         if next_starting_token is not UNSET:

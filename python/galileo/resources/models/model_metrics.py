@@ -66,14 +66,7 @@ class ModelMetrics:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "accuracy": accuracy,
-                "f1": f1,
-                "precision": precision,
-                "recall": recall,
-            }
-        )
+        field_dict.update({"accuracy": accuracy, "f1": f1, "precision": precision, "recall": recall})
         if confidence is not UNSET:
             field_dict["confidence"] = confidence
         if dep_distribution is not UNSET:

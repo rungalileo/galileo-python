@@ -118,16 +118,9 @@ def sync_detailed(
         Response[Union[GetMultiRunSamplesForRowIdsProjectsProjectIdRunsPromptsRowsColumnarPostResponseGetMultiRunSamplesForRowIdsProjectsProjectIdRunsPromptsRowsColumnarPost, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body, starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -164,11 +157,7 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        client=client,
-        body=body,
-        starting_token=starting_token,
-        limit=limit,
+        project_id=project_id, client=client, body=body, starting_token=starting_token, limit=limit
     ).parsed
 
 
@@ -203,12 +192,7 @@ async def asyncio_detailed(
         Response[Union[GetMultiRunSamplesForRowIdsProjectsProjectIdRunsPromptsRowsColumnarPostResponseGetMultiRunSamplesForRowIdsProjectsProjectIdRunsPromptsRowsColumnarPost, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body, starting_token=starting_token, limit=limit)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -248,10 +232,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            body=body,
-            starting_token=starting_token,
-            limit=limit,
+            project_id=project_id, client=client, body=body, starting_token=starting_token, limit=limit
         )
     ).parsed

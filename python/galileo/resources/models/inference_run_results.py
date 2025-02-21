@@ -36,11 +36,7 @@ class InferenceRunResults:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "inference_name": inference_name,
-                "split_name": split_name,
-                "split_run_results": split_run_results,
-            }
+            {"inference_name": inference_name, "split_name": split_name, "split_run_results": split_run_results}
         )
 
         return field_dict
@@ -57,9 +53,7 @@ class InferenceRunResults:
         split_run_results = InferenceResults.from_dict(d.pop("split_run_results"))
 
         inference_run_results = cls(
-            inference_name=inference_name,
-            split_name=split_name,
-            split_run_results=split_run_results,
+            inference_name=inference_name, split_name=split_name, split_run_results=split_run_results
         )
 
         inference_run_results.additional_properties = d

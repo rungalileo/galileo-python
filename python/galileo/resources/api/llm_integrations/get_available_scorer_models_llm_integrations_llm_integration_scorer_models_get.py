@@ -10,13 +10,8 @@ from ...models.llm_integration import LLMIntegration
 from ...types import Response
 
 
-def _get_kwargs(
-    llm_integration: LLMIntegration,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/llm_integrations/{llm_integration}/scorer_models",
-    }
+def _get_kwargs(llm_integration: LLMIntegration) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/llm_integrations/{llm_integration}/scorer_models"}
 
     return _kwargs
 
@@ -50,9 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    llm_integration: LLMIntegration,
-    *,
-    client: AuthenticatedClient,
+    llm_integration: LLMIntegration, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, list[str]]]:
     """Get Available Scorer Models
 
@@ -69,21 +62,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list[str]]]
     """
 
-    kwargs = _get_kwargs(
-        llm_integration=llm_integration,
-    )
+    kwargs = _get_kwargs(llm_integration=llm_integration)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    llm_integration: LLMIntegration,
-    *,
-    client: AuthenticatedClient,
+    llm_integration: LLMIntegration, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, list[str]]]:
     """Get Available Scorer Models
 
@@ -100,16 +87,11 @@ def sync(
         Union[HTTPValidationError, list[str]]
     """
 
-    return sync_detailed(
-        llm_integration=llm_integration,
-        client=client,
-    ).parsed
+    return sync_detailed(llm_integration=llm_integration, client=client).parsed
 
 
 async def asyncio_detailed(
-    llm_integration: LLMIntegration,
-    *,
-    client: AuthenticatedClient,
+    llm_integration: LLMIntegration, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, list[str]]]:
     """Get Available Scorer Models
 
@@ -126,9 +108,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list[str]]]
     """
 
-    kwargs = _get_kwargs(
-        llm_integration=llm_integration,
-    )
+    kwargs = _get_kwargs(llm_integration=llm_integration)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -136,9 +116,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    llm_integration: LLMIntegration,
-    *,
-    client: AuthenticatedClient,
+    llm_integration: LLMIntegration, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, list[str]]]:
     """Get Available Scorer Models
 
@@ -155,9 +133,4 @@ async def asyncio(
         Union[HTTPValidationError, list[str]]
     """
 
-    return (
-        await asyncio_detailed(
-            llm_integration=llm_integration,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(llm_integration=llm_integration, client=client)).parsed

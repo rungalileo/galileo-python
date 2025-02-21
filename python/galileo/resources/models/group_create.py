@@ -51,11 +51,7 @@ class GroupCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
         if description is not UNSET:
             field_dict["description"] = description
         if users is not UNSET:
@@ -95,12 +91,7 @@ class GroupCreate:
         else:
             visibility = GroupVisibility(_visibility)
 
-        group_create = cls(
-            name=name,
-            description=description,
-            users=users,
-            visibility=visibility,
-        )
+        group_create = cls(name=name, description=description, users=users, visibility=visibility)
 
         group_create.additional_properties = d
         return group_create

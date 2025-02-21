@@ -36,12 +36,7 @@ class ProjectNameFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"operator": operator, "value": value})
         if case_sensitive is not UNSET:
             field_dict["case_sensitive"] = case_sensitive
         if name is not UNSET:
@@ -62,12 +57,7 @@ class ProjectNameFilter:
         if name != "name" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'name', got '{name}'")
 
-        project_name_filter = cls(
-            operator=operator,
-            value=value,
-            case_sensitive=case_sensitive,
-            name=name,
-        )
+        project_name_filter = cls(operator=operator, value=value, case_sensitive=case_sensitive, name=name)
 
         project_name_filter.additional_properties = d
         return project_name_filter

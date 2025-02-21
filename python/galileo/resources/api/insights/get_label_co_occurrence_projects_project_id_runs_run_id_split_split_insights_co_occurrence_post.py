@@ -125,9 +125,7 @@ def sync_detailed(
         starting_label=starting_label,
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 

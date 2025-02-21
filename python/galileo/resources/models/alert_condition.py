@@ -72,13 +72,7 @@ class AlertCondition:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "aggregation": aggregation,
-                "field": field,
-                "operator": operator,
-                "value": value,
-                "window": window,
-            }
+            {"aggregation": aggregation, "field": field, "operator": operator, "value": value, "window": window}
         )
         if condition_type is not UNSET:
             field_dict["condition_type"] = condition_type

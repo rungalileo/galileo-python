@@ -107,10 +107,7 @@ class InputToxicityScorer:
         if name != "input_toxicity" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'input_toxicity', got '{name}'")
 
-        input_toxicity_scorer = cls(
-            filters=filters,
-            name=name,
-        )
+        input_toxicity_scorer = cls(filters=filters, name=name)
 
         input_toxicity_scorer.additional_properties = d
         return input_toxicity_scorer

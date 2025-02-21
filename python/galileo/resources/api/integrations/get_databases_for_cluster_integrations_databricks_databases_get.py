@@ -9,10 +9,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    *,
-    catalog: Union[None, Unset, str] = UNSET,
-) -> dict[str, Any]:
+def _get_kwargs(*, catalog: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     json_catalog: Union[None, Unset, str]
@@ -24,11 +21,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/integrations/databricks/databases",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/integrations/databricks/databases", "params": params}
 
     return _kwargs
 
@@ -62,9 +55,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    catalog: Union[None, Unset, str] = UNSET,
+    *, client: AuthenticatedClient, catalog: Union[None, Unset, str] = UNSET
 ) -> Response[Union[HTTPValidationError, list[str]]]:
     """Get Databases For Cluster
 
@@ -79,21 +70,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list[str]]]
     """
 
-    kwargs = _get_kwargs(
-        catalog=catalog,
-    )
+    kwargs = _get_kwargs(catalog=catalog)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    catalog: Union[None, Unset, str] = UNSET,
+    *, client: AuthenticatedClient, catalog: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[HTTPValidationError, list[str]]]:
     """Get Databases For Cluster
 
@@ -108,16 +93,11 @@ def sync(
         Union[HTTPValidationError, list[str]]
     """
 
-    return sync_detailed(
-        client=client,
-        catalog=catalog,
-    ).parsed
+    return sync_detailed(client=client, catalog=catalog).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    catalog: Union[None, Unset, str] = UNSET,
+    *, client: AuthenticatedClient, catalog: Union[None, Unset, str] = UNSET
 ) -> Response[Union[HTTPValidationError, list[str]]]:
     """Get Databases For Cluster
 
@@ -132,9 +112,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list[str]]]
     """
 
-    kwargs = _get_kwargs(
-        catalog=catalog,
-    )
+    kwargs = _get_kwargs(catalog=catalog)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -142,9 +120,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    catalog: Union[None, Unset, str] = UNSET,
+    *, client: AuthenticatedClient, catalog: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[HTTPValidationError, list[str]]]:
     """Get Databases For Cluster
 
@@ -159,9 +135,4 @@ async def asyncio(
         Union[HTTPValidationError, list[str]]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            catalog=catalog,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, catalog=catalog)).parsed

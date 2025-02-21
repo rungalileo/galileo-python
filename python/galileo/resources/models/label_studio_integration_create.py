@@ -29,13 +29,7 @@ class LabelStudioIntegrationCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "is_enterprise": is_enterprise,
-                "token": token,
-                "url": url,
-            }
-        )
+        field_dict.update({"is_enterprise": is_enterprise, "token": token, "url": url})
 
         return field_dict
 
@@ -48,11 +42,7 @@ class LabelStudioIntegrationCreate:
 
         url = d.pop("url")
 
-        label_studio_integration_create = cls(
-            is_enterprise=is_enterprise,
-            token=token,
-            url=url,
-        )
+        label_studio_integration_create = cls(is_enterprise=is_enterprise, token=token, url=url)
 
         label_studio_integration_create.additional_properties = d
         return label_studio_integration_create

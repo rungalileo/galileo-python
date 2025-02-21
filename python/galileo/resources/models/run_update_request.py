@@ -46,9 +46,7 @@ class RunUpdateRequest:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        run_update_request = cls(
-            name=name,
-        )
+        run_update_request = cls(name=name)
 
         run_update_request.additional_properties = d
         return run_update_request

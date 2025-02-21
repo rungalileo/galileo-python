@@ -10,16 +10,10 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    *,
-    body: DatabricksIntegrationCreate,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: DatabricksIntegrationCreate) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "put",
-        "url": "/integrations/databricks",
-    }
+    _kwargs: dict[str, Any] = {"method": "put", "url": "/integrations/databricks"}
 
     _body = body.to_dict()
 
@@ -58,9 +52,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: DatabricksIntegrationCreate,
+    *, client: AuthenticatedClient, body: DatabricksIntegrationCreate
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Create Or Update Unity Catalog Integration
 
@@ -77,21 +69,15 @@ def sync_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    body: DatabricksIntegrationCreate,
+    *, client: AuthenticatedClient, body: DatabricksIntegrationCreate
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Create Or Update Unity Catalog Integration
 
@@ -108,16 +94,11 @@ def sync(
         Union[Any, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: DatabricksIntegrationCreate,
+    *, client: AuthenticatedClient, body: DatabricksIntegrationCreate
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Create Or Update Unity Catalog Integration
 
@@ -134,9 +115,7 @@ async def asyncio_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -144,9 +123,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    body: DatabricksIntegrationCreate,
+    *, client: AuthenticatedClient, body: DatabricksIntegrationCreate
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Create Or Update Unity Catalog Integration
 
@@ -163,9 +140,4 @@ async def asyncio(
         Union[Any, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body)).parsed

@@ -116,14 +116,7 @@ class EditRowData:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "generated_output": generated_output,
-                "id": id,
-                "input": input_,
-                "target": target,
-            }
-        )
+        field_dict.update({"generated_output": generated_output, "id": id, "input": input_, "target": target})
         if boxes is not UNSET:
             field_dict["boxes"] = boxes
         if gold is not UNSET:

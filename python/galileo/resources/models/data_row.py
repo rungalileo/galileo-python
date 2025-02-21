@@ -492,11 +492,7 @@ class DataRow:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-            }
-        )
+        field_dict.update({"id": id})
         if background is not UNSET:
             field_dict["background"] = background
         if bleu is not UNSET:

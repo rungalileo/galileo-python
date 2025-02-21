@@ -57,12 +57,7 @@ class CreateAlertConfigurationRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "conditions": conditions,
-                "interval": interval,
-            }
-        )
+        field_dict.update({"conditions": conditions, "interval": interval})
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
         if project_id is not UNSET:

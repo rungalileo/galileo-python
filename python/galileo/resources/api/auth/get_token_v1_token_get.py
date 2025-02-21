@@ -10,10 +10,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    *,
-    organization_id: Union[None, Unset, str] = UNSET,
-) -> dict[str, Any]:
+def _get_kwargs(*, organization_id: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     json_organization_id: Union[None, Unset, str]
@@ -25,11 +22,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/v1/token",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/v1/token", "params": params}
 
     return _kwargs
 
@@ -63,9 +56,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    organization_id: Union[None, Unset, str] = UNSET,
+    *, client: AuthenticatedClient, organization_id: Union[None, Unset, str] = UNSET
 ) -> Response[Union[GetTokenResponse, HTTPValidationError]]:
     """Get Token
 
@@ -80,21 +71,15 @@ def sync_detailed(
         Response[Union[GetTokenResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        organization_id=organization_id,
-    )
+    kwargs = _get_kwargs(organization_id=organization_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    organization_id: Union[None, Unset, str] = UNSET,
+    *, client: AuthenticatedClient, organization_id: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[GetTokenResponse, HTTPValidationError]]:
     """Get Token
 
@@ -109,16 +94,11 @@ def sync(
         Union[GetTokenResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        organization_id=organization_id,
-    ).parsed
+    return sync_detailed(client=client, organization_id=organization_id).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    organization_id: Union[None, Unset, str] = UNSET,
+    *, client: AuthenticatedClient, organization_id: Union[None, Unset, str] = UNSET
 ) -> Response[Union[GetTokenResponse, HTTPValidationError]]:
     """Get Token
 
@@ -133,9 +113,7 @@ async def asyncio_detailed(
         Response[Union[GetTokenResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        organization_id=organization_id,
-    )
+    kwargs = _get_kwargs(organization_id=organization_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -143,9 +121,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    organization_id: Union[None, Unset, str] = UNSET,
+    *, client: AuthenticatedClient, organization_id: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[GetTokenResponse, HTTPValidationError]]:
     """Get Token
 
@@ -160,9 +136,4 @@ async def asyncio(
         Union[GetTokenResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            organization_id=organization_id,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, organization_id=organization_id)).parsed

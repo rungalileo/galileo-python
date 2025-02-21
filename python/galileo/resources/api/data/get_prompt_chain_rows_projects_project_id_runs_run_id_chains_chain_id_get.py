@@ -12,11 +12,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    chain_id: str,
-    *,
-    task_type: Union[Unset, TaskType] = UNSET,
+    project_id: str, run_id: str, chain_id: str, *, task_type: Union[Unset, TaskType] = UNSET
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -92,16 +88,9 @@ def sync_detailed(
         Response[Union[GetPromptRowsResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        chain_id=chain_id,
-        task_type=task_type,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, chain_id=chain_id, task_type=task_type)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -134,11 +123,7 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        chain_id=chain_id,
-        client=client,
-        task_type=task_type,
+        project_id=project_id, run_id=run_id, chain_id=chain_id, client=client, task_type=task_type
     ).parsed
 
 
@@ -169,12 +154,7 @@ async def asyncio_detailed(
         Response[Union[GetPromptRowsResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        chain_id=chain_id,
-        task_type=task_type,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, chain_id=chain_id, task_type=task_type)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -210,10 +190,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            chain_id=chain_id,
-            client=client,
-            task_type=task_type,
+            project_id=project_id, run_id=run_id, chain_id=chain_id, client=client, task_type=task_type
         )
     ).parsed

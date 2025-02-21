@@ -33,14 +33,7 @@ class PutPromptScoreResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "job_id": job_id,
-                "project_id": project_id,
-                "run_id": run_id,
-                "scorer_name": scorer_name,
-            }
-        )
+        field_dict.update({"job_id": job_id, "project_id": project_id, "run_id": run_id, "scorer_name": scorer_name})
 
         return field_dict
 
@@ -55,12 +48,7 @@ class PutPromptScoreResponse:
 
         scorer_name = d.pop("scorer_name")
 
-        put_prompt_score_response = cls(
-            job_id=job_id,
-            project_id=project_id,
-            run_id=run_id,
-            scorer_name=scorer_name,
-        )
+        put_prompt_score_response = cls(job_id=job_id, project_id=project_id, run_id=run_id, scorer_name=scorer_name)
 
         put_prompt_score_response.additional_properties = d
         return put_prompt_score_response

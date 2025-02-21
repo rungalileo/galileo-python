@@ -37,13 +37,7 @@ class LabelCoOccurences:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "ids": ids,
-                "labels": labels,
-                "starting_label": starting_label,
-            }
-        )
+        field_dict.update({"ids": ids, "labels": labels, "starting_label": starting_label})
 
         return field_dict
 
@@ -63,11 +57,7 @@ class LabelCoOccurences:
 
         starting_label = d.pop("starting_label")
 
-        label_co_occurences = cls(
-            ids=ids,
-            labels=labels,
-            starting_label=starting_label,
-        )
+        label_co_occurences = cls(ids=ids, labels=labels, starting_label=starting_label)
 
         label_co_occurences.additional_properties = d
         return label_co_occurences

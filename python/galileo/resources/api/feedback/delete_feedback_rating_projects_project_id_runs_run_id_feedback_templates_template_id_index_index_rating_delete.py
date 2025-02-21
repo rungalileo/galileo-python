@@ -9,12 +9,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    template_id: str,
-    index: int,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, run_id: str, template_id: str, index: int) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": "delete",
         "url": f"/projects/{project_id}/runs/{run_id}/feedback/templates/{template_id}/index/{index}/rating",
@@ -51,12 +46,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    template_id: str,
-    index: int,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, template_id: str, index: int, *, client: AuthenticatedClient
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Feedback Rating
 
@@ -74,27 +64,15 @@ def sync_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        template_id=template_id,
-        index=index,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, template_id=template_id, index=index)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    template_id: str,
-    index: int,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, template_id: str, index: int, *, client: AuthenticatedClient
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Feedback Rating
 
@@ -113,21 +91,12 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        template_id=template_id,
-        index=index,
-        client=client,
+        project_id=project_id, run_id=run_id, template_id=template_id, index=index, client=client
     ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    template_id: str,
-    index: int,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, template_id: str, index: int, *, client: AuthenticatedClient
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Feedback Rating
 
@@ -145,12 +114,7 @@ async def asyncio_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        template_id=template_id,
-        index=index,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, template_id=template_id, index=index)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -158,12 +122,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    template_id: str,
-    index: int,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, template_id: str, index: int, *, client: AuthenticatedClient
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Feedback Rating
 
@@ -183,10 +142,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            template_id=template_id,
-            index=index,
-            client=client,
+            project_id=project_id, run_id=run_id, template_id=template_id, index=index, client=client
         )
     ).parsed

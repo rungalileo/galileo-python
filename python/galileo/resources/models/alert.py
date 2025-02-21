@@ -25,12 +25,7 @@ class Alert:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "alert_message": alert_message,
-                "alert_title": alert_title,
-            }
-        )
+        field_dict.update({"alert_message": alert_message, "alert_title": alert_title})
 
         return field_dict
 
@@ -41,10 +36,7 @@ class Alert:
 
         alert_title = d.pop("alert_title")
 
-        alert = cls(
-            alert_message=alert_message,
-            alert_title=alert_title,
-        )
+        alert = cls(alert_message=alert_message, alert_title=alert_title)
 
         alert.additional_properties = d
         return alert

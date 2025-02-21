@@ -118,11 +118,7 @@ class AwsSageMakerIntegration:
         region = d.pop("region", UNSET)
 
         aws_sage_maker_integration = cls(
-            credential_type=credential_type,
-            extra=extra,
-            models=models,
-            name=name,
-            region=region,
+            credential_type=credential_type, extra=extra, models=models, name=name, region=region
         )
 
         aws_sage_maker_integration.additional_properties = d

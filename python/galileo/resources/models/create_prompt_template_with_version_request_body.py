@@ -50,12 +50,7 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-                "template": template,
-            }
-        )
+        field_dict.update({"name": name, "template": template})
         if version is not UNSET:
             field_dict["version"] = version
 
@@ -95,11 +90,7 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         version = _parse_version(d.pop("version", UNSET))
 
-        create_prompt_template_with_version_request_body = cls(
-            name=name,
-            template=template,
-            version=version,
-        )
+        create_prompt_template_with_version_request_body = cls(name=name, template=template, version=version)
 
         create_prompt_template_with_version_request_body.additional_properties = d
         return create_prompt_template_with_version_request_body

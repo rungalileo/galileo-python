@@ -10,13 +10,8 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    user_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "delete",
-        "url": f"/users/{user_id}",
-    }
+def _get_kwargs(user_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/users/{user_id}"}
 
     return _kwargs
 
@@ -50,9 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
+    user_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[DeleteUserResponse, HTTPValidationError]]:
     """Delete User
 
@@ -67,22 +60,14 @@ def sync_detailed(
         Response[Union[DeleteUserResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        user_id=user_id,
-    )
+    kwargs = _get_kwargs(user_id=user_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Union[DeleteUserResponse, HTTPValidationError]]:
+def sync(user_id: str, *, client: AuthenticatedClient) -> Optional[Union[DeleteUserResponse, HTTPValidationError]]:
     """Delete User
 
     Args:
@@ -96,16 +81,11 @@ def sync(
         Union[DeleteUserResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        user_id=user_id,
-        client=client,
-    ).parsed
+    return sync_detailed(user_id=user_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
+    user_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[DeleteUserResponse, HTTPValidationError]]:
     """Delete User
 
@@ -120,9 +100,7 @@ async def asyncio_detailed(
         Response[Union[DeleteUserResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        user_id=user_id,
-    )
+    kwargs = _get_kwargs(user_id=user_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -130,9 +108,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
+    user_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[DeleteUserResponse, HTTPValidationError]]:
     """Delete User
 
@@ -147,9 +123,4 @@ async def asyncio(
         Union[DeleteUserResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            user_id=user_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(user_id=user_id, client=client)).parsed

@@ -11,17 +11,10 @@ from ...models.stage_with_rulesets import StageWithRulesets
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    *,
-    body: StageWithRulesets,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, *, body: StageWithRulesets) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/stages",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/stages"}
 
     _body = body.to_dict()
 
@@ -61,10 +54,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: StageWithRulesets,
+    project_id: str, *, client: AuthenticatedClient, body: StageWithRulesets
 ) -> Response[Union[HTTPValidationError, StageDB]]:
     """Create Stage
 
@@ -80,23 +70,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, StageDB]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: StageWithRulesets,
+    project_id: str, *, client: AuthenticatedClient, body: StageWithRulesets
 ) -> Optional[Union[HTTPValidationError, StageDB]]:
     """Create Stage
 
@@ -112,18 +94,11 @@ def sync(
         Union[HTTPValidationError, StageDB]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: StageWithRulesets,
+    project_id: str, *, client: AuthenticatedClient, body: StageWithRulesets
 ) -> Response[Union[HTTPValidationError, StageDB]]:
     """Create Stage
 
@@ -139,10 +114,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, StageDB]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -150,10 +122,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: StageWithRulesets,
+    project_id: str, *, client: AuthenticatedClient, body: StageWithRulesets
 ) -> Optional[Union[HTTPValidationError, StageDB]]:
     """Create Stage
 
@@ -169,10 +138,4 @@ async def asyncio(
         Union[HTTPValidationError, StageDB]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

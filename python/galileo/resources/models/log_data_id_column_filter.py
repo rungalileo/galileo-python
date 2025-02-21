@@ -31,12 +31,7 @@ class LogDataIDColumnFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_id": column_id,
-                "value": value,
-            }
-        )
+        field_dict.update({"column_id": column_id, "value": value})
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -53,11 +48,7 @@ class LogDataIDColumnFilter:
         if name != "id_column" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'id_column', got '{name}'")
 
-        log_data_id_column_filter = cls(
-            column_id=column_id,
-            value=value,
-            name=name,
-        )
+        log_data_id_column_filter = cls(column_id=column_id, value=value, name=name)
 
         log_data_id_column_filter.additional_properties = d
         return log_data_id_column_filter

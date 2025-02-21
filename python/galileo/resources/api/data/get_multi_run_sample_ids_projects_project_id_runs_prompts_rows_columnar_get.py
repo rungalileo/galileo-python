@@ -10,11 +10,7 @@ from ...models.prompt_sample_i_ds import PromptSampleIDs
 from ...types import UNSET, Response
 
 
-def _get_kwargs(
-    project_id: str,
-    *,
-    run_ids: list[str],
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, *, run_ids: list[str]) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     json_run_ids = run_ids
@@ -61,10 +57,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    run_ids: list[str],
+    project_id: str, *, client: AuthenticatedClient, run_ids: list[str]
 ) -> Response[Union[HTTPValidationError, PromptSampleIDs]]:
     """Get Multi Run Sample Ids
 
@@ -82,23 +75,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, PromptSampleIDs]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_ids=run_ids,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_ids=run_ids)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    run_ids: list[str],
+    project_id: str, *, client: AuthenticatedClient, run_ids: list[str]
 ) -> Optional[Union[HTTPValidationError, PromptSampleIDs]]:
     """Get Multi Run Sample Ids
 
@@ -116,18 +101,11 @@ def sync(
         Union[HTTPValidationError, PromptSampleIDs]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        client=client,
-        run_ids=run_ids,
-    ).parsed
+    return sync_detailed(project_id=project_id, client=client, run_ids=run_ids).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    run_ids: list[str],
+    project_id: str, *, client: AuthenticatedClient, run_ids: list[str]
 ) -> Response[Union[HTTPValidationError, PromptSampleIDs]]:
     """Get Multi Run Sample Ids
 
@@ -145,10 +123,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, PromptSampleIDs]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_ids=run_ids,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_ids=run_ids)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -156,10 +131,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    run_ids: list[str],
+    project_id: str, *, client: AuthenticatedClient, run_ids: list[str]
 ) -> Optional[Union[HTTPValidationError, PromptSampleIDs]]:
     """Get Multi Run Sample Ids
 
@@ -177,10 +149,4 @@ async def asyncio(
         Union[HTTPValidationError, PromptSampleIDs]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            run_ids=run_ids,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, client=client, run_ids=run_ids)).parsed

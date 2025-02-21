@@ -214,11 +214,7 @@ class WorkflowSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "input": input_,
-            }
-        )
+        field_dict.update({"input": input_})
         if created_at_ns is not UNSET:
             field_dict["created_at_ns"] = created_at_ns
         if duration_ns is not UNSET:

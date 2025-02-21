@@ -27,9 +27,7 @@ def serialize_datetime(v: dt.datetime) -> str:
     """
 
     def _serialize_zoned_datetime(v: dt.datetime) -> str:
-        if v.tzinfo is not None and v.tzinfo.tzname(None) == dt.timezone.utc.tzname(
-            None
-        ):
+        if v.tzinfo is not None and v.tzinfo.tzname(None) == dt.timezone.utc.tzname(None):
             # UTC is a special case where we use "Z" at the end instead of "+00:00"
             return v.isoformat().replace("+00:00", "Z")
         else:
@@ -64,7 +62,7 @@ class EventSerializer(JSONEncoder):
                 return type(obj).__name__
 
             if is_dataclass(obj):
-                return asdict(obj) # type: ignore
+                return asdict(obj)  # type: ignore
 
             if isinstance(obj, UUID):
                 return str(obj)
@@ -80,12 +78,7 @@ class EventSerializer(JSONEncoder):
 
             elif isinstance(obj, BaseModel):
                 return self.default(
-                    obj.model_dump(
-                        mode="json",
-                        exclude_none=True,
-                        exclude_unset=True,
-                        exclude_defaults=True,
-                    )
+                    obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
                 )
             if isinstance(obj, Path):
                 return str(obj)
@@ -100,7 +93,6 @@ class EventSerializer(JSONEncoder):
                 from langchain_core.messages import BaseMessage
                 from langchain_core.outputs import ChatGeneration, LLMResult
                 from langchain_core.prompt_values import ChatPromptValue
-
 
                 if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
                     return self.default(obj.messages)
@@ -134,9 +126,7 @@ class EventSerializer(JSONEncoder):
                 return [self.default(item) for item in obj]
 
             if hasattr(obj, "__slots__"):
-                return self.default(
-                    {slot: getattr(obj, slot, None) for slot in obj.__slots__}
-                )
+                return self.default({slot: getattr(obj, slot, None) for slot in obj.__slots__})
             elif hasattr(obj, "__dict__"):
                 obj_id = id(obj)
 
@@ -155,9 +145,7 @@ class EventSerializer(JSONEncoder):
                 return f"<{type(obj).__name__}>"
 
         except Exception as e:
-            _logger.error(
-                f"Serialization failed for object of type {type(obj).__name__}"
-            )
+            _logger.error(f"Serialization failed for object of type {type(obj).__name__}")
             return f'"<not serializable object of type: {type(obj).__name__}>"'
 
     def encode(self, obj: Any) -> str:

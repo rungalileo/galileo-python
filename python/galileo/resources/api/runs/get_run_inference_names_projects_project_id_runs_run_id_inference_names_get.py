@@ -10,14 +10,8 @@ from ...models.inference_names_response import InferenceNamesResponse
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    run_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/projects/{project_id}/runs/{run_id}/inference_names",
-    }
+def _get_kwargs(project_id: str, run_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/runs/{run_id}/inference_names"}
 
     return _kwargs
 
@@ -51,10 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, InferenceNamesResponse]]:
     """Get Run Inference Names
 
@@ -74,23 +65,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, InferenceNamesResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, InferenceNamesResponse]]:
     """Get Run Inference Names
 
@@ -110,18 +93,11 @@ def sync(
         Union[HTTPValidationError, InferenceNamesResponse]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, run_id=run_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, InferenceNamesResponse]]:
     """Get Run Inference Names
 
@@ -141,10 +117,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, InferenceNamesResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -152,10 +125,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, InferenceNamesResponse]]:
     """Get Run Inference Names
 
@@ -175,10 +145,4 @@ async def asyncio(
         Union[HTTPValidationError, InferenceNamesResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client)).parsed

@@ -11,11 +11,7 @@ from ...models.project_type import ProjectType
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    user_id: str,
-    *,
-    project_type: Union[None, ProjectType, Unset] = UNSET,
-) -> dict[str, Any]:
+def _get_kwargs(user_id: str, *, project_type: Union[None, ProjectType, Unset] = UNSET) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     json_project_type: Union[None, Unset, str]
@@ -29,11 +25,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/users/{user_id}/runs",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/users/{user_id}/runs", "params": params}
 
     return _kwargs
 
@@ -72,10 +64,7 @@ def _build_response(
 
 
 def sync_detailed(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    project_type: Union[None, ProjectType, Unset] = UNSET,
+    user_id: str, *, client: AuthenticatedClient, project_type: Union[None, ProjectType, Unset] = UNSET
 ) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
     """Get Project Runs For User
 
@@ -95,23 +84,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['ProjectDB']]]
     """
 
-    kwargs = _get_kwargs(
-        user_id=user_id,
-        project_type=project_type,
-    )
+    kwargs = _get_kwargs(user_id=user_id, project_type=project_type)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    project_type: Union[None, ProjectType, Unset] = UNSET,
+    user_id: str, *, client: AuthenticatedClient, project_type: Union[None, ProjectType, Unset] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
     """Get Project Runs For User
 
@@ -131,18 +112,11 @@ def sync(
         Union[HTTPValidationError, list['ProjectDB']]
     """
 
-    return sync_detailed(
-        user_id=user_id,
-        client=client,
-        project_type=project_type,
-    ).parsed
+    return sync_detailed(user_id=user_id, client=client, project_type=project_type).parsed
 
 
 async def asyncio_detailed(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    project_type: Union[None, ProjectType, Unset] = UNSET,
+    user_id: str, *, client: AuthenticatedClient, project_type: Union[None, ProjectType, Unset] = UNSET
 ) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
     """Get Project Runs For User
 
@@ -162,10 +136,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['ProjectDB']]]
     """
 
-    kwargs = _get_kwargs(
-        user_id=user_id,
-        project_type=project_type,
-    )
+    kwargs = _get_kwargs(user_id=user_id, project_type=project_type)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -173,10 +144,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    project_type: Union[None, ProjectType, Unset] = UNSET,
+    user_id: str, *, client: AuthenticatedClient, project_type: Union[None, ProjectType, Unset] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
     """Get Project Runs For User
 
@@ -196,10 +164,4 @@ async def asyncio(
         Union[HTTPValidationError, list['ProjectDB']]
     """
 
-    return (
-        await asyncio_detailed(
-            user_id=user_id,
-            client=client,
-            project_type=project_type,
-        )
-    ).parsed
+    return (await asyncio_detailed(user_id=user_id, client=client, project_type=project_type)).parsed

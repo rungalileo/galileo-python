@@ -54,12 +54,7 @@ class MAPResponse:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "ap_per_class": ap_per_class,
-                "error_scores": error_scores,
-                "map": map_,
-                "map_threshold": map_threshold,
-            }
+            {"ap_per_class": ap_per_class, "error_scores": error_scores, "map": map_, "map_threshold": map_threshold}
         )
 
         return field_dict
@@ -77,12 +72,7 @@ class MAPResponse:
 
         map_threshold = d.pop("map_threshold")
 
-        map_response = cls(
-            ap_per_class=ap_per_class,
-            error_scores=error_scores,
-            map_=map_,
-            map_threshold=map_threshold,
-        )
+        map_response = cls(ap_per_class=ap_per_class, error_scores=error_scores, map_=map_, map_threshold=map_threshold)
 
         map_response.additional_properties = d
         return map_response

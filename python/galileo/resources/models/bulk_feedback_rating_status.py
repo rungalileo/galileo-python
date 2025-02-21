@@ -36,14 +36,7 @@ class BulkFeedbackRatingStatus:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "index": index,
-                "message": message,
-                "operation": operation,
-                "success": success,
-            }
-        )
+        field_dict.update({"index": index, "message": message, "operation": operation, "success": success})
 
         return field_dict
 
@@ -63,12 +56,7 @@ class BulkFeedbackRatingStatus:
 
         success = d.pop("success")
 
-        bulk_feedback_rating_status = cls(
-            index=index,
-            message=message,
-            operation=operation,
-            success=success,
-        )
+        bulk_feedback_rating_status = cls(index=index, message=message, operation=operation, success=success)
 
         bulk_feedback_rating_status.additional_properties = d
         return bulk_feedback_rating_status

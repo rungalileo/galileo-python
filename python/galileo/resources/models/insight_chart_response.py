@@ -83,13 +83,7 @@ class InsightChartResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "data": data,
-                "x_labels": x_labels,
-                "y_labels": y_labels,
-            }
-        )
+        field_dict.update({"data": data, "x_labels": x_labels, "y_labels": y_labels})
         if compare_to is not UNSET:
             field_dict["compare_to"] = compare_to
         if filter_params is not UNSET:

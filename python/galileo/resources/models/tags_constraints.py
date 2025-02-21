@@ -31,12 +31,7 @@ class TagsConstraints:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "feedback_type": feedback_type,
-                "tags": tags,
-            }
-        )
+        field_dict.update({"feedback_type": feedback_type, "tags": tags})
         if allow_other is not UNSET:
             field_dict["allow_other"] = allow_other
 
@@ -53,11 +48,7 @@ class TagsConstraints:
 
         allow_other = d.pop("allow_other", UNSET)
 
-        tags_constraints = cls(
-            feedback_type=feedback_type,
-            tags=tags,
-            allow_other=allow_other,
-        )
+        tags_constraints = cls(feedback_type=feedback_type, tags=tags, allow_other=allow_other)
 
         tags_constraints.additional_properties = d
         return tags_constraints

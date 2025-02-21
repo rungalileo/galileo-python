@@ -28,12 +28,7 @@ class UploadModel:
         parameters = self.parameters.to_dict()
 
         field_dict: dict[str, Any] = {}
-        field_dict.update(
-            {
-                "kind": kind,
-                "parameters": parameters,
-            }
-        )
+        field_dict.update({"kind": kind, "parameters": parameters})
 
         return field_dict
 
@@ -46,9 +41,6 @@ class UploadModel:
 
         parameters = UploadModelParameters.from_dict(d.pop("parameters"))
 
-        upload_model = cls(
-            kind=kind,
-            parameters=parameters,
-        )
+        upload_model = cls(kind=kind, parameters=parameters)
 
         return upload_model

@@ -10,16 +10,10 @@ from ...models.invite_users_request import InviteUsersRequest
 from ...types import Response
 
 
-def _get_kwargs(
-    *,
-    body: InviteUsersRequest,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: InviteUsersRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/invite_users",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/invite_users"}
 
     _body = body.to_dict()
 
@@ -58,9 +52,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: InviteUsersRequest,
+    *, client: AuthenticatedClient, body: InviteUsersRequest
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Invite Users
 
@@ -75,22 +67,14 @@ def sync_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *,
-    client: AuthenticatedClient,
-    body: InviteUsersRequest,
-) -> Optional[Union[Any, HTTPValidationError]]:
+def sync(*, client: AuthenticatedClient, body: InviteUsersRequest) -> Optional[Union[Any, HTTPValidationError]]:
     """Invite Users
 
     Args:
@@ -104,16 +88,11 @@ def sync(
         Union[Any, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: InviteUsersRequest,
+    *, client: AuthenticatedClient, body: InviteUsersRequest
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Invite Users
 
@@ -128,9 +107,7 @@ async def asyncio_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -138,9 +115,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    body: InviteUsersRequest,
+    *, client: AuthenticatedClient, body: InviteUsersRequest
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Invite Users
 
@@ -155,9 +130,4 @@ async def asyncio(
         Union[Any, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body)).parsed

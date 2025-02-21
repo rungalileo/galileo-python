@@ -25,12 +25,7 @@ class ValidationResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "filename": filename,
-                "upload_url": upload_url,
-            }
-        )
+        field_dict.update({"filename": filename, "upload_url": upload_url})
 
         return field_dict
 
@@ -41,10 +36,7 @@ class ValidationResponse:
 
         upload_url = d.pop("upload_url")
 
-        validation_response = cls(
-            filename=filename,
-            upload_url=upload_url,
-        )
+        validation_response = cls(filename=filename, upload_url=upload_url)
 
         validation_response.additional_properties = d
         return validation_response

@@ -212,11 +212,7 @@ class PromptRow:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "index": index,
-            }
-        )
+        field_dict.update({"index": index})
         if bleu is not UNSET:
             field_dict["bleu"] = bleu
         if chain_id is not UNSET:

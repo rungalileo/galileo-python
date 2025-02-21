@@ -93,11 +93,7 @@ class OpenAIIntegration:
 
         organization_id = _parse_organization_id(d.pop("organization_id", UNSET))
 
-        open_ai_integration = cls(
-            extra=extra,
-            name=name,
-            organization_id=organization_id,
-        )
+        open_ai_integration = cls(extra=extra, name=name, organization_id=organization_id)
 
         open_ai_integration.additional_properties = d
         return open_ai_integration

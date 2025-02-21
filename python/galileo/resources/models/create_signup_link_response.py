@@ -21,11 +21,7 @@ class CreateSignupLinkResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "signup_url": signup_url,
-            }
-        )
+        field_dict.update({"signup_url": signup_url})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class CreateSignupLinkResponse:
         d = src_dict.copy()
         signup_url = d.pop("signup_url")
 
-        create_signup_link_response = cls(
-            signup_url=signup_url,
-        )
+        create_signup_link_response = cls(signup_url=signup_url)
 
         create_signup_link_response.additional_properties = d
         return create_signup_link_response

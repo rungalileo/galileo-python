@@ -10,10 +10,7 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "delete",
-        "url": "/users",
-    }
+    _kwargs: dict[str, Any] = {"method": "delete", "url": "/users"}
 
     return _kwargs
 
@@ -42,10 +39,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[DeleteUserResponse]:
+def sync_detailed(*, client: AuthenticatedClient) -> Response[DeleteUserResponse]:
     """Delete User Self
 
     Raises:
@@ -58,17 +52,12 @@ def sync_detailed(
 
     kwargs = _get_kwargs()
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[DeleteUserResponse]:
+def sync(*, client: AuthenticatedClient) -> Optional[DeleteUserResponse]:
     """Delete User Self
 
     Raises:
@@ -79,15 +68,10 @@ def sync(
         DeleteUserResponse
     """
 
-    return sync_detailed(
-        client=client,
-    ).parsed
+    return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[DeleteUserResponse]:
+async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[DeleteUserResponse]:
     """Delete User Self
 
     Raises:
@@ -105,10 +89,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[DeleteUserResponse]:
+async def asyncio(*, client: AuthenticatedClient) -> Optional[DeleteUserResponse]:
     """Delete User Self
 
     Raises:
@@ -119,8 +100,4 @@ async def asyncio(
         DeleteUserResponse
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client)).parsed

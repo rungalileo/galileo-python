@@ -65,12 +65,7 @@ class FeedbackTemplateCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "constraints": constraints,
-                "name": name,
-            }
-        )
+        field_dict.update({"constraints": constraints, "name": name})
         if criteria is not UNSET:
             field_dict["criteria"] = criteria
         if include_explanation is not UNSET:
@@ -147,10 +142,7 @@ class FeedbackTemplateCreate:
         include_explanation = d.pop("include_explanation", UNSET)
 
         feedback_template_create = cls(
-            constraints=constraints,
-            name=name,
-            criteria=criteria,
-            include_explanation=include_explanation,
+            constraints=constraints, name=name, criteria=criteria, include_explanation=include_explanation
         )
 
         feedback_template_create.additional_properties = d

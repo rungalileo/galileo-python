@@ -60,13 +60,7 @@ class RuleResult:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "metric": metric,
-                "operator": operator,
-                "target_value": target_value,
-            }
-        )
+        field_dict.update({"metric": metric, "operator": operator, "target_value": target_value})
         if execution_time is not UNSET:
             field_dict["execution_time"] = execution_time
         if status is not UNSET:

@@ -13,12 +13,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    body: CBOClusterRequest,
-    inference_name: Union[Unset, str] = "",
+    project_id: str, run_id: str, split: Split, *, body: CBOClusterRequest, inference_name: Union[Unset, str] = ""
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -103,17 +98,9 @@ def sync_detailed(
         Response[Union[CBOClusterResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        body=body,
-        inference_name=inference_name,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, split=split, body=body, inference_name=inference_name)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -151,12 +138,7 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        client=client,
-        body=body,
-        inference_name=inference_name,
+        project_id=project_id, run_id=run_id, split=split, client=client, body=body, inference_name=inference_name
     ).parsed
 
 
@@ -192,13 +174,7 @@ async def asyncio_detailed(
         Response[Union[CBOClusterResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        body=body,
-        inference_name=inference_name,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, split=split, body=body, inference_name=inference_name)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -239,11 +215,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            split=split,
-            client=client,
-            body=body,
-            inference_name=inference_name,
+            project_id=project_id, run_id=run_id, split=split, client=client, body=body, inference_name=inference_name
         )
     ).parsed

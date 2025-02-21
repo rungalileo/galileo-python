@@ -50,11 +50,7 @@ class RegisteredScorerConfig:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
         if filters is not UNSET:
             field_dict["filters"] = filters
 
@@ -106,10 +102,7 @@ class RegisteredScorerConfig:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
-        registered_scorer_config = cls(
-            name=name,
-            filters=filters,
-        )
+        registered_scorer_config = cls(name=name, filters=filters)
 
         registered_scorer_config.additional_properties = d
         return registered_scorer_config

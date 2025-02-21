@@ -62,12 +62,7 @@ class BulkFeedbackRatingCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "feedback_template_id": feedback_template_id,
-                "rating": rating,
-            }
-        )
+        field_dict.update({"feedback_template_id": feedback_template_id, "rating": rating})
         if explanation is not UNSET:
             field_dict["explanation"] = explanation
         if operation_type is not UNSET:

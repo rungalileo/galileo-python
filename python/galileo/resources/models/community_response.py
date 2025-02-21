@@ -39,13 +39,7 @@ class CommunityResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "labels": labels,
-                "num_samples": num_samples,
-                "score": score,
-            }
-        )
+        field_dict.update({"labels": labels, "num_samples": num_samples, "score": score})
 
         return field_dict
 
@@ -58,11 +52,7 @@ class CommunityResponse:
 
         score = d.pop("score")
 
-        community_response = cls(
-            labels=labels,
-            num_samples=num_samples,
-            score=score,
-        )
+        community_response = cls(labels=labels, num_samples=num_samples, score=score)
 
         community_response.additional_properties = d
         return community_response

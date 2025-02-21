@@ -42,12 +42,8 @@ class GalileoApiClient(AuthenticatedClient):
         auth_header_name: The name of the Authorization header
     """
 
-    _base_url: Optional[str] = field(
-        factory=lambda: GalileoApiClient.get_api_url(), kw_only=True, alias="base_url"
-    )
-    _api_key: Optional[str] = field(
-        factory=lambda: getenv("GALILEO_API_KEY", None), kw_only=True, alias="api_key"
-    )
+    _base_url: Optional[str] = field(factory=lambda: GalileoApiClient.get_api_url(), kw_only=True, alias="base_url")
+    _api_key: Optional[str] = field(factory=lambda: getenv("GALILEO_API_KEY", None), kw_only=True, alias="api_key")
     token: Optional[str] = None
 
     api_key_header_name: str = "Galileo-API-Key"
@@ -66,9 +62,7 @@ class GalileoApiClient(AuthenticatedClient):
             if self._api_key:
                 self._headers[self.api_key_header_name] = self._api_key
             elif self.token:
-                self._headers[self.auth_header_name] = (
-                    f"{self.prefix} {self.token}" if self.prefix else self.token
-                )
+                self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
             else:
                 raise ValueError("Either api_key or token must be set")
 
@@ -92,9 +86,7 @@ class GalileoApiClient(AuthenticatedClient):
             if self._api_key:
                 self._headers[self.api_key_header_name] = self._api_key
             elif self.token:
-                self._headers[self.auth_header_name] = (
-                    f"{self.prefix} {self.token}" if self.prefix else self.token
-                )
+                self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
             else:
                 raise ValueError("Either api_key or token must be set")
 

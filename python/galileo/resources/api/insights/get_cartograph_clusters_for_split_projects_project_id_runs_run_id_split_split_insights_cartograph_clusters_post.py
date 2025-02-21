@@ -12,11 +12,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    inference_name: Union[Unset, str] = "",
+    project_id: str, run_id: str, split: Split, *, inference_name: Union[Unset, str] = ""
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -62,12 +58,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
-    inference_name: Union[Unset, str] = "",
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient, inference_name: Union[Unset, str] = ""
 ) -> Response[Union[CartographClusterResponse, HTTPValidationError]]:
     """Get Cartograph Clusters For Split
 
@@ -87,27 +78,15 @@ def sync_detailed(
         Response[Union[CartographClusterResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        inference_name=inference_name,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, split=split, inference_name=inference_name)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
-    inference_name: Union[Unset, str] = "",
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient, inference_name: Union[Unset, str] = ""
 ) -> Optional[Union[CartographClusterResponse, HTTPValidationError]]:
     """Get Cartograph Clusters For Split
 
@@ -128,21 +107,12 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        client=client,
-        inference_name=inference_name,
+        project_id=project_id, run_id=run_id, split=split, client=client, inference_name=inference_name
     ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
-    inference_name: Union[Unset, str] = "",
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient, inference_name: Union[Unset, str] = ""
 ) -> Response[Union[CartographClusterResponse, HTTPValidationError]]:
     """Get Cartograph Clusters For Split
 
@@ -162,12 +132,7 @@ async def asyncio_detailed(
         Response[Union[CartographClusterResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        inference_name=inference_name,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, split=split, inference_name=inference_name)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -175,12 +140,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
-    inference_name: Union[Unset, str] = "",
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient, inference_name: Union[Unset, str] = ""
 ) -> Optional[Union[CartographClusterResponse, HTTPValidationError]]:
     """Get Cartograph Clusters For Split
 
@@ -202,10 +162,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            split=split,
-            client=client,
-            inference_name=inference_name,
+            project_id=project_id, run_id=run_id, split=split, client=client, inference_name=inference_name
         )
     ).parsed

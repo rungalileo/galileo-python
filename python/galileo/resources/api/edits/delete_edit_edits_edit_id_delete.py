@@ -10,13 +10,8 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    edit_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "delete",
-        "url": f"/edits/{edit_id}",
-    }
+def _get_kwargs(edit_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/edits/{edit_id}"}
 
     return _kwargs
 
@@ -50,9 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    edit_id: str,
-    *,
-    client: AuthenticatedClient,
+    edit_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[EditDeleteResponse, HTTPValidationError]]:
     """Delete Edit
 
@@ -67,22 +60,14 @@ def sync_detailed(
         Response[Union[EditDeleteResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        edit_id=edit_id,
-    )
+    kwargs = _get_kwargs(edit_id=edit_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    edit_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Union[EditDeleteResponse, HTTPValidationError]]:
+def sync(edit_id: str, *, client: AuthenticatedClient) -> Optional[Union[EditDeleteResponse, HTTPValidationError]]:
     """Delete Edit
 
     Args:
@@ -96,16 +81,11 @@ def sync(
         Union[EditDeleteResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        edit_id=edit_id,
-        client=client,
-    ).parsed
+    return sync_detailed(edit_id=edit_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    edit_id: str,
-    *,
-    client: AuthenticatedClient,
+    edit_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[EditDeleteResponse, HTTPValidationError]]:
     """Delete Edit
 
@@ -120,9 +100,7 @@ async def asyncio_detailed(
         Response[Union[EditDeleteResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        edit_id=edit_id,
-    )
+    kwargs = _get_kwargs(edit_id=edit_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -130,9 +108,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    edit_id: str,
-    *,
-    client: AuthenticatedClient,
+    edit_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[EditDeleteResponse, HTTPValidationError]]:
     """Delete Edit
 
@@ -147,9 +123,4 @@ async def asyncio(
         Union[EditDeleteResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            edit_id=edit_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(edit_id=edit_id, client=client)).parsed

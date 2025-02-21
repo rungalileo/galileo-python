@@ -116,9 +116,7 @@ def sync_detailed(
         include_exported=include_exported,
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 

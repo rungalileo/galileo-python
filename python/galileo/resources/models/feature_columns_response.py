@@ -29,13 +29,7 @@ class FeatureColumnsResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "feature_names": feature_names,
-                "project_id": project_id,
-                "run_id": run_id,
-            }
-        )
+        field_dict.update({"feature_names": feature_names, "project_id": project_id, "run_id": run_id})
 
         return field_dict
 
@@ -48,11 +42,7 @@ class FeatureColumnsResponse:
 
         run_id = d.pop("run_id")
 
-        feature_columns_response = cls(
-            feature_names=feature_names,
-            project_id=project_id,
-            run_id=run_id,
-        )
+        feature_columns_response = cls(feature_names=feature_names, project_id=project_id, run_id=run_id)
 
         feature_columns_response.additional_properties = d
         return feature_columns_response

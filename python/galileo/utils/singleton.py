@@ -21,7 +21,7 @@ class GalileoLoggerSingleton:
     _lock = threading.Lock()  # Lock for thread-safe instantiation and operations.
     _galileo_loggers: Dict[Tuple[str, str], GalileoLogger] = {}  # Cache for loggers.
 
-    def __new__(cls) -> 'GalileoLoggerSingleton':
+    def __new__(cls) -> "GalileoLoggerSingleton":
         """
         Override __new__ to ensure only one instance of GalileoLoggerSingleton is created.
 
@@ -36,9 +36,7 @@ class GalileoLoggerSingleton:
                     cls._instance._galileo_loggers = {}
         return cls._instance
 
-    def _get_key(
-        self, project: Optional[str], log_stream: Optional[str]
-    ) -> Tuple[str, str]:
+    def _get_key(self, project: Optional[str], log_stream: Optional[str]) -> Tuple[str, str]:
         """
         Generate a key tuple based on project and log_stream parameters.
 
@@ -60,12 +58,7 @@ class GalileoLoggerSingleton:
 
         return (project or "default", log_stream or "default")
 
-    def get(
-        self,
-        *,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-    ) -> GalileoLogger:
+    def get(self, *, project: Optional[str] = None, log_stream: Optional[str] = None) -> GalileoLogger:
         """
         Retrieve an existing GalileoLogger or create a new one if it does not exist.
 
@@ -94,24 +87,15 @@ class GalileoLoggerSingleton:
                 return self._galileo_loggers[key]
 
             # Prepare initialization arguments, only including non-None values.
-            galileo_client_init_args = {
-                "project": project,
-                "log_stream": log_stream,
-            }
+            galileo_client_init_args = {"project": project, "log_stream": log_stream}
             # Create the logger with filtered kwargs.
-            logger = GalileoLogger(
-                **{k: v for k, v in galileo_client_init_args.items() if v is not None}
-            )
+            logger = GalileoLogger(**{k: v for k, v in galileo_client_init_args.items() if v is not None})
 
             # Cache the newly created logger.
             self._galileo_loggers[key] = logger
             return logger
 
-    def reset(
-        self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-    ) -> None:
+    def reset(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
         """
         Reset (terminate and remove) one or all GalileoLogger instances.
 
@@ -136,11 +120,7 @@ class GalileoLoggerSingleton:
                     self._galileo_loggers[key].terminate()
                     del self._galileo_loggers[key]
 
-    def flush(
-        self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-    ) -> None:
+    def flush(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
         """
         Flush (upload and clear) a GalileoLogger instance.
 

@@ -11,16 +11,10 @@ from ...models.token import Token
 from ...types import Response
 
 
-def _get_kwargs(
-    *,
-    body: SocialLoginRequest,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: SocialLoginRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/login/social",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/login/social"}
 
     _body = body.to_dict()
 
@@ -60,9 +54,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: SocialLoginRequest,
+    *, client: Union[AuthenticatedClient, Client], body: SocialLoginRequest
 ) -> Response[Union[HTTPValidationError, Token]]:
     """Login Social
 
@@ -77,21 +69,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, Token]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: SocialLoginRequest,
+    *, client: Union[AuthenticatedClient, Client], body: SocialLoginRequest
 ) -> Optional[Union[HTTPValidationError, Token]]:
     """Login Social
 
@@ -106,16 +92,11 @@ def sync(
         Union[HTTPValidationError, Token]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: SocialLoginRequest,
+    *, client: Union[AuthenticatedClient, Client], body: SocialLoginRequest
 ) -> Response[Union[HTTPValidationError, Token]]:
     """Login Social
 
@@ -130,9 +111,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, Token]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -140,9 +119,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: Union[AuthenticatedClient, Client],
-    body: SocialLoginRequest,
+    *, client: Union[AuthenticatedClient, Client], body: SocialLoginRequest
 ) -> Optional[Union[HTTPValidationError, Token]]:
     """Login Social
 
@@ -157,9 +134,4 @@ async def asyncio(
         Union[HTTPValidationError, Token]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body)).parsed

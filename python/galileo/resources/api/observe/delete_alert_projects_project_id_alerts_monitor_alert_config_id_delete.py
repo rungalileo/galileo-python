@@ -10,14 +10,8 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    monitor_alert_config_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "delete",
-        "url": f"/projects/{project_id}/alerts/{monitor_alert_config_id}",
-    }
+def _get_kwargs(project_id: str, monitor_alert_config_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/projects/{project_id}/alerts/{monitor_alert_config_id}"}
 
     return _kwargs
 
@@ -51,10 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    monitor_alert_config_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, monitor_alert_config_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[AlertStatusResponse, HTTPValidationError]]:
     """Delete Alert
 
@@ -74,23 +65,15 @@ def sync_detailed(
         Response[Union[AlertStatusResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        monitor_alert_config_id=monitor_alert_config_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, monitor_alert_config_id=monitor_alert_config_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    monitor_alert_config_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, monitor_alert_config_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[AlertStatusResponse, HTTPValidationError]]:
     """Delete Alert
 
@@ -110,18 +93,11 @@ def sync(
         Union[AlertStatusResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        monitor_alert_config_id=monitor_alert_config_id,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, monitor_alert_config_id=monitor_alert_config_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    monitor_alert_config_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, monitor_alert_config_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[AlertStatusResponse, HTTPValidationError]]:
     """Delete Alert
 
@@ -141,10 +117,7 @@ async def asyncio_detailed(
         Response[Union[AlertStatusResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        monitor_alert_config_id=monitor_alert_config_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, monitor_alert_config_id=monitor_alert_config_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -152,10 +125,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    monitor_alert_config_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, monitor_alert_config_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[AlertStatusResponse, HTTPValidationError]]:
     """Delete Alert
 
@@ -176,9 +146,5 @@ async def asyncio(
     """
 
     return (
-        await asyncio_detailed(
-            project_id=project_id,
-            monitor_alert_config_id=monitor_alert_config_id,
-            client=client,
-        )
+        await asyncio_detailed(project_id=project_id, monitor_alert_config_id=monitor_alert_config_id, client=client)
     ).parsed

@@ -12,16 +12,10 @@ from ...models.response import Response
 from ...types import Response
 
 
-def _get_kwargs(
-    *,
-    body: Request,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: Request) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/v1/protect/invoke",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/v1/protect/invoke"}
 
     _body = body.to_dict()
 
@@ -77,9 +71,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: Request,
+    *, client: AuthenticatedClient, body: Request
 ) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "Response"]]]:
     """Invoke
 
@@ -94,21 +86,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, Union['InvokeResponse', 'Response']]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    body: Request,
+    *, client: AuthenticatedClient, body: Request
 ) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "Response"]]]:
     """Invoke
 
@@ -123,16 +109,11 @@ def sync(
         Union[HTTPValidationError, Union['InvokeResponse', 'Response']]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: Request,
+    *, client: AuthenticatedClient, body: Request
 ) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "Response"]]]:
     """Invoke
 
@@ -147,9 +128,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, Union['InvokeResponse', 'Response']]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -157,9 +136,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    body: Request,
+    *, client: AuthenticatedClient, body: Request
 ) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "Response"]]]:
     """Invoke
 
@@ -174,9 +151,4 @@ async def asyncio(
         Union[HTTPValidationError, Union['InvokeResponse', 'Response']]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body)).parsed

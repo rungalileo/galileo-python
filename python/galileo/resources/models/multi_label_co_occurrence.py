@@ -38,11 +38,7 @@ class MultiLabelCoOccurrence:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "co_occurrences": co_occurrences,
-                "num_samples": num_samples,
-                "percent_samples": percent_samples,
-            }
+            {"co_occurrences": co_occurrences, "num_samples": num_samples, "percent_samples": percent_samples}
         )
 
         return field_dict
@@ -64,9 +60,7 @@ class MultiLabelCoOccurrence:
         percent_samples = d.pop("percent_samples")
 
         multi_label_co_occurrence = cls(
-            co_occurrences=co_occurrences,
-            num_samples=num_samples,
-            percent_samples=percent_samples,
+            co_occurrences=co_occurrences, num_samples=num_samples, percent_samples=percent_samples
         )
 
         multi_label_co_occurrence.additional_properties = d

@@ -40,12 +40,7 @@ class ProjectTypeFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"operator": operator, "value": value})
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -82,11 +77,7 @@ class ProjectTypeFilter:
         if name != "type" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'type', got '{name}'")
 
-        project_type_filter = cls(
-            operator=operator,
-            value=value,
-            name=name,
-        )
+        project_type_filter = cls(operator=operator, value=value, name=name)
 
         project_type_filter.additional_properties = d
         return project_type_filter

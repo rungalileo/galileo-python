@@ -11,11 +11,7 @@ from ...models.split import Split
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    split: Split,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, run_id: str, split: Split) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": f"/projects/{project_id}/runs/{run_id}/split/{split}/edits/exports",
@@ -58,11 +54,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, list["EditExportDB"]]]:
     """Get Edits Exports
 
@@ -83,25 +75,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['EditExportDB']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, split=split)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, list["EditExportDB"]]]:
     """Get Edits Exports
 
@@ -122,20 +104,11 @@ def sync(
         Union[HTTPValidationError, list['EditExportDB']]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, run_id=run_id, split=split, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, list["EditExportDB"]]]:
     """Get Edits Exports
 
@@ -156,11 +129,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['EditExportDB']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        split=split,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, split=split)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -168,11 +137,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    split: Split,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, split: Split, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, list["EditExportDB"]]]:
     """Get Edits Exports
 
@@ -193,11 +158,4 @@ async def asyncio(
         Union[HTTPValidationError, list['EditExportDB']]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            split=split,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, run_id=run_id, split=split, client=client)).parsed

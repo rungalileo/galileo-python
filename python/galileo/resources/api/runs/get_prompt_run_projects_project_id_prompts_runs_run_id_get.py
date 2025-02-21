@@ -10,14 +10,8 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    run_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/projects/{project_id}/prompts/runs/{run_id}",
-    }
+def _get_kwargs(project_id: str, run_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/prompts/runs/{run_id}"}
 
     return _kwargs
 
@@ -51,10 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[GetPromptRun, HTTPValidationError]]:
     """Get Prompt Run
 
@@ -75,23 +66,15 @@ def sync_detailed(
         Response[Union[GetPromptRun, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[GetPromptRun, HTTPValidationError]]:
     """Get Prompt Run
 
@@ -112,18 +95,11 @@ def sync(
         Union[GetPromptRun, HTTPValidationError]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, run_id=run_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[GetPromptRun, HTTPValidationError]]:
     """Get Prompt Run
 
@@ -144,10 +120,7 @@ async def asyncio_detailed(
         Response[Union[GetPromptRun, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -155,10 +128,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, run_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[GetPromptRun, HTTPValidationError]]:
     """Get Prompt Run
 
@@ -179,10 +149,4 @@ async def asyncio(
         Union[GetPromptRun, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client)).parsed

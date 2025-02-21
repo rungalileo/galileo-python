@@ -65,10 +65,7 @@ class GeneratedScorer:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        generated_scorer = cls(
-            id=id,
-            name=name,
-        )
+        generated_scorer = cls(id=id, name=name)
 
         generated_scorer.additional_properties = d
         return generated_scorer

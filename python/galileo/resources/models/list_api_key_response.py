@@ -50,11 +50,7 @@ class ListApiKeyResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "api_keys": api_keys,
-            }
-        )
+        field_dict.update({"api_keys": api_keys})
         if limit is not UNSET:
             field_dict["limit"] = limit
         if next_starting_token is not UNSET:

@@ -95,11 +95,7 @@ class SummaryIDResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "ids": ids,
-            }
-        )
+        field_dict.update({"ids": ids})
         if compare_to is not UNSET:
             field_dict["compare_to"] = compare_to
         if filter_params is not UNSET:

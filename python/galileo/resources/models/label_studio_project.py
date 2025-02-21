@@ -25,12 +25,7 @@ class LabelStudioProject:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "labels": labels,
-                "name": name,
-            }
-        )
+        field_dict.update({"labels": labels, "name": name})
 
         return field_dict
 
@@ -41,10 +36,7 @@ class LabelStudioProject:
 
         name = d.pop("name")
 
-        label_studio_project = cls(
-            labels=labels,
-            name=name,
-        )
+        label_studio_project = cls(labels=labels, name=name)
 
         label_studio_project.additional_properties = d
         return label_studio_project

@@ -11,18 +11,10 @@ from ...models.upload_model_response import UploadModelResponse
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    *,
-    body: UploadModel,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, run_id: str, *, body: UploadModel) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/runs/{run_id}/model",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/runs/{run_id}/model"}
 
     _body = body.to_dict()
 
@@ -62,11 +54,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UploadModel,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: UploadModel
 ) -> Response[Union[HTTPValidationError, UploadModelResponse]]:
     """Upload Model
 
@@ -87,25 +75,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, UploadModelResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UploadModel,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: UploadModel
 ) -> Optional[Union[HTTPValidationError, UploadModelResponse]]:
     """Upload Model
 
@@ -126,20 +104,11 @@ def sync(
         Union[HTTPValidationError, UploadModelResponse]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, run_id=run_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UploadModel,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: UploadModel
 ) -> Response[Union[HTTPValidationError, UploadModelResponse]]:
     """Upload Model
 
@@ -160,11 +129,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, UploadModelResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -172,11 +137,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UploadModel,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, body: UploadModel
 ) -> Optional[Union[HTTPValidationError, UploadModelResponse]]:
     """Upload Model
 
@@ -197,11 +158,4 @@ async def asyncio(
         Union[HTTPValidationError, UploadModelResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client, body=body)).parsed

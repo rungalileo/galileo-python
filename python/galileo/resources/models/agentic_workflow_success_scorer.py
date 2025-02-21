@@ -156,11 +156,7 @@ class AgenticWorkflowSuccessScorer:
             raise ValueError(f"type must match const 'plus', got '{type_}'")
 
         agentic_workflow_success_scorer = cls(
-            filters=filters,
-            model_name=model_name,
-            name=name,
-            num_judges=num_judges,
-            type_=type_,
+            filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_
         )
 
         agentic_workflow_success_scorer.additional_properties = d

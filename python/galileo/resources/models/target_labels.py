@@ -26,12 +26,7 @@ class TargetLabels:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "co_occurrence": co_occurrence,
-                "label": label,
-            }
-        )
+        field_dict.update({"co_occurrence": co_occurrence, "label": label})
 
         return field_dict
 
@@ -42,10 +37,7 @@ class TargetLabels:
 
         label = d.pop("label")
 
-        target_labels = cls(
-            co_occurrence=co_occurrence,
-            label=label,
-        )
+        target_labels = cls(co_occurrence=co_occurrence, label=label)
 
         target_labels.additional_properties = d
         return target_labels

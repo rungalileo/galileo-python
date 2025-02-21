@@ -29,12 +29,7 @@ class PromptSampleIDs:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "sample_indices": sample_indices,
-                "total_samples": total_samples,
-            }
-        )
+        field_dict.update({"sample_indices": sample_indices, "total_samples": total_samples})
 
         return field_dict
 
@@ -47,10 +42,7 @@ class PromptSampleIDs:
 
         total_samples = d.pop("total_samples")
 
-        prompt_sample_i_ds = cls(
-            sample_indices=sample_indices,
-            total_samples=total_samples,
-        )
+        prompt_sample_i_ds = cls(sample_indices=sample_indices, total_samples=total_samples)
 
         prompt_sample_i_ds.additional_properties = d
         return prompt_sample_i_ds

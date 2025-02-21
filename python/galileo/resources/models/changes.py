@@ -66,12 +66,7 @@ class Changes:
 
         miscellaneous = cast(list[str], d.pop("miscellaneous", UNSET))
 
-        changes = cls(
-            breaking=breaking,
-            features=features,
-            fixes=fixes,
-            miscellaneous=miscellaneous,
-        )
+        changes = cls(breaking=breaking, features=features, fixes=fixes, miscellaneous=miscellaneous)
 
         changes.additional_properties = d
         return changes

@@ -11,16 +11,10 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    *,
-    body: DatabricksExportRequest,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: DatabricksExportRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/integrations/databricks/unity-catalog/export",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/integrations/databricks/unity-catalog/export"}
 
     _body = body.to_dict()
 
@@ -60,9 +54,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: DatabricksExportRequest,
+    *, client: AuthenticatedClient, body: DatabricksExportRequest
 ) -> Response[Union[DatabricksUnityCatalogExportResponse, HTTPValidationError]]:
     """Export To Databricks Unity Catalog
 
@@ -77,21 +69,15 @@ def sync_detailed(
         Response[Union[DatabricksUnityCatalogExportResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    body: DatabricksExportRequest,
+    *, client: AuthenticatedClient, body: DatabricksExportRequest
 ) -> Optional[Union[DatabricksUnityCatalogExportResponse, HTTPValidationError]]:
     """Export To Databricks Unity Catalog
 
@@ -106,16 +92,11 @@ def sync(
         Union[DatabricksUnityCatalogExportResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: DatabricksExportRequest,
+    *, client: AuthenticatedClient, body: DatabricksExportRequest
 ) -> Response[Union[DatabricksUnityCatalogExportResponse, HTTPValidationError]]:
     """Export To Databricks Unity Catalog
 
@@ -130,9 +111,7 @@ async def asyncio_detailed(
         Response[Union[DatabricksUnityCatalogExportResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -140,9 +119,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    body: DatabricksExportRequest,
+    *, client: AuthenticatedClient, body: DatabricksExportRequest
 ) -> Optional[Union[DatabricksUnityCatalogExportResponse, HTTPValidationError]]:
     """Export To Databricks Unity Catalog
 
@@ -157,9 +134,4 @@ async def asyncio(
         Union[DatabricksUnityCatalogExportResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body)).parsed

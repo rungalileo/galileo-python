@@ -11,10 +11,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    group_id: str,
-    *,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    group_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -24,11 +21,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/groups/{group_id}/members",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/groups/{group_id}/members", "params": params}
 
     return _kwargs
 
@@ -62,11 +55,7 @@ def _build_response(
 
 
 def sync_detailed(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    group_id: str, *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Response[Union[HTTPValidationError, ListGroupMembersResponse]]:
     """List Group Members
 
@@ -83,25 +72,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, ListGroupMembersResponse]]
     """
 
-    kwargs = _get_kwargs(
-        group_id=group_id,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(group_id=group_id, starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    group_id: str, *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Optional[Union[HTTPValidationError, ListGroupMembersResponse]]:
     """List Group Members
 
@@ -118,20 +97,11 @@ def sync(
         Union[HTTPValidationError, ListGroupMembersResponse]
     """
 
-    return sync_detailed(
-        group_id=group_id,
-        client=client,
-        starting_token=starting_token,
-        limit=limit,
-    ).parsed
+    return sync_detailed(group_id=group_id, client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    group_id: str, *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Response[Union[HTTPValidationError, ListGroupMembersResponse]]:
     """List Group Members
 
@@ -148,11 +118,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, ListGroupMembersResponse]]
     """
 
-    kwargs = _get_kwargs(
-        group_id=group_id,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(group_id=group_id, starting_token=starting_token, limit=limit)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -160,11 +126,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    group_id: str,
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    group_id: str, *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Optional[Union[HTTPValidationError, ListGroupMembersResponse]]:
     """List Group Members
 
@@ -181,11 +143,4 @@ async def asyncio(
         Union[HTTPValidationError, ListGroupMembersResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            group_id=group_id,
-            client=client,
-            starting_token=starting_token,
-            limit=limit,
-        )
-    ).parsed
+    return (await asyncio_detailed(group_id=group_id, client=client, starting_token=starting_token, limit=limit)).parsed

@@ -12,10 +12,7 @@ from ...types import Response
 
 
 def _get_kwargs(
-    project_id: str,
-    monitor_alert_config_id: str,
-    *,
-    body: UpdateAlertConfigurationRequest,
+    project_id: str, monitor_alert_config_id: str, *, body: UpdateAlertConfigurationRequest
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -62,11 +59,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    monitor_alert_config_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateAlertConfigurationRequest,
+    project_id: str, monitor_alert_config_id: str, *, client: AuthenticatedClient, body: UpdateAlertConfigurationRequest
 ) -> Response[Union[AlertConfigurationResponse, HTTPValidationError]]:
     """Update
 
@@ -85,25 +78,15 @@ def sync_detailed(
         Response[Union[AlertConfigurationResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        monitor_alert_config_id=monitor_alert_config_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, monitor_alert_config_id=monitor_alert_config_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    monitor_alert_config_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateAlertConfigurationRequest,
+    project_id: str, monitor_alert_config_id: str, *, client: AuthenticatedClient, body: UpdateAlertConfigurationRequest
 ) -> Optional[Union[AlertConfigurationResponse, HTTPValidationError]]:
     """Update
 
@@ -123,19 +106,12 @@ def sync(
     """
 
     return sync_detailed(
-        project_id=project_id,
-        monitor_alert_config_id=monitor_alert_config_id,
-        client=client,
-        body=body,
+        project_id=project_id, monitor_alert_config_id=monitor_alert_config_id, client=client, body=body
     ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    monitor_alert_config_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateAlertConfigurationRequest,
+    project_id: str, monitor_alert_config_id: str, *, client: AuthenticatedClient, body: UpdateAlertConfigurationRequest
 ) -> Response[Union[AlertConfigurationResponse, HTTPValidationError]]:
     """Update
 
@@ -154,11 +130,7 @@ async def asyncio_detailed(
         Response[Union[AlertConfigurationResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        monitor_alert_config_id=monitor_alert_config_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, monitor_alert_config_id=monitor_alert_config_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -166,11 +138,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    monitor_alert_config_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateAlertConfigurationRequest,
+    project_id: str, monitor_alert_config_id: str, *, client: AuthenticatedClient, body: UpdateAlertConfigurationRequest
 ) -> Optional[Union[AlertConfigurationResponse, HTTPValidationError]]:
     """Update
 
@@ -191,9 +159,6 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            project_id=project_id,
-            monitor_alert_config_id=monitor_alert_config_id,
-            client=client,
-            body=body,
+            project_id=project_id, monitor_alert_config_id=monitor_alert_config_id, client=client, body=body
         )
     ).parsed

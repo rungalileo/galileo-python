@@ -10,14 +10,8 @@ from ...models.slice_delete_response import SliceDeleteResponse
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    slice_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "delete",
-        "url": f"/projects/{project_id}/slices/{slice_id}",
-    }
+def _get_kwargs(project_id: str, slice_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/projects/{project_id}/slices/{slice_id}"}
 
     return _kwargs
 
@@ -51,10 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    slice_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, slice_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, SliceDeleteResponse]]:
     """Delete Slice
 
@@ -70,23 +61,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, SliceDeleteResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        slice_id=slice_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, slice_id=slice_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    slice_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, slice_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, SliceDeleteResponse]]:
     """Delete Slice
 
@@ -102,18 +85,11 @@ def sync(
         Union[HTTPValidationError, SliceDeleteResponse]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        slice_id=slice_id,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, slice_id=slice_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    slice_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, slice_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, SliceDeleteResponse]]:
     """Delete Slice
 
@@ -129,10 +105,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, SliceDeleteResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        slice_id=slice_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, slice_id=slice_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -140,10 +113,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    slice_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, slice_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, SliceDeleteResponse]]:
     """Delete Slice
 
@@ -159,10 +129,4 @@ async def asyncio(
         Union[HTTPValidationError, SliceDeleteResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            slice_id=slice_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, slice_id=slice_id, client=client)).parsed

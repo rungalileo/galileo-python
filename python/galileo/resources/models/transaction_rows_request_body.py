@@ -101,11 +101,7 @@ class TransactionRowsRequestBody:
 
             sort_spec.append(sort_spec_item)
 
-        transaction_rows_request_body = cls(
-            columns=columns,
-            filters=filters,
-            sort_spec=sort_spec,
-        )
+        transaction_rows_request_body = cls(columns=columns, filters=filters, sort_spec=sort_spec)
 
         transaction_rows_request_body.additional_properties = d
         return transaction_rows_request_body

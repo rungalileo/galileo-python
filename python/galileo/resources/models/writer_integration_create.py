@@ -25,12 +25,7 @@ class WriterIntegrationCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "organization_id": organization_id,
-                "token": token,
-            }
-        )
+        field_dict.update({"organization_id": organization_id, "token": token})
 
         return field_dict
 
@@ -41,10 +36,7 @@ class WriterIntegrationCreate:
 
         token = d.pop("token")
 
-        writer_integration_create = cls(
-            organization_id=organization_id,
-            token=token,
-        )
+        writer_integration_create = cls(organization_id=organization_id, token=token)
 
         writer_integration_create.additional_properties = d
         return writer_integration_create

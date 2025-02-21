@@ -48,12 +48,7 @@ class LabelStudioIntegration:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "is_enterprise": is_enterprise,
-                "url": url,
-            }
-        )
+        field_dict.update({"is_enterprise": is_enterprise, "url": url})
         if extra is not UNSET:
             field_dict["extra"] = extra
         if name is not UNSET:
@@ -91,12 +86,7 @@ class LabelStudioIntegration:
         if name != "labelstudio" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'labelstudio', got '{name}'")
 
-        label_studio_integration = cls(
-            is_enterprise=is_enterprise,
-            url=url,
-            extra=extra,
-            name=name,
-        )
+        label_studio_integration = cls(is_enterprise=is_enterprise, url=url, extra=extra, name=name)
 
         label_studio_integration.additional_properties = d
         return label_studio_integration

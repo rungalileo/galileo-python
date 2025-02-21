@@ -21,11 +21,7 @@ class GetPresignedUrlResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "url": url,
-            }
-        )
+        field_dict.update({"url": url})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class GetPresignedUrlResponse:
         d = src_dict.copy()
         url = d.pop("url")
 
-        get_presigned_url_response = cls(
-            url=url,
-        )
+        get_presigned_url_response = cls(url=url)
 
         get_presigned_url_response.additional_properties = d
         return get_presigned_url_response

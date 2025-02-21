@@ -54,7 +54,7 @@ class GalileoCoreApiClient:
         log_stream_id: Optional[str] = None,
     ):
         self.api_url = GalileoApiClient.get_api_url(base_url)
-        self.api_key = api_key or getenv("GALILEO_API_KEY", "") # type: ignore
+        self.api_key = api_key or getenv("GALILEO_API_KEY", "")  # type: ignore
 
         if not self.api_url or not self.api_key:
             raise ValueError("api_url and api_key must be set")
@@ -118,28 +118,20 @@ class GalileoCoreApiClient:
             headers=headers,
         )
 
-    async def ingest_traces(
-        self, traces_ingest_request: TracesIngestRequest
-    ) -> dict[str, str]:
+    async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
         traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
 
         return await self._make_async_request(
-            RequestMethod.POST,
-            endpoint=Routes.traces.format(project_id=self.project_id),
-            json=json,
+            RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
         )
 
-    def ingest_traces_sync(
-        self, traces_ingest_request: TracesIngestRequest
-    ) -> dict[str, str]:
+    def ingest_traces_sync(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
         traces_ingest_request.log_stream_id = self.log_stream_id
         json = traces_ingest_request.model_dump()
 
         return self._make_request(
-            RequestMethod.POST,
-            endpoint=Routes.traces.format(project_id=self.project_id),
-            json=json,
+            RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
         )
 
     # TODO: Move this method to galileo_core.helpers.api_client
@@ -154,12 +146,8 @@ class GalileoCoreApiClient:
     ) -> Any:
         url = urljoin(base_url, endpoint)
         with Client(
-            base_url=base_url,
-            timeout=Timeout(read_timeout, connect=5.0),
-            verify=not skip_ssl_validation,
+            base_url=base_url, timeout=Timeout(read_timeout, connect=5.0), verify=not skip_ssl_validation
         ) as client:
-            response = client.request(
-                method=request_method.value, url=url, timeout=read_timeout, **kwargs
-            )
+            response = client.request(method=request_method.value, url=url, timeout=read_timeout, **kwargs)
             CoreApiClient.validate_response(response)
             return response.json()

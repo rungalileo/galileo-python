@@ -21,11 +21,7 @@ class VertexAIIntegrationCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "token": token,
-            }
-        )
+        field_dict.update({"token": token})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class VertexAIIntegrationCreate:
         d = src_dict.copy()
         token = d.pop("token")
 
-        vertex_ai_integration_create = cls(
-            token=token,
-        )
+        vertex_ai_integration_create = cls(token=token)
 
         vertex_ai_integration_create.additional_properties = d
         return vertex_ai_integration_create

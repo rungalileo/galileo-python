@@ -17,7 +17,8 @@ from typing import (
     Tuple,
     TypeVar,
     cast,
-    overload, Union,
+    overload,
+    Union,
 )
 
 from mypy.dmypy_util import TracebackType
@@ -27,10 +28,7 @@ from galileo.utils.serialization import EventSerializer
 
 from galileo.utils.singleton import GalileoLoggerSingleton
 
-from galileo_core.schemas.shared.traces.types import (
-    Trace,
-    WorkflowSpan,
-)
+from galileo_core.schemas.shared.traces.types import Trace, WorkflowSpan
 
 from galileo.logger import GalileoLogger
 from galileo.utils import _get_timestamp
@@ -47,19 +45,13 @@ F = TypeVar("F", bound=Callable[..., Any])
 P = ParamSpec("P")
 R = TypeVar("R")
 
-_project_context: ContextVar[Optional[str]] = ContextVar(
-    "project_context", default=None
-)
+_project_context: ContextVar[Optional[str]] = ContextVar("project_context", default=None)
 
-_log_stream_context: ContextVar[Optional[str]] = ContextVar(
-    "log_stream_context", default=None
-)
+_log_stream_context: ContextVar[Optional[str]] = ContextVar("log_stream_context", default=None)
 
 _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
 
-_span_stack_context: ContextVar[List[WorkflowSpan]] = ContextVar(
-    "span_stack_context", default=[]
-)
+_span_stack_context: ContextVar[List[WorkflowSpan]] = ContextVar("span_stack_context", default=[])
 
 
 class GalileoDecorator:
@@ -99,11 +91,11 @@ class GalileoDecorator:
 
         return self  # Allows `as galileo` usage
 
-    def __exit__(self, exc_type: Optional[BaseException], exc_value: Optional[BaseException], traceback: Optional[TracebackType]) -> None:
+    def __exit__(
+        self, exc_type: Optional[BaseException], exc_value: Optional[BaseException], traceback: Optional[TracebackType]
+    ) -> None:
         # Flush the logger instance
-        self.get_logger_instance(
-            project=_project_context.get(), log_stream=_log_stream_context.get()
-        ).flush()
+        self.get_logger_instance(project=_project_context.get(), log_stream=_log_stream_context.get()).flush()
 
         # Restore the previous context values to avoid contamination across different usages
         _project_context.set(self._previous_project_context)
@@ -111,9 +103,7 @@ class GalileoDecorator:
         _trace_context.set(self._previous_trace_context)
         _span_stack_context.set(self._previous_span_stack_context)
 
-    def __call__(
-        self, *, project: Optional[str] = None, log_stream: Optional[str] = None
-    ) -> "GalileoDecorator":
+    def __call__(self, *, project: Optional[str] = None, log_stream: Optional[str] = None) -> "GalileoDecorator":
         """Allows context manager usage like `with galileo_context(...)`"""
         self._project = project
         self._log_stream = log_stream
@@ -205,14 +195,9 @@ class GalileoDecorator:
             try:
                 result = await func(*args, **kwargs)
             except Exception as e:
-                _logger.error(
-                    f"Error while executing function in async_wrapper: {e}",
-                    exc_info=True,
-                )
+                _logger.error(f"Error while executing function in async_wrapper: {e}", exc_info=True)
             finally:
-                result = self._finalize_call(
-                    span_type, span_params, result, project, log_stream
-                )
+                result = self._finalize_call(span_type, span_params, result, project, log_stream)
 
                 if result is not None:
                     return result
@@ -246,14 +231,9 @@ class GalileoDecorator:
             try:
                 result = func(*args, **kwargs)
             except Exception as e:
-                _logger.error(
-                    f"Error while executing function in sync_wrapper: {e}",
-                    exc_info=True,
-                )
+                _logger.error(f"Error while executing function in sync_wrapper: {e}", exc_info=True)
             finally:
-                result = self._finalize_call(
-                    span_type, span_params, result, project, log_stream
-                )
+                result = self._finalize_call(span_type, span_params, result, project, log_stream)
 
                 if result is not None:
                     return result
@@ -267,10 +247,7 @@ class GalileoDecorator:
         Returns:
         bool: True if 'cls' or 'self' is in the callable's parameters, False otherwise.
         """
-        return (
-            "self" in inspect.signature(func).parameters
-            or "cls" in inspect.signature(func).parameters
-        )
+        return "self" in inspect.signature(func).parameters or "cls" in inspect.signature(func).parameters
 
     def _prepare_input(
         self,
@@ -288,10 +265,7 @@ class GalileoDecorator:
 
             # Extract function args
             input_ = self._merge_args_with_kwargs(
-                func=func,
-                is_method=is_method,
-                func_args=func_args,
-                func_kwargs=func_kwargs,
+                func=func, is_method=is_method, func_args=func_args, func_kwargs=func_kwargs
             )
 
             # Process parameter mappings supplied by the user via `params`
@@ -328,12 +302,7 @@ class GalileoDecorator:
             return None
 
     def _merge_args_with_kwargs(
-        self,
-        *,
-        func: Callable,
-        is_method: bool,
-        func_args: Tuple,
-        func_kwargs: Dict,
+        self, *, func: Callable, is_method: bool, func_args: Tuple, func_kwargs: Dict
     ) -> Dict[str, Any]:
         """Merge positional and keyword arguments into a single dictionary."""
         try:
@@ -349,12 +318,8 @@ class GalileoDecorator:
                         merged[name] = param.default
 
             # Create dictionary of positional args
-            param_names = [
-                name for name in sig.parameters.keys() if name not in ("self", "cls")
-            ]
-            for param_name, value in zip(
-                param_names, func_args[1:] if is_method else func_args
-            ):
+            param_names = [name for name in sig.parameters.keys() if name not in ("self", "cls")]
+            for param_name, value in zip(param_names, func_args[1:] if is_method else func_args):
                 merged[param_name] = value
 
             # Update with provided keyword arguments
@@ -384,9 +349,7 @@ class GalileoDecorator:
         project: Optional[str],
         log_stream: Optional[str],
     ):
-        client_instance = self.get_logger_instance(
-            project=project, log_stream=log_stream
-        )
+        client_instance = self.get_logger_instance(project=project, log_stream=log_stream)
 
         stack = _span_stack_context.get().copy()
         trace = _trace_context.get()
@@ -402,22 +365,12 @@ class GalileoDecorator:
         # If the user hasn't specified a span type, create and add a workflow span
         if not span_type or span_type == "workflow":
             parent_span = stack[-1] if len(stack) else None
-            created_at_ns = span_params.get(
-                "created_at_ns", _get_timestamp().timestamp() * 1e9
-            )
+            created_at_ns = span_params.get("created_at_ns", _get_timestamp().timestamp() * 1e9)
 
             if parent_span:
-                span = parent_span.add_workflow_span(
-                    input=input,
-                    name=name,
-                    created_at_ns=created_at_ns,
-                )
+                span = parent_span.add_workflow_span(input=input, name=name, created_at_ns=created_at_ns)
             else:
-                span = trace.add_workflow_span(
-                    input=input,
-                    name=name,
-                    created_at_ns=created_at_ns,
-                )
+                span = trace.add_workflow_span(input=input, name=name, created_at_ns=created_at_ns)
             _span_stack_context.set(stack + [span])
 
     def _get_input_from_func_args(
@@ -439,17 +392,11 @@ class GalileoDecorator:
         log_stream: Optional[str],
     ):
         if inspect.isgenerator(result):
-            return self._wrap_sync_generator_result(
-                span_type, span_params, result, project, log_stream
-            )
+            return self._wrap_sync_generator_result(span_type, span_params, result, project, log_stream)
         elif inspect.isasyncgen(result):
-            return self._wrap_async_generator_result(
-                span_type, span_params, result, project, log_stream
-            )
+            return self._wrap_async_generator_result(span_type, span_params, result, project, log_stream)
         else:
-            return self._handle_call_result(
-                span_type, span_params, result, project, log_stream
-            )
+            return self._handle_call_result(span_type, span_params, result, project, log_stream)
 
     def _handle_call_result(
         self,
@@ -463,11 +410,7 @@ class GalileoDecorator:
             output = span_params.get("output") or (
                 # Serialize and deserialize to ensure proper JSON serialization.
                 # Objects are later serialized again so deserialization is necessary here to avoid unnecessary escaping of quotes.
-                json.loads(
-                    json.dumps(
-                        result if result is not None else None, cls=EventSerializer
-                    )
-                )
+                json.loads(json.dumps(result if result is not None else None, cls=EventSerializer))
             )
 
             stack = _span_stack_context.get()
@@ -492,27 +435,18 @@ class GalileoDecorator:
                 if span:
                     span.conclude(output=output, duration_ns=span_params["duration_ns"])
                 if len(stack) == 0:
-                    trace.conclude(
-                        output=output, duration_ns=span_params["duration_ns"]
-                    )
+                    trace.conclude(output=output, duration_ns=span_params["duration_ns"])
             else:
                 # If the span type is not a workflow, add it to the current parent (trace or span)
                 if len(stack):
                     span = stack[-1]
-                span_methods = {
-                    "llm": "add_llm_span",
-                    "tool": "add_tool_span",
-                    "retriever": "add_retriever_span",
-                }
+                span_methods = {"llm": "add_llm_span", "tool": "add_tool_span", "retriever": "add_retriever_span"}
 
                 if span_type in span_methods:
                     method = span_methods[span_type]
                     target = span or trace
 
-                    kwargs = {
-                        "output": output,
-                        **span_params,
-                    }
+                    kwargs = {"output": output, **span_params}
 
                     if span_type == "llm" and "model" not in kwargs:
                         # TODO: Allow a model to be parsed from the span_params
@@ -548,9 +482,7 @@ class GalileoDecorator:
             if all(isinstance(item, str) for item in items):
                 output = "".join(items)
 
-            self._handle_call_result(
-                span_type, span_params, output, project, log_stream
-            )
+            self._handle_call_result(span_type, span_params, output, project, log_stream)
 
     async def _wrap_async_generator_result(
         self,
@@ -575,17 +507,12 @@ class GalileoDecorator:
             if all(isinstance(item, str) for item in items):
                 output = "".join(items)
 
-            self._handle_call_result(
-                span_type, span_params, output, project, log_stream
-            )
+            self._handle_call_result(span_type, span_params, output, project, log_stream)
 
-    def get_logger_instance(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None
-    ) -> GalileoLogger:
+    def get_logger_instance(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> GalileoLogger:
         """Get the Galileo Logger instance for the current decorator context."""
         return GalileoLoggerSingleton().get(
-            project=project or _project_context.get(),
-            log_stream=log_stream or _log_stream_context.get(),
+            project=project or _project_context.get(), log_stream=log_stream or _log_stream_context.get()
         )
 
     def get_current_project(self) -> Optional[str]:

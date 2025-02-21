@@ -50,14 +50,7 @@ class CreateMetricCritiqueRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "critique": critique,
-                "intended_value": intended_value,
-                "row_id": row_id,
-                "run_id": run_id,
-            }
-        )
+        field_dict.update({"critique": critique, "intended_value": intended_value, "row_id": row_id, "run_id": run_id})
         if id is not UNSET:
             field_dict["id"] = id
 
@@ -100,11 +93,7 @@ class CreateMetricCritiqueRequest:
         id = _parse_id(d.pop("id", UNSET))
 
         create_metric_critique_request = cls(
-            critique=critique,
-            intended_value=intended_value,
-            row_id=row_id,
-            run_id=run_id,
-            id=id,
+            critique=critique, intended_value=intended_value, row_id=row_id, run_id=run_id, id=id
         )
 
         create_metric_critique_request.additional_properties = d

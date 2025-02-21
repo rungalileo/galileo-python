@@ -69,11 +69,7 @@ class UserCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "email": email,
-            }
-        )
+        field_dict.update({"email": email})
         if auth_method is not UNSET:
             field_dict["auth_method"] = auth_method
         if email_is_verified is not UNSET:

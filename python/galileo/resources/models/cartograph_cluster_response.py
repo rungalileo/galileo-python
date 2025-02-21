@@ -28,11 +28,7 @@ class CartographClusterResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "cartograph_clusters": cartograph_clusters,
-            }
-        )
+        field_dict.update({"cartograph_clusters": cartograph_clusters})
 
         return field_dict
 
@@ -48,9 +44,7 @@ class CartographClusterResponse:
 
             cartograph_clusters.append(cartograph_clusters_item)
 
-        cartograph_cluster_response = cls(
-            cartograph_clusters=cartograph_clusters,
-        )
+        cartograph_cluster_response = cls(cartograph_clusters=cartograph_clusters)
 
         cartograph_cluster_response.additional_properties = d
         return cartograph_cluster_response

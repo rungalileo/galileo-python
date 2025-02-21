@@ -36,9 +36,7 @@ class RecomputeSettingsProject:
         if mode != "project" and not isinstance(mode, Unset):
             raise ValueError(f"mode must match const 'project', got '{mode}'")
 
-        recompute_settings_project = cls(
-            mode=mode,
-        )
+        recompute_settings_project = cls(mode=mode)
 
         recompute_settings_project.additional_properties = d
         return recompute_settings_project

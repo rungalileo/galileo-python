@@ -30,11 +30,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/projects/{project_id}/prompts/runs",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/prompts/runs", "params": params}
 
     return _kwargs
 
@@ -106,9 +102,7 @@ def sync_detailed(
         limit=limit,
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 

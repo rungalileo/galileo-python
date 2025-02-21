@@ -47,12 +47,7 @@ class SortClause:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "col_name": col_name,
-                "sort_dir": sort_dir,
-            }
-        )
+        field_dict.update({"col_name": col_name, "sort_dir": sort_dir})
         if json_field is not UNSET:
             field_dict["json_field"] = json_field
         if json_field_type is not UNSET:
@@ -93,12 +88,7 @@ class SortClause:
 
         json_field_type = _parse_json_field_type(d.pop("json_field_type", UNSET))
 
-        sort_clause = cls(
-            col_name=col_name,
-            sort_dir=sort_dir,
-            json_field=json_field,
-            json_field_type=json_field_type,
-        )
+        sort_clause = cls(col_name=col_name, sort_dir=sort_dir, json_field=json_field, json_field_type=json_field_type)
 
         sort_clause.additional_properties = d
         return sort_clause

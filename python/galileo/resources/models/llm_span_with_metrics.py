@@ -273,13 +273,7 @@ class LlmSpanWithMetrics:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "input": input_,
-                "step_id": step_id,
-                "trace_id": trace_id,
-            }
-        )
+        field_dict.update({"input": input_, "step_id": step_id, "trace_id": trace_id})
         if created_at_ns is not UNSET:
             field_dict["created_at_ns"] = created_at_ns
         if duration_ns is not UNSET:

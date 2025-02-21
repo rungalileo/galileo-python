@@ -10,10 +10,7 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/current_user",
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/current_user"}
 
     return _kwargs
 
@@ -38,10 +35,7 @@ def _build_response(*, client: Union[AuthenticatedClient, Client], response: htt
     )
 
 
-def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[CurrentUserDB]:
+def sync_detailed(*, client: AuthenticatedClient) -> Response[CurrentUserDB]:
     """Current User
 
     Raises:
@@ -54,17 +48,12 @@ def sync_detailed(
 
     kwargs = _get_kwargs()
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[CurrentUserDB]:
+def sync(*, client: AuthenticatedClient) -> Optional[CurrentUserDB]:
     """Current User
 
     Raises:
@@ -75,15 +64,10 @@ def sync(
         CurrentUserDB
     """
 
-    return sync_detailed(
-        client=client,
-    ).parsed
+    return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-) -> Response[CurrentUserDB]:
+async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[CurrentUserDB]:
     """Current User
 
     Raises:
@@ -101,10 +85,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *,
-    client: AuthenticatedClient,
-) -> Optional[CurrentUserDB]:
+async def asyncio(*, client: AuthenticatedClient) -> Optional[CurrentUserDB]:
     """Current User
 
     Raises:
@@ -115,8 +96,4 @@ async def asyncio(
         CurrentUserDB
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client)).parsed

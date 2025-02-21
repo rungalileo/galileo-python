@@ -10,12 +10,7 @@ from ...models.run_metric_db import RunMetricDB
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    *,
-    key: Union[None, Unset, str] = UNSET,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, run_id: str, *, key: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     json_key: Union[None, Unset, str]
@@ -70,11 +65,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    key: Union[None, Unset, str] = UNSET,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, key: Union[None, Unset, str] = UNSET
 ) -> Response[Union[HTTPValidationError, list["RunMetricDB"]]]:
     """Get Metrics For Run
 
@@ -95,25 +86,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['RunMetricDB']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        key=key,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, key=key)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    key: Union[None, Unset, str] = UNSET,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, key: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["RunMetricDB"]]]:
     """Get Metrics For Run
 
@@ -134,20 +115,11 @@ def sync(
         Union[HTTPValidationError, list['RunMetricDB']]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        client=client,
-        key=key,
-    ).parsed
+    return sync_detailed(project_id=project_id, run_id=run_id, client=client, key=key).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    key: Union[None, Unset, str] = UNSET,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, key: Union[None, Unset, str] = UNSET
 ) -> Response[Union[HTTPValidationError, list["RunMetricDB"]]]:
     """Get Metrics For Run
 
@@ -168,11 +140,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['RunMetricDB']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        key=key,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, key=key)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -180,11 +148,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    key: Union[None, Unset, str] = UNSET,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, key: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["RunMetricDB"]]]:
     """Get Metrics For Run
 
@@ -205,11 +169,4 @@ async def asyncio(
         Union[HTTPValidationError, list['RunMetricDB']]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            client=client,
-            key=key,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client, key=key)).parsed

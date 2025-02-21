@@ -54,11 +54,7 @@ class ErrorDistribution:
 
         percentage = d.pop("percentage", UNSET)
 
-        error_distribution = cls(
-            counts=counts,
-            labels=labels,
-            percentage=percentage,
-        )
+        error_distribution = cls(counts=counts, labels=labels, percentage=percentage)
 
         error_distribution.additional_properties = d
         return error_distribution

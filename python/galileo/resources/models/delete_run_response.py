@@ -21,11 +21,7 @@ class DeleteRunResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "message": message,
-            }
-        )
+        field_dict.update({"message": message})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class DeleteRunResponse:
         d = src_dict.copy()
         message = d.pop("message")
 
-        delete_run_response = cls(
-            message=message,
-        )
+        delete_run_response = cls(message=message)
 
         delete_run_response.additional_properties = d
         return delete_run_response

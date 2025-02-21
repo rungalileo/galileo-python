@@ -62,12 +62,7 @@ class MetricInsight:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "categories": categories,
-                "column_name": column_name,
-                "insight_type": insight_type,
-                "title": title,
-            }
+            {"categories": categories, "column_name": column_name, "insight_type": insight_type, "title": title}
         )
         if aggregate is not UNSET:
             field_dict["aggregate"] = aggregate

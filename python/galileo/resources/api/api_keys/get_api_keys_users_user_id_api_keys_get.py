@@ -11,10 +11,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    user_id: str,
-    *,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    user_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -24,11 +21,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/users/{user_id}/api_keys",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/users/{user_id}/api_keys", "params": params}
 
     return _kwargs
 
@@ -62,11 +55,7 @@ def _build_response(
 
 
 def sync_detailed(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    user_id: str, *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Response[Union[HTTPValidationError, ListApiKeyResponse]]:
     """Get Api Keys
 
@@ -83,25 +72,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, ListApiKeyResponse]]
     """
 
-    kwargs = _get_kwargs(
-        user_id=user_id,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(user_id=user_id, starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    user_id: str, *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Optional[Union[HTTPValidationError, ListApiKeyResponse]]:
     """Get Api Keys
 
@@ -118,20 +97,11 @@ def sync(
         Union[HTTPValidationError, ListApiKeyResponse]
     """
 
-    return sync_detailed(
-        user_id=user_id,
-        client=client,
-        starting_token=starting_token,
-        limit=limit,
-    ).parsed
+    return sync_detailed(user_id=user_id, client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    user_id: str, *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Response[Union[HTTPValidationError, ListApiKeyResponse]]:
     """Get Api Keys
 
@@ -148,11 +118,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, ListApiKeyResponse]]
     """
 
-    kwargs = _get_kwargs(
-        user_id=user_id,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(user_id=user_id, starting_token=starting_token, limit=limit)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -160,11 +126,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    user_id: str,
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    user_id: str, *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Optional[Union[HTTPValidationError, ListApiKeyResponse]]:
     """Get Api Keys
 
@@ -181,11 +143,4 @@ async def asyncio(
         Union[HTTPValidationError, ListApiKeyResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            user_id=user_id,
-            client=client,
-            starting_token=starting_token,
-            limit=limit,
-        )
-    ).parsed
+    return (await asyncio_detailed(user_id=user_id, client=client, starting_token=starting_token, limit=limit)).parsed

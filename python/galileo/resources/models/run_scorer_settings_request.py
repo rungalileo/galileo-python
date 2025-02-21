@@ -36,11 +36,7 @@ class RunScorerSettingsRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "run_id": run_id,
-            }
-        )
+        field_dict.update({"run_id": run_id})
         if scorers is not UNSET:
             field_dict["scorers"] = scorers
 
@@ -60,10 +56,7 @@ class RunScorerSettingsRequest:
 
             scorers.append(scorers_item)
 
-        run_scorer_settings_request = cls(
-            run_id=run_id,
-            scorers=scorers,
-        )
+        run_scorer_settings_request = cls(run_id=run_id, scorers=scorers)
 
         run_scorer_settings_request.additional_properties = d
         return run_scorer_settings_request

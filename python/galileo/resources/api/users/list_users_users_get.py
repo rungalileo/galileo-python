@@ -10,11 +10,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    *,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-) -> dict[str, Any]:
+def _get_kwargs(*, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["starting_token"] = starting_token
@@ -23,11 +19,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/users",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": "/users", "params": params}
 
     return _kwargs
 
@@ -61,10 +53,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Response[Union[GetUsersResponse, HTTPValidationError]]:
     """List Users
 
@@ -80,23 +69,15 @@ def sync_detailed(
         Response[Union[GetUsersResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Optional[Union[GetUsersResponse, HTTPValidationError]]:
     """List Users
 
@@ -112,18 +93,11 @@ def sync(
         Union[GetUsersResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        starting_token=starting_token,
-        limit=limit,
-    ).parsed
+    return sync_detailed(client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Response[Union[GetUsersResponse, HTTPValidationError]]:
     """List Users
 
@@ -139,10 +113,7 @@ async def asyncio_detailed(
         Response[Union[GetUsersResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(starting_token=starting_token, limit=limit)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -150,10 +121,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    *, client: AuthenticatedClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Optional[Union[GetUsersResponse, HTTPValidationError]]:
     """List Users
 
@@ -169,10 +137,4 @@ async def asyncio(
         Union[GetUsersResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            starting_token=starting_token,
-            limit=limit,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, starting_token=starting_token, limit=limit)).parsed

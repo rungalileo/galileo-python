@@ -60,10 +60,7 @@ class AlertsConfiguration:
 
             webhooks.append(webhooks_item)
 
-        alerts_configuration = cls(
-            emails=emails,
-            webhooks=webhooks,
-        )
+        alerts_configuration = cls(emails=emails, webhooks=webhooks)
 
         alerts_configuration.additional_properties = d
         return alerts_configuration

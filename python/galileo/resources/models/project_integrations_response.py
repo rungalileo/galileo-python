@@ -25,11 +25,7 @@ class ProjectIntegrationsResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "integrations": integrations,
-            }
-        )
+        field_dict.update({"integrations": integrations})
 
         return field_dict
 
@@ -40,9 +36,7 @@ class ProjectIntegrationsResponse:
         d = src_dict.copy()
         integrations = ProjectIntegrationsResponseIntegrations.from_dict(d.pop("integrations"))
 
-        project_integrations_response = cls(
-            integrations=integrations,
-        )
+        project_integrations_response = cls(integrations=integrations)
 
         project_integrations_response.additional_properties = d
         return project_integrations_response
