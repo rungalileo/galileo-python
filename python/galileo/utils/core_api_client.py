@@ -1,22 +1,17 @@
-from importlib.metadata import version
-from os import getenv
-from time import time
-from typing import Any, Optional
-
-import jwt
 import logging
-from httpx import Client, AsyncClient, HTTPError, Response, Timeout, URL
+from os import getenv
+from typing import Any, Optional
 from urllib.parse import urljoin
+from uuid import UUID
 
-from galileo_core.constants.request_method import RequestMethod
-from galileo_core.helpers.execution import async_run
-from galileo_core.helpers.api_client import ApiClient as CoreApiClient
-from galileo.constants.routes import Routes
-from galileo.schema.trace import TracesIngestRequest, TracesIngestResponse
-from galileo.utils.request import HttpHeaders, make_request
+from httpx import Client, Timeout
+
 from galileo.api_client import GalileoApiClient
-from galileo.projects import Projects
-from galileo.log_streams import LogStreams
+from galileo.constants.routes import Routes
+from galileo.schema.trace import TracesIngestRequest
+from galileo.utils.request import HttpHeaders, make_request
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient as CoreApiClient
 
 _logger = logging.getLogger(__name__)
 
@@ -119,16 +114,16 @@ class GalileoCoreApiClient:
         )
 
     async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
-        traces_ingest_request.log_stream_id = self.log_stream_id
-        json = traces_ingest_request.model_dump()
+        traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
+        json = traces_ingest_request.model_dump(mode="json")
 
         return await self._make_async_request(
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
         )
 
     def ingest_traces_sync(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
-        traces_ingest_request.log_stream_id = self.log_stream_id
-        json = traces_ingest_request.model_dump()
+        traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
+        json = traces_ingest_request.model_dump(mode="json")
 
         return self._make_request(
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
