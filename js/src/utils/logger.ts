@@ -96,8 +96,16 @@ export class GalileoLogger {
     output: string;
     durationNs: number;
   }) {
-    trace.output = output;
-    trace.durationNs = durationNs;
+    this.traces = this.traces.map((tr) => {
+      if (tr.id === trace.id) {
+        return {
+          ...trace,
+          output,
+          durationNs
+        };
+      }
+      return trace;
+    });
   }
 
   async flush(): Promise<void> {
