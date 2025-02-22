@@ -1,5 +1,7 @@
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
+
 from pytest import mark
+
 from galileo import galileo_context, log
 from galileo_core.schemas.shared.traces.trace import LlmSpan, WorkflowSpan
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
