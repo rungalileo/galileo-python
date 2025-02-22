@@ -7,7 +7,7 @@ from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstre
 
 @patch("galileo.logger.LogStreams")
 @patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient", return_value=MagicMock())
+@patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_llm_span(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
@@ -34,7 +34,7 @@ def test_decorator_llm_span(
 
 @patch("galileo.logger.LogStreams")
 @patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient", return_value=MagicMock())
+@patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_nested_span(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
