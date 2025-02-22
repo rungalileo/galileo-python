@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from inspect import isclass
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Union
 
 import openai.resources
 from openai._types import NotGiven
@@ -106,7 +106,7 @@ def _galileo_wrapper(func: Callable) -> Callable:
     return _with_galileo
 
 
-def _extract_chat_prompt(kwargs: dict) -> list | dict:
+def _extract_chat_prompt(kwargs: dict) -> Union[list, dict]:
     """Extracts the user input from prompts. Returns a list of messages or dict with messages and functions"""
     prompt = {}
 
