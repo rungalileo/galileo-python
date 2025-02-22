@@ -49,7 +49,7 @@ class GalileoCoreApiClient:
         log_stream_id: Optional[str] = None,
     ):
         self.api_url = GalileoApiClient.get_api_url(base_url)
-        self.api_key = api_key or getenv("GALILEO_API_KEY", "")  # type: ignore
+        self.api_key = api_key or getenv("GALILEO_API_KEY", "")  # type: ignore[assignment]
 
         if not self.api_url or not self.api_key:
             raise ValueError("api_url and api_key must be set")

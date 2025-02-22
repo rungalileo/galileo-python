@@ -62,7 +62,7 @@ class EventSerializer(JSONEncoder):
                 return type(obj).__name__
 
             if is_dataclass(obj):
-                return asdict(obj)  # type: ignore
+                return asdict(obj)  # type: ignore[no-any-return]
 
             if isinstance(obj, UUID):
                 return str(obj)

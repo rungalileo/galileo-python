@@ -2,7 +2,6 @@
 
 # flake8: noqa: F401
 # ruff: noqa: F401
-# type: ignore
 
 from galileo.decorator import GalileoDecorator, galileo_context, log
 from galileo.logger import GalileoLogger
