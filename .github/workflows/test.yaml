@@ -1,4 +1,4 @@
-name: Test and Build
+name: Test
 
 on:
   push:
@@ -9,43 +9,41 @@ on:
 
 jobs:
   test:
-    runs-on: galileo
-    defaults:
-      run:
-        working-directory: ./python
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install `poetry`
-        run: pipx install poetry==2.0.1
+      - name: Install poetry
+        run: pipx install poetry==${{ vars.POETRY_V2_VERSION }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           cache: "poetry"
-          python-version: "3.10"
+          python-version: ${{ matrix.python-version }}
+          cache-dependency-path: "pyproject.toml"
 
-      - name: Install / Start dependencies
-        run: |
-          pipx install invoke
-          inv install
+      - name: Install invoke
+        run: pipx install invoke
+
+      - name: Install Dependencies
+        run: invoke install
 
       # We run the `mypy` check here since it requires all of the packages to be installed.
       # Doing that in the pre-commit step would be duplicative and spend more time in CI.
       - name: Validate Types
-        run: inv type-check
+        run: invoke type-check
 
-      - name: Test
-        run: inv test
+      - name: Run Tests
+        run: invoke test
 
       - name: Upload Test Coverage Reports
         uses: codecov/codecov-action@v5.3.1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Upload Test Results
-        if: ${{ !cancelled() }}
-        uses: codecov/test-results-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
