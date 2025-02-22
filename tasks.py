@@ -9,10 +9,7 @@ def install(ctx: Context) -> None:
 
 @task
 def setup(ctx: Context) -> None:
-    print("Installing package dependencies")
     install(ctx)
-
-    print("Setting up pre-commit hooks...")
     ctx.run("poetry run pre-commit install --hook-type pre-commit", echo=True)
 
 
