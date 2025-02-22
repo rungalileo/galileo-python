@@ -1,11 +1,12 @@
+from typing import Optional
 from pydantic import UUID4, BaseModel, Field
 
 from galileo_core.schemas.shared.traces.trace import Trace
 
 
 class BaseLogStreamOrExperimentModel(BaseModel):
-    log_stream_id: UUID4 | None = Field(default=None, description="Log stream id associated with the traces.")
-    experiment_id: UUID4 | None = Field(default=None, description="Experiment id associated with the traces.")
+    log_stream_id: Optional[UUID4] = Field(default=None, description="Log stream id associated with the traces.")
+    experiment_id: Optional[UUID4] = Field(default=None, description="Experiment id associated with the traces.")
 
 
 class TracesIngestRequest(BaseLogStreamOrExperimentModel):

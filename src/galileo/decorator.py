@@ -522,7 +522,7 @@ class GalileoDecorator:
         """
         return _span_stack_context.get()
 
-    def get_current_trace(self) -> Trace | None:
+    def get_current_trace(self) -> Optional[Trace]:
         """Retrieve the current trace from context.
 
         Returns:

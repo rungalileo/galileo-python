@@ -46,7 +46,7 @@ class OpenAiInputData:
     start_time: datetime
     input: str
     model_parameters: dict
-    model: str | None
+    model: Optional[str]
     temperature: float
 
 

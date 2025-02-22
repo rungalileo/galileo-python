@@ -29,7 +29,7 @@ from galileo_core.utils.dataset import DatasetType, parse_dataset
 
 
 class Dataset(BaseClientModel):
-    content: DatasetContent | None = None
+    content: Optional[DatasetContent] = None
 
     def __init__(self, dataset_db: DatasetDB, client: Optional[GalileoApiClient] = None) -> None:
         self.dataset = dataset_db
