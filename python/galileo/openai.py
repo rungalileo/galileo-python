@@ -1,8 +1,8 @@
 import logging
 from dataclasses import dataclass
-from inspect import isclass
-from typing import Optional, Dict, Any, Callable
 from datetime import datetime
+from inspect import isclass
+from typing import Any, Callable, Optional
 
 import openai.resources
 from openai._types import NotGiven
@@ -98,7 +98,7 @@ class OpenAiArgsExtractor:
 
 def _galileo_wrapper(func: Callable) -> Callable:
     def _with_galileo(open_ai_definitions: OpenAiModuleDefinition, initialize: Callable) -> Callable:
-        def wrapper(wrapped: Callable, args: dict, kwargs: dict) -> Any:
+        def wrapper(wrapped: Callable, instance: Any, args: dict, kwargs: dict) -> Any:
             return func(open_ai_definitions, initialize, wrapped, args, kwargs)
 
         return wrapper
@@ -106,7 +106,7 @@ def _galileo_wrapper(func: Callable) -> Callable:
     return _with_galileo
 
 
-def _extract_chat_prompt(kwargs: Dict) -> list | dict:
+def _extract_chat_prompt(kwargs: dict) -> list | dict:
     """Extracts the user input from prompts. Returns a list of messages or dict with messages and functions"""
     prompt = {}
 
@@ -127,7 +127,7 @@ def _extract_chat_prompt(kwargs: Dict) -> list | dict:
         return [message for message in kwargs.get("messages", [])]
 
 
-def _extract_chat_response(kwargs: Dict) -> dict:
+def _extract_chat_response(kwargs: dict) -> dict:
     """Extracts the llm output from the response."""
     response = {"role": kwargs.get("role", None)}
 
