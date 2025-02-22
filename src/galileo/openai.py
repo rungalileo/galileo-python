@@ -23,10 +23,10 @@ except ImportError:
 try:
     from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI  # noqa: F401
 except ImportError:
-    AsyncAzureOpenAI = None  # type: ignore
-    AsyncOpenAI = None  # type: ignore
-    AzureOpenAI = None  # type: ignore
-    OpenAI = None  # type: ignore
+    AsyncAzureOpenAI = None  # type: ignore[assignment]
+    AsyncOpenAI = None  # type: ignore[assignment]
+    AzureOpenAI = None  # type: ignore[assignment]
+    OpenAI = None  # type: ignore[assignment]
 
 
 @dataclass
@@ -210,7 +210,7 @@ def _extract_input_data_from_kwargs(
         start_time=start_time,
         # TODO: galileo/openai.py:229: error:
         # Argument "input" to "OpenAiInputData" has incompatible type "Any | None"; expected "str"  [arg-type]
-        input=prompt,  # type: ignore
+        input=prompt,  # type: ignore[arg-type]
         model_parameters=model_parameters,
         model=model or None,
         temperature=parsed_temperature,
