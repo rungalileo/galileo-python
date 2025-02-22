@@ -11,10 +11,11 @@ python = "^3.9,<3.14"
 pydantic = "^2.5.2"
 pyjwt = "^2.8.0"
 galileo-core = "^3.0.0"
-openai = { version = "^1.61.0", optional = true }
 wrapt = "^1.14"
 attrs = ">=22.2.0"
 python-dateutil = "^2.8.0"
+langchain-core = { version = "^0.3.14", optional = true }
+openai = { version = "^1.61.0", optional = true }
 
 [tool.poetry.extras]
 langchain = ["langchain-core"]
@@ -108,14 +109,11 @@ recursive = true
 wrap-summaries = 120
 wrap-descriptions = 120
 
-
 [tool.mypy]
-ignore_missing_imports = true
+mypy_path = ["src"]
 disallow_untyped_defs = true
-no_implicit_optional = false
 plugins = ["pydantic.mypy"]
-follow_imports = "skip"
-# TODO: enable all modules/pacakges as soon as we ready
+# TODO: Enable all modules / packages as soon as we are ready.
 modules = ["galileo.openai", "galileo.experiments"]
 packages = ["galileo.utils"]
 
