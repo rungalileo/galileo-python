@@ -1,3 +1,3 @@
-import { components } from './api.types';
+import { components } from "./api.types";
 
-export type User = components['schemas']['UserDB'];
+export type User = components["schemas"]["UserDB"];

@@ -1,3 +1,3 @@
-import { components } from './api.types';
+import { components } from "./api.types";
 
-export type Project = components['schemas']['ProjectDB'];
+export type Project = components["schemas"]["ProjectDB"];
