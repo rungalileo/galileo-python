@@ -1,15 +1,12 @@
-from uuid import UUID
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
 from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
 from galileo_core.schemas.shared.traces.trace import Trace
-
 from galileo_core.schemas.shared.workflows.node_type import NodeType
-
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_projects_client, setup_mock_logstreams_client
+from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
 @patch("galileo.logger.LogStreams")
@@ -19,8 +16,8 @@ def test_single_span_trace_to_galileo(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
-    mock_projects_instance = setup_mock_projects_client(mock_projects_client)
-    mock_logstreams_instance = setup_mock_logstreams_client(mock_logstreams_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
 
     created_time_ns = 0
     metadata = {"key": "value"}
@@ -74,8 +71,8 @@ def test_nested_span_trace_to_galileo(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
-    mock_projects_instance = setup_mock_projects_client(mock_projects_client)
-    mock_logstreams_instance = setup_mock_logstreams_client(mock_logstreams_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
 
     created_time_ns = 0
     metadata = {"key": "value"}
@@ -126,8 +123,8 @@ def test_multi_span_trace_to_galileo(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
-    mock_projects_instance = setup_mock_projects_client(mock_projects_client)
-    mock_logstreams_instance = setup_mock_logstreams_client(mock_logstreams_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
 
     created_time_ns = 0
     metadata = {"key": "value"}
@@ -203,8 +200,8 @@ async def test_single_span_trace_to_galileo_with_async(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
-    mock_projects_instance = setup_mock_projects_client(mock_projects_client)
-    mock_logstreams_instance = setup_mock_logstreams_client(mock_logstreams_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
 
     created_time_ns = 0
     metadata = {"key": "value"}

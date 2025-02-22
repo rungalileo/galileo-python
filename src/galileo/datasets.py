@@ -1,35 +1,31 @@
-from typing import Union, Dict, Any, Optional, overload
 import mimetypes
-
-from galileo.resources.models.dataset_db import DatasetDB
-from galileo.resources.models.list_dataset_params import ListDatasetParams
-from galileo.resources.models.list_dataset_response import ListDatasetResponse
-from galileo.resources.models.dataset_name_filter import DatasetNameFilter
-from galileo.resources.models.dataset_name_filter_operator import DatasetNameFilterOperator
-from galileo.resources.api.datasets import (
-    list_datasets_datasets_get,
-    query_datasets_datasets_query_post,
-    get_dataset_content_datasets_dataset_id_content_get,
-    update_dataset_content_datasets_dataset_id_content_patch,
-    delete_dataset_datasets_dataset_id_delete,
-    upload_dataset_datasets_post,
-    get_dataset_datasets_dataset_id_get,
-)
-from galileo.resources.models.dataset_updated_at_sort import DatasetUpdatedAtSort
-from galileo.resources.models.dataset_content import DatasetContent
-from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
-
-from galileo.resources.models.dataset_update_row import DatasetUpdateRow
-from galileo.resources.models.dataset_update_row_values import DatasetUpdateRowValues
-from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
-from galileo.resources.types import Unset, File
-
-from galileo_core.utils.dataset import DatasetType, parse_dataset
+from typing import Any, Optional, Union, overload
 
 from galileo.api_client import GalileoApiClient
-
 from galileo.base import BaseClientModel
+from galileo.resources.api.datasets import (
+    delete_dataset_datasets_dataset_id_delete,
+    get_dataset_content_datasets_dataset_id_content_get,
+    get_dataset_datasets_dataset_id_get,
+    list_datasets_datasets_get,
+    query_datasets_datasets_query_post,
+    update_dataset_content_datasets_dataset_id_content_patch,
+    upload_dataset_datasets_post,
+)
+from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
+from galileo.resources.models.dataset_content import DatasetContent
+from galileo.resources.models.dataset_db import DatasetDB
+from galileo.resources.models.dataset_name_filter import DatasetNameFilter
+from galileo.resources.models.dataset_name_filter_operator import DatasetNameFilterOperator
+from galileo.resources.models.dataset_update_row import DatasetUpdateRow
+from galileo.resources.models.dataset_update_row_values import DatasetUpdateRowValues
+from galileo.resources.models.dataset_updated_at_sort import DatasetUpdatedAtSort
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.list_dataset_params import ListDatasetParams
+from galileo.resources.models.list_dataset_response import ListDatasetResponse
+from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
+from galileo.resources.types import File, Unset
+from galileo_core.utils.dataset import DatasetType, parse_dataset
 
 
 class Dataset(BaseClientModel):
@@ -68,7 +64,7 @@ class Dataset(BaseClientModel):
 
         return content
 
-    def add_rows(self, row_data: list[Dict[str, Any]]) -> "Dataset":
+    def add_rows(self, row_data: list[dict[str, Any]]) -> "Dataset":
         """
         Adds rows to the dataset.
 

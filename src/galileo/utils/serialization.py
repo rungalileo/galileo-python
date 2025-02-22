@@ -1,9 +1,4 @@
-from typing import Any
-from uuid import UUID
 import datetime as dt
-
-from pydantic import BaseModel
-from galileo.utils.dependencies import is_langchain_available
 import enum
 import logging
 from asyncio import Queue
@@ -12,7 +7,12 @@ from dataclasses import asdict, is_dataclass
 from datetime import date, datetime
 from json import JSONEncoder
 from pathlib import Path
+from typing import Any
+from uuid import UUID
 
+from pydantic import BaseModel
+
+from galileo.utils.dependencies import is_langchain_available
 
 _logger = logging.getLogger(__name__)
 
@@ -144,7 +144,7 @@ class EventSerializer(JSONEncoder):
                 # Return object type rather than JSONEncoder.default(obj) which simply raises a TypeError
                 return f"<{type(obj).__name__}>"
 
-        except Exception as e:
+        except Exception:
             _logger.error(f"Serialization failed for object of type {type(obj).__name__}")
             return f'"<not serializable object of type: {type(obj).__name__}>"'
 

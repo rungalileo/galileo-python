@@ -1,9 +1,8 @@
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 
-from galileo import log, galileo_context
-from galileo_core.schemas.shared.traces.trace import Trace, LlmSpan, WorkflowSpan
-
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_projects_client, setup_mock_logstreams_client
+from galileo import galileo_context, log
+from galileo_core.schemas.shared.traces.trace import LlmSpan, WorkflowSpan
+from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
 @patch("galileo.logger.LogStreams")
@@ -13,8 +12,8 @@ def test_decorator_llm_span(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
-    mock_projects_instance = setup_mock_projects_client(mock_projects_client)
-    mock_logstreams_instance = setup_mock_logstreams_client(mock_logstreams_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="llm")
     def llm_call(query: str):
@@ -27,7 +26,7 @@ def test_decorator_llm_span(
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
-    assert type(payload.traces[0].spans[0]) == LlmSpan
+    assert isinstance(payload.traces[0].spans[0], LlmSpan)
     assert payload.traces[0].input == {"query": "input"}
     assert payload.traces[0].spans[0].input == {"query": "input"}
     assert payload.traces[0].spans[0].output == output
@@ -40,8 +39,8 @@ def test_decorator_nested_span(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
-    mock_projects_instance = setup_mock_projects_client(mock_projects_client)
-    mock_logstreams_instance = setup_mock_logstreams_client(mock_logstreams_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="llm")
     def llm_call(query: str):
@@ -59,8 +58,8 @@ def test_decorator_nested_span(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert len(payload.traces[0].spans[0].spans) == 1
-    assert type(payload.traces[0].spans[0]) == WorkflowSpan
-    assert type(payload.traces[0].spans[0].spans[0]) == LlmSpan
+    assert isinstance(payload.traces[0].spans[0], WorkflowSpan)
+    assert isinstance(payload.traces[0].spans[0].spans[0], LlmSpan)
     assert payload.traces[0].input == {"nested_query": "input"}
     assert payload.traces[0].spans[0].spans[0].input == {"query": "input"}
     assert payload.traces[0].spans[0].output == output
@@ -74,8 +73,8 @@ def test_decorator_multiple_nested_spans(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
-    mock_projects_instance = setup_mock_projects_client(mock_projects_client)
-    mock_logstreams_instance = setup_mock_logstreams_client(mock_logstreams_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="llm")
     def llm_call(query: str):
@@ -95,9 +94,9 @@ def test_decorator_multiple_nested_spans(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert len(payload.traces[0].spans[0].spans) == 2
-    assert type(payload.traces[0].spans[0]) == WorkflowSpan
-    assert type(payload.traces[0].spans[0].spans[0]) == LlmSpan
-    assert type(payload.traces[0].spans[0].spans[1]) == LlmSpan
+    assert isinstance(payload.traces[0].spans[0], WorkflowSpan)
+    assert isinstance(payload.traces[0].spans[0].spans[0], LlmSpan)
+    assert isinstance(payload.traces[0].spans[0].spans[1], LlmSpan)
     assert payload.traces[0].input == {"nested_query": "input"}
     assert payload.traces[0].spans[0].spans[0].input == {"query": "input"}
     assert payload.traces[0].spans[0].output == output

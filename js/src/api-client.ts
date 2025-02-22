@@ -1,51 +1,51 @@
-import { decode } from 'jsonwebtoken';
+import { decode } from "jsonwebtoken";
 
-import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios';
-import { Project, ProjectTypes } from './types/project.types.js';
-import { Routes } from './types/routes.types';
+import axios, { AxiosRequestConfig, AxiosResponse, Method } from "axios";
+import { Project, ProjectTypes } from "./types/project.types.js";
+import { Routes } from "./types/routes.types";
 
-import querystring from 'querystring';
-import createClient, { Client } from 'openapi-fetch';
-import type { components, paths } from './types/api.types.js';
+import querystring from "querystring";
+import createClient, { Client } from "openapi-fetch";
+import type { components, paths } from "./types/api.types.js";
 
 export enum RequestMethod {
-  GET = 'GET',
-  POST = 'POST',
-  PUT = 'PUT',
-  DELETE = 'DELETE'
+  GET = "GET",
+  POST = "POST",
+  PUT = "PUT",
+  DELETE = "DELETE",
 }
-import { promises as fs } from 'fs';
+import { promises as fs } from "fs";
 
-type DatasetFormat = components['schemas']['DatasetFormat'];
-export type ListDatasetResponse = components['schemas']['ListDatasetResponse'];
-export type DatasetContent = components['schemas']['DatasetContent'];
-export type Dataset = components['schemas']['DatasetDB'];
-export type DatasetRow = components['schemas']['DatasetRow'];
+type DatasetFormat = components["schemas"]["DatasetFormat"];
+export type ListDatasetResponse = components["schemas"]["ListDatasetResponse"];
+export type DatasetContent = components["schemas"]["DatasetContent"];
+export type Dataset = components["schemas"]["DatasetDB"];
+export type DatasetRow = components["schemas"]["DatasetRow"];
 
 type CollectionPaths =
-  | paths['/datasets']
-  | paths['/datasets/{dataset_id}/content'];
+  | paths["/datasets"]
+  | paths["/datasets/{dataset_id}/content"];
 type CollectionResponse = ListDatasetResponse | DatasetContent;
 
 export class GalileoApiClient {
   public type: ProjectTypes | undefined = undefined;
-  public projectId: string = '';
-  public runId: string = '';
-  public datasetId: string = '';
-  private apiUrl: string = '';
-  private token: string = '';
+  public projectId: string = "";
+  public runId: string = "";
+  public datasetId: string = "";
+  private apiUrl: string = "";
+  private token: string = "";
   private client: Client<paths> | undefined = undefined;
 
   public async init(
     projectName?: string | undefined,
-    datasetId?: string
+    datasetId?: string,
   ): Promise<void> {
     this.apiUrl = this.getApiUrl();
     if (await this.healthCheck()) {
       this.token = await this.getToken();
       this.client = createClient({
         baseUrl: this.apiUrl,
-        headers: { Authorization: `Bearer ${this.token}` }
+        headers: { Authorization: `Bearer ${this.token}` },
       });
 
       if (datasetId) {
@@ -60,7 +60,7 @@ export class GalileoApiClient {
         } catch (err: unknown) {
           const error = err as Error;
 
-          if (error.message.includes('not found')) {
+          if (error.message.includes("not found")) {
             const project = await this.createProject(projectName);
             this.projectId = project.id;
             // eslint-disable-next-line no-console
@@ -79,27 +79,27 @@ export class GalileoApiClient {
     }
 
     if (error) {
-      if (typeof error === 'object' && 'detail' in error) {
+      if (typeof error === "object" && "detail" in error) {
         throw new Error(`Request failed: ${JSON.stringify(error.detail)}`);
       }
 
       throw new Error(`Request failed: ${JSON.stringify(error)}`);
     }
 
-    throw new Error('Request failed');
+    throw new Error("Request failed");
   }
 
   private async fetchAllPaginatedItems<
     Path extends CollectionPaths,
     Response extends CollectionResponse,
-    Item
+    Item,
   >(
-    path: '/datasets' | '/datasets/{dataset_id}/content',
+    path: "/datasets" | "/datasets/{dataset_id}/content",
     extractItems: (response: Response) => Item[],
-    params: Path['get']['parameters']
+    params: Path["get"]["parameters"],
   ): Promise<Item[]> {
     if (!this.client) {
-      throw new Error('Client not initialized');
+      throw new Error("Client not initialized");
     }
 
     let items: Item[] = [];
@@ -108,11 +108,11 @@ export class GalileoApiClient {
     do {
       const updatedParams: Record<string, unknown> = {
         path: params.path,
-        query: { ...params.query, starting_token: startingToken }
+        query: { ...params.query, starting_token: startingToken },
       };
 
       const { data, error } = await this.client.GET(path, {
-        params: updatedParams
+        params: updatedParams,
       });
 
       const collection = this.processResponse(data as Response, error);
@@ -127,20 +127,20 @@ export class GalileoApiClient {
     const consoleUrl = process.env.GALILEO_CONSOLE_URL;
 
     if (!consoleUrl) {
-      throw new Error('❗ GALILEO_CONSOLE_URL must be set');
+      throw new Error("❗ GALILEO_CONSOLE_URL must be set");
     }
 
-    if (consoleUrl.includes('localhost') || consoleUrl.includes('127.0.0.1')) {
-      return 'http://localhost:8088';
+    if (consoleUrl.includes("localhost") || consoleUrl.includes("127.0.0.1")) {
+      return "http://localhost:8088";
     } else {
-      return consoleUrl.replace('console', 'api');
+      return consoleUrl.replace("console", "api");
     }
   }
 
   private async healthCheck(): Promise<boolean> {
     return await this.makeRequest<boolean>(
       RequestMethod.GET,
-      Routes.healthCheck
+      Routes.healthCheck,
     );
   }
 
@@ -149,7 +149,7 @@ export class GalileoApiClient {
 
     if (apiKey) {
       const loginResponse = await this.apiKeyLogin(apiKey);
-      return loginResponse.access_token || '';
+      return loginResponse.access_token || "";
     }
 
     const username = process.env.GALILEO_USERNAME;
@@ -157,23 +157,23 @@ export class GalileoApiClient {
 
     if (username && password) {
       const loginResponse = await this.usernameLogin(username, password);
-      return loginResponse.access_token || '';
+      return loginResponse.access_token || "";
     }
 
     throw new Error(
-      '❗ GALILEO_API_KEY or GALILEO_USERNAME and GALILEO_PASSWORD must be set'
+      "❗ GALILEO_API_KEY or GALILEO_USERNAME and GALILEO_PASSWORD must be set",
     );
   }
 
   private async apiKeyLogin(
-    api_key: string
+    api_key: string,
   ): Promise<{ access_token: string }> {
     return await this.makeRequest<{ access_token: string }>(
       RequestMethod.POST,
       Routes.apiKeyLogin,
       {
-        api_key
-      }
+        api_key,
+      },
     );
   }
 
@@ -183,8 +183,8 @@ export class GalileoApiClient {
       Routes.login,
       querystring.stringify({
         username,
-        password
-      })
+        password,
+      }),
     );
   }
 
@@ -195,8 +195,8 @@ export class GalileoApiClient {
       null,
       {
         project_name,
-        type: this.type
-      }
+        type: this.type,
+      },
     );
 
     if (projects.length < 1) {
@@ -212,68 +212,68 @@ export class GalileoApiClient {
       Routes.projects,
       {
         name: project_name,
-        type: this.type
-      }
+        type: this.type,
+      },
     );
   }
 
   public getDatasets = async (): Promise<Dataset[]> => {
     return await this.fetchAllPaginatedItems<
-      paths['/datasets'],
+      paths["/datasets"],
       ListDatasetResponse,
       Dataset
     >(
-      '/datasets',
+      "/datasets",
       (response: ListDatasetResponse) => response.datasets ?? [],
-      {}
+      {},
     );
   };
 
   public async createDataset(
     name: string,
     filePath: string,
-    format: DatasetFormat
+    format: DatasetFormat,
   ): Promise<Dataset> {
     if (!this.client) {
-      throw new Error('Client not initialized');
+      throw new Error("Client not initialized");
     }
 
     const fileBuffer: Buffer = await fs.readFile(filePath);
     const blob: Blob = new Blob([fileBuffer]);
     const formdata = new FormData();
-    formdata.append('file', blob, name);
+    formdata.append("file", blob, name);
 
-    const { data, error } = await this.client.POST('/datasets', {
+    const { data, error } = await this.client.POST("/datasets", {
       params: { query: { format } },
       // @ts-expect-error openapi-typescript does not properly translate FormData for uploading files - https://github.com/openapi-ts/openapi-typescript/issues/1214
       body: formdata,
       bodySerializer: (body) => {
         // define a custom serializer to prevent openapi-fetch from serializing the FormData object as JSON
         return body;
-      }
+      },
     });
 
     const dataset = this.processResponse(data, error) as Dataset;
     // eslint-disable-next-line no-console
     console.log(
-      `✅  Dataset '${dataset.name}' with ${dataset.num_rows} rows uploaded.`
+      `✅  Dataset '${dataset.name}' with ${dataset.num_rows} rows uploaded.`,
     );
     return dataset;
   }
 
   public async getDatasetContent(datasetId: string): Promise<DatasetRow[]> {
     if (!this.client) {
-      throw new Error('Client not initialized');
+      throw new Error("Client not initialized");
     }
 
     return await this.fetchAllPaginatedItems<
-      paths['/datasets/{dataset_id}/content'],
+      paths["/datasets/{dataset_id}/content"],
       DatasetContent,
       DatasetRow
     >(
       `/datasets/{dataset_id}/content`,
       (response: DatasetContent) => response.rows ?? [],
-      { path: { dataset_id: datasetId } }
+      { path: { dataset_id: datasetId } },
     );
   }
 
@@ -294,7 +294,7 @@ export class GalileoApiClient {
     endpoint: Routes,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: string | Record<string, any> | null,
-    params?: Record<string, unknown>
+    params?: Record<string, unknown>,
   ): Promise<T> {
     // Check to see if our token is expired before making a request
     // and refresh token if it's expired
@@ -315,11 +315,11 @@ export class GalileoApiClient {
     const config: AxiosRequestConfig = {
       method: request_method,
       url: `${this.apiUrl}/${endpoint
-        .replace('{project_id}', this.projectId)
-        .replace('{run_id}', this.runId)}`,
+        .replace("{project_id}", this.projectId)
+        .replace("{run_id}", this.runId)}`,
       params,
       headers,
-      data
+      data,
     };
 
     const response = await axios.request<T>(config);

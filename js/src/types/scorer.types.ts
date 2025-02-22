@@ -1,6 +1,6 @@
-import { components } from './api.types';
+import { components } from "./api.types";
 
 export type ScorersConfiguration =
-  components['schemas']['ScorersConfiguration'];
+  components["schemas"]["ScorersConfiguration"];
 
-export type CustomizedScorer = components['schemas']['CustomizedScorer'];
+export type CustomizedScorer = components["schemas"]["CustomizedScorer"];

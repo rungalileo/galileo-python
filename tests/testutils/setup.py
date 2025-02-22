@@ -1,12 +1,12 @@
-from unittest.mock import AsyncMock, Mock
 import datetime
+from unittest.mock import AsyncMock, Mock
 from uuid import UUID
 
-from galileo.projects import Project
 from galileo.log_streams import LogStream
+from galileo.projects import Project
 from galileo.resources.models import ProjectType
-from galileo.resources.models.project_create_response import ProjectCreateResponse
 from galileo.resources.models.log_stream_response import LogStreamResponse
+from galileo.resources.models.project_create_response import ProjectCreateResponse
 
 
 def setup_mock_projects_client(mock_projects_client: Mock):

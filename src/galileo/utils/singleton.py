@@ -1,6 +1,6 @@
 import threading
-from typing import Optional, Dict, Tuple
 from os import getenv
+from typing import Optional
 
 from galileo.logger import GalileoLogger
 
@@ -19,7 +19,7 @@ class GalileoLoggerSingleton:
 
     _instance = None  # Class-level attribute to hold the singleton instance.
     _lock = threading.Lock()  # Lock for thread-safe instantiation and operations.
-    _galileo_loggers: Dict[Tuple[str, str], GalileoLogger] = {}  # Cache for loggers.
+    _galileo_loggers: dict[tuple[str, str], GalileoLogger] = {}  # Cache for loggers.
 
     def __new__(cls) -> "GalileoLoggerSingleton":
         """
@@ -31,12 +31,12 @@ class GalileoLoggerSingleton:
         if not cls._instance:
             with cls._lock:
                 if not cls._instance:  # Double-checked locking.
-                    cls._instance = super(GalileoLoggerSingleton, cls).__new__(cls)
+                    cls._instance = super().__new__(cls)
                     # Initialize the logger dictionary in the new instance.
                     cls._instance._galileo_loggers = {}
         return cls._instance
 
-    def _get_key(self, project: Optional[str], log_stream: Optional[str]) -> Tuple[str, str]:
+    def _get_key(self, project: Optional[str], log_stream: Optional[str]) -> tuple[str, str]:
         """
         Generate a key tuple based on project and log_stream parameters.
 
@@ -138,7 +138,7 @@ class GalileoLoggerSingleton:
             if key in self._galileo_loggers:
                 self._galileo_loggers[key].flush()
 
-    def get_all_loggers(self) -> Dict[Tuple[str, str], GalileoLogger]:
+    def get_all_loggers(self) -> dict[tuple[str, str], GalileoLogger]:
         """
         Retrieve a copy of the dictionary containing all active loggers.
 

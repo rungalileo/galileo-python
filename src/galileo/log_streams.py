@@ -1,18 +1,16 @@
-from typing import Optional, overload, List, Union
-
-from galileo.resources.models.log_stream_response import LogStreamResponse
-from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
-
-from galileo.resources.api.log_stream import (
-    list_log_streams_v2_projects_project_id_log_streams_get,
-    get_log_stream_v2_projects_project_id_log_streams_log_stream_id_get,
-    create_log_stream_v2_projects_project_id_log_streams_post,
-)
-
-from galileo.resources.models.http_validation_error import HTTPValidationError
+import builtins
+from typing import Optional, Union, overload
 
 from galileo.base import BaseClientModel
 from galileo.projects import Projects
+from galileo.resources.api.log_stream import (
+    create_log_stream_v2_projects_project_id_log_streams_post,
+    get_log_stream_v2_projects_project_id_log_streams_log_stream_id_get,
+    list_log_streams_v2_projects_project_id_log_streams_get,
+)
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
+from galileo.resources.models.log_stream_response import LogStreamResponse
 
 
 class LogStream(LogStreamResponse):
@@ -32,12 +30,12 @@ class LogStream(LogStreamResponse):
 
 class LogStreams(BaseClientModel):
     @overload
-    def list(self, *, project_id: str) -> List[LogStream]: ...
+    def list(self, *, project_id: str) -> list[LogStream]: ...
 
     @overload
-    def list(self, *, project_name: str) -> List[LogStream]: ...
+    def list(self, *, project_name: str) -> builtins.list[LogStream]: ...
 
-    def list(self, *, project_id: Optional[str] = None, project_name: Optional[str] = None) -> List[LogStream]:
+    def list(self, *, project_id: Optional[str] = None, project_name: Optional[str] = None) -> builtins.list[LogStream]:
         """
         Lists all log streams. Exactly one of `project_id` or `project_name` must be provided.
 

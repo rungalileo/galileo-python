@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-  '/login': {
+  "/login": {
     parameters: {
       query?: never;
       header?: never;
@@ -14,14 +14,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Login Email */
-    post: operations['login_email_login_post'];
+    post: operations["login_email_login_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/login/api_key': {
+  "/login/api_key": {
     parameters: {
       query?: never;
       header?: never;
@@ -31,14 +31,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Login Api Key */
-    post: operations['login_api_key_login_api_key_post'];
+    post: operations["login_api_key_login_api_key_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/login/social': {
+  "/login/social": {
     parameters: {
       query?: never;
       header?: never;
@@ -48,14 +48,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Login Social */
-    post: operations['login_social_login_social_post'];
+    post: operations["login_social_login_social_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/logout': {
+  "/logout": {
     parameters: {
       query?: never;
       header?: never;
@@ -65,14 +65,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Logout */
-    post: operations['logout_logout_post'];
+    post: operations["logout_logout_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/current_user': {
+  "/current_user": {
     parameters: {
       query?: never;
       header?: never;
@@ -80,7 +80,7 @@ export interface paths {
       cookie?: never;
     };
     /** Current User */
-    get: operations['current_user_current_user_get'];
+    get: operations["current_user_current_user_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -89,7 +89,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/presigned_url': {
+  "/presigned_url": {
     parameters: {
       query?: never;
       header?: never;
@@ -97,7 +97,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Presigned Url */
-    get: operations['get_presigned_url_presigned_url_get'];
+    get: operations["get_presigned_url_presigned_url_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -106,7 +106,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/verify_email': {
+  "/verify_email": {
     parameters: {
       query?: never;
       header?: never;
@@ -116,14 +116,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Verify Email */
-    post: operations['verify_email_verify_email_post'];
+    post: operations["verify_email_verify_email_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/token': {
+  "/token": {
     parameters: {
       query?: never;
       header?: never;
@@ -131,7 +131,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Token */
-    get: operations['get_token_token_get'];
+    get: operations["get_token_token_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -140,7 +140,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/changelog': {
+  "/changelog": {
     parameters: {
       query?: never;
       header?: never;
@@ -148,7 +148,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Current Changelog */
-    get: operations['get_current_changelog_changelog_get'];
+    get: operations["get_current_changelog_changelog_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -157,7 +157,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/healthcheck': {
+  "/healthcheck": {
     parameters: {
       query?: never;
       header?: never;
@@ -165,7 +165,7 @@ export interface paths {
       cookie?: never;
     };
     /** Healthcheck */
-    get: operations['healthcheck_healthcheck_get'];
+    get: operations["healthcheck_healthcheck_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -174,7 +174,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/{training_or_inference}/validate_dataset': {
+  "/projects/{project_id}/{training_or_inference}/validate_dataset": {
     parameters: {
       query?: never;
       header?: never;
@@ -187,14 +187,14 @@ export interface paths {
      * Validate Dataset
      * @description Validate a dataset for training.
      */
-    post: operations['validate_dataset_projects__project_id___training_or_inference__validate_dataset_post'];
+    post: operations["validate_dataset_projects__project_id___training_or_inference__validate_dataset_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/{training_mode}/start': {
+  "/projects/{project_id}/{training_mode}/start": {
     parameters: {
       query?: never;
       header?: never;
@@ -207,14 +207,14 @@ export interface paths {
      * Start Training Job
      * @description Start training.
      */
-    post: operations['start_training_job_projects__project_id___training_mode__start_post'];
+    post: operations["start_training_job_projects__project_id___training_mode__start_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/training/{training_job_id}/status/': {
+  "/projects/{project_id}/training/{training_job_id}/status/": {
     parameters: {
       query?: never;
       header?: never;
@@ -225,7 +225,7 @@ export interface paths {
      * Training Status
      * @description Get the status for a training job.
      */
-    get: operations['training_status_projects__project_id__training__training_job_id__status__get'];
+    get: operations["training_status_projects__project_id__training__training_job_id__status__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -234,7 +234,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/training/{training_job_id}/token': {
+  "/training/{training_job_id}/token": {
     parameters: {
       query?: never;
       header?: never;
@@ -247,14 +247,14 @@ export interface paths {
      * Get Token For Training Job
      * @description Get the status for a training job.
      */
-    post: operations['get_token_for_training_job_training__training_job_id__token_post'];
+    post: operations["get_token_for_training_job_training__training_job_id__token_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/user_roles': {
+  "/user_roles": {
     parameters: {
       query?: never;
       header?: never;
@@ -265,7 +265,7 @@ export interface paths {
      * Get User Roles
      * @description Get all user roles.
      */
-    get: operations['get_user_roles_user_roles_get'];
+    get: operations["get_user_roles_user_roles_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -274,7 +274,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/request_access': {
+  "/request_access": {
     parameters: {
       query?: never;
       header?: never;
@@ -290,14 +290,14 @@ export interface paths {
      *     This is often the first step for a user to sign up for the console. The user record is created with
      *     `email_is_verified=None`, which signifies that the user has requested access but hasn't been invited yet.
      */
-    post: operations['request_access_request_access_post'];
+    post: operations["request_access_request_access_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/signup_link': {
+  "/signup_link": {
     parameters: {
       query?: never;
       header?: never;
@@ -317,14 +317,14 @@ export interface paths {
      *     - POST /users
      *     - POST /users/social
      */
-    post: operations['generate_signup_link_signup_link_post'];
+    post: operations["generate_signup_link_signup_link_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/invite_users': {
+  "/invite_users": {
     parameters: {
       query?: never;
       header?: never;
@@ -334,14 +334,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Invite Users */
-    post: operations['invite_users_invite_users_post'];
+    post: operations["invite_users_invite_users_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/users': {
+  "/users": {
     parameters: {
       query?: never;
       header?: never;
@@ -349,7 +349,7 @@ export interface paths {
       cookie?: never;
     };
     /** List Users */
-    get: operations['list_users_users_get'];
+    get: operations["list_users_users_get"];
     put?: never;
     /**
      * Create Or Verify User
@@ -361,15 +361,15 @@ export interface paths {
      *     - User record was already created when the admin invited the user
      *     - We should verify the user's email
      */
-    post: operations['create_or_verify_user_users_post'];
+    post: operations["create_or_verify_user_users_post"];
     /** Delete User Self */
-    delete: operations['delete_user_self_users_delete'];
+    delete: operations["delete_user_self_users_delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/users/social': {
+  "/users/social": {
     parameters: {
       query?: never;
       header?: never;
@@ -385,14 +385,14 @@ export interface paths {
      *     All social users are created with `email_is_verified=True`, don't need to be invited and are by default read-only
      *     (unless they are the first user, in which case they are set to admin).
      */
-    post: operations['create_or_verify_user_social_users_social_post'];
+    post: operations["create_or_verify_user_social_users_social_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/users/all': {
+  "/users/all": {
     parameters: {
       query?: never;
       header?: never;
@@ -407,7 +407,7 @@ export interface paths {
      *     This endpoint is optimized to count project and runs for each user. This endpoint must be placed before
      *     `/users/{user_id}` so that "all" is not interpreted as a UUID4.
      */
-    get: operations['list_all_users_users_all_get'];
+    get: operations["list_all_users_users_all_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -416,7 +416,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/users/{user_id}': {
+  "/users/{user_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -424,18 +424,18 @@ export interface paths {
       cookie?: never;
     };
     /** Get User */
-    get: operations['get_user_users__user_id__get'];
+    get: operations["get_user_users__user_id__get"];
     /** Update User */
-    put: operations['update_user_users__user_id__put'];
+    put: operations["update_user_users__user_id__put"];
     post?: never;
     /** Delete User */
-    delete: operations['delete_user_users__user_id__delete'];
+    delete: operations["delete_user_users__user_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/users/{user_id}/runs/latest': {
+  "/users/{user_id}/runs/latest": {
     parameters: {
       query?: never;
       header?: never;
@@ -446,7 +446,7 @@ export interface paths {
      * Get Latest User Run
      * @description Gets the most recent run for a User, ordered by last updated.
      */
-    get: operations['get_latest_user_run_users__user_id__runs_latest_get'];
+    get: operations["get_latest_user_run_users__user_id__runs_latest_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -455,7 +455,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/users/{user_id}/runs': {
+  "/users/{user_id}/runs": {
     parameters: {
       query?: never;
       header?: never;
@@ -468,7 +468,7 @@ export interface paths {
      *
      *     This returns a filtered list of projects with only runs created by this user.
      */
-    get: operations['get_project_runs_for_user_users__user_id__runs_get'];
+    get: operations["get_project_runs_for_user_users__user_id__runs_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -477,7 +477,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/generate_password_reset': {
+  "/generate_password_reset": {
     parameters: {
       query?: never;
       header?: never;
@@ -485,7 +485,7 @@ export interface paths {
       cookie?: never;
     };
     /** Generate Password Reset Link */
-    get: operations['generate_password_reset_link_generate_password_reset_get'];
+    get: operations["generate_password_reset_link_generate_password_reset_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -494,7 +494,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/generate_password_reset_email': {
+  "/generate_password_reset_email": {
     parameters: {
       query?: never;
       header?: never;
@@ -502,7 +502,7 @@ export interface paths {
       cookie?: never;
     };
     /** Generate Password Reset Email */
-    get: operations['generate_password_reset_email_generate_password_reset_email_get'];
+    get: operations["generate_password_reset_email_generate_password_reset_email_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -511,7 +511,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/password_reset': {
+  "/password_reset": {
     parameters: {
       query?: never;
       header?: never;
@@ -527,14 +527,14 @@ export interface paths {
      *     A password reset with a valid token should always verify the user. (See default of
      *     UserPasswordResetRequest.email_is_verified is True)
      */
-    post: operations['password_reset_password_reset_post'];
+    post: operations["password_reset_password_reset_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/users/{user_id}/transfer': {
+  "/users/{user_id}/transfer": {
     parameters: {
       query?: never;
       header?: never;
@@ -547,14 +547,14 @@ export interface paths {
      * Transfer User Data
      * @description Transfers all projects, runs, and edits created by a user to another user.
      */
-    post: operations['transfer_user_data_users__user_id__transfer_post'];
+    post: operations["transfer_user_data_users__user_id__transfer_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/current_user/groups': {
+  "/current_user/groups": {
     parameters: {
       query?: never;
       header?: never;
@@ -562,7 +562,7 @@ export interface paths {
       cookie?: never;
     };
     /** List Current User Groups */
-    get: operations['list_current_user_groups_current_user_groups_get'];
+    get: operations["list_current_user_groups_current_user_groups_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -571,7 +571,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/users/{user_id}/api_keys': {
+  "/users/{user_id}/api_keys": {
     parameters: {
       query?: never;
       header?: never;
@@ -579,7 +579,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Api Keys */
-    get: operations['get_api_keys_users__user_id__api_keys_get'];
+    get: operations["get_api_keys_users__user_id__api_keys_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -588,7 +588,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/users/api_keys': {
+  "/users/api_keys": {
     parameters: {
       query?: never;
       header?: never;
@@ -598,14 +598,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Create Api Key */
-    post: operations['create_api_key_users_api_keys_post'];
+    post: operations["create_api_key_users_api_keys_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/users/api_keys/{api_key_id}': {
+  "/users/api_keys/{api_key_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -616,13 +616,13 @@ export interface paths {
     put?: never;
     post?: never;
     /** Delete Api Key */
-    delete: operations['delete_api_key_users_api_keys__api_key_id__delete'];
+    delete: operations["delete_api_key_users_api_keys__api_key_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/prompt_datasets': {
+  "/projects/{project_id}/prompt_datasets": {
     parameters: {
       query?: never;
       header?: never;
@@ -633,20 +633,20 @@ export interface paths {
      * List Prompt Datasets
      * @deprecated
      */
-    get: operations['list_prompt_datasets_projects__project_id__prompt_datasets_get'];
+    get: operations["list_prompt_datasets_projects__project_id__prompt_datasets_get"];
     put?: never;
     /**
      * Upload Prompt Evaluation Dataset
      * @deprecated
      */
-    post: operations['upload_prompt_evaluation_dataset_projects__project_id__prompt_datasets_post'];
+    post: operations["upload_prompt_evaluation_dataset_projects__project_id__prompt_datasets_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/datasets': {
+  "/datasets": {
     parameters: {
       query?: never;
       header?: never;
@@ -654,17 +654,17 @@ export interface paths {
       cookie?: never;
     };
     /** List Datasets */
-    get: operations['list_datasets_datasets_get'];
+    get: operations["list_datasets_datasets_get"];
     put?: never;
     /** Upload Dataset */
-    post: operations['upload_dataset_datasets_post'];
+    post: operations["upload_dataset_datasets_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/datasets/{dataset_id}': {
+  "/datasets/{dataset_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -672,18 +672,18 @@ export interface paths {
       cookie?: never;
     };
     /** Get Dataset */
-    get: operations['get_dataset_datasets__dataset_id__get'];
+    get: operations["get_dataset_datasets__dataset_id__get"];
     put?: never;
     post?: never;
     /** Delete Dataset */
-    delete: operations['delete_dataset_datasets__dataset_id__delete'];
+    delete: operations["delete_dataset_datasets__dataset_id__delete"];
     options?: never;
     head?: never;
     /** Update Dataset */
-    patch: operations['update_dataset_datasets__dataset_id__patch'];
+    patch: operations["update_dataset_datasets__dataset_id__patch"];
     trace?: never;
   };
-  '/datasets/query': {
+  "/datasets/query": {
     parameters: {
       query?: never;
       header?: never;
@@ -693,14 +693,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Query Datasets */
-    post: operations['query_datasets_datasets_query_post'];
+    post: operations["query_datasets_datasets_query_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/prompt_datasets/{dataset_id}': {
+  "/projects/{project_id}/prompt_datasets/{dataset_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -711,24 +711,24 @@ export interface paths {
      * Download Prompt Dataset
      * @deprecated
      */
-    get: operations['download_prompt_dataset_projects__project_id__prompt_datasets__dataset_id__get'];
+    get: operations["download_prompt_dataset_projects__project_id__prompt_datasets__dataset_id__get"];
     /**
      * Update Prompt Dataset
      * @deprecated
      */
-    put: operations['update_prompt_dataset_projects__project_id__prompt_datasets__dataset_id__put'];
+    put: operations["update_prompt_dataset_projects__project_id__prompt_datasets__dataset_id__put"];
     post?: never;
     /**
      * Delete Prompt Dataset
      * @deprecated
      */
-    delete: operations['delete_prompt_dataset_projects__project_id__prompt_datasets__dataset_id__delete'];
+    delete: operations["delete_prompt_dataset_projects__project_id__prompt_datasets__dataset_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/datasets/{dataset_id}/content': {
+  "/datasets/{dataset_id}/content": {
     parameters: {
       query?: never;
       header?: never;
@@ -736,12 +736,12 @@ export interface paths {
       cookie?: never;
     };
     /** Get Dataset Content */
-    get: operations['get_dataset_content_datasets__dataset_id__content_get'];
+    get: operations["get_dataset_content_datasets__dataset_id__content_get"];
     /**
      * Rollback Dataset Content
      * @description Rollback the content of a dataset to a previous version.
      */
-    put: operations['rollback_dataset_content_datasets__dataset_id__content_put'];
+    put: operations["rollback_dataset_content_datasets__dataset_id__content_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -760,10 +760,10 @@ export interface paths {
      *     matches the server's version. This prevents conflicts from simultaneous updates. The `ETag` header in the response
      *     provides the new version identifier after a successful update.
      */
-    patch: operations['update_dataset_content_datasets__dataset_id__content_patch'];
+    patch: operations["update_dataset_content_datasets__dataset_id__content_patch"];
     trace?: never;
   };
-  '/datasets/{dataset_id}/download': {
+  "/datasets/{dataset_id}/download": {
     parameters: {
       query?: never;
       header?: never;
@@ -771,7 +771,7 @@ export interface paths {
       cookie?: never;
     };
     /** Download Dataset */
-    get: operations['download_dataset_datasets__dataset_id__download_get'];
+    get: operations["download_dataset_datasets__dataset_id__download_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -780,7 +780,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/datasets/{dataset_id}/content/query': {
+  "/datasets/{dataset_id}/content/query": {
     parameters: {
       query?: never;
       header?: never;
@@ -790,14 +790,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Query Dataset Content */
-    post: operations['query_dataset_content_datasets__dataset_id__content_query_post'];
+    post: operations["query_dataset_content_datasets__dataset_id__content_query_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/datasets/{dataset_id}/users': {
+  "/datasets/{dataset_id}/users": {
     parameters: {
       query?: never;
       header?: never;
@@ -808,17 +808,17 @@ export interface paths {
      * List User Dataset Collaborators
      * @description List the users with which the dataset has been shared.
      */
-    get: operations['list_user_dataset_collaborators_datasets__dataset_id__users_get'];
+    get: operations["list_user_dataset_collaborators_datasets__dataset_id__users_get"];
     put?: never;
     /** Create User Dataset Collaborators */
-    post: operations['create_user_dataset_collaborators_datasets__dataset_id__users_post'];
+    post: operations["create_user_dataset_collaborators_datasets__dataset_id__users_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/datasets/{dataset_id}/groups': {
+  "/datasets/{dataset_id}/groups": {
     parameters: {
       query?: never;
       header?: never;
@@ -829,20 +829,20 @@ export interface paths {
      * List Group Dataset Collaborators
      * @description List the groups with which the dataset has been shared.
      */
-    get: operations['list_group_dataset_collaborators_datasets__dataset_id__groups_get'];
+    get: operations["list_group_dataset_collaborators_datasets__dataset_id__groups_get"];
     put?: never;
     /**
      * Create Group Dataset Collaborators
      * @description Share a dataset with groups.
      */
-    post: operations['create_group_dataset_collaborators_datasets__dataset_id__groups_post'];
+    post: operations["create_group_dataset_collaborators_datasets__dataset_id__groups_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/datasets/{dataset_id}/users/{user_id}': {
+  "/datasets/{dataset_id}/users/{user_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -856,17 +856,17 @@ export interface paths {
      * Delete User Dataset Collaborator
      * @description Remove a user's access to a dataset.
      */
-    delete: operations['delete_user_dataset_collaborator_datasets__dataset_id__users__user_id__delete'];
+    delete: operations["delete_user_dataset_collaborator_datasets__dataset_id__users__user_id__delete"];
     options?: never;
     head?: never;
     /**
      * Update User Dataset Collaborator
      * @description Update the sharing permissions of a user on a dataset.
      */
-    patch: operations['update_user_dataset_collaborator_datasets__dataset_id__users__user_id__patch'];
+    patch: operations["update_user_dataset_collaborator_datasets__dataset_id__users__user_id__patch"];
     trace?: never;
   };
-  '/datasets/{dataset_id}/groups/{group_id}': {
+  "/datasets/{dataset_id}/groups/{group_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -880,17 +880,17 @@ export interface paths {
      * Delete Group Dataset Collaborator
      * @description Remove a group's access to a dataset.
      */
-    delete: operations['delete_group_dataset_collaborator_datasets__dataset_id__groups__group_id__delete'];
+    delete: operations["delete_group_dataset_collaborator_datasets__dataset_id__groups__group_id__delete"];
     options?: never;
     head?: never;
     /**
      * Update Group Dataset Collaborator
      * @description Update the sharing permissions of a group on a dataset.
      */
-    patch: operations['update_group_dataset_collaborator_datasets__dataset_id__groups__group_id__patch'];
+    patch: operations["update_group_dataset_collaborator_datasets__dataset_id__groups__group_id__patch"];
     trace?: never;
   };
-  '/datasets/{dataset_id}/versions/query': {
+  "/datasets/{dataset_id}/versions/query": {
     parameters: {
       query?: never;
       header?: never;
@@ -900,14 +900,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Query Dataset Versions */
-    post: operations['query_dataset_versions_datasets__dataset_id__versions_query_post'];
+    post: operations["query_dataset_versions_datasets__dataset_id__versions_query_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/datasets/{dataset_id}/versions/{version_index}/content': {
+  "/datasets/{dataset_id}/versions/{version_index}/content": {
     parameters: {
       query?: never;
       header?: never;
@@ -915,7 +915,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Dataset Version Content */
-    get: operations['get_dataset_version_content_datasets__dataset_id__versions__version_index__content_get'];
+    get: operations["get_dataset_version_content_datasets__dataset_id__versions__version_index__content_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -924,7 +924,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/datasets/{dataset_id}/versions/{version_index}': {
+  "/datasets/{dataset_id}/versions/{version_index}": {
     parameters: {
       query?: never;
       header?: never;
@@ -938,10 +938,10 @@ export interface paths {
     options?: never;
     head?: never;
     /** Update Dataset Version */
-    patch: operations['update_dataset_version_datasets__dataset_id__versions__version_index__patch'];
+    patch: operations["update_dataset_version_datasets__dataset_id__versions__version_index__patch"];
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/edits': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/edits": {
     parameters: {
       query?: never;
       header?: never;
@@ -956,7 +956,7 @@ export interface paths {
      *     query exported (past) edits. Default True. If True, return will include historical edits that have already been
      *     exported
      */
-    get: operations['get_run_edits_projects__project_id__runs__run_id__split__split__edits_get'];
+    get: operations["get_run_edits_projects__project_id__runs__run_id__split__split__edits_get"];
     put?: never;
     /**
      * Create Edit
@@ -969,14 +969,14 @@ export interface paths {
      *
      *     If in a run type that has tasks (see multi-label runs) you must set a task as part of the body.
      */
-    post: operations['create_edit_projects__project_id__runs__run_id__split__split__edits_post'];
+    post: operations["create_edit_projects__project_id__runs__run_id__split__split__edits_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/edits/exports': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/edits/exports": {
     parameters: {
       query?: never;
       header?: never;
@@ -989,7 +989,7 @@ export interface paths {
      *
      *     Returns the id, edit_id, time of export, and user id that made the export
      */
-    get: operations['get_edits_exports_projects__project_id__runs__run_id__split__split__edits_exports_get'];
+    get: operations["get_edits_exports_projects__project_id__runs__run_id__split__split__edits_exports_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -998,7 +998,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/edits/{edit_id}': {
+  "/edits/{edit_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1009,17 +1009,17 @@ export interface paths {
      * Get Edit
      * @description Gets an edit.
      */
-    get: operations['get_edit_edits__edit_id__get'];
+    get: operations["get_edit_edits__edit_id__get"];
     put?: never;
     post?: never;
     /** Delete Edit */
-    delete: operations['delete_edit_edits__edit_id__delete'];
+    delete: operations["delete_edit_edits__edit_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/edits/{edit_id}/content': {
+  "/edits/{edit_id}/content": {
     parameters: {
       query?: never;
       header?: never;
@@ -1030,7 +1030,7 @@ export interface paths {
      * Get Edit Content
      * @description Gets the data for an edit, including the text, predicted label and true label.
      */
-    get: operations['get_edit_content_edits__edit_id__content_get'];
+    get: operations["get_edit_content_edits__edit_id__content_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1039,7 +1039,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/edits/content': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/edits/content": {
     parameters: {
       query?: never;
       header?: never;
@@ -1052,7 +1052,7 @@ export interface paths {
      *
      *     Equivalent logic to /edits/edit_id/content except for all edits in a run
      */
-    get: operations['get_edit_contents_for_run_projects__project_id__runs__run_id__split__split__edits_content_get'];
+    get: operations["get_edit_contents_for_run_projects__project_id__runs__run_id__split__split__edits_content_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1061,7 +1061,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/edits/export': {
+  "/edits/export": {
     parameters: {
       query?: never;
       header?: never;
@@ -1077,14 +1077,14 @@ export interface paths {
      *     If overrides are provided, and the original edit had a task, the override MUST explicitly have a task set (typically
      *     the same task as the edit)
      */
-    post: operations['export_edits_edits_export_post'];
+    post: operations["export_edits_edits_export_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/edits/export/remote': {
+  "/edits/export/remote": {
     parameters: {
       query?: never;
       header?: never;
@@ -1102,14 +1102,14 @@ export interface paths {
      *     If overrides are provided, and the original edit had a task, the override MUST explicitly have a task set (typically
      *     the same task as the edit)
      */
-    post: operations['export_edits_remote_edits_export_remote_post'];
+    post: operations["export_edits_remote_edits_export_remote_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/edits/labels': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/edits/labels": {
     parameters: {
       query?: never;
       header?: never;
@@ -1122,7 +1122,7 @@ export interface paths {
      *
      *     Newly created labels are those that were created via the `create_new_label` action
      */
-    get: operations['get_new_labels_for_run_edits_projects__project_id__runs__run_id__split__split__edits_labels_get'];
+    get: operations["get_new_labels_for_run_edits_projects__project_id__runs__run_id__split__split__edits_labels_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1131,7 +1131,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/edits/{edit_id}/review': {
+  "/edits/{edit_id}/review": {
     parameters: {
       query?: never;
       header?: never;
@@ -1147,14 +1147,14 @@ export interface paths {
      *     Must have access to the run with which the edit exists in. Users CAN review their own edits (as per ticket
      *     instructions)
      */
-    post: operations['add_review_for_edit_edits__edit_id__review_post'];
+    post: operations["add_review_for_edit_edits__edit_id__review_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/embeddings/available': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/embeddings/available": {
     parameters: {
       query?: never;
       header?: never;
@@ -1165,7 +1165,7 @@ export interface paths {
      * Has Embeddings
      * @description Returns whether or not model embeddings are available for this run/split.
      */
-    get: operations['has_embeddings_projects__project_id__runs__run_id__split__split__embeddings_available_get'];
+    get: operations["has_embeddings_projects__project_id__runs__run_id__split__split__embeddings_available_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1174,7 +1174,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/embeddings': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/embeddings": {
     parameters: {
       query?: never;
       header?: never;
@@ -1206,14 +1206,14 @@ export interface paths {
      *     useful for batching, but should remain true if you are requesting a single set
      *     of embeddings. If you are returning all embeddings, this parameter is useless
      */
-    post: operations['get_embeddings_projects__project_id__runs__run_id__split__split__embeddings_post'];
+    post: operations["get_embeddings_projects__project_id__runs__run_id__split__split__embeddings_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/embeddings/point': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/embeddings/point": {
     parameters: {
       query?: never;
       header?: never;
@@ -1243,14 +1243,14 @@ export interface paths {
      *     Set data_view=true to return data embeddings instead of model embeddings. If
      *     data embeddings are not available, an error will be thrown
      */
-    post: operations['get_point_embeddings_projects__project_id__runs__run_id__split__split__embeddings_point_post'];
+    post: operations["get_point_embeddings_projects__project_id__runs__run_id__split__split__embeddings_point_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/prompts/alerts': {
+  "/projects/{project_id}/runs/{run_id}/prompts/alerts": {
     parameters: {
       query?: never;
       header?: never;
@@ -1258,7 +1258,7 @@ export interface paths {
       cookie?: never;
     };
     /** List Evaluate Alerts */
-    get: operations['list_evaluate_alerts_projects__project_id__runs__run_id__prompts_alerts_get'];
+    get: operations["list_evaluate_alerts_projects__project_id__runs__run_id__prompts_alerts_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1267,7 +1267,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/prompts/insights/metrics': {
+  "/projects/{project_id}/runs/{run_id}/prompts/insights/metrics": {
     parameters: {
       query?: never;
       header?: never;
@@ -1277,14 +1277,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Get Metric Insights With Filters */
-    post: operations['get_metric_insights_with_filters_projects__project_id__runs__run_id__prompts_insights_metrics_post'];
+    post: operations["get_metric_insights_with_filters_projects__project_id__runs__run_id__prompts_insights_metrics_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/evaluate/runs': {
+  "/evaluate/runs": {
     parameters: {
       query?: never;
       header?: never;
@@ -1303,14 +1303,14 @@ export interface paths {
      *
      *     The body is also expected to include the configuration for the scorers to be used in the evaluation. This configuration will be used to evaluate the workflows and generate the results.
      */
-    post: operations['create_workflows_run_evaluate_runs_post'];
+    post: operations["create_workflows_run_evaluate_runs_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/evaluate/run-workflows': {
+  "/evaluate/run-workflows": {
     parameters: {
       query?: never;
       header?: never;
@@ -1323,14 +1323,14 @@ export interface paths {
      * Get Evaluate Run Results
      * @description Fetch evaluation results for a specific run including rows and aggregate information.
      */
-    post: operations['get_evaluate_run_results_evaluate_run_workflows_post'];
+    post: operations["get_evaluate_run_results_evaluate_run_workflows_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/experiments': {
+  "/projects/{project_id}/experiments": {
     parameters: {
       query?: never;
       header?: never;
@@ -1341,20 +1341,20 @@ export interface paths {
      * List Experiments
      * @description Retrieve all experiments for a project.
      */
-    get: operations['list_experiments_projects__project_id__experiments_get'];
+    get: operations["list_experiments_projects__project_id__experiments_get"];
     put?: never;
     /**
      * Create Experiment
      * @description Create a new experiment for a project.
      */
-    post: operations['create_experiment_projects__project_id__experiments_post'];
+    post: operations["create_experiment_projects__project_id__experiments_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/experiments/{experiment_id}': {
+  "/projects/{project_id}/experiments/{experiment_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1365,24 +1365,24 @@ export interface paths {
      * Get Experiment
      * @description Retrieve a specific experiment.
      */
-    get: operations['get_experiment_projects__project_id__experiments__experiment_id__get'];
+    get: operations["get_experiment_projects__project_id__experiments__experiment_id__get"];
     /**
      * Update Experiment
      * @description Update a specific experiment.
      */
-    put: operations['update_experiment_projects__project_id__experiments__experiment_id__put'];
+    put: operations["update_experiment_projects__project_id__experiments__experiment_id__put"];
     post?: never;
     /**
      * Delete Experiment
      * @description Delete a specific experiment.
      */
-    delete: operations['delete_experiment_projects__project_id__experiments__experiment_id__delete'];
+    delete: operations["delete_experiment_projects__project_id__experiments__experiment_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/export': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/export": {
     parameters: {
       query?: never;
       header?: never;
@@ -1392,14 +1392,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Export Data */
-    post: operations['export_data_projects__project_id__runs__run_id__split__split__export_post'];
+    post: operations["export_data_projects__project_id__runs__run_id__split__split__export_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/export/remote': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/export/remote": {
     parameters: {
       query?: never;
       header?: never;
@@ -1409,14 +1409,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Export Data Remote */
-    post: operations['export_data_remote_projects__project_id__runs__run_id__split__split__export_remote_post'];
+    post: operations["export_data_remote_projects__project_id__runs__run_id__split__split__export_remote_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/features/columns': {
+  "/projects/{project_id}/runs/{run_id}/features/columns": {
     parameters: {
       query?: never;
       header?: never;
@@ -1429,7 +1429,7 @@ export interface paths {
      *
      *     This endpoint is for tabular data only.
      */
-    get: operations['list_feature_columns_projects__project_id__runs__run_id__features_columns_get'];
+    get: operations["list_feature_columns_projects__project_id__runs__run_id__features_columns_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1438,7 +1438,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/feedback/templates': {
+  "/projects/{project_id}/feedback/templates": {
     parameters: {
       query?: never;
       header?: never;
@@ -1446,17 +1446,17 @@ export interface paths {
       cookie?: never;
     };
     /** List Feedback Templates */
-    get: operations['list_feedback_templates_projects__project_id__feedback_templates_get'];
+    get: operations["list_feedback_templates_projects__project_id__feedback_templates_get"];
     put?: never;
     /** Create Feedback Template */
-    post: operations['create_feedback_template_projects__project_id__feedback_templates_post'];
+    post: operations["create_feedback_template_projects__project_id__feedback_templates_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/feedback/templates/{template_id}': {
+  "/projects/{project_id}/feedback/templates/{template_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1464,18 +1464,18 @@ export interface paths {
       cookie?: never;
     };
     /** Get Feedback Template */
-    get: operations['get_feedback_template_projects__project_id__feedback_templates__template_id__get'];
+    get: operations["get_feedback_template_projects__project_id__feedback_templates__template_id__get"];
     put?: never;
     post?: never;
     /** Delete Feedback Template */
-    delete: operations['delete_feedback_template_projects__project_id__feedback_templates__template_id__delete'];
+    delete: operations["delete_feedback_template_projects__project_id__feedback_templates__template_id__delete"];
     options?: never;
     head?: never;
     /** Update Feedback Template */
-    patch: operations['update_feedback_template_projects__project_id__feedback_templates__template_id__patch'];
+    patch: operations["update_feedback_template_projects__project_id__feedback_templates__template_id__patch"];
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/feedback/templates/{template_id}/index/{index}/rating': {
+  "/projects/{project_id}/runs/{run_id}/feedback/templates/{template_id}/index/{index}/rating": {
     parameters: {
       query?: never;
       header?: never;
@@ -1483,21 +1483,21 @@ export interface paths {
       cookie?: never;
     };
     /** Get Feedback Rating */
-    get: operations['get_feedback_rating_projects__project_id__runs__run_id__feedback_templates__template_id__index__index__rating_get'];
+    get: operations["get_feedback_rating_projects__project_id__runs__run_id__feedback_templates__template_id__index__index__rating_get"];
     /**
      * Create Feedback Rating
      * @description Record a feedack rating for a specific sample in a run. For prompt chains, the index must be the root node.
      */
-    put: operations['create_feedback_rating_projects__project_id__runs__run_id__feedback_templates__template_id__index__index__rating_put'];
+    put: operations["create_feedback_rating_projects__project_id__runs__run_id__feedback_templates__template_id__index__index__rating_put"];
     post?: never;
     /** Delete Feedback Rating */
-    delete: operations['delete_feedback_rating_projects__project_id__runs__run_id__feedback_templates__template_id__index__index__rating_delete'];
+    delete: operations["delete_feedback_rating_projects__project_id__runs__run_id__feedback_templates__template_id__index__index__rating_delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/ratings': {
+  "/projects/{project_id}/runs/{run_id}/ratings": {
     parameters: {
       query?: never;
       header?: never;
@@ -1510,14 +1510,14 @@ export interface paths {
      * Apply Bulk Feedback
      * @description Record multiple feedback ratings
      */
-    post: operations['apply_bulk_feedback_projects__project_id__runs__run_id__ratings_post'];
+    post: operations["apply_bulk_feedback_projects__project_id__runs__run_id__ratings_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/feedback/templates/{template_id}/nodes/{node_id}/rating': {
+  "/projects/{project_id}/feedback/templates/{template_id}/nodes/{node_id}/rating": {
     parameters: {
       query?: never;
       header?: never;
@@ -1525,21 +1525,21 @@ export interface paths {
       cookie?: never;
     };
     /** Get Feedback Rating Observe */
-    get: operations['get_feedback_rating_observe_projects__project_id__feedback_templates__template_id__nodes__node_id__rating_get'];
+    get: operations["get_feedback_rating_observe_projects__project_id__feedback_templates__template_id__nodes__node_id__rating_get"];
     /**
      * Create Feedback Rating Observe
      * @description Record a feedack rating for a specific sample in a run. For prompt chains, the index must be the root node.
      */
-    put: operations['create_feedback_rating_observe_projects__project_id__feedback_templates__template_id__nodes__node_id__rating_put'];
+    put: operations["create_feedback_rating_observe_projects__project_id__feedback_templates__template_id__nodes__node_id__rating_put"];
     post?: never;
     /** Delete Feedback Rating Observe */
-    delete: operations['delete_feedback_rating_observe_projects__project_id__feedback_templates__template_id__nodes__node_id__rating_delete'];
+    delete: operations["delete_feedback_rating_observe_projects__project_id__feedback_templates__template_id__nodes__node_id__rating_delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/generated-scorers/generate': {
+  "/generated-scorers/generate": {
     parameters: {
       query?: never;
       header?: never;
@@ -1549,14 +1549,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Generate */
-    post: operations['generate_generated_scorers_generate_post'];
+    post: operations["generate_generated_scorers_generate_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/generated-scorers/validate': {
+  "/generated-scorers/validate": {
     parameters: {
       query?: never;
       header?: never;
@@ -1566,14 +1566,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Validate */
-    post: operations['validate_generated_scorers_validate_post'];
+    post: operations["validate_generated_scorers_validate_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/generated-scorers': {
+  "/generated-scorers": {
     parameters: {
       query?: never;
       header?: never;
@@ -1581,17 +1581,17 @@ export interface paths {
       cookie?: never;
     };
     /** Get All */
-    get: operations['get_all_generated_scorers_get'];
+    get: operations["get_all_generated_scorers_get"];
     put?: never;
     /** Create */
-    post: operations['create_generated_scorers_post'];
+    post: operations["create_generated_scorers_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/generated-scorers/task-results/{task_result_id}': {
+  "/generated-scorers/task-results/{task_result_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1599,7 +1599,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Task Result */
-    get: operations['get_task_result_generated_scorers_task_results__task_result_id__get'];
+    get: operations["get_task_result_generated_scorers_task_results__task_result_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1608,7 +1608,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/generated-scorers/{generated_scorer_id}': {
+  "/generated-scorers/{generated_scorer_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1616,18 +1616,18 @@ export interface paths {
       cookie?: never;
     };
     /** Get */
-    get: operations['get_generated_scorers__generated_scorer_id__get'];
+    get: operations["get_generated_scorers__generated_scorer_id__get"];
     put?: never;
     post?: never;
     /** Delete */
-    delete: operations['delete_generated_scorers__generated_scorer_id__delete'];
+    delete: operations["delete_generated_scorers__generated_scorer_id__delete"];
     options?: never;
     head?: never;
     /** Update */
-    patch: operations['update_generated_scorers__generated_scorer_id__patch'];
+    patch: operations["update_generated_scorers__generated_scorer_id__patch"];
     trace?: never;
   };
-  '/group_roles': {
+  "/group_roles": {
     parameters: {
       query?: never;
       header?: never;
@@ -1635,7 +1635,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Group Roles */
-    get: operations['get_group_roles_group_roles_get'];
+    get: operations["get_group_roles_group_roles_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -1644,7 +1644,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/groups': {
+  "/groups": {
     parameters: {
       query?: never;
       header?: never;
@@ -1652,17 +1652,17 @@ export interface paths {
       cookie?: never;
     };
     /** List Groups */
-    get: operations['list_groups_groups_get'];
+    get: operations["list_groups_groups_get"];
     put?: never;
     /** Create Group */
-    post: operations['create_group_groups_post'];
+    post: operations["create_group_groups_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/groups/{group_id}': {
+  "/groups/{group_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1670,18 +1670,18 @@ export interface paths {
       cookie?: never;
     };
     /** Get Group */
-    get: operations['get_group_groups__group_id__get'];
+    get: operations["get_group_groups__group_id__get"];
     put?: never;
     post?: never;
     /** Delete Group */
-    delete: operations['delete_group_groups__group_id__delete'];
+    delete: operations["delete_group_groups__group_id__delete"];
     options?: never;
     head?: never;
     /** Update Group */
-    patch: operations['update_group_groups__group_id__patch'];
+    patch: operations["update_group_groups__group_id__patch"];
     trace?: never;
   };
-  '/groups/{group_id}/members': {
+  "/groups/{group_id}/members": {
     parameters: {
       query?: never;
       header?: never;
@@ -1689,17 +1689,17 @@ export interface paths {
       cookie?: never;
     };
     /** List Group Members */
-    get: operations['list_group_members_groups__group_id__members_get'];
+    get: operations["list_group_members_groups__group_id__members_get"];
     put?: never;
     /** Add User To Group */
-    post: operations['add_user_to_group_groups__group_id__members_post'];
+    post: operations["add_user_to_group_groups__group_id__members_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/groups/{group_id}/members/{user_id}': {
+  "/groups/{group_id}/members/{user_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -1710,14 +1710,14 @@ export interface paths {
     put?: never;
     post?: never;
     /** Delete Group Member */
-    delete: operations['delete_group_member_groups__group_id__members__user_id__delete'];
+    delete: operations["delete_group_member_groups__group_id__members__user_id__delete"];
     options?: never;
     head?: never;
     /** Update Group Member */
-    patch: operations['update_group_member_groups__group_id__members__user_id__patch'];
+    patch: operations["update_group_member_groups__group_id__members__user_id__patch"];
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/summary': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/summary": {
     parameters: {
       query?: never;
       header?: never;
@@ -1746,14 +1746,14 @@ export interface paths {
      *     Returns:
      *         SplitRunResults
      */
-    post: operations['get_summary_statistics_projects__project_id__runs__run_id__split__split__insights_summary_post'];
+    post: operations["get_summary_statistics_projects__project_id__runs__run_id__split__split__insights_summary_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/groupby': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/groupby": {
     parameters: {
       query?: never;
       header?: never;
@@ -1784,14 +1784,14 @@ export interface paths {
      *     Returns:
      *         GroupByMetrics
      */
-    post: operations['get_groupby_statistics_projects__project_id__runs__run_id__split__split__insights_groupby_post'];
+    post: operations["get_groupby_statistics_projects__project_id__runs__run_id__split__split__insights_groupby_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/ids': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/ids": {
     parameters: {
       query?: never;
       header?: never;
@@ -1809,14 +1809,14 @@ export interface paths {
      *     Returns:
      *         List[int]
      */
-    post: operations['get_insight_ids_projects__project_id__runs__run_id__split__split__insights_ids_post'];
+    post: operations["get_insight_ids_projects__project_id__runs__run_id__split__split__insights_ids_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/percentage/sample': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/percentage/sample": {
     parameters: {
       query?: never;
       header?: never;
@@ -1831,14 +1831,14 @@ export interface paths {
      *
      *     Use this route if you just need a percentage without calculating all summary stats
      */
-    post: operations['get_percentage_projects__project_id__runs__run_id__split__split__insights_percentage_sample_post'];
+    post: operations["get_percentage_projects__project_id__runs__run_id__split__split__insights_percentage_sample_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/thresholds': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/thresholds": {
     parameters: {
       query?: never;
       header?: never;
@@ -1853,14 +1853,14 @@ export interface paths {
      *
      *     If in a multi-label model, you must provide a task
      */
-    post: operations['get_thresholds_projects__project_id__runs__run_id__split__split__insights_thresholds_post'];
+    post: operations["get_thresholds_projects__project_id__runs__run_id__split__split__insights_thresholds_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/split/{split}/insights/compare': {
+  "/projects/{project_id}/split/{split}/insights/compare": {
     parameters: {
       query?: never;
       header?: never;
@@ -1873,14 +1873,14 @@ export interface paths {
      * Compare Runs
      * @description Gets overall statistics for multiple runs as well as slice statistics.
      */
-    post: operations['compare_runs_projects__project_id__split__split__insights_compare_post'];
+    post: operations["compare_runs_projects__project_id__split__split__insights_compare_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/distribution': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/distribution": {
     parameters: {
       query?: never;
       header?: never;
@@ -1914,14 +1914,14 @@ export interface paths {
      *     Returns:
      *         Distribution
      */
-    post: operations['get_column_distribution_projects__project_id__runs__run_id__split__split__insights_distribution_post'];
+    post: operations["get_column_distribution_projects__project_id__runs__run_id__split__split__insights_distribution_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/metrics': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/metrics": {
     parameters: {
       query?: never;
       header?: never;
@@ -1937,14 +1937,14 @@ export interface paths {
      *     :param macro: Whether to macro average or weighted average metrics.     Default False (weighted) :param
      *     metrics_request: Filters to pass in before calculating metrics
      */
-    post: operations['get_model_metrics_projects__project_id__runs__run_id__split__split__insights_metrics_post'];
+    post: operations["get_model_metrics_projects__project_id__runs__run_id__split__split__insights_metrics_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/metrics/tasks': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/metrics/tasks": {
     parameters: {
       query?: never;
       header?: never;
@@ -1957,14 +1957,14 @@ export interface paths {
      * Get Task Metrics
      * @description [MLTC ONLY] This route calculates the overall F1 score per task.
      */
-    post: operations['get_task_metrics_projects__project_id__runs__run_id__split__split__insights_metrics_tasks_post'];
+    post: operations["get_task_metrics_projects__project_id__runs__run_id__split__split__insights_metrics_tasks_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/co_occurrence': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/co_occurrence": {
     parameters: {
       query?: never;
       header?: never;
@@ -1977,14 +1977,14 @@ export interface paths {
      * Get Label Co Occurrence
      * @description [MLTC ONLY] This route calculates label co-occurrence across tasks.
      */
-    post: operations['get_label_co_occurrence_projects__project_id__runs__run_id__split__split__insights_co_occurrence_post'];
+    post: operations["get_label_co_occurrence_projects__project_id__runs__run_id__split__split__insights_co_occurrence_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/similar': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/similar": {
     parameters: {
       query?: never;
       header?: never;
@@ -2000,14 +2000,14 @@ export interface paths {
      *     Given a set of samples from a dataframe from split {split}, find the most similar samples from split {from_split}
      *     and return those IDs
      */
-    post: operations['get_similar_from_split_projects__project_id__runs__run_id__split__split__insights_similar_post'];
+    post: operations["get_similar_from_split_projects__project_id__runs__run_id__split__split__insights_similar_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/cbo_clusters': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/cbo_clusters": {
     parameters: {
       query?: never;
       header?: never;
@@ -2025,14 +2025,14 @@ export interface paths {
      *
      *     The clusters are returned as a list of CBOCluster in order of num_samples descending
      */
-    post: operations['get_cbo_clusters_for_split_projects__project_id__runs__run_id__split__split__insights_cbo_clusters_post'];
+    post: operations["get_cbo_clusters_for_split_projects__project_id__runs__run_id__split__split__insights_cbo_clusters_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/cartograph_clusters': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/cartograph_clusters": {
     parameters: {
       query?: never;
       header?: never;
@@ -2045,14 +2045,14 @@ export interface paths {
      * Get Cartograph Clusters For Split
      * @description Get information about the Cartograph clusters found for a split.
      */
-    post: operations['get_cartograph_clusters_for_split_projects__project_id__runs__run_id__split__split__insights_cartograph_clusters_post'];
+    post: operations["get_cartograph_clusters_for_split_projects__project_id__runs__run_id__split__split__insights_cartograph_clusters_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/communities': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/communities": {
     parameters: {
       query?: never;
       header?: never;
@@ -2065,14 +2065,14 @@ export interface paths {
      * Get Communities For Split
      * @description Returns the list of available Communities (class confusions)
      */
-    post: operations['get_communities_for_split_projects__project_id__runs__run_id__split__split__insights_communities_post'];
+    post: operations["get_communities_for_split_projects__project_id__runs__run_id__split__split__insights_communities_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/top': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/top": {
     parameters: {
       query?: never;
       header?: never;
@@ -2092,14 +2092,14 @@ export interface paths {
      *     - top misclassified pairs
      *     - top correlation pairs (tabular data)
      */
-    post: operations['get_top_insights_projects__project_id__runs__run_id__split__split__insights_top_post'];
+    post: operations["get_top_insights_projects__project_id__runs__run_id__split__split__insights_top_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/charts/correlation': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/charts/correlation": {
     parameters: {
       query?: never;
       header?: never;
@@ -2118,14 +2118,14 @@ export interface paths {
      *     - correlation matrix (tabular data)
      *     - feature pairwise accuracy matrix (tabular data), to come...
      */
-    post: operations['get_correlation_matrix_chart_projects__project_id__runs__run_id__split__split__insights_charts_correlation_post'];
+    post: operations["get_correlation_matrix_chart_projects__project_id__runs__run_id__split__split__insights_charts_correlation_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/alerts': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/alerts": {
     parameters: {
       query?: never;
       header?: never;
@@ -2138,7 +2138,7 @@ export interface paths {
      *
      *     Optionally gets dismissed cards as well
      */
-    get: operations['get_alerts_for_run_projects__project_id__runs__run_id__split__split__insights_alerts_get'];
+    get: operations["get_alerts_for_run_projects__project_id__runs__run_id__split__split__insights_alerts_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2147,7 +2147,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/alerts/{alert_id}': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/alerts/{alert_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -2163,13 +2163,13 @@ export interface paths {
      *
      *     This is the new name for xray. After some deprecation time we will rename everything
      */
-    delete: operations['dismiss_alert_projects__project_id__runs__run_id__split__split__insights_alerts__alert_id__delete'];
+    delete: operations["dismiss_alert_projects__project_id__runs__run_id__split__split__insights_alerts__alert_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/errors': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/errors": {
     parameters: {
       query?: never;
       header?: never;
@@ -2180,7 +2180,7 @@ export interface paths {
      * Get Errors
      * @description Get the available errors for a run (if any)
      */
-    get: operations['get_errors_projects__project_id__runs__run_id__split__split__insights_errors_get'];
+    get: operations["get_errors_projects__project_id__runs__run_id__split__split__insights_errors_get"];
     put?: never;
     /**
      * Get Error Counts
@@ -2188,14 +2188,14 @@ export interface paths {
      *
      *     Currently NER and OD support
      */
-    post: operations['get_error_counts_projects__project_id__runs__run_id__split__split__insights_errors_post'];
+    post: operations["get_error_counts_projects__project_id__runs__run_id__split__split__insights_errors_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/map': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/map": {
     parameters: {
       query?: never;
       header?: never;
@@ -2211,14 +2211,14 @@ export interface paths {
      *     Also includes the errors and their scores for the insights chart. The
      *     `map_threshold` defaults to 0.5, but can be changed in the ContentRequest
      */
-    post: operations['get_map_for_run_projects__project_id__runs__run_id__split__split__insights_map_post'];
+    post: operations["get_map_for_run_projects__project_id__runs__run_id__split__split__insights_map_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/semseg/metrics': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/semseg/metrics": {
     parameters: {
       query?: never;
       header?: never;
@@ -2231,14 +2231,14 @@ export interface paths {
      * Get Segmentation Metrics For Run
      * @description [Sem Seg ONLY] Calculates mean and boundary IoU for the (filtered) df.
      */
-    post: operations['get_segmentation_metrics_for_run_projects__project_id__runs__run_id__split__split__insights_semseg_metrics_post'];
+    post: operations["get_segmentation_metrics_for_run_projects__project_id__runs__run_id__split__split__insights_semseg_metrics_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/seq2seq/metrics': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/seq2seq/metrics": {
     parameters: {
       query?: never;
       header?: never;
@@ -2251,14 +2251,14 @@ export interface paths {
      * Get Seq2Seq Metrics For Run
      * @description [Seq2Seq ONLY] Calculates bleu, rouge, and DEP for the (filtered) df.
      */
-    post: operations['get_seq2seq_metrics_for_run_projects__project_id__runs__run_id__split__split__insights_seq2seq_metrics_post'];
+    post: operations["get_seq2seq_metrics_for_run_projects__project_id__runs__run_id__split__split__insights_seq2seq_metrics_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/rows': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/rows": {
     parameters: {
       query?: never;
       header?: never;
@@ -2276,14 +2276,14 @@ export interface paths {
      *     [OD] - A default map_threshold is provided at 0.5. This can be changed in the body
      *         of the request, and will result in different error values for each returned row
      */
-    post: operations['get_data_rows_projects__project_id__runs__run_id__split__split__insights_rows_post'];
+    post: operations["get_data_rows_projects__project_id__runs__run_id__split__split__insights_rows_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/insights/errors/{error_name}/distribution': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/insights/errors/{error_name}/distribution": {
     parameters: {
       query?: never;
       header?: never;
@@ -2296,14 +2296,14 @@ export interface paths {
      * Get Error Distribution For Column
      * @description Returns the breakdown of a given error per unique column.
      */
-    post: operations['get_error_distribution_for_column_projects__project_id__runs__run_id__split__split__insights_errors__error_name__distribution_post'];
+    post: operations["get_error_distribution_for_column_projects__project_id__runs__run_id__split__split__insights_errors__error_name__distribution_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/integrations': {
+  "/integrations": {
     parameters: {
       query?: never;
       header?: never;
@@ -2314,7 +2314,7 @@ export interface paths {
      * List Integrations
      * @description List the created integrations for the requesting user.
      */
-    get: operations['list_integrations_integrations_get'];
+    get: operations["list_integrations_integrations_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2323,7 +2323,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/available': {
+  "/integrations/available": {
     parameters: {
       query?: never;
       header?: never;
@@ -2334,7 +2334,7 @@ export interface paths {
      * List Available Integrations
      * @description List all of the available integrations to be created in Galileo.
      */
-    get: operations['list_available_integrations_integrations_available_get'];
+    get: operations["list_available_integrations_integrations_available_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2343,7 +2343,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/{name}': {
+  "/integrations/{name}": {
     parameters: {
       query?: never;
       header?: never;
@@ -2354,20 +2354,20 @@ export interface paths {
      * Get Integration
      * @description Gets the integration data formatted for the specified integration.
      */
-    get: operations['get_integration_integrations__name__get'];
+    get: operations["get_integration_integrations__name__get"];
     put?: never;
     post?: never;
     /**
      * Delete Integration
      * @description Delete the integration created by this user.
      */
-    delete: operations['delete_integration_integrations__name__delete'];
+    delete: operations["delete_integration_integrations__name__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/integrations/{name}/status': {
+  "/integrations/{name}/status": {
     parameters: {
       query?: never;
       header?: never;
@@ -2378,7 +2378,7 @@ export interface paths {
      * Get Integration Status
      * @description Checks if the integration status is active or not.
      */
-    get: operations['get_integration_status_integrations__name__status_get'];
+    get: operations["get_integration_status_integrations__name__status_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2387,7 +2387,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/anthropic': {
+  "/integrations/anthropic": {
     parameters: {
       query?: never;
       header?: never;
@@ -2399,7 +2399,7 @@ export interface paths {
      * Create Or Update Integration
      * @description Create or update an Anthropic integration for this user from Galileo.
      */
-    put: operations['create_or_update_integration_integrations_anthropic_put'];
+    put: operations["create_or_update_integration_integrations_anthropic_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2407,7 +2407,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/aws_bedrock': {
+  "/integrations/aws_bedrock": {
     parameters: {
       query?: never;
       header?: never;
@@ -2419,7 +2419,7 @@ export interface paths {
      * Create Or Update Integration
      * @description Create or update an AWS integration for this user from Galileo.
      */
-    put: operations['create_or_update_integration_integrations_aws_bedrock_put'];
+    put: operations["create_or_update_integration_integrations_aws_bedrock_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2427,7 +2427,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/aws_sagemaker': {
+  "/integrations/aws_sagemaker": {
     parameters: {
       query?: never;
       header?: never;
@@ -2439,7 +2439,7 @@ export interface paths {
      * Create Or Update Integration
      * @description Create or update an AWS integration for this user from Galileo.
      */
-    put: operations['create_or_update_integration_integrations_aws_sagemaker_put'];
+    put: operations["create_or_update_integration_integrations_aws_sagemaker_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2447,7 +2447,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/azure': {
+  "/integrations/azure": {
     parameters: {
       query?: never;
       header?: never;
@@ -2459,7 +2459,7 @@ export interface paths {
      * Create Or Update Integration
      * @description Create or update an Azure integration for this user from Galileo.
      */
-    put: operations['create_or_update_integration_integrations_azure_put'];
+    put: operations["create_or_update_integration_integrations_azure_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2467,7 +2467,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/databricks/unity-catalog/sql': {
+  "/integrations/databricks/unity-catalog/sql": {
     parameters: {
       query?: never;
       header?: never;
@@ -2480,7 +2480,7 @@ export interface paths {
      * @deprecated
      * @description Create or update a databricks integration for this user from Galileo.
      */
-    put: operations['create_or_update_unity_catalog_integration_integrations_databricks_unity_catalog_sql_put'];
+    put: operations["create_or_update_unity_catalog_integration_integrations_databricks_unity_catalog_sql_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2488,7 +2488,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/databricks': {
+  "/integrations/databricks": {
     parameters: {
       query?: never;
       header?: never;
@@ -2500,7 +2500,7 @@ export interface paths {
      * Create Or Update Unity Catalog Integration
      * @description Create or update a databricks integration for this user from Galileo.
      */
-    put: operations['create_or_update_unity_catalog_integration_integrations_databricks_put'];
+    put: operations["create_or_update_unity_catalog_integration_integrations_databricks_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2508,7 +2508,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/databricks/catalogs': {
+  "/integrations/databricks/catalogs": {
     parameters: {
       query?: never;
       header?: never;
@@ -2516,7 +2516,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Databricks Catalogs */
-    get: operations['get_databricks_catalogs_integrations_databricks_catalogs_get'];
+    get: operations["get_databricks_catalogs_integrations_databricks_catalogs_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2525,7 +2525,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/databricks/databases': {
+  "/integrations/databricks/databases": {
     parameters: {
       query?: never;
       header?: never;
@@ -2533,7 +2533,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Databases For Cluster */
-    get: operations['get_databases_for_cluster_integrations_databricks_databases_get'];
+    get: operations["get_databases_for_cluster_integrations_databricks_databases_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2542,7 +2542,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/databricks/export': {
+  "/integrations/databricks/export": {
     parameters: {
       query?: never;
       header?: never;
@@ -2552,14 +2552,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Export To Databricks */
-    post: operations['export_to_databricks_integrations_databricks_export_post'];
+    post: operations["export_to_databricks_integrations_databricks_export_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/integrations/databricks/edits/export': {
+  "/integrations/databricks/edits/export": {
     parameters: {
       query?: never;
       header?: never;
@@ -2575,14 +2575,14 @@ export interface paths {
      *     If overrides are provided, and the original edit had a task, the override MUST explicitly have a task set (typically
      *     the same task as the edit)
      */
-    post: operations['export_edits_databricks_integrations_databricks_edits_export_post'];
+    post: operations["export_edits_databricks_integrations_databricks_edits_export_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/integrations/databricks/unity-catalog/export': {
+  "/integrations/databricks/unity-catalog/export": {
     parameters: {
       query?: never;
       header?: never;
@@ -2592,14 +2592,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Export To Databricks Unity Catalog */
-    post: operations['export_to_databricks_unity_catalog_integrations_databricks_unity_catalog_export_post'];
+    post: operations["export_to_databricks_unity_catalog_integrations_databricks_unity_catalog_export_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/integrations/databricks/unity-catalog/edits/export': {
+  "/integrations/databricks/unity-catalog/edits/export": {
     parameters: {
       query?: never;
       header?: never;
@@ -2609,14 +2609,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Export Edits Databricks Unity Catalog */
-    post: operations['export_edits_databricks_unity_catalog_integrations_databricks_unity_catalog_edits_export_post'];
+    post: operations["export_edits_databricks_unity_catalog_integrations_databricks_unity_catalog_edits_export_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/integrations/labelstudio': {
+  "/integrations/labelstudio": {
     parameters: {
       query?: never;
       header?: never;
@@ -2628,7 +2628,7 @@ export interface paths {
      * Create Or Update Integration
      * @description Create or update a labelstudio integration for this user from Galileo.
      */
-    put: operations['create_or_update_integration_integrations_labelstudio_put'];
+    put: operations["create_or_update_integration_integrations_labelstudio_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2636,7 +2636,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/labelstudio/projects': {
+  "/integrations/labelstudio/projects": {
     parameters: {
       query?: never;
       header?: never;
@@ -2644,7 +2644,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Labelstudio Projects */
-    get: operations['get_labelstudio_projects_integrations_labelstudio_projects_get'];
+    get: operations["get_labelstudio_projects_integrations_labelstudio_projects_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2653,7 +2653,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/labelstudio/export': {
+  "/integrations/labelstudio/export": {
     parameters: {
       query?: never;
       header?: never;
@@ -2663,14 +2663,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Export To Labelstudio */
-    post: operations['export_to_labelstudio_integrations_labelstudio_export_post'];
+    post: operations["export_to_labelstudio_integrations_labelstudio_export_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/integrations/mistral': {
+  "/integrations/mistral": {
     parameters: {
       query?: never;
       header?: never;
@@ -2682,7 +2682,7 @@ export interface paths {
      * Create Or Update Integration
      * @description Create or update an Mistral integration for this user from Galileo.
      */
-    put: operations['create_or_update_integration_integrations_mistral_put'];
+    put: operations["create_or_update_integration_integrations_mistral_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2690,7 +2690,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/openai': {
+  "/integrations/openai": {
     parameters: {
       query?: never;
       header?: never;
@@ -2702,7 +2702,7 @@ export interface paths {
      * Create Or Update Integration
      * @description Create or update an OpenAI integration for this user from Galileo.
      */
-    put: operations['create_or_update_integration_integrations_openai_put'];
+    put: operations["create_or_update_integration_integrations_openai_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2710,7 +2710,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/vertex_ai': {
+  "/integrations/vertex_ai": {
     parameters: {
       query?: never;
       header?: never;
@@ -2722,7 +2722,7 @@ export interface paths {
      * Create Or Update Integration
      * @description Create or update a Google Vertex AI integration for a user.
      */
-    put: operations['create_or_update_integration_integrations_vertex_ai_put'];
+    put: operations["create_or_update_integration_integrations_vertex_ai_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2730,7 +2730,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/integrations/writer': {
+  "/integrations/writer": {
     parameters: {
       query?: never;
       header?: never;
@@ -2742,7 +2742,7 @@ export interface paths {
      * Create Or Update Integration
      * @description Create or update a Writer integration for a user.
      */
-    put: operations['create_or_update_integration_integrations_writer_put'];
+    put: operations["create_or_update_integration_integrations_writer_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -2750,7 +2750,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/jobs': {
+  "/jobs": {
     parameters: {
       query?: never;
       header?: never;
@@ -2760,14 +2760,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Create Job */
-    post: operations['create_job_jobs_post'];
+    post: operations["create_job_jobs_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/jobs/{job_id}': {
+  "/jobs/{job_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -2778,7 +2778,7 @@ export interface paths {
      * Get Job
      * @description Get a job by id.
      */
-    get: operations['get_job_jobs__job_id__get'];
+    get: operations["get_job_jobs__job_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2787,7 +2787,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/jobs': {
+  "/projects/{project_id}/runs/{run_id}/jobs": {
     parameters: {
       query?: never;
       header?: never;
@@ -2800,7 +2800,7 @@ export interface paths {
      *
      *     Returns them in order of creation from newest to oldest.
      */
-    get: operations['get_jobs_for_project_run_projects__project_id__runs__run_id__jobs_get'];
+    get: operations["get_jobs_for_project_run_projects__project_id__runs__run_id__jobs_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2809,7 +2809,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/jobs/latest': {
+  "/projects/{project_id}/runs/{run_id}/jobs/latest": {
     parameters: {
       query?: never;
       header?: never;
@@ -2820,7 +2820,7 @@ export interface paths {
      * Get Latest Job For Project Run
      * @description Returns the most recently updated job for a run.
      */
-    get: operations['get_latest_job_for_project_run_projects__project_id__runs__run_id__jobs_latest_get'];
+    get: operations["get_latest_job_for_project_run_projects__project_id__runs__run_id__jobs_latest_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2829,7 +2829,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/llm_integrations/{llm_integration}/models': {
+  "/llm_integrations/{llm_integration}/models": {
     parameters: {
       query?: never;
       header?: never;
@@ -2840,7 +2840,7 @@ export interface paths {
      * Get Available Models
      * @description Get the list of supported models for the LLM integration.
      */
-    get: operations['get_available_models_llm_integrations__llm_integration__models_get'];
+    get: operations["get_available_models_llm_integrations__llm_integration__models_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2849,7 +2849,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/llm_integrations/{llm_integration}/scorer_models': {
+  "/llm_integrations/{llm_integration}/scorer_models": {
     parameters: {
       query?: never;
       header?: never;
@@ -2860,7 +2860,7 @@ export interface paths {
      * Get Available Scorer Models
      * @description Get the list of supported scorer models for the LLM integration.
      */
-    get: operations['get_available_scorer_models_llm_integrations__llm_integration__scorer_models_get'];
+    get: operations["get_available_scorer_models_llm_integrations__llm_integration__scorer_models_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -2869,7 +2869,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/log_streams': {
+  "/projects/{project_id}/log_streams": {
     parameters: {
       query?: never;
       header?: never;
@@ -2880,20 +2880,20 @@ export interface paths {
      * List Log Streams
      * @description Retrieve all log streams for a project.
      */
-    get: operations['list_log_streams_projects__project_id__log_streams_get'];
+    get: operations["list_log_streams_projects__project_id__log_streams_get"];
     put?: never;
     /**
      * Create Log Stream
      * @description Create a new log stream for a project.
      */
-    post: operations['create_log_stream_projects__project_id__log_streams_post'];
+    post: operations["create_log_stream_projects__project_id__log_streams_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/log_streams/{log_stream_id}': {
+  "/projects/{project_id}/log_streams/{log_stream_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -2904,24 +2904,24 @@ export interface paths {
      * Get Log Stream
      * @description Retrieve a specific log stream.
      */
-    get: operations['get_log_stream_projects__project_id__log_streams__log_stream_id__get'];
+    get: operations["get_log_stream_projects__project_id__log_streams__log_stream_id__get"];
     /**
      * Update Log Stream
      * @description Update a specific log stream.
      */
-    put: operations['update_log_stream_projects__project_id__log_streams__log_stream_id__put'];
+    put: operations["update_log_stream_projects__project_id__log_streams__log_stream_id__put"];
     post?: never;
     /**
      * Delete Log Stream
      * @description Delete a specific log stream.
      */
-    delete: operations['delete_log_stream_projects__project_id__log_streams__log_stream_id__delete'];
+    delete: operations["delete_log_stream_projects__project_id__log_streams__log_stream_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/meta/columns': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/meta/columns": {
     parameters: {
       query?: never;
       header?: never;
@@ -2944,14 +2944,14 @@ export interface paths {
      *     max
      *     min
      */
-    post: operations['list_metadata_columns_projects__project_id__runs__run_id__split__split__meta_columns_post'];
+    post: operations["list_metadata_columns_projects__project_id__runs__run_id__split__split__meta_columns_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/metric_critiques': {
+  "/projects/{project_id}/metric_critiques": {
     parameters: {
       query?: never;
       header?: never;
@@ -2961,14 +2961,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Create Metric Critiques */
-    post: operations['create_metric_critiques_projects__project_id__metric_critiques_post'];
+    post: operations["create_metric_critiques_projects__project_id__metric_critiques_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/metric_critiques/{critique_id}': {
+  "/projects/{project_id}/metric_critiques/{critique_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -2979,13 +2979,13 @@ export interface paths {
     put?: never;
     post?: never;
     /** Delete Metric Critique */
-    delete: operations['delete_metric_critique_projects__project_id__metric_critiques__critique_id__delete'];
+    delete: operations["delete_metric_critique_projects__project_id__metric_critiques__critique_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/alerts/create': {
+  "/projects/{project_id}/alerts/create": {
     parameters: {
       query?: never;
       header?: never;
@@ -2998,14 +2998,14 @@ export interface paths {
      * Create
      * @description Create alert for llm-monitor.
      */
-    post: operations['create_projects__project_id__alerts_create_post'];
+    post: operations["create_projects__project_id__alerts_create_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/alerts/{monitor_alert_config_id}/update': {
+  "/projects/{project_id}/alerts/{monitor_alert_config_id}/update": {
     parameters: {
       query?: never;
       header?: never;
@@ -3017,7 +3017,7 @@ export interface paths {
      * Update
      * @description Create alert for llm-monitor.
      */
-    put: operations['update_projects__project_id__alerts__monitor_alert_config_id__update_put'];
+    put: operations["update_projects__project_id__alerts__monitor_alert_config_id__update_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -3025,7 +3025,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/alerts/{monitor_alert_config_id}': {
+  "/projects/{project_id}/alerts/{monitor_alert_config_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -3033,7 +3033,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Alert By Id */
-    get: operations['get_alert_by_id_projects__project_id__alerts__monitor_alert_config_id__get'];
+    get: operations["get_alert_by_id_projects__project_id__alerts__monitor_alert_config_id__get"];
     put?: never;
     post?: never;
     /**
@@ -3042,13 +3042,13 @@ export interface paths {
      *
      *     Returns them in order of creation from newest to oldest.
      */
-    delete: operations['delete_alert_projects__project_id__alerts__monitor_alert_config_id__delete'];
+    delete: operations["delete_alert_projects__project_id__alerts__monitor_alert_config_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/alerts': {
+  "/projects/{project_id}/alerts": {
     parameters: {
       query?: never;
       header?: never;
@@ -3056,7 +3056,7 @@ export interface paths {
       cookie?: never;
     };
     /** List Alerts By Project */
-    get: operations['list_alerts_by_project_projects__project_id__alerts_get'];
+    get: operations["list_alerts_by_project_projects__project_id__alerts_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3065,7 +3065,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/observe/workflows': {
+  "/observe/workflows": {
     parameters: {
       query?: never;
       header?: never;
@@ -3085,14 +3085,14 @@ export interface paths {
      *     If the project does not exist, it will be created. If the project exists, the workflows will be logged to it.
      *     If both `project_id` and `project_name` are provided, `project_id` will take precedence.
      */
-    post: operations['log_workflows_observe_workflows_post'];
+    post: operations["log_workflows_observe_workflows_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/observe/projects/{project_id}/workflows': {
+  "/observe/projects/{project_id}/workflows": {
     parameters: {
       query?: never;
       header?: never;
@@ -3105,14 +3105,14 @@ export interface paths {
      * Get Workflows
      * @description Get workflows for a specific run in an Observe project.
      */
-    post: operations['get_workflows_observe_projects__project_id__workflows_post'];
+    post: operations["get_workflows_observe_projects__project_id__workflows_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/ingest': {
+  "/projects/{project_id}/observe/ingest": {
     parameters: {
       query?: never;
       header?: never;
@@ -3125,14 +3125,14 @@ export interface paths {
      * Ingest
      * @description Ingest batches of transaction records from llm-monitor.
      */
-    post: operations['ingest_projects__project_id__observe_ingest_post'];
+    post: operations["ingest_projects__project_id__observe_ingest_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/rows': {
+  "/projects/{project_id}/observe/rows": {
     parameters: {
       query?: never;
       header?: never;
@@ -3147,14 +3147,14 @@ export interface paths {
      *
      *     Returns them in order of creation from newest to oldest.
      */
-    post: operations['get_rows_projects__project_id__observe_rows_post'];
+    post: operations["get_rows_projects__project_id__observe_rows_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/filter_options': {
+  "/projects/{project_id}/observe/filter_options": {
     parameters: {
       query?: never;
       header?: never;
@@ -3165,7 +3165,7 @@ export interface paths {
      * Get Filter Options
      * @description Get filter options for the observe view.
      */
-    get: operations['get_filter_options_projects__project_id__observe_filter_options_get'];
+    get: operations["get_filter_options_projects__project_id__observe_filter_options_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3174,7 +3174,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/metric_critique_columns': {
+  "/projects/{project_id}/observe/metric_critique_columns": {
     parameters: {
       query?: never;
       header?: never;
@@ -3185,7 +3185,7 @@ export interface paths {
      * Get Metric Critique Columns
      * @description Get the metadata for the columns in the observe view.
      */
-    get: operations['get_metric_critique_columns_projects__project_id__observe_metric_critique_columns_get'];
+    get: operations["get_metric_critique_columns_projects__project_id__observe_metric_critique_columns_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3194,7 +3194,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/export': {
+  "/projects/{project_id}/observe/export": {
     parameters: {
       query?: never;
       header?: never;
@@ -3207,14 +3207,14 @@ export interface paths {
      * Export Rows
      * @description Export rows from monitor_records as jsonl or csv.
      */
-    post: operations['export_rows_projects__project_id__observe_export_post'];
+    post: operations["export_rows_projects__project_id__observe_export_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/export/databricks': {
+  "/projects/{project_id}/observe/export/databricks": {
     parameters: {
       query?: never;
       header?: never;
@@ -3227,14 +3227,14 @@ export interface paths {
      * Export Rows Databricks
      * @description Export rows from monitor_records to databricks.
      */
-    post: operations['export_rows_databricks_projects__project_id__observe_export_databricks_post'];
+    post: operations["export_rows_databricks_projects__project_id__observe_export_databricks_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/metrics': {
+  "/projects/{project_id}/observe/metrics": {
     parameters: {
       query?: never;
       header?: never;
@@ -3244,14 +3244,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Get Metrics */
-    post: operations['get_metrics_projects__project_id__observe_metrics_post'];
+    post: operations["get_metrics_projects__project_id__observe_metrics_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/delete': {
+  "/projects/{project_id}/observe/delete": {
     parameters: {
       query?: never;
       header?: never;
@@ -3266,14 +3266,14 @@ export interface paths {
      *
      *     Returns them in order of creation from newest to oldest.
      */
-    post: operations['delete_rows_projects__project_id__observe_delete_post'];
+    post: operations["delete_rows_projects__project_id__observe_delete_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/workflows-count': {
+  "/projects/{project_id}/observe/workflows-count": {
     parameters: {
       query?: never;
       header?: never;
@@ -3283,14 +3283,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Get Workflow Count */
-    post: operations['get_workflow_count_projects__project_id__observe_workflows_count_post'];
+    post: operations["get_workflow_count_projects__project_id__observe_workflows_count_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/integrations': {
+  "/projects/{project_id}/observe/integrations": {
     parameters: {
       query?: never;
       header?: never;
@@ -3301,7 +3301,7 @@ export interface paths {
      * Get Project Integrations
      * @description Get the integrations for a project.
      */
-    get: operations['get_project_integrations_projects__project_id__observe_integrations_get'];
+    get: operations["get_project_integrations_projects__project_id__observe_integrations_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3310,7 +3310,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/column_schema': {
+  "/projects/{project_id}/observe/column_schema": {
     parameters: {
       query?: never;
       header?: never;
@@ -3321,7 +3321,7 @@ export interface paths {
      * Get Metrics Schema Endpoint
      * @description Get column_schema for each metric.
      */
-    get: operations['get_metrics_schema_endpoint_projects__project_id__observe_column_schema_get'];
+    get: operations["get_metrics_schema_endpoint_projects__project_id__observe_column_schema_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3330,7 +3330,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/observe/user_metadata': {
+  "/projects/{project_id}/observe/user_metadata": {
     parameters: {
       query?: never;
       header?: never;
@@ -3341,7 +3341,7 @@ export interface paths {
      * Get User Metadata Endpoint
      * @description Get user_metadata fields for a project.
      */
-    get: operations['get_user_metadata_endpoint_projects__project_id__observe_user_metadata_get'];
+    get: operations["get_user_metadata_endpoint_projects__project_id__observe_user_metadata_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3350,7 +3350,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/organizations': {
+  "/organizations": {
     parameters: {
       query?: never;
       header?: never;
@@ -3360,14 +3360,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Create Organization */
-    post: operations['create_organization_organizations_post'];
+    post: operations["create_organization_organizations_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/organizations/query': {
+  "/organizations/query": {
     parameters: {
       query?: never;
       header?: never;
@@ -3377,14 +3377,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Query Organizations */
-    post: operations['query_organizations_organizations_query_post'];
+    post: operations["query_organizations_organizations_query_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/project_settings/{project_id}': {
+  "/project_settings/{project_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -3393,7 +3393,7 @@ export interface paths {
     };
     get?: never;
     /** Update Project Settings Legacy */
-    put: operations['update_project_settings_legacy_project_settings__project_id__put'];
+    put: operations["update_project_settings_legacy_project_settings__project_id__put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -3401,7 +3401,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/settings': {
+  "/projects/{project_id}/settings": {
     parameters: {
       query?: never;
       header?: never;
@@ -3409,9 +3409,9 @@ export interface paths {
       cookie?: never;
     };
     /** Get Settings */
-    get: operations['get_settings_projects__project_id__settings_get'];
+    get: operations["get_settings_projects__project_id__settings_get"];
     /** Update Project Settings */
-    put: operations['update_project_settings_projects__project_id__settings_put'];
+    put: operations["update_project_settings_projects__project_id__settings_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -3419,7 +3419,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/settings/scorers_config': {
+  "/projects/{project_id}/settings/scorers_config": {
     parameters: {
       query?: never;
       header?: never;
@@ -3427,7 +3427,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Scorers Config */
-    get: operations['get_scorers_config_projects__project_id__settings_scorers_config_get'];
+    get: operations["get_scorers_config_projects__project_id__settings_scorers_config_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3436,7 +3436,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/project/{project_id}/settings/scorers_config': {
+  "/project/{project_id}/settings/scorers_config": {
     parameters: {
       query?: never;
       header?: never;
@@ -3444,7 +3444,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Scorers Config */
-    get: operations['get_scorers_config_project__project_id__settings_scorers_config_get'];
+    get: operations["get_scorers_config_project__project_id__settings_scorers_config_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3453,7 +3453,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/settings/observe': {
+  "/projects/{project_id}/settings/observe": {
     parameters: {
       query?: never;
       header?: never;
@@ -3461,7 +3461,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Observe Settings */
-    get: operations['get_observe_settings_projects__project_id__settings_observe_get'];
+    get: operations["get_observe_settings_projects__project_id__settings_observe_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3470,7 +3470,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/settings/evaluate': {
+  "/projects/{project_id}/settings/evaluate": {
     parameters: {
       query?: never;
       header?: never;
@@ -3478,7 +3478,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Evaluate Settings */
-    get: operations['get_evaluate_settings_projects__project_id__settings_evaluate_get'];
+    get: operations["get_evaluate_settings_projects__project_id__settings_evaluate_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3487,7 +3487,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/collaborator_roles': {
+  "/collaborator_roles": {
     parameters: {
       query?: never;
       header?: never;
@@ -3495,7 +3495,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Collaborator Roles */
-    get: operations['get_collaborator_roles_collaborator_roles_get'];
+    get: operations["get_collaborator_roles_collaborator_roles_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3504,7 +3504,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects': {
+  "/projects": {
     parameters: {
       query?: never;
       header?: never;
@@ -3520,20 +3520,20 @@ export interface paths {
      *
      *     DEPRECATED in favor of `get_projects_paginated`.
      */
-    get: operations['get_projects_projects_get'];
+    get: operations["get_projects_projects_get"];
     put?: never;
     /**
      * Create Project
      * @description Create a new project.
      */
-    post: operations['create_project_projects_post'];
+    post: operations["create_project_projects_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/paginated': {
+  "/projects/paginated": {
     parameters: {
       query?: never;
       header?: never;
@@ -3548,14 +3548,14 @@ export interface paths {
      *
      *     If provided, filters on project_name and project_type.
      */
-    post: operations['get_projects_paginated_projects_paginated_post'];
+    post: operations["get_projects_paginated_projects_paginated_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/count': {
+  "/projects/count": {
     parameters: {
       query?: never;
       header?: never;
@@ -3568,14 +3568,14 @@ export interface paths {
      * Get Projects Count
      * @description Gets total count of projects for a user with applied filters.
      */
-    post: operations['get_projects_count_projects_count_post'];
+    post: operations["get_projects_count_projects_count_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/all': {
+  "/projects/all": {
     parameters: {
       query?: never;
       header?: never;
@@ -3591,7 +3591,7 @@ export interface paths {
      *
      *     DEPRECATED in favor of `get_projects_paginated`.
      */
-    get: operations['get_all_projects_projects_all_get'];
+    get: operations["get_all_projects_projects_all_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3600,7 +3600,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}': {
+  "/projects/{project_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -3608,9 +3608,9 @@ export interface paths {
       cookie?: never;
     };
     /** Get Project */
-    get: operations['get_project_projects__project_id__get'];
+    get: operations["get_project_projects__project_id__get"];
     /** Update Project */
-    put: operations['update_project_projects__project_id__put'];
+    put: operations["update_project_projects__project_id__put"];
     post?: never;
     /**
      * Delete Project
@@ -3619,13 +3619,13 @@ export interface paths {
      *     Any user with project access can delete a project.
      *     Note that `get_project_by_id` calls `user_can_access_project`.
      */
-    delete: operations['delete_project_projects__project_id__delete'];
+    delete: operations["delete_project_projects__project_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/upload_file': {
+  "/projects/{project_id}/upload_file": {
     parameters: {
       query?: never;
       header?: never;
@@ -3635,14 +3635,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Upload File */
-    post: operations['upload_file_projects__project_id__upload_file_post'];
+    post: operations["upload_file_projects__project_id__upload_file_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/users': {
+  "/projects/{project_id}/users": {
     parameters: {
       query?: never;
       header?: never;
@@ -3653,20 +3653,20 @@ export interface paths {
      * List User Project Collaborators
      * @description List the users with which the project has been shared.
      */
-    get: operations['list_user_project_collaborators_projects__project_id__users_get'];
+    get: operations["list_user_project_collaborators_projects__project_id__users_get"];
     put?: never;
     /**
      * Create User Project Collaborators
      * @description Share a project with users.
      */
-    post: operations['create_user_project_collaborators_projects__project_id__users_post'];
+    post: operations["create_user_project_collaborators_projects__project_id__users_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/groups': {
+  "/projects/{project_id}/groups": {
     parameters: {
       query?: never;
       header?: never;
@@ -3677,20 +3677,20 @@ export interface paths {
      * List Group Project Collaborators
      * @description List the groups with which the project has been shared.
      */
-    get: operations['list_group_project_collaborators_projects__project_id__groups_get'];
+    get: operations["list_group_project_collaborators_projects__project_id__groups_get"];
     put?: never;
     /**
      * Create Group Project Collaborators
      * @description Share a project with groups.
      */
-    post: operations['create_group_project_collaborators_projects__project_id__groups_post'];
+    post: operations["create_group_project_collaborators_projects__project_id__groups_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/users/{user_id}': {
+  "/projects/{project_id}/users/{user_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -3704,17 +3704,17 @@ export interface paths {
      * Delete User Project Collaborator
      * @description Remove a user's access to a project.
      */
-    delete: operations['delete_user_project_collaborator_projects__project_id__users__user_id__delete'];
+    delete: operations["delete_user_project_collaborator_projects__project_id__users__user_id__delete"];
     options?: never;
     head?: never;
     /**
      * Update User Project Collaborator
      * @description Update the sharing permissions of a user on a project.
      */
-    patch: operations['update_user_project_collaborator_projects__project_id__users__user_id__patch'];
+    patch: operations["update_user_project_collaborator_projects__project_id__users__user_id__patch"];
     trace?: never;
   };
-  '/projects/{project_id}/groups/{group_id}': {
+  "/projects/{project_id}/groups/{group_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -3728,17 +3728,17 @@ export interface paths {
      * Delete Group Project Collaborator
      * @description Remove a group's access to a project.
      */
-    delete: operations['delete_group_project_collaborator_projects__project_id__groups__group_id__delete'];
+    delete: operations["delete_group_project_collaborator_projects__project_id__groups__group_id__delete"];
     options?: never;
     head?: never;
     /**
      * Update Group Project Collaborator
      * @description Update the sharing permissions of a group on a project.
      */
-    patch: operations['update_group_project_collaborator_projects__project_id__groups__group_id__patch'];
+    patch: operations["update_group_project_collaborator_projects__project_id__groups__group_id__patch"];
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/chains/ingest': {
+  "/projects/{project_id}/runs/{run_id}/chains/ingest": {
     parameters: {
       query?: never;
       header?: never;
@@ -3748,14 +3748,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Ingest Prompt Chain Run */
-    post: operations['ingest_prompt_chain_run_projects__project_id__runs__run_id__chains_ingest_post'];
+    post: operations["ingest_prompt_chain_run_projects__project_id__runs__run_id__chains_ingest_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/chains/ingest/batch': {
+  "/projects/{project_id}/runs/{run_id}/chains/ingest/batch": {
     parameters: {
       query?: never;
       header?: never;
@@ -3765,14 +3765,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Ingest Batch */
-    post: operations['ingest_batch_projects__project_id__runs__run_id__chains_ingest_batch_post'];
+    post: operations["ingest_batch_projects__project_id__runs__run_id__chains_ingest_batch_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/prompts/models/all': {
+  "/prompts/models/all": {
     parameters: {
       query?: never;
       header?: never;
@@ -3780,7 +3780,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get All Models */
-    get: operations['get_all_models_prompts_models_all_get'];
+    get: operations["get_all_models_prompts_models_all_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3789,7 +3789,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/prompts/rows/columnar': {
+  "/projects/{project_id}/runs/{run_id}/prompts/rows/columnar": {
     parameters: {
       query?: never;
       header?: never;
@@ -3799,14 +3799,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Get Rows As Columns With Filters */
-    post: operations['get_rows_as_columns_with_filters_projects__project_id__runs__run_id__prompts_rows_columnar_post'];
+    post: operations["get_rows_as_columns_with_filters_projects__project_id__runs__run_id__prompts_rows_columnar_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/prompts/rows/{row_id}/columnar': {
+  "/projects/{project_id}/runs/{run_id}/prompts/rows/{row_id}/columnar": {
     parameters: {
       query?: never;
       header?: never;
@@ -3814,7 +3814,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Row As Column */
-    get: operations['get_row_as_column_projects__project_id__runs__run_id__prompts_rows__row_id__columnar_get'];
+    get: operations["get_row_as_column_projects__project_id__runs__run_id__prompts_rows__row_id__columnar_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3823,7 +3823,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/prompts/rows/columnar': {
+  "/projects/{project_id}/runs/prompts/rows/columnar": {
     parameters: {
       query?: never;
       header?: never;
@@ -3834,20 +3834,20 @@ export interface paths {
      * Get Multi Run Sample Ids
      * @description Given a list of runs with the same inputs, output the indices of each sample in each run.
      */
-    get: operations['get_multi_run_sample_ids_projects__project_id__runs_prompts_rows_columnar_get'];
+    get: operations["get_multi_run_sample_ids_projects__project_id__runs_prompts_rows_columnar_get"];
     put?: never;
     /**
      * Get Multi Run Samples For Row Ids
      * @description Given run_ids with their corresponding row ids, retrieve the samples for those row_ids.
      */
-    post: operations['get_multi_run_samples_for_row_ids_projects__project_id__runs_prompts_rows_columnar_post'];
+    post: operations["get_multi_run_samples_for_row_ids_projects__project_id__runs_prompts_rows_columnar_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/prompts/rows/chains/{chain_id}/columnar': {
+  "/projects/{project_id}/runs/{run_id}/prompts/rows/chains/{chain_id}/columnar": {
     parameters: {
       query?: never;
       header?: never;
@@ -3855,7 +3855,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Chain As Columns */
-    get: operations['get_chain_as_columns_projects__project_id__runs__run_id__prompts_rows_chains__chain_id__columnar_get'];
+    get: operations["get_chain_as_columns_projects__project_id__runs__run_id__prompts_rows_chains__chain_id__columnar_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3864,7 +3864,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/prompts/rows/groups': {
+  "/prompts/rows/groups": {
     parameters: {
       query?: never;
       header?: never;
@@ -3872,7 +3872,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Groups */
-    get: operations['get_groups_prompts_rows_groups_get'];
+    get: operations["get_groups_prompts_rows_groups_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3881,7 +3881,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/prompts/export_prompt_dataset': {
+  "/projects/{project_id}/runs/{run_id}/prompts/export_prompt_dataset": {
     parameters: {
       query?: never;
       header?: never;
@@ -3892,7 +3892,7 @@ export interface paths {
      * Export Prompt Dataset
      * @deprecated
      */
-    get: operations['export_prompt_dataset_projects__project_id__runs__run_id__prompts_export_prompt_dataset_get'];
+    get: operations["export_prompt_dataset_projects__project_id__runs__run_id__prompts_export_prompt_dataset_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3901,7 +3901,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/chains/{chain_id}': {
+  "/projects/{project_id}/runs/{run_id}/chains/{chain_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -3909,7 +3909,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Prompt Chain Rows */
-    get: operations['get_prompt_chain_rows_projects__project_id__runs__run_id__chains__chain_id__get'];
+    get: operations["get_prompt_chain_rows_projects__project_id__runs__run_id__chains__chain_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3918,7 +3918,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/prompts/rows': {
+  "/projects/{project_id}/runs/{run_id}/prompts/rows": {
     parameters: {
       query?: never;
       header?: never;
@@ -3929,7 +3929,7 @@ export interface paths {
      * Get Rows
      * @deprecated
      */
-    get: operations['get_rows_projects__project_id__runs__run_id__prompts_rows_get'];
+    get: operations["get_rows_projects__project_id__runs__run_id__prompts_rows_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -3938,7 +3938,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/scorers': {
+  "/projects/{project_id}/scorers": {
     parameters: {
       query?: never;
       header?: never;
@@ -3950,7 +3950,7 @@ export interface paths {
      * Submit Scorers
      * @description Trigger jobs to recompute a metric based on recompute settings.
      */
-    put: operations['submit_scorers_projects__project_id__scorers_put'];
+    put: operations["submit_scorers_projects__project_id__scorers_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -3958,7 +3958,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/prompts/scorers/{scorer_name}': {
+  "/projects/{project_id}/runs/{run_id}/prompts/scorers/{scorer_name}": {
     parameters: {
       query?: never;
       header?: never;
@@ -3967,7 +3967,7 @@ export interface paths {
     };
     get?: never;
     /** Put Score */
-    put: operations['put_score_projects__project_id__runs__run_id__prompts_scorers__scorer_name__put'];
+    put: operations["put_score_projects__project_id__runs__run_id__prompts_scorers__scorer_name__put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -3975,7 +3975,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/templates': {
+  "/projects/{project_id}/templates": {
     parameters: {
       query?: never;
       header?: never;
@@ -3998,7 +3998,7 @@ export interface paths {
      *     List[GetTemplateResponse]
      *         List of prompt template responses.
      */
-    get: operations['get_project_templates_projects__project_id__templates_get'];
+    get: operations["get_project_templates_projects__project_id__templates_get"];
     put?: never;
     /**
      * Create Prompt Template With Version
@@ -4026,14 +4026,14 @@ export interface paths {
      *     CreatePromptTemplateResponse
      *         Details about the created prompt template.
      */
-    post: operations['create_prompt_template_with_version_projects__project_id__templates_post'];
+    post: operations["create_prompt_template_with_version_projects__project_id__templates_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/templates/versions': {
+  "/projects/{project_id}/templates/versions": {
     parameters: {
       query?: never;
       header?: never;
@@ -4061,7 +4061,7 @@ export interface paths {
      *     GetTemplateResponse
      *         Prompt template response.
      */
-    get: operations['get_template_version_by_name_projects__project_id__templates_versions_get'];
+    get: operations["get_template_version_by_name_projects__project_id__templates_versions_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4070,7 +4070,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/templates/{template_id}': {
+  "/projects/{project_id}/templates/{template_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4095,17 +4095,17 @@ export interface paths {
      *     GetTemplateResponse
      *         Prompt template response.
      */
-    get: operations['get_template_from_project_projects__project_id__templates__template_id__get'];
+    get: operations["get_template_from_project_projects__project_id__templates__template_id__get"];
     put?: never;
     post?: never;
     /** Delete Template */
-    delete: operations['delete_template_projects__project_id__templates__template_id__delete'];
+    delete: operations["delete_template_projects__project_id__templates__template_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/templates/{template_id}/versions': {
+  "/projects/{project_id}/templates/{template_id}/versions": {
     parameters: {
       query?: never;
       header?: never;
@@ -4138,14 +4138,14 @@ export interface paths {
      *     BasePromptTemplateVersionResponse
      *         Response with details about the created prompt template version.
      */
-    post: operations['create_prompt_template_version_projects__project_id__templates__template_id__versions_post'];
+    post: operations["create_prompt_template_version_projects__project_id__templates__template_id__versions_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/templates/{template_id}/versions/{version}': {
+  "/projects/{project_id}/templates/{template_id}/versions/{version}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4172,9 +4172,9 @@ export interface paths {
      *     BasePromptTemplateVersionResponse
      *         Prompt template version response.
      */
-    get: operations['get_template_version_projects__project_id__templates__template_id__versions__version__get'];
+    get: operations["get_template_version_projects__project_id__templates__template_id__versions__version__get"];
     /** Set Selected Template Version */
-    put: operations['set_selected_template_version_projects__project_id__templates__template_id__versions__version__put'];
+    put: operations["set_selected_template_version_projects__project_id__templates__template_id__versions__version__put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -4182,7 +4182,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/protect/invoke': {
+  "/protect/invoke": {
     parameters: {
       query?: never;
       header?: never;
@@ -4192,14 +4192,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Invoke */
-    post: operations['invoke_protect_invoke_post'];
+    post: operations["invoke_protect_invoke_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/registered-scorers': {
+  "/registered-scorers": {
     parameters: {
       query?: never;
       header?: never;
@@ -4207,9 +4207,9 @@ export interface paths {
       cookie?: never;
     };
     /** List Scorers */
-    get: operations['list_scorers_registered_scorers_get'];
+    get: operations["list_scorers_registered_scorers_get"];
     /** Create Or Update */
-    put: operations['create_or_update_registered_scorers_put'];
+    put: operations["create_or_update_registered_scorers_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -4217,7 +4217,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/registered-scorers/{registered_scorer_id}': {
+  "/registered-scorers/{registered_scorer_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4228,13 +4228,13 @@ export interface paths {
     put?: never;
     post?: never;
     /** Delete Scorer */
-    delete: operations['delete_scorer_registered_scorers__registered_scorer_id__delete'];
+    delete: operations["delete_scorer_registered_scorers__registered_scorer_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/scorer-settings': {
+  "/projects/{project_id}/runs/{run_id}/scorer-settings": {
     parameters: {
       query?: never;
       header?: never;
@@ -4242,17 +4242,17 @@ export interface paths {
       cookie?: never;
     };
     /** Get Settings */
-    get: operations['get_settings_projects__project_id__runs__run_id__scorer_settings_get'];
+    get: operations["get_settings_projects__project_id__runs__run_id__scorer_settings_get"];
     put?: never;
     /** Upsert Scorers Config */
-    post: operations['upsert_scorers_config_projects__project_id__runs__run_id__scorer_settings_post'];
+    post: operations["upsert_scorers_config_projects__project_id__runs__run_id__scorer_settings_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs': {
+  "/projects/{project_id}/runs": {
     parameters: {
       query?: never;
       header?: never;
@@ -4265,23 +4265,23 @@ export interface paths {
      *
      *     If a run_name is provided, gets the run with that name, or []
      */
-    get: operations['get_project_runs_projects__project_id__runs_get'];
+    get: operations["get_project_runs_projects__project_id__runs_get"];
     put?: never;
     /** Create Run */
-    post: operations['create_run_projects__project_id__runs_post'];
+    post: operations["create_run_projects__project_id__runs_post"];
     /**
      * Delete Runs
      * @description Deletes runs by their ids.
      *
      *     Only runs within the same project can be deleted.
      */
-    delete: operations['delete_runs_projects__project_id__runs_delete'];
+    delete: operations["delete_runs_projects__project_id__runs_delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/prompts/runs': {
+  "/projects/{project_id}/prompts/runs": {
     parameters: {
       query?: never;
       header?: never;
@@ -4294,7 +4294,7 @@ export interface paths {
      *
      *     This is different from get_project_runs because it adds extra details that are needed for the prompt run page.
      */
-    get: operations['get_project_prompt_runs_projects__project_id__prompts_runs_get'];
+    get: operations["get_project_prompt_runs_projects__project_id__prompts_runs_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4303,7 +4303,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/prompts/runs/columnar': {
+  "/projects/{project_id}/prompts/runs/columnar": {
     parameters: {
       query?: never;
       header?: never;
@@ -4320,7 +4320,7 @@ export interface paths {
      *     2. Includes metadata about each of the columns.
      *     3. Includes mappings to each column's display names and super column names.
      */
-    get: operations['get_project_prompt_runs_as_columns_projects__project_id__prompts_runs_columnar_get'];
+    get: operations["get_project_prompt_runs_as_columns_projects__project_id__prompts_runs_columnar_get"];
     put?: never;
     /**
      * Get Project Prompt Runs As Columns With Filters
@@ -4331,14 +4331,14 @@ export interface paths {
      *     2. Includes metadata about each of the columns.
      *     3. Includes mappings to each column's display names and super column names.
      */
-    post: operations['get_project_prompt_runs_as_columns_with_filters_projects__project_id__prompts_runs_columnar_post'];
+    post: operations["get_project_prompt_runs_as_columns_with_filters_projects__project_id__prompts_runs_columnar_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}': {
+  "/projects/{project_id}/runs/{run_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4346,18 +4346,18 @@ export interface paths {
       cookie?: never;
     };
     /** Get Run */
-    get: operations['get_run_projects__project_id__runs__run_id__get'];
+    get: operations["get_run_projects__project_id__runs__run_id__get"];
     /** Update Run */
-    put: operations['update_run_projects__project_id__runs__run_id__put'];
+    put: operations["update_run_projects__project_id__runs__run_id__put"];
     post?: never;
     /** Delete Run */
-    delete: operations['delete_run_projects__project_id__runs__run_id__delete'];
+    delete: operations["delete_run_projects__project_id__runs__run_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/prompts/runs/{run_id}': {
+  "/projects/{project_id}/prompts/runs/{run_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4371,7 +4371,7 @@ export interface paths {
      *
      *     This is different from get_project_runs because it adds extra details that are needed for the prompt run page.
      */
-    get: operations['get_prompt_run_projects__project_id__prompts_runs__run_id__get'];
+    get: operations["get_prompt_run_projects__project_id__prompts_runs__run_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4380,7 +4380,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/link': {
+  "/projects/{project_id}/runs/{run_id}/link": {
     parameters: {
       query?: never;
       header?: never;
@@ -4388,7 +4388,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Run Link */
-    get: operations['get_run_link_projects__project_id__runs__run_id__link_get'];
+    get: operations["get_run_link_projects__project_id__runs__run_id__link_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4397,7 +4397,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/tasks': {
+  "/projects/{project_id}/runs/{run_id}/tasks": {
     parameters: {
       query?: never;
       header?: never;
@@ -4410,7 +4410,7 @@ export interface paths {
      *
      *     This is for multi-label runs, otherwise it will raise an exception
      */
-    get: operations['get_run_tasks_projects__project_id__runs__run_id__tasks_get'];
+    get: operations["get_run_tasks_projects__project_id__runs__run_id__tasks_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4419,7 +4419,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/labels': {
+  "/projects/{project_id}/runs/{run_id}/labels": {
     parameters: {
       query?: never;
       header?: never;
@@ -4433,7 +4433,7 @@ export interface paths {
      *     Split is not required because labels are the same across splits. If this is a multi-label run, a task is required,
      *     otherwise it is not expected
      */
-    get: operations['get_run_labels_projects__project_id__runs__run_id__labels_get'];
+    get: operations["get_run_labels_projects__project_id__runs__run_id__labels_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4442,7 +4442,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/inference_names': {
+  "/projects/{project_id}/runs/{run_id}/inference_names": {
     parameters: {
       query?: never;
       header?: never;
@@ -4455,7 +4455,7 @@ export interface paths {
      *
      *     If no inference names are logged, this will return an empty list
      */
-    get: operations['get_run_inference_names_projects__project_id__runs__run_id__inference_names_get'];
+    get: operations["get_run_inference_names_projects__project_id__runs__run_id__inference_names_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4464,7 +4464,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/epochs': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/epochs": {
     parameters: {
       query?: never;
       header?: never;
@@ -4475,7 +4475,7 @@ export interface paths {
      * Get Num Epochs For Run
      * @description Gets the number of training epochs for the run.
      */
-    get: operations['get_num_epochs_for_run_projects__project_id__runs__run_id__split__split__epochs_get'];
+    get: operations["get_num_epochs_for_run_projects__project_id__runs__run_id__split__split__epochs_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4484,7 +4484,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/splits': {
+  "/projects/{project_id}/runs/{run_id}/splits": {
     parameters: {
       query?: never;
       header?: never;
@@ -4495,7 +4495,7 @@ export interface paths {
      * Get Splits
      * @description Gets logged splits for a given project_id/run_id.
      */
-    get: operations['get_splits_projects__project_id__runs__run_id__splits_get'];
+    get: operations["get_splits_projects__project_id__runs__run_id__splits_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4504,7 +4504,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/metrics': {
+  "/projects/{project_id}/runs/{run_id}/metrics": {
     parameters: {
       query?: never;
       header?: never;
@@ -4517,12 +4517,12 @@ export interface paths {
      *
      *     Optionally provide a key to narrow the search
      */
-    get: operations['get_metrics_for_run_projects__project_id__runs__run_id__metrics_get'];
+    get: operations["get_metrics_for_run_projects__project_id__runs__run_id__metrics_get"];
     /**
      * Set Metric For Run
      * @description Sets or updates a metric for a run.
      */
-    put: operations['set_metric_for_run_projects__project_id__runs__run_id__metrics_put'];
+    put: operations["set_metric_for_run_projects__project_id__runs__run_id__metrics_put"];
     post?: never;
     delete?: never;
     options?: never;
@@ -4530,7 +4530,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/prompts/metrics': {
+  "/projects/{project_id}/runs/{run_id}/prompts/metrics": {
     parameters: {
       query?: never;
       header?: never;
@@ -4538,7 +4538,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Prompt Aggregate Metrics As Singleton Columns */
-    get: operations['get_prompt_aggregate_metrics_as_singleton_columns_projects__project_id__runs__run_id__prompts_metrics_get'];
+    get: operations["get_prompt_aggregate_metrics_as_singleton_columns_projects__project_id__runs__run_id__prompts_metrics_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4547,7 +4547,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/tags': {
+  "/projects/{project_id}/runs/{run_id}/tags": {
     parameters: {
       query?: never;
       header?: never;
@@ -4558,20 +4558,20 @@ export interface paths {
      * Get Run Tags
      * @description Gets tags for a given project_id/run_id.
      */
-    get: operations['get_run_tags_projects__project_id__runs__run_id__tags_get'];
+    get: operations["get_run_tags_projects__project_id__runs__run_id__tags_get"];
     put?: never;
     /**
      * Set Tag For Run
      * @description Sets or updates a tag for a run.
      */
-    post: operations['set_tag_for_run_projects__project_id__runs__run_id__tags_post'];
+    post: operations["set_tag_for_run_projects__project_id__runs__run_id__tags_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/tags/{tag_id}': {
+  "/projects/{project_id}/runs/{run_id}/tags/{tag_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4582,21 +4582,21 @@ export interface paths {
      * Get Run Tag
      * @description Gets tags for a given project_id/run_id.
      */
-    get: operations['get_run_tag_projects__project_id__runs__run_id__tags__tag_id__get'];
+    get: operations["get_run_tag_projects__project_id__runs__run_id__tags__tag_id__get"];
     /**
      * Update Tag For Run
      * @description Sets or updates a tag for a run.
      */
-    put: operations['update_tag_for_run_projects__project_id__runs__run_id__tags__tag_id__put'];
+    put: operations["update_tag_for_run_projects__project_id__runs__run_id__tags__tag_id__put"];
     post?: never;
     /** Delete Run Tag */
-    delete: operations['delete_run_tag_projects__project_id__runs__run_id__tags__tag_id__delete'];
+    delete: operations["delete_run_tag_projects__project_id__runs__run_id__tags__tag_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/scorers': {
+  "/scorers": {
     parameters: {
       query?: never;
       header?: never;
@@ -4606,14 +4606,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Create */
-    post: operations['create_scorers_post'];
+    post: operations["create_scorers_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/scorers/{scorer_id}': {
+  "/scorers/{scorer_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4621,17 +4621,17 @@ export interface paths {
       cookie?: never;
     };
     /** Get Scorer */
-    get: operations['get_scorer_scorers__scorer_id__get'];
+    get: operations["get_scorer_scorers__scorer_id__get"];
     put?: never;
     post?: never;
     delete?: never;
     options?: never;
     head?: never;
     /** Update */
-    patch: operations['update_scorers__scorer_id__patch'];
+    patch: operations["update_scorers__scorer_id__patch"];
     trace?: never;
   };
-  '/scorers/{scorer_id}/version/llm': {
+  "/scorers/{scorer_id}/version/llm": {
     parameters: {
       query?: never;
       header?: never;
@@ -4641,14 +4641,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Create Llm Scorer Version */
-    post: operations['create_llm_scorer_version_scorers__scorer_id__version_llm_post'];
+    post: operations["create_llm_scorer_version_scorers__scorer_id__version_llm_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/scorers/list': {
+  "/scorers/list": {
     parameters: {
       query?: never;
       header?: never;
@@ -4658,14 +4658,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** List Scorers With Filters */
-    post: operations['list_scorers_with_filters_scorers_list_post'];
+    post: operations["list_scorers_with_filters_scorers_list_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/scorers/tags': {
+  "/scorers/tags": {
     parameters: {
       query?: never;
       header?: never;
@@ -4673,7 +4673,7 @@ export interface paths {
       cookie?: never;
     };
     /** List Tags */
-    get: operations['list_tags_scorers_tags_get'];
+    get: operations["list_tags_scorers_tags_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4682,7 +4682,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/scorers/{scorer_id}/versions': {
+  "/scorers/{scorer_id}/versions": {
     parameters: {
       query?: never;
       header?: never;
@@ -4690,7 +4690,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Scorer Versions */
-    get: operations['get_scorer_versions_scorers__scorer_id__versions_get'];
+    get: operations["get_scorer_versions_scorers__scorer_id__versions_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4699,7 +4699,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/slices': {
+  "/projects/{project_id}/slices": {
     parameters: {
       query?: never;
       header?: never;
@@ -4712,7 +4712,7 @@ export interface paths {
      *
      *     If slice_name is provided, returns the slice with that name, else []
      */
-    get: operations['get_project_slices_projects__project_id__slices_get'];
+    get: operations["get_project_slices_projects__project_id__slices_get"];
     put?: never;
     /**
      * Create Slice
@@ -4722,14 +4722,14 @@ export interface paths {
      *     run, or split). On request, the logic will be validated. The returned Slice's "logic" field should fit directly into
      *     a ProcRequest (barring the run_id and Split. Those must be provided by the client).
      */
-    post: operations['create_slice_projects__project_id__slices_post'];
+    post: operations["create_slice_projects__project_id__slices_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/split/{split}/slices': {
+  "/projects/{project_id}/runs/{run_id}/split/{split}/slices": {
     parameters: {
       query?: never;
       header?: never;
@@ -4742,7 +4742,7 @@ export interface paths {
      *
      *     We apply the logic and compute metrics for each slice.
      */
-    get: operations['get_slice_metrics_for_run_projects__project_id__runs__run_id__split__split__slices_get'];
+    get: operations["get_slice_metrics_for_run_projects__project_id__runs__run_id__split__split__slices_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4751,7 +4751,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/slices/{slice_id}': {
+  "/projects/{project_id}/slices/{slice_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4765,7 +4765,7 @@ export interface paths {
      *     The returned slice will have a "logic" field that will be directly usable in a ProcRequest (barring the run_id and
      *     Split. Those must be provided by the client).
      */
-    get: operations['get_slice_projects__project_id__slices__slice_id__get'];
+    get: operations["get_slice_projects__project_id__slices__slice_id__get"];
     /**
      * Update Slice
      * @description Updates a slice.
@@ -4773,16 +4773,16 @@ export interface paths {
      *     When updating a slice, you cannot update individual fields. You must update the ENTIRE slice. Meaning whatever is
      *     sent in the request will become the new slice.
      */
-    put: operations['update_slice_projects__project_id__slices__slice_id__put'];
+    put: operations["update_slice_projects__project_id__slices__slice_id__put"];
     post?: never;
     /** Delete Slice */
-    delete: operations['delete_slice_projects__project_id__slices__slice_id__delete'];
+    delete: operations["delete_slice_projects__project_id__slices__slice_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/stages': {
+  "/projects/{project_id}/stages": {
     parameters: {
       query?: never;
       header?: never;
@@ -4790,17 +4790,17 @@ export interface paths {
       cookie?: never;
     };
     /** Get Stage */
-    get: operations['get_stage_projects__project_id__stages_get'];
+    get: operations["get_stage_projects__project_id__stages_get"];
     put?: never;
     /** Create Stage */
-    post: operations['create_stage_projects__project_id__stages_post'];
+    post: operations["create_stage_projects__project_id__stages_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/stages/{stage_id}': {
+  "/projects/{project_id}/stages/{stage_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4809,16 +4809,16 @@ export interface paths {
     };
     get?: never;
     /** Pause Stage */
-    put: operations['pause_stage_projects__project_id__stages__stage_id__put'];
+    put: operations["pause_stage_projects__project_id__stages__stage_id__put"];
     /** Update Stage */
-    post: operations['update_stage_projects__project_id__stages__stage_id__post'];
+    post: operations["update_stage_projects__project_id__stages__stage_id__post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/traces': {
+  "/projects/{project_id}/traces": {
     parameters: {
       query?: never;
       header?: never;
@@ -4828,14 +4828,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Log Traces */
-    post: operations['log_traces_projects__project_id__traces_post'];
+    post: operations["log_traces_projects__project_id__traces_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/traces/available_columns': {
+  "/projects/{project_id}/traces/available_columns": {
     parameters: {
       query?: never;
       header?: never;
@@ -4845,14 +4845,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Traces Available Columns */
-    post: operations['traces_available_columns_projects__project_id__traces_available_columns_post'];
+    post: operations["traces_available_columns_projects__project_id__traces_available_columns_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/spans/available_columns': {
+  "/projects/{project_id}/spans/available_columns": {
     parameters: {
       query?: never;
       header?: never;
@@ -4862,14 +4862,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Spans Available Columns */
-    post: operations['spans_available_columns_projects__project_id__spans_available_columns_post'];
+    post: operations["spans_available_columns_projects__project_id__spans_available_columns_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/traces/search': {
+  "/projects/{project_id}/traces/search": {
     parameters: {
       query?: never;
       header?: never;
@@ -4879,14 +4879,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Query Traces */
-    post: operations['query_traces_projects__project_id__traces_search_post'];
+    post: operations["query_traces_projects__project_id__traces_search_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/spans/search': {
+  "/projects/{project_id}/spans/search": {
     parameters: {
       query?: never;
       header?: never;
@@ -4896,14 +4896,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Query Spans */
-    post: operations['query_spans_projects__project_id__spans_search_post'];
+    post: operations["query_spans_projects__project_id__spans_search_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/traces/{trace_id}': {
+  "/projects/{project_id}/traces/{trace_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4911,7 +4911,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Trace */
-    get: operations['get_trace_projects__project_id__traces__trace_id__get'];
+    get: operations["get_trace_projects__project_id__traces__trace_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4920,7 +4920,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/spans/{span_id}': {
+  "/projects/{project_id}/spans/{span_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4928,7 +4928,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Span */
-    get: operations['get_span_projects__project_id__spans__span_id__get'];
+    get: operations["get_span_projects__project_id__spans__span_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4937,7 +4937,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/models/{model_id}': {
+  "/models/{model_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -4949,7 +4949,7 @@ export interface paths {
      * @description Gets a model from the database and returns the presigned url to download it :param project_id: project id :param
      *     run_id: run id :param model_id: model id :param db_read: database session :param current_user: current user.
      */
-    get: operations['get_model_endpoint_models__model_id__get'];
+    get: operations["get_model_endpoint_models__model_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4958,7 +4958,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/models': {
+  "/models": {
     parameters: {
       query?: never;
       header?: never;
@@ -4970,7 +4970,7 @@ export interface paths {
      * @description Gets all models for a run :param project_id: project id :param run_id: run id :param db_read: database session
      *     :param current_user: current user.
      */
-    get: operations['get_all_models_models_get'];
+    get: operations["get_all_models_models_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -4979,7 +4979,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/runs/{run_id}/model': {
+  "/projects/{project_id}/runs/{run_id}/model": {
     parameters: {
       query?: never;
       header?: never;
@@ -4992,21 +4992,21 @@ export interface paths {
      *
      *     database session.
      */
-    get: operations['get_model_by_run_projects__project_id__runs__run_id__model_get'];
+    get: operations["get_model_by_run_projects__project_id__runs__run_id__model_get"];
     put?: never;
     /**
      * Upload Model
      * @description Uploads a model to the object store and creates a model record in the database :param project_id: project id
      *     :param run_id: run id :param validation_request: model upload request.
      */
-    post: operations['upload_model_projects__project_id__runs__run_id__model_post'];
+    post: operations["upload_model_projects__project_id__runs__run_id__model_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/models/all': {
+  "/projects/{project_id}/models/all": {
     parameters: {
       query?: never;
       header?: never;
@@ -5018,7 +5018,7 @@ export interface paths {
      * @description Gets all models for a run :param project_id: project id :param run_id: run id :param db_read: database
      *     session.
      */
-    get: operations['get_all_models_for_project_projects__project_id__models_all_get'];
+    get: operations["get_all_models_for_project_projects__project_id__models_all_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -5027,7 +5027,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/projects/{project_id}/bookmark': {
+  "/projects/{project_id}/bookmark": {
     parameters: {
       query?: never;
       header?: never;
@@ -5036,16 +5036,16 @@ export interface paths {
     };
     get?: never;
     /** Bookmark Project */
-    put: operations['bookmark_project_projects__project_id__bookmark_put'];
+    put: operations["bookmark_project_projects__project_id__bookmark_put"];
     post?: never;
     /** Unbookmark Project */
-    delete: operations['unbookmark_project_projects__project_id__bookmark_delete'];
+    delete: operations["unbookmark_project_projects__project_id__bookmark_delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/usage_plans': {
+  "/usage_plans": {
     parameters: {
       query?: never;
       header?: never;
@@ -5060,7 +5060,7 @@ export interface paths {
      *         dict[UsagePlanName, UsagePlan]: A dictionary mapping subscription plan types
      *             to their corresponding usage plans.
      */
-    get: operations['get_usage_plans_usage_plans_get'];
+    get: operations["get_usage_plans_usage_plans_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -5069,7 +5069,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/v1/healthcheck': {
+  "/v1/healthcheck": {
     parameters: {
       query?: never;
       header?: never;
@@ -5077,7 +5077,7 @@ export interface paths {
       cookie?: never;
     };
     /** Healthcheck */
-    get: operations['healthcheck_v1_healthcheck_get'];
+    get: operations["healthcheck_v1_healthcheck_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -5086,7 +5086,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/v1/token': {
+  "/v1/token": {
     parameters: {
       query?: never;
       header?: never;
@@ -5094,7 +5094,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Token */
-    get: operations['get_token_v1_token_get'];
+    get: operations["get_token_v1_token_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -5103,7 +5103,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/v1/evaluate/runs': {
+  "/v1/evaluate/runs": {
     parameters: {
       query?: never;
       header?: never;
@@ -5122,14 +5122,14 @@ export interface paths {
      *
      *     The body is also expected to include the configuration for the scorers to be used in the evaluation. This configuration will be used to evaluate the workflows and generate the results.
      */
-    post: operations['create_workflows_run_v1_evaluate_runs_post'];
+    post: operations["create_workflows_run_v1_evaluate_runs_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v1/evaluate/run-workflows': {
+  "/v1/evaluate/run-workflows": {
     parameters: {
       query?: never;
       header?: never;
@@ -5142,14 +5142,14 @@ export interface paths {
      * Get Evaluate Run Results
      * @description Fetch evaluation results for a specific run including rows and aggregate information.
      */
-    post: operations['get_evaluate_run_results_v1_evaluate_run_workflows_post'];
+    post: operations["get_evaluate_run_results_v1_evaluate_run_workflows_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v1/observe/workflows': {
+  "/v1/observe/workflows": {
     parameters: {
       query?: never;
       header?: never;
@@ -5169,14 +5169,14 @@ export interface paths {
      *     If the project does not exist, it will be created. If the project exists, the workflows will be logged to it.
      *     If both `project_id` and `project_name` are provided, `project_id` will take precedence.
      */
-    post: operations['log_workflows_v1_observe_workflows_post'];
+    post: operations["log_workflows_v1_observe_workflows_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v1/observe/projects/{project_id}/workflows': {
+  "/v1/observe/projects/{project_id}/workflows": {
     parameters: {
       query?: never;
       header?: never;
@@ -5189,14 +5189,14 @@ export interface paths {
      * Get Workflows
      * @description Get workflows for a specific run in an Observe project.
      */
-    post: operations['get_workflows_v1_observe_projects__project_id__workflows_post'];
+    post: operations["get_workflows_v1_observe_projects__project_id__workflows_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v1/protect/invoke': {
+  "/v1/protect/invoke": {
     parameters: {
       query?: never;
       header?: never;
@@ -5206,14 +5206,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Invoke */
-    post: operations['invoke_v1_protect_invoke_post'];
+    post: operations["invoke_v1_protect_invoke_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v2/healthcheck': {
+  "/v2/healthcheck": {
     parameters: {
       query?: never;
       header?: never;
@@ -5221,7 +5221,7 @@ export interface paths {
       cookie?: never;
     };
     /** Healthcheck */
-    get: operations['healthcheck_v2_healthcheck_get'];
+    get: operations["healthcheck_v2_healthcheck_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -5230,7 +5230,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/v2/token': {
+  "/v2/token": {
     parameters: {
       query?: never;
       header?: never;
@@ -5238,7 +5238,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Token */
-    get: operations['get_token_v2_token_get'];
+    get: operations["get_token_v2_token_get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -5247,7 +5247,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/traces': {
+  "/v2/projects/{project_id}/traces": {
     parameters: {
       query?: never;
       header?: never;
@@ -5257,14 +5257,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Log Traces */
-    post: operations['log_traces_v2_projects__project_id__traces_post'];
+    post: operations["log_traces_v2_projects__project_id__traces_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/traces/available_columns': {
+  "/v2/projects/{project_id}/traces/available_columns": {
     parameters: {
       query?: never;
       header?: never;
@@ -5274,14 +5274,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Traces Available Columns */
-    post: operations['traces_available_columns_v2_projects__project_id__traces_available_columns_post'];
+    post: operations["traces_available_columns_v2_projects__project_id__traces_available_columns_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/spans/available_columns': {
+  "/v2/projects/{project_id}/spans/available_columns": {
     parameters: {
       query?: never;
       header?: never;
@@ -5291,14 +5291,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Spans Available Columns */
-    post: operations['spans_available_columns_v2_projects__project_id__spans_available_columns_post'];
+    post: operations["spans_available_columns_v2_projects__project_id__spans_available_columns_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/traces/search': {
+  "/v2/projects/{project_id}/traces/search": {
     parameters: {
       query?: never;
       header?: never;
@@ -5308,14 +5308,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Query Traces */
-    post: operations['query_traces_v2_projects__project_id__traces_search_post'];
+    post: operations["query_traces_v2_projects__project_id__traces_search_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/spans/search': {
+  "/v2/projects/{project_id}/spans/search": {
     parameters: {
       query?: never;
       header?: never;
@@ -5325,14 +5325,14 @@ export interface paths {
     get?: never;
     put?: never;
     /** Query Spans */
-    post: operations['query_spans_v2_projects__project_id__spans_search_post'];
+    post: operations["query_spans_v2_projects__project_id__spans_search_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/traces/{trace_id}': {
+  "/v2/projects/{project_id}/traces/{trace_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -5340,7 +5340,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Trace */
-    get: operations['get_trace_v2_projects__project_id__traces__trace_id__get'];
+    get: operations["get_trace_v2_projects__project_id__traces__trace_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -5349,7 +5349,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/spans/{span_id}': {
+  "/v2/projects/{project_id}/spans/{span_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -5357,7 +5357,7 @@ export interface paths {
       cookie?: never;
     };
     /** Get Span */
-    get: operations['get_span_v2_projects__project_id__spans__span_id__get'];
+    get: operations["get_span_v2_projects__project_id__spans__span_id__get"];
     put?: never;
     post?: never;
     delete?: never;
@@ -5366,7 +5366,7 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/log_streams': {
+  "/v2/projects/{project_id}/log_streams": {
     parameters: {
       query?: never;
       header?: never;
@@ -5377,20 +5377,20 @@ export interface paths {
      * List Log Streams
      * @description Retrieve all log streams for a project.
      */
-    get: operations['list_log_streams_v2_projects__project_id__log_streams_get'];
+    get: operations["list_log_streams_v2_projects__project_id__log_streams_get"];
     put?: never;
     /**
      * Create Log Stream
      * @description Create a new log stream for a project.
      */
-    post: operations['create_log_stream_v2_projects__project_id__log_streams_post'];
+    post: operations["create_log_stream_v2_projects__project_id__log_streams_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/log_streams/{log_stream_id}': {
+  "/v2/projects/{project_id}/log_streams/{log_stream_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -5401,24 +5401,24 @@ export interface paths {
      * Get Log Stream
      * @description Retrieve a specific log stream.
      */
-    get: operations['get_log_stream_v2_projects__project_id__log_streams__log_stream_id__get'];
+    get: operations["get_log_stream_v2_projects__project_id__log_streams__log_stream_id__get"];
     /**
      * Update Log Stream
      * @description Update a specific log stream.
      */
-    put: operations['update_log_stream_v2_projects__project_id__log_streams__log_stream_id__put'];
+    put: operations["update_log_stream_v2_projects__project_id__log_streams__log_stream_id__put"];
     post?: never;
     /**
      * Delete Log Stream
      * @description Delete a specific log stream.
      */
-    delete: operations['delete_log_stream_v2_projects__project_id__log_streams__log_stream_id__delete'];
+    delete: operations["delete_log_stream_v2_projects__project_id__log_streams__log_stream_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/experiments': {
+  "/v2/projects/{project_id}/experiments": {
     parameters: {
       query?: never;
       header?: never;
@@ -5429,20 +5429,20 @@ export interface paths {
      * List Experiments
      * @description Retrieve all experiments for a project.
      */
-    get: operations['list_experiments_v2_projects__project_id__experiments_get'];
+    get: operations["list_experiments_v2_projects__project_id__experiments_get"];
     put?: never;
     /**
      * Create Experiment
      * @description Create a new experiment for a project.
      */
-    post: operations['create_experiment_v2_projects__project_id__experiments_post'];
+    post: operations["create_experiment_v2_projects__project_id__experiments_post"];
     delete?: never;
     options?: never;
     head?: never;
     patch?: never;
     trace?: never;
   };
-  '/v2/projects/{project_id}/experiments/{experiment_id}': {
+  "/v2/projects/{project_id}/experiments/{experiment_id}": {
     parameters: {
       query?: never;
       header?: never;
@@ -5453,18 +5453,18 @@ export interface paths {
      * Get Experiment
      * @description Retrieve a specific experiment.
      */
-    get: operations['get_experiment_v2_projects__project_id__experiments__experiment_id__get'];
+    get: operations["get_experiment_v2_projects__project_id__experiments__experiment_id__get"];
     /**
      * Update Experiment
      * @description Update a specific experiment.
      */
-    put: operations['update_experiment_v2_projects__project_id__experiments__experiment_id__put'];
+    put: operations["update_experiment_v2_projects__project_id__experiments__experiment_id__put"];
     post?: never;
     /**
      * Delete Experiment
      * @description Delete a specific experiment.
      */
-    delete: operations['delete_experiment_v2_projects__project_id__experiments__experiment_id__delete'];
+    delete: operations["delete_experiment_v2_projects__project_id__experiments__experiment_id__delete"];
     options?: never;
     head?: never;
     patch?: never;
@@ -5477,7 +5477,7 @@ export interface components {
     /** ActionResult */
     ActionResult: {
       /** @description Type of action that was taken. */
-      type: components['schemas']['ActionType'];
+      type: components["schemas"]["ActionType"];
       /**
        * Value
        * @description Value of the action that was taken.
@@ -5488,26 +5488,26 @@ export interface components {
      * ActionType
      * @enum {string}
      */
-    ActionType: 'OVERRIDE' | 'PASSTHROUGH';
+    ActionType: "OVERRIDE" | "PASSTHROUGH";
     /** AgentStep */
     AgentStep: {
       /**
        * @description Type of the step. By default, it is set to agent. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'agent';
+      type: "agent";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -5519,12 +5519,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -5568,15 +5568,15 @@ export interface components {
        * @description Steps in the workflow.
        */
       steps?: (
-        | components['schemas']['WorkflowStep']
-        | components['schemas']['ChainStep']
-        | components['schemas']['LlmStep']
-        | components['schemas']['RetrieverStep']
-        | components['schemas']['ToolStep']
-        | components['schemas']['AgentStep']
+        | components["schemas"]["WorkflowStep"]
+        | components["schemas"]["ChainStep"]
+        | components["schemas"]["LlmStep"]
+        | components["schemas"]["RetrieverStep"]
+        | components["schemas"]["ToolStep"]
+        | components["schemas"]["AgentStep"]
       )[];
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildren'] | null;
+      parent?: components["schemas"]["StepWithChildren"] | null;
     };
     /** AgenticWorkflowSuccessScorer */
     AgenticWorkflowSuccessScorer: {
@@ -5584,15 +5584,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'agentic_workflow_success';
+      name: "agentic_workflow_success";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /**
@@ -5600,7 +5600,7 @@ export interface components {
        * @default plus
        * @constant
        */
-      type?: 'plus';
+      type?: "plus";
       /**
        * Model Name
        * @description Alias of the model to use for the scorer.
@@ -5750,7 +5750,7 @@ export interface components {
        *       }
        *     ]
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /** AggregateMetrics */
     AggregateMetrics: {
@@ -5812,7 +5812,7 @@ export interface components {
      * Aggregator
      * @enum {string}
      */
-    Aggregator: 'count' | 'sum' | 'avg' | 'max' | 'min';
+    Aggregator: "count" | "sum" | "avg" | "max" | "min";
     /** Alert */
     Alert: {
       /** Alert Title */
@@ -5825,31 +5825,31 @@ export interface components {
       /** Field */
       field: string;
       /** Aggregation */
-      aggregation: components['schemas']['Aggregator'] | string;
-      operator: components['schemas']['Operator'];
+      aggregation: components["schemas"]["Aggregator"] | string;
+      operator: components["schemas"]["Operator"];
       /** Value */
       value: number | string;
       /** Filter Value */
       filter_value?: string | number | null;
-      filter_operator?: components['schemas']['Operator'] | null;
+      filter_operator?: components["schemas"]["Operator"] | null;
       /** Window */
       window: number;
       /** @default metric/numeric/1 */
-      condition_type?: components['schemas']['AlertConditionType'];
+      condition_type?: components["schemas"]["AlertConditionType"];
     };
     /**
      * AlertConditionType
      * @enum {string}
      */
     AlertConditionType:
-      | 'metric/numeric/1'
-      | 'metric/string/1'
-      | 'root/numeric/1'
-      | 'metric/array_string/1';
+      | "metric/numeric/1"
+      | "metric/string/1"
+      | "root/numeric/1"
+      | "metric/array_string/1";
     /** AlertConfigurationResponse */
     AlertConfigurationResponse: {
       /** Conditions */
-      conditions?: components['schemas']['AlertCondition'][] | null;
+      conditions?: components["schemas"]["AlertCondition"][] | null;
       /** Interval */
       interval?: number | null;
       /** Active */
@@ -5866,7 +5866,7 @@ export interface components {
       counter_since_last_sent?: number | null;
       /** Counter */
       counter?: number | null;
-      schema_version?: components['schemas']['AlertMonitorType'] | null;
+      schema_version?: components["schemas"]["AlertMonitorType"] | null;
       /**
        * Id
        * Format: uuid4
@@ -5898,12 +5898,12 @@ export interface components {
      * @description The importance of the alert.
      * @enum {string}
      */
-    AlertImportance: 'high' | 'medium' | 'low';
+    AlertImportance: "high" | "medium" | "low";
     /**
      * AlertMonitorType
      * @enum {string}
      */
-    AlertMonitorType: 'multi_condition/object/1';
+    AlertMonitorType: "multi_condition/object/1";
     /** AlertStatusResponse */
     AlertStatusResponse: {
       /** Message */
@@ -5918,7 +5918,7 @@ export interface components {
       /** Emails */
       emails?: string[];
       /** Webhooks */
-      webhooks?: components['schemas']['Webhook'][];
+      webhooks?: components["schemas"]["Webhook"][];
     };
     /** AnthropicIntegration */
     AnthropicIntegration: {
@@ -5926,7 +5926,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'anthropic';
+      name: "anthropic";
       /** Extra */
       extra?: Record<string, never> | null;
     };
@@ -5939,7 +5939,7 @@ export interface components {
      * ApiKeyAction
      * @enum {string}
      */
-    ApiKeyAction: 'update' | 'delete';
+    ApiKeyAction: "update" | "delete";
     /** ApiKeyDeleteResponse */
     ApiKeyDeleteResponse: {
       /** Message */
@@ -5954,7 +5954,7 @@ export interface components {
      * AuthMethod
      * @enum {string}
      */
-    AuthMethod: 'email' | 'google' | 'github' | 'okta' | 'azure-ad' | 'custom';
+    AuthMethod: "email" | "google" | "github" | "okta" | "azure-ad" | "custom";
     /** AutoGenResult */
     AutoGenResult: {
       /**
@@ -5988,17 +5988,17 @@ export interface components {
        * Metric Few Shot Examples
        * @description Few-shot examples for the metric.
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /** AvailableIntegrations */
     AvailableIntegrations: {
       /** Integrations */
-      integrations: components['schemas']['IntegrationName'][];
+      integrations: components["schemas"]["IntegrationName"][];
     };
     /** AwsBedrockIntegration */
     AwsBedrockIntegration: {
       /** @default key_secret */
-      credential_type?: components['schemas']['AwsCredentialType'];
+      credential_type?: components["schemas"]["AwsCredentialType"];
       /**
        * Region
        * @default us-west-2
@@ -6008,7 +6008,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'aws_bedrock';
+      name: "aws_bedrock";
       /** Extra */
       extra?: Record<string, never> | null;
     };
@@ -6016,32 +6016,32 @@ export interface components {
      * AwsCredentialType
      * @enum {string}
      */
-    AwsCredentialType: 'assumed_role' | 'key_secret';
+    AwsCredentialType: "assumed_role" | "key_secret";
     /** AwsSageMakerIntegration */
     AwsSageMakerIntegration: {
       /** @default key_secret */
-      credential_type?: components['schemas']['AwsCredentialType'];
+      credential_type?: components["schemas"]["AwsCredentialType"];
       /**
        * Region
        * @default us-west-2
        */
       region?: string;
       /** Models */
-      models?: components['schemas']['Model'][];
+      models?: components["schemas"]["Model"][];
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'aws_sagemaker';
+      name: "aws_sagemaker";
       /** Extra */
       extra?: Record<string, never> | null;
     };
     /** AwsSageMakerIntegrationCreate */
     AwsSageMakerIntegrationCreate: {
       /** Models */
-      models?: components['schemas']['Model'][];
+      models?: components["schemas"]["Model"][];
       /** @default key_secret */
-      credential_type?: components['schemas']['AwsCredentialType'];
+      credential_type?: components["schemas"]["AwsCredentialType"];
       /**
        * Region
        * @default us-west-2
@@ -6056,7 +6056,7 @@ export interface components {
      * AzureAuthenticationType
      * @enum {string}
      */
-    AzureAuthenticationType: 'api_key' | 'client_secret' | 'username_password';
+    AzureAuthenticationType: "api_key" | "client_secret" | "username_password";
     /** AzureIntegration */
     AzureIntegration: {
       /**
@@ -6067,7 +6067,7 @@ export interface components {
       /** Endpoint */
       endpoint: string;
       /** @default api_key */
-      authentication_type?: components['schemas']['AzureAuthenticationType'];
+      authentication_type?: components["schemas"]["AzureAuthenticationType"];
       /** Authentication Scope */
       authentication_scope?: string | null;
       /** Headers */
@@ -6086,13 +6086,13 @@ export interface components {
        * @description The available deployments for this integration. If provided, we will not try to get this list from Azure.
        */
       available_deployments?:
-        | components['schemas']['AzureModelDeployment'][]
+        | components["schemas"]["AzureModelDeployment"][]
         | null;
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'azure';
+      name: "azure";
       /** Extra */
       extra?: Record<string, never> | null;
     };
@@ -6106,7 +6106,7 @@ export interface components {
       /** Endpoint */
       endpoint: string;
       /** @default api_key */
-      authentication_type?: components['schemas']['AzureAuthenticationType'];
+      authentication_type?: components["schemas"]["AzureAuthenticationType"];
       /** Authentication Scope */
       authentication_scope?: string | null;
       /** Headers */
@@ -6125,7 +6125,7 @@ export interface components {
        * @description The available deployments for this integration. If provided, we will not try to get this list from Azure.
        */
       available_deployments?:
-        | components['schemas']['AzureModelDeployment'][]
+        | components["schemas"]["AzureModelDeployment"][]
         | null;
       /** Token */
       token: string;
@@ -6188,7 +6188,7 @@ export interface components {
     /** BaseAwsIntegrationCreate */
     BaseAwsIntegrationCreate: {
       /** @default key_secret */
-      credential_type?: components['schemas']['AwsCredentialType'];
+      credential_type?: components["schemas"]["AwsCredentialType"];
       /**
        * Region
        * @default us-west-2
@@ -6205,19 +6205,19 @@ export interface components {
        * @description Type of the step. By default, it is set to workflow.
        * @default workflow
        */
-      type?: components['schemas']['NodeType'];
+      type?: components["schemas"]["NodeType"];
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -6229,12 +6229,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -6280,9 +6280,9 @@ export interface components {
       /** Step Id */
       step_id?: string | null;
       /** Steps */
-      steps?: components['schemas']['BaseGalileoStep'][] | null;
+      steps?: components["schemas"]["BaseGalileoStep"][] | null;
       /** Metrics */
-      metrics?: components['schemas']['StepMetric'][] | null;
+      metrics?: components["schemas"]["StepMetric"][] | null;
     } & {
       [key: string]: unknown;
     };
@@ -6300,14 +6300,14 @@ export interface components {
       id: string;
       /** Template */
       template: string;
-      selected_version: components['schemas']['BasePromptTemplateVersionResponse'];
+      selected_version: components["schemas"]["BasePromptTemplateVersionResponse"];
       /**
        * Selected Version Id
        * Format: uuid4
        */
       selected_version_id: string;
       /** All Versions */
-      all_versions?: components['schemas']['BasePromptTemplateVersionResponse'][];
+      all_versions?: components["schemas"]["BasePromptTemplateVersionResponse"][];
       /** All Available Versions */
       all_available_versions: number[];
       /** Total Versions */
@@ -6318,7 +6318,7 @@ export interface components {
     /** BasePromptTemplateVersion */
     BasePromptTemplateVersion: {
       /** Template */
-      template: string | components['schemas']['Messages'];
+      template: string | components["schemas"]["Messages"];
       /** Version */
       version?: number | null;
     };
@@ -6328,7 +6328,7 @@ export interface components {
      */
     BasePromptTemplateVersionResponse: {
       /** Template */
-      template: string | components['schemas']['Messages'];
+      template: string | components["schemas"]["Messages"];
       /** Version */
       version: number;
       /**
@@ -6360,20 +6360,20 @@ export interface components {
       /** Extra */
       extra?: Record<string, never> | null;
       /** Sub Scorers */
-      sub_scorers?: components['schemas']['ScorerName'][];
+      sub_scorers?: components["schemas"]["ScorerName"][];
       /** Filters */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /** Metric Name */
       metric_name?: string | null;
       /** Description */
       description?: string | null;
-      gpt_settings?: components['schemas']['PromptRunSettings'] | null;
-      chainpoll_template?: components['schemas']['ChainPollTemplate'] | null;
+      gpt_settings?: components["schemas"]["PromptRunSettings"] | null;
+      chainpoll_template?: components["schemas"]["ChainPollTemplate"] | null;
       /**
        * Regex Field
        * @default
@@ -6394,10 +6394,10 @@ export interface components {
       /** Version */
       version: number;
       generated_scorer?:
-        | components['schemas']['GeneratedScorerResponse']
+        | components["schemas"]["GeneratedScorerResponse"]
         | null;
       registered_scorer?:
-        | components['schemas']['CreateUpdateRegisteredScorerResponse']
+        | components["schemas"]["CreateUpdateRegisteredScorerResponse"]
         | null;
       /**
        * Created At
@@ -6418,15 +6418,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'bleu';
+      name: "bleu";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -6571,11 +6571,11 @@ export interface components {
       explanation?: string | null;
       /** Rating */
       rating:
-        | components['schemas']['LikeDislikeRating']
-        | components['schemas']['StarRating']
-        | components['schemas']['ScoreRating']
-        | components['schemas']['TagsRating']
-        | components['schemas']['TextRating'];
+        | components["schemas"]["LikeDislikeRating"]
+        | components["schemas"]["StarRating"]
+        | components["schemas"]["ScoreRating"]
+        | components["schemas"]["TagsRating"]
+        | components["schemas"]["TextRating"];
       /**
        * Feedback Template Id
        * Format: uuid4
@@ -6585,7 +6585,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      operation_type: 'create';
+      operation_type: "create";
     };
     /** BulkFeedbackRatingDelete */
     BulkFeedbackRatingDelete: {
@@ -6598,13 +6598,13 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      operation_type: 'delete';
+      operation_type: "delete";
     };
     /** BulkFeedbackRatingStatus */
     BulkFeedbackRatingStatus: {
       /** Index */
       index: number;
-      operation: components['schemas']['FeedbackRatingOperationType'];
+      operation: components["schemas"]["FeedbackRatingOperationType"];
       /** Success */
       success: boolean;
       /** Message */
@@ -6614,11 +6614,11 @@ export interface components {
     BulkFeedbackRequest: {
       /** Operations */
       operations: (
-        | components['schemas']['BulkFeedbackRatingCreate']
-        | components['schemas']['BulkFeedbackRatingDelete']
+        | components["schemas"]["BulkFeedbackRatingCreate"]
+        | components["schemas"]["BulkFeedbackRatingDelete"]
       )[];
       /** Selector */
-      selector: components['schemas']['IndexSelector'];
+      selector: components["schemas"]["IndexSelector"];
     };
     /** CBOClusterRequest */
     CBOClusterRequest: {
@@ -6631,8 +6631,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -6652,8 +6652,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -6662,7 +6662,7 @@ export interface components {
       /** Meta Cols */
       meta_cols?: string[] | null;
       /** Cbo Clusters */
-      cbo_clusters: components['schemas']['CBORunCluster'][];
+      cbo_clusters: components["schemas"]["CBORunCluster"][];
     };
     /** CBORunCluster */
     CBORunCluster: {
@@ -6700,7 +6700,7 @@ export interface components {
     /** CartographClusterResponse */
     CartographClusterResponse: {
       /** Cartograph Clusters */
-      cartograph_clusters: components['schemas']['CartographCluster'][];
+      cartograph_clusters: components["schemas"]["CartographCluster"][];
     };
     /** CategoricalPromptFilterParam */
     CategoricalPromptFilterParam: {
@@ -6710,20 +6710,20 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      filter_type: 'category';
+      filter_type: "category";
       /** Categories */
       categories: string[];
       /**
        * @description Operator to use when checking if the value is in the categories. If None, we default to 'or'.
        * @default any
        */
-      operator?: components['schemas']['CategoryFilterOperator'];
+      operator?: components["schemas"]["CategoryFilterOperator"];
     };
     /**
      * CategoryFilterOperator
      * @enum {string}
      */
-    CategoryFilterOperator: 'any' | 'all' | 'exact' | 'none';
+    CategoryFilterOperator: "any" | "all" | "exact" | "none";
     /**
      * ChainPollTemplate
      * @description Template for a chainpoll metric prompt,
@@ -6761,7 +6761,7 @@ export interface components {
        * Metric Few Shot Examples
        * @description Few-shot examples for the metric.
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /** ChainRow */
     ChainRow: {
@@ -6770,7 +6770,7 @@ export interface components {
        * Format: uuid
        */
       node_id: string;
-      node_type: components['schemas']['NodeType'];
+      node_type: components["schemas"]["NodeType"];
       /** Node Name */
       node_name?: string | null;
       /**
@@ -6843,19 +6843,19 @@ export interface components {
        * @description Type of the step. By default, it is set to chain. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'chain';
+      type: "chain";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -6867,12 +6867,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -6916,15 +6916,15 @@ export interface components {
        * @description Steps in the workflow.
        */
       steps?: (
-        | components['schemas']['WorkflowStep']
-        | components['schemas']['ChainStep']
-        | components['schemas']['LlmStep']
-        | components['schemas']['RetrieverStep']
-        | components['schemas']['ToolStep']
-        | components['schemas']['AgentStep']
+        | components["schemas"]["WorkflowStep"]
+        | components["schemas"]["ChainStep"]
+        | components["schemas"]["LlmStep"]
+        | components["schemas"]["RetrieverStep"]
+        | components["schemas"]["ToolStep"]
+        | components["schemas"]["AgentStep"]
       )[];
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildren'] | null;
+      parent?: components["schemas"]["StepWithChildren"] | null;
     };
     /** Changes */
     Changes: {
@@ -6943,15 +6943,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'chunk_attribution_utilization';
+      name: "chunk_attribution_utilization";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /**
@@ -6959,7 +6959,7 @@ export interface components {
        * @default luna
        * @enum {string}
        */
-      type?: 'luna' | 'plus';
+      type?: "luna" | "plus";
       /**
        * Model Name
        * @description Alias of the model to use for the scorer.
@@ -7029,7 +7029,7 @@ export interface components {
        * Metric Few Shot Examples
        * @description Few-shot examples for the metric.
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /** Circle */
     Circle: {
@@ -7044,10 +7044,10 @@ export interface components {
      * CollaboratorRole
      * @enum {string}
      */
-    CollaboratorRole: 'owner' | 'editor' | 'annotator' | 'viewer';
+    CollaboratorRole: "owner" | "editor" | "annotator" | "viewer";
     /** CollaboratorRoleInfo */
     CollaboratorRoleInfo: {
-      name: components['schemas']['CollaboratorRole'];
+      name: components["schemas"]["CollaboratorRole"];
       /** Display Name */
       display_name: string;
       /** Description */
@@ -7055,13 +7055,13 @@ export interface components {
     };
     /** CollaboratorUpdate */
     CollaboratorUpdate: {
-      role: components['schemas']['CollaboratorRole'];
+      role: components["schemas"]["CollaboratorRole"];
     };
     /**
      * ColumnCategory
      * @enum {string}
      */
-    ColumnCategory: 'standard' | 'metric' | 'user_metadata';
+    ColumnCategory: "standard" | "metric" | "user_metadata";
     /**
      * CommunityResponse
      * @description See `rungalileo.schemas.content.insights.Community` for details on Communities.
@@ -7090,9 +7090,9 @@ export interface components {
        * Format: uuid4
        */
       project_id: string;
-      split: components['schemas']['Split'];
+      split: components["schemas"]["Split"];
       /** Runs */
-      runs: components['schemas']['ProjectRunSummary'][];
+      runs: components["schemas"]["ProjectRunSummary"][];
     };
     /** CompletenessScorer */
     CompletenessScorer: {
@@ -7100,15 +7100,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'completeness';
+      name: "completeness";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /**
@@ -7116,7 +7116,7 @@ export interface components {
        * @default luna
        * @enum {string}
        */
-      type?: 'luna' | 'plus';
+      type?: "luna" | "plus";
       /**
        * Model Name
        * @description Alias of the model to use for the scorer.
@@ -7187,32 +7187,32 @@ export interface components {
        * Metric Few Shot Examples
        * @description Few-shot examples for the metric.
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /** CompositeProjectSettings */
     CompositeProjectSettings: {
-      scorers_config?: components['schemas']['ScorersConfig'] | null;
+      scorers_config?: components["schemas"]["ScorersConfig"] | null;
       /** Metric Weights Configuration */
       metric_weights_configuration?: {
-        [key: string]: components['schemas']['MetricWeight'];
+        [key: string]: components["schemas"]["MetricWeight"];
       } | null;
       alerts_configuration?:
-        | components['schemas']['AlertsConfiguration']
+        | components["schemas"]["AlertsConfiguration"]
         | null;
       scorers_configuration?:
-        | components['schemas']['ScorersConfiguration']
+        | components["schemas"]["ScorersConfiguration"]
         | null;
       /** Registered Scorers Configuration */
       registered_scorers_configuration?:
-        | components['schemas']['RegisteredScorer'][]
+        | components["schemas"]["RegisteredScorer"][]
         | null;
       /** Generated Scorers Configuration */
       generated_scorers_configuration?:
-        | components['schemas']['GeneratedScorerConfig'][]
+        | components["schemas"]["GeneratedScorerConfig"][]
         | null;
       /** Customized Scorers Configuration */
       customized_scorers_configuration?:
-        | components['schemas']['CustomizedScorer'][]
+        | components["schemas"]["CustomizedScorer"][]
         | null;
     };
     /** ContentRequest */
@@ -7226,8 +7226,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -7242,15 +7242,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'context_adherence';
+      name: "context_adherence";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /**
@@ -7258,7 +7258,7 @@ export interface components {
        * @default luna
        * @enum {string}
        */
-      type?: 'luna' | 'plus';
+      type?: "luna" | "plus";
       /**
        * Model Name
        * @description Alias of the model to use for the scorer.
@@ -7276,15 +7276,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'context_relevance';
+      name: "context_relevance";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -7294,15 +7294,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'correctness';
+      name: "correctness";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /**
@@ -7310,7 +7310,7 @@ export interface components {
        * @default plus
        * @constant
        */
-      type?: 'plus';
+      type?: "plus";
       /**
        * Model Name
        * @description Alias of the model to use for the scorer.
@@ -7325,11 +7325,11 @@ export interface components {
     /** CreateAlertConfigurationRequest */
     CreateAlertConfigurationRequest: {
       /** Conditions */
-      conditions: components['schemas']['AlertCondition'][];
+      conditions: components["schemas"]["AlertCondition"][];
       /** Interval */
       interval: number;
       /** @default multi_condition/object/1 */
-      schema_version?: components['schemas']['AlertMonitorType'];
+      schema_version?: components["schemas"]["AlertMonitorType"];
       /** Project Id */
       project_id?: string | null;
       /** Created By */
@@ -7346,7 +7346,7 @@ export interface components {
       expires_at?: string | null;
       /** Project Id */
       project_id?: string | null;
-      project_role?: components['schemas']['CollaboratorRole'] | null;
+      project_role?: components["schemas"]["CollaboratorRole"] | null;
     };
     /** CreateApiKeyResponse */
     CreateApiKeyResponse: {
@@ -7369,7 +7369,7 @@ export interface components {
       last_used?: string | null;
       /** Project Id */
       project_id?: string | null;
-      project_role?: components['schemas']['CollaboratorRole'] | null;
+      project_role?: components["schemas"]["CollaboratorRole"] | null;
       /** Description */
       description: string;
       /**
@@ -7389,12 +7389,12 @@ export interface components {
     };
     /** CreateComputeScoreRequest */
     CreateComputeScoreRequest: {
-      scorers_config: components['schemas']['ScorersConfig'];
+      scorers_config: components["schemas"]["ScorersConfig"];
       /** Recompute Settings */
       recompute_settings:
-        | components['schemas']['RecomputeSettingsRuns']
-        | components['schemas']['RecomputeSettingsProject']
-        | components['schemas']['promptgalileo__schemas__metric_critique__RecomputeSettingsObserve'];
+        | components["schemas"]["RecomputeSettingsRuns"]
+        | components["schemas"]["RecomputeSettingsProject"]
+        | components["schemas"]["promptgalileo__schemas__metric_critique__RecomputeSettingsObserve"];
     };
     /** CreateGeneratedScorerRequest */
     CreateGeneratedScorerRequest: {
@@ -7402,11 +7402,11 @@ export interface components {
       name: string;
       /** Instructions */
       instructions: string;
-      chain_poll_template: components['schemas']['ChainPollTemplate'];
+      chain_poll_template: components["schemas"]["ChainPollTemplate"];
       /** Scoreable Node Types */
-      scoreable_node_types?: components['schemas']['NodeType'][] | null;
+      scoreable_node_types?: components["schemas"]["NodeType"][] | null;
       scorer_configuration?:
-        | components['schemas']['GeneratedScorerConfiguration']
+        | components["schemas"]["GeneratedScorerConfiguration"]
         | null;
     };
     /** CreateJobRequest */
@@ -7435,7 +7435,7 @@ export interface components {
       should_retry?: boolean;
       /** User Id */
       user_id?: string | null;
-      task_type?: components['schemas']['TaskType'] | null;
+      task_type?: components["schemas"]["TaskType"] | null;
       /** Labels */
       labels?: string[][] | string[];
       /** Ner Labels */
@@ -7475,65 +7475,65 @@ export interface components {
       protect_trace_id?: string | null;
       /** Protect Scorer Payload */
       protect_scorer_payload?: string | null;
-      prompt_settings?: components['schemas']['PromptRunSettings'] | null;
+      prompt_settings?: components["schemas"]["PromptRunSettings"] | null;
       /**
        * Scorers
        * @description For G2.0 we send all scorers as ScorerConfig, for G1.0 we send preset scorers  as GalileoScorer
        */
       scorers?:
-        | components['schemas']['ScorerConfig'][]
+        | components["schemas"]["ScorerConfig"][]
         | (
-            | components['schemas']['AgenticWorkflowSuccessScorer']
-            | components['schemas']['BleuScorer']
-            | components['schemas']['ChunkAttributionUtilizationScorer']
-            | components['schemas']['CompletenessScorer']
-            | components['schemas']['ContextAdherenceScorer']
-            | components['schemas']['ContextRelevanceScorer']
-            | components['schemas']['CorrectnessScorer']
-            | components['schemas']['GroundTruthAdherenceScorer']
-            | components['schemas']['InputPIIScorer']
-            | components['schemas']['InputSexistScorer']
-            | components['schemas']['InputToneScorer']
-            | components['schemas']['InputToxicityScorer']
-            | components['schemas']['InstructionAdherenceScorer']
-            | components['schemas']['OutputPIIScorer']
-            | components['schemas']['OutputSexistScorer']
-            | components['schemas']['OutputToneScorer']
-            | components['schemas']['OutputToxicityScorer']
-            | components['schemas']['PromptInjectionScorer']
-            | components['schemas']['PromptPerplexityScorer']
-            | components['schemas']['RougeScorer']
-            | components['schemas']['ToolErrorRateScorer']
-            | components['schemas']['ToolSelectionQualityScorer']
-            | components['schemas']['UncertaintyScorer']
+            | components["schemas"]["AgenticWorkflowSuccessScorer"]
+            | components["schemas"]["BleuScorer"]
+            | components["schemas"]["ChunkAttributionUtilizationScorer"]
+            | components["schemas"]["CompletenessScorer"]
+            | components["schemas"]["ContextAdherenceScorer"]
+            | components["schemas"]["ContextRelevanceScorer"]
+            | components["schemas"]["CorrectnessScorer"]
+            | components["schemas"]["GroundTruthAdherenceScorer"]
+            | components["schemas"]["InputPIIScorer"]
+            | components["schemas"]["InputSexistScorer"]
+            | components["schemas"]["InputToneScorer"]
+            | components["schemas"]["InputToxicityScorer"]
+            | components["schemas"]["InstructionAdherenceScorer"]
+            | components["schemas"]["OutputPIIScorer"]
+            | components["schemas"]["OutputSexistScorer"]
+            | components["schemas"]["OutputToneScorer"]
+            | components["schemas"]["OutputToxicityScorer"]
+            | components["schemas"]["PromptInjectionScorer"]
+            | components["schemas"]["PromptPerplexityScorer"]
+            | components["schemas"]["RougeScorer"]
+            | components["schemas"]["ToolErrorRateScorer"]
+            | components["schemas"]["ToolSelectionQualityScorer"]
+            | components["schemas"]["UncertaintyScorer"]
           )[]
         | null;
       /** Prompt Registered Scorers Configuration */
       prompt_registered_scorers_configuration?:
-        | components['schemas']['RegisteredScorer'][]
+        | components["schemas"]["RegisteredScorer"][]
         | null;
       /** Prompt Generated Scorers Configuration */
       prompt_generated_scorers_configuration?: string[] | null;
       prompt_scorers_configuration?:
-        | components['schemas']['ScorersConfiguration']
+        | components["schemas"]["ScorersConfiguration"]
         | null;
       /** Prompt Customized Scorers Configuration */
       prompt_customized_scorers_configuration?:
         | (
-            | components['schemas']['CustomizedAgenticWorkflowSuccessGPTScorer']
-            | components['schemas']['CustomizedChunkAttributionUtilizationGPTScorer']
-            | components['schemas']['CustomizedCompletenessGPTScorer']
-            | components['schemas']['CustomizedFactualityGPTScorer']
-            | components['schemas']['CustomizedGroundednessGPTScorer']
-            | components['schemas']['CustomizedInstructionAdherenceGPTScorer']
-            | components['schemas']['CustomizedGroundTruthAdherenceGPTScorer']
-            | components['schemas']['CustomizedToolSelectionQualityGPTScorer']
-            | components['schemas']['CustomizedToolErrorRateGPTScorer']
+            | components["schemas"]["CustomizedAgenticWorkflowSuccessGPTScorer"]
+            | components["schemas"]["CustomizedChunkAttributionUtilizationGPTScorer"]
+            | components["schemas"]["CustomizedCompletenessGPTScorer"]
+            | components["schemas"]["CustomizedFactualityGPTScorer"]
+            | components["schemas"]["CustomizedGroundednessGPTScorer"]
+            | components["schemas"]["CustomizedInstructionAdherenceGPTScorer"]
+            | components["schemas"]["CustomizedGroundTruthAdherenceGPTScorer"]
+            | components["schemas"]["CustomizedToolSelectionQualityGPTScorer"]
+            | components["schemas"]["CustomizedToolErrorRateGPTScorer"]
           )[]
         | null;
-      prompt_scorer_settings?: components['schemas']['BaseScorer'] | null;
+      prompt_scorer_settings?: components["schemas"]["BaseScorer"] | null;
       prompt_optimization_configuration?:
-        | components['schemas']['PromptOptimizationConfiguration']
+        | components["schemas"]["PromptOptimizationConfiguration"]
         | null;
       /**
        * Epoch
@@ -7541,7 +7541,7 @@ export interface components {
        */
       epoch?: number;
       metric_critique_configuration?:
-        | components['schemas']['MetricCritiqueJobConfiguration']
+        | components["schemas"]["MetricCritiqueJobConfiguration"]
         | null;
     };
     /** CreateJobResponse */
@@ -7570,7 +7570,7 @@ export interface components {
       should_retry?: boolean;
       /** User Id */
       user_id?: string | null;
-      task_type?: components['schemas']['TaskType'] | null;
+      task_type?: components["schemas"]["TaskType"] | null;
       /** Labels */
       labels?: string[][] | string[];
       /** Ner Labels */
@@ -7610,65 +7610,65 @@ export interface components {
       protect_trace_id?: string | null;
       /** Protect Scorer Payload */
       protect_scorer_payload?: string | null;
-      prompt_settings?: components['schemas']['PromptRunSettings'] | null;
+      prompt_settings?: components["schemas"]["PromptRunSettings"] | null;
       /**
        * Scorers
        * @description For G2.0 we send all scorers as ScorerConfig, for G1.0 we send preset scorers  as GalileoScorer
        */
       scorers?:
-        | components['schemas']['ScorerConfig'][]
+        | components["schemas"]["ScorerConfig"][]
         | (
-            | components['schemas']['AgenticWorkflowSuccessScorer']
-            | components['schemas']['BleuScorer']
-            | components['schemas']['ChunkAttributionUtilizationScorer']
-            | components['schemas']['CompletenessScorer']
-            | components['schemas']['ContextAdherenceScorer']
-            | components['schemas']['ContextRelevanceScorer']
-            | components['schemas']['CorrectnessScorer']
-            | components['schemas']['GroundTruthAdherenceScorer']
-            | components['schemas']['InputPIIScorer']
-            | components['schemas']['InputSexistScorer']
-            | components['schemas']['InputToneScorer']
-            | components['schemas']['InputToxicityScorer']
-            | components['schemas']['InstructionAdherenceScorer']
-            | components['schemas']['OutputPIIScorer']
-            | components['schemas']['OutputSexistScorer']
-            | components['schemas']['OutputToneScorer']
-            | components['schemas']['OutputToxicityScorer']
-            | components['schemas']['PromptInjectionScorer']
-            | components['schemas']['PromptPerplexityScorer']
-            | components['schemas']['RougeScorer']
-            | components['schemas']['ToolErrorRateScorer']
-            | components['schemas']['ToolSelectionQualityScorer']
-            | components['schemas']['UncertaintyScorer']
+            | components["schemas"]["AgenticWorkflowSuccessScorer"]
+            | components["schemas"]["BleuScorer"]
+            | components["schemas"]["ChunkAttributionUtilizationScorer"]
+            | components["schemas"]["CompletenessScorer"]
+            | components["schemas"]["ContextAdherenceScorer"]
+            | components["schemas"]["ContextRelevanceScorer"]
+            | components["schemas"]["CorrectnessScorer"]
+            | components["schemas"]["GroundTruthAdherenceScorer"]
+            | components["schemas"]["InputPIIScorer"]
+            | components["schemas"]["InputSexistScorer"]
+            | components["schemas"]["InputToneScorer"]
+            | components["schemas"]["InputToxicityScorer"]
+            | components["schemas"]["InstructionAdherenceScorer"]
+            | components["schemas"]["OutputPIIScorer"]
+            | components["schemas"]["OutputSexistScorer"]
+            | components["schemas"]["OutputToneScorer"]
+            | components["schemas"]["OutputToxicityScorer"]
+            | components["schemas"]["PromptInjectionScorer"]
+            | components["schemas"]["PromptPerplexityScorer"]
+            | components["schemas"]["RougeScorer"]
+            | components["schemas"]["ToolErrorRateScorer"]
+            | components["schemas"]["ToolSelectionQualityScorer"]
+            | components["schemas"]["UncertaintyScorer"]
           )[]
         | null;
       /** Prompt Registered Scorers Configuration */
       prompt_registered_scorers_configuration?:
-        | components['schemas']['RegisteredScorer'][]
+        | components["schemas"]["RegisteredScorer"][]
         | null;
       /** Prompt Generated Scorers Configuration */
       prompt_generated_scorers_configuration?: string[] | null;
       prompt_scorers_configuration?:
-        | components['schemas']['ScorersConfiguration']
+        | components["schemas"]["ScorersConfiguration"]
         | null;
       /** Prompt Customized Scorers Configuration */
       prompt_customized_scorers_configuration?:
         | (
-            | components['schemas']['CustomizedAgenticWorkflowSuccessGPTScorer']
-            | components['schemas']['CustomizedChunkAttributionUtilizationGPTScorer']
-            | components['schemas']['CustomizedCompletenessGPTScorer']
-            | components['schemas']['CustomizedFactualityGPTScorer']
-            | components['schemas']['CustomizedGroundednessGPTScorer']
-            | components['schemas']['CustomizedInstructionAdherenceGPTScorer']
-            | components['schemas']['CustomizedGroundTruthAdherenceGPTScorer']
-            | components['schemas']['CustomizedToolSelectionQualityGPTScorer']
-            | components['schemas']['CustomizedToolErrorRateGPTScorer']
+            | components["schemas"]["CustomizedAgenticWorkflowSuccessGPTScorer"]
+            | components["schemas"]["CustomizedChunkAttributionUtilizationGPTScorer"]
+            | components["schemas"]["CustomizedCompletenessGPTScorer"]
+            | components["schemas"]["CustomizedFactualityGPTScorer"]
+            | components["schemas"]["CustomizedGroundednessGPTScorer"]
+            | components["schemas"]["CustomizedInstructionAdherenceGPTScorer"]
+            | components["schemas"]["CustomizedGroundTruthAdherenceGPTScorer"]
+            | components["schemas"]["CustomizedToolSelectionQualityGPTScorer"]
+            | components["schemas"]["CustomizedToolErrorRateGPTScorer"]
           )[]
         | null;
-      prompt_scorer_settings?: components['schemas']['BaseScorer'] | null;
+      prompt_scorer_settings?: components["schemas"]["BaseScorer"] | null;
       prompt_optimization_configuration?:
-        | components['schemas']['PromptOptimizationConfiguration']
+        | components["schemas"]["PromptOptimizationConfiguration"]
         | null;
       /**
        * Epoch
@@ -7676,7 +7676,7 @@ export interface components {
        */
       epoch?: number;
       metric_critique_configuration?:
-        | components['schemas']['MetricCritiqueJobConfiguration']
+        | components["schemas"]["MetricCritiqueJobConfiguration"]
         | null;
       /** Message */
       message: string;
@@ -7689,7 +7689,7 @@ export interface components {
       version_description?: string | null;
       /** Instructions */
       instructions: string;
-      chain_poll_template: components['schemas']['ChainPollTemplate'];
+      chain_poll_template: components["schemas"]["ChainPollTemplate"];
     };
     /** CreateMetricCritiqueRequest */
     CreateMetricCritiqueRequest: {
@@ -7713,15 +7713,15 @@ export interface components {
     /** CreateMetricCritiquesRequest */
     CreateMetricCritiquesRequest: {
       /** Critiques */
-      critiques: components['schemas']['CreateMetricCritiqueRequest'][];
+      critiques: components["schemas"]["CreateMetricCritiqueRequest"][];
       /** Metric */
       metric: string;
       /** Recompute Settings */
       recompute_settings?:
         | (
-            | components['schemas']['RecomputeSettingsRuns']
-            | components['schemas']['RecomputeSettingsProject']
-            | components['schemas']['api__schemas__metric_critique__RecomputeSettingsObserve']
+            | components["schemas"]["RecomputeSettingsRuns"]
+            | components["schemas"]["RecomputeSettingsProject"]
+            | components["schemas"]["api__schemas__metric_critique__RecomputeSettingsObserve"]
           )
         | null;
     };
@@ -7733,7 +7733,7 @@ export interface components {
      */
     CreatePromptTemplateWithVersionRequestBody: {
       /** Template */
-      template: string | components['schemas']['Messages'];
+      template: string | components["schemas"]["Messages"];
       /** Version */
       version?: number | null;
       /** Name */
@@ -7771,14 +7771,14 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      task_type?: components['schemas']['TaskType'] | null;
+      task_type?: components["schemas"]["TaskType"] | null;
       /**
        * Last Updated By
        * Format: uuid4
        */
       last_updated_by: string;
       /** Run Tags */
-      run_tags?: components['schemas']['RunTagDB'][];
+      run_tags?: components["schemas"]["RunTagDB"][];
     };
     /** CreateScorerRequest */
     CreateScorerRequest: {
@@ -7791,8 +7791,8 @@ export interface components {
       description?: string;
       /** Tags */
       tags?: string[];
-      defaults?: components['schemas']['ScorerDefaults'] | null;
-      scorer_type: components['schemas']['ScorerTypes'];
+      defaults?: components["schemas"]["ScorerDefaults"] | null;
+      scorer_type: components["schemas"]["ScorerTypes"];
     };
     /** CreateSignupLinkResponse */
     CreateSignupLinkResponse: {
@@ -7825,7 +7825,7 @@ export interface components {
       created_by: string;
       /** Score Type */
       score_type: string | null;
-      data_type: components['schemas']['DataTypeOptions'] | null;
+      data_type: components["schemas"]["DataTypeOptions"] | null;
       /** Scoreable Node Types */
       scoreable_node_types: string[] | null;
     };
@@ -7840,7 +7840,7 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /**
        * Email
        * Format: email
@@ -7857,9 +7857,9 @@ export interface components {
        */
       last_name?: string | null;
       /** @default email */
-      auth_method?: components['schemas']['AuthMethod'];
+      auth_method?: components["schemas"]["AuthMethod"];
       /** @default read_only */
-      role?: components['schemas']['UserRole'];
+      role?: components["schemas"]["UserRole"];
       /** Email Is Verified */
       email_is_verified?: boolean | null;
       /**
@@ -7891,7 +7891,7 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /**
        * Email
        * Format: email
@@ -7908,9 +7908,9 @@ export interface components {
        */
       last_name?: string | null;
       /** @default email */
-      auth_method?: components['schemas']['AuthMethod'];
+      auth_method?: components["schemas"]["AuthMethod"];
       /** @default read_only */
-      role?: components['schemas']['UserRole'];
+      role?: components["schemas"]["UserRole"];
       /** Email Is Verified */
       email_is_verified?: boolean | null;
       /**
@@ -7934,7 +7934,7 @@ export interface components {
        * Generic Permissions
        * @default []
        */
-      generic_permissions?: components['schemas']['GenericPermission'][];
+      generic_permissions?: components["schemas"]["GenericPermission"][];
     };
     /** CustomizedAgenticWorkflowSuccessGPTScorer */
     CustomizedAgenticWorkflowSuccessGPTScorer: {
@@ -7942,7 +7942,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      scorer_name: '_customized_agentic_workflow_success';
+      scorer_name: "_customized_agentic_workflow_success";
       /**
        * Model Alias
        * @description Model alias to use for scoring.
@@ -7958,7 +7958,7 @@ export interface components {
        * @default agentic_workflow_success
        * @constant
        */
-      name?: 'agentic_workflow_success';
+      name?: "agentic_workflow_success";
       /** Scores */
       scores?: unknown[] | null;
       /** Indices */
@@ -7975,12 +7975,12 @@ export interface components {
       /** Extra */
       extra?: Record<string, never> | null;
       /** Sub Scorers */
-      sub_scorers?: components['schemas']['ScorerName'][];
+      sub_scorers?: components["schemas"]["ScorerName"][];
       /** Filters */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /** Metric Name */
@@ -8000,7 +8000,7 @@ export interface components {
        *       "frequency_penalty": 0,
        *       "presence_penalty": 0
        *     } */
-      gpt_settings?: components['schemas']['PromptRunSettings'];
+      gpt_settings?: components["schemas"]["PromptRunSettings"];
       /** @default {
        *       "metric_system_prompt": "You will receive the chat history from a chatbot application between a user and an AI. At the end of the chat history, it is AI’s turn to act.\n\nIn the chat history, the user can either ask questions, which are answered with words, or make requests that require calling tools and actions to resolve. Sometimes these are given as orders, and these should be treated as questions or requests. The AI's turn may involve several steps which are a combination of internal reflections, planning, selecting tools, calling tools, and ends with the AI replying to the user. \nYour task involves the following steps:\n\n########################\n\nStep 1: user_last_input and user_ask\n\nFirst, identify the user's last input in the chat history. From this input, create a list with one entry for each user question, request, or order. If there are no user asks in the user's last input, leave the list empty and skip ahead, considering the AI's turn successful.\n\n########################\n\nStep 2: ai_final_response and answer_or_resolution\n\nIdentify the AI's final response to the user: it is the very last step in the AI's turn.\n\nFor every user_ask, focus on ai_final_response and try to extract either an answer or a resolution using the following definitions:\n- An answer is a part of the AI's final response that directly responds to all or part of a user's question, or asks for further information or clarification.\n- A resolution is a part of the AI's final response that confirms a successful resolution, or asks for further information or clarification in order to answer a user's request.\n\nIf the AI's final response does not address the user ask, simply write \"No answer or resolution provided in the final response\". Do not shorten the answer or resolution; provide the entire relevant part.\n\n########################\n\nStep 3: tools_input_output\n\nExamine every step in the AI's turn and identify which tool/function step seemingly contributed to creating the answer or resolution. Every tool call should be linked to a user ask. If an AI step immediately before or after the tool call mentions planning or using a tool for answering a user ask, the tool call should be associated with that user ask. If the answer or resolution strongly resembles the output of a tool, the tool call should also be associated with that user ask.\n\nCreate a list containing the concatenation of the entire input and output of every tool used in formulating the answer or resolution. The tool input is listed as an AI step before calling the tool, and the tool output is listed as a tool step.\n\n########################\n\nStep 4: properties, boolean_properties and answer_successful\n\nFor every answer or resolution from Step 2, check the following properties one by one to determine which are satisfied:\n- factually_wrong: the answer contains factual errors.\n- addresses_different_ask: the answer or resolution addresses a slightly different user ask (make sure to differentiate this from asking clarifying questions related to the current ask).\n- not_adherent_to_tools_output: the answer or resolution includes citations from a tool's output, but some are wrongly copied or attributed.\n- mentions_inability: the answer or resolution mentions an inability to complete the user ask.\n- mentions_unsuccessful_attempt: the answer or resolution mentions an unsuccessful or failed attempt to complete the user ask.\n\nThen copy all the properties (only the boolean value) in the list boolean_properties.\n\nFinally, set answer_successful to `false` if any entry in boolean_properties is set to `true`, otherwise set answer_successful to `true`.\n\n########################\n\nYou must respond in the following JSON format:\n```\n{\n    \"user_last_input\": string,\n    \"ai_final_response\": string,\n    \"asks_and_answers\": list[dict],\n    \"ai_turn_is_successful\": boolean,\n    \"explanation\": string\n}\n```\n\nYour tasks are defined as follows:\n\n- **\"asks_and_answers\"**: Perform all the tasks described in the steps above. Your answer should be a list where each user ask appears as:\n\n```\n{\n    \"user_ask\": string,\n    \"answer_or_resolution\": string,\n    \"tools_input_output\": list[string],\n    \"properties\" : {\n        \"factually_wrong\": boolean,\n        \"addresses_different_ask\": boolean,\n        \"not_adherent_to_tools_output\": boolean,\n        \"mentions_inability\": boolean,\n        \"mentions_unsuccessful_attempt\": boolean\n    },\n    \"boolean_properties\": list[boolean],\n    \"answer_successful\": boolean\n}\n```\n\n- **\"ai_turn_is_successful\"**: Respond `true` if at least one answer_successful is True, otherwise respond `false`.\n\n- **\"explanation\"**: If at least one answer was considered successful, explain why. Otherwise explain why all answers were not successful.\n\nYou must respond with a valid JSON object; be sure to escape special characters.",
        *       "metric_description": "I have a multi-turn chatbot application where the assistant is an agent that has access to tools. An assistant workflow can involves possibly multiple tool selections steps, tool calls steps, and finally a reply to the user. I want a metric that assesses whether each assistant's workflow was thoughtfully planned and ended up helping answer the queries.\n",
@@ -8018,7 +8018,7 @@ export interface components {
        *         }
        *       ]
        *     } */
-      chainpoll_template?: components['schemas']['AgenticWorkflowSuccessTemplate'];
+      chainpoll_template?: components["schemas"]["AgenticWorkflowSuccessTemplate"];
       /**
        * Regex Field
        * @default
@@ -8035,7 +8035,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      scorer_name: '_customized_chunk_attribution_utilization_gpt';
+      scorer_name: "_customized_chunk_attribution_utilization_gpt";
       /**
        * Model Alias
        * @description Model alias to use for scoring.
@@ -8051,7 +8051,7 @@ export interface components {
        * @default chunk_attribution_utilization
        * @constant
        */
-      name?: 'chunk_attribution_utilization';
+      name?: "chunk_attribution_utilization";
       /** Scores */
       scores?: unknown[] | null;
       /** Indices */
@@ -8069,26 +8069,26 @@ export interface components {
       /** Extra */
       extra?: Record<string, never> | null;
       /** Sub Scorers */
-      sub_scorers?: components['schemas']['ScorerName'][];
+      sub_scorers?: components["schemas"]["ScorerName"][];
       /** Filters */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /** Metric Name */
       metric_name?: string | null;
       /** Description */
       description?: string | null;
-      gpt_settings?: components['schemas']['PromptRunSettings'];
+      gpt_settings?: components["schemas"]["PromptRunSettings"];
       /** @default {
        *       "value_field_name": "rating",
        *       "explanation_field_name": "explanation",
        *       "template": "I asked someone to answer a question based on one or more documents. You will tell me which of the documents their answer was sourced from, and which specific sentences from the documents they used.\n\nHere are the documents, with each document split up into sentences. Each sentence is given a unique key, such as '0a' for the first sentence of Document 0. You'll use these keys in your response to identify which sentences were used.\n\n```\n{chunks}\n```\n\nThe question was:\n\n```\n{question}\n```\n\nTheir response was:\n\n```\n{response}\n```\n\nRespond with a JSON object matching this schema:\n\n```\n{{\n  \"source_sentence_keys\": [string]\n}}\n```\n\nThe source_sentence_keys field is a list identifying the sentences in the documents that were used to construct the answer. Each entry MUST be a sentence key, such as '0a', that appears in the document list above. Include the key of every sentence that was used to construct the answer, even if it was not used in its entirety. Omit keys for sentences that were not used, and could have been removed from the document without affecting the answer.\n\nYou must respond with a valid JSON string.",
        *       "metric_few_shot_examples": []
        *     } */
-      chainpoll_template?: components['schemas']['ChunkAttributionUtilizationTemplate'];
+      chainpoll_template?: components["schemas"]["ChunkAttributionUtilizationTemplate"];
       /**
        * Regex Field
        * @default
@@ -8105,7 +8105,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      scorer_name: '_customized_completeness_gpt';
+      scorer_name: "_customized_completeness_gpt";
       /**
        * Model Alias
        * @description Model alias to use for scoring.
@@ -8121,7 +8121,7 @@ export interface components {
        * @default completeness
        * @constant
        */
-      name?: 'completeness';
+      name?: "completeness";
       /** Scores */
       scores?: unknown[] | null;
       /** Indices */
@@ -8138,26 +8138,26 @@ export interface components {
       /** Extra */
       extra?: Record<string, never> | null;
       /** Sub Scorers */
-      sub_scorers?: components['schemas']['ScorerName'][];
+      sub_scorers?: components["schemas"]["ScorerName"][];
       /** Filters */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /** Metric Name */
       metric_name?: string | null;
       /** Description */
       description?: string | null;
-      gpt_settings?: components['schemas']['PromptRunSettings'];
+      gpt_settings?: components["schemas"]["PromptRunSettings"];
       /** @default {
        *       "value_field_name": "completeness",
        *       "explanation_field_name": "explanation",
        *       "template": "I asked someone to answer a question based on one or more documents. On a scale of 0 to 1, tell me how well their response covered the relevant information from the documents.\n\nHere is what I said to them, as a JSON string:\n\n```\n{query_json}\n```\n\nHere is what they told me, as a JSON string:\n\n```\n{response_json}\n```\n\nRespond in the following JSON format:\n\n```\n{{\n    \"explanation\": string,\n    \"completeness\": number\n}}\n```\n\n\"explanation\": A string with your step-by-step reasoning process. List out each piece of information covered in the documents. For each one, explain why it was or was not relevant to the question, and how well the response covered it. Do *not* give an overall assessment of the response here, just think step by step about each piece of information, one at a time. Present your work in a document-by-document format, considering each document separately, ensure the value is a valid string.\n\n\"completeness\": A floating-point number rating the Completeness of the response on a scale of 0 to 1. This number should equal the amount of relevant information that was comprehensively covered in the response, divided by the total amount of relevant information in the documents.\n\nYou must respond with a valid JSON string.",
        *       "metric_few_shot_examples": []
        *     } */
-      chainpoll_template?: components['schemas']['CompletenessTemplate'];
+      chainpoll_template?: components["schemas"]["CompletenessTemplate"];
       /**
        * Regex Field
        * @default
@@ -8174,7 +8174,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      scorer_name: '_customized_factuality';
+      scorer_name: "_customized_factuality";
       /**
        * Model Alias
        * @description Model alias to use for scoring.
@@ -8190,7 +8190,7 @@ export interface components {
        * @default correctness
        * @constant
        */
-      name?: 'correctness';
+      name?: "correctness";
       /** Scores */
       scores?: unknown[] | null;
       /** Indices */
@@ -8207,19 +8207,19 @@ export interface components {
       /** Extra */
       extra?: Record<string, never> | null;
       /** Sub Scorers */
-      sub_scorers?: components['schemas']['ScorerName'][];
+      sub_scorers?: components["schemas"]["ScorerName"][];
       /** Filters */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /** Metric Name */
       metric_name?: string | null;
       /** Description */
       description?: string | null;
-      gpt_settings?: components['schemas']['PromptRunSettings'];
+      gpt_settings?: components["schemas"]["PromptRunSettings"];
       /** @default {
        *       "metric_system_prompt": "# Task\n\nYou will be given a prompt that was sent to a large language model (LLM), and the LLM's response. Your task is to assess whether the response is factually correct.\n\n## Task output format\n\nYou must respond in the following JSON format:\n\n```\n{\n    \"explanation\": string\n    \"was_factual\": boolean\n}\n```\n\n\"explanation\": Your step-by-step reasoning process. List out the claims made in the response, and for each claim, provide a detailed explanation of why that claim is or is not factual.\n\n\"was_factual\": `true` if the response was completely factually correct according to the instructions above, `false` otherwise.\n\nYou must respond with a valid JSON string.\n\n## Task guidelines\n\n### Input format\n\nIn some cases, the prompt may include multiple messages of chat history. If so, each message will begin with one of the following prefixes:\n\n- \"System: \"\n- \"Human: \"\n- \"AI: \"\n\n### How to determine the value of `was_factual`\n\n- was_factual should be false if anything in the response is factually incorrect, and true otherwise.\n- If the response omits some useful information, but does not include any falsehoods, was_factual should be true.\n- The prompt itself may contain false information. If the response repeats this false information, was_factual should be false. In other words, do not assume that the prompt is factually correct when evaluating the response.\n- If the prompt and response involve a domain where the concept of \"factual accuracy\" doesn't strictly apply, assess whatever quality of the response is most intuitively similar to factual accuracy. For example, if the prompt asks the LLM to write code, assess whether the code is free of syntax errors and implements the intended logic.\n\n### Writing the explanation\n\n- As stated above, a typical explanation should list out the claims made in the response, and for each claim, provide a detailed explanation of why that claim is or is not factual.\n- If the response doesn't make claims per se, break down the response into constituent parts in the most natural way given its content. For example, in code generation tasks, you might break down the response into individual functions or lines of code.\n- Work step by step, and do not give an overall assessment of the response until the end of your explanation.",
        *       "value_field_name": "was_factual",
@@ -8236,7 +8236,7 @@ export interface components {
        *         }
        *       ]
        *     } */
-      chainpoll_template?: components['schemas']['FactualityTemplate'];
+      chainpoll_template?: components["schemas"]["FactualityTemplate"];
       /**
        * Regex Field
        * @default
@@ -8258,7 +8258,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      scorer_name: '_customized_ground_truth_adherence';
+      scorer_name: "_customized_ground_truth_adherence";
       /**
        * Model Alias
        * @description Model alias to use for scoring.
@@ -8274,7 +8274,7 @@ export interface components {
        * @default ground_truth_adherence
        * @constant
        */
-      name?: 'ground_truth_adherence';
+      name?: "ground_truth_adherence";
       /** Scores */
       scores?: unknown[] | null;
       /** Indices */
@@ -8291,19 +8291,19 @@ export interface components {
       /** Extra */
       extra?: Record<string, never> | null;
       /** Sub Scorers */
-      sub_scorers?: components['schemas']['ScorerName'][];
+      sub_scorers?: components["schemas"]["ScorerName"][];
       /** Filters */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /** Metric Name */
       metric_name?: string | null;
       /** Description */
       description?: string | null;
-      gpt_settings?: components['schemas']['PromptRunSettings'];
+      gpt_settings?: components["schemas"]["PromptRunSettings"];
       /** @default {
        *       "metric_system_prompt": "I will give you two different texts, called the \"ground truth\" and the \"response.\"\n\nRead both texts, then tell me whether they are \"equivalent,\" in the sense that they basically mean the same thing.\n\nKeep the following guidelines in mind.\n\n- Two texts can be equivalent if they use different phrasing, as long as the phrasing doesn't affect meaning.\n- Two texts can be equivalent if there are _slight_ differences in meaning that wouldn't affect the conclusions that a reasonable reader would draw upon reading them.\n- Imagine that you are grading a free-response exam.  The ground truth given in the answer key for an exam question, and the response is a student's answer to the same question. If you would give the student full marks for this question, that means the two texts are equivalent. If you wouldn't, that means the two texts are not equivalent.\n\nRespond in the following JSON format:\n\n```\n{{\n    \"explanation\": string,\n    \"equivalent\": boolean\n}}\n```\n\n\"explanation\": A step-by-step breakdown of the similarities and differences between the text. For each difference you note (if any), consider why the difference might or might not make the texts non-equivalent, note down your reasoning clearly and explicitly, and ultimately draw a conclusion about whether that difference makes the text non-equivalent.\n\n\"equivalent\": `true` if the texts are equivalent in the sense given above, `false` if they are non-equivalent.\n\nYou must respond with valid JSON.",
        *       "metric_description": "This metric computes whether a response from a large language model matches a provided ground truth text.",
@@ -8312,7 +8312,7 @@ export interface components {
        *       "template": "Ground truth:\n\n```\n{ground_truth}\n```\n\nResponse:\n\n```\n{response}\n```",
        *       "metric_few_shot_examples": []
        *     } */
-      chainpoll_template?: components['schemas']['GroundTruthAdherenceTemplate'];
+      chainpoll_template?: components["schemas"]["GroundTruthAdherenceTemplate"];
       /**
        * Regex Field
        * @default
@@ -8329,7 +8329,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      scorer_name: '_customized_groundedness';
+      scorer_name: "_customized_groundedness";
       /**
        * Model Alias
        * @description Model alias to use for scoring.
@@ -8345,7 +8345,7 @@ export interface components {
        * @default context_adherence
        * @constant
        */
-      name?: 'context_adherence';
+      name?: "context_adherence";
       /** Scores */
       scores?: unknown[] | null;
       /** Indices */
@@ -8362,19 +8362,19 @@ export interface components {
       /** Extra */
       extra?: Record<string, never> | null;
       /** Sub Scorers */
-      sub_scorers?: components['schemas']['ScorerName'][];
+      sub_scorers?: components["schemas"]["ScorerName"][];
       /** Filters */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /** Metric Name */
       metric_name?: string | null;
       /** Description */
       description?: string | null;
-      gpt_settings?: components['schemas']['PromptRunSettings'];
+      gpt_settings?: components["schemas"]["PromptRunSettings"];
       /** @default {
        *       "metric_system_prompt": "The user will provide you with a prompt that was sent to an automatic question-answering system, and that system's response. Both will be provided as JSON strings.\n\nThe prompt will contain one or more documents intended as context which the question-answering system was given as reference material.\n\nYour task is to determine whether the answer was supported by the documents.\n\nThink step by step, and explain your reasoning carefully.\nState your observations first, before drawing any conclusions.\n\nRespond in the following JSON format:\n\n```\n{\n    \"explanation\": string,\n    \"was_supported\": boolean\n}\n```\n\n\"explanation\": Your step-by-step reasoning process. List out the claims made in the response, and for each claim, provide a detailed explanation of why that claim is or is not supported by the documents.\n\n\"was_supported\": `true` if the response was supported by the documents, `false` otherwise.\n\nYou must respond with valid JSON.",
        *       "metric_description": "I have a RAG (retrieval-augmented generation) system that generates text based on one or more documents that I always include in my prompts. I want a metric that checks whether the generated text was supported by information in the documents. The metric should exhaustively check each claim in the response against the documents, one by one, listing them out explicitly.",
@@ -8388,7 +8388,7 @@ export interface components {
        *         }
        *       ]
        *     } */
-      chainpoll_template?: components['schemas']['GroundednessTemplate'];
+      chainpoll_template?: components["schemas"]["GroundednessTemplate"];
       /**
        * Regex Field
        * @default
@@ -8405,7 +8405,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      scorer_name: '_customized_instruction_adherence';
+      scorer_name: "_customized_instruction_adherence";
       /**
        * Model Alias
        * @description Model alias to use for scoring.
@@ -8421,7 +8421,7 @@ export interface components {
        * @default instruction_adherence
        * @constant
        */
-      name?: 'instruction_adherence';
+      name?: "instruction_adherence";
       /** Scores */
       scores?: unknown[] | null;
       /** Indices */
@@ -8438,19 +8438,19 @@ export interface components {
       /** Extra */
       extra?: Record<string, never> | null;
       /** Sub Scorers */
-      sub_scorers?: components['schemas']['ScorerName'][];
+      sub_scorers?: components["schemas"]["ScorerName"][];
       /** Filters */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /** Metric Name */
       metric_name?: string | null;
       /** Description */
       description?: string | null;
-      gpt_settings?: components['schemas']['PromptRunSettings'];
+      gpt_settings?: components["schemas"]["PromptRunSettings"];
       /** @default {
        *       "metric_system_prompt": "The user will provide you with a prompt that was sent to a chatbot system, and the chatbot's latest response. Both will be provided as JSON strings.\n\nIn some cases, the prompt may be split up into multiple messages. If so, each message will begin with one of the following prefixes:\n\n- \"System: \"\n- \"Human: \"\n- \"AI: \"\n\nIf you see these prefixes, pay attention to them because they indicate where messages begin and end. Messages prefixed with \"System: \" contain system instructions which the chatbot should follow. Messages prefixed with \"Human: \" are user input. Messages prefixed with \"AI: \" are system responses to user input.\nIf you do not see these prefixes, treat the prompt as though it was a single user input message prefixed with \"Human: \".\n\nYour task is to determine whether the latest response from the chatbot is consistent with the instructions provided in the system prompt (if there is one) or in the first user message (if there is no system prompt).\n\nFocus only on the latest response and the instructions. Do not consider the chat history or any previous messages from the chatbot.\n\nThink step by step, and explain your reasoning carefully.\nState your observations first, before drawing any conclusions.\n\nRespond in the following JSON format:\n\n```\n{\n    \"explanation\": string,\n    \"is_consistent\": boolean\n}\n```\n\n\"explanation\": Your step-by-step reasoning process. List out the relevant instructions and explain whether the latest response adheres to each of them.\n\n\"is_consistent\": `true` if the latest response is consistent with the instructions, `false` otherwise.\n\nYou must respond with a valid JSON string.",
        *       "metric_description": "I have a chatbot application.\nMy system prompt contains a list of instructions for what the chatbot should and should not do in every interaction. I want a metric that checks whether the latest response from the chatbot is consistent with the instructions.\n\nThe metric should only evaluate the latest message (the response), not the chat history. It should return false only if the latest message violates one or more instructions. Violations earlier in the chat history should not affect whether the value is true or false. The value should only depend on whether the latest message was consistent with the instructions, considered in context. The metric should only consider instructions that are applicable to the latest message.",
@@ -8464,7 +8464,7 @@ export interface components {
        *         }
        *       ]
        *     } */
-      chainpoll_template?: components['schemas']['InstructionAdherenceTemplate'];
+      chainpoll_template?: components["schemas"]["InstructionAdherenceTemplate"];
       /**
        * Regex Field
        * @default
@@ -8483,7 +8483,7 @@ export interface components {
     /** CustomizedScorer */
     CustomizedScorer: {
       /** @description Name of the customized scorer. */
-      scorer_name: components['schemas']['CustomizedScorerName'];
+      scorer_name: components["schemas"]["CustomizedScorerName"];
       /**
        * Model Alias
        * @description Model alias to use for scoring.
@@ -8500,21 +8500,21 @@ export interface components {
      * @enum {string}
      */
     CustomizedScorerName:
-      | '_customized_chunk_attribution_utilization_gpt'
-      | '_customized_completeness_gpt'
-      | '_customized_groundedness'
-      | '_customized_factuality'
-      | '_customized_instruction_adherence'
-      | '_customized_tool_error_rate'
-      | '_customized_tool_selection_quality'
-      | '_customized_agentic_workflow_success';
+      | "_customized_chunk_attribution_utilization_gpt"
+      | "_customized_completeness_gpt"
+      | "_customized_groundedness"
+      | "_customized_factuality"
+      | "_customized_instruction_adherence"
+      | "_customized_tool_error_rate"
+      | "_customized_tool_selection_quality"
+      | "_customized_agentic_workflow_success";
     /** CustomizedToolErrorRateGPTScorer */
     CustomizedToolErrorRateGPTScorer: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      scorer_name: '_customized_tool_error_rate';
+      scorer_name: "_customized_tool_error_rate";
       /**
        * Model Alias
        * @description Model alias to use for scoring.
@@ -8530,7 +8530,7 @@ export interface components {
        * @default tool_error_rate
        * @constant
        */
-      name?: 'tool_error_rate';
+      name?: "tool_error_rate";
       /** Scores */
       scores?: unknown[] | null;
       /** Indices */
@@ -8547,12 +8547,12 @@ export interface components {
       /** Extra */
       extra?: Record<string, never> | null;
       /** Sub Scorers */
-      sub_scorers?: components['schemas']['ScorerName'][];
+      sub_scorers?: components["schemas"]["ScorerName"][];
       /** Filters */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /** Metric Name */
@@ -8572,7 +8572,7 @@ export interface components {
        *       "frequency_penalty": 0,
        *       "presence_penalty": 0
        *     } */
-      gpt_settings?: components['schemas']['PromptRunSettings'];
+      gpt_settings?: components["schemas"]["PromptRunSettings"];
       /** @default {
        *       "metric_system_prompt": "One or more functions have been called, and you will receive their output. The output format could be a string containing the tool's result, it could be in JSON or XML format with additional metadata and information, or it could be a list of the outputs in any such format.\n\nYour task is to determine whether at least one function call didn't execute correctly and errored out. If at least one call failed, then you should consider the entire call as a failure. \nYou should NOT evaluate any other aspect of the tool call. In particular you should not evaluate whether the output is well formatted, coherent or contains spelling mistakes.\n\nIf you conclude that the call failed, provide an explanation as to why. You may summarize any error message you encounter. If the call was successful, no explanation is needed.\n\nRespond in the following JSON format:\n\n```\n{\n   \"function_errored_out\": boolean,\n   \"explanation\": string\n}\n```\n\n- **\"function_errored_out\"**: Use `false` if all tool calls were successful, and `true` if at least one errored out.\n\n- **\"explanation\"**: If a tool call failed, provide your step-by-step reasoning to determine why it might have failed. If all tool calls were succesful, leave this blank.\n\nYou must respond with a valid JSON object; don't forget to escape special characters.",
        *       "metric_description": "I have a multi-turn chatbot application where the assistant is an agent that has access to tools. I want a metric to evaluate whether a tool invocation was successful or if it resulted in an error.",
@@ -8590,7 +8590,7 @@ export interface components {
        *         }
        *       ]
        *     } */
-      chainpoll_template?: components['schemas']['ToolErrorRateTemplate'];
+      chainpoll_template?: components["schemas"]["ToolErrorRateTemplate"];
       /**
        * Regex Field
        * @default
@@ -8607,7 +8607,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      scorer_name: '_customized_tool_selection_quality';
+      scorer_name: "_customized_tool_selection_quality";
       /**
        * Model Alias
        * @description Model alias to use for scoring.
@@ -8623,7 +8623,7 @@ export interface components {
        * @default tool_selection_quality
        * @constant
        */
-      name?: 'tool_selection_quality';
+      name?: "tool_selection_quality";
       /** Scores */
       scores?: unknown[] | null;
       /** Indices */
@@ -8640,19 +8640,19 @@ export interface components {
       /** Extra */
       extra?: Record<string, never> | null;
       /** Sub Scorers */
-      sub_scorers?: components['schemas']['ScorerName'][];
+      sub_scorers?: components["schemas"]["ScorerName"][];
       /** Filters */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /** Metric Name */
       metric_name?: string | null;
       /** Description */
       description?: string | null;
-      gpt_settings?: components['schemas']['PromptRunSettings'];
+      gpt_settings?: components["schemas"]["PromptRunSettings"];
       /** @default {
        *       "metric_system_prompt": "You will receive the chat history from a chatbot application. At the end of the  conversation, it will be the bot’s turn to act. The bot has several options: it can reflect and plan its next steps, choose to call tools, or respond directly to the user. If the bot opts to use tools, the tools execute separately, and the bot will subsequently review the output from those tools. Ultimately, the bot should reply to the user, choosing the relevant parts of the tools' output.\n\nYour task is to evaluate the bot's decision-making process and ensure it follows these guidelines:\n- If all user queries have already been answered and can be found in the chat history, the bot should not call tools.\n- If no suitable tools are available to assist with user queries, the bot should not call tools.\n- If the chat history contains all the necessary information to directly answer all user queries, the bot should not call tools.\n- If the bot decided to call tools, the tools and argument values selected must relate to at least part of one user query.\n- If the bot decided to call tools, all arguments marked as \"required\" in the tools' schema must be provided with values.\n\nRemember that there are many ways the bot's actions can comply with these rules. Your role is to determine whether the bot fundamentally violated any of these rules, not whether it chose the most optimal response.\n\nRespond in the following JSON format:\n```\n{\n    \"explanation\": string,\n    \"bot_answer_follows_rules\": boolean\n}\n```\n\n- **\"explanation\"**: Provide your step-by-step reasoning to determine whether the bot's reply follows the above-mentioned guidelines.\n\n- **\"bot_answer_follows_rules\"**: Respond `true` if you believe the bot followed the above guidelines, respond `false` otherwise.\n\nYou must respond with a valid JSON object; don't forget to escape special characters.",
        *       "metric_description": "I have a multi-turn chatbot application where the assistant is an agent that has access to tools. I want a metric that assesses whether the assistant made the correct decision in choosing to either use tools or to directly respond, and in cases where it uses tools, whether it selected the correct tools with the correct arguments.",
@@ -8666,7 +8666,7 @@ export interface components {
        *         }
        *       ]
        *     } */
-      chainpoll_template?: components['schemas']['ToolSelectionQualityTemplate'];
+      chainpoll_template?: components["schemas"]["ToolSelectionQualityTemplate"];
       /**
        * Regex Field
        * @default
@@ -8701,7 +8701,7 @@ export interface components {
       /** Data Error Potential */
       data_error_potential?: number | null;
       /** Spans */
-      spans?: components['schemas']['Span'][] | null;
+      spans?: components["schemas"]["Span"][] | null;
       /** Missed Label */
       missed_label?: number | null;
       /** Wrong Tag */
@@ -8736,7 +8736,7 @@ export interface components {
        */
       image?: string | null;
       /** Boxes */
-      boxes?: components['schemas']['BBox'][] | null;
+      boxes?: components["schemas"]["BBox"][] | null;
       /** Classification */
       classification?: number | null;
       /** Localization */
@@ -8758,10 +8758,10 @@ export interface components {
       /** Width */
       width?: number | null;
       /** Polygons */
-      polygons?: components['schemas']['PolygonData'][] | null;
+      polygons?: components["schemas"]["PolygonData"][] | null;
       /** Dep Mask */
       dep_mask?: string | null;
-      noise_type?: components['schemas']['NoiseType'] | null;
+      noise_type?: components["schemas"]["NoiseType"] | null;
       /**
        * Edited
        * @default false
@@ -8779,9 +8779,9 @@ export interface components {
       /** Generated Output */
       generated_output?: string | null;
       /** Target Segments */
-      target_segments?: components['schemas']['Seq2SeqSegment'][] | null;
+      target_segments?: components["schemas"]["Seq2SeqSegment"][] | null;
       /** Generated Segments */
-      generated_segments?: components['schemas']['Seq2SeqSegment'][] | null;
+      generated_segments?: components["schemas"]["Seq2SeqSegment"][] | null;
       /** Bleu */
       bleu?: number | null;
       /** Rouge */
@@ -8802,7 +8802,7 @@ export interface components {
     /** DataRows */
     DataRows: {
       /** Data Rows */
-      data_rows: components['schemas']['DataRow'][];
+      data_rows: components["schemas"]["DataRow"][];
       /** Has Next Page */
       has_next_page: boolean;
     };
@@ -8811,32 +8811,32 @@ export interface components {
      * @enum {string}
      */
     DataTypeOptions:
-      | 'unknown'
-      | 'text'
-      | 'label'
-      | 'floating_point'
-      | 'integer'
-      | 'timestamp'
-      | 'milli_seconds'
-      | 'boolean'
-      | 'uuid'
-      | 'percentage'
-      | 'dollars'
-      | 'array'
-      | 'template_label'
-      | 'thumb_rating_percentage'
-      | 'user_id'
-      | 'text_offsets'
-      | 'segments'
-      | 'hallucination_segments'
-      | 'thumb_rating'
-      | 'score_rating'
-      | 'star_rating'
-      | 'tags_rating'
-      | 'thumb_rating_aggregate'
-      | 'score_rating_aggregate'
-      | 'star_rating_aggregate'
-      | 'tags_rating_aggregate';
+      | "unknown"
+      | "text"
+      | "label"
+      | "floating_point"
+      | "integer"
+      | "timestamp"
+      | "milli_seconds"
+      | "boolean"
+      | "uuid"
+      | "percentage"
+      | "dollars"
+      | "array"
+      | "template_label"
+      | "thumb_rating_percentage"
+      | "user_id"
+      | "text_offsets"
+      | "segments"
+      | "hallucination_segments"
+      | "thumb_rating"
+      | "score_rating"
+      | "star_rating"
+      | "tags_rating"
+      | "thumb_rating_aggregate"
+      | "score_rating_aggregate"
+      | "star_rating_aggregate"
+      | "tags_rating_aggregate";
     /** DatabricksEditExportRequest */
     DatabricksEditExportRequest: {
       /** Task */
@@ -8848,8 +8848,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -8861,7 +8861,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -8879,14 +8879,14 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /** Edit Ids */
       edit_ids: string[];
       /**
        * Edit Overrides
        * @default []
        */
-      edit_overrides?: components['schemas']['EditOverride'][] | null;
+      edit_overrides?: components["schemas"]["EditOverride"][] | null;
       /**
        * Only Export Edited
        * @default false
@@ -8910,8 +8910,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -8923,7 +8923,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -8941,14 +8941,14 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /** Edit Ids */
       edit_ids: string[];
       /**
        * Edit Overrides
        * @default []
        */
-      edit_overrides?: components['schemas']['EditOverride'][] | null;
+      edit_overrides?: components["schemas"]["EditOverride"][] | null;
       /**
        * Only Export Edited
        * @default false
@@ -8983,8 +8983,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -8996,7 +8996,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -9014,7 +9014,7 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /**
        * Project Id
        * Format: uuid4
@@ -9025,7 +9025,7 @@ export interface components {
        * Format: uuid4
        */
       run_id: string;
-      split: components['schemas']['Split'];
+      split: components["schemas"]["Split"];
       /** Inference Name */
       inference_name?: string | null;
     };
@@ -9046,8 +9046,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -9059,7 +9059,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -9077,7 +9077,7 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /**
        * Project Id
        * Format: uuid4
@@ -9088,7 +9088,7 @@ export interface components {
        * Format: uuid4
        */
       run_id: string;
-      split: components['schemas']['Split'];
+      split: components["schemas"]["Split"];
       /** Inference Name */
       inference_name?: string | null;
     };
@@ -9098,7 +9098,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'databricks';
+      name: "databricks";
       /** Extra */
       extra?: Record<string, never> | null;
     };
@@ -9135,7 +9135,7 @@ export interface components {
       /** Catalog Name */
       catalog_name?: string | null;
       /** Filters */
-      filters?: components['schemas']['QueryFilterV1'][];
+      filters?: components["schemas"]["QueryFilterV1"][];
       /**
        * Sort Spec
        * @default [
@@ -9145,7 +9145,7 @@ export interface components {
        *       }
        *     ]
        */
-      sort_spec?: components['schemas']['SortClause'][];
+      sort_spec?: components["schemas"]["SortClause"][];
       /** Columns */
       columns?: string[] | null;
     };
@@ -9160,8 +9160,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -9173,7 +9173,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -9191,14 +9191,14 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /** Edit Ids */
       edit_ids: string[];
       /**
        * Edit Overrides
        * @default []
        */
-      edit_overrides?: components['schemas']['EditOverride'][] | null;
+      edit_overrides?: components["schemas"]["EditOverride"][] | null;
       /**
        * Only Export Edited
        * @default false
@@ -9226,8 +9226,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -9239,7 +9239,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -9257,14 +9257,14 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /** Edit Ids */
       edit_ids: string[];
       /**
        * Edit Overrides
        * @default []
        */
-      edit_overrides?: components['schemas']['EditOverride'][] | null;
+      edit_overrides?: components["schemas"]["EditOverride"][] | null;
       /**
        * Only Export Edited
        * @default false
@@ -9286,8 +9286,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -9299,7 +9299,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -9317,7 +9317,7 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /** Results */
       results: unknown[];
     };
@@ -9325,14 +9325,14 @@ export interface components {
      * DatasetAction
      * @enum {string}
      */
-    DatasetAction: 'update' | 'delete' | 'share' | 'export' | 'rename';
+    DatasetAction: "update" | "delete" | "share" | "export" | "rename";
     /** DatasetAddColumn */
     DatasetAddColumn: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      edit_type: 'add_column';
+      edit_type: "add_column";
       /** New Column Name */
       new_column_name: string;
       /** Column Values */
@@ -9344,7 +9344,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      edit_type: 'append_row';
+      edit_type: "append_row";
       /** Values */
       values: {
         [key: string]: string | number | null;
@@ -9372,7 +9372,7 @@ export interface components {
       /** Column Names */
       column_names?: string[];
       /** Rows */
-      rows?: components['schemas']['DatasetRow'][];
+      rows?: components["schemas"]["DatasetRow"][];
     };
     /** DatasetContentFilter */
     DatasetContentFilter: {
@@ -9381,13 +9381,13 @@ export interface components {
       /** Value */
       value: string;
       /** @default contains */
-      operator?: components['schemas']['DatasetContentFilterOperator'];
+      operator?: components["schemas"]["DatasetContentFilterOperator"];
     };
     /**
      * DatasetContentFilterOperator
      * @enum {string}
      */
-    DatasetContentFilterOperator: 'eq' | 'ne' | 'contains';
+    DatasetContentFilterOperator: "eq" | "ne" | "contains";
     /** DatasetContentSortClause */
     DatasetContentSortClause: {
       /** Column Name */
@@ -9404,7 +9404,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'created_at';
+      name: "created_at";
       /**
        * Ascending
        * @default true
@@ -9415,7 +9415,7 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /** DatasetDB */
     DatasetDB: {
@@ -9428,7 +9428,7 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /** Name */
       name: string;
       /**
@@ -9447,7 +9447,7 @@ export interface components {
       num_rows: number | null;
       /** Column Names */
       column_names: string[] | null;
-      created_by_user: components['schemas']['UserInfo'] | null;
+      created_by_user: components["schemas"]["UserInfo"] | null;
       /** Current Version Index */
       current_version_index: number;
     };
@@ -9457,7 +9457,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      edit_type: 'delete_column';
+      edit_type: "delete_column";
       /** Column Name */
       column_name: string;
     };
@@ -9467,7 +9467,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      edit_type: 'delete_row';
+      edit_type: "delete_row";
       /** Index */
       index: number;
     };
@@ -9475,14 +9475,14 @@ export interface components {
      * DatasetFormat
      * @enum {string}
      */
-    DatasetFormat: 'csv' | 'feather' | 'jsonl';
+    DatasetFormat: "csv" | "feather" | "jsonl";
     /** DatasetLastEditedByUserAtSort */
     DatasetLastEditedByUserAtSort: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'last_edited_by_user_at';
+      name: "last_edited_by_user_at";
       /**
        * Ascending
        * @default true
@@ -9493,7 +9493,7 @@ export interface components {
        * @default custom_uuid
        * @constant
        */
-      sort_type?: 'custom_uuid';
+      sort_type?: "custom_uuid";
       /**
        * Value
        * Format: uuid4
@@ -9506,14 +9506,14 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'name';
+      name: "name";
       /** Value */
       value: string;
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'contains';
+      operator: "eq" | "ne" | "contains";
       /**
        * Case Sensitive
        * @default true
@@ -9526,7 +9526,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'name';
+      name: "name";
       /**
        * Ascending
        * @default true
@@ -9537,7 +9537,7 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /** DatasetProjectLastUsedAtSort */
     DatasetProjectLastUsedAtSort: {
@@ -9545,7 +9545,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'project_last_used_at';
+      name: "project_last_used_at";
       /**
        * Ascending
        * @default true
@@ -9556,7 +9556,7 @@ export interface components {
        * @default custom_uuid
        * @constant
        */
-      sort_type?: 'custom_uuid';
+      sort_type?: "custom_uuid";
       /**
        * Value
        * Format: uuid4
@@ -9569,7 +9569,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'project_count';
+      name: "project_count";
       /**
        * Ascending
        * @default true
@@ -9580,7 +9580,7 @@ export interface components {
        * @default custom
        * @constant
        */
-      sort_type?: 'custom';
+      sort_type?: "custom";
     };
     /** DatasetRenameColumn */
     DatasetRenameColumn: {
@@ -9588,7 +9588,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      edit_type: 'rename_column';
+      edit_type: "rename_column";
       /** Column Name */
       column_name: string;
       /** New Column Name */
@@ -9607,7 +9607,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'num_rows';
+      name: "num_rows";
       /**
        * Ascending
        * @default true
@@ -9618,20 +9618,20 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /**
      * DatasetType
      * @enum {string}
      */
-    DatasetType: 'training' | 'inference';
+    DatasetType: "training" | "inference";
     /** DatasetUpdateRow */
     DatasetUpdateRow: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      edit_type: 'update_row';
+      edit_type: "update_row";
       /** Index */
       index: number;
       /** Values */
@@ -9645,7 +9645,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'updated_at';
+      name: "updated_at";
       /**
        * Ascending
        * @default true
@@ -9656,7 +9656,7 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /** DatasetUsedInProjectFilter */
     DatasetUsedInProjectFilter: {
@@ -9664,7 +9664,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'used_in_project';
+      name: "used_in_project";
       /**
        * Value
        * Format: uuid4
@@ -9682,7 +9682,7 @@ export interface components {
        * Format: date-time
        */
       created_at: string;
-      created_by_user: components['schemas']['UserInfo'] | null;
+      created_by_user: components["schemas"]["UserInfo"] | null;
       /** Num Rows */
       num_rows: number;
       /** Column Names */
@@ -9706,7 +9706,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'version_index';
+      name: "version_index";
       /**
        * Ascending
        * @default true
@@ -9717,7 +9717,7 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /** DeletePromptResponse */
     DeletePromptResponse: {
@@ -9757,7 +9757,7 @@ export interface components {
       bins: number[];
       /** Counts */
       counts: number[];
-      metrics?: components['schemas']['GroupByMetrics'] | null;
+      metrics?: components["schemas"]["GroupByMetrics"] | null;
     };
     /**
      * DistributionRequest
@@ -9777,8 +9777,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -9826,14 +9826,14 @@ export interface components {
      * @enum {string}
      */
     EditAction:
-      | 'relabel'
-      | 'delete'
-      | 'select_for_label'
-      | 'relabel_as_pred'
-      | 'update_text'
-      | 'shift_span'
-      | 'add_span'
-      | 'create_new_label';
+      | "relabel"
+      | "delete"
+      | "select_for_label"
+      | "relabel_as_pred"
+      | "update_text"
+      | "shift_span"
+      | "add_span"
+      | "create_new_label";
     /** EditContent */
     EditContent: {
       /** Task */
@@ -9855,17 +9855,17 @@ export interface components {
       shift_span_end_num_words?: number | null;
       /** Edit Spans */
       edit_spans?: {
-        [key: string]: components['schemas']['EditSpan'][];
+        [key: string]: components["schemas"]["EditSpan"][];
       } | null;
       /** Note */
       note?: string | null;
-      edit_action: components['schemas']['EditAction'];
+      edit_action: components["schemas"]["EditAction"];
       /**
        * Sample Ids
        * @default []
        */
       sample_ids?: number[];
-      filter?: components['schemas']['FilterParams'] | null;
+      filter?: components["schemas"]["FilterParams"] | null;
       /** Map Threshold */
       map_threshold?: number | null;
       /** Inference Name */
@@ -9880,7 +9880,7 @@ export interface components {
        * Format: uuid4
        */
       run_id: string;
-      split: components['schemas']['Split'];
+      split: components["schemas"]["Split"];
       /** Created By */
       created_by?: string | null;
       /**
@@ -9896,14 +9896,14 @@ export interface components {
       /** Exported */
       exported: boolean;
       /** Content */
-      content: components['schemas']['EditRowData'][];
+      content: components["schemas"]["EditRowData"][];
       /** Has Next Page */
       has_next_page: boolean;
       /**
        * Reviewers
        * @default []
        */
-      reviewers?: components['schemas']['EditReviewDB'][] | null;
+      reviewers?: components["schemas"]["EditReviewDB"][] | null;
     };
     /** EditCreateRequest */
     EditCreateRequest: {
@@ -9926,17 +9926,17 @@ export interface components {
       shift_span_end_num_words?: number | null;
       /** Edit Spans */
       edit_spans?: {
-        [key: string]: components['schemas']['EditSpan'][];
+        [key: string]: components["schemas"]["EditSpan"][];
       } | null;
       /** Note */
       note?: string | null;
-      edit_action: components['schemas']['EditAction'];
+      edit_action: components["schemas"]["EditAction"];
       /**
        * Sample Ids
        * @default []
        */
       sample_ids?: number[];
-      filter?: components['schemas']['FilterParams'] | null;
+      filter?: components["schemas"]["FilterParams"] | null;
       /** Map Threshold */
       map_threshold?: number | null;
     };
@@ -9961,17 +9961,17 @@ export interface components {
       shift_span_end_num_words?: number | null;
       /** Edit Spans */
       edit_spans?: {
-        [key: string]: components['schemas']['EditSpan'][];
+        [key: string]: components["schemas"]["EditSpan"][];
       } | null;
       /** Note */
       note?: string | null;
-      edit_action: components['schemas']['EditAction'];
+      edit_action: components["schemas"]["EditAction"];
       /**
        * Sample Ids
        * @default []
        */
       sample_ids?: number[];
-      filter?: components['schemas']['FilterParams'] | null;
+      filter?: components["schemas"]["FilterParams"] | null;
       /** Map Threshold */
       map_threshold?: number | null;
       /** Inference Name */
@@ -9986,7 +9986,7 @@ export interface components {
        * Format: uuid4
        */
       run_id: string;
-      split: components['schemas']['Split'];
+      split: components["schemas"]["Split"];
       /** Created By */
       created_by?: string | null;
       /**
@@ -10038,8 +10038,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -10051,7 +10051,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -10069,14 +10069,14 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /** Edit Ids */
       edit_ids: string[];
       /**
        * Edit Overrides
        * @default []
        */
-      edit_overrides?: components['schemas']['EditOverride'][] | null;
+      edit_overrides?: components["schemas"]["EditOverride"][] | null;
       /**
        * Only Export Edited
        * @default false
@@ -10106,17 +10106,17 @@ export interface components {
       shift_span_end_num_words?: number | null;
       /** Edit Spans */
       edit_spans?: {
-        [key: string]: components['schemas']['EditSpan'][];
+        [key: string]: components["schemas"]["EditSpan"][];
       } | null;
       /** Note */
       note?: string | null;
-      edit_action: components['schemas']['EditAction'];
+      edit_action: components["schemas"]["EditAction"];
       /**
        * Sample Ids
        * @default []
        */
       sample_ids?: number[];
-      filter?: components['schemas']['FilterParams'] | null;
+      filter?: components["schemas"]["FilterParams"] | null;
       /** Map Threshold */
       map_threshold?: number | null;
       /** Inference Name */
@@ -10131,7 +10131,7 @@ export interface components {
        * Format: uuid4
        */
       run_id: string;
-      split: components['schemas']['Split'];
+      split: components["schemas"]["Split"];
       /** Created By */
       created_by?: string | null;
       /**
@@ -10147,7 +10147,7 @@ export interface components {
       /** Exported */
       exported: boolean;
       /** Reviewers */
-      reviewers?: components['schemas']['EditReviewDB'][];
+      reviewers?: components["schemas"]["EditReviewDB"][];
     };
     /**
      * EditOverride
@@ -10177,14 +10177,14 @@ export interface components {
       shift_span_end_num_words?: number | null;
       /** Edit Spans */
       edit_spans?: {
-        [key: string]: components['schemas']['EditSpan'][];
+        [key: string]: components["schemas"]["EditSpan"][];
       } | null;
       /** Note */
       note?: string | null;
-      edit_action: components['schemas']['EditAction'];
+      edit_action: components["schemas"]["EditAction"];
       /** Sample Ids */
       sample_ids: number[];
-      filter?: components['schemas']['FilterParams'] | null;
+      filter?: components["schemas"]["FilterParams"] | null;
       /** Map Threshold */
       map_threshold?: number | null;
       /** Inference Name */
@@ -10199,7 +10199,7 @@ export interface components {
        * Format: uuid4
        */
       run_id: string;
-      split: components['schemas']['Split'];
+      split: components["schemas"]["Split"];
       /** Created By */
       created_by?: string | null;
     };
@@ -10232,14 +10232,14 @@ export interface components {
       /** Meta */
       meta?: Record<string, never> | null;
       /** Spans */
-      spans?: components['schemas']['Span'][] | null;
+      spans?: components["schemas"]["Span"][] | null;
       /**
        * Image
        * @default
        */
       image?: string | null;
       /** Boxes */
-      boxes?: components['schemas']['BBox'][] | null;
+      boxes?: components["schemas"]["BBox"][] | null;
       /** Input */
       input: string | null;
       /** Target */
@@ -10260,7 +10260,7 @@ export interface components {
     };
     /** EditSummary */
     EditSummary: {
-      edit_action: components['schemas']['EditAction'];
+      edit_action: components["schemas"]["EditAction"];
       /** Count */
       count: number;
     };
@@ -10336,8 +10336,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -10347,7 +10347,7 @@ export interface components {
       ids?: number[];
       /** Meta Cols */
       meta_cols?: string[] | null;
-      circle?: components['schemas']['Circle'] | null;
+      circle?: components["schemas"]["Circle"] | null;
       /**
        * Num Samples
        * @default 5
@@ -10365,8 +10365,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -10376,14 +10376,14 @@ export interface components {
       ids?: number[];
       /** Meta Cols */
       meta_cols?: string[] | null;
-      circle?: components['schemas']['Circle'] | null;
+      circle?: components["schemas"]["Circle"] | null;
       /**
        * Num Samples
        * @default 5
        */
       num_samples?: number;
       /** Embedding Data */
-      embedding_data: components['schemas']['EmbeddingData'][];
+      embedding_data: components["schemas"]["EmbeddingData"][];
     };
     /** EmbeddingRequest */
     EmbeddingRequest: {
@@ -10396,8 +10396,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -10418,7 +10418,7 @@ export interface components {
        */
       include_text_sample?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Only Meta Cols
        * @default false
@@ -10464,9 +10464,9 @@ export interface components {
       alert_name: string;
       /** Filter */
       filter:
-        | components['schemas']['RangePromptFilterParam']
-        | components['schemas']['ValuePromptFilterParam']
-        | components['schemas']['CategoricalPromptFilterParam'];
+        | components["schemas"]["RangePromptFilterParam"]
+        | components["schemas"]["ValuePromptFilterParam"]
+        | components["schemas"]["CategoricalPromptFilterParam"];
       /** Field Name */
       field_name: string;
       /** Description */
@@ -10491,10 +10491,10 @@ export interface components {
     };
     /** EvaluateProjectSettings */
     EvaluateProjectSettings: {
-      scorers_config?: components['schemas']['ScorersConfig'] | null;
+      scorers_config?: components["schemas"]["ScorersConfig"] | null;
       /** Metric Weights Configuration */
       metric_weights_configuration?: {
-        [key: string]: components['schemas']['MetricWeight'];
+        [key: string]: components["schemas"]["MetricWeight"];
       } | null;
     };
     /** EvaluateRunRequest */
@@ -10504,51 +10504,51 @@ export interface components {
        * @description List of Galileo scorers to enable.
        */
       scorers?: (
-        | components['schemas']['AgenticWorkflowSuccessScorer']
-        | components['schemas']['BleuScorer']
-        | components['schemas']['ChunkAttributionUtilizationScorer']
-        | components['schemas']['CompletenessScorer']
-        | components['schemas']['ContextAdherenceScorer']
-        | components['schemas']['ContextRelevanceScorer']
-        | components['schemas']['CorrectnessScorer']
-        | components['schemas']['GroundTruthAdherenceScorer']
-        | components['schemas']['InputPIIScorer']
-        | components['schemas']['InputSexistScorer']
-        | components['schemas']['InputToneScorer']
-        | components['schemas']['InputToxicityScorer']
-        | components['schemas']['InstructionAdherenceScorer']
-        | components['schemas']['OutputPIIScorer']
-        | components['schemas']['OutputSexistScorer']
-        | components['schemas']['OutputToneScorer']
-        | components['schemas']['OutputToxicityScorer']
-        | components['schemas']['PromptInjectionScorer']
-        | components['schemas']['PromptPerplexityScorer']
-        | components['schemas']['RougeScorer']
-        | components['schemas']['ToolErrorRateScorer']
-        | components['schemas']['ToolSelectionQualityScorer']
-        | components['schemas']['UncertaintyScorer']
+        | components["schemas"]["AgenticWorkflowSuccessScorer"]
+        | components["schemas"]["BleuScorer"]
+        | components["schemas"]["ChunkAttributionUtilizationScorer"]
+        | components["schemas"]["CompletenessScorer"]
+        | components["schemas"]["ContextAdherenceScorer"]
+        | components["schemas"]["ContextRelevanceScorer"]
+        | components["schemas"]["CorrectnessScorer"]
+        | components["schemas"]["GroundTruthAdherenceScorer"]
+        | components["schemas"]["InputPIIScorer"]
+        | components["schemas"]["InputSexistScorer"]
+        | components["schemas"]["InputToneScorer"]
+        | components["schemas"]["InputToxicityScorer"]
+        | components["schemas"]["InstructionAdherenceScorer"]
+        | components["schemas"]["OutputPIIScorer"]
+        | components["schemas"]["OutputSexistScorer"]
+        | components["schemas"]["OutputToneScorer"]
+        | components["schemas"]["OutputToxicityScorer"]
+        | components["schemas"]["PromptInjectionScorer"]
+        | components["schemas"]["PromptPerplexityScorer"]
+        | components["schemas"]["RougeScorer"]
+        | components["schemas"]["ToolErrorRateScorer"]
+        | components["schemas"]["ToolSelectionQualityScorer"]
+        | components["schemas"]["UncertaintyScorer"]
       )[];
       /**
        * Registered Scorers
        * @description List of registered scorers to enable.
        */
-      registered_scorers?: components['schemas']['RegisteredScorerConfig'][];
+      registered_scorers?: components["schemas"]["RegisteredScorerConfig"][];
       /**
        * Generated Scorers
        * @description List of generated scorers to enable.
        */
-      generated_scorers?: components['schemas']['GeneratedScorerConfig'][];
+      generated_scorers?: components["schemas"]["GeneratedScorerConfig"][];
       /**
        * Workflows
        * @description List of workflows to include in the run.
        */
       workflows: (
-        | components['schemas']['WorkflowStep']
-        | components['schemas']['ChainStep']
-        | components['schemas']['LlmStep']
-        | components['schemas']['RetrieverStep']
-        | components['schemas']['ToolStep']
-        | components['schemas']['AgentStep']
+        | components["schemas"]["WorkflowStep"]
+        | components["schemas"]["ChainStep"]
+        | components["schemas"]["LlmStep"]
+        | components["schemas"]["RetrieverStep"]
+        | components["schemas"]["ToolStep"]
+        | components["schemas"]["AgentStep"]
       )[];
       /**
        * Project Id
@@ -10616,12 +10616,12 @@ export interface components {
      * @enum {string}
      */
     ExecutionStatus:
-      | 'triggered'
-      | 'failed'
-      | 'error'
-      | 'timeout'
-      | 'paused'
-      | 'not_triggered';
+      | "triggered"
+      | "failed"
+      | "error"
+      | "timeout"
+      | "paused"
+      | "not_triggered";
     /** ExperimentCreateRequest */
     ExperimentCreateRequest: {
       /** Name */
@@ -10670,8 +10670,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -10683,7 +10683,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -10701,7 +10701,7 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
     };
     /**
      * ExtraAlertFilters
@@ -10810,7 +10810,7 @@ export interface components {
        *       }
        *     ]
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /** FeatureColumnsResponse */
     FeatureColumnsResponse: {
@@ -10831,10 +10831,10 @@ export interface components {
     FeedbackAggregate: {
       /** Aggregate */
       aggregate:
-        | components['schemas']['LikeDislikeAggregate']
-        | components['schemas']['StarAggregate']
-        | components['schemas']['ScoreAggregate']
-        | components['schemas']['TagsAggregate'];
+        | components["schemas"]["LikeDislikeAggregate"]
+        | components["schemas"]["StarAggregate"]
+        | components["schemas"]["ScoreAggregate"]
+        | components["schemas"]["TagsAggregate"];
     };
     /** FeedbackRatingCreate */
     FeedbackRatingCreate: {
@@ -10842,11 +10842,11 @@ export interface components {
       explanation?: string | null;
       /** Rating */
       rating:
-        | components['schemas']['LikeDislikeRating']
-        | components['schemas']['StarRating']
-        | components['schemas']['ScoreRating']
-        | components['schemas']['TagsRating']
-        | components['schemas']['TextRating'];
+        | components["schemas"]["LikeDislikeRating"]
+        | components["schemas"]["StarRating"]
+        | components["schemas"]["ScoreRating"]
+        | components["schemas"]["TagsRating"]
+        | components["schemas"]["TextRating"];
     };
     /** FeedbackRatingDB */
     FeedbackRatingDB: {
@@ -10854,11 +10854,11 @@ export interface components {
       explanation?: string | null;
       /** Rating */
       rating:
-        | components['schemas']['LikeDislikeRating']
-        | components['schemas']['StarRating']
-        | components['schemas']['ScoreRating']
-        | components['schemas']['TagsRating']
-        | components['schemas']['TextRating'];
+        | components["schemas"]["LikeDislikeRating"]
+        | components["schemas"]["StarRating"]
+        | components["schemas"]["ScoreRating"]
+        | components["schemas"]["TagsRating"]
+        | components["schemas"]["TextRating"];
       /**
        * Created At
        * Format: date-time
@@ -10872,7 +10872,7 @@ export interface components {
      * @description Operation type for bulk feedback rating operations.
      * @enum {string}
      */
-    FeedbackRatingOperationType: 'create' | 'delete';
+    FeedbackRatingOperationType: "create" | "delete";
     /** FeedbackTemplateCreate */
     FeedbackTemplateCreate: {
       /** Name */
@@ -10886,11 +10886,11 @@ export interface components {
       criteria?: string | null;
       /** Constraints */
       constraints:
-        | components['schemas']['LikeDislikeConstraints']
-        | components['schemas']['StarConstraints']
-        | components['schemas']['ScoreConstraints']
-        | components['schemas']['TagsConstraints']
-        | components['schemas']['TextConstraints'];
+        | components["schemas"]["LikeDislikeConstraints"]
+        | components["schemas"]["StarConstraints"]
+        | components["schemas"]["ScoreConstraints"]
+        | components["schemas"]["TagsConstraints"]
+        | components["schemas"]["TextConstraints"];
     };
     /** FeedbackTemplateDB */
     FeedbackTemplateDB: {
@@ -10902,11 +10902,11 @@ export interface components {
       criteria?: string | null;
       /** Constraints */
       constraints:
-        | components['schemas']['LikeDislikeConstraints']
-        | components['schemas']['StarConstraints']
-        | components['schemas']['ScoreConstraints']
-        | components['schemas']['TagsConstraints']
-        | components['schemas']['TextConstraints'];
+        | components["schemas"]["LikeDislikeConstraints"]
+        | components["schemas"]["StarConstraints"]
+        | components["schemas"]["ScoreConstraints"]
+        | components["schemas"]["TagsConstraints"]
+        | components["schemas"]["TextConstraints"];
       /**
        * Id
        * Format: uuid4
@@ -10941,12 +10941,12 @@ export interface components {
      * FieldType
      * @enum {string}
      */
-    FieldType: 'int' | 'float' | 'string' | 'array' | 'bool';
+    FieldType: "int" | "float" | "string" | "array" | "bool";
     /**
      * FileType
      * @enum {string}
      */
-    FileType: 'csv' | 'json' | 'parquet' | 'arrow' | 'zip';
+    FileType: "csv" | "json" | "parquet" | "arrow" | "zip";
     /** FilterOptionsResponse */
     FilterOptionsResponse: {
       /** Filter Options */
@@ -10980,7 +10980,7 @@ export interface components {
       /** Pred Filter */
       pred_filter?: string[] | null;
       /** Meta Filter */
-      meta_filter?: components['schemas']['MetaFilter'][] | null;
+      meta_filter?: components["schemas"]["MetaFilter"][] | null;
       /** Drift Score Threshold */
       drift_score_threshold?: number | null;
       /** Is Drifted */
@@ -10999,7 +10999,7 @@ export interface components {
        * @default []
        */
       exclude_ids?: number[];
-      lasso?: components['schemas']['LassoSelection'] | null;
+      lasso?: components["schemas"]["LassoSelection"] | null;
       /** Class Filter */
       class_filter?: string[] | null;
       /** Likely Mislabeled */
@@ -11042,8 +11042,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -11063,8 +11063,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -11118,13 +11118,13 @@ export interface components {
     /** FiltersRequestBody */
     FiltersRequestBody: {
       /** Filters */
-      filters?: components['schemas']['QueryFilterV1'][];
+      filters?: components["schemas"]["QueryFilterV1"][];
     };
     /** GenAIProjectSettings */
     GenAIProjectSettings: {
-      scorers_config?: components['schemas']['ScorersConfig'] | null;
+      scorers_config?: components["schemas"]["ScorersConfig"] | null;
       alerts_configuration?:
-        | components['schemas']['AlertsConfiguration']
+        | components["schemas"]["AlertsConfiguration"]
         | null;
     };
     /** GeneratedScorer */
@@ -11138,7 +11138,7 @@ export interface components {
      * GeneratedScorerAction
      * @enum {string}
      */
-    GeneratedScorerAction: 'update' | 'delete';
+    GeneratedScorerAction: "update" | "delete";
     /** GeneratedScorerConfig */
     GeneratedScorerConfig: {
       /**
@@ -11152,8 +11152,8 @@ export interface components {
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -11181,7 +11181,7 @@ export interface components {
       name: string;
       /** Instructions */
       instructions: string;
-      chain_poll_template: components['schemas']['ChainPollTemplate'];
+      chain_poll_template: components["schemas"]["ChainPollTemplate"];
       /**
        * Created By
        * Format: uuid4
@@ -11198,8 +11198,8 @@ export interface components {
        */
       updated_at: string;
       /** Scoreable Node Types */
-      scoreable_node_types: components['schemas']['NodeType'][] | null;
-      scorer_configuration: components['schemas']['GeneratedScorerConfiguration'];
+      scoreable_node_types: components["schemas"]["NodeType"][] | null;
+      scorer_configuration: components["schemas"]["GeneratedScorerConfiguration"];
     };
     /** GeneratedScorerTaskResultResponse */
     GeneratedScorerTaskResultResponse: {
@@ -11218,12 +11218,12 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      status: components['schemas']['GeneratedScorerTaskResultStatus'];
-      result_type: components['schemas']['GeneratedScorerTaskResultType'];
+      status: components["schemas"]["GeneratedScorerTaskResultStatus"];
+      result_type: components["schemas"]["GeneratedScorerTaskResultType"];
       /** Result */
       result?:
-        | components['schemas']['AutoGenResult']
-        | components['schemas']['GeneratedScorerValidationResult']
+        | components["schemas"]["AutoGenResult"]
+        | components["schemas"]["GeneratedScorerValidationResult"]
         | string
         | null;
     };
@@ -11231,20 +11231,20 @@ export interface components {
      * GeneratedScorerTaskResultStatus
      * @enum {string}
      */
-    GeneratedScorerTaskResultStatus: 'pending' | 'completed' | 'failed';
+    GeneratedScorerTaskResultStatus: "pending" | "completed" | "failed";
     /**
      * GeneratedScorerTaskResultType
      * @enum {string}
      */
-    GeneratedScorerTaskResultType: 'scorer_auto_gen' | 'scorer_validation';
+    GeneratedScorerTaskResultType: "scorer_auto_gen" | "scorer_validation";
     /** GeneratedScorerValidationRequest */
     GeneratedScorerValidationRequest: {
       /** Query */
       query: string;
       /** Response */
       response: string;
-      scorer_configuration: components['schemas']['GeneratedScorerConfiguration'];
-      chain_poll_template: components['schemas']['ChainPollTemplate'];
+      scorer_configuration: components["schemas"]["GeneratedScorerConfiguration"];
+      chain_poll_template: components["schemas"]["ChainPollTemplate"];
     };
     /** GeneratedScorerValidationResponse */
     GeneratedScorerValidationResponse: {
@@ -11282,10 +11282,10 @@ export interface components {
      * @enum {string}
      */
     GenericAction:
-      | 'generic_create'
-      | 'generic_read'
-      | 'generic_update'
-      | 'generic_delete';
+      | "generic_create"
+      | "generic_read"
+      | "generic_update"
+      | "generic_delete";
     /**
      * GenericPermission
      * @description Generic permissions describe what a user GENERALLY can and cannot do.
@@ -11294,8 +11294,8 @@ export interface components {
      *     in the authorization policies.
      */
     GenericPermission: {
-      resource: components['schemas']['ResourceKind'];
-      action: components['schemas']['GenericAction'];
+      resource: components["schemas"]["ResourceKind"];
+      action: components["schemas"]["GenericAction"];
       /** Allowed */
       allowed: boolean;
       /** Message */
@@ -11322,7 +11322,7 @@ export interface components {
       last_used?: string | null;
       /** Project Id */
       project_id?: string | null;
-      project_role?: components['schemas']['CollaboratorRole'] | null;
+      project_role?: components["schemas"]["CollaboratorRole"] | null;
       /** Description */
       description: string;
       /**
@@ -11351,7 +11351,7 @@ export interface components {
        */
       limit?: number;
       /** Filters */
-      filters?: components['schemas']['UserMetadataFilter'][];
+      filters?: components["schemas"]["UserMetadataFilter"][];
     };
     /** GetPresignedUrlResponse */
     GetPresignedUrlResponse: {
@@ -11378,7 +11378,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Projects */
-      projects: components['schemas']['ProjectDB'][];
+      projects: components["schemas"]["ProjectDB"][];
     };
     /** GetPromptRowsColumnarResponse */
     GetPromptRowsColumnarResponse: {
@@ -11400,7 +11400,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Columns */
-      columns?: components['schemas']['PromptRowColumn'][];
+      columns?: components["schemas"]["PromptRowColumn"][];
       /** Num Filtered Rows */
       num_filtered_rows?: number | null;
       /** Num Rows */
@@ -11426,7 +11426,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Rows */
-      rows?: components['schemas']['PromptRow'][];
+      rows?: components["schemas"]["PromptRow"][];
     };
     /** GetPromptRun */
     GetPromptRun: {
@@ -11465,20 +11465,20 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      task_type?: components['schemas']['TaskType'] | null;
+      task_type?: components["schemas"]["TaskType"] | null;
       /**
        * Last Updated By
        * Format: uuid4
        */
       last_updated_by: string;
       /** Run Tags */
-      run_tags?: components['schemas']['RunTagDB'][];
+      run_tags?: components["schemas"]["RunTagDB"][];
       /**
        * Job Id
        * Format: uuid4
        */
       job_id: string;
-      job_status: components['schemas']['JobStatus'];
+      job_status: components["schemas"]["JobStatus"];
       /** Model Alias */
       model_alias?: string | null;
       /** Template Id */
@@ -11501,7 +11501,7 @@ export interface components {
         [key: string]:
           | number
           | string
-          | components['schemas']['FeedbackAggregate']
+          | components["schemas"]["FeedbackAggregate"]
           | null;
       };
       /** Average Hallucination */
@@ -11516,26 +11516,26 @@ export interface components {
       average_latency?: number | null;
       /** Total Cost */
       total_cost?: number | null;
-      prompt_settings?: components['schemas']['PromptRunSettings'] | null;
-      prompt_scorers_configuration?: components['schemas']['ScorersConfiguration'];
+      prompt_settings?: components["schemas"]["PromptRunSettings"] | null;
+      prompt_scorers_configuration?: components["schemas"]["ScorersConfiguration"];
       /** Prompt Registered Scorers Configuration */
       prompt_registered_scorers_configuration?:
-        | components['schemas']['RegisteredScorer'][]
+        | components["schemas"]["RegisteredScorer"][]
         | null;
       /** Prompt Generated Scorers Configuration */
       prompt_generated_scorers_configuration?: string[] | null;
       /** Prompt Customized Scorers Configuration */
       prompt_customized_scorers_configuration?:
         | (
-            | components['schemas']['CustomizedAgenticWorkflowSuccessGPTScorer']
-            | components['schemas']['CustomizedChunkAttributionUtilizationGPTScorer']
-            | components['schemas']['CustomizedCompletenessGPTScorer']
-            | components['schemas']['CustomizedFactualityGPTScorer']
-            | components['schemas']['CustomizedGroundednessGPTScorer']
-            | components['schemas']['CustomizedInstructionAdherenceGPTScorer']
-            | components['schemas']['CustomizedGroundTruthAdherenceGPTScorer']
-            | components['schemas']['CustomizedToolSelectionQualityGPTScorer']
-            | components['schemas']['CustomizedToolErrorRateGPTScorer']
+            | components["schemas"]["CustomizedAgenticWorkflowSuccessGPTScorer"]
+            | components["schemas"]["CustomizedChunkAttributionUtilizationGPTScorer"]
+            | components["schemas"]["CustomizedCompletenessGPTScorer"]
+            | components["schemas"]["CustomizedFactualityGPTScorer"]
+            | components["schemas"]["CustomizedGroundednessGPTScorer"]
+            | components["schemas"]["CustomizedInstructionAdherenceGPTScorer"]
+            | components["schemas"]["CustomizedGroundTruthAdherenceGPTScorer"]
+            | components["schemas"]["CustomizedToolSelectionQualityGPTScorer"]
+            | components["schemas"]["CustomizedToolErrorRateGPTScorer"]
           )[]
         | null;
     };
@@ -11559,7 +11559,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Columns */
-      columns?: components['schemas']['PromptRunColumn'][];
+      columns?: components["schemas"]["PromptRunColumn"][];
       /** Num Filtered Rows */
       num_filtered_rows?: number | null;
       /** Num Rows */
@@ -11585,7 +11585,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Runs */
-      runs?: components['schemas']['GetPromptRun'][];
+      runs?: components["schemas"]["GetPromptRun"][];
     };
     /** GetSplitsResponse */
     GetSplitsResponse: {
@@ -11600,9 +11600,9 @@ export interface components {
        */
       run_id: string;
       /** Splits */
-      splits: components['schemas']['Split'][];
+      splits: components["schemas"]["Split"][];
       /** Inference Comparison Splits */
-      inference_comparison_splits: components['schemas']['Split'][];
+      inference_comparison_splits: components["schemas"]["Split"][];
     };
     /** GetTokenResponse */
     GetTokenResponse: {
@@ -11639,7 +11639,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Runs */
-      runs?: components['schemas']['RunDBThinWithProjectName'][];
+      runs?: components["schemas"]["RunDBThinWithProjectName"][];
     };
     /** GetUserResponse */
     GetUserResponse: {
@@ -11652,7 +11652,7 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /**
        * Email
        * Format: email
@@ -11669,9 +11669,9 @@ export interface components {
        */
       last_name?: string | null;
       /** @default email */
-      auth_method?: components['schemas']['AuthMethod'];
+      auth_method?: components["schemas"]["AuthMethod"];
       /** @default read_only */
-      role?: components['schemas']['UserRole'];
+      role?: components["schemas"]["UserRole"];
       /** Email Is Verified */
       email_is_verified?: boolean | null;
       /**
@@ -11716,7 +11716,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Users */
-      users: components['schemas']['GetUserResponse'][];
+      users: components["schemas"]["GetUserResponse"][];
     };
     /** GroundTruthAdherenceScorer */
     GroundTruthAdherenceScorer: {
@@ -11724,15 +11724,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'ground_truth_adherence';
+      name: "ground_truth_adherence";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /**
@@ -11740,7 +11740,7 @@ export interface components {
        * @default plus
        * @constant
        */
-      type?: 'plus';
+      type?: "plus";
       /**
        * Model Name
        * @description Alias of the model to use for the scorer.
@@ -11817,7 +11817,7 @@ export interface components {
        * Metric Few Shot Examples
        * @description Few-shot examples for the metric.
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /**
      * GroundednessTemplate
@@ -11892,13 +11892,13 @@ export interface components {
        *       }
        *     ]
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /**
      * GroupAction
      * @enum {string}
      */
-    GroupAction: 'update' | 'list_members' | 'join' | 'request_to_join';
+    GroupAction: "update" | "list_members" | "join" | "request_to_join";
     /**
      * GroupByMetrics
      * @description Metrics for a cohort returned in columnar format.
@@ -11983,8 +11983,8 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
-      role: components['schemas']['CollaboratorRole'];
+      permissions?: components["schemas"]["Permission"][];
+      role: components["schemas"]["CollaboratorRole"];
       /**
        * Created At
        * Format: date-time
@@ -12001,7 +12001,7 @@ export interface components {
     /** GroupCollaboratorCreate */
     GroupCollaboratorCreate: {
       /** @default viewer */
-      role?: components['schemas']['CollaboratorRole'];
+      role?: components["schemas"]["CollaboratorRole"];
       /**
        * Group Id
        * Format: uuid4
@@ -12015,12 +12015,12 @@ export interface components {
       /** Description */
       description?: string | null;
       /** @default public */
-      visibility?: components['schemas']['GroupVisibility'];
+      visibility?: components["schemas"]["GroupVisibility"];
       /**
        * Users
        * @default []
        */
-      users?: components['schemas']['GroupMemberCreate'][];
+      users?: components["schemas"]["GroupMemberCreate"][];
     };
     /** GroupDB */
     GroupDB: {
@@ -12033,13 +12033,13 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /** Name */
       name: string;
       /** Description */
       description?: string | null;
       /** @default public */
-      visibility?: components['schemas']['GroupVisibility'];
+      visibility?: components["schemas"]["GroupVisibility"];
       /** Size */
       size: number;
       /**
@@ -12048,7 +12048,7 @@ export interface components {
        */
       created_at: string;
       /** @description The role of the current user in the group. */
-      role?: components['schemas']['GroupRole'] | null;
+      role?: components["schemas"]["GroupRole"] | null;
     };
     /**
      * GroupLabel
@@ -12056,26 +12056,26 @@ export interface components {
      * @enum {string}
      */
     GroupLabel:
-      | 'Input Quality'
-      | 'Output Quality'
-      | 'Configuration'
-      | 'LLM Parameters'
-      | 'RAG Quality'
-      | 'RAG Parameters'
-      | 'Generic Parameters'
-      | 'Safety Metrics'
-      | 'Protect'
-      | 'System Metrics'
-      | 'Rating Summary'
-      | 'Custom Metrics'
-      | 'Security'
-      | 'Dataset'
-      | 'Agent Quality';
+      | "Input Quality"
+      | "Output Quality"
+      | "Configuration"
+      | "LLM Parameters"
+      | "RAG Quality"
+      | "RAG Parameters"
+      | "Generic Parameters"
+      | "Safety Metrics"
+      | "Protect"
+      | "System Metrics"
+      | "Rating Summary"
+      | "Custom Metrics"
+      | "Security"
+      | "Dataset"
+      | "Agent Quality";
     /**
      * GroupMemberAction
      * @enum {string}
      */
-    GroupMemberAction: 'update_role' | 'delete';
+    GroupMemberAction: "update_role" | "delete";
     /** GroupMemberCreate */
     GroupMemberCreate: {
       /**
@@ -12084,7 +12084,7 @@ export interface components {
        */
       user_id: string;
       /** @default member */
-      role?: components['schemas']['GroupRole'];
+      role?: components["schemas"]["GroupRole"];
     };
     /** GroupMemberDB */
     GroupMemberDB: {
@@ -12097,13 +12097,13 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /**
        * User Id
        * Format: uuid4
        */
       user_id: string;
-      group_role: components['schemas']['GroupRole'];
+      group_role: components["schemas"]["GroupRole"];
       /** First Name */
       first_name: string | null;
       /** Last Name */
@@ -12118,16 +12118,16 @@ export interface components {
     };
     /** GroupMemberUpdate */
     GroupMemberUpdate: {
-      role: components['schemas']['GroupRole'];
+      role: components["schemas"]["GroupRole"];
     };
     /**
      * GroupRole
      * @enum {string}
      */
-    GroupRole: 'maintainer' | 'member' | 'pending';
+    GroupRole: "maintainer" | "member" | "pending";
     /** GroupRoleInfo */
     GroupRoleInfo: {
-      name: components['schemas']['GroupRole'];
+      name: components["schemas"]["GroupRole"];
       /** Display Name */
       display_name: string;
       /** Description */
@@ -12139,17 +12139,17 @@ export interface components {
       name: string;
       /** Description */
       description: string | null;
-      visibility: components['schemas']['GroupVisibility'];
+      visibility: components["schemas"]["GroupVisibility"];
     };
     /**
      * GroupVisibility
      * @enum {string}
      */
-    GroupVisibility: 'public' | 'private' | 'hidden';
+    GroupVisibility: "public" | "private" | "hidden";
     /** HTTPValidationError */
     HTTPValidationError: {
       /** Detail */
-      detail?: components['schemas']['ValidationError'][];
+      detail?: components["schemas"]["ValidationError"][];
     };
     /** HallucinationSegment */
     HallucinationSegment: {
@@ -12196,7 +12196,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      selector_type: 'indexes';
+      selector_type: "indexes";
       /** Indexes */
       indexes: number[];
     };
@@ -12232,21 +12232,21 @@ export interface components {
       span_count?: number | null;
       /** Has Next Page */
       has_next_page: boolean;
-      model_metrics: components['schemas']['InferenceModelMetrics'];
+      model_metrics: components["schemas"]["InferenceModelMetrics"];
       /**
        * Data Metrics
        * @default []
        */
-      data_metrics?: components['schemas']['DataRow'][];
+      data_metrics?: components["schemas"]["DataRow"][];
       /** Labels */
       labels: string[];
     };
     /** InferenceRunResults */
     InferenceRunResults: {
-      split_name: components['schemas']['Split'];
+      split_name: components["schemas"]["Split"];
       /** Inference Name */
       inference_name: string;
-      split_run_results: components['schemas']['InferenceResults'];
+      split_run_results: components["schemas"]["InferenceResults"];
     };
     /** InputMap */
     InputMap: {
@@ -12269,15 +12269,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'input_pii';
+      name: "input_pii";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -12287,15 +12287,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'input_sexist';
+      name: "input_sexist";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -12305,15 +12305,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'input_tone';
+      name: "input_tone";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -12323,15 +12323,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'input_toxicity';
+      name: "input_toxicity";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -12346,8 +12346,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -12367,8 +12367,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -12387,22 +12387,22 @@ export interface components {
      * InsightType
      * @enum {string}
      */
-    InsightType: 'vertical_bar' | 'horizontal_bar';
+    InsightType: "vertical_bar" | "horizontal_bar";
     /** InstructionAdherenceScorer */
     InstructionAdherenceScorer: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'instruction_adherence';
+      name: "instruction_adherence";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /**
@@ -12410,7 +12410,7 @@ export interface components {
        * @default plus
        * @constant
        */
-      type?: 'plus';
+      type?: "plus";
       /**
        * Model Name
        * @description Alias of the model to use for the scorer.
@@ -12503,11 +12503,11 @@ export interface components {
        *       }
        *     ]
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /** IntegrationDB */
     IntegrationDB: {
-      name: components['schemas']['IntegrationName'];
+      name: components["schemas"]["IntegrationName"];
       /**
        * Id
        * Format: uuid4
@@ -12534,22 +12534,22 @@ export interface components {
      * @enum {string}
      */
     IntegrationName:
-      | 'aws_bedrock'
-      | 'aws_sagemaker'
-      | 'azure'
-      | 'databricks'
-      | 'labelstudio'
-      | 'openai'
-      | 'vertex_ai'
-      | 'writer'
-      | 'anthropic'
-      | 'mistral';
+      | "aws_bedrock"
+      | "aws_sagemaker"
+      | "azure"
+      | "databricks"
+      | "labelstudio"
+      | "openai"
+      | "vertex_ai"
+      | "writer"
+      | "anthropic"
+      | "mistral";
     /** InviteUsersRequest */
     InviteUsersRequest: {
       /** Emails */
       emails: string[];
       /** @default user */
-      role?: components['schemas']['UserRole'];
+      role?: components["schemas"]["UserRole"];
       /**
        * Group Ids
        * @default []
@@ -12564,7 +12564,7 @@ export interface components {
     /** InvokeResponse */
     InvokeResponse: {
       /** @default not_triggered */
-      status?: components['schemas']['ExecutionStatus'];
+      status?: components["schemas"]["ExecutionStatus"];
       /**
        * Api Version
        * @default 1.0.0
@@ -12575,21 +12575,21 @@ export interface components {
        * @description Text from the request after processing the rules.
        */
       text: string;
-      trace_metadata: components['schemas']['TraceMetadata'];
-      stage_metadata: components['schemas']['StageMetadata'];
+      trace_metadata: components["schemas"]["TraceMetadata"];
+      stage_metadata: components["schemas"]["StageMetadata"];
       /**
        * Ruleset Results
        * @description Results of the rule execution.
        */
-      ruleset_results?: components['schemas']['RulesetResult'][];
+      ruleset_results?: components["schemas"]["RulesetResult"][];
       /**
        * Metric Results
        * @description Results of the metric computation.
        */
       metric_results?: {
-        [key: string]: components['schemas']['MetricComputation'];
+        [key: string]: components["schemas"]["MetricComputation"];
       };
-      action_result: components['schemas']['ActionResult'];
+      action_result: components["schemas"]["ActionResult"];
       /**
        * Metadata
        * @description Optional additional metadata. This being echoed back from the request.
@@ -12673,7 +12673,7 @@ export interface components {
     /** JobInfo */
     JobInfo: {
       /** @description Job status used for computing the column. Only set for metrics columns that have a separate scorer job. */
-      job_status?: components['schemas']['JobStatus'] | null;
+      job_status?: components["schemas"]["JobStatus"] | null;
       /**
        * Job Progress Message
        * @description Progress message to show the users on hover in case the job is in progress.
@@ -12690,32 +12690,32 @@ export interface components {
        */
       scorer_name?: string | null;
       /** @description Whether a job is designated as plus or basic. */
-      job_type?: components['schemas']['ScorerType'] | null;
+      job_type?: components["schemas"]["ScorerType"] | null;
     };
     /**
      * JobStatus
      * @enum {string}
      */
-    JobStatus: 'unstarted' | 'in_progress' | 'completed' | 'error' | 'failed';
+    JobStatus: "unstarted" | "in_progress" | "completed" | "error" | "failed";
     /**
      * LLMExportFormat
      * @enum {string}
      */
-    LLMExportFormat: 'csv' | 'jsonl';
+    LLMExportFormat: "csv" | "jsonl";
     /**
      * LLMIntegration
      * @enum {string}
      */
     LLMIntegration:
-      | 'anthropic'
-      | 'azure'
-      | 'aws_bedrock'
-      | 'aws_sagemaker'
-      | 'databricks'
-      | 'vertex_ai'
-      | 'openai'
-      | 'writer'
-      | 'mistral';
+      | "anthropic"
+      | "azure"
+      | "aws_bedrock"
+      | "aws_sagemaker"
+      | "databricks"
+      | "vertex_ai"
+      | "openai"
+      | "writer"
+      | "mistral";
     /**
      * LabelCoOccurences
      * @description Structure for each label co-occurrence response.
@@ -12724,7 +12724,7 @@ export interface components {
       /** Ids */
       ids: number[];
       /** Labels */
-      labels: components['schemas']['TargetLabels'][];
+      labels: components["schemas"]["TargetLabels"][];
       /** Starting Label */
       starting_label: string;
     };
@@ -12759,8 +12759,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -12780,7 +12780,7 @@ export interface components {
        * Format: uuid4
        */
       run_id: string;
-      split: components['schemas']['Split'];
+      split: components["schemas"]["Split"];
       /** Inference Name */
       inference_name?: string | null;
       /** Labels */
@@ -12795,7 +12795,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'labelstudio';
+      name: "labelstudio";
       /** Extra */
       extra?: Record<string, never> | null;
       /** Url */
@@ -12841,7 +12841,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'like_dislike';
+      feedback_type: "like_dislike";
       /** Like Count */
       like_count: number;
       /** Dislike Count */
@@ -12855,7 +12855,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'like_dislike';
+      feedback_type: "like_dislike";
     };
     /** LikeDislikeRating */
     LikeDislikeRating: {
@@ -12863,7 +12863,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'like_dislike';
+      feedback_type: "like_dislike";
       /** Value */
       value: boolean;
     };
@@ -12887,7 +12887,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Alerts */
-      alerts?: components['schemas']['AlertConfigurationResponse'][];
+      alerts?: components["schemas"]["AlertConfigurationResponse"][];
     };
     /** ListApiKeyResponse */
     ListApiKeyResponse: {
@@ -12909,14 +12909,14 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Api Keys */
-      api_keys: components['schemas']['GetApiKeyResponse'][];
+      api_keys: components["schemas"]["GetApiKeyResponse"][];
     };
     /** ListDatasetParams */
     ListDatasetParams: {
       /** Filters */
       filters?: (
-        | components['schemas']['DatasetNameFilter']
-        | components['schemas']['DatasetUsedInProjectFilter']
+        | components["schemas"]["DatasetNameFilter"]
+        | components["schemas"]["DatasetUsedInProjectFilter"]
       )[];
       /**
        * Sort
@@ -12928,13 +12928,13 @@ export interface components {
        */
       sort?:
         | (
-            | components['schemas']['DatasetNameSort']
-            | components['schemas']['DatasetCreatedAtSort']
-            | components['schemas']['DatasetUpdatedAtSort']
-            | components['schemas']['DatasetProjectLastUsedAtSort']
-            | components['schemas']['DatasetProjectsSort']
-            | components['schemas']['DatasetRowsSort']
-            | components['schemas']['DatasetLastEditedByUserAtSort']
+            | components["schemas"]["DatasetNameSort"]
+            | components["schemas"]["DatasetCreatedAtSort"]
+            | components["schemas"]["DatasetUpdatedAtSort"]
+            | components["schemas"]["DatasetProjectLastUsedAtSort"]
+            | components["schemas"]["DatasetProjectsSort"]
+            | components["schemas"]["DatasetRowsSort"]
+            | components["schemas"]["DatasetLastEditedByUserAtSort"]
           )
         | null;
     };
@@ -12958,12 +12958,12 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Datasets */
-      datasets?: components['schemas']['DatasetDB'][];
+      datasets?: components["schemas"]["DatasetDB"][];
     };
     /** ListDatasetVersionParams */
     ListDatasetVersionParams: {
       /** Sort */
-      sort?: components['schemas']['DatasetVersionIndexSort'] | null;
+      sort?: components["schemas"]["DatasetVersionIndexSort"] | null;
     };
     /** ListDatasetVersionResponse */
     ListDatasetVersionResponse: {
@@ -12985,7 +12985,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Versions */
-      versions: components['schemas']['DatasetVersionDB'][];
+      versions: components["schemas"]["DatasetVersionDB"][];
     };
     /** ListGeneratedScorersResponse */
     ListGeneratedScorersResponse: {
@@ -13007,7 +13007,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Scorers */
-      scorers: components['schemas']['GeneratedScorerResponse'][];
+      scorers: components["schemas"]["GeneratedScorerResponse"][];
     };
     /** ListGroupCollaboratorsResponse */
     ListGroupCollaboratorsResponse: {
@@ -13029,7 +13029,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Collaborators */
-      collaborators: components['schemas']['GroupCollaborator'][];
+      collaborators: components["schemas"]["GroupCollaborator"][];
     };
     /** ListGroupMembersResponse */
     ListGroupMembersResponse: {
@@ -13051,7 +13051,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Members */
-      members: components['schemas']['GroupMemberDB'][];
+      members: components["schemas"]["GroupMemberDB"][];
     };
     /** ListGroupsResponse */
     ListGroupsResponse: {
@@ -13073,7 +13073,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Groups */
-      groups: components['schemas']['GroupDB'][];
+      groups: components["schemas"]["GroupDB"][];
     };
     /** ListMetaRequest */
     ListMetaRequest: {
@@ -13086,8 +13086,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -13113,7 +13113,7 @@ export interface components {
        * Format: uuid4
        */
       run_id: string;
-      split: components['schemas']['Split'];
+      split: components["schemas"]["Split"];
       /** Inference Name */
       inference_name?: string | null;
       /** Task */
@@ -13125,15 +13125,15 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
        */
       map_threshold?: number;
       /** Meta */
-      meta: components['schemas']['MetaInfo'][];
+      meta: components["schemas"]["MetaInfo"][];
     };
     /** ListOrganizationsResponse */
     ListOrganizationsResponse: {
@@ -13155,7 +13155,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Organizations */
-      organizations: components['schemas']['OrganizationDB'][];
+      organizations: components["schemas"]["OrganizationDB"][];
     };
     /** ListPromptDatasetResponse */
     ListPromptDatasetResponse: {
@@ -13177,7 +13177,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Datasets */
-      datasets?: components['schemas']['PromptDatasetDB'][];
+      datasets?: components["schemas"]["PromptDatasetDB"][];
     };
     /** ListRegisteredScorersResponse */
     ListRegisteredScorersResponse: {
@@ -13199,18 +13199,18 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Scorers */
-      scorers: components['schemas']['CreateUpdateRegisteredScorerResponse'][];
+      scorers: components["schemas"]["CreateUpdateRegisteredScorerResponse"][];
     };
     /** ListScorersRequest */
     ListScorersRequest: {
       /** Filters */
       filters?: (
-        | components['schemas']['ScorerNameFilter']
-        | components['schemas']['ScorerTypeFilter']
-        | components['schemas']['ScorerTagsFilter']
-        | components['schemas']['ScorerCreatorFilter']
-        | components['schemas']['ScorerCreatedAtFilter']
-        | components['schemas']['ScorerUpdatedAtFilter']
+        | components["schemas"]["ScorerNameFilter"]
+        | components["schemas"]["ScorerTypeFilter"]
+        | components["schemas"]["ScorerTagsFilter"]
+        | components["schemas"]["ScorerCreatorFilter"]
+        | components["schemas"]["ScorerCreatedAtFilter"]
+        | components["schemas"]["ScorerUpdatedAtFilter"]
       )[];
     };
     /** ListScorersResponse */
@@ -13233,7 +13233,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Scorers */
-      scorers?: components['schemas']['ScorerResponse'][];
+      scorers?: components["schemas"]["ScorerResponse"][];
     };
     /** ListUserCollaboratorsResponse */
     ListUserCollaboratorsResponse: {
@@ -13255,7 +13255,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Collaborators */
-      collaborators: components['schemas']['UserCollaborator'][];
+      collaborators: components["schemas"]["UserCollaborator"][];
     };
     /** LlmSpan */
     LlmSpan: {
@@ -13263,19 +13263,19 @@ export interface components {
        * @description Type of the step. By default, it is set to llm. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'llm';
+      type: "llm";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -13287,12 +13287,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -13362,7 +13362,7 @@ export interface components {
        */
       temperature?: number | null;
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildSpans'] | null;
+      parent?: components["schemas"]["StepWithChildSpans"] | null;
     };
     /** LlmSpanWithMetrics */
     LlmSpanWithMetrics: {
@@ -13381,31 +13381,31 @@ export interface components {
       /** Metrics */
       metrics?: {
         [key: string]:
-          | components['schemas']['MetricNotComputed']
-          | components['schemas']['MetricPending']
-          | components['schemas']['MetricComputing']
-          | components['schemas']['MetricNotApplicable']
-          | components['schemas']['MetricSuccess']
-          | components['schemas']['MetricError']
-          | components['schemas']['MetricFailed'];
+          | components["schemas"]["MetricNotComputed"]
+          | components["schemas"]["MetricPending"]
+          | components["schemas"]["MetricComputing"]
+          | components["schemas"]["MetricNotApplicable"]
+          | components["schemas"]["MetricSuccess"]
+          | components["schemas"]["MetricError"]
+          | components["schemas"]["MetricFailed"];
       };
       /**
        * @description Type of the step. By default, it is set to llm. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'llm';
+      type: "llm";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -13417,12 +13417,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -13492,7 +13492,7 @@ export interface components {
        */
       temperature?: number | null;
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildSpans'] | null;
+      parent?: components["schemas"]["StepWithChildSpans"] | null;
     };
     /** LlmStep */
     LlmStep: {
@@ -13500,7 +13500,7 @@ export interface components {
        * @description Type of the step. By default, it is set to llm. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'llm';
+      type: "llm";
       /**
        * Input
        * @description Input to the LLM step.
@@ -13510,12 +13510,12 @@ export interface components {
         | {
             [key: string]: string;
           }
-        | components['schemas']['Message']
+        | components["schemas"]["Message"]
         | string[]
         | {
             [key: string]: string;
           }[]
-        | components['schemas']['Message'][];
+        | components["schemas"]["Message"][];
       /**
        * Output
        * @description Output of the LLM step.
@@ -13526,12 +13526,12 @@ export interface components {
         | {
             [key: string]: string;
           }
-        | components['schemas']['Message']
+        | components["schemas"]["Message"]
         | string[]
         | {
             [key: string]: string;
           }[]
-        | components['schemas']['Message'][];
+        | components["schemas"]["Message"][];
       /**
        * Name
        * @description Name of the step.
@@ -13613,7 +13613,7 @@ export interface components {
     /** LogDataAvailableColumnsResponse */
     LogDataAvailableColumnsResponse: {
       /** Columns */
-      columns?: components['schemas']['LogDataColumnInfo'][];
+      columns?: components["schemas"]["LogDataColumnInfo"][];
     };
     /** LogDataColumnInfo */
     LogDataColumnInfo: {
@@ -13628,7 +13628,7 @@ export interface components {
        */
       label?: string | null;
       /** @description Category of the column. */
-      category: components['schemas']['ColumnCategory'];
+      category: components["schemas"]["ColumnCategory"];
       /**
        * Description
        * @description Description of the column.
@@ -13648,9 +13648,9 @@ export interface components {
        * @description Data type of the column. This is used to determine how to format the data on the UI.
        * @default unknown
        */
-      data_type?: components['schemas']['DataTypeOptions'];
+      data_type?: components["schemas"]["DataTypeOptions"];
       /** @description Thresholds for the column, if this is a metrics column. */
-      threshold?: components['schemas']['MetricThreshold'] | null;
+      threshold?: components["schemas"]["MetricThreshold"] | null;
       /**
        * Sortable
        * @description Whether the column is sortable.
@@ -13670,7 +13670,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'id_column';
+      name: "id_column";
       /**
        * Value
        * Format: uuid4
@@ -13683,23 +13683,23 @@ export interface components {
      * LogDataLoggingMethod
      * @enum {string}
      */
-    LogDataLoggingMethod: 'python_client' | 'typescript_client' | 'api_direct';
+    LogDataLoggingMethod: "python_client" | "typescript_client" | "api_direct";
     /** LogDataNodeTypeFilter */
     LogDataNodeTypeFilter: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'node_type';
+      name: "node_type";
       /** Value */
       value:
-        | components['schemas']['NodeType']
-        | components['schemas']['NodeType'][];
+        | components["schemas"]["NodeType"]
+        | components["schemas"]["NodeType"][];
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'one_of' | 'not_in';
+      operator: "eq" | "ne" | "one_of" | "not_in";
     };
     /** LogDataQueryRequest */
     LogDataQueryRequest: {
@@ -13730,11 +13730,11 @@ export interface components {
       column_ids?: string[] | null;
       /** Filters */
       filters?: (
-        | components['schemas']['LogDataNodeTypeFilter']
-        | components['schemas']['LogDataIDColumnFilter']
+        | components["schemas"]["LogDataNodeTypeFilter"]
+        | components["schemas"]["LogDataIDColumnFilter"]
       )[];
       /** Sort */
-      sort?: components['schemas']['StandardColumnSort'][];
+      sort?: components["schemas"]["StandardColumnSort"][];
     };
     /** LogDataQueryResponse */
     LogDataQueryResponse: {
@@ -13765,13 +13765,13 @@ export interface components {
        * @description list of data rows
        */
       rows?: (
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed']
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"]
       )[][];
       /**
        * Num Rows
@@ -13834,15 +13834,15 @@ export interface components {
       map: number;
       /** Map Threshold */
       map_threshold: number;
-      ap_per_class: components['schemas']['BarChart'];
-      error_scores: components['schemas']['BarChart'];
+      ap_per_class: components["schemas"]["BarChart"];
+      error_scores: components["schemas"]["BarChart"];
     };
     /** Message */
     Message: {
       /** Content */
       content: string;
       /** Role */
-      role: string | components['schemas']['MessageRole'];
+      role: string | components["schemas"]["MessageRole"];
     } & {
       [key: string]: unknown;
     };
@@ -13851,14 +13851,14 @@ export interface components {
      * @enum {string}
      */
     MessageRole:
-      | 'agent'
-      | 'assistant'
-      | 'function'
-      | 'system'
-      | 'tool'
-      | 'user';
+      | "agent"
+      | "assistant"
+      | "function"
+      | "system"
+      | "tool"
+      | "user";
     /** Messages */
-    Messages: components['schemas']['Message'][];
+    Messages: components["schemas"]["Message"][];
     /**
      * MetaFilter
      * @description A class for filtering arbitrary metadata columns.
@@ -13931,18 +13931,18 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'metadata';
+      name: "metadata";
       /**
        * Filter Type
        * @default map
        * @constant
        */
-      filter_type?: 'map';
+      filter_type?: "map";
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'one_of' | 'not_in' | 'eq' | 'ne';
+      operator: "one_of" | "not_in" | "eq" | "ne";
       /** Key */
       key: string;
       /** Value */
@@ -13952,7 +13952,7 @@ export interface components {
      * Method
      * @enum {string}
      */
-    Method: 'GET' | 'PUT';
+    Method: "GET" | "PUT";
     /** MetricComputation */
     MetricComputation: {
       /** Value */
@@ -13966,7 +13966,7 @@ export interface components {
         | null;
       /** Execution Time */
       execution_time?: number | null;
-      status?: components['schemas']['MetricComputationStatus'] | null;
+      status?: components["schemas"]["MetricComputationStatus"] | null;
       /** Error Message */
       error_message?: string | null;
     };
@@ -13974,16 +13974,16 @@ export interface components {
      * MetricComputationStatus
      * @enum {string}
      */
-    MetricComputationStatus: 'success' | 'timeout' | 'failed' | 'error';
+    MetricComputationStatus: "success" | "timeout" | "failed" | "error";
     /** MetricComputing */
     MetricComputing: {
-      scorer_type?: components['schemas']['ScorerType'] | null;
+      scorer_type?: components["schemas"]["ScorerType"] | null;
       /**
        * Status Type
        * @default computing
        * @constant
        */
-      status_type?: 'computing';
+      status_type?: "computing";
       /**
        * Message
        * @default Metric is computing.
@@ -14003,8 +14003,8 @@ export interface components {
       metric: string;
       /** Row Id */
       row_id: string | number;
-      critique_info: components['schemas']['MetricCritiqueContent'];
-      metric_inputs: components['schemas']['MetricInputs'];
+      critique_info: components["schemas"]["MetricCritiqueContent"];
+      metric_inputs: components["schemas"]["MetricInputs"];
       /**
        * Id
        * Format: uuid4
@@ -14033,12 +14033,12 @@ export interface components {
       is_computed: boolean;
       /** Revised Explanation */
       revised_explanation: string | null;
-      critique_info: components['schemas']['MetricCritiqueContent'];
+      critique_info: components["schemas"]["MetricCritiqueContent"];
     };
     /** MetricCritiqueColumns */
     MetricCritiqueColumns: {
       /** Metric Critique Columns */
-      metric_critique_columns: components['schemas']['MetricCritiqueColumn'][];
+      metric_critique_columns: components["schemas"]["MetricCritiqueColumn"][];
     };
     /** MetricCritiqueContent */
     MetricCritiqueContent: {
@@ -14055,18 +14055,18 @@ export interface components {
      */
     MetricCritiqueJobConfiguration: {
       /** Project Type */
-      project_type: 'prompt_evaluation' | 'llm_monitor';
+      project_type: "prompt_evaluation" | "llm_monitor";
       /** Metric Name */
       metric_name: string;
       /** Critique Ids */
       critique_ids: string[];
-      llm_settings?: components['schemas']['PromptRunSettings'];
+      llm_settings?: components["schemas"]["PromptRunSettings"];
       /** Recompute Settings */
       recompute_settings?:
         | (
-            | components['schemas']['RecomputeSettingsRuns']
-            | components['schemas']['RecomputeSettingsProject']
-            | components['schemas']['promptgalileo__schemas__metric_critique__RecomputeSettingsObserve']
+            | components["schemas"]["RecomputeSettingsRuns"]
+            | components["schemas"]["RecomputeSettingsProject"]
+            | components["schemas"]["promptgalileo__schemas__metric_critique__RecomputeSettingsObserve"]
           )
         | null;
     };
@@ -14077,41 +14077,41 @@ export interface components {
     MetricDescriptions:
       | "A measure of the model's own confusion in its output. Higher scores indicate higher uncertainty."
       | "Measures whether the LLM's response is supported by (or baked in) the context provided. "
-      | 'Measures how well the LLM follows the system instructions provided in the prompt.'
+      | "Measures how well the LLM follows the system instructions provided in the prompt."
       | "Measures how well the workflow's response aligns with the ground truth provided."
-      | 'Detects whether the model selected the right Tool with the right arguments.'
-      | 'Detects whether the Tool executed successfully (i.e. without errors).'
+      | "Detects whether the model selected the right Tool with the right arguments."
+      | "Detects whether the Tool executed successfully (i.e. without errors)."
       | "Measures the relevance of the retrieved context to the user's query as the semantic distance between the two."
       | "Measures the potential presence of factual errors or inconsistencies in the model's response."
       | "Classifies the sentiment of the user's input into one of joy, love, fear, surprise, sadness, anger, annoyance, confusion or neutral."
       | "Measures how 'sexist' a user's input might be perceived ranging in the values of 0-1 (1 being more sexist)."
-      | 'Measures the presence and severity of harmful, offensive, or abusive language'
+      | "Measures the presence and severity of harmful, offensive, or abusive language"
       | "Tracks the presence of personal identifiable information in the user's input"
       | "Classifies the sentiment in the model's response into one of joy, love, fear, surprise, sadness, anger, annoyance, confusion or neutral."
       | "Measures how 'sexist' a response might be perceived ranging in the values of 0-1 (1 being more sexist)."
       | "Measures the presence and severity of harmful, offensive, or abusive language in the model's response"
       | "Tracks the presence of personal identifiable information in the LLM's responses"
-      | 'Measures the presence of prompt injection attacks in inputs to the LLM.'
-      | 'Measures the perplexity of the prompt. Lower perplexity score is generally considered to be better because it means the model is less surprised by the text and can predict the next word in a sentence with higher accuracy.'
-      | 'Measures which documents or chunks retrieved were used by the model to generate a response.'
-      | 'Measures how much of the text in the retrieved chunks was used by the model to compose its response.'
-      | 'Measures how much of the text in the retrieved chunks was relevant to the response composed by the model.'
+      | "Measures the presence of prompt injection attacks in inputs to the LLM."
+      | "Measures the perplexity of the prompt. Lower perplexity score is generally considered to be better because it means the model is less surprised by the text and can predict the next word in a sentence with higher accuracy."
+      | "Measures which documents or chunks retrieved were used by the model to generate a response."
+      | "Measures how much of the text in the retrieved chunks was used by the model to compose its response."
+      | "Measures how much of the text in the retrieved chunks was relevant to the response composed by the model."
       | "A response-level metric measuring 'out of all the information in the context pertinent to the question, how much was covered in the answer?'"
-      | 'BLEU is a case-sensitive measurement of the difference between an model generation and target generation at the sentence-level.'
-      | 'ROUGE measures the unigram overlap between model generation and target generation as a single F-1 score.'
-      | 'Cost of executing the run and does not include any costs incurred for metric calculation.'
-      | 'Cost of all the metrics that call the OpenAI API.'
-      | 'Detects whether the user successfully accomplished or advanced towards their goal.'
-      | 'Measures which documents or chunks retrieved were used by the model to generate a response, and how much of the text in the retrieved chunks was used by the model to compose its response.';
+      | "BLEU is a case-sensitive measurement of the difference between an model generation and target generation at the sentence-level."
+      | "ROUGE measures the unigram overlap between model generation and target generation as a single F-1 score."
+      | "Cost of executing the run and does not include any costs incurred for metric calculation."
+      | "Cost of all the metrics that call the OpenAI API."
+      | "Detects whether the user successfully accomplished or advanced towards their goal."
+      | "Measures which documents or chunks retrieved were used by the model to generate a response, and how much of the text in the retrieved chunks was used by the model to compose its response.";
     /** MetricError */
     MetricError: {
-      scorer_type?: components['schemas']['ScorerType'] | null;
+      scorer_type?: components["schemas"]["ScorerType"] | null;
       /**
        * Status Type
        * @default error
        * @constant
        */
-      status_type?: 'error';
+      status_type?: "error";
       /**
        * Message
        * @default An error occured.
@@ -14120,13 +14120,13 @@ export interface components {
     };
     /** MetricFailed */
     MetricFailed: {
-      scorer_type?: components['schemas']['ScorerType'] | null;
+      scorer_type?: components["schemas"]["ScorerType"] | null;
       /**
        * Status Type
        * @default failed
        * @constant
        */
-      status_type?: 'failed';
+      status_type?: "failed";
       /**
        * Message
        * @default Metric failed to compute.
@@ -14154,24 +14154,24 @@ export interface components {
       title: string;
       /** Column Name */
       column_name: string;
-      insight_type: components['schemas']['InsightType'];
+      insight_type: components["schemas"]["InsightType"];
       /** Categories */
       categories: {
         [key: string]: number;
       };
       /** Aggregate */
       aggregate?: number | null;
-      metric_threshold?: components['schemas']['MetricThreshold'] | null;
+      metric_threshold?: components["schemas"]["MetricThreshold"] | null;
     };
     /** MetricNotApplicable */
     MetricNotApplicable: {
-      scorer_type?: components['schemas']['ScorerType'] | null;
+      scorer_type?: components["schemas"]["ScorerType"] | null;
       /**
        * Status Type
        * @default not_applicable
        * @constant
        */
-      status_type?: 'not_applicable';
+      status_type?: "not_applicable";
       /**
        * Message
        * @default Metric not applicable.
@@ -14180,13 +14180,13 @@ export interface components {
     };
     /** MetricNotComputed */
     MetricNotComputed: {
-      scorer_type?: components['schemas']['ScorerType'] | null;
+      scorer_type?: components["schemas"]["ScorerType"] | null;
       /**
        * Status Type
        * @default not_computed
        * @constant
        */
-      status_type?: 'not_computed';
+      status_type?: "not_computed";
       /**
        * Message
        * @default Metric not computed.
@@ -14195,64 +14195,64 @@ export interface components {
     };
     /** MetricPending */
     MetricPending: {
-      scorer_type?: components['schemas']['ScorerType'] | null;
+      scorer_type?: components["schemas"]["ScorerType"] | null;
       /**
        * Status Type
        * @default pending
        * @constant
        */
-      status_type?: 'pending';
+      status_type?: "pending";
     };
     /** MetricSuccess */
     MetricSuccess: {
-      scorer_type?: components['schemas']['ScorerType'] | null;
+      scorer_type?: components["schemas"]["ScorerType"] | null;
       /**
        * Status Type
        * @default success
        * @constant
        */
-      status_type?: 'success';
+      status_type?: "success";
       /** Value */
       value:
         | string
         | number
         | boolean
-        | components['schemas']['Segment']
-        | components['schemas']['HallucinationSegment']
-        | components['schemas']['Document']
-        | components['schemas']['FeedbackRatingDB']
-        | components['schemas']['FeedbackAggregate']
+        | components["schemas"]["Segment"]
+        | components["schemas"]["HallucinationSegment"]
+        | components["schemas"]["Document"]
+        | components["schemas"]["FeedbackRatingDB"]
+        | components["schemas"]["FeedbackAggregate"]
         | (
             | string
             | number
             | boolean
-            | components['schemas']['Segment']
-            | components['schemas']['HallucinationSegment']
-            | components['schemas']['Document']
-            | components['schemas']['FeedbackRatingDB']
-            | components['schemas']['FeedbackAggregate']
+            | components["schemas"]["Segment"]
+            | components["schemas"]["HallucinationSegment"]
+            | components["schemas"]["Document"]
+            | components["schemas"]["FeedbackRatingDB"]
+            | components["schemas"]["FeedbackAggregate"]
             | null
           )[]
         | (
             | string
             | number
             | boolean
-            | components['schemas']['Segment']
-            | components['schemas']['HallucinationSegment']
-            | components['schemas']['Document']
-            | components['schemas']['FeedbackRatingDB']
-            | components['schemas']['FeedbackAggregate']
+            | components["schemas"]["Segment"]
+            | components["schemas"]["HallucinationSegment"]
+            | components["schemas"]["Document"]
+            | components["schemas"]["FeedbackRatingDB"]
+            | components["schemas"]["FeedbackAggregate"]
             | null
           )[][]
         | (
             | string
             | number
             | boolean
-            | components['schemas']['Segment']
-            | components['schemas']['HallucinationSegment']
-            | components['schemas']['Document']
-            | components['schemas']['FeedbackRatingDB']
-            | components['schemas']['FeedbackAggregate']
+            | components["schemas"]["Segment"]
+            | components["schemas"]["HallucinationSegment"]
+            | components["schemas"]["Document"]
+            | components["schemas"]["FeedbackRatingDB"]
+            | components["schemas"]["FeedbackAggregate"]
             | null
           )[][][]
         | null;
@@ -14268,7 +14268,7 @@ export interface components {
       model_alias?: string | null;
       /** Num Judges */
       num_judges?: number | null;
-      critique?: components['schemas']['MetricCritiqueColumnar'] | null;
+      critique?: components["schemas"]["MetricCritiqueColumnar"] | null;
     };
     /** MetricThreshold */
     MetricThreshold: {
@@ -14293,8 +14293,8 @@ export interface components {
     MetricWeight: {
       /** Label */
       label?: string | null;
-      group_label?: components['schemas']['GroupLabel'] | null;
-      description?: components['schemas']['MetricDescriptions'] | null;
+      group_label?: components["schemas"]["GroupLabel"] | null;
+      description?: components["schemas"]["MetricDescriptions"] | null;
       /**
        * Weight
        * @default 0.5
@@ -14337,8 +14337,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -14358,8 +14358,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -14385,7 +14385,7 @@ export interface components {
        *       "f1": [],
        *       "precision": []
        *     } */
-      multi_label_task_metrics?: components['schemas']['MultiLabelTaskMetrics'];
+      multi_label_task_metrics?: components["schemas"]["MultiLabelTaskMetrics"];
     };
     /** MistralIntegration */
     MistralIntegration: {
@@ -14393,7 +14393,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'mistral';
+      name: "mistral";
       /** Extra */
       extra?: Record<string, never> | null;
     };
@@ -14409,7 +14409,7 @@ export interface components {
       /** Alias */
       alias: string;
       /** @default openai */
-      integration?: components['schemas']['LLMIntegration'];
+      integration?: components["schemas"]["LLMIntegration"];
       /** User Role */
       user_role?: string | null;
       /** Assistant Role */
@@ -14436,7 +14436,7 @@ export interface components {
        */
       input_price?: number;
       /** @default tokens */
-      cost_by?: components['schemas']['ModelCostBy'];
+      cost_by?: components["schemas"]["ModelCostBy"];
       /**
        * Is Chat
        * @default false
@@ -14459,15 +14459,15 @@ export interface components {
       response_prefix_tokens?: number;
       /** Api Version */
       api_version?: string | null;
-      params_map?: components['schemas']['RunParamsMap'];
-      output_map?: components['schemas']['OutputMap'] | null;
-      input_map?: components['schemas']['InputMap'] | null;
+      params_map?: components["schemas"]["RunParamsMap"];
+      output_map?: components["schemas"]["OutputMap"] | null;
+      input_map?: components["schemas"]["InputMap"] | null;
     };
     /**
      * ModelCostBy
      * @enum {string}
      */
-    ModelCostBy: 'tokens' | 'characters';
+    ModelCostBy: "tokens" | "characters";
     /**
      * ModelInfo
      * @description Model information that is useful to surface to the UI and in other contexts.
@@ -14482,7 +14482,7 @@ export interface components {
       /** Alias */
       alias: string;
       /** @default openai */
-      integration?: components['schemas']['LLMIntegration'];
+      integration?: components["schemas"]["LLMIntegration"];
       /** User Role */
       user_role?: string | null;
       /** Assistant Role */
@@ -14497,7 +14497,7 @@ export interface components {
      * ModelKind
      * @enum {string}
      */
-    ModelKind: 'transformers' | 'setfit';
+    ModelKind: "transformers" | "setfit";
     /** ModelMetrics */
     ModelMetrics: {
       /** Precision */
@@ -14516,19 +14516,19 @@ export interface components {
        *       "f1": [],
        *       "precision": []
        *     } */
-      multi_label_task_metrics?: components['schemas']['MultiLabelTaskMetrics'];
-      dep_distribution?: components['schemas']['Distribution'] | null;
+      multi_label_task_metrics?: components["schemas"]["MultiLabelTaskMetrics"];
+      dep_distribution?: components["schemas"]["Distribution"] | null;
     };
     /**
      * ModelType
      * @enum {string}
      */
-    ModelType: 'slm' | 'llm';
+    ModelType: "slm" | "llm";
     /**
      * ModelUploadStatus
      * @enum {string}
      */
-    ModelUploadStatus: 'pending' | 'completed' | 'failed';
+    ModelUploadStatus: "pending" | "completed" | "failed";
     /**
      * MultiLabelCoOccurrence
      * @description Label co-occurrence across tasks.
@@ -14539,7 +14539,7 @@ export interface components {
       /** Percent Samples */
       percent_samples: number;
       /** Co Occurrences */
-      co_occurrences: components['schemas']['LabelCoOccurences'][];
+      co_occurrences: components["schemas"]["LabelCoOccurences"][];
     };
     /**
      * MultiLabelTaskMetrics
@@ -14573,20 +14573,20 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'node_name';
+      name: "node_name";
       /**
        * Filter Type
        * @default string
        * @constant
        */
-      filter_type?: 'string';
+      filter_type?: "string";
       /** Value */
       value: string;
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'contains';
+      operator: "eq" | "ne" | "contains";
       /**
        * Case Sensitive
        * @default true
@@ -14598,39 +14598,39 @@ export interface components {
      * @enum {string}
      */
     NodeType:
-      | 'chain'
-      | 'chat'
-      | 'llm'
-      | 'retriever'
-      | 'tool'
-      | 'agent'
-      | 'workflow'
-      | 'trace';
+      | "chain"
+      | "chat"
+      | "llm"
+      | "retriever"
+      | "tool"
+      | "agent"
+      | "workflow"
+      | "trace";
     /**
      * NoiseType
      * @enum {string}
      */
-    NoiseType: 'Label Noise' | 'Feature Noise' | 'None';
+    NoiseType: "Label Noise" | "Feature Noise" | "None";
     /** ObserveProjectSettings */
     ObserveProjectSettings: {
-      scorers_config?: components['schemas']['ScorersConfig'] | null;
+      scorers_config?: components["schemas"]["ScorersConfig"] | null;
       alerts_configuration?:
-        | components['schemas']['AlertsConfiguration']
+        | components["schemas"]["AlertsConfiguration"]
         | null;
       scorers_configuration?:
-        | components['schemas']['ScorersConfiguration']
+        | components["schemas"]["ScorersConfiguration"]
         | null;
       /** Registered Scorers Configuration */
       registered_scorers_configuration?:
-        | components['schemas']['RegisteredScorer'][]
+        | components["schemas"]["RegisteredScorer"][]
         | null;
       /** Generated Scorers Configuration */
       generated_scorers_configuration?:
-        | components['schemas']['GeneratedScorerConfig'][]
+        | components["schemas"]["GeneratedScorerConfig"][]
         | null;
       /** Customized Scorers Configuration */
       customized_scorers_configuration?:
-        | components['schemas']['CustomizedScorer'][]
+        | components["schemas"]["CustomizedScorer"][]
         | null;
     };
     /** OpenAIFunction */
@@ -14646,7 +14646,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'openai';
+      name: "openai";
       /** Extra */
       extra?: Record<string, never> | null;
     };
@@ -14664,30 +14664,30 @@ export interface components {
        * @default function
        */
       type?: string;
-      function: components['schemas']['OpenAIFunction'];
+      function: components["schemas"]["OpenAIFunction"];
     };
     /**
      * Operator
      * @enum {string}
      */
     Operator:
-      | 'eq'
-      | 'ne'
-      | 'gt'
-      | 'gte'
-      | 'lt'
-      | 'lte'
-      | 'in'
-      | 'not_in'
-      | 'contains'
-      | 'has_all'
-      | 'between'
-      | 'like';
+      | "eq"
+      | "ne"
+      | "gt"
+      | "gte"
+      | "lt"
+      | "lte"
+      | "in"
+      | "not_in"
+      | "contains"
+      | "has_all"
+      | "between"
+      | "like";
     /**
      * OrganizationAction
      * @enum {string}
      */
-    OrganizationAction: 'rename' | 'delete';
+    OrganizationAction: "rename" | "delete";
     /** OrganizationCreate */
     OrganizationCreate: {
       /** Name */
@@ -14699,7 +14699,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'created_at';
+      name: "created_at";
       /**
        * Ascending
        * @default true
@@ -14710,7 +14710,7 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /** OrganizationDB */
     OrganizationDB: {
@@ -14723,7 +14723,7 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /** Name */
       name: string;
       /**
@@ -14743,7 +14743,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'is_member';
+      name: "is_member";
       /** Value */
       value: boolean;
     };
@@ -14753,14 +14753,14 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'name';
+      name: "name";
       /** Value */
       value: string;
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'contains';
+      operator: "eq" | "ne" | "contains";
       /**
        * Case Sensitive
        * @default true
@@ -14773,7 +14773,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'name';
+      name: "name";
       /**
        * Ascending
        * @default true
@@ -14784,7 +14784,7 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /** OutputMap */
     OutputMap: {
@@ -14805,15 +14805,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'output_pii';
+      name: "output_pii";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -14823,15 +14823,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'output_sexist';
+      name: "output_sexist";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -14841,15 +14841,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'output_tone';
+      name: "output_tone";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -14859,15 +14859,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'output_toxicity';
+      name: "output_toxicity";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -14877,12 +14877,12 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      type: 'OVERRIDE';
+      type: "OVERRIDE";
       /**
        * Subscriptions
        * @description List of subscriptions to send a notification to when this action is applied and the ruleset status matches any of the configured statuses.
        */
-      subscriptions?: components['schemas']['SubscriptionConfig'][];
+      subscriptions?: components["schemas"]["SubscriptionConfig"][];
       /**
        * Choices
        * @description List of choices to override the response with. If there are multiple choices, one will be chosen at random when applying this action.
@@ -14895,12 +14895,12 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      type: 'PASSTHROUGH';
+      type: "PASSTHROUGH";
       /**
        * Subscriptions
        * @description List of subscriptions to send a notification to when this action is applied and the ruleset status matches any of the configured statuses.
        */
-      subscriptions?: components['schemas']['SubscriptionConfig'][];
+      subscriptions?: components["schemas"]["SubscriptionConfig"][];
     };
     /** PasswordResetEmailResponse */
     PasswordResetEmailResponse: Record<string, never>;
@@ -14926,15 +14926,15 @@ export interface components {
     Permission: {
       /** Action */
       action:
-        | components['schemas']['UserAction']
-        | components['schemas']['GroupAction']
-        | components['schemas']['GroupMemberAction']
-        | components['schemas']['ProjectAction']
-        | components['schemas']['RegisteredScorerAction']
-        | components['schemas']['ApiKeyAction']
-        | components['schemas']['GeneratedScorerAction']
-        | components['schemas']['DatasetAction']
-        | components['schemas']['OrganizationAction'];
+        | components["schemas"]["UserAction"]
+        | components["schemas"]["GroupAction"]
+        | components["schemas"]["GroupMemberAction"]
+        | components["schemas"]["ProjectAction"]
+        | components["schemas"]["RegisteredScorerAction"]
+        | components["schemas"]["ApiKeyAction"]
+        | components["schemas"]["GeneratedScorerAction"]
+        | components["schemas"]["DatasetAction"]
+        | components["schemas"]["OrganizationAction"];
       /** Allowed */
       allowed: boolean;
       /** Message */
@@ -14958,55 +14958,55 @@ export interface components {
       data_error_potential: number;
       /** Contours */
       contours: unknown[];
-      error_type?: components['schemas']['SemSegErrorType'] | null;
+      error_type?: components["schemas"]["SemSegErrorType"] | null;
       /** Background Error Pct */
       background_error_pct?: number | null;
       /** Area */
       area?: number | null;
       /** Accuracy */
       accuracy?: number | null;
-      size?: components['schemas']['PolygonSize'] | null;
+      size?: components["schemas"]["PolygonSize"] | null;
     };
     /**
      * PolygonSize
      * @enum {string}
      */
-    PolygonSize: 'extra_small' | 'small' | 'medium' | 'large' | 'extra_large';
+    PolygonSize: "extra_small" | "small" | "medium" | "large" | "extra_large";
     /**
      * ProjectAction
      * @enum {string}
      */
     ProjectAction:
-      | 'update'
-      | 'delete'
-      | 'rename'
-      | 'share'
-      | 'create_run'
-      | 'delete_run'
-      | 'rename_run'
-      | 'move_run'
-      | 'export_data'
-      | 'configure_human_feedback'
-      | 'record_human_feedback'
-      | 'log_data'
-      | 'toggle_metric'
-      | 'edit_alert'
-      | 'create_stage'
-      | 'edit_stage'
-      | 'configure_crown_logic'
-      | 'delete_data'
-      | 'set_metric'
-      | 'edit_run_tags'
-      | 'dismiss_alert'
-      | 'edit_slice'
-      | 'edit_edit';
+      | "update"
+      | "delete"
+      | "rename"
+      | "share"
+      | "create_run"
+      | "delete_run"
+      | "rename_run"
+      | "move_run"
+      | "export_data"
+      | "configure_human_feedback"
+      | "record_human_feedback"
+      | "log_data"
+      | "toggle_metric"
+      | "edit_alert"
+      | "create_stage"
+      | "edit_stage"
+      | "configure_crown_logic"
+      | "delete_data"
+      | "set_metric"
+      | "edit_run_tags"
+      | "dismiss_alert"
+      | "edit_slice"
+      | "edit_edit";
     /** ProjectBookmarkFilter */
     ProjectBookmarkFilter: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'bookmark';
+      name: "bookmark";
       /** Value */
       value: boolean;
     };
@@ -15016,7 +15016,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'bookmark';
+      name: "bookmark";
       /**
        * Ascending
        * @default true
@@ -15027,20 +15027,20 @@ export interface components {
        * @default custom
        * @constant
        */
-      sort_type?: 'custom';
+      sort_type?: "custom";
     };
     /** ProjectCollectionParams */
     ProjectCollectionParams: {
       /** Filters */
       filters?: (
-        | components['schemas']['ProjectIDFilter']
-        | components['schemas']['ProjectNameFilter']
-        | components['schemas']['ProjectTypeFilter']
-        | components['schemas']['ProjectCreatorFilter']
-        | components['schemas']['ProjectCreatedAtFilter']
-        | components['schemas']['ProjectUpdatedAtFilter']
-        | components['schemas']['ProjectRunsFilter']
-        | components['schemas']['ProjectBookmarkFilter']
+        | components["schemas"]["ProjectIDFilter"]
+        | components["schemas"]["ProjectNameFilter"]
+        | components["schemas"]["ProjectTypeFilter"]
+        | components["schemas"]["ProjectCreatorFilter"]
+        | components["schemas"]["ProjectCreatedAtFilter"]
+        | components["schemas"]["ProjectUpdatedAtFilter"]
+        | components["schemas"]["ProjectRunsFilter"]
+        | components["schemas"]["ProjectBookmarkFilter"]
       )[];
       /**
        * Sort
@@ -15052,12 +15052,12 @@ export interface components {
        */
       sort?:
         | (
-            | components['schemas']['ProjectNameSort']
-            | components['schemas']['ProjectTypeSort']
-            | components['schemas']['ProjectCreatedAtSort']
-            | components['schemas']['ProjectUpdatedAtSort']
-            | components['schemas']['ProjectRunsSort']
-            | components['schemas']['ProjectBookmarkSort']
+            | components["schemas"]["ProjectNameSort"]
+            | components["schemas"]["ProjectTypeSort"]
+            | components["schemas"]["ProjectCreatedAtSort"]
+            | components["schemas"]["ProjectUpdatedAtSort"]
+            | components["schemas"]["ProjectRunsSort"]
+            | components["schemas"]["ProjectBookmarkSort"]
           )
         | null;
     };
@@ -15068,7 +15068,7 @@ export interface components {
       /** Created By */
       created_by?: string | null;
       /** @default training_inference */
-      type?: components['schemas']['ProjectType'];
+      type?: components["schemas"]["ProjectType"];
       /**
        * Create Example Templates
        * @default false
@@ -15081,7 +15081,7 @@ export interface components {
       name?: string | null;
       /** Created By */
       created_by?: string | null;
-      type?: components['schemas']['ProjectType'] | null;
+      type?: components["schemas"]["ProjectType"] | null;
       /**
        * Id
        * Format: uuid4
@@ -15104,7 +15104,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'created_at';
+      name: "created_at";
       /**
        * Value
        * Format: date-time
@@ -15114,7 +15114,7 @@ export interface components {
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte';
+      operator: "eq" | "ne" | "gt" | "gte" | "lt" | "lte";
     };
     /** ProjectCreatedAtSort */
     ProjectCreatedAtSort: {
@@ -15122,7 +15122,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'created_at';
+      name: "created_at";
       /**
        * Ascending
        * @default true
@@ -15133,7 +15133,7 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /** ProjectCreatorFilter */
     ProjectCreatorFilter: {
@@ -15141,7 +15141,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'creator';
+      name: "creator";
       /**
        * Value
        * Format: uuid4
@@ -15159,7 +15159,7 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /** Name */
       name?: string | null;
       /**
@@ -15167,9 +15167,9 @@ export interface components {
        * Format: uuid4
        */
       created_by: string;
-      type?: components['schemas']['ProjectType'] | null;
+      type?: components["schemas"]["ProjectType"] | null;
       /** Runs */
-      runs: components['schemas']['RunDB'][];
+      runs: components["schemas"]["RunDB"][];
       /**
        * Created At
        * Format: date-time
@@ -15197,7 +15197,7 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /** Name */
       name?: string | null;
       /**
@@ -15205,9 +15205,9 @@ export interface components {
        * Format: uuid4
        */
       created_by: string;
-      type?: components['schemas']['ProjectType'] | null;
+      type?: components["schemas"]["ProjectType"] | null;
       /** Runs */
-      runs: components['schemas']['RunDBThin'][];
+      runs: components["schemas"]["RunDBThin"][];
       /**
        * Created At
        * Format: date-time
@@ -15235,7 +15235,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'id';
+      name: "id";
       /**
        * Value
        * Format: uuid4
@@ -15253,7 +15253,7 @@ export interface components {
     ProjectIntegrationsResponse: {
       /** Integrations */
       integrations: {
-        [key: string]: components['schemas']['ProjectIntegration'];
+        [key: string]: components["schemas"]["ProjectIntegration"];
       };
     };
     /** ProjectNameFilter */
@@ -15262,14 +15262,14 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'name';
+      name: "name";
       /** Value */
       value: string;
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'contains';
+      operator: "eq" | "ne" | "contains";
       /**
        * Case Sensitive
        * @default true
@@ -15282,7 +15282,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'name';
+      name: "name";
       /**
        * Ascending
        * @default true
@@ -15293,7 +15293,7 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /** ProjectRunSummary */
     ProjectRunSummary: {
@@ -15304,16 +15304,16 @@ export interface components {
       id: string;
       /** Name */
       name: string;
-      task_type: components['schemas']['TaskType'];
+      task_type: components["schemas"]["TaskType"];
       /** Task */
       task?: string | null;
       /** Labels */
       labels: string[];
       /** Num Samples */
       num_samples: number;
-      metrics: components['schemas']['ModelMetrics'];
+      metrics: components["schemas"]["ModelMetrics"];
       /** Slices */
-      slices: components['schemas']['SliceMetrics'][];
+      slices: components["schemas"]["SliceMetrics"][];
       /**
        * Updated At
        * Format: date-time
@@ -15323,7 +15323,7 @@ export interface components {
       avg_samples: number;
       /** Hard Sample Pct */
       hard_sample_pct: number;
-      hard_sample_metrics?: components['schemas']['ModelMetrics'] | null;
+      hard_sample_metrics?: components["schemas"]["ModelMetrics"] | null;
       /** Num Spans */
       num_spans?: number | null;
       /** Spans Per Sample */
@@ -15334,7 +15334,7 @@ export interface components {
        * Data Edits
        * @default []
        */
-      data_edits?: components['schemas']['EditSummary'][];
+      data_edits?: components["schemas"]["EditSummary"][];
     };
     /** ProjectRunsFilter */
     ProjectRunsFilter: {
@@ -15342,14 +15342,14 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'runs';
+      name: "runs";
       /** Value */
       value: number | number[];
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte' | 'between';
+      operator: "eq" | "ne" | "gt" | "gte" | "lt" | "lte" | "between";
     };
     /** ProjectRunsSort */
     ProjectRunsSort: {
@@ -15357,7 +15357,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'runs';
+      name: "runs";
       /**
        * Ascending
        * @default true
@@ -15368,32 +15368,32 @@ export interface components {
        * @default custom
        * @constant
        */
-      sort_type?: 'custom';
+      sort_type?: "custom";
     };
     /** ProjectSettingsDB */
     ProjectSettingsDB: {
-      scorers_config?: components['schemas']['ScorersConfig'] | null;
+      scorers_config?: components["schemas"]["ScorersConfig"] | null;
       /** Metric Weights Configuration */
       metric_weights_configuration?: {
-        [key: string]: components['schemas']['MetricWeight'];
+        [key: string]: components["schemas"]["MetricWeight"];
       } | null;
       alerts_configuration?:
-        | components['schemas']['AlertsConfiguration']
+        | components["schemas"]["AlertsConfiguration"]
         | null;
       scorers_configuration?:
-        | components['schemas']['ScorersConfiguration']
+        | components["schemas"]["ScorersConfiguration"]
         | null;
       /** Registered Scorers Configuration */
       registered_scorers_configuration?:
-        | components['schemas']['RegisteredScorer'][]
+        | components["schemas"]["RegisteredScorer"][]
         | null;
       /** Generated Scorers Configuration */
       generated_scorers_configuration?:
-        | components['schemas']['GeneratedScorerConfig'][]
+        | components["schemas"]["GeneratedScorerConfig"][]
         | null;
       /** Customized Scorers Configuration */
       customized_scorers_configuration?:
-        | components['schemas']['CustomizedScorer'][]
+        | components["schemas"]["CustomizedScorer"][]
         | null;
       /**
        * Project Id
@@ -15421,27 +15421,27 @@ export interface components {
      * @enum {string}
      */
     ProjectType:
-      | 'training_inference'
-      | 'prompt_evaluation'
-      | 'llm_monitor'
-      | 'protect'
-      | 'gen_ai';
+      | "training_inference"
+      | "prompt_evaluation"
+      | "llm_monitor"
+      | "protect"
+      | "gen_ai";
     /** ProjectTypeFilter */
     ProjectTypeFilter: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'type';
+      name: "type";
       /** Value */
       value:
-        | components['schemas']['ProjectType']
-        | components['schemas']['ProjectType'][];
+        | components["schemas"]["ProjectType"]
+        | components["schemas"]["ProjectType"][];
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'one_of' | 'not_in';
+      operator: "eq" | "ne" | "one_of" | "not_in";
     };
     /** ProjectTypeSort */
     ProjectTypeSort: {
@@ -15449,7 +15449,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'type';
+      name: "type";
       /**
        * Ascending
        * @default true
@@ -15460,7 +15460,7 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /** ProjectUpdate */
     ProjectUpdate: {
@@ -15468,7 +15468,7 @@ export interface components {
       name?: string | null;
       /** Created By */
       created_by?: string | null;
-      type?: components['schemas']['ProjectType'] | null;
+      type?: components["schemas"]["ProjectType"] | null;
     };
     /** ProjectUpdateResponse */
     ProjectUpdateResponse: {
@@ -15476,7 +15476,7 @@ export interface components {
       name?: string | null;
       /** Created By */
       created_by?: string | null;
-      type?: components['schemas']['ProjectType'] | null;
+      type?: components["schemas"]["ProjectType"] | null;
       /**
        * Id
        * Format: uuid4
@@ -15499,7 +15499,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'updated_at';
+      name: "updated_at";
       /**
        * Value
        * Format: date-time
@@ -15509,7 +15509,7 @@ export interface components {
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte';
+      operator: "eq" | "ne" | "gt" | "gte" | "lt" | "lte";
     };
     /** ProjectUpdatedAtSort */
     ProjectUpdatedAtSort: {
@@ -15517,7 +15517,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'updated_at';
+      name: "updated_at";
       /**
        * Ascending
        * @default true
@@ -15528,61 +15528,61 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
     };
     /** PromptChainIngestBatchRequest */
     PromptChainIngestBatchRequest: {
       /** Rows */
-      rows?: components['schemas']['ChainRow'][];
+      rows?: components["schemas"]["ChainRow"][];
       /** Scorers */
       scorers?: (
-        | components['schemas']['AgenticWorkflowSuccessScorer']
-        | components['schemas']['BleuScorer']
-        | components['schemas']['ChunkAttributionUtilizationScorer']
-        | components['schemas']['CompletenessScorer']
-        | components['schemas']['ContextAdherenceScorer']
-        | components['schemas']['ContextRelevanceScorer']
-        | components['schemas']['CorrectnessScorer']
-        | components['schemas']['GroundTruthAdherenceScorer']
-        | components['schemas']['InputPIIScorer']
-        | components['schemas']['InputSexistScorer']
-        | components['schemas']['InputToneScorer']
-        | components['schemas']['InputToxicityScorer']
-        | components['schemas']['InstructionAdherenceScorer']
-        | components['schemas']['OutputPIIScorer']
-        | components['schemas']['OutputSexistScorer']
-        | components['schemas']['OutputToneScorer']
-        | components['schemas']['OutputToxicityScorer']
-        | components['schemas']['PromptInjectionScorer']
-        | components['schemas']['PromptPerplexityScorer']
-        | components['schemas']['RougeScorer']
-        | components['schemas']['ToolErrorRateScorer']
-        | components['schemas']['ToolSelectionQualityScorer']
-        | components['schemas']['UncertaintyScorer']
+        | components["schemas"]["AgenticWorkflowSuccessScorer"]
+        | components["schemas"]["BleuScorer"]
+        | components["schemas"]["ChunkAttributionUtilizationScorer"]
+        | components["schemas"]["CompletenessScorer"]
+        | components["schemas"]["ContextAdherenceScorer"]
+        | components["schemas"]["ContextRelevanceScorer"]
+        | components["schemas"]["CorrectnessScorer"]
+        | components["schemas"]["GroundTruthAdherenceScorer"]
+        | components["schemas"]["InputPIIScorer"]
+        | components["schemas"]["InputSexistScorer"]
+        | components["schemas"]["InputToneScorer"]
+        | components["schemas"]["InputToxicityScorer"]
+        | components["schemas"]["InstructionAdherenceScorer"]
+        | components["schemas"]["OutputPIIScorer"]
+        | components["schemas"]["OutputSexistScorer"]
+        | components["schemas"]["OutputToneScorer"]
+        | components["schemas"]["OutputToxicityScorer"]
+        | components["schemas"]["PromptInjectionScorer"]
+        | components["schemas"]["PromptPerplexityScorer"]
+        | components["schemas"]["RougeScorer"]
+        | components["schemas"]["ToolErrorRateScorer"]
+        | components["schemas"]["ToolSelectionQualityScorer"]
+        | components["schemas"]["UncertaintyScorer"]
       )[];
       /** Prompt Registered Scorers Configuration */
       prompt_registered_scorers_configuration?:
-        | components['schemas']['RegisteredScorer'][]
+        | components["schemas"]["RegisteredScorer"][]
         | null;
       /** Generated Scorers */
       generated_scorers?:
-        | components['schemas']['GeneratedScorerConfig'][]
+        | components["schemas"]["GeneratedScorerConfig"][]
         | null;
       prompt_scorers_configuration?:
-        | components['schemas']['ScorersConfiguration']
+        | components["schemas"]["ScorersConfiguration"]
         | null;
       /** Prompt Customized Scorers Configuration */
       prompt_customized_scorers_configuration?:
         | (
-            | components['schemas']['CustomizedAgenticWorkflowSuccessGPTScorer']
-            | components['schemas']['CustomizedChunkAttributionUtilizationGPTScorer']
-            | components['schemas']['CustomizedCompletenessGPTScorer']
-            | components['schemas']['CustomizedFactualityGPTScorer']
-            | components['schemas']['CustomizedGroundednessGPTScorer']
-            | components['schemas']['CustomizedInstructionAdherenceGPTScorer']
-            | components['schemas']['CustomizedGroundTruthAdherenceGPTScorer']
-            | components['schemas']['CustomizedToolSelectionQualityGPTScorer']
-            | components['schemas']['CustomizedToolErrorRateGPTScorer']
+            | components["schemas"]["CustomizedAgenticWorkflowSuccessGPTScorer"]
+            | components["schemas"]["CustomizedChunkAttributionUtilizationGPTScorer"]
+            | components["schemas"]["CustomizedCompletenessGPTScorer"]
+            | components["schemas"]["CustomizedFactualityGPTScorer"]
+            | components["schemas"]["CustomizedGroundednessGPTScorer"]
+            | components["schemas"]["CustomizedInstructionAdherenceGPTScorer"]
+            | components["schemas"]["CustomizedGroundTruthAdherenceGPTScorer"]
+            | components["schemas"]["CustomizedToolSelectionQualityGPTScorer"]
+            | components["schemas"]["CustomizedToolErrorRateGPTScorer"]
           )[]
         | null;
       /**
@@ -15617,56 +15617,56 @@ export interface components {
     /** PromptChainIngestRequest */
     PromptChainIngestRequest: {
       /** Rows */
-      rows?: components['schemas']['ChainRow'][];
+      rows?: components["schemas"]["ChainRow"][];
       /** Scorers */
       scorers?: (
-        | components['schemas']['AgenticWorkflowSuccessScorer']
-        | components['schemas']['BleuScorer']
-        | components['schemas']['ChunkAttributionUtilizationScorer']
-        | components['schemas']['CompletenessScorer']
-        | components['schemas']['ContextAdherenceScorer']
-        | components['schemas']['ContextRelevanceScorer']
-        | components['schemas']['CorrectnessScorer']
-        | components['schemas']['GroundTruthAdherenceScorer']
-        | components['schemas']['InputPIIScorer']
-        | components['schemas']['InputSexistScorer']
-        | components['schemas']['InputToneScorer']
-        | components['schemas']['InputToxicityScorer']
-        | components['schemas']['InstructionAdherenceScorer']
-        | components['schemas']['OutputPIIScorer']
-        | components['schemas']['OutputSexistScorer']
-        | components['schemas']['OutputToneScorer']
-        | components['schemas']['OutputToxicityScorer']
-        | components['schemas']['PromptInjectionScorer']
-        | components['schemas']['PromptPerplexityScorer']
-        | components['schemas']['RougeScorer']
-        | components['schemas']['ToolErrorRateScorer']
-        | components['schemas']['ToolSelectionQualityScorer']
-        | components['schemas']['UncertaintyScorer']
+        | components["schemas"]["AgenticWorkflowSuccessScorer"]
+        | components["schemas"]["BleuScorer"]
+        | components["schemas"]["ChunkAttributionUtilizationScorer"]
+        | components["schemas"]["CompletenessScorer"]
+        | components["schemas"]["ContextAdherenceScorer"]
+        | components["schemas"]["ContextRelevanceScorer"]
+        | components["schemas"]["CorrectnessScorer"]
+        | components["schemas"]["GroundTruthAdherenceScorer"]
+        | components["schemas"]["InputPIIScorer"]
+        | components["schemas"]["InputSexistScorer"]
+        | components["schemas"]["InputToneScorer"]
+        | components["schemas"]["InputToxicityScorer"]
+        | components["schemas"]["InstructionAdherenceScorer"]
+        | components["schemas"]["OutputPIIScorer"]
+        | components["schemas"]["OutputSexistScorer"]
+        | components["schemas"]["OutputToneScorer"]
+        | components["schemas"]["OutputToxicityScorer"]
+        | components["schemas"]["PromptInjectionScorer"]
+        | components["schemas"]["PromptPerplexityScorer"]
+        | components["schemas"]["RougeScorer"]
+        | components["schemas"]["ToolErrorRateScorer"]
+        | components["schemas"]["ToolSelectionQualityScorer"]
+        | components["schemas"]["UncertaintyScorer"]
       )[];
       /** Prompt Registered Scorers Configuration */
       prompt_registered_scorers_configuration?:
-        | components['schemas']['RegisteredScorer'][]
+        | components["schemas"]["RegisteredScorer"][]
         | null;
       /** Generated Scorers */
       generated_scorers?:
-        | components['schemas']['GeneratedScorerConfig'][]
+        | components["schemas"]["GeneratedScorerConfig"][]
         | null;
       prompt_scorers_configuration?:
-        | components['schemas']['ScorersConfiguration']
+        | components["schemas"]["ScorersConfiguration"]
         | null;
       /** Prompt Customized Scorers Configuration */
       prompt_customized_scorers_configuration?:
         | (
-            | components['schemas']['CustomizedAgenticWorkflowSuccessGPTScorer']
-            | components['schemas']['CustomizedChunkAttributionUtilizationGPTScorer']
-            | components['schemas']['CustomizedCompletenessGPTScorer']
-            | components['schemas']['CustomizedFactualityGPTScorer']
-            | components['schemas']['CustomizedGroundednessGPTScorer']
-            | components['schemas']['CustomizedInstructionAdherenceGPTScorer']
-            | components['schemas']['CustomizedGroundTruthAdherenceGPTScorer']
-            | components['schemas']['CustomizedToolSelectionQualityGPTScorer']
-            | components['schemas']['CustomizedToolErrorRateGPTScorer']
+            | components["schemas"]["CustomizedAgenticWorkflowSuccessGPTScorer"]
+            | components["schemas"]["CustomizedChunkAttributionUtilizationGPTScorer"]
+            | components["schemas"]["CustomizedCompletenessGPTScorer"]
+            | components["schemas"]["CustomizedFactualityGPTScorer"]
+            | components["schemas"]["CustomizedGroundednessGPTScorer"]
+            | components["schemas"]["CustomizedInstructionAdherenceGPTScorer"]
+            | components["schemas"]["CustomizedGroundTruthAdherenceGPTScorer"]
+            | components["schemas"]["CustomizedToolSelectionQualityGPTScorer"]
+            | components["schemas"]["CustomizedToolErrorRateGPTScorer"]
           )[]
         | null;
     };
@@ -15712,9 +15712,9 @@ export interface components {
        * @description A list of filters.
        */
       filters?: (
-        | components['schemas']['RangePromptFilterParam']
-        | components['schemas']['ValuePromptFilterParam']
-        | components['schemas']['CategoricalPromptFilterParam']
+        | components["schemas"]["RangePromptFilterParam"]
+        | components["schemas"]["ValuePromptFilterParam"]
+        | components["schemas"]["CategoricalPromptFilterParam"]
       )[];
     };
     /**
@@ -15742,15 +15742,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'prompt_injection';
+      name: "prompt_injection";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -15780,7 +15780,7 @@ export interface components {
       /** Evaluation Model Alias */
       evaluation_model_alias: string;
       /** @default openai */
-      integration_name?: components['schemas']['LLMIntegration'];
+      integration_name?: components["schemas"]["LLMIntegration"];
     };
     /** PromptPerplexityScorer */
     PromptPerplexityScorer: {
@@ -15788,15 +15788,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'prompt_perplexity';
+      name: "prompt_perplexity";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -15817,7 +15817,7 @@ export interface components {
       target?: string | null;
       /** Node Id */
       node_id?: string | null;
-      node_type?: components['schemas']['NodeType'] | null;
+      node_type?: components["schemas"]["NodeType"] | null;
       /** Node Name */
       node_name?: string | null;
       /** Node Input */
@@ -15840,11 +15840,11 @@ export interface components {
       inputs?: {
         [key: string]: string | null;
       };
-      metrics?: components['schemas']['Metrics'];
+      metrics?: components["schemas"]["Metrics"];
       /** Segments */
-      segments?: components['schemas']['HallucinationSegment'][];
+      segments?: components["schemas"]["HallucinationSegment"][];
       /** Response Segments */
-      response_segments?: components['schemas']['HallucinationSegment'][];
+      response_segments?: components["schemas"]["HallucinationSegment"][];
       /** Hallucination */
       hallucination?: number | null;
       /** Bleu */
@@ -15854,7 +15854,7 @@ export interface components {
       /** Cost */
       cost?: number | null;
       /** Prompt Segments */
-      prompt_segments?: components['schemas']['HallucinationSegment'][] | null;
+      prompt_segments?: components["schemas"]["HallucinationSegment"][] | null;
       /**
        * Prompt Hallucination Severity
        * @default 0
@@ -15864,7 +15864,7 @@ export interface components {
     /** PromptRowColumn */
     PromptRowColumn: {
       /** @description Job status used for computing the column. Only set for metrics columns that have a separate scorer job. */
-      job_status?: components['schemas']['JobStatus'] | null;
+      job_status?: components["schemas"]["JobStatus"] | null;
       /**
        * Job Progress Message
        * @description Progress message to show the users on hover in case the job is in progress.
@@ -15881,7 +15881,7 @@ export interface components {
        */
       scorer_name?: string | null;
       /** @description If a column is associated with a basic or a plus scorer. Defaults to None for columns not associated with either. */
-      job_type?: components['schemas']['ScorerType'] | null;
+      job_type?: components["schemas"]["ScorerType"] | null;
       /**
        * Name
        * @description Name of the column.
@@ -15916,9 +15916,9 @@ export interface components {
        * @description Data type of the column. This is used to determine how to format the data on the UI.
        * @default unknown
        */
-      data_type?: components['schemas']['DataTypeOptions'];
+      data_type?: components["schemas"]["DataTypeOptions"];
       /** @description Thresholds for the column, if this is a metrics column. */
-      metric_threshold?: components['schemas']['MetricThreshold'] | null;
+      metric_threshold?: components["schemas"]["MetricThreshold"] | null;
       /**
        * Sortable
        * @description Whether the column is sortable.
@@ -15936,13 +15936,13 @@ export interface components {
        * @description Metric values with metadata.
        */
       metric_infos?: (
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed']
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"]
       )[];
       /**
        * Values
@@ -15952,42 +15952,42 @@ export interface components {
         | string
         | number
         | boolean
-        | components['schemas']['Segment']
-        | components['schemas']['HallucinationSegment']
-        | components['schemas']['Document']
-        | components['schemas']['FeedbackRatingDB']
-        | components['schemas']['FeedbackAggregate']
+        | components["schemas"]["Segment"]
+        | components["schemas"]["HallucinationSegment"]
+        | components["schemas"]["Document"]
+        | components["schemas"]["FeedbackRatingDB"]
+        | components["schemas"]["FeedbackAggregate"]
         | (
             | string
             | number
             | boolean
-            | components['schemas']['Segment']
-            | components['schemas']['HallucinationSegment']
-            | components['schemas']['Document']
-            | components['schemas']['FeedbackRatingDB']
-            | components['schemas']['FeedbackAggregate']
+            | components["schemas"]["Segment"]
+            | components["schemas"]["HallucinationSegment"]
+            | components["schemas"]["Document"]
+            | components["schemas"]["FeedbackRatingDB"]
+            | components["schemas"]["FeedbackAggregate"]
             | null
           )[]
         | (
             | string
             | number
             | boolean
-            | components['schemas']['Segment']
-            | components['schemas']['HallucinationSegment']
-            | components['schemas']['Document']
-            | components['schemas']['FeedbackRatingDB']
-            | components['schemas']['FeedbackAggregate']
+            | components["schemas"]["Segment"]
+            | components["schemas"]["HallucinationSegment"]
+            | components["schemas"]["Document"]
+            | components["schemas"]["FeedbackRatingDB"]
+            | components["schemas"]["FeedbackAggregate"]
             | null
           )[][]
         | (
             | string
             | number
             | boolean
-            | components['schemas']['Segment']
-            | components['schemas']['HallucinationSegment']
-            | components['schemas']['Document']
-            | components['schemas']['FeedbackRatingDB']
-            | components['schemas']['FeedbackAggregate']
+            | components["schemas"]["Segment"]
+            | components["schemas"]["HallucinationSegment"]
+            | components["schemas"]["Document"]
+            | components["schemas"]["FeedbackRatingDB"]
+            | components["schemas"]["FeedbackAggregate"]
             | null
           )[][][]
         | null
@@ -16001,9 +16001,9 @@ export interface components {
        * Job Info
        * @description Job info used for computing the column. Only present for metrics columns that have a separate scorer job.
        */
-      job_info?: (components['schemas']['JobInfo'] | null)[] | null;
+      job_info?: (components["schemas"]["JobInfo"] | null)[] | null;
       /** @description Alert for a given column with title and message */
-      alert?: components['schemas']['Alert'] | null;
+      alert?: components["schemas"]["Alert"] | null;
       /**
        * Source
        * @description Source DF of the column.
@@ -16056,9 +16056,9 @@ export interface components {
        * @description Data type of the column. This is used to determine how to format the data on the UI.
        * @default unknown
        */
-      data_type?: components['schemas']['DataTypeOptions'];
+      data_type?: components["schemas"]["DataTypeOptions"];
       /** @description Thresholds for the column, if this is a metrics column. */
-      metric_threshold?: components['schemas']['MetricThreshold'] | null;
+      metric_threshold?: components["schemas"]["MetricThreshold"] | null;
       /**
        * Sortable
        * @description Whether the column is sortable.
@@ -16076,13 +16076,13 @@ export interface components {
        * @description Metric values with metadata.
        */
       metric_infos?: (
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed']
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"]
       )[];
       /**
        * Values
@@ -16092,42 +16092,42 @@ export interface components {
         | string
         | number
         | boolean
-        | components['schemas']['Segment']
-        | components['schemas']['HallucinationSegment']
-        | components['schemas']['Document']
-        | components['schemas']['FeedbackRatingDB']
-        | components['schemas']['FeedbackAggregate']
+        | components["schemas"]["Segment"]
+        | components["schemas"]["HallucinationSegment"]
+        | components["schemas"]["Document"]
+        | components["schemas"]["FeedbackRatingDB"]
+        | components["schemas"]["FeedbackAggregate"]
         | (
             | string
             | number
             | boolean
-            | components['schemas']['Segment']
-            | components['schemas']['HallucinationSegment']
-            | components['schemas']['Document']
-            | components['schemas']['FeedbackRatingDB']
-            | components['schemas']['FeedbackAggregate']
+            | components["schemas"]["Segment"]
+            | components["schemas"]["HallucinationSegment"]
+            | components["schemas"]["Document"]
+            | components["schemas"]["FeedbackRatingDB"]
+            | components["schemas"]["FeedbackAggregate"]
             | null
           )[]
         | (
             | string
             | number
             | boolean
-            | components['schemas']['Segment']
-            | components['schemas']['HallucinationSegment']
-            | components['schemas']['Document']
-            | components['schemas']['FeedbackRatingDB']
-            | components['schemas']['FeedbackAggregate']
+            | components["schemas"]["Segment"]
+            | components["schemas"]["HallucinationSegment"]
+            | components["schemas"]["Document"]
+            | components["schemas"]["FeedbackRatingDB"]
+            | components["schemas"]["FeedbackAggregate"]
             | null
           )[][]
         | (
             | string
             | number
             | boolean
-            | components['schemas']['Segment']
-            | components['schemas']['HallucinationSegment']
-            | components['schemas']['Document']
-            | components['schemas']['FeedbackRatingDB']
-            | components['schemas']['FeedbackAggregate']
+            | components["schemas"]["Segment"]
+            | components["schemas"]["HallucinationSegment"]
+            | components["schemas"]["Document"]
+            | components["schemas"]["FeedbackRatingDB"]
+            | components["schemas"]["FeedbackAggregate"]
             | null
           )[][][]
         | null
@@ -16141,11 +16141,11 @@ export interface components {
        * Job Info
        * @description Job info used for computing the column. Only present for metrics columns that have a separate scorer job.
        */
-      job_info?: (components['schemas']['JobInfo'] | null)[] | null;
+      job_info?: (components["schemas"]["JobInfo"] | null)[] | null;
       /** @description Alert for a given column with title and message */
-      alert?: components['schemas']['Alert'] | null;
+      alert?: components["schemas"]["Alert"] | null;
       /** @description If a column is associated with a basic or a plus scorer. Defaults to None for columns not associated with either. */
-      job_type?: components['schemas']['ScorerType'] | null;
+      job_type?: components["schemas"]["ScorerType"] | null;
     };
     /**
      * PromptRunSettings
@@ -16214,13 +16214,13 @@ export interface components {
       /** Tools */
       tools?: Record<string, never>[] | null;
       /** Tool Choice */
-      tool_choice?: string | components['schemas']['OpenAIToolChoice'] | null;
+      tool_choice?: string | components["schemas"]["OpenAIToolChoice"] | null;
       /** Response Format */
       response_format?: {
         [key: string]: string;
       } | null;
       /** Known Models */
-      known_models?: components['schemas']['Model'][];
+      known_models?: components["schemas"]["Model"][];
     };
     /** PromptSampleIDs */
     PromptSampleIDs: {
@@ -16267,8 +16267,8 @@ export interface components {
     /** QueryDatasetParams */
     QueryDatasetParams: {
       /** Filters */
-      filters?: components['schemas']['DatasetContentFilter'][];
-      sort?: components['schemas']['DatasetContentSortClause'] | null;
+      filters?: components["schemas"]["DatasetContentFilter"][];
+      sort?: components["schemas"]["DatasetContentSortClause"] | null;
     };
     /** QueryFilterV1 */
     QueryFilterV1: {
@@ -16276,8 +16276,8 @@ export interface components {
       col_name: string;
       /** Value */
       value: unknown;
-      operator: components['schemas']['Operator'];
-      json_field_type?: components['schemas']['FieldType'] | null;
+      operator: components["schemas"]["Operator"];
+      json_field_type?: components["schemas"]["FieldType"] | null;
       /**
        * Value Is Column
        * @default false
@@ -16292,8 +16292,8 @@ export interface components {
     QueryOrganizationParams: {
       /** Filters */
       filters?: (
-        | components['schemas']['OrganizationNameFilter']
-        | components['schemas']['OrganizationIsMemberFilter']
+        | components["schemas"]["OrganizationNameFilter"]
+        | components["schemas"]["OrganizationIsMemberFilter"]
       )[];
       /**
        * Sort
@@ -16305,8 +16305,8 @@ export interface components {
        */
       sort?:
         | (
-            | components['schemas']['OrganizationCreatedAtSort']
-            | components['schemas']['OrganizationNameSort']
+            | components["schemas"]["OrganizationCreatedAtSort"]
+            | components["schemas"]["OrganizationNameSort"]
           )
         | null;
     };
@@ -16318,7 +16318,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      filter_type: 'range';
+      filter_type: "range";
       /** Low */
       low: number;
       /** High */
@@ -16330,7 +16330,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      mode: 'project';
+      mode: "project";
     };
     /** RecomputeSettingsRuns */
     RecomputeSettingsRuns: {
@@ -16338,7 +16338,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      mode: 'runs';
+      mode: "runs";
       /** Run Ids */
       run_ids: string[];
     };
@@ -16353,7 +16353,7 @@ export interface components {
      * RegisteredScorerAction
      * @enum {string}
      */
-    RegisteredScorerAction: 'update' | 'delete';
+    RegisteredScorerAction: "update" | "delete";
     /** RegisteredScorerConfig */
     RegisteredScorerConfig: {
       /**
@@ -16367,8 +16367,8 @@ export interface components {
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -16383,8 +16383,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -16396,7 +16396,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -16414,14 +16414,14 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /** Edit Ids */
       edit_ids: string[];
       /**
        * Edit Overrides
        * @default []
        */
-      edit_overrides?: components['schemas']['EditOverride'][] | null;
+      edit_overrides?: components["schemas"]["EditOverride"][] | null;
       /**
        * Only Export Edited
        * @default false
@@ -16450,8 +16450,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -16463,7 +16463,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -16481,14 +16481,14 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /** Edit Ids */
       edit_ids: string[];
       /**
        * Edit Overrides
        * @default []
        */
-      edit_overrides?: components['schemas']['EditOverride'][] | null;
+      edit_overrides?: components["schemas"]["EditOverride"][] | null;
       /**
        * Only Export Edited
        * @default false
@@ -16517,8 +16517,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -16530,7 +16530,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -16548,7 +16548,7 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /** Bucket Name */
       bucket_name: string;
       /** Object Name */
@@ -16570,8 +16570,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -16583,7 +16583,7 @@ export interface components {
        */
       all_but?: boolean;
       /** @default csv */
-      file_type?: components['schemas']['FileType'];
+      file_type?: components["schemas"]["FileType"];
       /**
        * Include Cols
        * @default []
@@ -16601,7 +16601,7 @@ export interface components {
        * @default false
        */
       hf_format?: boolean;
-      tagging_schema?: components['schemas']['TaggingSchema'] | null;
+      tagging_schema?: components["schemas"]["TaggingSchema"] | null;
       /** Bucket Name */
       bucket_name: string;
       /** Object Name */
@@ -16618,9 +16618,9 @@ export interface components {
        * Prioritized Rulesets
        * @description Rulesets to be applied to the payload.
        */
-      prioritized_rulesets?: components['schemas']['Ruleset'][];
+      prioritized_rulesets?: components["schemas"]["Ruleset"][];
       /** @description Payload to be processed. */
-      payload: components['schemas']['Payload'];
+      payload: components["schemas"]["Payload"];
       /**
        * Project Name
        * @description Project name.
@@ -16672,31 +16672,31 @@ export interface components {
      * @enum {string}
      */
     ResourceKind:
-      | 'user'
-      | 'group'
-      | 'group_member'
-      | 'project'
-      | 'integration'
-      | 'registered_scorer'
-      | 'generated_scorer'
-      | 'api_key'
-      | 'dataset'
-      | 'stage'
-      | 'stage_version'
-      | 'organization';
+      | "user"
+      | "group"
+      | "group_member"
+      | "project"
+      | "integration"
+      | "registered_scorer"
+      | "generated_scorer"
+      | "api_key"
+      | "dataset"
+      | "stage"
+      | "stage_version"
+      | "organization";
     /** Response */
     Response: {
       /**
        * @description Status of the request after processing the rules.
        * @default not_triggered
        */
-      status?: components['schemas']['ExecutionStatus'];
+      status?: components["schemas"]["ExecutionStatus"];
       /**
        * Text
        * @description Text from the request after processing the rules.
        */
       text: string;
-      trace_metadata: components['schemas']['TraceMetadata'];
+      trace_metadata: components["schemas"]["TraceMetadata"];
     } & {
       [key: string]: unknown;
     };
@@ -16706,19 +16706,19 @@ export interface components {
        * @description Type of the step. By default, it is set to retriever. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'retriever';
+      type: "retriever";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -16730,12 +16730,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -16775,7 +16775,7 @@ export interface components {
        */
       ground_truth?: string | null;
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildSpans'] | null;
+      parent?: components["schemas"]["StepWithChildSpans"] | null;
     };
     /** RetrieverSpanWithMetrics */
     RetrieverSpanWithMetrics: {
@@ -16794,31 +16794,31 @@ export interface components {
       /** Metrics */
       metrics?: {
         [key: string]:
-          | components['schemas']['MetricNotComputed']
-          | components['schemas']['MetricPending']
-          | components['schemas']['MetricComputing']
-          | components['schemas']['MetricNotApplicable']
-          | components['schemas']['MetricSuccess']
-          | components['schemas']['MetricError']
-          | components['schemas']['MetricFailed'];
+          | components["schemas"]["MetricNotComputed"]
+          | components["schemas"]["MetricPending"]
+          | components["schemas"]["MetricComputing"]
+          | components["schemas"]["MetricNotApplicable"]
+          | components["schemas"]["MetricSuccess"]
+          | components["schemas"]["MetricError"]
+          | components["schemas"]["MetricFailed"];
       };
       /**
        * @description Type of the step. By default, it is set to retriever. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'retriever';
+      type: "retriever";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -16830,12 +16830,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -16875,7 +16875,7 @@ export interface components {
        */
       ground_truth?: string | null;
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildSpans'] | null;
+      parent?: components["schemas"]["StepWithChildSpans"] | null;
     };
     /** RetrieverStep */
     RetrieverStep: {
@@ -16883,7 +16883,7 @@ export interface components {
        * @description Type of the step. By default, it is set to retriever. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'retriever';
+      type: "retriever";
       /**
        * Input
        * @description Input query to the retriever.
@@ -16893,7 +16893,7 @@ export interface components {
        * Output
        * @description Documents retrieved from the retriever. This can be a list of strings or `Document`s.
        */
-      output?: components['schemas']['Document'][];
+      output?: components["schemas"]["Document"][];
       /**
        * Name
        * @description Name of the step.
@@ -16935,26 +16935,26 @@ export interface components {
       rollback_version: number;
     };
     /** RootModel[Sequence[WeeklyChangelog]] */
-    RootModel_Sequence_WeeklyChangelog__: components['schemas']['WeeklyChangelog'][];
+    RootModel_Sequence_WeeklyChangelog__: components["schemas"]["WeeklyChangelog"][];
     /** RootModel[Union[InferenceRunResults, SplitRunResults]] */
     RootModel_Union_InferenceRunResults__SplitRunResults__:
-      | components['schemas']['InferenceRunResults']
-      | components['schemas']['SplitRunResults'];
+      | components["schemas"]["InferenceRunResults"]
+      | components["schemas"]["SplitRunResults"];
     /** RougeScorer */
     RougeScorer: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'rouge';
+      name: "rouge";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
@@ -16966,7 +16966,7 @@ export interface components {
        */
       metric: string;
       /** @description Operator to use for comparison. */
-      operator: components['schemas']['RuleOperator'];
+      operator: components["schemas"]["RuleOperator"];
       /**
        * Target Value
        * @description Value to compare with for this metric (right hand side).
@@ -16978,28 +16978,28 @@ export interface components {
      * @enum {string}
      */
     RuleOperator:
-      | 'gt'
-      | 'lt'
-      | 'gte'
-      | 'lte'
-      | 'eq'
-      | 'neq'
-      | 'contains'
-      | 'all'
-      | 'any'
-      | 'empty'
-      | 'not_empty';
+      | "gt"
+      | "lt"
+      | "gte"
+      | "lte"
+      | "eq"
+      | "neq"
+      | "contains"
+      | "all"
+      | "any"
+      | "empty"
+      | "not_empty";
     /** RuleResult */
     RuleResult: {
       /** @default not_triggered */
-      status?: components['schemas']['ExecutionStatus'];
+      status?: components["schemas"]["ExecutionStatus"];
       /**
        * Metric
        * @description Name of the metric.
        */
       metric: string;
       /** @description Operator to use for comparison. */
-      operator: components['schemas']['RuleOperator'];
+      operator: components["schemas"]["RuleOperator"];
       /**
        * Target Value
        * @description Value to compare with for this metric (right hand side).
@@ -17022,14 +17022,14 @@ export interface components {
        * Rules
        * @description List of rules to evaluate. Atleast 1 rule is required.
        */
-      rules?: components['schemas']['Rule'][];
+      rules?: components["schemas"]["Rule"][];
       /**
        * Action
        * @description Action to take if all the rules are met.
        */
       action?:
-        | components['schemas']['OverrideAction']
-        | components['schemas']['PassthroughAction'];
+        | components["schemas"]["OverrideAction"]
+        | components["schemas"]["PassthroughAction"];
       /**
        * Description
        * @description Description of the ruleset.
@@ -17039,19 +17039,19 @@ export interface components {
     /** RulesetResult */
     RulesetResult: {
       /** @default not_triggered */
-      status?: components['schemas']['ExecutionStatus'];
+      status?: components["schemas"]["ExecutionStatus"];
       /**
        * Rules
        * @description List of rules to evaluate. Atleast 1 rule is required.
        */
-      rules?: components['schemas']['Rule'][];
+      rules?: components["schemas"]["Rule"][];
       /**
        * Action
        * @description Action to take if all the rules are met.
        */
       action?:
-        | components['schemas']['OverrideAction']
-        | components['schemas']['PassthroughAction'];
+        | components["schemas"]["OverrideAction"]
+        | components["schemas"]["PassthroughAction"];
       /**
        * Description
        * @description Description of the ruleset.
@@ -17061,7 +17061,7 @@ export interface components {
        * Rule Results
        * @description Results of the rule execution.
        */
-      rule_results?: components['schemas']['RuleResult'][];
+      rule_results?: components["schemas"]["RuleResult"][];
     };
     /** RulesetsMixin */
     RulesetsMixin: {
@@ -17069,7 +17069,7 @@ export interface components {
        * Prioritized Rulesets
        * @description Rulesets to be applied to the payload.
        */
-      prioritized_rulesets?: components['schemas']['Ruleset'][];
+      prioritized_rulesets?: components["schemas"]["Ruleset"][];
     };
     /** RunCreate */
     RunCreate: {
@@ -17088,7 +17088,7 @@ export interface components {
       /** Task Type */
       task_type: number;
       /** Run Tags */
-      run_tags?: components['schemas']['RunTagCreateRequest'][];
+      run_tags?: components["schemas"]["RunTagCreateRequest"][];
     };
     /** RunDB */
     RunDB: {
@@ -17122,17 +17122,17 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      task_type?: components['schemas']['TaskType'] | null;
+      task_type?: components["schemas"]["TaskType"] | null;
       /**
        * Last Updated By
        * Format: uuid4
        */
       last_updated_by: string;
       /** Run Tags */
-      run_tags?: components['schemas']['RunTagDB'][];
+      run_tags?: components["schemas"]["RunTagDB"][];
       /** Example Content Id */
       example_content_id?: string | null;
-      creator: components['schemas']['UserDB'];
+      creator: components["schemas"]["UserDB"];
       /** Logged Splits */
       logged_splits: string[];
       /** Logged Inference Names */
@@ -17170,17 +17170,17 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      task_type?: components['schemas']['TaskType'] | null;
+      task_type?: components["schemas"]["TaskType"] | null;
       /**
        * Last Updated By
        * Format: uuid4
        */
       last_updated_by: string;
       /** Run Tags */
-      run_tags?: components['schemas']['RunTagDB'][];
+      run_tags?: components["schemas"]["RunTagDB"][];
       /** Example Content Id */
       example_content_id?: string | null;
-      creator: components['schemas']['UserDB'];
+      creator: components["schemas"]["UserDB"];
     };
     /** RunDBThinWithProjectName */
     RunDBThinWithProjectName: {
@@ -17214,17 +17214,17 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      task_type?: components['schemas']['TaskType'] | null;
+      task_type?: components["schemas"]["TaskType"] | null;
       /**
        * Last Updated By
        * Format: uuid4
        */
       last_updated_by: string;
       /** Run Tags */
-      run_tags?: components['schemas']['RunTagDB'][];
+      run_tags?: components["schemas"]["RunTagDB"][];
       /** Example Content Id */
       example_content_id?: string | null;
-      creator: components['schemas']['UserDB'];
+      creator: components["schemas"]["UserDB"];
       /** Project Name */
       project_name: string;
     };
@@ -17239,7 +17239,7 @@ export interface components {
       key: string;
       /** Value */
       value?: number | null;
-      object_value?: components['schemas']['FeedbackAggregate'] | null;
+      object_value?: components["schemas"]["FeedbackAggregate"] | null;
       /**
        * Epoch
        * @default 0
@@ -17254,7 +17254,7 @@ export interface components {
       key: string;
       /** Value */
       value?: number | null;
-      object_value?: components['schemas']['FeedbackAggregate'] | null;
+      object_value?: components["schemas"]["FeedbackAggregate"] | null;
       /**
        * Epoch
        * @default 0
@@ -17341,7 +17341,7 @@ export interface components {
        * Data Metrics
        * @default []
        */
-      data_metrics?: components['schemas']['DataRow'][];
+      data_metrics?: components["schemas"]["DataRow"][];
       /** Labels */
       labels: string[];
       /** Hard Samples Threshold */
@@ -17365,7 +17365,7 @@ export interface components {
        * Scorers
        * @description List of Galileo scorers to enable.
        */
-      scorers?: components['schemas']['ScorerConfig'][];
+      scorers?: components["schemas"]["ScorerConfig"][];
     };
     /** RunTagCreateRequest */
     RunTagCreateRequest: {
@@ -17426,7 +17426,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'score';
+      feedback_type: "score";
       /** Average */
       average: number;
       /** Unrated Count */
@@ -17438,7 +17438,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'score';
+      feedback_type: "score";
       /** Min */
       min: number;
       /** Max */
@@ -17450,7 +17450,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'score';
+      feedback_type: "score";
       /** Value */
       value: number;
     };
@@ -17468,9 +17468,9 @@ export interface components {
        * Format: uuid4
        */
       id: string;
-      scorer_type: components['schemas']['ScorerTypes'];
+      scorer_type: components["schemas"]["ScorerTypes"];
       /** @description Type of model to use for this scorer. slm maps to luna, and llm maps to plus */
-      model_type?: components['schemas']['ModelType'] | null;
+      model_type?: components["schemas"]["ModelType"] | null;
     };
     /** ScorerCreatedAtFilter */
     ScorerCreatedAtFilter: {
@@ -17478,7 +17478,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'created_at';
+      name: "created_at";
       /**
        * Value
        * Format: date-time
@@ -17488,7 +17488,7 @@ export interface components {
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte';
+      operator: "eq" | "ne" | "gt" | "gte" | "lt" | "lte";
     };
     /** ScorerCreatorFilter */
     ScorerCreatorFilter: {
@@ -17496,7 +17496,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'creator';
+      name: "creator";
       /**
        * Value
        * Format: uuid4
@@ -17515,62 +17515,62 @@ export interface components {
      * @enum {string}
      */
     ScorerName:
-      | '_completeness_gpt'
-      | '_context_relevance'
-      | '_chunk_attribution_utilization_gpt'
-      | '_factuality'
-      | '_groundedness'
-      | '_latency'
-      | '_prompt_perplexity'
-      | '_protect_status'
-      | '_pii'
-      | '_input_pii'
-      | '_sexist'
-      | '_input_sexist'
-      | '_tone'
-      | '_input_tone'
-      | '_toxicity'
-      | '_input_toxicity'
-      | '_user_registered'
-      | '_user_submitted'
-      | '_user_generated'
-      | '_uncertainty'
-      | '_bleu'
-      | '_cost'
-      | '_rouge'
-      | '_prompt_injection'
-      | '_rag_nli'
-      | '_adherence_nli'
-      | '_completeness_nli'
-      | '_chunk_attribution_utilization_nli'
-      | '_instruction_adherence'
-      | '_ground_truth_adherence'
-      | '_tool_selection_quality'
-      | '_tool_error_rate'
-      | '_agentic_workflow_success'
-      | '_customized_completeness_gpt'
-      | '_customized_factuality'
-      | '_customized_groundedness'
-      | '_customized_chunk_attribution_utilization_gpt'
-      | '_customized_instruction_adherence'
-      | '_customized_ground_truth_adherence'
-      | '_customized_tool_selection_quality'
-      | '_customized_tool_error_rate'
-      | '_customized_agentic_workflow_success';
+      | "_completeness_gpt"
+      | "_context_relevance"
+      | "_chunk_attribution_utilization_gpt"
+      | "_factuality"
+      | "_groundedness"
+      | "_latency"
+      | "_prompt_perplexity"
+      | "_protect_status"
+      | "_pii"
+      | "_input_pii"
+      | "_sexist"
+      | "_input_sexist"
+      | "_tone"
+      | "_input_tone"
+      | "_toxicity"
+      | "_input_toxicity"
+      | "_user_registered"
+      | "_user_submitted"
+      | "_user_generated"
+      | "_uncertainty"
+      | "_bleu"
+      | "_cost"
+      | "_rouge"
+      | "_prompt_injection"
+      | "_rag_nli"
+      | "_adherence_nli"
+      | "_completeness_nli"
+      | "_chunk_attribution_utilization_nli"
+      | "_instruction_adherence"
+      | "_ground_truth_adherence"
+      | "_tool_selection_quality"
+      | "_tool_error_rate"
+      | "_agentic_workflow_success"
+      | "_customized_completeness_gpt"
+      | "_customized_factuality"
+      | "_customized_groundedness"
+      | "_customized_chunk_attribution_utilization_gpt"
+      | "_customized_instruction_adherence"
+      | "_customized_ground_truth_adherence"
+      | "_customized_tool_selection_quality"
+      | "_customized_tool_error_rate"
+      | "_customized_agentic_workflow_success";
     /** ScorerNameFilter */
     ScorerNameFilter: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'name';
+      name: "name";
       /** Value */
       value: string;
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'contains';
+      operator: "eq" | "ne" | "contains";
       /**
        * Case Sensitive
        * @default true
@@ -17586,10 +17586,10 @@ export interface components {
       id: string;
       /** Name */
       name: string;
-      scorer_type: components['schemas']['ScorerTypes'];
-      defaults?: components['schemas']['ScorerDefaults'] | null;
+      scorer_type: components["schemas"]["ScorerTypes"];
+      defaults?: components["schemas"]["ScorerDefaults"] | null;
       latest_version?:
-        | components['schemas']['BaseScorerVersionResponse']
+        | components["schemas"]["BaseScorerVersionResponse"]
         | null;
       /** Tags */
       tags: string[];
@@ -17613,49 +17613,49 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'tags';
+      name: "tags";
       /** Value */
       value: string;
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'contains' | 'not_in';
+      operator: "contains" | "not_in";
     };
     /**
      * ScorerType
      * @enum {string}
      */
-    ScorerType: 'Luna' | 'Plus';
+    ScorerType: "Luna" | "Plus";
     /** ScorerTypeFilter */
     ScorerTypeFilter: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'scorer_type';
+      name: "scorer_type";
       /** Value */
       value:
-        | components['schemas']['ScorerTypes']
-        | components['schemas']['ScorerTypes'][];
+        | components["schemas"]["ScorerTypes"]
+        | components["schemas"]["ScorerTypes"][];
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'one_of' | 'not_in';
+      operator: "eq" | "ne" | "one_of" | "not_in";
     };
     /**
      * ScorerTypes
      * @enum {string}
      */
-    ScorerTypes: 'llm' | 'code' | 'preset';
+    ScorerTypes: "llm" | "code" | "preset";
     /** ScorerUpdatedAtFilter */
     ScorerUpdatedAtFilter: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'updated_at';
+      name: "updated_at";
       /**
        * Value
        * Format: date-time
@@ -17665,7 +17665,7 @@ export interface components {
        * Operator
        * @enum {string}
        */
-      operator: 'eq' | 'ne' | 'gt' | 'gte' | 'lt' | 'lte';
+      operator: "eq" | "ne" | "gt" | "gte" | "lt" | "lte";
     };
     /** ScorerVersionResponse */
     ScorerVersionResponse: {
@@ -17673,7 +17673,7 @@ export interface components {
        * Scorer Content
        * @description chainpoll template for llm based scorers and the code as a string for code based scorers
        */
-      scorer_content: components['schemas']['ChainPollTemplate'] | string;
+      scorer_content: components["schemas"]["ChainPollTemplate"] | string;
     };
     /** ScorerVersionsResponse */
     ScorerVersionsResponse: {
@@ -17695,7 +17695,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Versions */
-      versions?: components['schemas']['ScorerVersionResponse'][];
+      versions?: components["schemas"]["ScorerVersionResponse"][];
     };
     /** ScorersConfig */
     ScorersConfig: {
@@ -17704,40 +17704,40 @@ export interface components {
        * @description List of Galileo scorers to enable.
        */
       scorers?: (
-        | components['schemas']['AgenticWorkflowSuccessScorer']
-        | components['schemas']['BleuScorer']
-        | components['schemas']['ChunkAttributionUtilizationScorer']
-        | components['schemas']['CompletenessScorer']
-        | components['schemas']['ContextAdherenceScorer']
-        | components['schemas']['ContextRelevanceScorer']
-        | components['schemas']['CorrectnessScorer']
-        | components['schemas']['GroundTruthAdherenceScorer']
-        | components['schemas']['InputPIIScorer']
-        | components['schemas']['InputSexistScorer']
-        | components['schemas']['InputToneScorer']
-        | components['schemas']['InputToxicityScorer']
-        | components['schemas']['InstructionAdherenceScorer']
-        | components['schemas']['OutputPIIScorer']
-        | components['schemas']['OutputSexistScorer']
-        | components['schemas']['OutputToneScorer']
-        | components['schemas']['OutputToxicityScorer']
-        | components['schemas']['PromptInjectionScorer']
-        | components['schemas']['PromptPerplexityScorer']
-        | components['schemas']['RougeScorer']
-        | components['schemas']['ToolErrorRateScorer']
-        | components['schemas']['ToolSelectionQualityScorer']
-        | components['schemas']['UncertaintyScorer']
+        | components["schemas"]["AgenticWorkflowSuccessScorer"]
+        | components["schemas"]["BleuScorer"]
+        | components["schemas"]["ChunkAttributionUtilizationScorer"]
+        | components["schemas"]["CompletenessScorer"]
+        | components["schemas"]["ContextAdherenceScorer"]
+        | components["schemas"]["ContextRelevanceScorer"]
+        | components["schemas"]["CorrectnessScorer"]
+        | components["schemas"]["GroundTruthAdherenceScorer"]
+        | components["schemas"]["InputPIIScorer"]
+        | components["schemas"]["InputSexistScorer"]
+        | components["schemas"]["InputToneScorer"]
+        | components["schemas"]["InputToxicityScorer"]
+        | components["schemas"]["InstructionAdherenceScorer"]
+        | components["schemas"]["OutputPIIScorer"]
+        | components["schemas"]["OutputSexistScorer"]
+        | components["schemas"]["OutputToneScorer"]
+        | components["schemas"]["OutputToxicityScorer"]
+        | components["schemas"]["PromptInjectionScorer"]
+        | components["schemas"]["PromptPerplexityScorer"]
+        | components["schemas"]["RougeScorer"]
+        | components["schemas"]["ToolErrorRateScorer"]
+        | components["schemas"]["ToolSelectionQualityScorer"]
+        | components["schemas"]["UncertaintyScorer"]
       )[];
       /**
        * Registered Scorers
        * @description List of user registered scorers to enable.
        */
-      registered_scorers?: components['schemas']['RegisteredScorer'][];
+      registered_scorers?: components["schemas"]["RegisteredScorer"][];
       /**
        * Generated Scorers
        * @description List of user generated scorers to enable.
        */
-      generated_scorers?: components['schemas']['GeneratedScorer'][];
+      generated_scorers?: components["schemas"]["GeneratedScorer"][];
     };
     /**
      * ScorersConfiguration
@@ -17922,20 +17922,20 @@ export interface components {
       boundary_iou: number;
       /** Dice Coefficient */
       dice_coefficient: number;
-      mean_iou_per_class: components['schemas']['BarChart'];
-      boundary_iou_per_class: components['schemas']['BarChart'];
-      dice_per_class: components['schemas']['BarChart'];
+      mean_iou_per_class: components["schemas"]["BarChart"];
+      boundary_iou_per_class: components["schemas"]["BarChart"];
+      dice_per_class: components["schemas"]["BarChart"];
     };
     /**
      * SemSegErrorType
      * @enum {string}
      */
     SemSegErrorType:
-      | 'class_confusion'
-      | 'classification'
-      | 'background'
-      | 'missed'
-      | 'None';
+      | "class_confusion"
+      | "classification"
+      | "background"
+      | "missed"
+      | "None";
     /**
      * Seq2SeqMetricsResponse
      * @description Returns Seq2Seq specific metrics.
@@ -17964,7 +17964,7 @@ export interface components {
        * Top K Tokens
        * @default []
        */
-      top_k_tokens?: components['schemas']['TopKToken'][];
+      top_k_tokens?: components["schemas"]["TopKToken"][];
       /** Segment Probability */
       segment_probability?: number | null;
     };
@@ -17980,12 +17980,12 @@ export interface components {
        * Format: uuid4
        */
       run_id: string;
-      split: components['schemas']['Split'];
+      split: components["schemas"]["Split"];
       /** Task */
       task?: string | null;
       /** Inference Name */
       inference_name?: string | null;
-      from_split: components['schemas']['Split'];
+      from_split: components["schemas"]["Split"];
       /** From Inference Name */
       from_inference_name?: string | null;
       /** Similar Ids */
@@ -17995,7 +17995,7 @@ export interface components {
     SliceCreate: {
       /** Name */
       name: string;
-      logic: components['schemas']['FilterParams'];
+      logic: components["schemas"]["FilterParams"];
       /** Project Id */
       project_id?: string | null;
       /** Created By */
@@ -18005,7 +18005,7 @@ export interface components {
     SliceCreateResponse: {
       /** Name */
       name: string;
-      logic: components['schemas']['FilterParams'];
+      logic: components["schemas"]["FilterParams"];
       /** Project Id */
       project_id?: string | null;
       /** Created By */
@@ -18030,7 +18030,7 @@ export interface components {
     SliceDB: {
       /** Name */
       name: string;
-      logic: components['schemas']['FilterParams'];
+      logic: components["schemas"]["FilterParams"];
       /** Project Id */
       project_id?: string | null;
       /** Created By */
@@ -18060,18 +18060,18 @@ export interface components {
     SliceMetrics: {
       /** Name */
       name: string;
-      logic: components['schemas']['FilterParams'];
+      logic: components["schemas"]["FilterParams"];
       /** Project Id */
       project_id?: string | null;
       /** Created By */
       created_by?: string | null;
-      metrics: components['schemas']['ModelMetrics'];
+      metrics: components["schemas"]["ModelMetrics"];
     };
     /** SliceUpdate */
     SliceUpdate: {
       /** Name */
       name: string;
-      logic: components['schemas']['FilterParams'];
+      logic: components["schemas"]["FilterParams"];
       /** Project Id */
       project_id?: string | null;
       /** Created By */
@@ -18081,7 +18081,7 @@ export interface components {
     SliceUpdateResponse: {
       /** Name */
       name: string;
-      logic: components['schemas']['FilterParams'];
+      logic: components["schemas"]["FilterParams"];
       /** Project Id */
       project_id?: string | null;
       /** Created By */
@@ -18106,27 +18106,27 @@ export interface components {
     SocialLoginRequest: {
       /** Id Token */
       id_token: string;
-      provider: components['schemas']['SocialProvider'];
+      provider: components["schemas"]["SocialProvider"];
     };
     /**
      * SocialProvider
      * @enum {string}
      */
-    SocialProvider: 'google' | 'github' | 'okta' | 'azure-ad' | 'custom';
+    SocialProvider: "google" | "github" | "okta" | "azure-ad" | "custom";
     /** SortClause */
     SortClause: {
       /** Col Name */
       col_name: string;
-      sort_dir: components['schemas']['SortDirection'];
+      sort_dir: components["schemas"]["SortDirection"];
       /** Json Field */
       json_field?: string | null;
-      json_field_type?: components['schemas']['FieldType'] | null;
+      json_field_type?: components["schemas"]["FieldType"] | null;
     };
     /**
      * SortDirection
      * @enum {string}
      */
-    SortDirection: 'asc' | 'desc';
+    SortDirection: "asc" | "desc";
     /** Span */
     Span: {
       /** Id */
@@ -18160,11 +18160,11 @@ export interface components {
      * Split
      * @enum {string}
      */
-    Split: 'training' | 'validation' | 'test' | 'inference';
+    Split: "training" | "validation" | "test" | "inference";
     /** SplitRunResults */
     SplitRunResults: {
-      split_name: components['schemas']['Split'];
-      split_run_results: components['schemas']['RunResults'];
+      split_name: components["schemas"]["Split"];
+      split_run_results: components["schemas"]["RunResults"];
     };
     /** StageDB */
     StageDB: {
@@ -18188,7 +18188,7 @@ export interface components {
        * @description Type of the stage.
        * @default local
        */
-      type?: components['schemas']['StageType'];
+      type?: components["schemas"]["StageType"];
       /**
        * Paused
        * @description Whether the action is enabled. If False, the action will not be applied.
@@ -18224,20 +18224,20 @@ export interface components {
       stage_name: string;
       /** Stage Version */
       stage_version: number;
-      stage_type: components['schemas']['StageType'];
+      stage_type: components["schemas"]["StageType"];
     };
     /**
      * StageType
      * @enum {string}
      */
-    StageType: 'local' | 'central';
+    StageType: "local" | "central";
     /** StageWithRulesets */
     StageWithRulesets: {
       /**
        * Prioritized Rulesets
        * @description Rulesets to be applied to the payload.
        */
-      prioritized_rulesets?: components['schemas']['Ruleset'][];
+      prioritized_rulesets?: components["schemas"]["Ruleset"][];
       /**
        * Name
        * @description Name of the stage. Must be unique within the project.
@@ -18258,7 +18258,7 @@ export interface components {
        * @description Type of the stage.
        * @default local
        */
-      type?: components['schemas']['StageType'];
+      type?: components["schemas"]["StageType"];
       /**
        * Paused
        * @description Whether the action is enabled. If False, the action will not be applied.
@@ -18272,7 +18272,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'standard';
+      name: "standard";
       /**
        * Ascending
        * @default true
@@ -18283,7 +18283,7 @@ export interface components {
        * @default column
        * @constant
        */
-      sort_type?: 'column';
+      sort_type?: "column";
       /** Column Id */
       column_id: string;
     };
@@ -18293,7 +18293,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'star';
+      feedback_type: "star";
       /** Average */
       average: number;
       /** Counts */
@@ -18309,7 +18309,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'star';
+      feedback_type: "star";
     };
     /** StarRating */
     StarRating: {
@@ -18317,7 +18317,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'star';
+      feedback_type: "star";
       /** Value */
       value: number;
     };
@@ -18334,19 +18334,19 @@ export interface components {
        * @description Type of the step. By default, it is set to workflow.
        * @default workflow
        */
-      type?: components['schemas']['NodeType'];
+      type?: components["schemas"]["NodeType"];
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -18358,12 +18358,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -18407,10 +18407,10 @@ export interface components {
        * @description Child spans.
        */
       spans?: (
-        | components['schemas']['WorkflowSpan']
-        | components['schemas']['LlmSpan']
-        | components['schemas']['RetrieverSpan']
-        | components['schemas']['ToolSpan']
+        | components["schemas"]["WorkflowSpan"]
+        | components["schemas"]["LlmSpan"]
+        | components["schemas"]["RetrieverSpan"]
+        | components["schemas"]["ToolSpan"]
       )[];
     };
     /** StepWithChildren */
@@ -18419,19 +18419,19 @@ export interface components {
        * @description Type of the step. By default, it is set to workflow.
        * @default workflow
        */
-      type?: components['schemas']['NodeType'];
+      type?: components["schemas"]["NodeType"];
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -18443,12 +18443,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -18492,15 +18492,15 @@ export interface components {
        * @description Steps in the workflow.
        */
       steps?: (
-        | components['schemas']['WorkflowStep']
-        | components['schemas']['ChainStep']
-        | components['schemas']['LlmStep']
-        | components['schemas']['RetrieverStep']
-        | components['schemas']['ToolStep']
-        | components['schemas']['AgentStep']
+        | components["schemas"]["WorkflowStep"]
+        | components["schemas"]["ChainStep"]
+        | components["schemas"]["LlmStep"]
+        | components["schemas"]["RetrieverStep"]
+        | components["schemas"]["ToolStep"]
+        | components["schemas"]["AgentStep"]
       )[];
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildren'] | null;
+      parent?: components["schemas"]["StepWithChildren"] | null;
     };
     /** SubscriptionConfig */
     SubscriptionConfig: {
@@ -18511,7 +18511,7 @@ export interface components {
        *       "triggered"
        *     ]
        */
-      statuses?: components['schemas']['ExecutionStatus'][];
+      statuses?: components["schemas"]["ExecutionStatus"][];
       /**
        * Url
        * Format: uri
@@ -18530,8 +18530,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -18578,8 +18578,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -18628,8 +18628,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -18677,14 +18677,14 @@ export interface components {
      *     See https://en.wikipedia.org/wiki/Inside%E2%80%93outside%E2%80%93beginning_(tagging)
      * @enum {string}
      */
-    TaggingSchema: 'BIO' | 'BIOES' | 'BILOU';
+    TaggingSchema: "BIO" | "BIOES" | "BILOU";
     /** TagsAggregate */
     TagsAggregate: {
       /**
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'tags';
+      feedback_type: "tags";
       /** Counts */
       counts: {
         [key: string]: number;
@@ -18698,7 +18698,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'tags';
+      feedback_type: "tags";
       /** Tags */
       tags: string[];
       /**
@@ -18713,7 +18713,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'tags';
+      feedback_type: "tags";
       /** Value */
       value: string[];
     };
@@ -18776,7 +18776,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'text';
+      feedback_type: "text";
     };
     /** TextRating */
     TextRating: {
@@ -18784,7 +18784,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      feedback_type: 'text';
+      feedback_type: "text";
       /** Value */
       value: string;
     };
@@ -18799,8 +18799,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -18818,8 +18818,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -18846,15 +18846,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'tool_error_rate';
+      name: "tool_error_rate";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /**
@@ -18862,7 +18862,7 @@ export interface components {
        * @default plus
        * @constant
        */
-      type?: 'plus';
+      type?: "plus";
       /**
        * Model Name
        * @description Alias of the model to use for the scorer.
@@ -18937,7 +18937,7 @@ export interface components {
        *       }
        *     ]
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /** ToolSelectionQualityScorer */
     ToolSelectionQualityScorer: {
@@ -18945,15 +18945,15 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'tool_selection_quality';
+      name: "tool_selection_quality";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
       /**
@@ -18961,7 +18961,7 @@ export interface components {
        * @default plus
        * @constant
        */
-      type?: 'plus';
+      type?: "plus";
       /**
        * Model Name
        * @description Alias of the model to use for the scorer.
@@ -19050,7 +19050,7 @@ export interface components {
        *       }
        *     ]
        */
-      metric_few_shot_examples?: components['schemas']['FewShotExample'][];
+      metric_few_shot_examples?: components["schemas"]["FewShotExample"][];
     };
     /** ToolSpan */
     ToolSpan: {
@@ -19058,19 +19058,19 @@ export interface components {
        * @description Type of the step. By default, it is set to tool. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'tool';
+      type: "tool";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -19082,12 +19082,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -19127,7 +19127,7 @@ export interface components {
        */
       ground_truth?: string | null;
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildSpans'] | null;
+      parent?: components["schemas"]["StepWithChildSpans"] | null;
     };
     /** ToolSpanWithMetrics */
     ToolSpanWithMetrics: {
@@ -19146,31 +19146,31 @@ export interface components {
       /** Metrics */
       metrics?: {
         [key: string]:
-          | components['schemas']['MetricNotComputed']
-          | components['schemas']['MetricPending']
-          | components['schemas']['MetricComputing']
-          | components['schemas']['MetricNotApplicable']
-          | components['schemas']['MetricSuccess']
-          | components['schemas']['MetricError']
-          | components['schemas']['MetricFailed'];
+          | components["schemas"]["MetricNotComputed"]
+          | components["schemas"]["MetricPending"]
+          | components["schemas"]["MetricComputing"]
+          | components["schemas"]["MetricNotApplicable"]
+          | components["schemas"]["MetricSuccess"]
+          | components["schemas"]["MetricError"]
+          | components["schemas"]["MetricFailed"];
       };
       /**
        * @description Type of the step. By default, it is set to tool. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'tool';
+      type: "tool";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -19182,12 +19182,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -19227,7 +19227,7 @@ export interface components {
        */
       ground_truth?: string | null;
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildSpans'] | null;
+      parent?: components["schemas"]["StepWithChildSpans"] | null;
     };
     /** ToolStep */
     ToolStep: {
@@ -19235,19 +19235,19 @@ export interface components {
        * @description Type of the step. By default, it is set to tool. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'tool';
+      type: "tool";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -19259,12 +19259,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -19315,8 +19315,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -19336,8 +19336,8 @@ export interface components {
        *       "likely_mislabeled_dep_percentile": 0,
        *       "data_embs": false
        *     } */
-      filter_params?: components['schemas']['FilterParams'];
-      compare_to?: components['schemas']['Split'] | null;
+      filter_params?: components["schemas"]["FilterParams"];
+      compare_to?: components["schemas"]["Split"] | null;
       /**
        * Map Threshold
        * @default 0.5
@@ -19389,19 +19389,19 @@ export interface components {
        * @default trace
        * @constant
        */
-      type?: 'trace';
+      type?: "trace";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -19413,12 +19413,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -19462,10 +19462,10 @@ export interface components {
        * @description Child spans.
        */
       spans?: (
-        | components['schemas']['WorkflowSpan']
-        | components['schemas']['LlmSpan']
-        | components['schemas']['RetrieverSpan']
-        | components['schemas']['ToolSpan']
+        | components["schemas"]["WorkflowSpan"]
+        | components["schemas"]["LlmSpan"]
+        | components["schemas"]["RetrieverSpan"]
+        | components["schemas"]["ToolSpan"]
       )[];
     };
     /** TraceMetadata */
@@ -19510,13 +19510,13 @@ export interface components {
       /** Metrics */
       metrics?: {
         [key: string]:
-          | components['schemas']['MetricNotComputed']
-          | components['schemas']['MetricPending']
-          | components['schemas']['MetricComputing']
-          | components['schemas']['MetricNotApplicable']
-          | components['schemas']['MetricSuccess']
-          | components['schemas']['MetricError']
-          | components['schemas']['MetricFailed'];
+          | components["schemas"]["MetricNotComputed"]
+          | components["schemas"]["MetricPending"]
+          | components["schemas"]["MetricComputing"]
+          | components["schemas"]["MetricNotApplicable"]
+          | components["schemas"]["MetricSuccess"]
+          | components["schemas"]["MetricError"]
+          | components["schemas"]["MetricFailed"];
       };
       /**
        * Type
@@ -19524,19 +19524,19 @@ export interface components {
        * @default trace
        * @constant
        */
-      type?: 'trace';
+      type?: "trace";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -19548,12 +19548,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -19594,10 +19594,10 @@ export interface components {
       ground_truth?: string | null;
       /** Spans */
       spans?: (
-        | components['schemas']['WorkflowSpanWithMetrics']
-        | components['schemas']['LlmSpanWithMetrics']
-        | components['schemas']['RetrieverSpanWithMetrics']
-        | components['schemas']['ToolSpanWithMetrics']
+        | components["schemas"]["WorkflowSpanWithMetrics"]
+        | components["schemas"]["LlmSpanWithMetrics"]
+        | components["schemas"]["RetrieverSpanWithMetrics"]
+        | components["schemas"]["ToolSpanWithMetrics"]
       )[];
     };
     /** TracesIngestRequest */
@@ -19616,9 +19616,9 @@ export interface components {
        * Traces
        * @description List of traces to log.
        */
-      traces: components['schemas']['Trace'][];
+      traces: components["schemas"]["Trace"][];
       /** @default api_direct */
-      logging_method?: components['schemas']['LogDataLoggingMethod'];
+      logging_method?: components["schemas"]["LogDataLoggingMethod"];
       /** Client Version */
       client_version?: string | null;
     };
@@ -19695,7 +19695,7 @@ export interface components {
     };
     /** TrainingModelResponse */
     TrainingModelResponse: {
-      kind: components['schemas']['ModelKind'];
+      kind: components["schemas"]["ModelKind"];
       /** Parameters */
       parameters: Record<string, never>;
       /**
@@ -19713,7 +19713,7 @@ export interface components {
       /** Storage Url */
       storage_url?: string | null;
       /** @default pending */
-      upload_status?: components['schemas']['ModelUploadStatus'];
+      upload_status?: components["schemas"]["ModelUploadStatus"];
       /**
        * Id
        * Format: uuid4
@@ -19729,13 +19729,13 @@ export interface components {
      * @enum {string}
      */
     TransactionLoggingMethod:
-      | 'py_langchain'
-      | 'py_langchain_async'
-      | 'js_langchain'
-      | 'py_logger'
-      | 'js_logger'
-      | 'api_direct'
-      | 'workflows';
+      | "py_langchain"
+      | "py_langchain_async"
+      | "js_langchain"
+      | "py_logger"
+      | "js_logger"
+      | "api_direct"
+      | "workflows";
     /** TransactionMetricInfo */
     TransactionMetricInfo: {
       /**
@@ -19746,13 +19746,13 @@ export interface components {
        *     }
        */
       chunk_attribution?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunk Length
        * @default {
@@ -19761,13 +19761,13 @@ export interface components {
        *     }
        */
       chunk_length?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunk Utilized Substrings
        * @default {
@@ -19776,13 +19776,13 @@ export interface components {
        *     }
        */
       chunk_utilized_substrings?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunk Utilized Substrings Offsets
        * @default {
@@ -19791,13 +19791,13 @@ export interface components {
        *     }
        */
       chunk_utilized_substrings_offsets?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunk Utilization
        * @default {
@@ -19806,13 +19806,13 @@ export interface components {
        *     }
        */
       chunk_utilization?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunk Utilized
        * @default {
@@ -19821,13 +19821,13 @@ export interface components {
        *     }
        */
       chunk_utilized?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunk Relevance
        * @default {
@@ -19836,13 +19836,13 @@ export interface components {
        *     }
        */
       chunk_relevance?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunk Relevant
        * @default {
@@ -19851,13 +19851,13 @@ export interface components {
        *     }
        */
       chunk_relevant?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunk Relevant Substrings
        * @default {
@@ -19866,13 +19866,13 @@ export interface components {
        *     }
        */
       chunk_relevant_substrings?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunk Relevant Substrings Offsets
        * @default {
@@ -19881,13 +19881,13 @@ export interface components {
        *     }
        */
       chunk_relevant_substrings_offsets?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Rag Nli Non Adherent Substrings
        * @default {
@@ -19896,13 +19896,13 @@ export interface components {
        *     }
        */
       rag_nli_non_adherent_substrings?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Rag Nli Non Adherent Substrings Offsets
        * @default {
@@ -19911,13 +19911,13 @@ export interface components {
        *     }
        */
       rag_nli_non_adherent_substrings_offsets?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunks Attributed
        * @default {
@@ -19926,13 +19926,13 @@ export interface components {
        *     }
        */
       chunks_attributed?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunks Length
        * @default {
@@ -19941,13 +19941,13 @@ export interface components {
        *     }
        */
       chunks_length?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunks Unattributed
        * @default {
@@ -19956,13 +19956,13 @@ export interface components {
        *     }
        */
       chunks_unattributed?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Chunks Utilized
        * @default {
@@ -19971,13 +19971,13 @@ export interface components {
        *     }
        */
       chunks_utilized?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Completeness Gpt
        * @default {
@@ -19986,13 +19986,13 @@ export interface components {
        *     }
        */
       completeness_gpt?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Cost
        * @default {
@@ -20001,13 +20001,13 @@ export interface components {
        *     }
        */
       cost?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Factuality
        * @default {
@@ -20016,13 +20016,13 @@ export interface components {
        *     }
        */
       factuality?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Groundedness
        * @default {
@@ -20031,13 +20031,13 @@ export interface components {
        *     }
        */
       groundedness?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Input Pii
        * @default {
@@ -20046,13 +20046,13 @@ export interface components {
        *     }
        */
       input_pii?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Input Pii Spans
        * @default {
@@ -20061,13 +20061,13 @@ export interface components {
        *     }
        */
       input_pii_spans?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Input Pii Spans Prob
        * @default {
@@ -20076,13 +20076,13 @@ export interface components {
        *     }
        */
       input_pii_spans_prob?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Input Pii Spans Offset
        * @default {
@@ -20091,13 +20091,13 @@ export interface components {
        *     }
        */
       input_pii_spans_offset?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Input Sexist
        * @default {
@@ -20106,13 +20106,13 @@ export interface components {
        *     }
        */
       input_sexist?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Input Tone
        * @default {
@@ -20121,13 +20121,13 @@ export interface components {
        *     }
        */
       input_tone?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Input Toxicity
        * @default {
@@ -20136,13 +20136,13 @@ export interface components {
        *     }
        */
       input_toxicity?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Instruction Adherence
        * @default {
@@ -20151,13 +20151,13 @@ export interface components {
        *     }
        */
       instruction_adherence?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Latency
        * @default {
@@ -20166,13 +20166,13 @@ export interface components {
        *     }
        */
       latency?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Pii
        * @default {
@@ -20181,13 +20181,13 @@ export interface components {
        *     }
        */
       pii?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Pii Spans
        * @default {
@@ -20196,13 +20196,13 @@ export interface components {
        *     }
        */
       pii_spans?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Pii Spans Prob
        * @default {
@@ -20211,13 +20211,13 @@ export interface components {
        *     }
        */
       pii_spans_prob?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Pii Spans Offset
        * @default {
@@ -20226,13 +20226,13 @@ export interface components {
        *     }
        */
       pii_spans_offset?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Prompt Perplexity
        * @default {
@@ -20241,13 +20241,13 @@ export interface components {
        *     }
        */
       prompt_perplexity?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Protect Status
        * @default {
@@ -20256,13 +20256,13 @@ export interface components {
        *     }
        */
       protect_status?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Retriever Attribution
        * @default {
@@ -20271,13 +20271,13 @@ export interface components {
        *     }
        */
       retriever_attribution?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Retriever Utilization
        * @default {
@@ -20286,13 +20286,13 @@ export interface components {
        *     }
        */
       retriever_utilization?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Sexist
        * @default {
@@ -20301,13 +20301,13 @@ export interface components {
        *     }
        */
       sexist?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Toxicity
        * @default {
@@ -20316,13 +20316,13 @@ export interface components {
        *     }
        */
       toxicity?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Tone
        * @default {
@@ -20331,13 +20331,13 @@ export interface components {
        *     }
        */
       tone?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Prompt Injection
        * @default {
@@ -20346,13 +20346,13 @@ export interface components {
        *     }
        */
       prompt_injection?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Tool Selection Quality
        * @default {
@@ -20361,13 +20361,13 @@ export interface components {
        *     }
        */
       tool_selection_quality?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Tool Error Rate
        * @default {
@@ -20376,13 +20376,13 @@ export interface components {
        *     }
        */
       tool_error_rate?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
       /**
        * Agentic Workflow Success
        * @default {
@@ -20391,13 +20391,13 @@ export interface components {
        *     }
        */
       agentic_workflow_success?:
-        | components['schemas']['MetricNotComputed']
-        | components['schemas']['MetricPending']
-        | components['schemas']['MetricComputing']
-        | components['schemas']['MetricNotApplicable']
-        | components['schemas']['MetricSuccess']
-        | components['schemas']['MetricError']
-        | components['schemas']['MetricFailed'];
+        | components["schemas"]["MetricNotComputed"]
+        | components["schemas"]["MetricPending"]
+        | components["schemas"]["MetricComputing"]
+        | components["schemas"]["MetricNotApplicable"]
+        | components["schemas"]["MetricSuccess"]
+        | components["schemas"]["MetricError"]
+        | components["schemas"]["MetricFailed"];
     } & {
       [key: string]: unknown;
     };
@@ -20405,18 +20405,18 @@ export interface components {
     TransactionMetricsResponse: {
       /** Group By Columns */
       group_by_columns: string[];
-      aggregate_metrics: components['schemas']['AggregateMetrics'];
+      aggregate_metrics: components["schemas"]["AggregateMetrics"];
       /** Bucketed Metrics */
       bucketed_metrics: {
-        [key: string]: components['schemas']['BucketedMetrics'][];
+        [key: string]: components["schemas"]["BucketedMetrics"][];
       };
     };
     /** TransactionRecordBatch */
     TransactionRecordBatch: {
       /** Records */
-      records: components['schemas']['TransactionRecordIngest'][];
+      records: components["schemas"]["TransactionRecordIngest"][];
       /** @default api_direct */
-      logging_method?: components['schemas']['TransactionLoggingMethod'];
+      logging_method?: components["schemas"]["TransactionLoggingMethod"];
       /** Client Version */
       client_version?: string | null;
     };
@@ -20464,7 +20464,7 @@ export interface components {
       } | null;
       /** Node Name */
       node_name?: string | null;
-      node_type: components['schemas']['NodeType'];
+      node_type: components["schemas"]["NodeType"];
       /** Has Children */
       has_children?: boolean | null;
       /** Version */
@@ -20491,13 +20491,13 @@ export interface components {
        */
       project_id: string;
       /** @default unprocessed */
-      metrics_status?: components['schemas']['TransactionRecordStatus'];
+      metrics_status?: components["schemas"]["TransactionRecordStatus"];
       /** Metrics Batch Id */
       metrics_batch_id?: string | null;
-      metric_info: components['schemas']['TransactionMetricInfo'];
+      metric_info: components["schemas"]["TransactionMetricInfo"];
       /** Feedback Ratings */
       feedback_ratings?: {
-        [key: string]: components['schemas']['FeedbackRatingDB'];
+        [key: string]: components["schemas"]["FeedbackRatingDB"];
       };
     };
     /** TransactionRecordIngest */
@@ -20544,7 +20544,7 @@ export interface components {
       } | null;
       /** Node Name */
       node_name?: string | null;
-      node_type: components['schemas']['NodeType'];
+      node_type: components["schemas"]["NodeType"];
       /** Has Children */
       has_children?: boolean | null;
       /** Version */
@@ -20560,7 +20560,7 @@ export interface components {
      * TransactionRecordStatus
      * @enum {string}
      */
-    TransactionRecordStatus: 'unprocessed' | 'processing' | 'processed';
+    TransactionRecordStatus: "unprocessed" | "processing" | "processed";
     /**
      * TransactionRecordsResponse
      * @description Rows response with column types for json blobs.
@@ -20600,7 +20600,7 @@ export interface components {
         };
       };
       /** Rows */
-      rows: components['schemas']['TransactionRecordDB'][];
+      rows: components["schemas"]["TransactionRecordDB"][];
       /** Filter Options */
       filter_options?: {
         [key: string]: string[];
@@ -20609,7 +20609,7 @@ export interface components {
     /** TransactionRowsRequestBody */
     TransactionRowsRequestBody: {
       /** Filters */
-      filters?: components['schemas']['QueryFilterV1'][];
+      filters?: components["schemas"]["QueryFilterV1"][];
       /**
        * Sort Spec
        * @default [
@@ -20619,7 +20619,7 @@ export interface components {
        *       }
        *     ]
        */
-      sort_spec?: components['schemas']['SortClause'][];
+      sort_spec?: components["schemas"]["SortClause"][];
       /** Columns */
       columns?: string[] | null;
     };
@@ -20634,22 +20634,22 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'uncertainty';
+      name: "uncertainty";
       /**
        * Filters
        * @description List of filters to apply to the scorer.
        */
       filters?:
         | (
-            | components['schemas']['NodeNameFilter']
-            | components['schemas']['MetadataFilter']
+            | components["schemas"]["NodeNameFilter"]
+            | components["schemas"]["MetadataFilter"]
           )[]
         | null;
     };
     /** UpdateAlertConfigurationRequest */
     UpdateAlertConfigurationRequest: {
       /** Conditions */
-      conditions?: components['schemas']['AlertCondition'][] | null;
+      conditions?: components["schemas"]["AlertCondition"][] | null;
       /** Interval */
       interval?: number | null;
       /** Active */
@@ -20666,18 +20666,18 @@ export interface components {
       counter_since_last_sent?: number | null;
       /** Counter */
       counter?: number | null;
-      schema_version?: components['schemas']['AlertMonitorType'] | null;
+      schema_version?: components["schemas"]["AlertMonitorType"] | null;
     };
     /** UpdateDatasetContentRequest */
     UpdateDatasetContentRequest: {
       /** Edits */
       edits: (
-        | components['schemas']['DatasetAppendRow']
-        | components['schemas']['DatasetUpdateRow']
-        | components['schemas']['DatasetDeleteRow']
-        | components['schemas']['DatasetDeleteColumn']
-        | components['schemas']['DatasetRenameColumn']
-        | components['schemas']['DatasetAddColumn']
+        | components["schemas"]["DatasetAppendRow"]
+        | components["schemas"]["DatasetUpdateRow"]
+        | components["schemas"]["DatasetDeleteRow"]
+        | components["schemas"]["DatasetDeleteColumn"]
+        | components["schemas"]["DatasetRenameColumn"]
+        | components["schemas"]["DatasetAddColumn"]
       )[];
     };
     /** UpdateDatasetRequest */
@@ -20697,11 +20697,11 @@ export interface components {
       /** Instructions */
       instructions?: string | null;
       /** Scoreable Node Types */
-      scoreable_node_types?: components['schemas']['NodeType'][] | null;
+      scoreable_node_types?: components["schemas"]["NodeType"][] | null;
       scorer_configuration?:
-        | components['schemas']['GeneratedScorerConfiguration']
+        | components["schemas"]["GeneratedScorerConfiguration"]
         | null;
-      chain_poll_template?: components['schemas']['ChainPollTemplate'] | null;
+      chain_poll_template?: components["schemas"]["ChainPollTemplate"] | null;
     };
     /** UpdateRunResponse */
     UpdateRunResponse: {
@@ -20735,14 +20735,14 @@ export interface components {
        * Format: date-time
        */
       updated_at: string;
-      task_type?: components['schemas']['TaskType'] | null;
+      task_type?: components["schemas"]["TaskType"] | null;
       /**
        * Last Updated By
        * Format: uuid4
        */
       last_updated_by: string;
       /** Run Tags */
-      run_tags?: components['schemas']['RunTagDB'][];
+      run_tags?: components["schemas"]["RunTagDB"][];
     };
     /** UpdateScorerRequest */
     UpdateScorerRequest: {
@@ -20752,7 +20752,7 @@ export interface components {
       description?: string | null;
       /** Tags */
       tags?: string[] | null;
-      defaults?: components['schemas']['ScorerDefaults'] | null;
+      defaults?: components["schemas"]["ScorerDefaults"] | null;
     };
     /** UpdateUserResponse */
     UpdateUserResponse: {
@@ -20765,7 +20765,7 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /**
        * Email
        * Format: email
@@ -20782,9 +20782,9 @@ export interface components {
        */
       last_name?: string | null;
       /** @default email */
-      auth_method?: components['schemas']['AuthMethod'];
+      auth_method?: components["schemas"]["AuthMethod"];
       /** @default read_only */
-      role?: components['schemas']['UserRole'];
+      role?: components["schemas"]["UserRole"];
       /** Email Is Verified */
       email_is_verified?: boolean | null;
       /**
@@ -20809,7 +20809,7 @@ export interface components {
     UploadModel: {
       /** Parameters */
       parameters: Record<string, never>;
-      kind: components['schemas']['ModelKind'];
+      kind: components["schemas"]["ModelKind"];
     };
     /** UploadModelResponse */
     UploadModelResponse: {
@@ -20840,12 +20840,12 @@ export interface components {
      * UsagePlanName
      * @enum {string}
      */
-    UsagePlanName: 'developer' | 'pro' | 'enterprise';
+    UsagePlanName: "developer" | "pro" | "enterprise";
     /**
      * UserAction
      * @enum {string}
      */
-    UserAction: 'update' | 'delete' | 'read_api_keys';
+    UserAction: "update" | "delete" | "read_api_keys";
     /** UserCollaborator */
     UserCollaborator: {
       /**
@@ -20857,8 +20857,8 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
-      role: components['schemas']['CollaboratorRole'];
+      permissions?: components["schemas"]["Permission"][];
+      role: components["schemas"]["CollaboratorRole"];
       /**
        * Created At
        * Format: date-time
@@ -20879,7 +20879,7 @@ export interface components {
     /** UserCollaboratorCreate */
     UserCollaboratorCreate: {
       /** @default viewer */
-      role?: components['schemas']['CollaboratorRole'];
+      role?: components["schemas"]["CollaboratorRole"];
       /**
        * User Id
        * Format: uuid4
@@ -20904,9 +20904,9 @@ export interface components {
        */
       last_name?: string | null;
       /** @default email */
-      auth_method?: components['schemas']['AuthMethod'];
+      auth_method?: components["schemas"]["AuthMethod"];
       /** @default read_only */
-      role?: components['schemas']['UserRole'];
+      role?: components["schemas"]["UserRole"];
       /**
        * Email Is Verified
        * @default false
@@ -20926,7 +20926,7 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /**
        * Email
        * Format: email
@@ -20943,9 +20943,9 @@ export interface components {
        */
       last_name?: string | null;
       /** @default email */
-      auth_method?: components['schemas']['AuthMethod'];
+      auth_method?: components["schemas"]["AuthMethod"];
       /** @default read_only */
-      role?: components['schemas']['UserRole'];
+      role?: components["schemas"]["UserRole"];
       /** Email Is Verified */
       email_is_verified?: boolean | null;
       /**
@@ -20992,12 +20992,12 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'user_metadata';
+      name: "user_metadata";
       /**
        * Operator
        * @enum {string}
        */
-      operator: 'one_of' | 'not_in' | 'eq' | 'ne';
+      operator: "one_of" | "not_in" | "eq" | "ne";
       /** Key */
       key: string;
       /** Value */
@@ -21026,7 +21026,7 @@ export interface components {
        * Permissions
        * @default []
        */
-      permissions?: components['schemas']['Permission'][];
+      permissions?: components["schemas"]["Permission"][];
       /**
        * Email
        * Format: email
@@ -21043,9 +21043,9 @@ export interface components {
        */
       last_name?: string | null;
       /** @default email */
-      auth_method?: components['schemas']['AuthMethod'];
+      auth_method?: components["schemas"]["AuthMethod"];
       /** @default read_only */
-      role?: components['schemas']['UserRole'];
+      role?: components["schemas"]["UserRole"];
       /** Email Is Verified */
       email_is_verified?: boolean | null;
       /**
@@ -21070,10 +21070,10 @@ export interface components {
      * UserRole
      * @enum {string}
      */
-    UserRole: 'admin' | 'manager' | 'user' | 'read_only';
+    UserRole: "admin" | "manager" | "user" | "read_only";
     /** UserRoleInfo */
     UserRoleInfo: {
-      name: components['schemas']['UserRole'];
+      name: components["schemas"]["UserRole"];
       /** Display Name */
       display_name: string;
       /** Description */
@@ -21087,7 +21087,7 @@ export interface components {
       first_name?: string | null;
       /** Last Name */
       last_name?: string | null;
-      role?: components['schemas']['UserRole'] | null;
+      role?: components["schemas"]["UserRole"] | null;
       /** Email Is Verified */
       email_is_verified?: boolean | null;
     };
@@ -21125,10 +21125,10 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      filter_type: 'value';
+      filter_type: "value";
       /** Value */
       value: number | boolean | string;
-      relation: components['schemas']['Operator'];
+      relation: components["schemas"]["Operator"];
     };
     /** VertexAIIntegration */
     VertexAIIntegration: {
@@ -21136,7 +21136,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'vertex_ai';
+      name: "vertex_ai";
       /** Extra */
       extra?: Record<string, never> | null;
     };
@@ -21153,7 +21153,7 @@ export interface components {
        */
       url: string;
       /** @default untested */
-      status?: components['schemas']['WebhookStatus'];
+      status?: components["schemas"]["WebhookStatus"];
       /**
        * Notes
        * @default
@@ -21164,7 +21164,7 @@ export interface components {
      * WebhookStatus
      * @enum {string}
      */
-    WebhookStatus: 'active' | 'untested' | 'failed' | 'paused';
+    WebhookStatus: "active" | "untested" | "failed" | "paused";
     /** WeeklyChangelog */
     WeeklyChangelog: {
       /**
@@ -21174,7 +21174,7 @@ export interface components {
       week_of: string;
       /** Changes */
       changes?: {
-        [key: string]: components['schemas']['Changes'];
+        [key: string]: components["schemas"]["Changes"];
       };
     };
     /** WorkflowCountResponse */
@@ -21198,19 +21198,19 @@ export interface components {
        * @description Type of the span. By default, it is set to workflow. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'workflow';
+      type: "workflow";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -21222,12 +21222,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -21267,16 +21267,16 @@ export interface components {
        */
       ground_truth?: string | null;
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildSpans'] | null;
+      parent?: components["schemas"]["StepWithChildSpans"] | null;
       /**
        * Spans
        * @description Child spans.
        */
       spans?: (
-        | components['schemas']['WorkflowSpan']
-        | components['schemas']['LlmSpan']
-        | components['schemas']['RetrieverSpan']
-        | components['schemas']['ToolSpan']
+        | components["schemas"]["WorkflowSpan"]
+        | components["schemas"]["LlmSpan"]
+        | components["schemas"]["RetrieverSpan"]
+        | components["schemas"]["ToolSpan"]
       )[];
     };
     /** WorkflowSpanWithMetrics */
@@ -21296,31 +21296,31 @@ export interface components {
       /** Metrics */
       metrics?: {
         [key: string]:
-          | components['schemas']['MetricNotComputed']
-          | components['schemas']['MetricPending']
-          | components['schemas']['MetricComputing']
-          | components['schemas']['MetricNotApplicable']
-          | components['schemas']['MetricSuccess']
-          | components['schemas']['MetricError']
-          | components['schemas']['MetricFailed'];
+          | components["schemas"]["MetricNotComputed"]
+          | components["schemas"]["MetricPending"]
+          | components["schemas"]["MetricComputing"]
+          | components["schemas"]["MetricNotApplicable"]
+          | components["schemas"]["MetricSuccess"]
+          | components["schemas"]["MetricError"]
+          | components["schemas"]["MetricFailed"];
       };
       /**
        * @description Type of the span. By default, it is set to workflow. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'workflow';
+      type: "workflow";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -21332,12 +21332,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -21377,13 +21377,13 @@ export interface components {
        */
       ground_truth?: string | null;
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildSpans'] | null;
+      parent?: components["schemas"]["StepWithChildSpans"] | null;
       /** Spans */
       spans?: (
-        | components['schemas']['WorkflowSpanWithMetrics']
-        | components['schemas']['LlmSpanWithMetrics']
-        | components['schemas']['RetrieverSpanWithMetrics']
-        | components['schemas']['ToolSpanWithMetrics']
+        | components["schemas"]["WorkflowSpanWithMetrics"]
+        | components["schemas"]["LlmSpanWithMetrics"]
+        | components["schemas"]["RetrieverSpanWithMetrics"]
+        | components["schemas"]["ToolSpanWithMetrics"]
       )[];
     };
     /** WorkflowStep */
@@ -21392,19 +21392,19 @@ export interface components {
        * @description Type of the step. By default, it is set to workflow. (enum property replaced by openapi-typescript)
        * @enum {string}
        */
-      type: 'workflow';
+      type: "workflow";
       /**
        * Input
        * @description Input to the step.
        */
       input:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -21416,12 +21416,12 @@ export interface components {
        */
       output?:
         | string
-        | components['schemas']['Document']
-        | components['schemas']['Message']
+        | components["schemas"]["Document"]
+        | components["schemas"]["Message"]
         | Record<string, never>
         | string[]
-        | components['schemas']['Document'][]
-        | components['schemas']['Message'][]
+        | components["schemas"]["Document"][]
+        | components["schemas"]["Message"][]
         | {
             [key: string]: string;
           }[]
@@ -21465,15 +21465,15 @@ export interface components {
        * @description Steps in the workflow.
        */
       steps?: (
-        | components['schemas']['WorkflowStep']
-        | components['schemas']['ChainStep']
-        | components['schemas']['LlmStep']
-        | components['schemas']['RetrieverStep']
-        | components['schemas']['ToolStep']
-        | components['schemas']['AgentStep']
+        | components["schemas"]["WorkflowStep"]
+        | components["schemas"]["ChainStep"]
+        | components["schemas"]["LlmStep"]
+        | components["schemas"]["RetrieverStep"]
+        | components["schemas"]["ToolStep"]
+        | components["schemas"]["AgentStep"]
       )[];
       /** @description Parent node of the current node. For internal use only. */
-      parent?: components['schemas']['StepWithChildren'] | null;
+      parent?: components["schemas"]["StepWithChildren"] | null;
     };
     /** WorkflowsIngestRequest */
     WorkflowsIngestRequest: {
@@ -21482,12 +21482,12 @@ export interface components {
        * @description List of workflows to log.
        */
       workflows: (
-        | components['schemas']['WorkflowStep']
-        | components['schemas']['ChainStep']
-        | components['schemas']['LlmStep']
-        | components['schemas']['RetrieverStep']
-        | components['schemas']['ToolStep']
-        | components['schemas']['AgentStep']
+        | components["schemas"]["WorkflowStep"]
+        | components["schemas"]["ChainStep"]
+        | components["schemas"]["LlmStep"]
+        | components["schemas"]["RetrieverStep"]
+        | components["schemas"]["ToolStep"]
+        | components["schemas"]["AgentStep"]
       )[];
       /**
        * Project Id
@@ -21539,7 +21539,7 @@ export interface components {
       /** Next Starting Token */
       next_starting_token?: number | null;
       /** Workflows */
-      workflows: components['schemas']['BaseGalileoStep'][];
+      workflows: components["schemas"]["BaseGalileoStep"][];
     };
     /** WriterIntegration */
     WriterIntegration: {
@@ -21549,7 +21549,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      name: 'writer';
+      name: "writer";
       /** Extra */
       extra?: Record<string, never> | null;
     };
@@ -21562,13 +21562,13 @@ export interface components {
     };
     /** XRayCardDB */
     XRayCardDB: {
-      xray_class: components['schemas']['XRayClass'];
+      xray_class: components["schemas"]["XRayClass"];
       /** Message Fields */
       message_fields: Record<string, never>;
-      logic?: components['schemas']['FilterParams'] | null;
+      logic?: components["schemas"]["FilterParams"] | null;
       /** Score */
       score?: number | null;
-      extra_filters?: components['schemas']['ExtraAlertFilters'] | null;
+      extra_filters?: components["schemas"]["ExtraAlertFilters"] | null;
       /**
        * Id
        * Format: uuid4
@@ -21588,7 +21588,7 @@ export interface components {
       message?: string;
       /** Suggestion */
       suggestion?: string | null;
-      importance?: components['schemas']['AlertImportance'] | null;
+      importance?: components["schemas"]["AlertImportance"] | null;
       /** Alert Id */
       alert_id: number;
       /** Pct Samples */
@@ -21659,12 +21659,12 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      mode: 'observe_filters';
+      mode: "observe_filters";
       /**
        * Filters
        * @description The parsed filters that are used to recompute the metric critique.
        */
-      filters?: components['schemas']['QueryFilterV1'][];
+      filters?: components["schemas"]["QueryFilterV1"][];
     };
     /** RecomputeSettingsObserve */
     promptgalileo__schemas__metric_critique__RecomputeSettingsObserve: {
@@ -21672,7 +21672,7 @@ export interface components {
        * @description discriminator enum property added by openapi-typescript
        * @enum {string}
        */
-      mode: 'observe_filters';
+      mode: "observe_filters";
       /** Filters */
       filters: unknown[];
     };
@@ -21694,7 +21694,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/x-www-form-urlencoded': components['schemas']['Body_login_email_login_post'];
+        "application/x-www-form-urlencoded": components["schemas"]["Body_login_email_login_post"];
       };
     };
     responses: {
@@ -21704,7 +21704,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Token'];
+          "application/json": components["schemas"]["Token"];
         };
       };
       /** @description Validation Error */
@@ -21713,7 +21713,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -21727,7 +21727,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ApiKeyLoginRequest'];
+        "application/json": components["schemas"]["ApiKeyLoginRequest"];
       };
     };
     responses: {
@@ -21737,7 +21737,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Token'];
+          "application/json": components["schemas"]["Token"];
         };
       };
       /** @description Validation Error */
@@ -21746,7 +21746,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -21760,7 +21760,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['SocialLoginRequest'];
+        "application/json": components["schemas"]["SocialLoginRequest"];
       };
     };
     responses: {
@@ -21770,7 +21770,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Token'];
+          "application/json": components["schemas"]["Token"];
         };
       };
       /** @description Validation Error */
@@ -21779,7 +21779,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -21799,7 +21799,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Token'];
+          "application/json": components["schemas"]["Token"];
         };
       };
     };
@@ -21819,7 +21819,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CurrentUserDB'];
+          "application/json": components["schemas"]["CurrentUserDB"];
         };
       };
     };
@@ -21828,7 +21828,7 @@ export interface operations {
     parameters: {
       query: {
         api_url: string;
-        method: components['schemas']['Method'];
+        method: components["schemas"]["Method"];
         bucket_name: string;
         object_name: string;
         project_id: string;
@@ -21845,7 +21845,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPresignedUrlResponse'];
+          "application/json": components["schemas"]["GetPresignedUrlResponse"];
         };
       };
       /** @description Validation Error */
@@ -21854,7 +21854,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -21870,7 +21870,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['EmailVerificationRequest'];
+        "application/json": components["schemas"]["EmailVerificationRequest"];
       };
     };
     responses: {
@@ -21880,7 +21880,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Token'];
+          "application/json": components["schemas"]["Token"];
         };
       };
       /** @description Validation Error */
@@ -21889,7 +21889,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -21911,7 +21911,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetTokenResponse'];
+          "application/json": components["schemas"]["GetTokenResponse"];
         };
       };
       /** @description Validation Error */
@@ -21920,7 +21920,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -21940,7 +21940,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RootModel_Sequence_WeeklyChangelog__'];
+          "application/json": components["schemas"]["RootModel_Sequence_WeeklyChangelog__"];
         };
       };
     };
@@ -21960,7 +21960,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HealthcheckResponse'];
+          "application/json": components["schemas"]["HealthcheckResponse"];
         };
       };
     };
@@ -21970,14 +21970,14 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        training_or_inference: components['schemas']['DatasetType'];
+        training_or_inference: components["schemas"]["DatasetType"];
         project_id: string;
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ValidationRequest'];
+        "application/json": components["schemas"]["ValidationRequest"];
       };
     };
     responses: {
@@ -21987,7 +21987,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ValidationResponse'];
+          "application/json": components["schemas"]["ValidationResponse"];
         };
       };
       /** @description Validation Error */
@@ -21996,7 +21996,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22013,7 +22013,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': Record<string, never>;
+        "application/json": Record<string, never>;
       };
     };
     responses: {
@@ -22023,7 +22023,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TrainResponse'];
+          "application/json": components["schemas"]["TrainResponse"];
         };
       };
       /** @description Validation Error */
@@ -22032,7 +22032,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22055,7 +22055,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TrainJobStatusResponse'];
+          "application/json": components["schemas"]["TrainJobStatusResponse"];
         };
       };
       /** @description Validation Error */
@@ -22064,7 +22064,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22080,7 +22080,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': Record<string, never>;
+        "application/json": Record<string, never>;
       };
     };
     responses: {
@@ -22090,7 +22090,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TrainJobAuthTokenResponse'];
+          "application/json": components["schemas"]["TrainJobAuthTokenResponse"];
         };
       };
       /** @description Validation Error */
@@ -22099,7 +22099,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22119,7 +22119,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['UserRoleInfo'][];
+          "application/json": components["schemas"]["UserRoleInfo"][];
         };
       };
     };
@@ -22141,7 +22141,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -22150,7 +22150,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22173,7 +22173,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CreateSignupLinkResponse'];
+          "application/json": components["schemas"]["CreateSignupLinkResponse"];
         };
       };
       /** @description Validation Error */
@@ -22182,7 +22182,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22196,7 +22196,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['InviteUsersRequest'];
+        "application/json": components["schemas"]["InviteUsersRequest"];
       };
     };
     responses: {
@@ -22206,7 +22206,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -22215,7 +22215,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22238,7 +22238,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetUsersResponse'];
+          "application/json": components["schemas"]["GetUsersResponse"];
         };
       };
       /** @description Validation Error */
@@ -22247,7 +22247,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22263,7 +22263,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UserCreate'];
+        "application/json": components["schemas"]["UserCreate"];
       };
     };
     responses: {
@@ -22273,7 +22273,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CreateUserResponse'];
+          "application/json": components["schemas"]["CreateUserResponse"];
         };
       };
       /** @description Validation Error */
@@ -22282,7 +22282,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22302,7 +22302,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeleteUserResponse'];
+          "application/json": components["schemas"]["DeleteUserResponse"];
         };
       };
     };
@@ -22318,7 +22318,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['SocialLoginRequest'];
+        "application/json": components["schemas"]["SocialLoginRequest"];
       };
     };
     responses: {
@@ -22328,7 +22328,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CreateUserResponse'];
+          "application/json": components["schemas"]["CreateUserResponse"];
         };
       };
       /** @description Validation Error */
@@ -22337,7 +22337,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22357,7 +22357,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetUserResponse'][];
+          "application/json": components["schemas"]["GetUserResponse"][];
         };
       };
     };
@@ -22379,7 +22379,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetUserResponse'];
+          "application/json": components["schemas"]["GetUserResponse"];
         };
       };
       /** @description Validation Error */
@@ -22388,7 +22388,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22404,7 +22404,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UserUpdate'];
+        "application/json": components["schemas"]["UserUpdate"];
       };
     };
     responses: {
@@ -22414,7 +22414,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['UpdateUserResponse'];
+          "application/json": components["schemas"]["UpdateUserResponse"];
         };
       };
       /** @description Validation Error */
@@ -22423,7 +22423,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22445,7 +22445,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeleteUserResponse'];
+          "application/json": components["schemas"]["DeleteUserResponse"];
         };
       };
       /** @description Validation Error */
@@ -22454,7 +22454,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22462,7 +22462,7 @@ export interface operations {
   get_latest_user_run_users__user_id__runs_latest_get: {
     parameters: {
       query?: {
-        project_type?: components['schemas']['ProjectType'];
+        project_type?: components["schemas"]["ProjectType"];
         starting_token?: number;
         limit?: number;
       };
@@ -22480,7 +22480,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetUserLatestRunsDB'];
+          "application/json": components["schemas"]["GetUserLatestRunsDB"];
         };
       };
       /** @description Validation Error */
@@ -22489,7 +22489,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22497,7 +22497,7 @@ export interface operations {
   get_project_runs_for_user_users__user_id__runs_get: {
     parameters: {
       query?: {
-        project_type?: components['schemas']['ProjectType'] | null;
+        project_type?: components["schemas"]["ProjectType"] | null;
       };
       header?: never;
       path: {
@@ -22513,7 +22513,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ProjectDB'][];
+          "application/json": components["schemas"]["ProjectDB"][];
         };
       };
       /** @description Validation Error */
@@ -22522,7 +22522,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22544,7 +22544,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PasswordResetResponse'];
+          "application/json": components["schemas"]["PasswordResetResponse"];
         };
       };
       /** @description Validation Error */
@@ -22553,7 +22553,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22575,7 +22575,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PasswordResetEmailResponse'];
+          "application/json": components["schemas"]["PasswordResetEmailResponse"];
         };
       };
       /** @description Validation Error */
@@ -22584,7 +22584,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22600,7 +22600,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UserPasswordResetRequest'];
+        "application/json": components["schemas"]["UserPasswordResetRequest"];
       };
     };
     responses: {
@@ -22610,7 +22610,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['UserPasswordResetResponse'];
+          "application/json": components["schemas"]["UserPasswordResetResponse"];
         };
       };
       /** @description Validation Error */
@@ -22619,7 +22619,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22643,7 +22643,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TransferUserResponse'];
+          "application/json": components["schemas"]["TransferUserResponse"];
         };
       };
       /** @description Validation Error */
@@ -22652,7 +22652,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22672,7 +22672,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupDB'][];
+          "application/json": components["schemas"]["GroupDB"][];
         };
       };
     };
@@ -22697,7 +22697,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListApiKeyResponse'];
+          "application/json": components["schemas"]["ListApiKeyResponse"];
         };
       };
       /** @description Validation Error */
@@ -22706,7 +22706,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22720,7 +22720,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateApiKeyRequest'];
+        "application/json": components["schemas"]["CreateApiKeyRequest"];
       };
     };
     responses: {
@@ -22730,7 +22730,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CreateApiKeyResponse'];
+          "application/json": components["schemas"]["CreateApiKeyResponse"];
         };
       };
       /** @description Validation Error */
@@ -22739,7 +22739,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22761,7 +22761,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ApiKeyDeleteResponse'];
+          "application/json": components["schemas"]["ApiKeyDeleteResponse"];
         };
       };
       /** @description Validation Error */
@@ -22770,7 +22770,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22795,7 +22795,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListPromptDatasetResponse'];
+          "application/json": components["schemas"]["ListPromptDatasetResponse"];
         };
       };
       /** @description Validation Error */
@@ -22804,7 +22804,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22812,7 +22812,7 @@ export interface operations {
   upload_prompt_evaluation_dataset_projects__project_id__prompt_datasets_post: {
     parameters: {
       query?: {
-        format?: components['schemas']['DatasetFormat'];
+        format?: components["schemas"]["DatasetFormat"];
       };
       header?: never;
       path: {
@@ -22822,7 +22822,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'multipart/form-data': components['schemas']['Body_upload_prompt_evaluation_dataset_projects__project_id__prompt_datasets_post'];
+        "multipart/form-data": components["schemas"]["Body_upload_prompt_evaluation_dataset_projects__project_id__prompt_datasets_post"];
       };
     };
     responses: {
@@ -22832,7 +22832,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PromptDatasetDB'];
+          "application/json": components["schemas"]["PromptDatasetDB"];
         };
       };
       /** @description Validation Error */
@@ -22841,7 +22841,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22850,7 +22850,7 @@ export interface operations {
     parameters: {
       query?: {
         /** @description Actions to include in the 'permissions' field. */
-        actions?: components['schemas']['DatasetAction'][];
+        actions?: components["schemas"]["DatasetAction"][];
         starting_token?: number;
         limit?: number;
       };
@@ -22866,7 +22866,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListDatasetResponse'];
+          "application/json": components["schemas"]["ListDatasetResponse"];
         };
       };
       /** @description Validation Error */
@@ -22875,7 +22875,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22883,7 +22883,7 @@ export interface operations {
   upload_dataset_datasets_post: {
     parameters: {
       query?: {
-        format?: components['schemas']['DatasetFormat'];
+        format?: components["schemas"]["DatasetFormat"];
       };
       header?: never;
       path?: never;
@@ -22891,7 +22891,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'multipart/form-data': components['schemas']['Body_upload_dataset_datasets_post'];
+        "multipart/form-data": components["schemas"]["Body_upload_dataset_datasets_post"];
       };
     };
     responses: {
@@ -22901,7 +22901,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatasetDB'];
+          "application/json": components["schemas"]["DatasetDB"];
         };
       };
       /** @description Validation Error */
@@ -22910,7 +22910,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22932,7 +22932,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatasetDB'];
+          "application/json": components["schemas"]["DatasetDB"];
         };
       };
       /** @description Validation Error */
@@ -22941,7 +22941,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22963,7 +22963,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -22972,7 +22972,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -22988,7 +22988,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateDatasetRequest'];
+        "application/json": components["schemas"]["UpdateDatasetRequest"];
       };
     };
     responses: {
@@ -22998,7 +22998,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatasetDB'];
+          "application/json": components["schemas"]["DatasetDB"];
         };
       };
       /** @description Validation Error */
@@ -23007,7 +23007,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23016,7 +23016,7 @@ export interface operations {
     parameters: {
       query?: {
         /** @description Actions to include in the 'permissions' field. */
-        actions?: components['schemas']['DatasetAction'][];
+        actions?: components["schemas"]["DatasetAction"][];
         starting_token?: number;
         limit?: number;
       };
@@ -23026,7 +23026,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['ListDatasetParams'];
+        "application/json": components["schemas"]["ListDatasetParams"];
       };
     };
     responses: {
@@ -23036,7 +23036,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListDatasetResponse'];
+          "application/json": components["schemas"]["ListDatasetResponse"];
         };
       };
       /** @description Validation Error */
@@ -23045,7 +23045,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23075,7 +23075,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23085,7 +23085,7 @@ export interface operations {
       query?: {
         file_name?: string | null;
         num_rows?: number | null;
-        format?: components['schemas']['DatasetFormat'];
+        format?: components["schemas"]["DatasetFormat"];
       };
       header?: never;
       path: {
@@ -23096,7 +23096,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'multipart/form-data': components['schemas']['Body_update_prompt_dataset_projects__project_id__prompt_datasets__dataset_id__put'];
+        "multipart/form-data": components["schemas"]["Body_update_prompt_dataset_projects__project_id__prompt_datasets__dataset_id__put"];
       };
     };
     responses: {
@@ -23106,7 +23106,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PromptDatasetDB'];
+          "application/json": components["schemas"]["PromptDatasetDB"];
         };
       };
       /** @description Validation Error */
@@ -23115,7 +23115,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23138,7 +23138,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -23147,7 +23147,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23172,7 +23172,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatasetContent'];
+          "application/json": components["schemas"]["DatasetContent"];
         };
       };
       /** @description Validation Error */
@@ -23181,7 +23181,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23197,7 +23197,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RollbackRequest'];
+        "application/json": components["schemas"]["RollbackRequest"];
       };
     };
     responses: {
@@ -23207,7 +23207,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -23216,7 +23216,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23229,7 +23229,7 @@ export interface operations {
          * @description ETag of the dataset as a version identifier.
          * @example d89cce33-549d-4b6d-b220-afb641d859c8
          */
-        'If-Match'?: string | null;
+        "If-Match"?: string | null;
       };
       path: {
         dataset_id: string;
@@ -23238,7 +23238,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateDatasetContentRequest'];
+        "application/json": components["schemas"]["UpdateDatasetContentRequest"];
       };
     };
     responses: {
@@ -23248,7 +23248,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -23257,7 +23257,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23279,7 +23279,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -23288,7 +23288,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23307,7 +23307,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['QueryDatasetParams'];
+        "application/json": components["schemas"]["QueryDatasetParams"];
       };
     };
     responses: {
@@ -23317,7 +23317,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatasetContent'];
+          "application/json": components["schemas"]["DatasetContent"];
         };
       };
       /** @description Validation Error */
@@ -23326,7 +23326,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23351,7 +23351,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListUserCollaboratorsResponse'];
+          "application/json": components["schemas"]["ListUserCollaboratorsResponse"];
         };
       };
       /** @description Validation Error */
@@ -23360,7 +23360,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23376,7 +23376,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UserCollaboratorCreate'][];
+        "application/json": components["schemas"]["UserCollaboratorCreate"][];
       };
     };
     responses: {
@@ -23386,7 +23386,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['UserCollaborator'][];
+          "application/json": components["schemas"]["UserCollaborator"][];
         };
       };
       /** @description Validation Error */
@@ -23395,7 +23395,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23420,7 +23420,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListGroupCollaboratorsResponse'];
+          "application/json": components["schemas"]["ListGroupCollaboratorsResponse"];
         };
       };
       /** @description Validation Error */
@@ -23429,7 +23429,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23445,7 +23445,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['GroupCollaboratorCreate'][];
+        "application/json": components["schemas"]["GroupCollaboratorCreate"][];
       };
     };
     responses: {
@@ -23455,7 +23455,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupCollaborator'][];
+          "application/json": components["schemas"]["GroupCollaborator"][];
         };
       };
       /** @description Validation Error */
@@ -23464,7 +23464,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23487,7 +23487,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -23496,7 +23496,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23513,7 +23513,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CollaboratorUpdate'];
+        "application/json": components["schemas"]["CollaboratorUpdate"];
       };
     };
     responses: {
@@ -23523,7 +23523,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['UserCollaborator'];
+          "application/json": components["schemas"]["UserCollaborator"];
         };
       };
       /** @description Validation Error */
@@ -23532,7 +23532,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23555,7 +23555,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -23564,7 +23564,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23581,7 +23581,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CollaboratorUpdate'];
+        "application/json": components["schemas"]["CollaboratorUpdate"];
       };
     };
     responses: {
@@ -23591,7 +23591,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupCollaborator'];
+          "application/json": components["schemas"]["GroupCollaborator"];
         };
       };
       /** @description Validation Error */
@@ -23600,7 +23600,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23619,7 +23619,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['ListDatasetVersionParams'];
+        "application/json": components["schemas"]["ListDatasetVersionParams"];
       };
     };
     responses: {
@@ -23629,7 +23629,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListDatasetVersionResponse'];
+          "application/json": components["schemas"]["ListDatasetVersionResponse"];
         };
       };
       /** @description Validation Error */
@@ -23638,7 +23638,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23664,7 +23664,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatasetContent'];
+          "application/json": components["schemas"]["DatasetContent"];
         };
       };
       /** @description Validation Error */
@@ -23673,7 +23673,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23690,7 +23690,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateDatasetVersionRequest'];
+        "application/json": components["schemas"]["UpdateDatasetVersionRequest"];
       };
     };
     responses: {
@@ -23700,7 +23700,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatasetVersionDB'];
+          "application/json": components["schemas"]["DatasetVersionDB"];
         };
       };
       /** @description Validation Error */
@@ -23709,7 +23709,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23724,7 +23724,7 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
@@ -23736,7 +23736,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EditGetResponse'][];
+          "application/json": components["schemas"]["EditGetResponse"][];
         };
       };
       /** @description Validation Error */
@@ -23745,7 +23745,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23759,13 +23759,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['EditCreateRequest'];
+        "application/json": components["schemas"]["EditCreateRequest"];
       };
     };
     responses: {
@@ -23775,7 +23775,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EditCreateResponse'];
+          "application/json": components["schemas"]["EditCreateResponse"];
         };
       };
       /** @description Validation Error */
@@ -23784,7 +23784,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23796,7 +23796,7 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
@@ -23808,7 +23808,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EditExportDB'][];
+          "application/json": components["schemas"]["EditExportDB"][];
         };
       };
       /** @description Validation Error */
@@ -23817,7 +23817,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23839,7 +23839,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EditGetResponse'];
+          "application/json": components["schemas"]["EditGetResponse"];
         };
       };
       /** @description Validation Error */
@@ -23848,7 +23848,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23870,7 +23870,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EditDeleteResponse'];
+          "application/json": components["schemas"]["EditDeleteResponse"];
         };
       };
       /** @description Validation Error */
@@ -23879,7 +23879,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23906,7 +23906,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EditContent'];
+          "application/json": components["schemas"]["EditContent"];
         };
       };
       /** @description Validation Error */
@@ -23915,7 +23915,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23934,7 +23934,7 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
@@ -23946,7 +23946,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EditContent'][];
+          "application/json": components["schemas"]["EditContent"][];
         };
       };
       /** @description Validation Error */
@@ -23955,7 +23955,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -23971,7 +23971,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['EditExportRequest'];
+        "application/json": components["schemas"]["EditExportRequest"];
       };
     };
     responses: {
@@ -23988,7 +23988,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24004,7 +24004,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RemoteEditExportRequest'];
+        "application/json": components["schemas"]["RemoteEditExportRequest"];
       };
     };
     responses: {
@@ -24014,7 +24014,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RemoteEditExportResponse'];
+          "application/json": components["schemas"]["RemoteEditExportResponse"];
         };
       };
       /** @description Validation Error */
@@ -24023,7 +24023,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24035,7 +24035,7 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
@@ -24047,7 +24047,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': string[];
+          "application/json": string[];
         };
       };
       /** @description Validation Error */
@@ -24056,7 +24056,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24078,7 +24078,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EditReviewDB'];
+          "application/json": components["schemas"]["EditReviewDB"];
         };
       };
       /** @description Validation Error */
@@ -24087,7 +24087,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24101,7 +24101,7 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
@@ -24113,7 +24113,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HasEmbeddingsResponse'];
+          "application/json": components["schemas"]["HasEmbeddingsResponse"];
         };
       };
       /** @description Validation Error */
@@ -24122,7 +24122,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24137,13 +24137,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['EmbeddingRequest'];
+        "application/json": components["schemas"]["EmbeddingRequest"];
       };
     };
     responses: {
@@ -24160,7 +24160,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24175,13 +24175,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['EmbeddingPointRequest'];
+        "application/json": components["schemas"]["EmbeddingPointRequest"];
       };
     };
     responses: {
@@ -24191,7 +24191,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EmbeddingPointResponse'];
+          "application/json": components["schemas"]["EmbeddingPointResponse"];
         };
       };
       /** @description Validation Error */
@@ -24200,7 +24200,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24223,7 +24223,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EvaluateAlertDB'][];
+          "application/json": components["schemas"]["EvaluateAlertDB"][];
         };
       };
       /** @description Validation Error */
@@ -24232,7 +24232,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24249,7 +24249,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['PromptFilterParams'];
+        "application/json": components["schemas"]["PromptFilterParams"];
       };
     };
     responses: {
@@ -24259,7 +24259,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['MetricInsight'][];
+          "application/json": components["schemas"]["MetricInsight"][];
         };
       };
       /** @description Validation Error */
@@ -24268,7 +24268,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24282,7 +24282,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['EvaluateRunRequest'];
+        "application/json": components["schemas"]["EvaluateRunRequest"];
       };
     };
     responses: {
@@ -24292,7 +24292,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EvaluateRunResponse'];
+          "application/json": components["schemas"]["EvaluateRunResponse"];
         };
       };
       /** @description Validation Error */
@@ -24301,7 +24301,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24315,7 +24315,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['EvaluateRunResultsRequest'];
+        "application/json": components["schemas"]["EvaluateRunResultsRequest"];
       };
     };
     responses: {
@@ -24325,7 +24325,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['WorkflowsReadResponse'];
+          "application/json": components["schemas"]["WorkflowsReadResponse"];
         };
       };
       /** @description Validation Error */
@@ -24334,7 +24334,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24356,7 +24356,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ExperimentResponse'][];
+          "application/json": components["schemas"]["ExperimentResponse"][];
         };
       };
       /** @description Validation Error */
@@ -24365,7 +24365,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24381,7 +24381,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ExperimentCreateRequest'];
+        "application/json": components["schemas"]["ExperimentCreateRequest"];
       };
     };
     responses: {
@@ -24391,7 +24391,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ExperimentResponse'];
+          "application/json": components["schemas"]["ExperimentResponse"];
         };
       };
       /** @description Validation Error */
@@ -24400,7 +24400,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24423,7 +24423,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ExperimentResponse'];
+          "application/json": components["schemas"]["ExperimentResponse"];
         };
       };
       /** @description Validation Error */
@@ -24432,7 +24432,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24449,7 +24449,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ExperimentUpdateRequest'];
+        "application/json": components["schemas"]["ExperimentUpdateRequest"];
       };
     };
     responses: {
@@ -24459,7 +24459,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ExperimentResponse'];
+          "application/json": components["schemas"]["ExperimentResponse"];
         };
       };
       /** @description Validation Error */
@@ -24468,7 +24468,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24498,7 +24498,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24512,13 +24512,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ExportRequest'];
+        "application/json": components["schemas"]["ExportRequest"];
       };
     };
     responses: {
@@ -24535,7 +24535,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24549,13 +24549,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RemoteExportRequest'];
+        "application/json": components["schemas"]["RemoteExportRequest"];
       };
     };
     responses: {
@@ -24565,7 +24565,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RemoteExportResponse'];
+          "application/json": components["schemas"]["RemoteExportResponse"];
         };
       };
       /** @description Validation Error */
@@ -24574,7 +24574,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24597,7 +24597,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FeatureColumnsResponse'];
+          "application/json": components["schemas"]["FeatureColumnsResponse"];
         };
       };
       /** @description Validation Error */
@@ -24606,7 +24606,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24628,7 +24628,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FeedbackTemplateDB'][];
+          "application/json": components["schemas"]["FeedbackTemplateDB"][];
         };
       };
       /** @description Validation Error */
@@ -24637,7 +24637,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24653,7 +24653,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['FeedbackTemplateCreate'];
+        "application/json": components["schemas"]["FeedbackTemplateCreate"];
       };
     };
     responses: {
@@ -24663,7 +24663,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FeedbackTemplateDB'];
+          "application/json": components["schemas"]["FeedbackTemplateDB"];
         };
       };
       /** @description Validation Error */
@@ -24672,7 +24672,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24695,7 +24695,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FeedbackTemplateDB'];
+          "application/json": components["schemas"]["FeedbackTemplateDB"];
         };
       };
       /** @description Validation Error */
@@ -24704,7 +24704,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24727,7 +24727,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -24736,7 +24736,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24753,7 +24753,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['FeedbackTemplateUpdate'];
+        "application/json": components["schemas"]["FeedbackTemplateUpdate"];
       };
     };
     responses: {
@@ -24763,7 +24763,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FeedbackTemplateDB'];
+          "application/json": components["schemas"]["FeedbackTemplateDB"];
         };
       };
       /** @description Validation Error */
@@ -24772,7 +24772,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24797,7 +24797,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FeedbackRatingDB'];
+          "application/json": components["schemas"]["FeedbackRatingDB"];
         };
       };
       /** @description Validation Error */
@@ -24806,7 +24806,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24825,7 +24825,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['FeedbackRatingCreate'];
+        "application/json": components["schemas"]["FeedbackRatingCreate"];
       };
     };
     responses: {
@@ -24835,7 +24835,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FeedbackRatingDB'];
+          "application/json": components["schemas"]["FeedbackRatingDB"];
         };
       };
       /** @description Validation Error */
@@ -24844,7 +24844,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24869,7 +24869,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -24878,7 +24878,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24895,7 +24895,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['BulkFeedbackRequest'];
+        "application/json": components["schemas"]["BulkFeedbackRequest"];
       };
     };
     responses: {
@@ -24905,7 +24905,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BulkFeedbackRatingStatus'][];
+          "application/json": components["schemas"]["BulkFeedbackRatingStatus"][];
         };
       };
       /** @description Validation Error */
@@ -24914,7 +24914,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24938,7 +24938,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FeedbackRatingDB'];
+          "application/json": components["schemas"]["FeedbackRatingDB"];
         };
       };
       /** @description Validation Error */
@@ -24947,7 +24947,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -24965,7 +24965,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['FeedbackRatingCreate'];
+        "application/json": components["schemas"]["FeedbackRatingCreate"];
       };
     };
     responses: {
@@ -24975,7 +24975,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FeedbackRatingDB'];
+          "application/json": components["schemas"]["FeedbackRatingDB"];
         };
       };
       /** @description Validation Error */
@@ -24984,7 +24984,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25008,7 +25008,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -25017,7 +25017,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25031,7 +25031,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['GenerationRequest'];
+        "application/json": components["schemas"]["GenerationRequest"];
       };
     };
     responses: {
@@ -25041,7 +25041,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GenerationResponse'];
+          "application/json": components["schemas"]["GenerationResponse"];
         };
       };
       /** @description Validation Error */
@@ -25050,7 +25050,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25064,7 +25064,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['GeneratedScorerValidationRequest'];
+        "application/json": components["schemas"]["GeneratedScorerValidationRequest"];
       };
     };
     responses: {
@@ -25074,7 +25074,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GeneratedScorerValidationResponse'];
+          "application/json": components["schemas"]["GeneratedScorerValidationResponse"];
         };
       };
       /** @description Validation Error */
@@ -25083,7 +25083,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25106,7 +25106,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListGeneratedScorersResponse'];
+          "application/json": components["schemas"]["ListGeneratedScorersResponse"];
         };
       };
       /** @description Validation Error */
@@ -25115,7 +25115,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25129,7 +25129,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateGeneratedScorerRequest'];
+        "application/json": components["schemas"]["CreateGeneratedScorerRequest"];
       };
     };
     responses: {
@@ -25139,7 +25139,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GeneratedScorerResponse'];
+          "application/json": components["schemas"]["GeneratedScorerResponse"];
         };
       };
       /** @description Validation Error */
@@ -25148,7 +25148,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25170,7 +25170,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GeneratedScorerTaskResultResponse'];
+          "application/json": components["schemas"]["GeneratedScorerTaskResultResponse"];
         };
       };
       /** @description Validation Error */
@@ -25179,7 +25179,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25201,7 +25201,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GeneratedScorerResponse'];
+          "application/json": components["schemas"]["GeneratedScorerResponse"];
         };
       };
       /** @description Validation Error */
@@ -25210,7 +25210,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25232,7 +25232,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -25241,7 +25241,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25257,7 +25257,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateGeneratedScorerRequest'];
+        "application/json": components["schemas"]["UpdateGeneratedScorerRequest"];
       };
     };
     responses: {
@@ -25267,7 +25267,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GeneratedScorerResponse'];
+          "application/json": components["schemas"]["GeneratedScorerResponse"];
         };
       };
       /** @description Validation Error */
@@ -25276,7 +25276,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25296,7 +25296,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupRoleInfo'][];
+          "application/json": components["schemas"]["GroupRoleInfo"][];
         };
       };
     };
@@ -25319,7 +25319,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListGroupsResponse'];
+          "application/json": components["schemas"]["ListGroupsResponse"];
         };
       };
       /** @description Validation Error */
@@ -25328,7 +25328,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25342,7 +25342,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['GroupCreate'];
+        "application/json": components["schemas"]["GroupCreate"];
       };
     };
     responses: {
@@ -25352,7 +25352,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupDB'];
+          "application/json": components["schemas"]["GroupDB"];
         };
       };
       /** @description Validation Error */
@@ -25361,7 +25361,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25383,7 +25383,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupDB'];
+          "application/json": components["schemas"]["GroupDB"];
         };
       };
       /** @description Validation Error */
@@ -25392,7 +25392,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25414,7 +25414,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -25423,7 +25423,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25439,7 +25439,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['GroupUpdate'];
+        "application/json": components["schemas"]["GroupUpdate"];
       };
     };
     responses: {
@@ -25449,7 +25449,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupDB'];
+          "application/json": components["schemas"]["GroupDB"];
         };
       };
       /** @description Validation Error */
@@ -25458,7 +25458,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25483,7 +25483,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListGroupMembersResponse'];
+          "application/json": components["schemas"]["ListGroupMembersResponse"];
         };
       };
       /** @description Validation Error */
@@ -25492,7 +25492,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25508,7 +25508,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['GroupMemberCreate'][];
+        "application/json": components["schemas"]["GroupMemberCreate"][];
       };
     };
     responses: {
@@ -25518,7 +25518,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupMemberDB'][];
+          "application/json": components["schemas"]["GroupMemberDB"][];
         };
       };
       /** @description Validation Error */
@@ -25527,7 +25527,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25550,7 +25550,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -25559,7 +25559,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25576,7 +25576,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['GroupMemberUpdate'];
+        "application/json": components["schemas"]["GroupMemberUpdate"];
       };
     };
     responses: {
@@ -25586,7 +25586,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupMemberDB'];
+          "application/json": components["schemas"]["GroupMemberDB"];
         };
       };
       /** @description Validation Error */
@@ -25595,7 +25595,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25609,13 +25609,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['SummaryRequest'];
+        "application/json": components["schemas"]["SummaryRequest"];
       };
     };
     responses: {
@@ -25625,7 +25625,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RootModel_Union_InferenceRunResults__SplitRunResults__'];
+          "application/json": components["schemas"]["RootModel_Union_InferenceRunResults__SplitRunResults__"];
         };
       };
       /** @description Validation Error */
@@ -25634,7 +25634,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25649,13 +25649,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ContentRequest'];
+        "application/json": components["schemas"]["ContentRequest"];
       };
     };
     responses: {
@@ -25665,7 +25665,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupByMetrics'];
+          "application/json": components["schemas"]["GroupByMetrics"];
         };
       };
       /** @description Validation Error */
@@ -25674,7 +25674,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25688,13 +25688,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['SummaryIDRequest'];
+        "application/json": components["schemas"]["SummaryIDRequest"];
       };
     };
     responses: {
@@ -25704,7 +25704,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SummaryIDResponse'];
+          "application/json": components["schemas"]["SummaryIDResponse"];
         };
       };
       /** @description Validation Error */
@@ -25713,7 +25713,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25727,13 +25727,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['FilterPercentageRequest'];
+        "application/json": components["schemas"]["FilterPercentageRequest"];
       };
     };
     responses: {
@@ -25743,7 +25743,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FilterPercentageResponse'];
+          "application/json": components["schemas"]["FilterPercentageResponse"];
         };
       };
       /** @description Validation Error */
@@ -25752,7 +25752,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25764,13 +25764,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ThresholdRequest'];
+        "application/json": components["schemas"]["ThresholdRequest"];
       };
     };
     responses: {
@@ -25780,7 +25780,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ThresholdResponse'];
+          "application/json": components["schemas"]["ThresholdResponse"];
         };
       };
       /** @description Validation Error */
@@ -25789,7 +25789,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25799,7 +25799,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
         project_id: string;
       };
       cookie?: never;
@@ -25812,7 +25812,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CompareRunsResponse'];
+          "application/json": components["schemas"]["CompareRunsResponse"];
         };
       };
       /** @description Validation Error */
@@ -25821,7 +25821,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25835,13 +25835,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DistributionRequest'];
+        "application/json": components["schemas"]["DistributionRequest"];
       };
     };
     responses: {
@@ -25851,7 +25851,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Distribution'];
+          "application/json": components["schemas"]["Distribution"];
         };
       };
       /** @description Validation Error */
@@ -25860,7 +25860,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25875,13 +25875,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['MetricsRequest'];
+        "application/json": components["schemas"]["MetricsRequest"];
       };
     };
     responses: {
@@ -25891,7 +25891,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['MetricsResponse'];
+          "application/json": components["schemas"]["MetricsResponse"];
         };
       };
       /** @description Validation Error */
@@ -25900,7 +25900,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25915,13 +25915,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['MetricsRequest'];
+        "application/json": components["schemas"]["MetricsRequest"];
       };
     };
     responses: {
@@ -25931,7 +25931,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['MultiLabelTaskMetrics'];
+          "application/json": components["schemas"]["MultiLabelTaskMetrics"];
         };
       };
       /** @description Validation Error */
@@ -25940,7 +25940,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25957,13 +25957,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['MetricsRequest'];
+        "application/json": components["schemas"]["MetricsRequest"];
       };
     };
     responses: {
@@ -25973,7 +25973,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['MultiLabelCoOccurrence'];
+          "application/json": components["schemas"]["MultiLabelCoOccurrence"];
         };
       };
       /** @description Validation Error */
@@ -25982,7 +25982,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -25990,7 +25990,7 @@ export interface operations {
   get_similar_from_split_projects__project_id__runs__run_id__split__split__insights_similar_post: {
     parameters: {
       query: {
-        from_split: components['schemas']['Split'];
+        from_split: components["schemas"]["Split"];
         inference_name?: string;
         from_inference_name?: string;
       };
@@ -25998,13 +25998,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ContentRequest'];
+        "application/json": components["schemas"]["ContentRequest"];
       };
     };
     responses: {
@@ -26014,7 +26014,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SimilarToResponse'];
+          "application/json": components["schemas"]["SimilarToResponse"];
         };
       };
       /** @description Validation Error */
@@ -26023,7 +26023,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26037,13 +26037,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CBOClusterRequest'];
+        "application/json": components["schemas"]["CBOClusterRequest"];
       };
     };
     responses: {
@@ -26053,7 +26053,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CBOClusterResponse'];
+          "application/json": components["schemas"]["CBOClusterResponse"];
         };
       };
       /** @description Validation Error */
@@ -26062,7 +26062,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26075,7 +26075,7 @@ export interface operations {
       header?: never;
       path: {
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
         project_id: string;
       };
       cookie?: never;
@@ -26088,7 +26088,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CartographClusterResponse'];
+          "application/json": components["schemas"]["CartographClusterResponse"];
         };
       };
       /** @description Validation Error */
@@ -26097,7 +26097,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26109,13 +26109,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ContentRequest'];
+        "application/json": components["schemas"]["ContentRequest"];
       };
     };
     responses: {
@@ -26125,7 +26125,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CommunityResponse'][];
+          "application/json": components["schemas"]["CommunityResponse"][];
         };
       };
       /** @description Validation Error */
@@ -26134,7 +26134,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26148,13 +26148,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['TopInsightsRequest'];
+        "application/json": components["schemas"]["TopInsightsRequest"];
       };
     };
     responses: {
@@ -26164,7 +26164,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TopInsightsResponse'];
+          "application/json": components["schemas"]["TopInsightsResponse"];
         };
       };
       /** @description Validation Error */
@@ -26173,7 +26173,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26187,13 +26187,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['InsightChartRequest'];
+        "application/json": components["schemas"]["InsightChartRequest"];
       };
     };
     responses: {
@@ -26203,7 +26203,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['InsightChartResponse'];
+          "application/json": components["schemas"]["InsightChartResponse"];
         };
       };
       /** @description Validation Error */
@@ -26212,7 +26212,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26228,7 +26228,7 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
@@ -26240,7 +26240,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['XRayCardDB'][];
+          "application/json": components["schemas"]["XRayCardDB"][];
         };
       };
       /** @description Validation Error */
@@ -26249,7 +26249,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26261,7 +26261,7 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
         alert_id: string;
       };
       cookie?: never;
@@ -26274,7 +26274,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -26283,7 +26283,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26295,7 +26295,7 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
@@ -26307,7 +26307,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': string[];
+          "application/json": string[];
         };
       };
       /** @description Validation Error */
@@ -26316,7 +26316,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26330,13 +26330,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ContentRequest'];
+        "application/json": components["schemas"]["ContentRequest"];
       };
     };
     responses: {
@@ -26346,7 +26346,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BarChart'];
+          "application/json": components["schemas"]["BarChart"];
         };
       };
       /** @description Validation Error */
@@ -26355,7 +26355,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26369,13 +26369,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ContentRequest'];
+        "application/json": components["schemas"]["ContentRequest"];
       };
     };
     responses: {
@@ -26385,7 +26385,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['MAPResponse'];
+          "application/json": components["schemas"]["MAPResponse"];
         };
       };
       /** @description Validation Error */
@@ -26394,7 +26394,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26408,13 +26408,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ContentRequest'];
+        "application/json": components["schemas"]["ContentRequest"];
       };
     };
     responses: {
@@ -26424,7 +26424,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SegmentationMetricsResponse'];
+          "application/json": components["schemas"]["SegmentationMetricsResponse"];
         };
       };
       /** @description Validation Error */
@@ -26433,7 +26433,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26447,13 +26447,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ContentRequest'];
+        "application/json": components["schemas"]["ContentRequest"];
       };
     };
     responses: {
@@ -26463,7 +26463,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['Seq2SeqMetricsResponse'];
+          "application/json": components["schemas"]["Seq2SeqMetricsResponse"];
         };
       };
       /** @description Validation Error */
@@ -26472,7 +26472,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26486,13 +26486,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['SummaryRequest'];
+        "application/json": components["schemas"]["SummaryRequest"];
       };
     };
     responses: {
@@ -26502,7 +26502,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DataRows'];
+          "application/json": components["schemas"]["DataRows"];
         };
       };
       /** @description Validation Error */
@@ -26511,7 +26511,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26527,13 +26527,13 @@ export interface operations {
         error_name: string;
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ContentRequest'];
+        "application/json": components["schemas"]["ContentRequest"];
       };
     };
     responses: {
@@ -26543,7 +26543,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ErrorDistribution'];
+          "application/json": components["schemas"]["ErrorDistribution"];
         };
       };
       /** @description Validation Error */
@@ -26552,7 +26552,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26572,7 +26572,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['IntegrationDB'][];
+          "application/json": components["schemas"]["IntegrationDB"][];
         };
       };
     };
@@ -26592,7 +26592,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AvailableIntegrations'];
+          "application/json": components["schemas"]["AvailableIntegrations"];
         };
       };
     };
@@ -26602,7 +26602,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        name: components['schemas']['IntegrationName'];
+        name: components["schemas"]["IntegrationName"];
       };
       cookie?: never;
     };
@@ -26614,17 +26614,17 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json':
-            | components['schemas']['AwsBedrockIntegration']
-            | components['schemas']['AwsSageMakerIntegration']
-            | components['schemas']['AzureIntegration']
-            | components['schemas']['DatabricksIntegration']
-            | components['schemas']['LabelStudioIntegration']
-            | components['schemas']['OpenAIIntegration']
-            | components['schemas']['VertexAIIntegration']
-            | components['schemas']['WriterIntegration']
-            | components['schemas']['AnthropicIntegration']
-            | components['schemas']['MistralIntegration'];
+          "application/json":
+            | components["schemas"]["AwsBedrockIntegration"]
+            | components["schemas"]["AwsSageMakerIntegration"]
+            | components["schemas"]["AzureIntegration"]
+            | components["schemas"]["DatabricksIntegration"]
+            | components["schemas"]["LabelStudioIntegration"]
+            | components["schemas"]["OpenAIIntegration"]
+            | components["schemas"]["VertexAIIntegration"]
+            | components["schemas"]["WriterIntegration"]
+            | components["schemas"]["AnthropicIntegration"]
+            | components["schemas"]["MistralIntegration"];
         };
       };
       /** @description Validation Error */
@@ -26633,7 +26633,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26643,7 +26643,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        name: components['schemas']['IntegrationName'];
+        name: components["schemas"]["IntegrationName"];
       };
       cookie?: never;
     };
@@ -26655,7 +26655,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -26664,7 +26664,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26674,7 +26674,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        name: components['schemas']['IntegrationName'];
+        name: components["schemas"]["IntegrationName"];
       };
       cookie?: never;
     };
@@ -26686,7 +26686,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
+          "application/json": {
             [key: string]: string;
           };
         };
@@ -26697,7 +26697,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26711,7 +26711,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['AnthropicIntegrationCreate'];
+        "application/json": components["schemas"]["AnthropicIntegrationCreate"];
       };
     };
     responses: {
@@ -26721,7 +26721,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -26730,7 +26730,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26744,7 +26744,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['BaseAwsIntegrationCreate'];
+        "application/json": components["schemas"]["BaseAwsIntegrationCreate"];
       };
     };
     responses: {
@@ -26754,7 +26754,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -26763,7 +26763,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26777,7 +26777,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['AwsSageMakerIntegrationCreate'];
+        "application/json": components["schemas"]["AwsSageMakerIntegrationCreate"];
       };
     };
     responses: {
@@ -26787,7 +26787,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -26796,7 +26796,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26810,7 +26810,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['AzureIntegrationCreate'];
+        "application/json": components["schemas"]["AzureIntegrationCreate"];
       };
     };
     responses: {
@@ -26820,7 +26820,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -26829,7 +26829,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26843,7 +26843,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatabricksIntegrationCreate'];
+        "application/json": components["schemas"]["DatabricksIntegrationCreate"];
       };
     };
     responses: {
@@ -26853,7 +26853,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -26862,7 +26862,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26876,7 +26876,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatabricksIntegrationCreate'];
+        "application/json": components["schemas"]["DatabricksIntegrationCreate"];
       };
     };
     responses: {
@@ -26886,7 +26886,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -26895,7 +26895,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26915,7 +26915,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': string[];
+          "application/json": string[];
         };
       };
     };
@@ -26937,7 +26937,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': string[];
+          "application/json": string[];
         };
       };
       /** @description Validation Error */
@@ -26946,7 +26946,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26960,7 +26960,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatabricksExportRequest'];
+        "application/json": components["schemas"]["DatabricksExportRequest"];
       };
     };
     responses: {
@@ -26970,7 +26970,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatabricksExportResponse'];
+          "application/json": components["schemas"]["DatabricksExportResponse"];
         };
       };
       /** @description Validation Error */
@@ -26979,7 +26979,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -26995,7 +26995,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatabricksEditExportRequest'];
+        "application/json": components["schemas"]["DatabricksEditExportRequest"];
       };
     };
     responses: {
@@ -27005,7 +27005,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatabricksEditExportResponse'];
+          "application/json": components["schemas"]["DatabricksEditExportResponse"];
         };
       };
       /** @description Validation Error */
@@ -27014,7 +27014,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27028,7 +27028,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatabricksExportRequest'];
+        "application/json": components["schemas"]["DatabricksExportRequest"];
       };
     };
     responses: {
@@ -27038,7 +27038,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatabricksUnityCatalogExportResponse'];
+          "application/json": components["schemas"]["DatabricksUnityCatalogExportResponse"];
         };
       };
       /** @description Validation Error */
@@ -27047,7 +27047,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27063,7 +27063,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatabricksUnityCatalogEditExportRequest'];
+        "application/json": components["schemas"]["DatabricksUnityCatalogEditExportRequest"];
       };
     };
     responses: {
@@ -27073,7 +27073,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DatabricksUnityCatalogExportEditsResponse'];
+          "application/json": components["schemas"]["DatabricksUnityCatalogExportEditsResponse"];
         };
       };
       /** @description Validation Error */
@@ -27082,7 +27082,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27096,7 +27096,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LabelStudioIntegrationCreate'];
+        "application/json": components["schemas"]["LabelStudioIntegrationCreate"];
       };
     };
     responses: {
@@ -27106,7 +27106,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -27115,7 +27115,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27135,7 +27135,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LabelStudioProject'][];
+          "application/json": components["schemas"]["LabelStudioProject"][];
         };
       };
     };
@@ -27149,7 +27149,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LabelStudioExportRequest'];
+        "application/json": components["schemas"]["LabelStudioExportRequest"];
       };
     };
     responses: {
@@ -27159,7 +27159,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -27168,7 +27168,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27182,7 +27182,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['MistralIntegrationCreate'];
+        "application/json": components["schemas"]["MistralIntegrationCreate"];
       };
     };
     responses: {
@@ -27192,7 +27192,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -27201,7 +27201,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27215,7 +27215,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['OpenAIIntegrationCreate'];
+        "application/json": components["schemas"]["OpenAIIntegrationCreate"];
       };
     };
     responses: {
@@ -27225,7 +27225,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -27234,7 +27234,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27248,7 +27248,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['VertexAIIntegrationCreate'];
+        "application/json": components["schemas"]["VertexAIIntegrationCreate"];
       };
     };
     responses: {
@@ -27258,7 +27258,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -27267,7 +27267,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27281,7 +27281,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['WriterIntegrationCreate'];
+        "application/json": components["schemas"]["WriterIntegrationCreate"];
       };
     };
     responses: {
@@ -27291,7 +27291,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -27300,7 +27300,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27314,7 +27314,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateJobRequest'];
+        "application/json": components["schemas"]["CreateJobRequest"];
       };
     };
     responses: {
@@ -27324,7 +27324,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CreateJobResponse'];
+          "application/json": components["schemas"]["CreateJobResponse"];
         };
       };
       /** @description Validation Error */
@@ -27333,7 +27333,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27355,7 +27355,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['JobDB'];
+          "application/json": components["schemas"]["JobDB"];
         };
       };
       /** @description Validation Error */
@@ -27364,7 +27364,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27389,7 +27389,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['JobDB'][];
+          "application/json": components["schemas"]["JobDB"][];
         };
       };
       /** @description Validation Error */
@@ -27398,7 +27398,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27421,7 +27421,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['JobDB'] | null;
+          "application/json": components["schemas"]["JobDB"] | null;
         };
       };
       /** @description Validation Error */
@@ -27430,7 +27430,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27440,7 +27440,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        llm_integration: components['schemas']['LLMIntegration'];
+        llm_integration: components["schemas"]["LLMIntegration"];
       };
       cookie?: never;
     };
@@ -27452,7 +27452,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': string[];
+          "application/json": string[];
         };
       };
       /** @description Validation Error */
@@ -27461,7 +27461,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27471,7 +27471,7 @@ export interface operations {
       query?: never;
       header?: never;
       path: {
-        llm_integration: components['schemas']['LLMIntegration'];
+        llm_integration: components["schemas"]["LLMIntegration"];
       };
       cookie?: never;
     };
@@ -27483,7 +27483,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': string[];
+          "application/json": string[];
         };
       };
       /** @description Validation Error */
@@ -27492,7 +27492,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27514,7 +27514,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogStreamResponse'][];
+          "application/json": components["schemas"]["LogStreamResponse"][];
         };
       };
       /** @description Validation Error */
@@ -27523,7 +27523,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27539,7 +27539,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogStreamCreateRequest'];
+        "application/json": components["schemas"]["LogStreamCreateRequest"];
       };
     };
     responses: {
@@ -27549,7 +27549,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogStreamResponse'];
+          "application/json": components["schemas"]["LogStreamResponse"];
         };
       };
       /** @description Validation Error */
@@ -27558,7 +27558,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27581,7 +27581,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogStreamResponse'];
+          "application/json": components["schemas"]["LogStreamResponse"];
         };
       };
       /** @description Validation Error */
@@ -27590,7 +27590,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27607,7 +27607,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogStreamUpdateRequest'];
+        "application/json": components["schemas"]["LogStreamUpdateRequest"];
       };
     };
     responses: {
@@ -27617,7 +27617,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogStreamResponse'];
+          "application/json": components["schemas"]["LogStreamResponse"];
         };
       };
       /** @description Validation Error */
@@ -27626,7 +27626,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27656,7 +27656,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27670,13 +27670,13 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ListMetaRequest'];
+        "application/json": components["schemas"]["ListMetaRequest"];
       };
     };
     responses: {
@@ -27686,7 +27686,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListMetaResponse'];
+          "application/json": components["schemas"]["ListMetaResponse"];
         };
       };
       /** @description Validation Error */
@@ -27695,7 +27695,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27711,7 +27711,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateMetricCritiquesRequest'];
+        "application/json": components["schemas"]["CreateMetricCritiquesRequest"];
       };
     };
     responses: {
@@ -27721,7 +27721,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['MetricCritique'][];
+          "application/json": components["schemas"]["MetricCritique"][];
         };
       };
       /** @description Validation Error */
@@ -27730,7 +27730,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27753,7 +27753,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -27762,7 +27762,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27778,7 +27778,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateAlertConfigurationRequest'];
+        "application/json": components["schemas"]["CreateAlertConfigurationRequest"];
       };
     };
     responses: {
@@ -27788,7 +27788,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AlertConfigurationResponse'];
+          "application/json": components["schemas"]["AlertConfigurationResponse"];
         };
       };
       /** @description Validation Error */
@@ -27797,7 +27797,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27814,7 +27814,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateAlertConfigurationRequest'];
+        "application/json": components["schemas"]["UpdateAlertConfigurationRequest"];
       };
     };
     responses: {
@@ -27824,7 +27824,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AlertConfigurationResponse'];
+          "application/json": components["schemas"]["AlertConfigurationResponse"];
         };
       };
       /** @description Validation Error */
@@ -27833,7 +27833,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27856,7 +27856,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AlertConfigurationResponse'];
+          "application/json": components["schemas"]["AlertConfigurationResponse"];
         };
       };
       /** @description Validation Error */
@@ -27865,7 +27865,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27888,7 +27888,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['AlertStatusResponse'];
+          "application/json": components["schemas"]["AlertStatusResponse"];
         };
       };
       /** @description Validation Error */
@@ -27897,7 +27897,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27922,7 +27922,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListAlertConfigurationsResponse'];
+          "application/json": components["schemas"]["ListAlertConfigurationsResponse"];
         };
       };
       /** @description Validation Error */
@@ -27931,7 +27931,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27945,7 +27945,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['WorkflowsIngestRequest'];
+        "application/json": components["schemas"]["WorkflowsIngestRequest"];
       };
     };
     responses: {
@@ -27955,7 +27955,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['WorkflowsIngestResponse'];
+          "application/json": components["schemas"]["WorkflowsIngestResponse"];
         };
       };
       /** @description Validation Error */
@@ -27964,7 +27964,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -27983,7 +27983,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['GetObserveWorkflowsRequest'];
+        "application/json": components["schemas"]["GetObserveWorkflowsRequest"];
       };
     };
     responses: {
@@ -27993,7 +27993,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['WorkflowsReadResponse'];
+          "application/json": components["schemas"]["WorkflowsReadResponse"];
         };
       };
       /** @description Validation Error */
@@ -28002,7 +28002,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28018,7 +28018,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['TransactionRecordBatch'];
+        "application/json": components["schemas"]["TransactionRecordBatch"];
       };
     };
     responses: {
@@ -28028,7 +28028,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -28037,7 +28037,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28061,7 +28061,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['TransactionRowsRequestBody'];
+        "application/json": components["schemas"]["TransactionRowsRequestBody"];
       };
     };
     responses: {
@@ -28071,7 +28071,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TransactionRecordsResponse'];
+          "application/json": components["schemas"]["TransactionRecordsResponse"];
         };
       };
       /** @description Validation Error */
@@ -28080,7 +28080,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28105,7 +28105,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['FilterOptionsResponse'];
+          "application/json": components["schemas"]["FilterOptionsResponse"];
         };
       };
       /** @description Validation Error */
@@ -28114,7 +28114,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28136,7 +28136,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['MetricCritiqueColumns'];
+          "application/json": components["schemas"]["MetricCritiqueColumns"];
         };
       };
       /** @description Validation Error */
@@ -28145,7 +28145,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28158,7 +28158,7 @@ export interface operations {
         chain_id?: string | null;
         include_chains?: boolean;
         test_set?: boolean;
-        export_format?: components['schemas']['LLMExportFormat'];
+        export_format?: components["schemas"]["LLMExportFormat"];
       };
       header?: never;
       path: {
@@ -28168,7 +28168,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['TransactionRowsRequestBody'];
+        "application/json": components["schemas"]["TransactionRowsRequestBody"];
       };
     };
     responses: {
@@ -28185,7 +28185,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28206,7 +28206,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DatabricksObserveExportRequest'];
+        "application/json": components["schemas"]["DatabricksObserveExportRequest"];
       };
     };
     responses: {
@@ -28216,7 +28216,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -28225,7 +28225,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28246,7 +28246,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['FiltersRequestBody'];
+        "application/json": components["schemas"]["FiltersRequestBody"];
       };
     };
     responses: {
@@ -28256,7 +28256,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TransactionMetricsResponse'];
+          "application/json": components["schemas"]["TransactionMetricsResponse"];
         };
       };
       /** @description Validation Error */
@@ -28265,7 +28265,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28281,7 +28281,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['TransactionRowsRequestBody'];
+        "application/json": components["schemas"]["TransactionRowsRequestBody"];
       };
     };
     responses: {
@@ -28291,7 +28291,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TransactionRecordsResponse'];
+          "application/json": components["schemas"]["TransactionRecordsResponse"];
         };
       };
       /** @description Validation Error */
@@ -28300,7 +28300,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28316,7 +28316,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['FiltersRequestBody'];
+        "application/json": components["schemas"]["FiltersRequestBody"];
       };
     };
     responses: {
@@ -28326,7 +28326,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['WorkflowCountResponse'];
+          "application/json": components["schemas"]["WorkflowCountResponse"];
         };
       };
       /** @description Validation Error */
@@ -28335,7 +28335,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28357,7 +28357,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ProjectIntegrationsResponse'];
+          "application/json": components["schemas"]["ProjectIntegrationsResponse"];
         };
       };
       /** @description Validation Error */
@@ -28366,7 +28366,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28388,7 +28388,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
+          "application/json": {
             [key: string]: string;
           };
         };
@@ -28399,7 +28399,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28421,7 +28421,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': string[];
+          "application/json": string[];
         };
       };
       /** @description Validation Error */
@@ -28430,7 +28430,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28444,7 +28444,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['OrganizationCreate'];
+        "application/json": components["schemas"]["OrganizationCreate"];
       };
     };
     responses: {
@@ -28454,7 +28454,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['OrganizationDB'];
+          "application/json": components["schemas"]["OrganizationDB"];
         };
       };
       /** @description Validation Error */
@@ -28463,7 +28463,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28480,7 +28480,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['QueryOrganizationParams'];
+        "application/json": components["schemas"]["QueryOrganizationParams"];
       };
     };
     responses: {
@@ -28490,7 +28490,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListOrganizationsResponse'];
+          "application/json": components["schemas"]["ListOrganizationsResponse"];
         };
       };
       /** @description Validation Error */
@@ -28499,7 +28499,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28515,7 +28515,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CompositeProjectSettings'];
+        "application/json": components["schemas"]["CompositeProjectSettings"];
       };
     };
     responses: {
@@ -28525,7 +28525,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ProjectSettingsDB'];
+          "application/json": components["schemas"]["ProjectSettingsDB"];
         };
       };
       /** @description Validation Error */
@@ -28534,7 +28534,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28556,7 +28556,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GenAIProjectSettings'];
+          "application/json": components["schemas"]["GenAIProjectSettings"];
         };
       };
       /** @description Validation Error */
@@ -28565,7 +28565,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28581,7 +28581,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['GenAIProjectSettings'];
+        "application/json": components["schemas"]["GenAIProjectSettings"];
       };
     };
     responses: {
@@ -28591,7 +28591,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ProjectSettingsDB'];
+          "application/json": components["schemas"]["ProjectSettingsDB"];
         };
       };
       /** @description Validation Error */
@@ -28600,7 +28600,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28622,7 +28622,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ScorersConfig'];
+          "application/json": components["schemas"]["ScorersConfig"];
         };
       };
       /** @description Validation Error */
@@ -28631,7 +28631,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28653,7 +28653,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ScorersConfig'];
+          "application/json": components["schemas"]["ScorersConfig"];
         };
       };
       /** @description Validation Error */
@@ -28662,7 +28662,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28684,7 +28684,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ObserveProjectSettings'];
+          "application/json": components["schemas"]["ObserveProjectSettings"];
         };
       };
       /** @description Validation Error */
@@ -28693,7 +28693,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28715,7 +28715,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EvaluateProjectSettings'];
+          "application/json": components["schemas"]["EvaluateProjectSettings"];
         };
       };
       /** @description Validation Error */
@@ -28724,7 +28724,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28744,7 +28744,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CollaboratorRoleInfo'][];
+          "application/json": components["schemas"]["CollaboratorRoleInfo"][];
         };
       };
     };
@@ -28753,7 +28753,7 @@ export interface operations {
     parameters: {
       query?: {
         project_name?: string | null;
-        type?: components['schemas']['ProjectType'] | null;
+        type?: components["schemas"]["ProjectType"] | null;
       };
       header?: never;
       path?: never;
@@ -28767,7 +28767,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ProjectDB'][];
+          "application/json": components["schemas"]["ProjectDB"][];
         };
       };
       /** @description Validation Error */
@@ -28776,7 +28776,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28790,7 +28790,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ProjectCreate'];
+        "application/json": components["schemas"]["ProjectCreate"];
       };
     };
     responses: {
@@ -28800,7 +28800,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ProjectCreateResponse'];
+          "application/json": components["schemas"]["ProjectCreateResponse"];
         };
       };
       /** @description Validation Error */
@@ -28809,7 +28809,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28818,7 +28818,7 @@ export interface operations {
     parameters: {
       query?: {
         /** @description Actions to include in the 'permissions' field. */
-        actions?: components['schemas']['ProjectAction'][];
+        actions?: components["schemas"]["ProjectAction"][];
         starting_token?: number;
         limit?: number;
       };
@@ -28828,7 +28828,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['ProjectCollectionParams'];
+        "application/json": components["schemas"]["ProjectCollectionParams"];
       };
     };
     responses: {
@@ -28838,7 +28838,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetProjectsPaginatedResponse'];
+          "application/json": components["schemas"]["GetProjectsPaginatedResponse"];
         };
       };
       /** @description Validation Error */
@@ -28847,7 +28847,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28861,7 +28861,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['ProjectCollectionParams'];
+        "application/json": components["schemas"]["ProjectCollectionParams"];
       };
     };
     responses: {
@@ -28871,7 +28871,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': number;
+          "application/json": number;
         };
       };
       /** @description Validation Error */
@@ -28880,7 +28880,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28888,7 +28888,7 @@ export interface operations {
   get_all_projects_projects_all_get: {
     parameters: {
       query?: {
-        type?: components['schemas']['ProjectType'] | null;
+        type?: components["schemas"]["ProjectType"] | null;
       };
       header?: never;
       path?: never;
@@ -28902,7 +28902,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ProjectDBThin'][];
+          "application/json": components["schemas"]["ProjectDBThin"][];
         };
       };
       /** @description Validation Error */
@@ -28911,7 +28911,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28933,7 +28933,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ProjectDB'];
+          "application/json": components["schemas"]["ProjectDB"];
         };
       };
       /** @description Validation Error */
@@ -28942,7 +28942,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28958,7 +28958,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ProjectUpdate'];
+        "application/json": components["schemas"]["ProjectUpdate"];
       };
     };
     responses: {
@@ -28968,7 +28968,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ProjectUpdateResponse'];
+          "application/json": components["schemas"]["ProjectUpdateResponse"];
         };
       };
       /** @description Validation Error */
@@ -28977,7 +28977,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -28999,7 +28999,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ProjectDeleteResponse'];
+          "application/json": components["schemas"]["ProjectDeleteResponse"];
         };
       };
       /** @description Validation Error */
@@ -29008,7 +29008,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29024,7 +29024,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'multipart/form-data': components['schemas']['Body_upload_file_projects__project_id__upload_file_post'];
+        "multipart/form-data": components["schemas"]["Body_upload_file_projects__project_id__upload_file_post"];
       };
     };
     responses: {
@@ -29034,7 +29034,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -29043,7 +29043,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29068,7 +29068,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListUserCollaboratorsResponse'];
+          "application/json": components["schemas"]["ListUserCollaboratorsResponse"];
         };
       };
       /** @description Validation Error */
@@ -29077,7 +29077,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29093,7 +29093,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UserCollaboratorCreate'][];
+        "application/json": components["schemas"]["UserCollaboratorCreate"][];
       };
     };
     responses: {
@@ -29103,7 +29103,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['UserCollaborator'][];
+          "application/json": components["schemas"]["UserCollaborator"][];
         };
       };
       /** @description Validation Error */
@@ -29112,7 +29112,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29137,7 +29137,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListGroupCollaboratorsResponse'];
+          "application/json": components["schemas"]["ListGroupCollaboratorsResponse"];
         };
       };
       /** @description Validation Error */
@@ -29146,7 +29146,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29162,7 +29162,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['GroupCollaboratorCreate'][];
+        "application/json": components["schemas"]["GroupCollaboratorCreate"][];
       };
     };
     responses: {
@@ -29172,7 +29172,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupCollaborator'][];
+          "application/json": components["schemas"]["GroupCollaborator"][];
         };
       };
       /** @description Validation Error */
@@ -29181,7 +29181,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29204,7 +29204,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -29213,7 +29213,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29230,7 +29230,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CollaboratorUpdate'];
+        "application/json": components["schemas"]["CollaboratorUpdate"];
       };
     };
     responses: {
@@ -29240,7 +29240,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['UserCollaborator'];
+          "application/json": components["schemas"]["UserCollaborator"];
         };
       };
       /** @description Validation Error */
@@ -29249,7 +29249,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29272,7 +29272,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -29281,7 +29281,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29298,7 +29298,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CollaboratorUpdate'];
+        "application/json": components["schemas"]["CollaboratorUpdate"];
       };
     };
     responses: {
@@ -29308,7 +29308,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GroupCollaborator'];
+          "application/json": components["schemas"]["GroupCollaborator"];
         };
       };
       /** @description Validation Error */
@@ -29317,7 +29317,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29334,7 +29334,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['PromptChainIngestRequest'];
+        "application/json": components["schemas"]["PromptChainIngestRequest"];
       };
     };
     responses: {
@@ -29344,7 +29344,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PromptChainIngestResponse'];
+          "application/json": components["schemas"]["PromptChainIngestResponse"];
         };
       };
       /** @description Validation Error */
@@ -29353,7 +29353,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29370,7 +29370,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['PromptChainIngestBatchRequest'];
+        "application/json": components["schemas"]["PromptChainIngestBatchRequest"];
       };
     };
     responses: {
@@ -29380,7 +29380,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PromptChainIngestBatchResponse'];
+          "application/json": components["schemas"]["PromptChainIngestBatchResponse"];
         };
       };
       /** @description Validation Error */
@@ -29389,7 +29389,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29411,7 +29411,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ModelInfo'][];
+          "application/json": components["schemas"]["ModelInfo"][];
         };
       };
       /** @description Validation Error */
@@ -29420,7 +29420,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29442,7 +29442,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['PromptFilterParams'];
+        "application/json": components["schemas"]["PromptFilterParams"];
       };
     };
     responses: {
@@ -29452,7 +29452,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPromptRowsColumnarResponse'];
+          "application/json": components["schemas"]["GetPromptRowsColumnarResponse"];
         };
       };
       /** @description Validation Error */
@@ -29461,7 +29461,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29488,7 +29488,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPromptRowsColumnarResponse'];
+          "application/json": components["schemas"]["GetPromptRowsColumnarResponse"];
         };
       };
       /** @description Validation Error */
@@ -29497,7 +29497,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29521,7 +29521,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PromptSampleIDs'];
+          "application/json": components["schemas"]["PromptSampleIDs"];
         };
       };
       /** @description Validation Error */
@@ -29530,7 +29530,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29549,7 +29549,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': {
+        "application/json": {
           [key: string]: number;
         };
       };
@@ -29561,10 +29561,10 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
+          "application/json": {
             [
               key: string
-            ]: components['schemas']['GetPromptRowsColumnarResponse'];
+            ]: components["schemas"]["GetPromptRowsColumnarResponse"];
           };
         };
       };
@@ -29574,7 +29574,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29602,7 +29602,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPromptRowsColumnarResponse'];
+          "application/json": components["schemas"]["GetPromptRowsColumnarResponse"];
         };
       };
       /** @description Validation Error */
@@ -29611,7 +29611,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29631,7 +29631,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PromptGroupResponse'][];
+          "application/json": components["schemas"]["PromptGroupResponse"][];
         };
       };
     };
@@ -29639,7 +29639,7 @@ export interface operations {
   export_prompt_dataset_projects__project_id__runs__run_id__prompts_export_prompt_dataset_get: {
     parameters: {
       query?: {
-        export_format?: components['schemas']['LLMExportFormat'];
+        export_format?: components["schemas"]["LLMExportFormat"];
         include_chains?: boolean;
         columns?: string[];
         inputs?: boolean;
@@ -29669,7 +29669,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29677,7 +29677,7 @@ export interface operations {
   get_prompt_chain_rows_projects__project_id__runs__run_id__chains__chain_id__get: {
     parameters: {
       query?: {
-        task_type?: components['schemas']['TaskType'];
+        task_type?: components["schemas"]["TaskType"];
       };
       header?: never;
       path: {
@@ -29695,7 +29695,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPromptRowsResponse'];
+          "application/json": components["schemas"]["GetPromptRowsResponse"];
         };
       };
       /** @description Validation Error */
@@ -29704,7 +29704,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29712,7 +29712,7 @@ export interface operations {
   get_rows_projects__project_id__runs__run_id__prompts_rows_get: {
     parameters: {
       query?: {
-        task_type?: components['schemas']['TaskType'];
+        task_type?: components["schemas"]["TaskType"];
         sort_by?: string;
         sort_ascending?: boolean;
         text_column?: string | null;
@@ -29736,7 +29736,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPromptRowsResponse'];
+          "application/json": components["schemas"]["GetPromptRowsResponse"];
         };
       };
       /** @description Validation Error */
@@ -29745,7 +29745,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29761,7 +29761,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateComputeScoreRequest'];
+        "application/json": components["schemas"]["CreateComputeScoreRequest"];
       };
     };
     responses: {
@@ -29771,7 +29771,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -29780,7 +29780,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29800,7 +29800,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['PutPromptScoreRequest'];
+        "application/json": components["schemas"]["PutPromptScoreRequest"];
       };
     };
     responses: {
@@ -29810,7 +29810,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['PutPromptScoreResponse'];
+          "application/json": components["schemas"]["PutPromptScoreResponse"];
         };
       };
       /** @description Validation Error */
@@ -29819,7 +29819,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29841,7 +29841,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BasePromptTemplateResponse'][];
+          "application/json": components["schemas"]["BasePromptTemplateResponse"][];
         };
       };
       /** @description Validation Error */
@@ -29850,7 +29850,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29866,7 +29866,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreatePromptTemplateWithVersionRequestBody'];
+        "application/json": components["schemas"]["CreatePromptTemplateWithVersionRequestBody"];
       };
     };
     responses: {
@@ -29876,7 +29876,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BasePromptTemplateResponse'];
+          "application/json": components["schemas"]["BasePromptTemplateResponse"];
         };
       };
       /** @description Validation Error */
@@ -29885,7 +29885,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29910,7 +29910,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BasePromptTemplateVersionResponse'];
+          "application/json": components["schemas"]["BasePromptTemplateVersionResponse"];
         };
       };
       /** @description Validation Error */
@@ -29919,7 +29919,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29942,7 +29942,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BasePromptTemplateResponse'];
+          "application/json": components["schemas"]["BasePromptTemplateResponse"];
         };
       };
       /** @description Validation Error */
@@ -29951,7 +29951,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -29974,7 +29974,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeletePromptResponse'];
+          "application/json": components["schemas"]["DeletePromptResponse"];
         };
       };
       /** @description Validation Error */
@@ -29983,7 +29983,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30000,7 +30000,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['BasePromptTemplateVersion'];
+        "application/json": components["schemas"]["BasePromptTemplateVersion"];
       };
     };
     responses: {
@@ -30010,7 +30010,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BasePromptTemplateVersionResponse'];
+          "application/json": components["schemas"]["BasePromptTemplateVersionResponse"];
         };
       };
       /** @description Validation Error */
@@ -30019,7 +30019,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30043,7 +30043,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BasePromptTemplateVersionResponse'];
+          "application/json": components["schemas"]["BasePromptTemplateVersionResponse"];
         };
       };
       /** @description Validation Error */
@@ -30052,7 +30052,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30076,7 +30076,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BasePromptTemplateResponse'];
+          "application/json": components["schemas"]["BasePromptTemplateResponse"];
         };
       };
       /** @description Validation Error */
@@ -30085,7 +30085,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30099,7 +30099,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['Request'];
+        "application/json": components["schemas"]["Request"];
       };
     };
     responses: {
@@ -30109,9 +30109,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json':
-            | components['schemas']['Response']
-            | components['schemas']['InvokeResponse'];
+          "application/json":
+            | components["schemas"]["Response"]
+            | components["schemas"]["InvokeResponse"];
         };
       };
       /** @description Validation Error */
@@ -30120,7 +30120,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30143,7 +30143,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListRegisteredScorersResponse'];
+          "application/json": components["schemas"]["ListRegisteredScorersResponse"];
         };
       };
       /** @description Validation Error */
@@ -30152,7 +30152,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30168,7 +30168,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'multipart/form-data': components['schemas']['Body_create_or_update_registered_scorers_put'];
+        "multipart/form-data": components["schemas"]["Body_create_or_update_registered_scorers_put"];
       };
     };
     responses: {
@@ -30178,7 +30178,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CreateUpdateRegisteredScorerResponse'];
+          "application/json": components["schemas"]["CreateUpdateRegisteredScorerResponse"];
         };
       };
       /** @description Validation Error */
@@ -30187,7 +30187,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30209,7 +30209,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -30218,7 +30218,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30241,7 +30241,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunScorerSettingsRequest'];
+          "application/json": components["schemas"]["RunScorerSettingsRequest"];
         };
       };
       /** @description Validation Error */
@@ -30250,7 +30250,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30267,7 +30267,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RunScorerSettingsRequest'];
+        "application/json": components["schemas"]["RunScorerSettingsRequest"];
       };
     };
     responses: {
@@ -30277,7 +30277,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunScorerSettingsRequest'];
+          "application/json": components["schemas"]["RunScorerSettingsRequest"];
         };
       };
       /** @description Validation Error */
@@ -30286,7 +30286,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30310,7 +30310,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunDB'][];
+          "application/json": components["schemas"]["RunDB"][];
         };
       };
       /** @description Validation Error */
@@ -30319,7 +30319,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30335,7 +30335,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RunCreate'];
+        "application/json": components["schemas"]["RunCreate"];
       };
     };
     responses: {
@@ -30345,7 +30345,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['CreateRunResponse'];
+          "application/json": components["schemas"]["CreateRunResponse"];
         };
       };
       /** @description Validation Error */
@@ -30354,7 +30354,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30370,7 +30370,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['DeleteRunsRequest'];
+        "application/json": components["schemas"]["DeleteRunsRequest"];
       };
     };
     responses: {
@@ -30380,7 +30380,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeleteRunsResponse'];
+          "application/json": components["schemas"]["DeleteRunsResponse"];
         };
       };
       /** @description Validation Error */
@@ -30389,7 +30389,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30416,7 +30416,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPromptRunsResponse'];
+          "application/json": components["schemas"]["GetPromptRunsResponse"];
         };
       };
       /** @description Validation Error */
@@ -30425,7 +30425,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30452,7 +30452,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPromptRunColumnsResponse'];
+          "application/json": components["schemas"]["GetPromptRunColumnsResponse"];
         };
       };
       /** @description Validation Error */
@@ -30461,7 +30461,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30482,7 +30482,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['PromptFilterParams'];
+        "application/json": components["schemas"]["PromptFilterParams"];
       };
     };
     responses: {
@@ -30492,7 +30492,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPromptRunColumnsResponse'];
+          "application/json": components["schemas"]["GetPromptRunColumnsResponse"];
         };
       };
       /** @description Validation Error */
@@ -30501,7 +30501,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30524,7 +30524,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunDB'];
+          "application/json": components["schemas"]["RunDB"];
         };
       };
       /** @description Validation Error */
@@ -30533,7 +30533,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30550,7 +30550,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RunUpdateRequest'];
+        "application/json": components["schemas"]["RunUpdateRequest"];
       };
     };
     responses: {
@@ -30560,7 +30560,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['UpdateRunResponse'];
+          "application/json": components["schemas"]["UpdateRunResponse"];
         };
       };
       /** @description Validation Error */
@@ -30569,7 +30569,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30592,7 +30592,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeleteRunResponse'];
+          "application/json": components["schemas"]["DeleteRunResponse"];
         };
       };
       /** @description Validation Error */
@@ -30601,7 +30601,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30624,7 +30624,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPromptRun'];
+          "application/json": components["schemas"]["GetPromptRun"];
         };
       };
       /** @description Validation Error */
@@ -30633,7 +30633,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30656,7 +30656,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunLinkResponse'];
+          "application/json": components["schemas"]["RunLinkResponse"];
         };
       };
       /** @description Validation Error */
@@ -30665,7 +30665,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30688,7 +30688,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TaskResponse'];
+          "application/json": components["schemas"]["TaskResponse"];
         };
       };
       /** @description Validation Error */
@@ -30697,7 +30697,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30722,7 +30722,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LabelResponse'];
+          "application/json": components["schemas"]["LabelResponse"];
         };
       };
       /** @description Validation Error */
@@ -30731,7 +30731,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30754,7 +30754,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['InferenceNamesResponse'];
+          "application/json": components["schemas"]["InferenceNamesResponse"];
         };
       };
       /** @description Validation Error */
@@ -30763,7 +30763,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30775,7 +30775,7 @@ export interface operations {
       path: {
         project_id: string;
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
       };
       cookie?: never;
     };
@@ -30787,7 +30787,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': number[];
+          "application/json": number[];
         };
       };
       /** @description Validation Error */
@@ -30796,7 +30796,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30819,7 +30819,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetSplitsResponse'];
+          "application/json": components["schemas"]["GetSplitsResponse"];
         };
       };
       /** @description Validation Error */
@@ -30828,7 +30828,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30853,7 +30853,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunMetricDB'][];
+          "application/json": components["schemas"]["RunMetricDB"][];
         };
       };
       /** @description Validation Error */
@@ -30862,7 +30862,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30879,7 +30879,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RunMetricCreateRequest'];
+        "application/json": components["schemas"]["RunMetricCreateRequest"];
       };
     };
     responses: {
@@ -30889,7 +30889,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunMetricDB'];
+          "application/json": components["schemas"]["RunMetricDB"];
         };
       };
       /** @description Validation Error */
@@ -30898,7 +30898,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30921,7 +30921,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetPromptRunColumnsResponse'];
+          "application/json": components["schemas"]["GetPromptRunColumnsResponse"];
         };
       };
       /** @description Validation Error */
@@ -30930,7 +30930,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30953,7 +30953,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunTagDB'][];
+          "application/json": components["schemas"]["RunTagDB"][];
         };
       };
       /** @description Validation Error */
@@ -30962,7 +30962,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -30979,7 +30979,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RunTagCreateRequest'];
+        "application/json": components["schemas"]["RunTagCreateRequest"];
       };
     };
     responses: {
@@ -30989,7 +30989,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunTagDB'];
+          "application/json": components["schemas"]["RunTagDB"];
         };
       };
       /** @description Validation Error */
@@ -30998,7 +30998,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31022,7 +31022,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunTagDB'];
+          "application/json": components["schemas"]["RunTagDB"];
         };
       };
       /** @description Validation Error */
@@ -31031,7 +31031,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31049,7 +31049,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RunTagCreateRequest'];
+        "application/json": components["schemas"]["RunTagCreateRequest"];
       };
     };
     responses: {
@@ -31059,7 +31059,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['RunTagDB'];
+          "application/json": components["schemas"]["RunTagDB"];
         };
       };
       /** @description Validation Error */
@@ -31068,7 +31068,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31092,7 +31092,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['DeleteRunResponse'];
+          "application/json": components["schemas"]["DeleteRunResponse"];
         };
       };
       /** @description Validation Error */
@@ -31101,7 +31101,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31115,7 +31115,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateScorerRequest'];
+        "application/json": components["schemas"]["CreateScorerRequest"];
       };
     };
     responses: {
@@ -31125,7 +31125,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ScorerResponse'];
+          "application/json": components["schemas"]["ScorerResponse"];
         };
       };
       /** @description Validation Error */
@@ -31134,7 +31134,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31156,7 +31156,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ScorerResponse'];
+          "application/json": components["schemas"]["ScorerResponse"];
         };
       };
       /** @description Validation Error */
@@ -31165,7 +31165,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31181,7 +31181,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UpdateScorerRequest'];
+        "application/json": components["schemas"]["UpdateScorerRequest"];
       };
     };
     responses: {
@@ -31191,7 +31191,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ScorerResponse'];
+          "application/json": components["schemas"]["ScorerResponse"];
         };
       };
       /** @description Validation Error */
@@ -31200,7 +31200,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31216,7 +31216,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['CreateLLMScorerVersionRequest'];
+        "application/json": components["schemas"]["CreateLLMScorerVersionRequest"];
       };
     };
     responses: {
@@ -31226,7 +31226,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['BaseScorerVersionResponse'];
+          "application/json": components["schemas"]["BaseScorerVersionResponse"];
         };
       };
       /** @description Validation Error */
@@ -31235,7 +31235,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31252,7 +31252,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ListScorersRequest'];
+        "application/json": components["schemas"]["ListScorersRequest"];
       };
     };
     responses: {
@@ -31262,7 +31262,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ListScorersResponse'];
+          "application/json": components["schemas"]["ListScorersResponse"];
         };
       };
       /** @description Validation Error */
@@ -31271,7 +31271,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31291,7 +31291,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': string[];
+          "application/json": string[];
         };
       };
     };
@@ -31316,7 +31316,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ScorerVersionsResponse'];
+          "application/json": components["schemas"]["ScorerVersionsResponse"];
         };
       };
       /** @description Validation Error */
@@ -31325,7 +31325,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31349,7 +31349,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SliceDB'][];
+          "application/json": components["schemas"]["SliceDB"][];
         };
       };
       /** @description Validation Error */
@@ -31358,7 +31358,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31374,7 +31374,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['SliceCreate'];
+        "application/json": components["schemas"]["SliceCreate"];
       };
     };
     responses: {
@@ -31384,7 +31384,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SliceCreateResponse'];
+          "application/json": components["schemas"]["SliceCreateResponse"];
         };
       };
       /** @description Validation Error */
@@ -31393,7 +31393,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31407,7 +31407,7 @@ export interface operations {
       header?: never;
       path: {
         run_id: string;
-        split: components['schemas']['Split'];
+        split: components["schemas"]["Split"];
         project_id: string;
       };
       cookie?: never;
@@ -31420,7 +31420,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SliceMetrics'][];
+          "application/json": components["schemas"]["SliceMetrics"][];
         };
       };
       /** @description Validation Error */
@@ -31429,7 +31429,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31452,7 +31452,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SliceDB'];
+          "application/json": components["schemas"]["SliceDB"];
         };
       };
       /** @description Validation Error */
@@ -31461,7 +31461,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31478,7 +31478,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['SliceUpdate'];
+        "application/json": components["schemas"]["SliceUpdate"];
       };
     };
     responses: {
@@ -31488,7 +31488,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SliceUpdateResponse'];
+          "application/json": components["schemas"]["SliceUpdateResponse"];
         };
       };
       /** @description Validation Error */
@@ -31497,7 +31497,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31520,7 +31520,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['SliceDeleteResponse'];
+          "application/json": components["schemas"]["SliceDeleteResponse"];
         };
       };
       /** @description Validation Error */
@@ -31529,7 +31529,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31554,7 +31554,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['StageDB'];
+          "application/json": components["schemas"]["StageDB"];
         };
       };
       /** @description Validation Error */
@@ -31563,7 +31563,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31579,7 +31579,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['StageWithRulesets'];
+        "application/json": components["schemas"]["StageWithRulesets"];
       };
     };
     responses: {
@@ -31589,7 +31589,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['StageDB'];
+          "application/json": components["schemas"]["StageDB"];
         };
       };
       /** @description Validation Error */
@@ -31598,7 +31598,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31623,7 +31623,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['StageDB'];
+          "application/json": components["schemas"]["StageDB"];
         };
       };
       /** @description Validation Error */
@@ -31632,7 +31632,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31649,7 +31649,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['RulesetsMixin'];
+        "application/json": components["schemas"]["RulesetsMixin"];
       };
     };
     responses: {
@@ -31659,7 +31659,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['StageDB'];
+          "application/json": components["schemas"]["StageDB"];
         };
       };
       /** @description Validation Error */
@@ -31668,7 +31668,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31684,7 +31684,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['TracesIngestRequest'];
+        "application/json": components["schemas"]["TracesIngestRequest"];
       };
     };
     responses: {
@@ -31694,7 +31694,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TracesIngestResponse'];
+          "application/json": components["schemas"]["TracesIngestResponse"];
         };
       };
       /** @description Validation Error */
@@ -31703,7 +31703,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31719,7 +31719,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogDataAvailableColumnsRequest'];
+        "application/json": components["schemas"]["LogDataAvailableColumnsRequest"];
       };
     };
     responses: {
@@ -31729,7 +31729,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogDataAvailableColumnsResponse'];
+          "application/json": components["schemas"]["LogDataAvailableColumnsResponse"];
         };
       };
       /** @description Validation Error */
@@ -31738,7 +31738,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31754,7 +31754,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogDataAvailableColumnsRequest'];
+        "application/json": components["schemas"]["LogDataAvailableColumnsRequest"];
       };
     };
     responses: {
@@ -31764,7 +31764,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogDataAvailableColumnsResponse'];
+          "application/json": components["schemas"]["LogDataAvailableColumnsResponse"];
         };
       };
       /** @description Validation Error */
@@ -31773,7 +31773,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31789,7 +31789,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogDataQueryRequest'];
+        "application/json": components["schemas"]["LogDataQueryRequest"];
       };
     };
     responses: {
@@ -31799,7 +31799,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogDataQueryResponse'];
+          "application/json": components["schemas"]["LogDataQueryResponse"];
         };
       };
       /** @description Validation Error */
@@ -31808,7 +31808,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31824,7 +31824,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogDataQueryRequest'];
+        "application/json": components["schemas"]["LogDataQueryRequest"];
       };
     };
     responses: {
@@ -31834,7 +31834,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogDataQueryResponse'];
+          "application/json": components["schemas"]["LogDataQueryResponse"];
         };
       };
       /** @description Validation Error */
@@ -31843,7 +31843,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31866,7 +31866,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TraceWithMetrics'];
+          "application/json": components["schemas"]["TraceWithMetrics"];
         };
       };
       /** @description Validation Error */
@@ -31875,7 +31875,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31898,11 +31898,11 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json':
-            | components['schemas']['WorkflowSpanWithMetrics']
-            | components['schemas']['LlmSpanWithMetrics']
-            | components['schemas']['RetrieverSpanWithMetrics']
-            | components['schemas']['ToolSpanWithMetrics'];
+          "application/json":
+            | components["schemas"]["WorkflowSpanWithMetrics"]
+            | components["schemas"]["LlmSpanWithMetrics"]
+            | components["schemas"]["RetrieverSpanWithMetrics"]
+            | components["schemas"]["ToolSpanWithMetrics"];
         };
       };
       /** @description Validation Error */
@@ -31911,7 +31911,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31933,7 +31933,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TrainingModelResponse'];
+          "application/json": components["schemas"]["TrainingModelResponse"];
         };
       };
       /** @description Validation Error */
@@ -31942,7 +31942,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31965,7 +31965,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TrainingModelResponse'][];
+          "application/json": components["schemas"]["TrainingModelResponse"][];
         };
       };
       /** @description Validation Error */
@@ -31974,7 +31974,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -31997,7 +31997,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TrainingModelResponse'];
+          "application/json": components["schemas"]["TrainingModelResponse"];
         };
       };
       /** @description Validation Error */
@@ -32006,7 +32006,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32023,7 +32023,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['UploadModel'];
+        "application/json": components["schemas"]["UploadModel"];
       };
     };
     responses: {
@@ -32033,7 +32033,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['UploadModelResponse'];
+          "application/json": components["schemas"]["UploadModelResponse"];
         };
       };
       /** @description Validation Error */
@@ -32042,7 +32042,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32067,7 +32067,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TrainingModelResponse'][];
+          "application/json": components["schemas"]["TrainingModelResponse"][];
         };
       };
       /** @description Validation Error */
@@ -32076,7 +32076,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32098,7 +32098,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -32107,7 +32107,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32129,7 +32129,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': unknown;
+          "application/json": unknown;
         };
       };
       /** @description Validation Error */
@@ -32138,7 +32138,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32158,8 +32158,8 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': {
-            [key: string]: components['schemas']['UsagePlan'];
+          "application/json": {
+            [key: string]: components["schemas"]["UsagePlan"];
           };
         };
       };
@@ -32180,7 +32180,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HealthcheckResponse'];
+          "application/json": components["schemas"]["HealthcheckResponse"];
         };
       };
     };
@@ -32202,7 +32202,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetTokenResponse'];
+          "application/json": components["schemas"]["GetTokenResponse"];
         };
       };
       /** @description Validation Error */
@@ -32211,7 +32211,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32225,7 +32225,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['EvaluateRunRequest'];
+        "application/json": components["schemas"]["EvaluateRunRequest"];
       };
     };
     responses: {
@@ -32235,7 +32235,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['EvaluateRunResponse'];
+          "application/json": components["schemas"]["EvaluateRunResponse"];
         };
       };
       /** @description Validation Error */
@@ -32244,7 +32244,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32258,7 +32258,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['EvaluateRunResultsRequest'];
+        "application/json": components["schemas"]["EvaluateRunResultsRequest"];
       };
     };
     responses: {
@@ -32268,7 +32268,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['WorkflowsReadResponse'];
+          "application/json": components["schemas"]["WorkflowsReadResponse"];
         };
       };
       /** @description Validation Error */
@@ -32277,7 +32277,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32291,7 +32291,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['WorkflowsIngestRequest'];
+        "application/json": components["schemas"]["WorkflowsIngestRequest"];
       };
     };
     responses: {
@@ -32301,7 +32301,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['WorkflowsIngestResponse'];
+          "application/json": components["schemas"]["WorkflowsIngestResponse"];
         };
       };
       /** @description Validation Error */
@@ -32310,7 +32310,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32329,7 +32329,7 @@ export interface operations {
     };
     requestBody?: {
       content: {
-        'application/json': components['schemas']['GetObserveWorkflowsRequest'];
+        "application/json": components["schemas"]["GetObserveWorkflowsRequest"];
       };
     };
     responses: {
@@ -32339,7 +32339,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['WorkflowsReadResponse'];
+          "application/json": components["schemas"]["WorkflowsReadResponse"];
         };
       };
       /** @description Validation Error */
@@ -32348,7 +32348,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32362,7 +32362,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['Request'];
+        "application/json": components["schemas"]["Request"];
       };
     };
     responses: {
@@ -32372,9 +32372,9 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json':
-            | components['schemas']['Response']
-            | components['schemas']['InvokeResponse'];
+          "application/json":
+            | components["schemas"]["Response"]
+            | components["schemas"]["InvokeResponse"];
         };
       };
       /** @description Validation Error */
@@ -32383,7 +32383,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32403,7 +32403,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HealthcheckResponse'];
+          "application/json": components["schemas"]["HealthcheckResponse"];
         };
       };
     };
@@ -32425,7 +32425,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['GetTokenResponse'];
+          "application/json": components["schemas"]["GetTokenResponse"];
         };
       };
       /** @description Validation Error */
@@ -32434,7 +32434,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32450,7 +32450,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['TracesIngestRequest'];
+        "application/json": components["schemas"]["TracesIngestRequest"];
       };
     };
     responses: {
@@ -32460,7 +32460,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TracesIngestResponse'];
+          "application/json": components["schemas"]["TracesIngestResponse"];
         };
       };
       /** @description Validation Error */
@@ -32469,7 +32469,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32485,7 +32485,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogDataAvailableColumnsRequest'];
+        "application/json": components["schemas"]["LogDataAvailableColumnsRequest"];
       };
     };
     responses: {
@@ -32495,7 +32495,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogDataAvailableColumnsResponse'];
+          "application/json": components["schemas"]["LogDataAvailableColumnsResponse"];
         };
       };
       /** @description Validation Error */
@@ -32504,7 +32504,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32520,7 +32520,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogDataAvailableColumnsRequest'];
+        "application/json": components["schemas"]["LogDataAvailableColumnsRequest"];
       };
     };
     responses: {
@@ -32530,7 +32530,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogDataAvailableColumnsResponse'];
+          "application/json": components["schemas"]["LogDataAvailableColumnsResponse"];
         };
       };
       /** @description Validation Error */
@@ -32539,7 +32539,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32555,7 +32555,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogDataQueryRequest'];
+        "application/json": components["schemas"]["LogDataQueryRequest"];
       };
     };
     responses: {
@@ -32565,7 +32565,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogDataQueryResponse'];
+          "application/json": components["schemas"]["LogDataQueryResponse"];
         };
       };
       /** @description Validation Error */
@@ -32574,7 +32574,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32590,7 +32590,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogDataQueryRequest'];
+        "application/json": components["schemas"]["LogDataQueryRequest"];
       };
     };
     responses: {
@@ -32600,7 +32600,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogDataQueryResponse'];
+          "application/json": components["schemas"]["LogDataQueryResponse"];
         };
       };
       /** @description Validation Error */
@@ -32609,7 +32609,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32632,7 +32632,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['TraceWithMetrics'];
+          "application/json": components["schemas"]["TraceWithMetrics"];
         };
       };
       /** @description Validation Error */
@@ -32641,7 +32641,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32664,11 +32664,11 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json':
-            | components['schemas']['WorkflowSpanWithMetrics']
-            | components['schemas']['LlmSpanWithMetrics']
-            | components['schemas']['RetrieverSpanWithMetrics']
-            | components['schemas']['ToolSpanWithMetrics'];
+          "application/json":
+            | components["schemas"]["WorkflowSpanWithMetrics"]
+            | components["schemas"]["LlmSpanWithMetrics"]
+            | components["schemas"]["RetrieverSpanWithMetrics"]
+            | components["schemas"]["ToolSpanWithMetrics"];
         };
       };
       /** @description Validation Error */
@@ -32677,7 +32677,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32699,7 +32699,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogStreamResponse'][];
+          "application/json": components["schemas"]["LogStreamResponse"][];
         };
       };
       /** @description Validation Error */
@@ -32708,7 +32708,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32724,7 +32724,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogStreamCreateRequest'];
+        "application/json": components["schemas"]["LogStreamCreateRequest"];
       };
     };
     responses: {
@@ -32734,7 +32734,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogStreamResponse'];
+          "application/json": components["schemas"]["LogStreamResponse"];
         };
       };
       /** @description Validation Error */
@@ -32743,7 +32743,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32766,7 +32766,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogStreamResponse'];
+          "application/json": components["schemas"]["LogStreamResponse"];
         };
       };
       /** @description Validation Error */
@@ -32775,7 +32775,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32792,7 +32792,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['LogStreamUpdateRequest'];
+        "application/json": components["schemas"]["LogStreamUpdateRequest"];
       };
     };
     responses: {
@@ -32802,7 +32802,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['LogStreamResponse'];
+          "application/json": components["schemas"]["LogStreamResponse"];
         };
       };
       /** @description Validation Error */
@@ -32811,7 +32811,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32841,7 +32841,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32863,7 +32863,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ExperimentResponse'][];
+          "application/json": components["schemas"]["ExperimentResponse"][];
         };
       };
       /** @description Validation Error */
@@ -32872,7 +32872,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32888,7 +32888,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ExperimentCreateRequest'];
+        "application/json": components["schemas"]["ExperimentCreateRequest"];
       };
     };
     responses: {
@@ -32898,7 +32898,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ExperimentResponse'];
+          "application/json": components["schemas"]["ExperimentResponse"];
         };
       };
       /** @description Validation Error */
@@ -32907,7 +32907,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32930,7 +32930,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ExperimentResponse'];
+          "application/json": components["schemas"]["ExperimentResponse"];
         };
       };
       /** @description Validation Error */
@@ -32939,7 +32939,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -32956,7 +32956,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        'application/json': components['schemas']['ExperimentUpdateRequest'];
+        "application/json": components["schemas"]["ExperimentUpdateRequest"];
       };
     };
     responses: {
@@ -32966,7 +32966,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['ExperimentResponse'];
+          "application/json": components["schemas"]["ExperimentResponse"];
         };
       };
       /** @description Validation Error */
@@ -32975,7 +32975,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };
@@ -33005,7 +33005,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          'application/json': components['schemas']['HTTPValidationError'];
+          "application/json": components["schemas"]["HTTPValidationError"];
         };
       };
     };

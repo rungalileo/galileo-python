@@ -9,7 +9,6 @@ from ...models.http_validation_error import HTTPValidationError
 from ...models.invoke_response import InvokeResponse
 from ...models.request import Request
 from ...models.response import Response
-from ...types import Response
 
 
 def _get_kwargs(*, body: Request) -> dict[str, Any]:

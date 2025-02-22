@@ -1,19 +1,17 @@
-from typing import Any, Optional, Dict, Union
-from os import getenv
-from pydantic import Field
 import atexit
 import logging
+from os import getenv
+from typing import Optional
 
-from galileo_core.schemas.shared.traces.types import Trace
-from galileo_core.schemas.shared.traces.trace import Traces
-from galileo_core.schemas.shared.workflows.step import StepIOType
-
+from galileo.api_client import GalileoApiClient
+from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
+from galileo.log_streams import LogStreams
+from galileo.projects import Projects
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.core_api_client import GalileoCoreApiClient
-from galileo.constants import DEFAULT_PROJECT_NAME, DEFAULT_LOG_STREAM_NAME
-from galileo.api_client import GalileoApiClient
-from galileo.projects import Projects
-from galileo.log_streams import LogStreams
+from galileo_core.schemas.shared.traces.trace import Traces
+from galileo_core.schemas.shared.traces.types import Trace
+from galileo_core.schemas.shared.workflows.step import StepIOType
 
 
 class GalileoLogger(Traces):
@@ -140,7 +138,7 @@ class GalileoLogger(Traces):
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at_ns: Optional[int] = None,
-        metadata: Optional[Dict[str, str]] = None,
+        metadata: Optional[dict[str, str]] = None,
         ground_truth: Optional[str] = None,
     ) -> Trace:
         """

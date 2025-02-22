@@ -1,4 +1,4 @@
-from pydantic import UUID4, BaseModel, ConfigDict, Field, model_validator
+from pydantic import UUID4, BaseModel, Field
 
 from galileo_core.schemas.shared.traces.trace import Trace
 

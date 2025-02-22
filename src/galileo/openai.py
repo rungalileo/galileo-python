@@ -8,7 +8,7 @@ import openai.resources
 from openai._types import NotGiven
 from packaging.version import Version
 from pydantic import BaseModel
-from wrapt import wrap_function_wrapper
+from wrapt import wrap_function_wrapper # type: ignore[import-untyped]
 
 from galileo import GalileoLogger
 from galileo.decorator import galileo_context

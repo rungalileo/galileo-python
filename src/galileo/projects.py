@@ -1,28 +1,21 @@
-from typing import Union, Optional, overload
+import datetime
+from typing import Optional, Union, overload
 
+from galileo.base import BaseClientModel
+from galileo.resources.api.projects import (
+    create_project_projects_post,
+    get_all_projects_projects_all_get,
+    get_project_projects_project_id_get,
+    get_projects_projects_get,
+)
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.permission import Permission
+from galileo.resources.models.project_create import ProjectCreate
+from galileo.resources.models.project_create_response import ProjectCreateResponse
 from galileo.resources.models.project_db import ProjectDB
 from galileo.resources.models.project_db_thin import ProjectDBThin
 from galileo.resources.models.project_type import ProjectType
-from galileo.resources.models.project_create import ProjectCreate
-
-from galileo.resources.api.projects import (
-    get_project_projects_project_id_get,
-    get_all_projects_projects_all_get,
-    get_projects_projects_get,
-    create_project_projects_post,
-)
-
-from galileo.resources.models.project_create_response import ProjectCreateResponse
-from galileo.resources.models.permission import Permission
-from galileo.resources.models.run_db import RunDB
-from galileo.resources.models.run_db_thin import RunDBThin
-
-from galileo.resources.types import Unset, UNSET
-
-from galileo.resources.models.http_validation_error import HTTPValidationError
-
-from galileo.base import BaseClientModel
-import datetime
+from galileo.resources.types import UNSET, Unset
 
 
 class Project:
@@ -69,7 +62,7 @@ class Projects(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
-        projects: list["ProjectDBThin"] = get_all_projects_projects_all_get.sync(
+        projects: list[ProjectDBThin] = get_all_projects_projects_all_get.sync(
             client=self.client, type_=ProjectType.GEN_AI
         )
         return [Project(project=project) for project in projects] if projects else []

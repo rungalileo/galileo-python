@@ -83,6 +83,7 @@ pyenv local 3.10.13
 > https://python-poetry.org/docs/cli/#shell
 
 The easiest way to install the shell plugin is via the self add command of Poetry:
+
 ```shell
 poetry self add poetry-plugin-shell
 ```

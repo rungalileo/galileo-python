@@ -1,7 +1,6 @@
 from enum import Enum
 from http.client import HTTPException
-from typing import Any, Optional
-from os import getenv
+from typing import Any
 
 from httpx import Response
 

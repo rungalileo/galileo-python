@@ -1,8 +1,8 @@
+from os import getenv
 from typing import Optional
 
 import httpx
 from attrs import define, evolve, field
-from os import getenv
 
 from galileo.resources.client import AuthenticatedClient
 

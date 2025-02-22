@@ -1,37 +1,20 @@
 import asyncio
-from datetime import datetime
 import inspect
 import json
 import logging
+from collections.abc import AsyncGenerator, Generator
 from contextvars import ContextVar
 from functools import wraps
-from typing import (
-    Any,
-    AsyncGenerator,
-    Callable,
-    Dict,
-    Generator,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    TypeVar,
-    cast,
-    overload,
-    Union,
-)
+from typing import Any, Callable, Literal, Optional, TypeVar, Union, cast, overload
 
 from mypy.dmypy_util import TracebackType
 from typing_extensions import ParamSpec
 
-from galileo.utils.serialization import EventSerializer
-
-from galileo.utils.singleton import GalileoLoggerSingleton
-
-from galileo_core.schemas.shared.traces.types import Trace, WorkflowSpan
-
 from galileo.logger import GalileoLogger
 from galileo.utils import _get_timestamp
+from galileo.utils.serialization import EventSerializer
+from galileo.utils.singleton import GalileoLoggerSingleton
+from galileo_core.schemas.shared.traces.types import Trace, WorkflowSpan
 
 _logger = logging.getLogger(__name__)
 
@@ -51,7 +34,7 @@ _log_stream_context: ContextVar[Optional[str]] = ContextVar("log_stream_context"
 
 _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
 
-_span_stack_context: ContextVar[List[WorkflowSpan]] = ContextVar("span_stack_context", default=[])
+_span_stack_context: ContextVar[list[WorkflowSpan]] = ContextVar("span_stack_context", default=[])
 
 
 class GalileoDecorator:
@@ -60,7 +43,7 @@ class GalileoDecorator:
     _previous_project_context: Optional[str]
     _previous_log_stream_context: Optional[str]
     _previous_trace_context: Optional[Trace]
-    _previous_span_stack_context: Optional[List[WorkflowSpan]]
+    _previous_span_stack_context: Optional[list[WorkflowSpan]]
 
     #
     # Context manager methods
@@ -125,7 +108,7 @@ class GalileoDecorator:
         span_type: Optional[SPAN_TYPE] = None,
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
-        params: Optional[Dict[str, Union[str, Callable]]] = None,
+        params: Optional[dict[str, Union[str, Callable]]] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]: ...
 
     def log(
@@ -136,7 +119,7 @@ class GalileoDecorator:
         span_type: Optional[SPAN_TYPE] = None,
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
-        params: Optional[Dict[str, Union[str, Callable]]] = None,
+        params: Optional[dict[str, Union[str, Callable]]] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]:
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
             return (
@@ -176,7 +159,7 @@ class GalileoDecorator:
         span_type: Optional[SPAN_TYPE],
         project: Optional[str],
         log_stream: Optional[str],
-        params: Optional[Dict[str, Union[str, Callable]]] = None,
+        params: Optional[dict[str, Union[str, Callable]]] = None,
     ) -> F:
         @wraps(func)
         async def async_wrapper(*args, **kwargs):
@@ -212,7 +195,7 @@ class GalileoDecorator:
         span_type: Optional[SPAN_TYPE],
         project: Optional[str],
         log_stream: Optional[str],
-        params: Optional[Dict[str, Union[str, Callable]]] = None,
+        params: Optional[dict[str, Union[str, Callable]]] = None,
     ) -> F:
         @wraps(func)
         def sync_wrapper(*args, **kwargs):
@@ -255,10 +238,10 @@ class GalileoDecorator:
         func: Callable,
         name: str,
         span_type: Optional[SPAN_TYPE],
-        params: Optional[Dict[str, Union[str, Callable]]] = None,
+        params: Optional[dict[str, Union[str, Callable]]] = None,
         is_method: bool = False,
-        func_args: Tuple = (),
-        func_kwargs: Dict = {},
+        func_args: tuple = (),
+        func_kwargs: dict = {},
     ) -> Optional[dict[str, str]]:
         try:
             start_time = _get_timestamp()
@@ -302,8 +285,8 @@ class GalileoDecorator:
             return None
 
     def _merge_args_with_kwargs(
-        self, *, func: Callable, is_method: bool, func_args: Tuple, func_kwargs: Dict
-    ) -> Dict[str, Any]:
+        self, *, func: Callable, is_method: bool, func_args: tuple, func_kwargs: dict
+    ) -> dict[str, Any]:
         """Merge positional and keyword arguments into a single dictionary."""
         try:
             # Get the actual function, handling wrapped functions
@@ -331,7 +314,7 @@ class GalileoDecorator:
             # Return just the kwargs if something goes wrong
             return func_kwargs
 
-    def _get_span_param_names(self, span_type: SPAN_TYPE) -> List[str]:
+    def _get_span_param_names(self, span_type: SPAN_TYPE) -> list[str]:
         """Return the parameter names available for each span type."""
         common_params = ["name", "input", "metadata"]
         span_params = {
@@ -374,7 +357,7 @@ class GalileoDecorator:
             _span_stack_context.set(stack + [span])
 
     def _get_input_from_func_args(
-        self, *, is_method: bool = False, func_args: Tuple = (), func_kwargs: Dict = {}
+        self, *, is_method: bool = False, func_args: tuple = (), func_kwargs: dict = {}
     ) -> Any:
         # Remove implicitly passed "self" or "cls" argument for instance or class methods
         logged_args = func_args[1:] if is_method else func_args
@@ -419,7 +402,7 @@ class GalileoDecorator:
             created_at_ns = span_params.get("created_at_ns")
             end_time_ns = int(round(_get_timestamp().timestamp() * 1e9))
             if created_at_ns:
-                span_params["duration_ns"] = int(round((end_time_ns - created_at_ns)))
+                span_params["duration_ns"] = int(round(end_time_ns - created_at_ns))
             else:
                 span_params["created_at_ns"] = end_time_ns
                 span_params["duration_ns"] = 0
@@ -531,7 +514,7 @@ class GalileoDecorator:
         """
         return _log_stream_context.get()
 
-    def get_current_span_stack(self) -> List[WorkflowSpan]:
+    def get_current_span_stack(self) -> list[WorkflowSpan]:
         """Retrieve the current span stack from context.
 
         Returns:

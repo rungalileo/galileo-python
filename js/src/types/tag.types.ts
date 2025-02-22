@@ -1,8 +1,8 @@
-import { components } from './api.types';
+import { components } from "./api.types";
 
 export enum TagType {
-  GENERIC = 'generic',
-  RAG = 'rag'
+  GENERIC = "generic",
+  RAG = "rag",
 }
 
-export type RunTag = components['schemas']['RunTagCreateRequest'];
+export type RunTag = components["schemas"]["RunTagCreateRequest"];

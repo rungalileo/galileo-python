@@ -1,5 +1,5 @@
-import 'dotenv/config';
-import pkg from '@galileo/ts-sdk';
+import "dotenv/config";
+import pkg from "@galileo/ts-sdk";
 
 const { getDatasets, createDataset, getDatasetContent } = pkg;
 
@@ -7,17 +7,17 @@ const { getDatasets, createDataset, getDatasetContent } = pkg;
 const dataset = await createDataset(
   {
     col1: [1, 2, 3],
-    col2: ['a', 'b', 'c']
+    col2: ["a", "b", "c"],
   },
-  'My dataset'
+  "My dataset",
 );
-console.log('Created dataset:', dataset);
+console.log("Created dataset:", dataset);
 
 // Get all datasets
-console.log('Listing datasets...');
+console.log("Listing datasets...");
 const datasets = await getDatasets();
 datasets.forEach((dataset) => console.log(dataset));
 
 // Get dataset content
 const content = await getDatasetContent(dataset.id);
-console.log('Dataset content:', content);
+console.log("Dataset content:", content);

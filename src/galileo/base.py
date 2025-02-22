@@ -1,5 +1,3 @@
-from os import getenv
-
 from typing import Optional
 
 from galileo.api_client import GalileoApiClient
