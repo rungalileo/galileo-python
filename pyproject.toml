@@ -32,14 +32,13 @@ pytest-socket = "^0.7"
 requests-mock = "^1.11.0"
 galileo-core = { extras = ["testing"], version = "^3.2.0" }
 pytest-env = "^1.1.5"
+pytest-mock = "^3.14.0"
 
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.0.1"
 mypy = "^1.14.0"
 openai = "^1.61.0"
-pytest-mock = "^3.14.0"
-
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
@@ -115,7 +114,7 @@ mypy_path = ["src"]
 disallow_untyped_defs = true
 plugins = ["pydantic.mypy"]
 # TODO: Enable all modules / packages as soon as we are ready.
-modules = ["galileo.openai", "galileo.experiments"]
+modules = ["galileo", "galileo.experiments"]
 packages = ["galileo.utils"]
 
 # Release.

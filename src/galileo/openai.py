@@ -4,8 +4,6 @@ from datetime import datetime
 from inspect import isclass
 from typing import Any, Callable, Optional, Union
 
-import openai.resources
-from openai._types import NotGiven
 from packaging.version import Version
 from pydantic import BaseModel
 from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
@@ -17,11 +15,13 @@ from galileo.utils.singleton import GalileoLoggerSingleton
 
 try:
     import openai
+    import openai.resources
+    from openai._types import NotGiven
 except ImportError:
     raise ModuleNotFoundError("Please install OpenAI to use this feature: 'pip install openai'")
 
 try:
-    from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, OpenAI  # noqa: F401
+    from openai import AsyncAzureOpenAI, AsyncOpenAI, AzureOpenAI, NoneType, OpenAI  # noqa: F401
 except ImportError:
     AsyncAzureOpenAI = None  # type: ignore[assignment]
     AsyncOpenAI = None  # type: ignore[assignment]
