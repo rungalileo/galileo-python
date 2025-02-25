@@ -1,17 +1,142 @@
 from unittest.mock import Mock, patch
 
-from pytest import mark
+import pytest
 
 from galileo import galileo_context, log
 from galileo_core.schemas.shared.traces.trace import LlmSpan, WorkflowSpan
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
+@pytest.fixture
+def reset_context():
+    galileo_context.reset()
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_context_reset(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="llm")
+    def llm_call(query: str):
+        return "response"
+
+    assert galileo_context.get_current_trace() is None
+
+    llm_call(query="input")
+
+    assert len(galileo_context.get_logger_instance().traces) == 1
+    assert galileo_context.get_current_trace() is not None
+
+    galileo_context.reset()
+
+    assert len(galileo_context.get_logger_instance().traces) == 0
+    assert galileo_context.get_current_trace() is None
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_context_init(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+
+    assert galileo_context.get_current_project() == "project-X"
+    assert galileo_context.get_current_log_stream() == "log-stream-X"
+
+    galileo_context.reset()
+
+    assert galileo_context.get_current_project() is None
+    assert galileo_context.get_current_log_stream() is None
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_context_flush(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="llm")
+    def llm_call(query: str):
+        return "response"
+
+    assert galileo_context.get_current_trace() is None
+
+    llm_call(query="input")
+
+    assert galileo_context.get_current_trace() is not None
+
+    galileo_context.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_context_flush_all(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="llm")
+    def llm_call(query: str):
+        return "response"
+
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+
+    llm_call(query="input_X")
+
+    trace_X = galileo_context.get_current_trace()
+    assert trace_X.input == {"query": "input_X"}
+
+    logger_X = galileo_context.get_logger_instance(project="project-X", log_stream="log-stream-X")
+    assert len(logger_X.traces) == 1
+
+    galileo_context.init(project="project-Y", log_stream="log-stream-Y")
+
+    llm_call(query="input_Y")
+
+    trace_Y = galileo_context.get_current_trace()
+    assert trace_Y.input == {"query": "input_Y"}
+
+    logger_Y = galileo_context.get_logger_instance(project="project-Y", log_stream="log-stream-Y")
+    assert len(logger_Y.traces) == 1
+
+    # Flush both loggers
+    galileo_context.flush_all()
+
+    logger_X = galileo_context.get_logger_instance(project="project-X", log_stream="log-stream-X")
+    assert len(logger_X.traces) == 0
+
+    logger_Y = galileo_context.get_logger_instance(project="project-Y", log_stream="log-stream-Y")
+    assert len(logger_Y.traces) == 0
+
+
 @patch("galileo.logger.LogStreams")
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_llm_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
@@ -34,12 +159,11 @@ def test_decorator_llm_span(
     assert payload.traces[0].spans[0].output == output
 
 
-@mark.skip("TOOD: Fix this test.")
 @patch("galileo.logger.LogStreams")
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_nested_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
@@ -73,7 +197,7 @@ def test_decorator_nested_span(
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_multiple_nested_spans(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)

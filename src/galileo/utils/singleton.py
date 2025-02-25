@@ -36,7 +36,8 @@ class GalileoLoggerSingleton:
                     cls._instance._galileo_loggers = {}
         return cls._instance
 
-    def _get_key(self, project: Optional[str], log_stream: Optional[str]) -> tuple[str, str]:
+    @staticmethod
+    def _get_key(project: Optional[str], log_stream: Optional[str]) -> tuple[str, str]:
         """
         Generate a key tuple based on project and log_stream parameters.
 
@@ -74,7 +75,7 @@ class GalileoLoggerSingleton:
             GalileoLogger: An instance of GalileoLogger corresponding to the key.
         """
         # Compute the key based on provided parameters or environment variables.
-        key = self._get_key(project, log_stream)
+        key = GalileoLoggerSingleton._get_key(project, log_stream)
 
         # First check without acquiring lock for performance.
         if key in self._galileo_loggers:
@@ -108,17 +109,21 @@ class GalileoLoggerSingleton:
             log_stream (Optional[str], optional): The log stream name. Defaults to None.
         """
         with self._lock:
-            if project is None and log_stream is None:
-                # Terminate and clear all logger instances.
-                for logger in self._galileo_loggers.values():
-                    logger.terminate()
-                self._galileo_loggers.clear()
-            else:
-                # Terminate and remove a specific logger.
-                key = self._get_key(project, log_stream)
-                if key in self._galileo_loggers:
-                    self._galileo_loggers[key].terminate()
-                    del self._galileo_loggers[key]
+            # Terminate and remove a specific logger.
+            key = GalileoLoggerSingleton._get_key(project, log_stream)
+            if key in self._galileo_loggers:
+                self._galileo_loggers[key].terminate()
+                del self._galileo_loggers[key]
+
+    def reset_all(self) -> None:
+        """
+        Reset (terminate and remove) all GalileoLogger instances.
+        """
+        with self._lock:
+            # Terminate and clear all logger instances.
+            for logger in self._galileo_loggers.values():
+                logger.terminate()
+            self._galileo_loggers.clear()
 
     def flush(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
         """
@@ -134,9 +139,18 @@ class GalileoLoggerSingleton:
         """
         with self._lock:
             # Terminate and remove a specific logger.
-            key = self._get_key(project, log_stream)
+            key = GalileoLoggerSingleton._get_key(project, log_stream)
             if key in self._galileo_loggers:
                 self._galileo_loggers[key].flush()
+
+    def flush_all(self) -> None:
+        """
+        Flush (upload and clear) all GalileoLogger instances.
+        """
+        with self._lock:
+            # Terminate and clear all logger instances.
+            for logger in self._galileo_loggers.values():
+                logger.flush()
 
     def get_all_loggers(self) -> dict[tuple[str, str], GalileoLogger]:
         """

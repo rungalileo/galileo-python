@@ -532,13 +532,52 @@ class GalileoDecorator:
 
     def flush(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
         """
-        Upload all captured traces to Galileo.
+        Upload all captured traces under a project and log stream context to Galileo.
+        If no project or log stream is provided, then the currently initialized context is used.
 
         Args:
             project (Optional[str], optional): The project name. Defaults to None.
             log_stream (Optional[str], optional): The log stream name. Defaults to None.
         """
         self.get_logger_instance(project=project, log_stream=log_stream).flush()
+
+    def flush_all(self) -> None:
+        """
+        Upload all captured traces under all contexts to Galileo.
+
+        Args:
+            project (Optional[str], optional): The project name. Defaults to None.
+            log_stream (Optional[str], optional): The log stream name. Defaults to None.
+        """
+        GalileoLoggerSingleton().flush_all()
+
+    def reset(self) -> None:
+        """
+        Resets the entire context, which also deletes all traces that haven't been flushed.
+
+        Args:
+            project (Optional[str], optional): The project name. Defaults to None.
+            log_stream (Optional[str], optional): The log stream name. Defaults to None.
+        """
+        GalileoLoggerSingleton().reset()
+        _project_context.set(None)
+        _log_stream_context.set(None)
+        _span_stack_context.set([])
+        _trace_context.set(None)
+
+    def init(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
+        """
+        Initialize the context with a project and log stream.
+
+        Args:
+            project (Optional[str], optional): The project name. Defaults to None.
+            log_stream (Optional[str], optional): The log stream name. Defaults to None.
+        """
+        GalileoLoggerSingleton().reset(project=project, log_stream=log_stream)
+        _project_context.set(project)
+        _log_stream_context.set(log_stream)
+        _span_stack_context.set([])
+        _trace_context.set(None)
 
 
 galileo_context = GalileoDecorator()
