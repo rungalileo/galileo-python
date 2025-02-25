@@ -10,7 +10,7 @@ def env_setup(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "local")
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def reset_context():
     galileo_context.reset()
 
