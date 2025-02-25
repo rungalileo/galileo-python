@@ -41,8 +41,7 @@ export class SpanWithParentStep extends BaseStep {
 
   toJSON(): Record<string, any> {
     return {
-      ...super.toJSON(),
-      parent: this.parent?.toJSON()
+      ...super.toJSON()
     };
   }
 }
@@ -115,6 +114,13 @@ export class StepWithChildSpans extends BaseStepWithChildren {
   }) {
     super(data);
     this.spans = data.spans || [];
+  }
+
+  toJSON(): Record<string, any> {
+    return {
+      ...super.toJSON(),
+      spans: this.spans.map((span) => span.toJSON())
+    };
   }
 
   children(): BaseStep[] {
@@ -274,6 +280,7 @@ export class Trace extends StepWithChildSpans {
 
   toJSON(): Record<string, any> {
     return {
+      ...super.toJSON(),
       spans: this.spans.map((span) => span.toJSON())
     };
   }
@@ -471,12 +478,17 @@ export class LlmSpan extends SpanWithParentStep implements LlmStep {
   toJSON(): Record<string, any> {
     return {
       ...super.toJSON(),
-      inputTokens: this.inputTokens,
-      outputTokens: this.outputTokens,
-      totalTokens: this.totalTokens,
+      input_tokens: this.inputTokens,
+      output_tokens: this.outputTokens,
+      total_tokens: this.totalTokens,
       temperature: this.temperature,
       model: this.model,
-      tools: this.tools
+      tools: this.tools,
+      type: this.type,
+      input: this.input,
+      output: this.output,
+      name: this.name,
+      duration_ns: this.durationNs
     };
   }
 }

@@ -27,8 +27,19 @@ class TracesLogger {
   private projectName?: string;
   private logStreamId?: string;
   private client = new GalileoApiClient();
-  traces: Trace[] = [];
   private parentStack: StepWithChildSpans[] = [];
+  private traces: Trace[] = [];
+
+  constructor(projectName?: string, logStreamId?: string) {
+    this.projectName = projectName || process.env.GALILEO_PROJECT || '';
+    this.logStreamId = logStreamId || process.env.GALILEO_LOG_STREAM || '';
+
+    if (!this.projectName || !this.logStreamId) {
+      throw new Error(
+        'Project and logStream are required to initialize GalileoLogger.'
+      );
+    }
+  }
 
   currentParent(): StepWithChildSpans | undefined {
     return this.parentStack.length > 0
@@ -330,7 +341,6 @@ class TracesLogger {
       await this.client.init(this.projectName, undefined, this.logStreamId);
       console.info(`Flushing ${this.traces.length} traces...`);
       const loggedTraces = [...this.traces];
-      console.log('🚀 ~ GalileoLogger ~ flush ~ loggedTraces:', loggedTraces);
 
       // @ts-expect-error - FIXME: Type this
       await this.client.ingestTraces(loggedTraces);
