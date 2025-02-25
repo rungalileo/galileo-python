@@ -46,13 +46,15 @@ export class GalileoApiClient {
     logstreamId?: string
   ): Promise<void> {
     this.apiUrl = this.getApiUrl();
-
+    console.log(`✅ Using ${projectName}`);
     if (await this.healthCheck()) {
+      console.log(`✅  healthCheck`);
       this.token = await this.getToken();
       this.client = createClient({
         baseUrl: this.apiUrl,
         headers: { Authorization: `Bearer ${this.token}` }
       });
+      console.log(`✅  createClient`);
 
       if (datasetId) {
         this.datasetId = datasetId;
@@ -64,7 +66,16 @@ export class GalileoApiClient {
 
       if (projectName) {
         try {
-          this.projectId = await this.getProjectIdByName(projectName);
+          const project = await this.getProjectIdByName(projectName);
+          console.log('🚀 ~ GalileoApiClient ~ project.type:', project.type);
+
+          if (project.type !== 'gen_ai') {
+            throw new Error(
+              `Project ${projectName} is not a Galileo 2.0 project`
+            );
+          }
+
+          this.projectId = project.id;
           // eslint-disable-next-line no-console
           console.log(`✅ Using ${projectName}`);
         } catch (err: unknown) {
@@ -198,7 +209,7 @@ export class GalileoApiClient {
     );
   }
 
-  private async getProjectIdByName(project_name: string): Promise<string> {
+  private async getProjectIdByName(project_name: string): Promise<Project> {
     const projects = await this.makeRequest<Project[]>(
       RequestMethod.GET,
       Routes.projects,
@@ -213,7 +224,7 @@ export class GalileoApiClient {
       throw new Error(`Galileo project ${project_name} not found`);
     }
 
-    return projects[0].id;
+    return projects[0];
   }
 
   private async createProject(project_name: string): Promise<{ id: string }> {

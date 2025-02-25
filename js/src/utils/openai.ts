@@ -58,9 +58,8 @@ export function wrapOpenAI(
                         .map((choice: any) => JSON.stringify(choice.message))
                         .join('\n');
 
-                      logger.addLLMSpan({
+                      logger.addLlmSpan({
                         input: JSON.stringify(requestData.messages),
-                        trace,
                         output,
                         model: requestData.model || 'unknown',
                         inputTokens: response.usage?.prompt_tokens || 0,

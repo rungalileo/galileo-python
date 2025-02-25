@@ -1,130 +1,81 @@
 import { GalileoApiClient } from '../api-client';
-import { components } from '../types/api.types';
+import { Traces } from '../schemas/traces/trace';
+import { Trace } from '../schemas/traces/types';
+import { StepIOType } from '../types/step.types';
 
-interface Trace {
-  id: number;
-  input: string;
-  output?: string;
-  model?: string | null;
-  inputTokens?: number;
-  outputTokens?: number;
-  totalTokens?: number;
-  durationNs?: number;
-  metadata?: Record<string, string>;
-  spans: components['schemas']['LlmSpan'][];
-}
-
-interface AddLLMSpanArgs {
-  input: string;
-  trace: Trace;
-  output: string;
-  model: string | null;
-  inputTokens: number;
-  outputTokens: number;
-  durationNs: number;
-  metadata?: Record<string, string>;
-}
-
-export class GalileoLogger {
-  private project: string;
-  private logStreamId: string;
-  private traces: Trace[] = [];
-  private apiClient = new GalileoApiClient();
+export class GalileoLogger extends Traces {
+  private projectName?: string;
+  private logStreamId?: string;
+  private projectId?: string;
+  private client = new GalileoApiClient();
 
   constructor(project?: string, logStream?: string) {
-    this.project = project || process.env.GALILEO_PROJECT || '';
-    this.logStreamId = logStream || process.env.GALILEO_LOG_STREAM || '';
-
-    if (!this.project || !this.logStreamId) {
-      throw new Error('Project and logStream are required.');
-    }
-
-    // Ensure logs are flushed on process exit
-    process.on('exit', () => this.terminate());
-    process.on('SIGINT', () => {
-      this.terminate();
-      process.exit();
-    });
-  }
-
-  startTrace(input: string): Trace {
-    const trace: Trace = { input, spans: [], id: this.traces.length };
-    this.traces.push(trace);
-    return trace;
-  }
-
-  addLLMSpan({
-    input,
-    trace,
-    output,
-    model,
-    inputTokens,
-    outputTokens,
-    durationNs,
-    metadata
-  }: AddLLMSpanArgs) {
-    this.traces = this.traces.map((tr) => {
-      if (tr.id === trace.id) {
-        return {
-          ...trace,
-          spans: [
-            ...trace.spans,
-            {
-              output,
-              input,
-              model,
-              input_tokens: inputTokens,
-              output_tokens: outputTokens,
-              total_tokens: inputTokens + outputTokens,
-              duration_ns: durationNs,
-              type: 'llm',
-              metadata
-            }
-          ]
-        };
-      }
-      return trace;
-    });
-  }
-
-  conclude({
-    trace,
-    output,
-    durationNs
-  }: {
-    trace: Trace;
-    output: string;
-    durationNs: number;
-  }) {
-    this.traces = this.traces.map((tr) => {
-      if (tr.id === trace.id) {
-        return {
-          ...trace,
-          output,
-          durationNs
-        };
-      }
-      return trace;
-    });
-  }
-
-  async flush(): Promise<void> {
-    if (this.traces.length === 0) {
-      console.warn('No traces to flush.');
-      return;
-    }
-
+    super();
     try {
-      await this.apiClient.init(this.project, undefined, this.logStreamId);
-      await this.apiClient.ingestTraces(this.traces);
-      console.log('Traces uploaded successfully.');
-      this.traces = []; // Clear after upload
+      this.projectName = project || process.env.GALILEO_PROJECT || '';
+      this.logStreamId = logStream || process.env.GALILEO_LOG_STREAM || '';
+
+      if (!this.projectName || !this.logStreamId) {
+        throw new Error(
+          'Project and logStream are required to initialize GalileoLogger.'
+        );
+      }
+
+      this.client.init(this.projectName, undefined, this.logStreamId);
+
+      process.on('exit', () => this.terminate());
     } catch (error) {
-      console.error('Error uploading traces:', error);
+      console.error(error);
     }
   }
 
-  terminate() {
-    this.flush();
+  startTrace(
+    input: StepIOType,
+    name?: string,
+    durationNs?: number,
+    createdAtNs?: number,
+    metadata?: Record<string, string>,
+    groundTruth?: string
+  ): Trace {
+    return super.addTrace({
+      input,
+      name,
+      durationNs,
+      createdAtNs,
+      metadata,
+      groundTruth
+    });
+  }
+
+  async flush(): Promise<Trace[]> {
+    try {
+      if (!this.traces.length) {
+        console.warn('No traces to flush.');
+        return [];
+      }
+      console.info(`Flushing ${this.traces.length} traces...`);
+      const loggedTraces = [...this.traces];
+
+      // @ts-expect-error - FIXME
+      await this.client.ingestTraces(loggedTraces);
+
+      console.info(`Successfully flushed ${loggedTraces.length} traces.`);
+      this.traces = []; // Clear after uploading
+      this.currentParent = null;
+      return loggedTraces;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
+  terminate(): void {
+    try {
+      this.flush();
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
+
+export default GalileoLogger;

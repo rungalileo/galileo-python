@@ -24,8 +24,14 @@ export type StepIOType =
   | string
   | Document
   | Message
-  | { [key: string]: string }
-  | (Document | Message | { [key: string]: unknown })[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | Record<string, any>
+  | string[]
+  | Document[]
+  | Message[]
+  | Record<string, string>[]
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | Record<string, any>[];
 
 interface StepWithChildrenType extends BaseStepType {
   input: StepIOType;
