@@ -12,6 +12,13 @@ export class Document {
     this.metadata = this.filterMetadata(data.metadata || {});
   }
 
+  toJSON(): Record<string, unknown> {
+    return {
+      content: this.content,
+      metadata: this.metadata
+    };
+  }
+
   private filterMetadata(
     metadata: Record<string, ChunkMetaDataValueType>
   ): Record<string, ChunkMetaDataValueType> {

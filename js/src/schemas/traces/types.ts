@@ -38,6 +38,13 @@ export class SpanWithParentStep extends BaseStep {
     super(data);
     this.parent = data.parent;
   }
+
+  toJSON(): Record<string, any> {
+    return {
+      ...super.toJSON(),
+      parent: this.parent?.toJSON()
+    };
+  }
 }
 interface IStepWithChildSpans {
   spans: Span[];
@@ -263,6 +270,13 @@ export class Trace extends StepWithChildSpans {
   }) {
     super({ ...data, type: NodeType.trace });
   }
+
+  toJSON(): Record<string, any> {
+    return {
+      ...super.toJSON(),
+      spans: this.spans.map((span) => span.toJSON())
+    };
+  }
 }
 
 export class WorkflowSpan
@@ -404,6 +418,13 @@ export class WorkflowSpan
     this.addChild(span);
     return span;
   }
+
+  toJSON(): Record<string, any> {
+    return {
+      ...super.toJSON(),
+      spans: this.spans.map((span) => span.toJSON())
+    };
+  }
 }
 
 export class LlmSpan extends SpanWithParentStep implements LlmStep {
@@ -444,6 +465,18 @@ export class LlmSpan extends SpanWithParentStep implements LlmStep {
     this.totalTokens = data.totalTokens;
     this.temperature = data.temperature;
   }
+
+  toJSON(): Record<string, any> {
+    return {
+      ...super.toJSON(),
+      inputTokens: this.inputTokens,
+      outputTokens: this.outputTokens,
+      totalTokens: this.totalTokens,
+      temperature: this.temperature,
+      model: this.model,
+      tools: this.tools
+    };
+  }
 }
 
 export class RetrieverSpan extends RetrieverStep {
@@ -466,6 +499,13 @@ export class RetrieverSpan extends RetrieverStep {
     super({ ...data });
     this.input = data.input;
     this.output = this.setOutput(data.output);
+  }
+
+  toJSON(): Record<string, any> {
+    return {
+      ...super.toJSON(),
+      output: this.output.map((doc) => doc.toJSON())
+    };
   }
 }
 

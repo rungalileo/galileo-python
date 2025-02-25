@@ -317,4 +317,9 @@ export class Traces {
     });
     return this.currentParent;
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  toJSON(): Record<string, any>[] {
+    return this.traces.map((trace) => trace.toJSON());
+  }
 }

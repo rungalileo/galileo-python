@@ -6,7 +6,6 @@ import { StepIOType } from '../types/step.types';
 export class GalileoLogger extends Traces {
   private projectName?: string;
   private logStreamId?: string;
-  private projectId?: string;
   private client = new GalileoApiClient();
 
   constructor(project?: string, logStream?: string) {
@@ -20,8 +19,6 @@ export class GalileoLogger extends Traces {
           'Project and logStream are required to initialize GalileoLogger.'
         );
       }
-
-      this.client.init(this.projectName, undefined, this.logStreamId);
 
       process.on('exit', () => this.terminate());
     } catch (error) {
@@ -53,10 +50,13 @@ export class GalileoLogger extends Traces {
         console.warn('No traces to flush.');
         return [];
       }
+
+      await this.client.init(this.projectName, undefined, this.logStreamId);
       console.info(`Flushing ${this.traces.length} traces...`);
       const loggedTraces = [...this.traces];
+      console.log('🚀 ~ GalileoLogger ~ flush ~ loggedTraces:', loggedTraces);
 
-      // @ts-expect-error - FIXME
+      // @ts-expect-error - FIXME: Type this
       await this.client.ingestTraces(loggedTraces);
 
       console.info(`Successfully flushed ${loggedTraces.length} traces.`);

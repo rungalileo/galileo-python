@@ -302,7 +302,7 @@ export class GalileoApiClient {
     if (!this.client) {
       throw new Error('Client not initialized');
     }
-
+    console.log('🚀 ~ ingestTraces ~ traces', JSON.stringify(traces));
     const { data, error } = await this.client.POST(Routes.traces, {
       params: { path: { project_id: this.projectId } },
       body: { traces, log_stream_id: this.logstreamId }

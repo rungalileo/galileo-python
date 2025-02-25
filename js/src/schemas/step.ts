@@ -75,8 +75,18 @@ export class BaseStep {
     return val;
   }
 
-  serializeToStr(input: StepIOType): string {
-    return typeof input === 'string' ? input : JSON.stringify(input);
+  toJSON(): Record<string, any> {
+    return {
+      type: this.type,
+      input: this.input,
+      output: this.output,
+      name: this.name,
+      createdAtNs: this.createdAtNs,
+      durationNs: this.durationNs,
+      metadata: this.metadata,
+      statusCode: this.statusCode,
+      groundTruth: this.groundTruth
+    };
   }
 }
 
