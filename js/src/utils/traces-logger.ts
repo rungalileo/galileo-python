@@ -1,6 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Document } from './document';
-import { Message } from './message';
+import { GalileoApiClient } from '../api-client';
+import { Document } from '../schemas/document';
+import { Message } from '../schemas/message';
+import {
+  LlmSpan,
+  RetrieverSpan,
+  Span,
+  StepWithChildSpans,
+  ToolSpan,
+  Trace,
+  WorkflowSpan
+} from '../schemas/traces/types';
 
 interface Metrics {
   durationNs?: number;
@@ -13,136 +23,10 @@ interface LlmMetrics extends Metrics {
   timeToFirstTokenNs?: number;
 }
 
-abstract class Span {
-  name?: string;
-  createdAt?: number;
-  userMetadata?: Record<string, string>;
-  tags?: string[];
-  input: any;
-  output?: any;
-  metrics: Metrics;
-  statusCode?: number;
-
-  constructor(
-    input: any,
-    output?: any,
-    name?: string,
-    createdAt?: number,
-    userMetadata?: Record<string, string>,
-    tags?: string[],
-    statusCode?: number,
-    metrics?: Metrics
-  ) {
-    this.input = input;
-    this.output = output;
-    this.name = name;
-    this.createdAt = createdAt;
-    this.userMetadata = userMetadata;
-    this.tags = tags;
-    this.statusCode = statusCode;
-    this.metrics = metrics || { durationNs: undefined };
-  }
-}
-
-abstract class StepWithChildSpans extends Span {
-  childSpans: Span[] = [];
-
-  addChildSpan(span: Span): void {
-    this.childSpans.push(span);
-  }
-}
-
-class Trace extends StepWithChildSpans {}
-
-class LlmSpan extends Span {
-  tools?: any[];
-  model?: string;
-  temperature?: number;
-
-  constructor(
-    input: Message[],
-    output: Message,
-    model?: string,
-    tools?: any[],
-    name?: string,
-    createdAt?: number,
-    userMetadata?: Record<string, string>,
-    tags?: string[],
-    metrics?: LlmMetrics,
-    temperature?: number,
-    statusCode?: number
-  ) {
-    super(
-      input,
-      output,
-      name,
-      createdAt,
-      userMetadata,
-      tags,
-      statusCode,
-      metrics
-    );
-    this.tools = tools;
-    this.model = model;
-    this.temperature = temperature;
-  }
-}
-
-class RetrieverSpan extends Span {
-  constructor(
-    input: string,
-    output: Document[],
-    name?: string,
-    createdAt?: number,
-    userMetadata?: Record<string, string>,
-    tags?: string[],
-    statusCode?: number,
-    metrics?: Metrics
-  ) {
-    super(
-      input,
-      output,
-      name,
-      createdAt,
-      userMetadata,
-      tags,
-      statusCode,
-      metrics
-    );
-  }
-}
-
-class ToolSpan extends Span {
-  toolCallId?: string;
-
-  constructor(
-    input: string,
-    output?: string,
-    name?: string,
-    createdAt?: number,
-    userMetadata?: Record<string, string>,
-    tags?: string[],
-    statusCode?: number,
-    toolCallId?: string,
-    metrics?: Metrics
-  ) {
-    super(
-      input,
-      output,
-      name,
-      createdAt,
-      userMetadata,
-      tags,
-      statusCode,
-      metrics
-    );
-    this.toolCallId = toolCallId;
-  }
-}
-
-class WorkflowSpan extends StepWithChildSpans {}
-
 class TracesLogger {
+  private projectName?: string;
+  private logStreamId?: string;
+  private client = new GalileoApiClient();
   traces: Trace[] = [];
   private parentStack: StepWithChildSpans[] = [];
 
@@ -184,16 +68,15 @@ class TracesLogger {
       );
     }
 
-    const trace = new Trace(
+    const trace = new Trace({
       input,
       output,
       name,
-      createdAt,
-      userMetadata,
+      createdAtNs: createdAt,
+      metadata: userMetadata,
       tags,
-      undefined,
-      { durationNs }
-    );
+      durationNs
+    });
 
     this.traces.push(trace);
     this.parentStack.push(trace);
@@ -214,8 +97,7 @@ class TracesLogger {
     numOutputTokens?: number,
     totalTokens?: number,
     temperature?: number,
-    statusCode?: number,
-    timeToFirstTokenNs?: number
+    statusCode?: number
   ): Trace {
     /**
      * Create a new trace with a single span and add it to the list of traces.
@@ -226,35 +108,32 @@ class TracesLogger {
       );
     }
 
-    const trace = new Trace(
-      JSON.stringify(input),
-      JSON.stringify(output),
+    const trace = new Trace({
+      input,
+      output,
       name,
-      createdAt,
-      userMetadata,
+      createdAtNs: createdAt,
+      metadata: userMetadata,
       tags
-    );
+    });
 
     trace.addChildSpan(
-      new LlmSpan(
+      new LlmSpan({
         input,
         output,
         model,
         tools,
         name,
-        createdAt,
-        userMetadata,
+        createdAtNs: createdAt,
+        metadata: userMetadata,
         tags,
-        {
-          durationNs,
-          numInputTokens,
-          numOutputTokens,
-          numTotalTokens: totalTokens,
-          timeToFirstTokenNs
-        },
+        durationNs,
+        inputTokens: numInputTokens,
+        outputTokens: numOutputTokens,
+        totalTokens,
         temperature,
         statusCode
-      )
+      })
     );
 
     this.traces.push(trace);
@@ -263,45 +142,56 @@ class TracesLogger {
     return trace;
   }
 
-  addLlmSpan(
-    input: Message[],
-    output: Message,
-    model?: string,
-    tools?: any[],
-    name?: string,
-    createdAt?: number,
-    durationNs?: number,
-    userMetadata?: Record<string, string>,
-    tags?: string[],
-    numInputTokens?: number,
-    numOutputTokens?: number,
-    totalTokens?: number,
-    temperature?: number,
-    statusCode?: number,
-    timeToFirstTokenNs?: number
-  ): LlmSpan {
+  addLlmSpan({
+    input,
+    output,
+    model,
+    tools,
+    name,
+    createdAt,
+    durationNs,
+    userMetadata,
+    tags,
+    numInputTokens,
+    numOutputTokens,
+    totalTokens,
+    temperature,
+    statusCode
+  }: {
+    input: Message[];
+    output: Message;
+    model?: string;
+    tools?: any[];
+    name?: string;
+    createdAt?: number;
+    durationNs?: number;
+    userMetadata?: Record<string, string>;
+    tags?: string[];
+    numInputTokens?: number;
+    numOutputTokens?: number;
+    totalTokens?: number;
+    temperature?: number;
+    statusCode?: number;
+  }): LlmSpan {
     /**
      * Add a new llm span to the current parent.
      */
-    const span = new LlmSpan(
+    const span = new LlmSpan({
       input,
       output,
       model,
       tools,
       name,
-      createdAt,
-      userMetadata,
+      createdAtNs: createdAt,
+      metadata: userMetadata,
       tags,
-      {
-        durationNs,
-        numInputTokens,
-        numOutputTokens,
-        numTotalTokens: totalTokens,
-        timeToFirstTokenNs
-      },
+      durationNs,
+      inputTokens: numInputTokens,
+      outputTokens: numOutputTokens,
+      totalTokens,
       temperature,
       statusCode
-    );
+    });
 
     this.addChildSpanToParent(span);
     return span;
@@ -320,16 +210,16 @@ class TracesLogger {
     /**
      * Add a new retriever span to the current parent.
      */
-    const span = new RetrieverSpan(
+    const span = new RetrieverSpan({
       input,
-      documents,
+      output: documents,
       name,
-      createdAt,
-      userMetadata,
+      createdAtNs: createdAt,
+      metadata: userMetadata,
       tags,
       statusCode,
-      { durationNs }
-    );
+      durationNs
+    });
 
     this.addChildSpanToParent(span);
     return span;
@@ -349,17 +239,17 @@ class TracesLogger {
     /**
      * Add a new tool span to the current parent.
      */
-    const span = new ToolSpan(
+    const span = new ToolSpan({
       input,
       output,
       name,
-      createdAt,
-      userMetadata,
+      createdAtNs: createdAt,
+      metadata: userMetadata,
       tags,
       statusCode,
       toolCallId,
-      { durationNs }
-    );
+      durationNs
+    });
 
     this.addChildSpanToParent(span);
     return span;
@@ -379,27 +269,30 @@ class TracesLogger {
      * within the trace or current workflow span. The next span you add will be a child of the current parent. To
      * move out of the nested workflow, use conclude().
      */
-    const span = new WorkflowSpan(
+    const span = new WorkflowSpan({
       input,
       output,
       name,
-      createdAt,
-      userMetadata,
+      createdAtNs: createdAt,
+      metadata: userMetadata,
       tags,
-      undefined,
-      { durationNs }
-    );
+      durationNs
+    });
 
     this.addChildSpanToParent(span);
     this.parentStack.push(span);
     return span;
   }
 
-  conclude(
-    output?: string,
-    durationNs?: number,
-    statusCode?: number
-  ): StepWithChildSpans | undefined {
+  conclude({
+    output,
+    durationNs,
+    statusCode
+  }: {
+    output?: string;
+    durationNs?: number;
+    statusCode?: number;
+  }): StepWithChildSpans | undefined {
     /**
      * Conclude the current trace or workflow span by setting the output of the current node. In the case of nested
      * workflow spans, this will point the workflow back to the parent of the current workflow span.
@@ -425,6 +318,39 @@ class TracesLogger {
       );
     }
     return this.currentParent();
+  }
+
+  async flush(): Promise<Trace[]> {
+    try {
+      if (!this.traces.length) {
+        console.warn('No traces to flush.');
+        return [];
+      }
+
+      await this.client.init(this.projectName, undefined, this.logStreamId);
+      console.info(`Flushing ${this.traces.length} traces...`);
+      const loggedTraces = [...this.traces];
+      console.log('🚀 ~ GalileoLogger ~ flush ~ loggedTraces:', loggedTraces);
+
+      // @ts-expect-error - FIXME: Type this
+      await this.client.ingestTraces(loggedTraces);
+
+      console.info(`Successfully flushed ${loggedTraces.length} traces.`);
+      this.traces = []; // Clear after uploading
+      this.parentStack = [];
+      return loggedTraces;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+
+  terminate(): void {
+    try {
+      this.flush();
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
 

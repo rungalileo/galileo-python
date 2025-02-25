@@ -1,14 +1,14 @@
-import { Document } from "./document.types";
-import { Message } from "./message.types";
+import { Document } from './document.types';
+import { Message } from './message.types';
 
 export enum StepType {
-  llm = "llm",
-  chat = "chat",
-  chain = "chain",
-  tool = "tool",
-  agent = "agent",
-  retriever = "retriever",
-  workflow = "workflow",
+  llm = 'llm',
+  chat = 'chat',
+  chain = 'chain',
+  tool = 'tool',
+  agent = 'agent',
+  retriever = 'retriever',
+  workflow = 'workflow'
 }
 
 interface BaseStepType {
@@ -68,14 +68,14 @@ export class StepWithChildren implements StepWithChildrenType {
     this.steps.push(step);
     // eslint-disable-next-line no-console
     console.log(
-      `➕ ${step.type[0].toUpperCase() + step.type.slice(1)} step added…`,
+      `➕ ${step.type[0].toUpperCase() + step.type.slice(1)} step added…`
     );
     return step;
   }
   conclude(
     output?: StepIOType,
     durationNs?: number,
-    statusCode?: number,
+    statusCode?: number
   ): AWorkflow | null {
     this.output = output ?? this.output;
     this.durationNs = durationNs ?? this.durationNs;

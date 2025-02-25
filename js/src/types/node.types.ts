@@ -1,3 +1,3 @@
-import { components } from "./api.types";
+import { components } from './api.types';
 
-export type Node = components["schemas"]["ChainRow"];
+export type Node = components['schemas']['ChainRow'];

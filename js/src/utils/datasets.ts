@@ -1,8 +1,8 @@
-import { DatasetRow, GalileoApiClient } from "../api-client";
-import { Dataset } from "../types/dataset.types";
-import { existsSync, PathLike, writeFileSync } from "fs";
-import { tmpdir } from "os";
-import { join } from "path";
+import { DatasetRow, GalileoApiClient } from '../api-client';
+import { Dataset } from '../types/dataset.types';
+import { existsSync, PathLike, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
 
 export const getDatasets = async (): Promise<Dataset[]> => {
   const apiClient = new GalileoApiClient();
@@ -16,7 +16,7 @@ export const getDatasets = async (): Promise<Dataset[]> => {
     updated_at: dataset.updated_at,
     num_rows: dataset.num_rows,
     created_by_user: dataset.created_by_user,
-    current_version_index: dataset.current_version_index,
+    current_version_index: dataset.current_version_index
   }));
 };
 
@@ -27,19 +27,19 @@ type DatasetType =
   | Array<Record<string, string>>;
 
 enum DatasetFormat {
-  CSV = "csv",
-  JSONL = "jsonl",
-  FEATHER = "feather",
+  CSV = 'csv',
+  JSONL = 'jsonl',
+  FEATHER = 'feather'
 }
 
 function transposeDictToRows(
-  dataset: Record<string, string[]>,
+  dataset: Record<string, string[]>
 ): Array<Record<string, string>> {
   const keyRows = Object.entries(dataset).map(([key, values]) =>
-    values.map((value) => ({ [key]: value })),
+    values.map((value) => ({ [key]: value }))
   );
   return keyRows[0].map((_, i) =>
-    Object.assign({}, ...keyRows.map((keyRow) => keyRow[i])),
+    Object.assign({}, ...keyRows.map((keyRow) => keyRow[i]))
   );
 }
 
@@ -47,28 +47,28 @@ function parseDataset(dataset: DatasetType): [PathLike, DatasetFormat] {
   let datasetPath: PathLike;
   let datasetFormat: DatasetFormat;
 
-  if (typeof dataset === "string") {
+  if (typeof dataset === 'string') {
     datasetPath = dataset;
-  } else if (typeof dataset === "object" && !Array.isArray(dataset)) {
+  } else if (typeof dataset === 'object' && !Array.isArray(dataset)) {
     const datasetRows = transposeDictToRows(
-      dataset as Record<string, string[]>,
+      dataset as Record<string, string[]>
     );
     const tempFilePath = join(tmpdir(), `temp.${DatasetFormat.CSV}`);
-    const header = Object.keys(datasetRows[0]).join(",") + "\n";
+    const header = Object.keys(datasetRows[0]).join(',') + '\n';
     const rows = datasetRows
-      .map((row) => Object.values(row).join(","))
-      .join("\n");
-    writeFileSync(tempFilePath, header + rows, { encoding: "utf-8" });
+      .map((row) => Object.values(row).join(','))
+      .join('\n');
+    writeFileSync(tempFilePath, header + rows, { encoding: 'utf-8' });
     datasetPath = tempFilePath;
   } else if (Array.isArray(dataset)) {
     const tempFilePath = join(tmpdir(), `temp.${DatasetFormat.CSV}`);
-    const header = Object.keys(dataset[0]).join(",") + "\n";
-    const rows = dataset.map((row) => Object.values(row).join(",")).join("\n");
-    writeFileSync(tempFilePath, header + rows, { encoding: "utf-8" });
+    const header = Object.keys(dataset[0]).join(',') + '\n';
+    const rows = dataset.map((row) => Object.values(row).join(',')).join('\n');
+    writeFileSync(tempFilePath, header + rows, { encoding: 'utf-8' });
     datasetPath = tempFilePath;
   } else {
     throw new Error(
-      "Dataset must be a path to a file, a string, an array of objects, or an object of arrays.",
+      'Dataset must be a path to a file, a string, an array of objects, or an object of arrays.'
     );
   }
 
@@ -76,7 +76,7 @@ function parseDataset(dataset: DatasetType): [PathLike, DatasetFormat] {
     throw new Error(`Dataset file ${datasetPath} does not exist.`);
   }
 
-  const suffix = datasetPath.toString().split(".").pop()?.toLowerCase();
+  const suffix = datasetPath.toString().split('.').pop()?.toLowerCase();
   switch (suffix) {
     case DatasetFormat.CSV:
       datasetFormat = DatasetFormat.CSV;
@@ -89,7 +89,7 @@ function parseDataset(dataset: DatasetType): [PathLike, DatasetFormat] {
       break;
     default:
       throw new Error(
-        `Dataset file ${datasetPath} must be a CSV, JSONL, or Feather file.`,
+        `Dataset file ${datasetPath} must be a CSV, JSONL, or Feather file.`
       );
   }
 
@@ -98,13 +98,13 @@ function parseDataset(dataset: DatasetType): [PathLike, DatasetFormat] {
 
 export const createDataset = async (
   dataset: DatasetType,
-  name?: string,
+  name?: string
 ): Promise<Dataset> => {
   const [datasetPath, datasetFormat] = parseDataset(dataset);
 
   if (!name) {
     // use file name
-    name = datasetPath.toString().split("/").pop() ?? datasetPath.toString();
+    name = datasetPath.toString().split('/').pop() ?? datasetPath.toString();
   }
 
   const apiClient = new GalileoApiClient();
@@ -113,7 +113,7 @@ export const createDataset = async (
   const createdDataset = await apiClient.createDataset(
     name,
     datasetPath.toString(),
-    datasetFormat,
+    datasetFormat
   );
 
   return {
@@ -125,12 +125,12 @@ export const createDataset = async (
     updated_at: createdDataset.updated_at,
     num_rows: createdDataset.num_rows,
     created_by_user: createdDataset.created_by_user,
-    current_version_index: createdDataset.current_version_index,
+    current_version_index: createdDataset.current_version_index
   };
 };
 
 export const getDatasetContent = async (
-  datasetId: string,
+  datasetId: string
 ): Promise<DatasetRow[]> => {
   const apiClient = new GalileoApiClient();
   await apiClient.init();

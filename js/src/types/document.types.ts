@@ -1,3 +1,3 @@
-import { components } from "./api.types";
+import { components } from './api.types';
 
-export type Document = components["schemas"]["Document"];
+export type Document = components['schemas']['Document'];

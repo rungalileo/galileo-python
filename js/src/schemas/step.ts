@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { StepIOType } from '../types/step.types';
+import { Metrics } from '../utils/traces-logger';
 import { Document } from './document';
 import { Message } from './message';
 
@@ -41,6 +42,9 @@ export class BaseStep {
   metadata: Record<string, string> = {};
   statusCode?: number;
   groundTruth?: string;
+  modelConfig?: Record<string, any>;
+  tags?: string[];
+  metrics: Metrics = {};
 
   constructor(data: {
     type?: NodeType;
@@ -52,6 +56,7 @@ export class BaseStep {
     metadata?: Record<string, string>;
     statusCode?: number;
     groundTruth?: string;
+    tags?: string[];
   }) {
     this.type = data.type || NodeType.workflow;
     this.input = data.input;
@@ -63,6 +68,7 @@ export class BaseStep {
     this.metadata = data.metadata || {};
     this.statusCode = data.statusCode;
     this.groundTruth = data.groundTruth;
+    this.tags = data.tags || [];
 
     // Validate serializable
     this.validateInputOutputSerializable(this.input);
@@ -81,11 +87,11 @@ export class BaseStep {
       input: this.input,
       output: this.output,
       name: this.name,
-      createdAtNs: this.createdAtNs,
-      durationNs: this.durationNs,
+      created_at_ns: this.createdAtNs,
+      duration_ns: this.durationNs,
       metadata: this.metadata,
-      statusCode: this.statusCode,
-      groundTruth: this.groundTruth
+      status_code: this.statusCode,
+      ground_truth: this.groundTruth
     };
   }
 }
@@ -329,6 +335,7 @@ export class LlmStep extends BaseStep {
   outputTokens?: number;
   totalTokens?: number;
   temperature?: number;
+  tags?: string[];
 
   constructor(data: {
     input: LlmStepAllowedIOType;
@@ -345,6 +352,7 @@ export class LlmStep extends BaseStep {
     outputTokens?: number;
     totalTokens?: number;
     temperature?: number;
+    tags?: string[];
   }) {
     super({ ...data, type: NodeType.llm });
     this.input = data.input;

@@ -1,8 +1,8 @@
 import 'dotenv/config';
 
-import { GalileoLogger } from '@galileo/ts-sdk'; // Import your OpenAI wrapper
+import { TracesLogger } from '@galileo/ts-sdk'; // Import your OpenAI wrapper
 
-const logger = new GalileoLogger(
+const logger = new TracesLogger(
   process.env.GALILEO_PROJECT,
   process.env.GALILEO_LOG_STREAM
 );
@@ -11,7 +11,7 @@ async function main() {
   try {
     // Start a trace
     console.log('Starting trace...');
-    const trace = logger.startTrace('Hello, AI!');
+    const trace = logger.addTrace('Hello, AI!');
 
     console.log('Adding a span...');
     // Add an LLM span

@@ -1,3 +1,3 @@
-import { components } from "./api.types";
+import { components } from './api.types';
 
-export type Message = components["schemas"]["Message"];
+export type Message = components['schemas']['Message'];

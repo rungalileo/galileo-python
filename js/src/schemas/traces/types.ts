@@ -121,7 +121,7 @@ export class StepWithChildSpans extends BaseStepWithChildren {
     return this.spans;
   }
 
-  addChild(...spans: Span[]): void {
+  addChildSpan(...spans: Span[]): void {
     for (const span of spans) {
       span.parent = this;
       this.spans.push(span);
@@ -161,7 +161,7 @@ export class StepWithChildSpans extends BaseStepWithChildren {
       statusCode: params.statusCode,
       groundTruth: params.groundTruth
     });
-    this.addChild(span);
+    this.addChildSpan(span);
     return span;
   }
 
@@ -184,7 +184,7 @@ export class StepWithChildSpans extends BaseStepWithChildren {
       metadata: params.metadata,
       statusCode: params.statusCode
     });
-    this.addChild(span);
+    this.addChildSpan(span);
     return span;
   }
 
@@ -207,7 +207,7 @@ export class StepWithChildSpans extends BaseStepWithChildren {
       metadata: params.metadata,
       statusCode: params.statusCode
     });
-    this.addChild(span);
+    this.addChildSpan(span);
     return span;
   }
 
@@ -228,7 +228,7 @@ export class StepWithChildSpans extends BaseStepWithChildren {
       createdAtNs: params.createdAtNs,
       metadata: params.metadata
     });
-    this.addChild(span);
+    this.addChildSpan(span);
     return span;
   }
 
@@ -267,13 +267,13 @@ export class Trace extends StepWithChildSpans {
     statusCode?: number;
     groundTruth?: string;
     spans?: Span[];
+    tags?: string[];
   }) {
     super({ ...data, type: NodeType.trace });
   }
 
   toJSON(): Record<string, any> {
     return {
-      ...super.toJSON(),
       spans: this.spans.map((span) => span.toJSON())
     };
   }
@@ -297,6 +297,7 @@ export class WorkflowSpan
     statusCode?: number;
     groundTruth?: string;
     spans?: Span[];
+    tags?: string[];
   }) {
     super({ ...data, type: NodeType.workflow });
     this.spans = data.spans || [];
@@ -454,6 +455,7 @@ export class LlmSpan extends SpanWithParentStep implements LlmStep {
     outputTokens?: number;
     totalTokens?: number;
     temperature?: number;
+    tags?: string[];
   }) {
     super({ ...data, type: NodeType.llm });
     this.input = data.input;
@@ -495,6 +497,7 @@ export class RetrieverSpan extends RetrieverStep {
     metadata?: Record<string, string>;
     statusCode?: number;
     groundTruth?: string;
+    tags?: string[];
   }) {
     super({ ...data });
     this.input = data.input;
@@ -511,17 +514,20 @@ export class RetrieverSpan extends RetrieverStep {
 
 export class ToolSpan extends SpanWithParentStep implements ToolStep {
   type: NodeType = NodeType.tool;
+  toolCallId?: string;
 
   constructor(data: {
     parent?: StepWithChildSpans;
     input: StepIOType;
-    output: StepIOType;
+    output?: StepIOType;
     name?: string;
     durationNs?: number;
     createdAtNs?: number;
     metadata?: Record<string, string>;
     statusCode?: number;
     groundTruth?: string;
+    tags?: string[];
+    toolCallId?: string;
   }) {
     super({ ...data, type: NodeType.tool });
   }

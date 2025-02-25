@@ -1,12 +1,9 @@
 /* global Proxy */
 
 import OpenAI from 'openai';
-import { GalileoLogger } from './logger';
+import { TracesLogger } from './traces-logger';
 
-export function wrapOpenAI(
-  openAIClient: OpenAI,
-  logger: GalileoLogger
-): OpenAI {
+export function wrapOpenAI(openAIClient: OpenAI, logger: TracesLogger): OpenAI {
   const handler: ProxyHandler<OpenAI> = {
     get(target, prop: keyof OpenAI) {
       const originalMethod = target[prop];
@@ -31,7 +28,7 @@ export function wrapOpenAI(
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     return async function wrappedCreate(...args: any[]) {
                       const [requestData] = args;
-                      const trace = logger.startTrace(
+                      const trace = logger.addTrace(
                         JSON.stringify(requestData.messages)
                       );
 
@@ -41,10 +38,9 @@ export function wrapOpenAI(
                         response = await completionsTarget[completionsProp](
                           ...args
                         );
-                      } catch (error) {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      } catch (error: any) {
                         logger.conclude({
-                          trace,
-                          // @ts-expect-error - FIXME: Type this
                           output: `Error: ${error.message}`,
                           durationNs: Number(
                             process.hrtime.bigint() - startTime
@@ -58,7 +54,7 @@ export function wrapOpenAI(
                         .map((choice: any) => JSON.stringify(choice.message))
                         .join('\n');
 
-                      logger.addLlmSpan({
+                      trace.addLlmSpan({
                         input: JSON.stringify(requestData.messages),
                         output,
                         model: requestData.model || 'unknown',
@@ -68,13 +64,12 @@ export function wrapOpenAI(
                         metadata: requestData.metadata || {}
                       });
 
-                      logger.conclude({
-                        trace,
+                      trace.conclude({
                         output,
                         durationNs: Number(process.hrtime.bigint() - startTime)
                       });
 
-                      logger.flush();
+                      //logger.flush();
 
                       return response;
                     };
