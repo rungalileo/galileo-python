@@ -1,5 +1,4 @@
 from unittest.mock import Mock, patch
-from uuid import UUID
 
 from pytest_mock import MockerFixture
 
