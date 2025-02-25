@@ -1,8 +1,8 @@
 import {
   getDatasets,
   createDataset,
-  getDatasetContent
-} from './utils/datasets';
+  getDatasetContent,
+} from "./utils/datasets";
 
 import { GalileoLogger } from './utils/logger';
 import { wrapOpenAI } from './utils/openai';

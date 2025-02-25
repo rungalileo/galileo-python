@@ -1,3 +1,3 @@
-import { components } from './api.types';
+import { components } from "./api.types";
 
-export type Dataset = components['schemas']['DatasetDB'];
+export type Dataset = components["schemas"]["DatasetDB"];

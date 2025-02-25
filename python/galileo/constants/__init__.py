@@ -1,7 +1,0 @@
-DEFAULT_PROJECT_NAME = "default"
-DEFAULT_LOG_STREAM_NAME = "default"
-
-__all__ = (
-    "DEFAULT_PROJECT_NAME",
-    "DEFAULT_LOG_STREAM_NAME",
-)
