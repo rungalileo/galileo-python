@@ -1,17 +1,23 @@
 from unittest.mock import Mock, patch
 
+import pytest
+
 from galileo import galileo_context, log
 from galileo_core.schemas.shared.traces.trace import LlmSpan, WorkflowSpan
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+
+
+@pytest.fixture
+def reset_context():
+    galileo_context.reset()
 
 
 @patch("galileo.logger.LogStreams")
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_context_reset(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    galileo_context.reset()
     setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -37,9 +43,8 @@ def test_decorator_context_reset(
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_context_init(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    galileo_context.reset()
     setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -59,9 +64,8 @@ def test_decorator_context_init(
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_context_flush(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    galileo_context.reset()
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -88,9 +92,8 @@ def test_decorator_context_flush(
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_context_flush_all(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    galileo_context.reset()
     setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -133,9 +136,8 @@ def test_decorator_context_flush_all(
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_llm_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    galileo_context.reset()
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -161,9 +163,8 @@ def test_decorator_llm_span(
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_nested_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    galileo_context.reset()
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -196,9 +197,8 @@ def test_decorator_nested_span(
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_multiple_nested_spans(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    galileo_context.reset()
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
