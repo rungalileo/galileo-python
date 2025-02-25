@@ -12,7 +12,11 @@ from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstre
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_basic_openai_call(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, mocker: MockerFixture
+    mock_core_api_client: Mock,
+    mock_projects_client: Mock,
+    mock_logstreams_client: Mock,
+    mocker: MockerFixture,
+    reset_context,
 ):
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)

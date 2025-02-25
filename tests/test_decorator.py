@@ -1,15 +1,8 @@
 from unittest.mock import Mock, patch
 
-import pytest
-
 from galileo import galileo_context, log
 from galileo_core.schemas.shared.traces.trace import LlmSpan, WorkflowSpan
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
-
-
-@pytest.fixture
-def reset_context():
-    galileo_context.reset()
 
 
 @patch("galileo.logger.LogStreams")

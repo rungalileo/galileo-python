@@ -2,10 +2,17 @@ from typing import Any, Optional
 
 import pytest
 
+from galileo import galileo_context
+
 
 @pytest.fixture(autouse=True)
 def env_setup(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "local")
+
+
+@pytest.fixture
+def reset_context():
+    galileo_context.reset()
 
 
 class NestedDictToObject:
