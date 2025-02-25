@@ -47,10 +47,9 @@ def test_basic_openai_call(
 def test_openai_api_calls_as_parent_span(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, mocker: MockerFixture
 ):
-    project_id = str(UUID(int=1))
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client, project_id=project_id)
-    setup_mock_projects_client(mock_projects_client, project_id=project_id)
-    setup_mock_logstreams_client(mock_logstreams_client, project_id=project_id)
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
 
     mocker.patch("openai.resources.chat.completions.Completions.create", side_effect=MockedCompletion())
 
