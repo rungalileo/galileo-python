@@ -351,11 +351,7 @@ def _extract_streamed_openai_response(resource, chunks):
             or (completion["function_call"] and {"role": "assistant", "function_call": completion["function_call"]})
             or (
                 completion["tool_calls"]
-                and {
-                    "role": "assistant",
-                    # "tool_calls": [{"function": completion["tool_calls"]}],
-                    "tool_calls": [{"function": data} for data in completion["tool_calls"]],
-                }
+                and {"role": "assistant", "tool_calls": [{"function": data} for data in completion["tool_calls"]]}
             )
             or None
         )
