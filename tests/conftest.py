@@ -1,24 +1,15 @@
 import datetime
-from unittest.mock import Mock, patch
 
 import pytest
-from openai import Stream
 from openai.types import CompletionUsage
-from openai.types.create_embedding_response import Usage
-from pytest_mock import MockerFixture
-
 from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion import ChatCompletion, Choice
-from openai.types.chat.chat_completion_chunk import ChatCompletionChunk, ChoiceDelta
-from openai.types.chat.chat_completion_chunk import Choice as StreamChoice
-
-
-import pytest
 
 
 @pytest.fixture(autouse=True)
 def env_setup(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "local")
+
 
 @pytest.fixture
 def create_chat_completion() -> ChatCompletion:
@@ -30,16 +21,9 @@ def create_chat_completion() -> ChatCompletion:
             Choice(
                 finish_reason="stop",
                 index=0,
-                message=ChatCompletionMessage(
-                    content="The mock is working! ;)",
-                    role="assistant",
-                ),
+                message=ChatCompletionMessage(content="The mock is working! ;)", role="assistant"),
             )
         ],
         created=int(datetime.datetime.now().timestamp()),
-        usage=CompletionUsage(
-            completion_tokens=13,
-            prompt_tokens=12,
-            total_tokens=25,
-        )
+        usage=CompletionUsage(completion_tokens=13, prompt_tokens=12, total_tokens=25),
     )
