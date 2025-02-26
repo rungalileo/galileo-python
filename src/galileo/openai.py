@@ -1,3 +1,4 @@
+import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
@@ -11,6 +12,7 @@ from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
 from galileo import GalileoLogger
 from galileo.decorator import galileo_context
 from galileo.utils import _get_timestamp
+from galileo.utils.serialization import EventSerializer
 from galileo.utils.singleton import GalileoLoggerSingleton
 
 try:
@@ -296,11 +298,11 @@ def _wrap(
 
     complete_trace = False
     if decorator_context_trace:
-        trace = decorator_context_trace
+        pass
     else:
         # If we don't have an active trace, start a new trace
         # We will conclude it at the end
-        trace = galileo_logger.start_trace(input=input_data.input, name=input_data.name)
+        galileo_logger.start_trace(input=json.dumps(input_data.input, cls=EventSerializer), name=input_data.name)
         complete_trace = True
 
     try:
@@ -316,36 +318,36 @@ def _wrap(
 
         # Add a span to the current trace or span (if this is a nested trace)
         if len(decorator_context_span_stack):
-            span = decorator_context_span_stack[-1]
-            span.add_llm_span(
+            # span = decorator_context_span_stack[-1]
+            galileo_logger.add_llm_span(
                 input=input_data.input,
                 output=completion,
                 name=input_data.name,
                 model=model,
                 temperature=input_data.temperature,
                 duration_ns=duration_ns,
-                input_tokens=usage.get("prompt_tokens", 0),
-                output_tokens=usage.get("completion_tokens", 0),
+                num_input_tokens=usage.get("prompt_tokens", 0),
+                num_output_tokens=usage.get("completion_tokens", 0),
                 total_tokens=usage.get("total_tokens", 0),
                 metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
             )
         else:
-            trace.add_llm_span(
+            galileo_logger.add_llm_span(
                 input=input_data.input,
                 output=completion,
                 name=input_data.name,
                 model=model,
                 temperature=input_data.temperature,
                 duration_ns=duration_ns,
-                input_tokens=usage.get("prompt_tokens", 0),
-                output_tokens=usage.get("completion_tokens", 0),
+                num_input_tokens=usage.get("prompt_tokens", 0),
+                num_output_tokens=usage.get("completion_tokens", 0),
                 total_tokens=usage.get("total_tokens", 0),
                 metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
             )
 
         # Conclude the trace if this is the top-level call
         if complete_trace:
-            trace.conclude(output=completion, duration_ns=duration_ns)
+            galileo_logger.conclude(output=json.dumps(completion, cls=EventSerializer), duration_ns=duration_ns)
 
         return openai_response
     except Exception as ex:

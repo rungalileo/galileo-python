@@ -41,7 +41,7 @@ class MockedCompletion:
                      Will be converted to an object.
         """
         if message is None:
-            message = {"message": {"content": "This is a mocked message."}}
+            message = {"message": {"content": "This is a mocked message.", "role": "assistant"}}
 
         # Convert to object
         message_obj = NestedDictToObject(message)

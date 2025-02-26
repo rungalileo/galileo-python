@@ -4,7 +4,10 @@ from pytest_mock import MockerFixture
 
 from galileo import galileo_context, log
 from galileo.openai import OpenAIGalileo, openai
-from galileo_core.schemas.shared.traces.trace import LlmSpan, WorkflowSpan
+from galileo_core.schemas.logging.llm import Message, MessageRole
+
+# from galileo_core.schemas.shared.traces.trace import LlmSpan, WorkflowSpan
+from galileo_core.schemas.logging.span import LlmSpan, WorkflowSpan
 from tests.conftest import MockedCompletion
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
@@ -36,8 +39,9 @@ def test_basic_openai_call(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0], LlmSpan)
-    assert payload.traces[0].input[0].content == "Say this is a test"
-    assert payload.traces[0].spans[0].output == {"content": "This is a mocked message.", "role": None}
+    assert payload.traces[0].input == '[{"role": "user", "content": "Say this is a test"}]'
+    assert payload.traces[0].spans[0].input == [Message(content="Say this is a test", role=MessageRole.user)]
+    assert payload.traces[0].spans[0].output == Message(content="This is a mocked message.", role=MessageRole.assistant)
 
 
 @patch("galileo.logger.LogStreams")
@@ -75,6 +79,8 @@ def test_openai_api_calls_as_parent_span(
 
     assert len(payload.traces[0].spans[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0].spans[0], LlmSpan)
-    assert payload.traces[0].spans[0].spans[0].input[0].content == "Say this is a test"
+    assert payload.traces[0].spans[0].spans[0].input == [Message(content="Say this is a test", role=MessageRole.user)]
+    assert payload.traces[0].spans[0].spans[0].output == Message(
+        content="This is a mocked message.", role=MessageRole.assistant
+    )
     assert payload.traces[0].spans[0].spans[0].model == "test_model"
-    assert payload.traces[0].spans[0].spans[0].parent is not None

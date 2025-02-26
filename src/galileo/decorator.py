@@ -277,7 +277,7 @@ class GalileoDecorator:
             if "input" not in span_params:
                 span_params["input"] = input_
 
-            span_params["created_at_ns"] = start_time.timestamp() * 1e9
+            span_params["created_at"] = start_time
 
             return span_params
         except Exception as e:
@@ -316,11 +316,11 @@ class GalileoDecorator:
 
     def _get_span_param_names(self, span_type: SPAN_TYPE) -> list[str]:
         """Return the parameter names available for each span type."""
-        common_params = ["name", "input", "metadata"]
+        common_params = ["name", "input", "metadata", "tags"]
         span_params = {
-            "llm": common_params + ["model", "temperature", "tools", "ground_truth"],
-            "retriever": common_params + ["documents"],
-            "tool": common_params,
+            "llm": common_params + ["model", "temperature", "tools"],
+            "retriever": common_params,
+            "tool": common_params + ["tool_call_id"],
             "workflow": common_params,
         }
         return span_params.get(span_type, common_params)
@@ -342,18 +342,22 @@ class GalileoDecorator:
 
         # If no trace is available, start a new one
         if not trace:
-            trace = client_instance.start_trace(input=input, name=name)
+            trace = client_instance.start_trace(input=json.dumps(input, cls=EventSerializer), name=name)
             _trace_context.set(trace)
 
         # If the user hasn't specified a span type, create and add a workflow span
         if not span_type or span_type == "workflow":
-            parent_span = stack[-1] if len(stack) else None
-            created_at_ns = span_params.get("created_at_ns", _get_timestamp().timestamp() * 1e9)
+            # parent_span = stack[-1] if len(stack) else None
+            created_at = span_params.get("created_at", _get_timestamp())
 
-            if parent_span:
-                span = parent_span.add_workflow_span(input=input, name=name, created_at_ns=created_at_ns)
-            else:
-                span = trace.add_workflow_span(input=input, name=name, created_at_ns=created_at_ns)
+            logger = self.get_logger_instance(project=project, log_stream=log_stream)
+            span = logger.add_workflow_span(
+                input=json.dumps(input, cls=EventSerializer), name=name, created_at=created_at
+            )
+            # if parent_span:
+            #     span = parent_span.add_workflow_span(input=input, name=name, created_at_ns=created_at_ns)
+            # else:
+            #     span = trace.add_workflow_span(input=input, name=name, created_at_ns=created_at_ns)
             _span_stack_context.set(stack + [span])
 
     def _get_input_from_func_args(
@@ -397,46 +401,52 @@ class GalileoDecorator:
             )
 
             stack = _span_stack_context.get()
-            trace = _trace_context.get()
+            _trace_context.get()
 
-            created_at_ns = span_params.get("created_at_ns")
+            created_at = span_params.get("created_at")
+            created_at_ns = created_at.timestamp() * 1e9 if created_at else 0
             end_time_ns = int(round(_get_timestamp().timestamp() * 1e9))
             if created_at_ns:
                 span_params["duration_ns"] = int(round(end_time_ns - created_at_ns))
             else:
-                span_params["created_at_ns"] = end_time_ns
+                span_params["created_at"] = created_at
                 span_params["duration_ns"] = 0
 
-            span = None
+            logger = self.get_logger_instance(project=project, log_stream=log_stream)
 
             # If the span type is a workflow, conclude it
             if span_type == "workflow" or not span_type:
                 if stack:
-                    span = stack.pop()
+                    stack.pop()
                     _span_stack_context.set(stack)
 
-                if span:
-                    span.conclude(output=output, duration_ns=span_params["duration_ns"])
-                if len(stack) == 0:
-                    trace.conclude(output=output, duration_ns=span_params["duration_ns"])
+                # if span:
+                #     span.conclude(output=output, duration_ns=span_params["duration_ns"])
+                # if len(stack) == 0:
+                #     trace.conclude(output=output, duration_ns=span_params["duration_ns"])
+                status_code = span_params.get("status_code", None)
+                logger.conclude(output=output, duration_ns=span_params["duration_ns"], status_code=status_code)
             else:
                 # If the span type is not a workflow, add it to the current parent (trace or span)
-                if len(stack):
-                    span = stack[-1]
+                # if len(stack):
+                #     span = stack[-1]
                 span_methods = {"llm": "add_llm_span", "tool": "add_tool_span", "retriever": "add_retriever_span"}
 
                 if span_type in span_methods:
                     method = span_methods[span_type]
-                    target = span or trace
+                    # target = span or trace
 
                     kwargs = {"output": output, **span_params}
+
+                    if span_type != "llm":
+                        kwargs["input"] = json.dumps(kwargs.get("input", None), cls=EventSerializer)
 
                     if span_type == "llm" and "model" not in kwargs:
                         # TODO: Allow a model to be parsed from the span_params
                         # This only affects direct @log(span_type="llm") calls, not OpenAI
                         kwargs["model"] = ""
 
-                    getattr(target, method)(**kwargs)
+                    getattr(logger, method)(**kwargs)
         except Exception as e:
             _logger.error(f"Failed to create trace: {e}", exc_info=True)
 
