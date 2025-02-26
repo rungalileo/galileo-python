@@ -3,6 +3,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from inspect import isclass
 from typing import Any, Callable, Optional, Union
+import types
+from collections import defaultdict
 
 from packaging.version import Version
 from pydantic import BaseModel
@@ -271,8 +273,126 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
     return model, completion, usage
 
 
+def _extract_streamed_openai_response(resource, chunks):
+    completion = defaultdict(str) if resource.type == "chat" else ""
+    model, usage = None, None
+
+    for chunk in chunks:
+        if _is_openai_v1():
+            chunk = chunk.__dict__
+
+        model = model or chunk.get("model", None) or None
+        usage = chunk.get("usage", None)
+
+        choices = chunk.get("choices", [])
+
+        for choice in choices:
+            if _is_openai_v1():
+                choice = choice.__dict__
+            if resource.type == "chat":
+                delta = choice.get("delta", None)
+
+                if _is_openai_v1():
+                    delta = delta.__dict__
+
+                if delta.get("role", None) is not None:
+                    completion["role"] = delta["role"]
+
+                if delta.get("content", None) is not None:
+                    completion["content"] = (
+                        delta.get("content", None)
+                        if completion["content"] is None
+                        else completion["content"] + delta.get("content", None)
+                    )
+                elif delta.get("function_call", None) is not None:
+                    curr = completion["function_call"]
+                    tool_call_chunk = delta.get("function_call", None)
+
+                    if not curr:
+                        completion["function_call"] = {
+                            "name": getattr(tool_call_chunk, "name", ""),
+                            "arguments": getattr(tool_call_chunk, "arguments", ""),
+                        }
+
+                    else:
+                        curr["name"] = curr["name"] or getattr(
+                            tool_call_chunk, "name", None
+                        )
+                        curr["arguments"] += getattr(tool_call_chunk, "arguments", "")
+
+                elif delta.get("tool_calls", None) is not None:
+                    curr = completion["tool_calls"]
+                    tool_call_chunk = getattr(
+                        delta.get("tool_calls", None)[0], "function", None
+                    )
+
+                    if not curr:
+                        completion["tool_calls"] = [
+                            {
+                                "name": getattr(tool_call_chunk, "name", ""),
+                                "arguments": getattr(tool_call_chunk, "arguments", ""),
+                            }
+                        ]
+
+                    elif getattr(tool_call_chunk, "name", None) is not None:
+                        curr.append(
+                            {
+                                "name": getattr(tool_call_chunk, "name", None),
+                                "arguments": getattr(
+                                    tool_call_chunk, "arguments", None
+                                ),
+                            }
+                        )
+
+                    else:
+                        curr[-1]["name"] = curr[-1]["name"] or getattr(
+                            tool_call_chunk, "name", None
+                        )
+                        curr[-1]["arguments"] += getattr(
+                            tool_call_chunk, "arguments", None
+                        )
+
+            if resource.type == "completion":
+                completion += choice.get("text", None)
+
+    def get_response_for_chat():
+        return (
+                completion["content"]
+                or (
+                        completion["function_call"]
+                        and {
+                            "role": "assistant",
+                            "function_call": completion["function_call"],
+                        }
+                )
+                or (
+                        completion["tool_calls"]
+                        and {
+                            "role": "assistant",
+                            # "tool_calls": [{"function": completion["tool_calls"]}],
+                            "tool_calls": [
+                                {"function": data} for data in completion["tool_calls"]
+                            ],
+                        }
+                )
+                or None
+        )
+
+    return (
+        model,
+        get_response_for_chat() if resource.type == "chat" else completion,
+        usage,
+    )
+
+
 def _is_openai_v1() -> bool:
     return Version(openai.__version__) >= Version("1.0.0")
+
+def _is_streaming_response(response):
+    return (
+        isinstance(response, types.GeneratorType)
+        or (_is_openai_v1() and isinstance(response, openai.Stream))
+    )
 
 
 @_galileo_wrapper
@@ -302,13 +422,18 @@ def _wrap(
         # We will conclude it at the end
         trace = galileo_logger.start_trace(input=input_data.input, name=input_data.name)
         complete_trace = True
-
     try:
         openai_response = wrapped(**arg_extractor.get_openai_args())
 
-        model, completion, usage = _extract_data_from_default_response(
-            open_ai_resource, ((openai_response and openai_response.__dict__) if _is_openai_v1() else openai_response)
-        )
+        if _is_streaming_response(openai_response):
+            # extract data from streaming reponse
+            model, completion, usage = _extract_streamed_openai_response(
+                open_ai_resource, openai_response
+            )
+        else:
+            model, completion, usage = _extract_data_from_default_response(
+                open_ai_resource, ((openai_response and openai_response.__dict__) if _is_openai_v1() else openai_response)
+            )
 
         end_time = _get_timestamp()
 
