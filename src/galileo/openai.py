@@ -318,7 +318,6 @@ def _wrap(
 
         # Add a span to the current trace or span (if this is a nested trace)
         if len(decorator_context_span_stack):
-            # span = decorator_context_span_stack[-1]
             galileo_logger.add_llm_span(
                 input=input_data.input,
                 output=completion,

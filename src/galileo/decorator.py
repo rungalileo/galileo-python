@@ -347,17 +347,12 @@ class GalileoDecorator:
 
         # If the user hasn't specified a span type, create and add a workflow span
         if not span_type or span_type == "workflow":
-            # parent_span = stack[-1] if len(stack) else None
             created_at = span_params.get("created_at", _get_timestamp())
 
             logger = self.get_logger_instance(project=project, log_stream=log_stream)
             span = logger.add_workflow_span(
                 input=json.dumps(input, cls=EventSerializer), name=name, created_at=created_at
             )
-            # if parent_span:
-            #     span = parent_span.add_workflow_span(input=input, name=name, created_at_ns=created_at_ns)
-            # else:
-            #     span = trace.add_workflow_span(input=input, name=name, created_at_ns=created_at_ns)
             _span_stack_context.set(stack + [span])
 
     def _get_input_from_func_args(
@@ -420,16 +415,10 @@ class GalileoDecorator:
                     stack.pop()
                     _span_stack_context.set(stack)
 
-                # if span:
-                #     span.conclude(output=output, duration_ns=span_params["duration_ns"])
-                # if len(stack) == 0:
-                #     trace.conclude(output=output, duration_ns=span_params["duration_ns"])
                 status_code = span_params.get("status_code", None)
                 logger.conclude(output=output, duration_ns=span_params["duration_ns"], status_code=status_code)
             else:
                 # If the span type is not a workflow, add it to the current parent (trace or span)
-                # if len(stack):
-                #     span = stack[-1]
                 span_methods = {"llm": "add_llm_span", "tool": "add_tool_span", "retriever": "add_retriever_span"}
 
                 if span_type in span_methods:

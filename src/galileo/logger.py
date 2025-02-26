@@ -20,12 +20,8 @@ from galileo_core.schemas.logging.span import (
     ToolSpan,
     WorkflowSpan,
 )
-
-# from galileo_core.schemas.shared.traces.types import Trace
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
-
-# from galileo_core.schemas.shared.traces.trace import Traces
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 from galileo_core.schemas.shared.workflows.step import StepIOType
 
@@ -71,12 +67,12 @@ class GalileoLogger(TracesLogger):
     And let's add some more complex inputs/outputs using some of our helper classes.
     ```
     trace = logger.start_trace(input="Who's a good bot?")
-    trace.add_retriever_span(
+    logger.add_retriever_span(
         input="Who's a good bot?",
         documents=["Research shows that I am a good bot."],
         duration_ns=1000
     )
-    trace.add_llm_span(
+    logger.add_llm_span(
         input="Who's a good bot?",
         output="I am!",
         tools=[{"name": "tool1", "args": {"arg1": "val1"}}],
@@ -86,7 +82,7 @@ class GalileoLogger(TracesLogger):
         total_tokens=28,
         duration_ns=1000
     )
-    trace.conclude(output="I am!", duration_ns=2000)
+    logger.conclude(output="I am!", duration_ns=2000)
     logger.flush()
     ```
     """
@@ -173,7 +169,7 @@ class GalileoLogger(TracesLogger):
             output: Optional[str]: Output of the node.
             name: Optional[str]: Name of the trace.
             duration_ns: Optional[int]: Duration of the trace in nanoseconds.
-            created_at_ns: Optional[int]: Timestamp of the trace's creation.
+            created_at: Optional[datetime]: Timestamp of the trace's creation.
             metadata: Optional[Dict[str, str]]: Metadata associated with this trace.
             ground_truth: Optional[str]: Ground truth, expected output of the trace.
         Returns:

@@ -7,8 +7,6 @@ import pytest
 from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
 from galileo_core.schemas.logging.step import Metrics
-
-# from galileo_core.schemas.shared.traces.trace import Trace
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.workflows.node_type import NodeType
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client

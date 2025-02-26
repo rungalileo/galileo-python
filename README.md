@@ -47,7 +47,7 @@ with galileo_context(project="gen-ai-project", log_stream="test2"):
 logger = GalileoLogger(project="gen-ai-project", log_stream="test3")
 trace = logger.start_trace("Say this is a test")
 
-trace.add_llm_span(
+logger.add_llm_span(
     input="Say this is a test",
     output="Hello, this is a test",
     model="gpt-4o",
@@ -57,7 +57,8 @@ trace.add_llm_span(
     duration_ns=1000,
 )
 
-trace.conclude(output="Hello, this is a test", duration_ns=1000)
+logger.conclude(output="Hello, this is a test", duration_ns=1000)
+logger.flush() # This will upload the trace to Galileo
 ```
 
 ## Local Installation
