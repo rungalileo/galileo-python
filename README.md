@@ -60,6 +60,24 @@ trace.add_llm_span(
 trace.conclude(output="Hello, this is a test", duration_ns=1000)
 ```
 
+OpenAI streaming example:
+
+```python
+import os
+
+from galileo import openai
+
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+stream = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-4o", stream=True,
+)
+
+# This will create a single span trace with the OpenAI call
+for chunk in stream:
+    print(chunk.choices[0].delta.content or "", end="")
+```
+
 ## Local Installation
 
 ### Pre-Requisites
