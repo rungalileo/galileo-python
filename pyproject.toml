@@ -32,7 +32,6 @@ pytest-socket = "^0.7"
 requests-mock = "^1.11.0"
 galileo-core = { extras = ["testing"], version = "^3.2.0" }
 pytest-env = "^1.1.5"
-pytest-mock = "^3.14.0"
 
 
 [tool.poetry.group.dev.dependencies]

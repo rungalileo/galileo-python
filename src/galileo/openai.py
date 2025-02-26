@@ -1,4 +1,6 @@
 import logging
+import types
+from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from inspect import isclass
@@ -271,8 +273,98 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
     return model, completion, usage
 
 
+def _extract_streamed_openai_response(resource, chunks):
+    completion = defaultdict(str) if resource.type == "chat" else ""
+    model, usage = None, None
+
+    for chunk in chunks:
+        if _is_openai_v1():
+            chunk = chunk.__dict__
+
+        model = model or chunk.get("model", None) or None
+        usage = chunk.get("usage", None)
+
+        choices = chunk.get("choices", [])
+
+        for choice in choices:
+            if _is_openai_v1():
+                choice = choice.__dict__
+            if resource.type == "chat":
+                delta = choice.get("delta", None)
+
+                if _is_openai_v1():
+                    delta = delta.__dict__
+
+                if delta.get("role", None) is not None:
+                    completion["role"] = delta["role"]
+
+                if delta.get("content", None) is not None:
+                    completion["content"] = (
+                        delta.get("content", None)
+                        if completion["content"] is None
+                        else completion["content"] + delta.get("content", None)
+                    )
+                elif delta.get("function_call", None) is not None:
+                    curr = completion["function_call"]
+                    tool_call_chunk = delta.get("function_call", None)
+
+                    if not curr:
+                        completion["function_call"] = {
+                            "name": getattr(tool_call_chunk, "name", ""),
+                            "arguments": getattr(tool_call_chunk, "arguments", ""),
+                        }
+
+                    else:
+                        curr["name"] = curr["name"] or getattr(tool_call_chunk, "name", None)
+                        curr["arguments"] += getattr(tool_call_chunk, "arguments", "")
+
+                elif delta.get("tool_calls", None) is not None:
+                    curr = completion["tool_calls"]
+                    tool_call_chunk = getattr(delta.get("tool_calls", None)[0], "function", None)
+
+                    if not curr:
+                        completion["tool_calls"] = [
+                            {
+                                "name": getattr(tool_call_chunk, "name", ""),
+                                "arguments": getattr(tool_call_chunk, "arguments", ""),
+                            }
+                        ]
+
+                    elif getattr(tool_call_chunk, "name", None) is not None:
+                        curr.append(
+                            {
+                                "name": getattr(tool_call_chunk, "name", None),
+                                "arguments": getattr(tool_call_chunk, "arguments", None),
+                            }
+                        )
+
+                    else:
+                        curr[-1]["name"] = curr[-1]["name"] or getattr(tool_call_chunk, "name", None)
+                        curr[-1]["arguments"] += getattr(tool_call_chunk, "arguments", None)
+
+            if resource.type == "completion":
+                completion += choice.get("text", None)
+
+    def get_response_for_chat():
+        return (
+            completion["content"]
+            or (completion["function_call"] and {"role": "assistant", "function_call": completion["function_call"]})
+            or (
+                completion["tool_calls"]
+                and {"role": "assistant", "tool_calls": [{"function": data} for data in completion["tool_calls"]]}
+            )
+            or None
+        )
+
+    return (model, get_response_for_chat() if resource.type == "chat" else completion, usage)
+
+
 def _is_openai_v1() -> bool:
     return Version(openai.__version__) >= Version("1.0.0")
+
+
+def _is_streaming_response(response):
+    return isinstance(response, types.GeneratorType) or (_is_openai_v1() and isinstance(response, openai.Stream))
 
 
 @_galileo_wrapper
@@ -306,51 +398,154 @@ def _wrap(
     try:
         openai_response = wrapped(**arg_extractor.get_openai_args())
 
-        model, completion, usage = _extract_data_from_default_response(
-            open_ai_resource, ((openai_response and openai_response.__dict__) if _is_openai_v1() else openai_response)
-        )
-
-        end_time = _get_timestamp()
-
-        duration_ns = int(round((end_time - start_time).total_seconds() * 1e9))
-
-        # Add a span to the current trace or span (if this is a nested trace)
-        if len(decorator_context_span_stack):
-            span = decorator_context_span_stack[-1]
-            span.add_llm_span(
-                input=input_data.input,
-                output=completion,
-                name=input_data.name,
-                model=model,
-                temperature=input_data.temperature,
-                duration_ns=duration_ns,
-                input_tokens=usage.get("prompt_tokens", 0),
-                output_tokens=usage.get("completion_tokens", 0),
-                total_tokens=usage.get("total_tokens", 0),
-                metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
+        if _is_streaming_response(openai_response):
+            # extract data from streaming reponse
+            return ResponseGeneratorSync(
+                resource=open_ai_resource,
+                response=openai_response,
+                input_data=input_data,
+                decorator_context_span_stack=decorator_context_span_stack,
+                trace=trace,
+                complete_trace=complete_trace,
             )
         else:
-            trace.add_llm_span(
-                input=input_data.input,
-                output=completion,
-                name=input_data.name,
-                model=model,
-                temperature=input_data.temperature,
-                duration_ns=duration_ns,
-                input_tokens=usage.get("prompt_tokens", 0),
-                output_tokens=usage.get("completion_tokens", 0),
-                total_tokens=usage.get("total_tokens", 0),
-                metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
+            model, completion, usage = _extract_data_from_default_response(
+                open_ai_resource,
+                ((openai_response and openai_response.__dict__) if _is_openai_v1() else openai_response),
             )
 
-        # Conclude the trace if this is the top-level call
-        if complete_trace:
-            trace.conclude(output=completion, duration_ns=duration_ns)
+            if usage is None:
+                usage = {}
+
+            end_time = _get_timestamp()
+
+            duration_ns = int(round((end_time - start_time).total_seconds() * 1e9))
+
+            # Add a span to the current trace or span (if this is a nested trace)
+            if len(decorator_context_span_stack):
+                span = decorator_context_span_stack[-1]
+                span.add_llm_span(
+                    input=input_data.input,
+                    output=completion,
+                    name=input_data.name,
+                    model=model,
+                    temperature=input_data.temperature,
+                    duration_ns=duration_ns,
+                    input_tokens=usage.get("prompt_tokens", 0),
+                    output_tokens=usage.get("completion_tokens", 0),
+                    total_tokens=usage.get("total_tokens", 0),
+                    metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
+                )
+            else:
+                trace.add_llm_span(
+                    input=input_data.input,
+                    output=completion,
+                    name=input_data.name,
+                    model=model,
+                    temperature=input_data.temperature,
+                    duration_ns=duration_ns,
+                    input_tokens=usage.get("prompt_tokens", 0),
+                    output_tokens=usage.get("completion_tokens", 0),
+                    total_tokens=usage.get("total_tokens", 0),
+                    metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
+                )
+
+            # Conclude the trace if this is the top-level call
+            if complete_trace:
+                trace.conclude(output=completion, duration_ns=duration_ns)
 
         return openai_response
     except Exception as ex:
         _logger.error(f"Error while processing OpenAI request: {ex}")
         raise RuntimeError("Failed to process the OpenAI Request") from ex
+
+
+class ResponseGeneratorSync:
+    def __init__(self, *, resource, response, input_data, decorator_context_span_stack, trace, complete_trace):
+        self.items = []
+        self.resource = resource
+        self.response = response
+        self.input_data = input_data
+        self.decorator_context_span_stack = decorator_context_span_stack
+        self.trace = trace
+        self.complete_trace = complete_trace
+        self.completion_start_time = None
+
+    def __iter__(self):
+        try:
+            for i in self.response:
+                self.items.append(i)
+
+                if self.completion_start_time is None:
+                    self.completion_start_time = _get_timestamp()
+
+                yield i
+        finally:
+            self._finalize()
+
+    def __next__(self):
+        try:
+            item = self.response.__next__()
+            self.items.append(item)
+
+            if self.completion_start_time is None:
+                self.completion_start_time = _get_timestamp()
+
+            return item
+
+        except StopIteration:
+            self._finalize()
+
+            raise
+
+    def __enter__(self):
+        return self.__iter__()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+    def _finalize(self):
+        model, completion, usage = _extract_streamed_openai_response(self.resource, self.items)
+
+        if usage is None:
+            usage = {}
+
+        end_time = _get_timestamp()
+        # TODO: make sure completion_start_time what we want
+        duration_ns = int(round((end_time - self.completion_start_time).total_seconds() * 1e9))
+
+        # Add a span to the current trace or span (if this is a nested trace)
+        if len(self.decorator_context_span_stack):
+            span = self.decorator_context_span_stack[-1]
+            span.add_llm_span(
+                input=self.input_data.input,
+                output=completion,
+                name=self.input_data.name,
+                model=model,
+                temperature=self.input_data.temperature,
+                duration_ns=duration_ns,
+                input_tokens=usage.get("prompt_tokens", 0),
+                output_tokens=usage.get("completion_tokens", 0),
+                total_tokens=usage.get("total_tokens", 0),
+                metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
+            )
+        else:
+            self.trace.add_llm_span(
+                input=self.input_data.input,
+                output=completion,
+                name=self.input_data.name,
+                model=model,
+                temperature=self.input_data.temperature,
+                duration_ns=duration_ns,
+                input_tokens=usage.get("prompt_tokens", 0),
+                output_tokens=usage.get("completion_tokens", 0),
+                total_tokens=usage.get("total_tokens", 0),
+                metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
+            )
+
+        # Conclude the trace if this is the top-level call
+        if self.complete_trace:
+            self.trace.conclude(output=completion, duration_ns=duration_ns)
 
 
 class OpenAIGalileo:
