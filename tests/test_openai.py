@@ -85,8 +85,10 @@ def test_streamed_openai_call(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0], LlmSpan)
-    assert payload.traces[0].input[0].content == "Say this is a test"
-    assert payload.traces[0].spans[0].output == "Hello"
+    assert payload.traces[0].input == '[{"role": "user", "content": "Say this is a test"}]'
+    assert payload.traces[0].output == "Hello"
+    assert payload.traces[0].spans[0].input == [Message(content="Say this is a test", role=MessageRole.user)]
+    assert payload.traces[0].spans[0].output == Message(content="Hello", role=MessageRole.assistant)
 
 
 @patch("openai.resources.chat.Completions.create")
