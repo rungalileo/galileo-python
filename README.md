@@ -4,7 +4,18 @@ The Python client library for the Galileo AI platform.
 
 ## Getting Started
 
-`pip install "galileo[all]"`
+### Installation
+
+`pip install galileo`
+
+### Setup
+
+Set the following environment variables:
+
+- `GALILEO_CONSOLE_URL`: Galileo Console URL
+- `GALILEO_API_KEY`: Your Galileo API key
+- `GALILEO_PROJECT`: (Optional) Project name
+- `GALILEO_LOG_STREAM`: (Optional) Log stream name
 
 ### Usage
 
