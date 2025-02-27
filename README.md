@@ -12,10 +12,11 @@ The Python client library for the Galileo AI platform.
 
 Set the following environment variables:
 
-- `GALILEO_CONSOLE_URL`: Galileo Console URL
 - `GALILEO_API_KEY`: Your Galileo API key
 - `GALILEO_PROJECT`: (Optional) Project name
 - `GALILEO_LOG_STREAM`: (Optional) Log stream name
+
+Note: if you would like to point to an environment other than app.galileo.ai, you'll need to set the GALILEO_CONSOLE_URL environment variable.
 
 ### Usage
 
@@ -50,6 +51,22 @@ def make_nested_call():
 
 # This will create a trace with a workflow span and a nested LLM span containing the OpenAI call
 make_nested_call()
+
+
+@galileo.log(span_type="retriever")
+def retrieve_documents(query: str):
+    return ["doc1", "doc2"]
+
+# This will create a trace with a retriever span containing the documents in the output
+retrieve_documents(query="history")
+
+@galileo.log(span_type="tool")
+def tool_call(input: str = "tool call input"):
+    return "tool call output"
+
+# This will create a trace with a tool span containing the tool call output
+tool_call(input="question")
+
 
 # This will log to the project and log stream specified in the context manager
 with galileo_context(project="gen-ai-project", log_stream="test2"):
