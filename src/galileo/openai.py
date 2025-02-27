@@ -135,11 +135,31 @@ def _extract_chat_response(kwargs: dict) -> dict:
     """Extracts the llm output from the response."""
     response = {"role": kwargs.get("role", None)}
 
-    if kwargs.get("function_call") is not None:
-        response.update({"function_call": kwargs["function_call"]})
+    if kwargs.get("function_call") is not None and type(kwargs["function_call"]) is dict:
+        response.update(
+            {
+                "tool_calls": [
+                    {
+                        "id": "",
+                        "function": {
+                            "name": kwargs["function_call"].get("name", ""),
+                            "arguments": kwargs["function_call"].get("arguments", ""),
+                        },
+                    }
+                ]
+            }
+        )
+    elif kwargs.get("tool_calls") is not None and type(kwargs["tool_calls"]) is list:
+        tool_calls = []
+        for tool_call in kwargs["tool_calls"]:
+            if "function" in tool_call:
+                function_ = {
+                    "name": tool_call["function"].get("name", ""),
+                    "arguments": tool_call["function"].get("arguments", ""),
+                }
+                tool_calls.append({"id": tool_call.get("id", ""), "function": function_})
 
-    if kwargs.get("tool_calls") is not None:
-        response.update({"tool_calls": kwargs["tool_calls"]})
+        response.update({"tool_calls": tool_calls if len(tool_calls) else None})
 
     response.update({"content": kwargs.get("content", None)})
 

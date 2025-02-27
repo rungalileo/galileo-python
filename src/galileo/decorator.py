@@ -5,9 +5,9 @@ import logging
 from collections.abc import AsyncGenerator, Generator
 from contextvars import ContextVar
 from functools import wraps
+from types import TracebackType
 from typing import Any, Callable, Literal, Optional, TypeVar, Union, cast, overload
 
-from mypy.dmypy_util import TracebackType
 from typing_extensions import ParamSpec
 
 from galileo.logger import GalileoLogger
