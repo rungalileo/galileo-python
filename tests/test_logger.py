@@ -6,8 +6,10 @@ import pytest
 
 from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
+from galileo_core.schemas.logging.span import RetrieverSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.workflows.node_type import NodeType
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
@@ -244,3 +246,227 @@ async def test_single_span_trace_to_galileo_with_async(
     assert payload == expected_payload
     assert logger.traces == list()
     assert logger._parent_stack == deque()
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_retriever_span_str_output(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+    logger.add_retriever_span(
+        input="prompt", output="response", name="test-span", created_at=created_at, status_code=200
+    )
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
+    assert payload.traces[0].spans[0].input == "prompt"
+    assert payload.traces[0].spans[0].output == [Document(content="response", metadata=None)]
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_retriever_span_list_str_output(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+    logger.add_retriever_span(
+        input="prompt", output=["response1", "response2"], name="test-span", created_at=created_at, status_code=200
+    )
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
+    assert payload.traces[0].spans[0].input == "prompt"
+    assert payload.traces[0].spans[0].output == [
+        Document(content="response1", metadata=None),
+        Document(content="response2", metadata=None),
+    ]
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_retriever_span_dict_output(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+    logger.add_retriever_span(
+        input="prompt", output={"response1": "response2"}, name="test-span", created_at=created_at, status_code=200
+    )
+    logger.add_retriever_span(
+        input="prompt",
+        output={"content": "response2", "metadata": {"key": "value"}},
+        name="test-span",
+        created_at=created_at,
+        status_code=200,
+    )
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
+    assert payload.traces[0].spans[0].input == "prompt"
+    assert payload.traces[0].spans[0].output == [Document(content='{"response1": "response2"}', metadata=None)]
+    assert payload.traces[0].spans[1].input == "prompt"
+    assert payload.traces[0].spans[1].output == [Document(content="response2", metadata={"key": "value"})]
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_retriever_span_list_dict_output(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+    logger.add_retriever_span(
+        input="prompt", output=[{"response1": "response2"}], name="test-span", created_at=created_at, status_code=200
+    )
+    logger.add_retriever_span(
+        input="prompt",
+        output=[{"content": "response2", "metadata": {"key": "value"}}],
+        name="test-span",
+        created_at=created_at,
+        status_code=200,
+    )
+    logger.add_retriever_span(
+        input="prompt",
+        output=[{"content": "response2", "metadata": {"key": "value"}}, {"response1": "response2"}],
+        name="test-span",
+        created_at=created_at,
+        status_code=200,
+    )
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
+    assert payload.traces[0].spans[0].input == "prompt"
+    assert payload.traces[0].spans[0].output == [Document(content='{"response1": "response2"}', metadata=None)]
+    assert payload.traces[0].spans[1].input == "prompt"
+    assert payload.traces[0].spans[1].output == [Document(content="response2", metadata={"key": "value"})]
+    assert payload.traces[0].spans[2].input == "prompt"
+    assert payload.traces[0].spans[2].output == [
+        Document(content='{"content": "response2", "metadata": {"key": "value"}}', metadata=None),
+        Document(content='{"response1": "response2"}', metadata=None),
+    ]
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_retriever_span_document_output(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+    logger.add_retriever_span(
+        input="prompt",
+        output=Document(content="response", metadata={"key": "value"}),
+        name="test-span",
+        created_at=created_at,
+        status_code=200,
+    )
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
+    assert payload.traces[0].spans[0].input == "prompt"
+    assert payload.traces[0].spans[0].output == [Document(content="response", metadata={"key": "value"})]
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_retriever_span_list_document_output(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+    logger.add_retriever_span(
+        input="prompt",
+        output=[Document(content="response1", metadata={"key": "value"}), Document(content="response2", metadata={})],
+        name="test-span",
+        created_at=created_at,
+        status_code=200,
+    )
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
+    assert payload.traces[0].spans[0].input == "prompt"
+    assert payload.traces[0].spans[0].output == [
+        Document(content="response1", metadata={"key": "value"}),
+        Document(content="response2", metadata={}),
+    ]
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_retriever_span_none_output(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="input", name="test-trace", created_at=created_at)
+    logger.add_retriever_span(input="prompt", output=None, name="test-span", created_at=created_at, status_code=200)
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
+    assert payload.traces[0].spans[0].input == "prompt"
+    assert payload.traces[0].spans[0].output == [Document(content="", metadata={})]

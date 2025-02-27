@@ -6,6 +6,8 @@ from datetime import datetime
 from os import getenv
 from typing import Optional, Union
 
+from pydantic import ValidationError
+
 from galileo.api_client import GalileoApiClient
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
@@ -25,7 +27,9 @@ from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 from galileo_core.schemas.shared.workflows.step import StepIOType
 
-RetrieverSpanAllowedOutputType = Union[str, list[str], list[dict[str, str]], Document, list[Document], None]
+RetrieverSpanAllowedOutputType = Union[
+    str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None
+]
 
 
 class GalileoLogger(TracesLogger):
@@ -316,7 +320,8 @@ class GalileoLogger(TracesLogger):
         Parameters:
         ----------
             input: StepIOType: Input to the node.
-            documents: Union[List[str], List[Dict[str, str]], List[Document]]: Documents retrieved from the retriever.
+            output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]:
+                Documents retrieved from the retriever.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
@@ -327,16 +332,29 @@ class GalileoLogger(TracesLogger):
             RetrieverSpan: The created span.
         """
 
-        if isinstance(output, list[Document]):
-            documents = output
-        elif isinstance(output, list[str]):
-            documents = [Document(content=doc, metadata={}) for doc in output]
+        if isinstance(output, list):
+            if all(isinstance(doc, Document) for doc in output):
+                documents = output
+            elif all(isinstance(doc, str) for doc in output):
+                documents = [Document(content=doc, metadata={}) for doc in output]
+            elif all(isinstance(doc, dict) for doc in output):
+                try:
+                    documents = [Document.model_validate(doc) for doc in output]
+                except ValidationError:
+                    documents = [Document(content=json.dumps(doc), metadata={}) for doc in output]
+            else:
+                raise ValueError(
+                    f"Invalid type for output. Expected list of strings, list of dicts, or a Document, but got {type(output)}"
+                )
         elif isinstance(output, Document):
             documents = [output]
-        elif isinstance(output, list[dict]):
-            documents = [Document(content=json.dumps(doc), metadata={}) for doc in output]
         elif isinstance(output, str):
             documents = [Document(content=output, metadata={})]
+        elif isinstance(output, dict):
+            try:
+                documents = [Document.model_validate(output)]
+            except ValidationError:
+                documents = [Document(content=json.dumps(output), metadata={})]
         else:
             documents = [Document(content="", metadata={})]
 
