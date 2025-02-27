@@ -1,3 +1,4 @@
+import json
 import logging
 import types
 from collections import defaultdict
@@ -13,6 +14,7 @@ from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
 from galileo import GalileoLogger
 from galileo.decorator import galileo_context
 from galileo.utils import _get_timestamp
+from galileo.utils.serialization import EventSerializer
 from galileo.utils.singleton import GalileoLoggerSingleton
 
 try:
@@ -133,11 +135,31 @@ def _extract_chat_response(kwargs: dict) -> dict:
     """Extracts the llm output from the response."""
     response = {"role": kwargs.get("role", None)}
 
-    if kwargs.get("function_call") is not None:
-        response.update({"function_call": kwargs["function_call"]})
+    if kwargs.get("function_call") is not None and type(kwargs["function_call"]) is dict:
+        response.update(
+            {
+                "tool_calls": [
+                    {
+                        "id": "",
+                        "function": {
+                            "name": kwargs["function_call"].get("name", ""),
+                            "arguments": kwargs["function_call"].get("arguments", ""),
+                        },
+                    }
+                ]
+            }
+        )
+    elif kwargs.get("tool_calls") is not None and type(kwargs["tool_calls"]) is list:
+        tool_calls = []
+        for tool_call in kwargs["tool_calls"]:
+            if "function" in tool_call:
+                function_ = {
+                    "name": tool_call["function"].get("name", ""),
+                    "arguments": tool_call["function"].get("arguments", ""),
+                }
+                tool_calls.append({"id": tool_call.get("id", ""), "function": function_})
 
-    if kwargs.get("tool_calls") is not None:
-        response.update({"tool_calls": kwargs["tool_calls"]})
+        response.update({"tool_calls": tool_calls if len(tool_calls) else None})
 
     response.update({"content": kwargs.get("content", None)})
 
@@ -374,7 +396,7 @@ def _wrap(
     # Retrieve the decorator context
     decorator_context_project = galileo_context.get_current_project()
     decorator_context_log_stream = galileo_context.get_current_log_stream()
-    decorator_context_span_stack = galileo_context.get_current_span_stack()
+    galileo_context.get_current_span_stack()
     decorator_context_trace = galileo_context.get_current_trace()
 
     start_time = _get_timestamp()
@@ -386,14 +408,14 @@ def _wrap(
         project=decorator_context_project, log_stream=decorator_context_log_stream
     )
 
-    complete_trace = False
+    should_complete_trace = False
     if decorator_context_trace:
-        trace = decorator_context_trace
+        pass
     else:
         # If we don't have an active trace, start a new trace
         # We will conclude it at the end
-        trace = galileo_logger.start_trace(input=input_data.input, name=input_data.name)
-        complete_trace = True
+        galileo_logger.start_trace(input=json.dumps(input_data.input, cls=EventSerializer), name=input_data.name)
+        should_complete_trace = True
 
     try:
         openai_response = wrapped(**arg_extractor.get_openai_args())
@@ -404,9 +426,8 @@ def _wrap(
                 resource=open_ai_resource,
                 response=openai_response,
                 input_data=input_data,
-                decorator_context_span_stack=decorator_context_span_stack,
-                trace=trace,
-                complete_trace=complete_trace,
+                logger=galileo_logger,
+                should_complete_trace=should_complete_trace,
             )
         else:
             model, completion, usage = _extract_data_from_default_response(
@@ -422,37 +443,22 @@ def _wrap(
             duration_ns = int(round((end_time - start_time).total_seconds() * 1e9))
 
             # Add a span to the current trace or span (if this is a nested trace)
-            if len(decorator_context_span_stack):
-                span = decorator_context_span_stack[-1]
-                span.add_llm_span(
-                    input=input_data.input,
-                    output=completion,
-                    name=input_data.name,
-                    model=model,
-                    temperature=input_data.temperature,
-                    duration_ns=duration_ns,
-                    input_tokens=usage.get("prompt_tokens", 0),
-                    output_tokens=usage.get("completion_tokens", 0),
-                    total_tokens=usage.get("total_tokens", 0),
-                    metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
-                )
-            else:
-                trace.add_llm_span(
-                    input=input_data.input,
-                    output=completion,
-                    name=input_data.name,
-                    model=model,
-                    temperature=input_data.temperature,
-                    duration_ns=duration_ns,
-                    input_tokens=usage.get("prompt_tokens", 0),
-                    output_tokens=usage.get("completion_tokens", 0),
-                    total_tokens=usage.get("total_tokens", 0),
-                    metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
-                )
+            galileo_logger.add_llm_span(
+                input=input_data.input,
+                output=completion,
+                name=input_data.name,
+                model=model,
+                temperature=input_data.temperature,
+                duration_ns=duration_ns,
+                num_input_tokens=usage.get("prompt_tokens", 0),
+                num_output_tokens=usage.get("completion_tokens", 0),
+                total_tokens=usage.get("total_tokens", 0),
+                metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
+            )
 
             # Conclude the trace if this is the top-level call
-            if complete_trace:
-                trace.conclude(output=completion, duration_ns=duration_ns)
+            if should_complete_trace:
+                galileo_logger.conclude(output=json.dumps(completion, cls=EventSerializer), duration_ns=duration_ns)
 
         return openai_response
     except Exception as ex:
@@ -461,14 +467,13 @@ def _wrap(
 
 
 class ResponseGeneratorSync:
-    def __init__(self, *, resource, response, input_data, decorator_context_span_stack, trace, complete_trace):
+    def __init__(self, *, resource, response, input_data, logger: GalileoLogger, should_complete_trace: bool):
         self.items = []
         self.resource = resource
         self.response = response
         self.input_data = input_data
-        self.decorator_context_span_stack = decorator_context_span_stack
-        self.trace = trace
-        self.complete_trace = complete_trace
+        self.logger = logger
+        self.should_complete_trace = should_complete_trace
         self.completion_start_time = None
 
     def __iter__(self):
@@ -515,37 +520,22 @@ class ResponseGeneratorSync:
         duration_ns = int(round((end_time - self.completion_start_time).total_seconds() * 1e9))
 
         # Add a span to the current trace or span (if this is a nested trace)
-        if len(self.decorator_context_span_stack):
-            span = self.decorator_context_span_stack[-1]
-            span.add_llm_span(
-                input=self.input_data.input,
-                output=completion,
-                name=self.input_data.name,
-                model=model,
-                temperature=self.input_data.temperature,
-                duration_ns=duration_ns,
-                input_tokens=usage.get("prompt_tokens", 0),
-                output_tokens=usage.get("completion_tokens", 0),
-                total_tokens=usage.get("total_tokens", 0),
-                metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
-            )
-        else:
-            self.trace.add_llm_span(
-                input=self.input_data.input,
-                output=completion,
-                name=self.input_data.name,
-                model=model,
-                temperature=self.input_data.temperature,
-                duration_ns=duration_ns,
-                input_tokens=usage.get("prompt_tokens", 0),
-                output_tokens=usage.get("completion_tokens", 0),
-                total_tokens=usage.get("total_tokens", 0),
-                metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
-            )
+        self.logger.add_llm_span(
+            input=self.input_data.input,
+            output=completion,
+            name=self.input_data.name,
+            model=model,
+            temperature=self.input_data.temperature,
+            duration_ns=duration_ns,
+            num_input_tokens=usage.get("prompt_tokens", 0),
+            num_output_tokens=usage.get("completion_tokens", 0),
+            total_tokens=usage.get("total_tokens", 0),
+            metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
+        )
 
         # Conclude the trace if this is the top-level call
-        if self.complete_trace:
-            self.trace.conclude(output=completion, duration_ns=duration_ns)
+        if self.should_complete_trace:
+            self.logger.conclude(output=completion, duration_ns=duration_ns)
 
 
 class OpenAIGalileo:

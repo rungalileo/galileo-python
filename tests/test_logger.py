@@ -1,10 +1,13 @@
+import datetime
+from collections import deque
 from unittest.mock import Mock, patch
 
 import pytest
 
 from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
-from galileo_core.schemas.shared.traces.trace import Trace
+from galileo_core.schemas.logging.step import Metrics
+from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.workflows.node_type import NodeType
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
@@ -19,11 +22,11 @@ def test_single_span_trace_to_galileo(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    created_time_ns = 0
+    created_at = datetime.datetime.now()
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     logger.start_trace(
-        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
+        input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
     )
     span = logger.add_llm_span(
         input="prompt",
@@ -32,7 +35,7 @@ def test_single_span_trace_to_galileo(
         name="test-span",
         tools=[{"name": "tool1", "args": {"arg1": "val1"}}],
         duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
+        created_at=created_at,
         metadata=metadata,
         temperature=1.0,
         status_code=200,
@@ -50,18 +53,17 @@ def test_single_span_trace_to_galileo(
                 input="input",
                 output="output",
                 name="test-trace",
-                created_at_ns=created_time_ns,
-                duration_ns=1_000_000,
-                metadata=metadata,
+                created_at=created_at,
+                user_metadata=metadata,
                 status_code=200,
-                ground_truth=None,
                 spans=[span],
+                metrics=Metrics(duration_ns=1000000),
             )
         ],
     )
     assert payload == expected_payload
     assert logger.traces == list()
-    assert logger.current_parent is None
+    assert logger._parent_stack == deque()
 
 
 @patch("galileo.logger.LogStreams")
@@ -74,32 +76,30 @@ def test_nested_span_trace_to_galileo(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    created_time_ns = 0
+    created_at = datetime.datetime.now()
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     trace = logger.start_trace(
-        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
+        input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
     )
-    workflow_span = logger.add_workflow_span(
-        input="prompt", name="test-workflow-span", created_at_ns=created_time_ns, metadata=metadata
-    )
+    logger.add_workflow_span(input="prompt", name="test-workflow-span", created_at=created_at, metadata=metadata)
 
-    workflow_span.add_llm_span(
+    logger.add_llm_span(
         input="prompt",
         output="response",
         model="gpt4o",
         name="test-span",
         tools=[{"name": "tool1", "args": {"arg1": "val1"}}],
         duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
+        created_at=created_at,
         metadata=metadata,
         temperature=1.0,
         status_code=200,
     )
 
-    workflow_span.conclude(output="response", duration_ns=1_000_000, status_code=200)
+    logger.conclude(output="response", duration_ns=1_000_000, status_code=200)
 
-    trace.conclude("response", duration_ns=1_000_000, status_code=200)
+    logger.conclude("response", duration_ns=1_000_000, status_code=200)
 
     assert logger.traces == [trace]
 
@@ -113,7 +113,7 @@ def test_nested_span_trace_to_galileo(
     )
     assert payload == expected_payload
     assert logger.traces == list()
-    assert logger.current_parent is None
+    assert logger._parent_stack == deque()
 
 
 @patch("galileo.logger.LogStreams")
@@ -126,45 +126,45 @@ def test_multi_span_trace_to_galileo(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    created_time_ns = 0
+    created_at = datetime.datetime.now()
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
-    trace = logger.start_trace(
-        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
+    logger.start_trace(
+        input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
     )
     workflow_span = logger.add_workflow_span(
-        input="prompt", name="test-workflow-span", created_at_ns=created_time_ns, metadata=metadata
+        input="prompt", name="test-workflow-span", created_at=created_at, metadata=metadata
     )
 
-    workflow_span.add_llm_span(
+    logger.add_llm_span(
         input="prompt",
         output="response",
         model="gpt4o",
         name="test-span",
         tools=[{"name": "tool1", "args": {"arg1": "val1"}}],
         duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
+        created_at=created_at,
         metadata=metadata,
         temperature=1.0,
         status_code=200,
     )
 
-    workflow_span.conclude(output="response", duration_ns=1_000_000, status_code=200)
+    logger.conclude(output="response", duration_ns=1_000_000, status_code=200)
 
-    second_span = trace.add_llm_span(
+    second_span = logger.add_llm_span(
         input="prompt2",
         output="response2",
         model="gpt4o",
         name="test-span2",
         tools=[{"name": "tool1", "args": {"arg1": "val1"}}],
         duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
+        created_at=created_at,
         metadata=metadata,
         temperature=1.0,
         status_code=200,
     )
 
-    trace.conclude("response2", duration_ns=1_000_000, status_code=200)
+    logger.conclude("response2", duration_ns=1_000_000, status_code=200)
 
     logger.flush()
 
@@ -178,18 +178,17 @@ def test_multi_span_trace_to_galileo(
                 input="input",
                 output="response2",
                 name="test-trace",
-                created_at_ns=created_time_ns,
-                duration_ns=1_000_000,
-                metadata=metadata,
+                created_at=created_at,
+                user_metadata=metadata,
                 status_code=200,
-                ground_truth=None,
                 spans=[workflow_span, second_span],
+                metrics=Metrics(duration_ns=1000000),
             )
         ],
     )
     assert payload == expected_payload
     assert logger.traces == list()
-    assert logger.current_parent is None
+    assert logger._parent_stack == deque()
 
 
 @pytest.mark.asyncio
@@ -203,11 +202,11 @@ async def test_single_span_trace_to_galileo_with_async(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    created_time_ns = 0
+    created_at = datetime.datetime.now()
     metadata = {"key": "value"}
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     logger.start_trace(
-        input="input", name="test-trace", duration_ns=1_000_000, created_at_ns=created_time_ns, metadata=metadata
+        input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
     )
     span = logger.add_llm_span(
         input="prompt",
@@ -216,7 +215,7 @@ async def test_single_span_trace_to_galileo_with_async(
         name="test-span",
         tools=[{"name": "tool1", "args": {"arg1": "val1"}}],
         duration_ns=1_000_000,
-        created_at_ns=created_time_ns,
+        created_at=created_at,
         metadata=metadata,
         temperature=1.0,
         status_code=200,
@@ -234,15 +233,14 @@ async def test_single_span_trace_to_galileo_with_async(
                 input="input",
                 output="output",
                 name="test-trace",
-                created_at_ns=created_time_ns,
-                duration_ns=1_000_000,
-                metadata=metadata,
+                created_at=created_at,
+                user_metadata=metadata,
                 status_code=200,
-                ground_truth=None,
                 spans=[span],
+                metrics=Metrics(duration_ns=1000000),
             )
         ],
     )
     assert payload == expected_payload
     assert logger.traces == list()
-    assert logger.current_parent is None
+    assert logger._parent_stack == deque()

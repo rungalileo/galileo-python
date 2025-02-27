@@ -3,7 +3,8 @@ from unittest.mock import Mock, patch
 import pytest
 
 from galileo import galileo_context, log
-from galileo_core.schemas.shared.traces.trace import LlmSpan, WorkflowSpan
+from galileo_core.schemas.logging.llm import Message, MessageRole
+from galileo_core.schemas.logging.span import LlmSpan, WorkflowSpan
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
@@ -107,7 +108,7 @@ def test_decorator_context_flush_all(
     llm_call(query="input_X")
 
     trace_X = galileo_context.get_current_trace()
-    assert trace_X.input == {"query": "input_X"}
+    assert trace_X.input == '{"query": "input_X"}'
 
     logger_X = galileo_context.get_logger_instance(project="project-X", log_stream="log-stream-X")
     assert len(logger_X.traces) == 1
@@ -117,7 +118,7 @@ def test_decorator_context_flush_all(
     llm_call(query="input_Y")
 
     trace_Y = galileo_context.get_current_trace()
-    assert trace_Y.input == {"query": "input_Y"}
+    assert trace_Y.input == '{"query": "input_Y"}'
 
     logger_Y = galileo_context.get_logger_instance(project="project-Y", log_stream="log-stream-Y")
     assert len(logger_Y.traces) == 1
@@ -146,7 +147,7 @@ def test_decorator_llm_span(
     def llm_call(query: str):
         return "response"
 
-    output = llm_call(query="input")
+    llm_call(query="input")
     galileo_context.flush()
 
     payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
@@ -154,9 +155,9 @@ def test_decorator_llm_span(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0], LlmSpan)
-    assert payload.traces[0].input == {"query": "input"}
-    assert payload.traces[0].spans[0].input == {"query": "input"}
-    assert payload.traces[0].spans[0].output == output
+    assert payload.traces[0].input == '{"query": "input"}'
+    assert payload.traces[0].spans[0].input == [Message(content='{"query": "input"}', role=MessageRole.user)]
+    assert payload.traces[0].spans[0].output == Message(content="response", role=MessageRole.assistant)
 
 
 @patch("galileo.logger.LogStreams")
@@ -187,10 +188,10 @@ def test_decorator_nested_span(
     assert len(payload.traces[0].spans[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0], WorkflowSpan)
     assert isinstance(payload.traces[0].spans[0].spans[0], LlmSpan)
-    assert payload.traces[0].input == {"nested_query": "input"}
-    assert payload.traces[0].spans[0].spans[0].input == {"query": "input"}
+    assert payload.traces[0].input == '{"nested_query": "input"}'
     assert payload.traces[0].spans[0].output == output
-    assert payload.traces[0].spans[0].spans[0].output == output
+    assert payload.traces[0].spans[0].spans[0].input == [Message(content='{"query": "input"}', role=MessageRole.user)]
+    assert payload.traces[0].spans[0].spans[0].output == Message(content="response", role=MessageRole.assistant)
 
 
 @patch("galileo.logger.LogStreams")
@@ -224,7 +225,8 @@ def test_decorator_multiple_nested_spans(
     assert isinstance(payload.traces[0].spans[0], WorkflowSpan)
     assert isinstance(payload.traces[0].spans[0].spans[0], LlmSpan)
     assert isinstance(payload.traces[0].spans[0].spans[1], LlmSpan)
-    assert payload.traces[0].input == {"nested_query": "input"}
-    assert payload.traces[0].spans[0].spans[0].input == {"query": "input"}
+    assert payload.traces[0].input == '{"nested_query": "input"}'
+    assert payload.traces[0].spans[0].input == '{"nested_query": "input"}'
     assert payload.traces[0].spans[0].output == output
-    assert payload.traces[0].spans[0].spans[0].output == "response"
+    assert payload.traces[0].spans[0].spans[0].input == [Message(content='{"query": "input"}', role=MessageRole.user)]
+    assert payload.traces[0].spans[0].spans[0].output == Message(content="response", role=MessageRole.assistant)

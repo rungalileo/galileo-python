@@ -1,8 +1,8 @@
 [project]
 name = "galileo"
-version = "0.0.3"
+version = "0.0.4"
 description = "Client library for the Galileo platform."
-authors = [{ name = "Galileo Technologies Inc.", email = "team@rungalileo.io" }]
+authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
 dynamic = ["dependencies"]
 
@@ -10,7 +10,7 @@ dynamic = ["dependencies"]
 python = "^3.9,<3.14"
 pydantic = "^2.5.2"
 pyjwt = "^2.8.0"
-galileo-core = "^3.2.0"
+galileo-core = "^3.5.0"
 wrapt = "^1.14"
 attrs = ">=22.2.0"
 python-dateutil = "^2.8.0"
@@ -30,7 +30,7 @@ pytest-cov = "^6.0.0"
 pytest-xdist = "^3.3.1"
 pytest-socket = "^0.7"
 requests-mock = "^1.11.0"
-galileo-core = { extras = ["testing"], version = "^3.2.0" }
+galileo-core = { extras = ["testing"], version = "^3.5.0" }
 pytest-env = "^1.1.5"
 
 

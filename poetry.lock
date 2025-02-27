@@ -478,14 +478,14 @@ typing = ["typing-extensions (>=4.12.2) ; python_version < \"3.11\""]
 
 [[package]]
 name = "galileo-core"
-version = "3.4.0"
+version = "3.9.0"
 description = "Shared schemas and configuration for Galileo's Python packages."
 optional = false
 python-versions = "<4.0.0,>=3.8.1"
 groups = ["main", "test"]
 files = [
-    {file = "galileo_core-3.4.0-py3-none-any.whl", hash = "sha256:3d7b06c0b0c5c2c44440196a653519c220efcc996d9a8fdf4dc6ac1a59335a9a"},
-    {file = "galileo_core-3.4.0.tar.gz", hash = "sha256:59f1ec409b973fffbecf0b91883e42e3df7028aba47573c6c905df223e9cb248"},
+    {file = "galileo_core-3.9.0-py3-none-any.whl", hash = "sha256:241683d90e43132f9b22871ddebdc3f25386624a47b65de625724ee5ec0fe260"},
+    {file = "galileo_core-3.9.0.tar.gz", hash = "sha256:5f47797ee63294bf8e602f7571b9f914acdcd02aca36b429631c34814549250b"},
 ]
 
 [package.dependencies]
@@ -814,15 +814,15 @@ files = [
 
 [[package]]
 name = "langchain-core"
-version = "0.3.39"
+version = "0.3.40"
 description = "Building applications with LLMs through composability"
 optional = true
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 markers = "extra == \"langchain\" or extra == \"all\""
 files = [
-    {file = "langchain_core-0.3.39-py3-none-any.whl", hash = "sha256:00f35e15e5f21d77320b3f8b816a1bf5de0b40b7809cd625dc3813b850a87fb2"},
-    {file = "langchain_core-0.3.39.tar.gz", hash = "sha256:97d49eccb1dea057b2efadae178bcc5e6472caa69c171fa4508fa6fb45f44c0e"},
+    {file = "langchain_core-0.3.40-py3-none-any.whl", hash = "sha256:9f31358741f10a13db8531e8288b8a5ae91904018c5c2e6f739d6645a98fca03"},
+    {file = "langchain_core-0.3.40.tar.gz", hash = "sha256:893a238b38491967c804662c1ec7c3e6ebaf223d1125331249c3cf3862ff2746"},
 ]
 
 [package.dependencies]
@@ -2445,4 +2445,4 @@ openai = ["openai"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "78c6ae7582272c3eb4681677d6d9aec38adc8cc8f25146f272a37d3c4058da0a"
+content-hash = "bd5c972d23a3f6f13af3d874f03318a70577738569413b40eb975734e88d21e3"

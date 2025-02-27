@@ -4,7 +4,18 @@ The Python client library for the Galileo AI platform.
 
 ## Getting Started
 
-`pip install "galileo[all]"`
+### Installation
+
+`pip install galileo`
+
+### Setup
+
+Set the following environment variables:
+
+- `GALILEO_CONSOLE_URL`: Galileo Console URL
+- `GALILEO_API_KEY`: Your Galileo API key
+- `GALILEO_PROJECT`: (Optional) Project name
+- `GALILEO_LOG_STREAM`: (Optional) Log stream name
 
 ### Usage
 
@@ -15,8 +26,11 @@ import galileo
 from galileo import galileo_context, openai
 from galileo.logger import GalileoLogger
 
-client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+# If you've set your GALILEO_PROJECT and GALILEO_LOG_STREAM env vars, you can skip this step
+galileo_context.init(project="your-project-id", log_stream="your-log-stream-id")
 
+# Initialize the Galileo wrapped OpenAI client
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
 def call_openai():
     chat_completion = client.chat.completions.create(
@@ -47,7 +61,7 @@ with galileo_context(project="gen-ai-project", log_stream="test2"):
 logger = GalileoLogger(project="gen-ai-project", log_stream="test3")
 trace = logger.start_trace("Say this is a test")
 
-trace.add_llm_span(
+logger.add_llm_span(
     input="Say this is a test",
     output="Hello, this is a test",
     model="gpt-4o",
@@ -57,7 +71,8 @@ trace.add_llm_span(
     duration_ns=1000,
 )
 
-trace.conclude(output="Hello, this is a test", duration_ns=1000)
+logger.conclude(output="Hello, this is a test", duration_ns=1000)
+logger.flush() # This will upload the trace to Galileo
 ```
 
 OpenAI streaming example:

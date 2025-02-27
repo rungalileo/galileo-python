@@ -6,7 +6,8 @@ from openai.types.chat import ChatCompletionChunk
 
 from galileo import galileo_context, log
 from galileo.openai import OpenAIGalileo, openai
-from galileo_core.schemas.shared.traces.trace import LlmSpan, WorkflowSpan
+from galileo_core.schemas.logging.llm import Message, MessageRole
+from galileo_core.schemas.logging.span import LlmSpan, WorkflowSpan
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 from tests.testutils.streaming import EventStream
 
@@ -43,8 +44,9 @@ def test_basic_openai_call(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0], LlmSpan)
-    assert payload.traces[0].input[0].content == "Say this is a test"
-    assert payload.traces[0].spans[0].output.content == "The mock is working! ;)"
+    assert payload.traces[0].input == '[{"role": "user", "content": "Say this is a test"}]'
+    assert payload.traces[0].spans[0].input == [Message(content="Say this is a test", role=MessageRole.user)]
+    assert payload.traces[0].spans[0].output == Message(content="The mock is working! ;)", role=MessageRole.assistant)
 
 
 @patch("openai.resources.chat.Completions.create")
@@ -83,8 +85,10 @@ def test_streamed_openai_call(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0], LlmSpan)
-    assert payload.traces[0].input[0].content == "Say this is a test"
-    assert payload.traces[0].spans[0].output == "Hello"
+    assert payload.traces[0].input == '[{"role": "user", "content": "Say this is a test"}]'
+    assert payload.traces[0].output == "Hello"
+    assert payload.traces[0].spans[0].input == [Message(content="Say this is a test", role=MessageRole.user)]
+    assert payload.traces[0].spans[0].output == Message(content="Hello", role=MessageRole.assistant)
 
 
 @patch("openai.resources.chat.Completions.create")
@@ -108,13 +112,14 @@ def test_openai_api_calls_as_parent_span(
     OpenAIGalileo().register_tracing()
 
     @log()
-    def call_openai():
+    def call_openai(model: str = "gpt-3.5-turbo"):
         chat_completion = openai.chat.completions.create(
-            messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-3.5-turbo"
+            messages=[{"role": "user", "content": "Say this is a test"}], model=model
         )
         return chat_completion.choices[0].message.content
 
-    assert call_openai() == "The mock is working! ;)"
+    output = call_openai()
+    assert output == "The mock is working! ;)"
 
     galileo_context.flush()
 
@@ -123,10 +128,13 @@ def test_openai_api_calls_as_parent_span(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0], WorkflowSpan)
+    assert payload.traces[0].spans[0].input == '{"model": "gpt-3.5-turbo"}'
     assert payload.traces[0].spans[0].output == "The mock is working! ;)"
 
     assert len(payload.traces[0].spans[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0].spans[0], LlmSpan)
-    assert payload.traces[0].spans[0].spans[0].input[0].content == "Say this is a test"
+    assert payload.traces[0].spans[0].spans[0].input == [Message(content="Say this is a test", role=MessageRole.user)]
+    assert payload.traces[0].spans[0].spans[0].output == Message(
+        content="The mock is working! ;)", role=MessageRole.assistant
+    )
     assert payload.traces[0].spans[0].spans[0].model == "gpt-3.5-turbo"
-    assert payload.traces[0].spans[0].spans[0].parent is not None
