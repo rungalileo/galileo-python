@@ -37,16 +37,16 @@ class Project:
     
     Examples:
          from galileo.projects import get_project, create_project, list_projects
-         
+
          # Create a new project
          project = create_project(name="My AI Project")
-         
+
          # Get a project by name
          project = get_project(name="My AI Project")
-         
+
          # Get a project by ID
          project = get_project(id="project-id-123")
-         
+
          # List all projects
          projects = list_projects()
          for project in projects:
@@ -64,9 +64,9 @@ class Project:
     def __init__(self, project: Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse] = None) -> None:
         """
         Initialize a Project instance.
-        
+
         Args:
-            project (Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse], optional): 
+            project (Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse], optional):
                 The project data to initialize from. If None, creates an empty project instance.
                 Defaults to None.
         """
