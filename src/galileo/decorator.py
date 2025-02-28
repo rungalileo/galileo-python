@@ -124,21 +124,11 @@ class GalileoDecorator:
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
             return (
                 self._async_log(
-                    func,
-                    name=name,
-                    span_type=span_type,
-                    project=project or _project_context.get(),
-                    log_stream=log_stream or _log_stream_context.get(),
-                    params=params,
+                    func, name=name, span_type=span_type, project=project, log_stream=log_stream, params=params
                 )
                 if asyncio.iscoroutinefunction(func)
                 else self._sync_log(
-                    func,
-                    name=name,
-                    span_type=span_type,
-                    project=project or _project_context.get(),
-                    log_stream=log_stream or _log_stream_context.get(),
-                    params=params,
+                    func, name=name, span_type=span_type, project=project, log_stream=log_stream, params=params
                 )
             )
 
@@ -492,6 +482,7 @@ class GalileoDecorator:
 
     def get_logger_instance(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> GalileoLogger:
         """Get the Galileo Logger instance for the current decorator context."""
+
         return GalileoLoggerSingleton().get(
             project=project or _project_context.get(), log_stream=log_stream or _log_stream_context.get()
         )

@@ -471,6 +471,7 @@ class GalileoLogger(TracesLogger):
         if not conclude_all:
             return super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
 
+        # TODO: Allow the final span output to propagate to the parent spans
         current_parent = None
         if conclude_all:
             while self.current_parent() is not None:
