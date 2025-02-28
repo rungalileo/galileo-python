@@ -119,8 +119,8 @@ logger.add_llm_span(
     input="Say this is a test",
     output="Hello, this is a test",
     model="gpt-4o",
-    input_tokens=10,
-    output_tokens=3,
+    num_input_tokens=10,
+    num_output_tokens=3,
     total_tokens=13,
     duration_ns=1000,
 )
