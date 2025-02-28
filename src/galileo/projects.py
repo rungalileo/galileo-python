@@ -21,10 +21,10 @@ from galileo.resources.types import UNSET, Unset
 class Project:
     """
     Represents a project in the Galileo platform.
-    
+
     Projects are containers for logs, traces, and other data in Galileo. All logs are stored
     within a project, and users can create and manage projects to organize their LLM usage data.
-    
+
     Attributes:
         created_at (datetime.datetime): The timestamp when the project was created.
         created_by (str): The identifier of the user who created the project.
@@ -34,7 +34,7 @@ class Project:
         name (Union[None, Unset, str]): The name of the project.
         permissions (Union[Unset, list["Permission"]]): The permissions associated with the project.
         type (Union[None, ProjectType, Unset]): The type of the project, typically GEN_AI.
-    
+
     Examples:
          from galileo.projects import get_project, create_project, list_projects
 
@@ -52,6 +52,7 @@ class Project:
          for project in projects:
              print(f"Project: {project.name} (ID: {project.id})")
     """
+
     created_at: datetime.datetime
     created_by: str
     id: str
