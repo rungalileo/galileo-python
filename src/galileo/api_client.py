@@ -4,6 +4,7 @@ from typing import Optional
 import httpx
 from attrs import define, evolve, field
 
+from galileo.constants import DEFAULT_API_URL
 from galileo.resources.client import AuthenticatedClient
 
 
@@ -106,7 +107,7 @@ class GalileoApiClient(AuthenticatedClient):
 
     @staticmethod
     def get_api_url(base_url: Optional[str] = None) -> str:
-        api_url = base_url or getenv("GALILEO_CONSOLE_URL", None)
+        api_url = base_url or getenv("GALILEO_CONSOLE_URL", DEFAULT_API_URL)
         if api_url is None:
             raise ValueError("base_url or GALILEO_CONSOLE_URL must be set")
         if any(map(api_url.__contains__, ["localhost", "127.0.0.1"])):
