@@ -23,9 +23,7 @@ Note: if you would like to point to an environment other than app.galileo.ai, yo
 ```python
 import os
 
-import galileo
 from galileo import galileo_context, openai
-from galileo.logger import GalileoLogger
 
 # If you've set your GALILEO_PROJECT and GALILEO_LOG_STREAM env vars, you can skip this step
 galileo_context.init(project="your-project-id", log_stream="your-log-stream-id")
@@ -43,36 +41,75 @@ def call_openai():
 
 # This will create a single span trace with the OpenAI call
 call_openai()
+```
 
-@galileo.log
+You can also use the `@log` decorator to log spans. Here's how to create a workflow span with two nested LLM spans:
+
+```python
+from galileo import log
+
+@log
 def make_nested_call():
-    return call_openai()
+    call_openai()
+    call_openai()
 
 
-# This will create a trace with a workflow span and a nested LLM span containing the OpenAI call
+# This will create a trace with a workflow span and two nested LLM spans containing the OpenAI calls
 make_nested_call()
+```
 
+Here's how to create a retriever span using the decorator:
 
-@galileo.log(span_type="retriever")
+```python
+from galileo import log
+
+@log(span_type="retriever")
 def retrieve_documents(query: str):
     return ["doc1", "doc2"]
 
 # This will create a trace with a retriever span containing the documents in the output
 retrieve_documents(query="history")
+```
 
-@galileo.log(span_type="tool")
+Here's how to create a tool span using the decorator:
+
+```python
+from galileo import log
+
+@log(span_type="tool")
 def tool_call(input: str = "tool call input"):
     return "tool call output"
 
 # This will create a trace with a tool span containing the tool call output
 tool_call(input="question")
+```
 
+In some cases, you may want to wrap a block of code to start and flush a trace automatically. You can do this using the `galileo_context` context manager:
+
+```python
+from galileo import galileo_context
+
+# This will log to the project and log stream specified in the context manager
+with galileo_context():
+    content = make_nested_call()
+    print(content)
+```
+
+`galileo_context` also allows you specify a separate project and log stream for the trace:
+
+```python
+from galileo import galileo_context
 
 # This will log to the project and log stream specified in the context manager
 with galileo_context(project="gen-ai-project", log_stream="test2"):
     content = make_nested_call()
     print(content)
+```
 
+You can also use the `GalileoLogger` for manual logging scenarios:
+
+```python
+from galileo.logger import GalileoLogger
 
 # This will log to the project and log stream specified in the logger constructor
 logger = GalileoLogger(project="gen-ai-project", log_stream="test3")
@@ -108,6 +145,33 @@ stream = client.chat.completions.create(
 # This will create a single span trace with the OpenAI call
 for chunk in stream:
     print(chunk.choices[0].delta.content or "", end="")
+```
+
+In some cases (like long-running processes), it may be necessary to explicitly flush the trace to upload it to Galileo:
+
+```python
+import os
+
+from galileo import galileo_context, openai
+
+galileo_context.init(project="your-project-id", log_stream="your-log-stream-id")
+
+# Initialize the Galileo wrapped OpenAI client
+client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+
+def call_openai():
+    chat_completion = client.chat.completions.create(
+        messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-4o"
+    )
+
+    return chat_completion.choices[0].message.content
+
+
+# This will create a single span trace with the OpenAI call
+call_openai()
+
+# This will upload the trace to Galileo
+galileo_context.flush()
 ```
 
 ## Local Installation

@@ -470,3 +470,89 @@ def test_retriever_span_none_output(
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
     assert payload.traces[0].spans[0].output == [Document(content="", metadata={})]
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_conclude_all_spans(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    metadata = {"key": "value"}
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(
+        input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
+    )
+    logger.add_workflow_span(input="prompt", name="test-workflow-span", created_at=created_at, metadata=metadata)
+
+    logger.add_llm_span(
+        input="prompt",
+        output="response",
+        model="gpt4o",
+        name="test-span",
+        tools=[{"name": "tool1", "args": {"arg1": "val1"}}],
+        duration_ns=1_000_000,
+        created_at=created_at,
+        metadata=metadata,
+        temperature=1.0,
+        status_code=200,
+    )
+
+    logger.conclude(output="response", duration_ns=1_000_000, status_code=200, conclude_all=True)
+
+    assert len(logger.traces) == 1
+    assert len(logger.traces[0].spans) == 1
+    assert len(logger.traces[0].spans[0].spans) == 1
+    assert logger.traces[0].output == "response"
+    assert logger.traces[0].spans[0].output == "response"
+    assert logger._parent_stack == deque()
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_flush_with_conclude_all_spans(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    metadata = {"key": "value"}
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(
+        input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
+    )
+    logger.add_workflow_span(input="prompt", name="test-workflow-span", created_at=created_at, metadata=metadata)
+
+    logger.add_llm_span(
+        input="prompt",
+        output="response",
+        model="gpt4o",
+        name="test-span",
+        tools=[{"name": "tool1", "args": {"arg1": "val1"}}],
+        duration_ns=1_000_000,
+        created_at=created_at,
+        metadata=metadata,
+        temperature=1.0,
+        status_code=200,
+    )
+
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+    assert len(payload.traces[0].spans[0].spans) == 1
+    assert payload.traces[0].output is None
+    assert payload.traces[0].spans[0].output is None
+
+    assert logger.traces == []
+    assert logger._parent_stack == deque()

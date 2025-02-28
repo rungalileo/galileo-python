@@ -124,21 +124,11 @@ class GalileoDecorator:
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
             return (
                 self._async_log(
-                    func,
-                    name=name,
-                    span_type=span_type,
-                    project=project or _project_context.get(),
-                    log_stream=log_stream or _log_stream_context.get(),
-                    params=params,
+                    func, name=name, span_type=span_type, project=project, log_stream=log_stream, params=params
                 )
                 if asyncio.iscoroutinefunction(func)
                 else self._sync_log(
-                    func,
-                    name=name,
-                    span_type=span_type,
-                    project=project or _project_context.get(),
-                    log_stream=log_stream or _log_stream_context.get(),
-                    params=params,
+                    func, name=name, span_type=span_type, project=project, log_stream=log_stream, params=params
                 )
             )
 
@@ -396,7 +386,6 @@ class GalileoDecorator:
             )
 
             stack = _span_stack_context.get()
-            _trace_context.get()
 
             created_at = span_params.get("created_at")
             created_at_ns = created_at.timestamp() * 1e9 if created_at else 0
@@ -493,6 +482,7 @@ class GalileoDecorator:
 
     def get_logger_instance(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> GalileoLogger:
         """Get the Galileo Logger instance for the current decorator context."""
+
         return GalileoLoggerSingleton().get(
             project=project or _project_context.get(), log_stream=log_stream or _log_stream_context.get()
         )
@@ -540,6 +530,10 @@ class GalileoDecorator:
         """
         self.get_logger_instance(project=project, log_stream=log_stream).flush()
 
+        if project == _project_context.get() and log_stream == _log_stream_context.get():
+            _span_stack_context.set([])
+            _trace_context.set(None)
+
     def flush_all(self) -> None:
         """
         Upload all captured traces under all contexts to Galileo.
@@ -549,6 +543,8 @@ class GalileoDecorator:
             log_stream (Optional[str], optional): The log stream name. Defaults to None.
         """
         GalileoLoggerSingleton().flush_all()
+        _span_stack_context.set([])
+        _trace_context.set(None)
 
     def reset(self) -> None:
         """
@@ -558,7 +554,7 @@ class GalileoDecorator:
             project (Optional[str], optional): The project name. Defaults to None.
             log_stream (Optional[str], optional): The log stream name. Defaults to None.
         """
-        GalileoLoggerSingleton().reset()
+        GalileoLoggerSingleton().reset(project=_project_context.get(), log_stream=_log_stream_context.get())
         _project_context.set(None)
         _log_stream_context.set(None)
         _span_stack_context.set([])
@@ -566,7 +562,8 @@ class GalileoDecorator:
 
     def init(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
         """
-        Initialize the context with a project and log stream.
+        Initialize the context with a project and log stream. Optionally start a trace.
+        Resets the existing active context.
 
         Args:
             project (Optional[str], optional): The project name. Defaults to None.

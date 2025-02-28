@@ -24,6 +24,8 @@ def test_decorator_context_reset(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+
     @log(span_type="llm")
     def llm_call(query: str):
         return "response"
@@ -34,11 +36,15 @@ def test_decorator_context_reset(
 
     assert len(galileo_context.get_logger_instance().traces) == 1
     assert galileo_context.get_current_trace() is not None
+    assert galileo_context.get_current_project() == "project-X"
+    assert galileo_context.get_current_log_stream() == "log-stream-X"
 
     galileo_context.reset()
 
     assert len(galileo_context.get_logger_instance().traces) == 0
     assert galileo_context.get_current_trace() is None
+    assert galileo_context.get_current_project() is None
+    assert galileo_context.get_current_log_stream() is None
 
 
 @patch("galileo.logger.LogStreams")
@@ -88,6 +94,57 @@ def test_decorator_context_flush(
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
+    assert galileo_context.get_current_trace() is None
+    assert galileo_context.get_current_span_stack() == []
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_context_flush_specific_project_and_log_stream(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+
+    @log(span_type="llm")
+    def llm_call(query: str):
+        return "response"
+
+    assert galileo_context.get_current_trace() is None
+
+    llm_call(query="input")
+
+    assert galileo_context.get_current_trace() is not None
+
+    galileo_context.init(project="project-Y", log_stream="log-stream-Y")
+
+    assert galileo_context.get_current_trace() is None
+
+    llm_call(query="input")
+
+    assert galileo_context.get_current_trace() is not None
+
+    galileo_context.flush(project="project-X", log_stream="log-stream-X")
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+
+    assert galileo_context.get_current_trace() is not None
+
+    galileo_context.flush(project="project-Y", log_stream="log-stream-Y")
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+
+    assert galileo_context.get_current_trace() is None
 
 
 @patch("galileo.logger.LogStreams")
@@ -132,6 +189,9 @@ def test_decorator_context_flush_all(
 
     logger_Y = galileo_context.get_logger_instance(project="project-Y", log_stream="log-stream-Y")
     assert len(logger_Y.traces) == 0
+
+    assert galileo_context.get_current_trace() is None
+    assert galileo_context.get_current_span_stack() == []
 
 
 @patch("galileo.logger.LogStreams")
