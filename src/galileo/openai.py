@@ -21,6 +21,7 @@ try:
     import openai
     import openai.resources
     from openai._types import NotGiven
+    from openai.types.chat import ChatCompletionMessageToolCall
 except ImportError:
     raise ModuleNotFoundError("Please install OpenAI to use this feature: 'pip install openai'")
 
@@ -152,16 +153,20 @@ def _extract_chat_response(kwargs: dict) -> dict:
     elif kwargs.get("tool_calls") is not None and type(kwargs["tool_calls"]) is list:
         tool_calls = []
         for tool_call in kwargs["tool_calls"]:
-            if "function" in tool_call:
-                function_ = {
-                    "name": tool_call["function"].get("name", ""),
-                    "arguments": tool_call["function"].get("arguments", ""),
-                }
-                tool_calls.append({"id": tool_call.get("id", ""), "function": function_})
+            try:
+                tool_call = ChatCompletionMessageToolCall.model_validate(tool_call)
+                tool_calls.append(
+                    {
+                        "id": tool_call.id,
+                        "function": {"name": tool_call.function.name, "arguments": tool_call.function.arguments},
+                    }
+                )
+            except Exception as e:
+                _logger.error(f"Error processing tool call: {e}")
 
         response.update({"tool_calls": tool_calls if len(tool_calls) else None})
 
-    response.update({"content": kwargs.get("content", None)})
+    response.update({"content": kwargs.get("content", "")})
 
     return response
 
