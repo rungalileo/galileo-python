@@ -508,11 +508,11 @@ def _wrap(
 class ResponseGeneratorSync:
     """
     A wrapper for OpenAI streaming responses that logs the response to Galileo.
-    
+
     This class wraps the OpenAI streaming response generator and logs the response
     to Galileo when the generator is exhausted. It implements the iterator protocol
     to allow for streaming responses.
-    
+
     Attributes
     ----------
     resource : OpenAiModuleDefinition
@@ -526,6 +526,7 @@ class ResponseGeneratorSync:
     should_complete_trace : bool
         Whether to complete the trace when the generator is exhausted.
     """
+
     def __init__(self, *, resource, response, input_data, logger: GalileoLogger, should_complete_trace: bool):
         self.items = []
         self.resource = resource
@@ -598,29 +599,30 @@ class ResponseGeneratorSync:
 
 
 class OpenAIGalileo:
-    """    
+    """
     This class is responsible for logging OpenAI API calls and logging them to Galileo.
     It wraps the OpenAI client methods to add logging functionality without changing
     the original API behavior.
-    
+
     Attributes
     ----------
     _galileo_logger : Optional[GalileoLogger]
         The Galileo logger instance used for logging OpenAI API calls.
     """
+
     _galileo_logger: Optional[GalileoLogger] = None
 
     def initialize(self, project: Optional[str], log_stream: Optional[str]) -> Optional[GalileoLogger]:
         """
         Initialize a Galileo logger.
-        
+
         Parameters
         ----------
         project : Optional[str]
             The project to log to. If None, uses the default project.
         log_stream : Optional[str]
             The log stream to log to. If None, uses the default log stream.
-            
+
         Returns
         -------
         Optional[GalileoLogger]
@@ -631,13 +633,13 @@ class OpenAIGalileo:
         return self._galileo_logger
 
     def register_tracing(self) -> None:
-        """        
+        """
         This method wraps the OpenAI client methods to intercept calls and log them to Galileo.
         It is called automatically when the module is imported.
-        
+
         The wrapped methods include:
         - openai.resources.chat.completions.Completions.create
-        
+
         Additional methods can be added to the OPENAI_CLIENT_METHODS list.
         """
         for resource in OPENAI_CLIENT_METHODS:

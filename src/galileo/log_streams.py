@@ -15,11 +15,11 @@ from galileo.resources.models.log_stream_response import LogStreamResponse
 
 class LogStream(LogStreamResponse):
     """
-    Log streams are used to organize logs within a project on the Galileo platform. 
-    They provide a way to categorize and group related logs, making it easier to 
-    analyze and monitor specific parts of your application or different environments 
+    Log streams are used to organize logs within a project on the Galileo platform.
+    They provide a way to categorize and group related logs, making it easier to
+    analyze and monitor specific parts of your application or different environments
     (e.g., production, staging, development).
-    
+
     Attributes
     ----------
     created_at : datetime.datetime
@@ -36,42 +36,43 @@ class LogStream(LogStreamResponse):
         The timestamp when the log stream was last updated.
     additional_properties : dict
         Additional properties associated with the log stream.
-    
+
     Examples
     --------
     # Create a new log stream in a project
     from galileo.log_streams import create_log_stream
-    
+
     # Create by project ID
     log_stream = create_log_stream(name="Production Logs", project_id="project-123")
-    
+
     # Create by project name
     log_stream = create_log_stream(name="Production Logs", project_name="My AI Project")
-    
+
     # Get a log stream by name
     from galileo.log_streams import get_log_stream
     log_stream = get_log_stream(name="Production Logs", project_name="My AI Project")
-    
+
     # List all log streams in a project
     from galileo.log_streams import list_log_streams
     log_streams = list_log_streams(project_name="My AI Project")
     for stream in log_streams:
         print(f"Log Stream: {stream.name} (ID: {stream.id})")
-    
+
     # Use a log stream with the context manager
     from galileo.openai import openai
     from galileo import galileo_context
-    
+
     with galileo_context(project="My AI Project", log_stream="Production Logs"):
         response = openai.chat.completions.create(
             model="gpt-4o",
             messages=[{"role": "user", "content": "Hello, world!"}]
         )
     """
+
     def __init__(self, log_stream: Union[None, LogStreamResponse] = None):
         """
         Initialize a LogStream instance.
-        
+
         Parameters
         ----------
         log_stream : Union[None, LogStreamResponse], optional
@@ -157,7 +158,7 @@ class LogStreams(BaseClientModel):
     ) -> Optional[LogStream]:
         """
         Retrieves a log stream by id or name.
-        
+
         Parameters
         ----------
         id : Optional[str], optional
@@ -177,7 +178,7 @@ class LogStreams(BaseClientModel):
         Raises
         ------
         ValueError
-            If neither or both `id` and `name` are provided, or if neither or both 
+            If neither or both `id` and `name` are provided, or if neither or both
             `project_id` and `project_name` are provided.
         errors.UnexpectedStatus
             If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
