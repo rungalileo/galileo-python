@@ -135,7 +135,7 @@ class LogStreams(BaseClientModel):
             )
             if not log_stream_response:
                 return None
-            log_stream = LogStream(log_stream=log_stream_response)
+            return LogStream(log_stream=log_stream_response)
 
         elif name:
             log_streams = self.list(project_id=project_id)
@@ -143,9 +143,10 @@ class LogStreams(BaseClientModel):
             if not log_streams or len(log_streams) == 0:
                 return None
 
-            log_stream = log_streams[0]
-
-        return log_stream
+            for log_stream in log_streams:
+                if log_stream.name == name:
+                    return log_stream
+        return None
 
     @overload
     def create(self, name: str, *, project_id: Optional[str] = None) -> LogStream: ...
