@@ -19,6 +19,40 @@ from galileo.resources.types import UNSET, Unset
 
 
 class Project:
+    """
+    Represents a project in the Galileo platform.
+
+    Projects are containers for logs, traces, and other data in Galileo. All logs are stored
+    within a project, and users can create and manage projects to organize their LLM usage data.
+
+    Attributes:
+        created_at (datetime.datetime): The timestamp when the project was created.
+        created_by (str): The identifier of the user who created the project.
+        id (str): The unique identifier of the project.
+        updated_at (datetime.datetime): The timestamp when the project was last updated.
+        bookmark (Union[Unset, bool]): Whether the project is bookmarked. Defaults to False.
+        name (Union[None, Unset, str]): The name of the project.
+        permissions (Union[Unset, list["Permission"]]): The permissions associated with the project.
+        type (Union[None, ProjectType, Unset]): The type of the project, typically GEN_AI.
+
+    Examples:
+         from galileo.projects import get_project, create_project, list_projects
+
+         # Create a new project
+         project = create_project(name="My AI Project")
+
+         # Get a project by name
+         project = get_project(name="My AI Project")
+
+         # Get a project by ID
+         project = get_project(id="project-id-123")
+
+         # List all projects
+         projects = list_projects()
+         for project in projects:
+             print(f"Project: {project.name} (ID: {project.id})")
+    """
+
     created_at: datetime.datetime
     created_by: str
     id: str
@@ -29,6 +63,14 @@ class Project:
     type: Union[None, ProjectType, Unset] = UNSET
 
     def __init__(self, project: Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse] = None) -> None:
+        """
+        Initialize a Project instance.
+
+        Args:
+            project (Union[None, ProjectDBThin, ProjectDB, ProjectCreateResponse], optional):
+                The project data to initialize from. If None, creates an empty project instance.
+                Defaults to None.
+        """
         if project is None:
             return
 
