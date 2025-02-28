@@ -100,10 +100,6 @@ class GalileoLoggerSingleton:
         """
         Reset (terminate and remove) one or all GalileoLogger instances.
 
-        If both project and log_stream are None, then all cached loggers are terminated
-        and cleared. Otherwise, only the specific logger corresponding to the provided
-        key (project, log_stream) is terminated and removed.
-
         Args:
             project (Optional[str], optional): The project name. Defaults to None.
             log_stream (Optional[str], optional): The log stream name. Defaults to None.

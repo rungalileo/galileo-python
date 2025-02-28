@@ -24,6 +24,8 @@ def test_decorator_context_reset(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
+    galileo_context.init(project="project-X", log_stream="log-stream-X")
+
     @log(span_type="llm")
     def llm_call(query: str):
         return "response"
@@ -34,11 +36,15 @@ def test_decorator_context_reset(
 
     assert len(galileo_context.get_logger_instance().traces) == 1
     assert galileo_context.get_current_trace() is not None
+    assert galileo_context.get_current_project() == "project-X"
+    assert galileo_context.get_current_log_stream() == "log-stream-X"
 
     galileo_context.reset()
 
     assert len(galileo_context.get_logger_instance().traces) == 0
     assert galileo_context.get_current_trace() is None
+    assert galileo_context.get_current_project() is None
+    assert galileo_context.get_current_log_stream() is None
 
 
 @patch("galileo.logger.LogStreams")

@@ -19,6 +19,7 @@ from galileo_core.schemas.logging.span import (
     LlmSpanAllowedInputType,
     LlmSpanAllowedOutputType,
     RetrieverSpan,
+    StepWithChildSpans,
     ToolSpan,
     WorkflowSpan,
 )
@@ -446,6 +447,37 @@ class GalileoLogger(TracesLogger):
             tags=tags,
         )
 
+    def conclude(
+        self,
+        output: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        status_code: Optional[int] = None,
+        conclude_all: bool = False,
+    ) -> Optional[StepWithChildSpans]:
+        """
+        Conclude the current trace or workflow span by setting the output of the current node. In the case of nested
+        workflow spans, this will point the workflow back to the parent of the current workflow span.
+
+        Parameters:
+        ----------
+            output: Optional[StepIOType]: Output of the node.
+            duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
+            status_code: Optional[int]: Status code of the node execution.
+            conclude_all: bool: If True, all spans will be concluded, including the current span.False by default.
+        Returns:
+        -------
+            Optional[StepWithChildSpans]: The parent of the current workflow. None if no parent exists.
+        """
+        if not conclude_all:
+            return super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
+
+        current_parent = None
+        if conclude_all:
+            while self.current_parent() is not None:
+                current_parent = super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
+
+        return current_parent
+
     def flush(self) -> list[Trace]:
         """
         Upload all traces to Galileo.
@@ -458,6 +490,10 @@ class GalileoLogger(TracesLogger):
             if not self.traces:
                 self._logger.warning("No traces to flush.")
                 return list()
+
+            if self.current_parent is not None:
+                self._logger.info("Concluding the active trace...")
+                self.conclude(conclude_all=True)
 
             self._logger.info("Flushing %d traces...", len(self.traces))
 
@@ -485,6 +521,10 @@ class GalileoLogger(TracesLogger):
             if not self.traces:
                 self._logger.warning("No traces to flush.")
                 return list()
+
+            if self.current_parent is not None:
+                self._logger.info("Concluding the active trace...")
+                self.conclude(conclude_all=True)
 
             self._logger.info("Flushing %d traces...", len(self.traces))
 
