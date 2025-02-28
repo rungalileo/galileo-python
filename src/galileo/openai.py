@@ -1,3 +1,42 @@
+"""
+Galileo wrapper for OpenAI that automatically logs prompts and responses.
+
+This module provides a drop-in replacement for the OpenAI library that automatically
+logs all prompts, responses, and related metadata to Galileo. It works by intercepting
+calls to the OpenAI API and logging them using the Galileo logging system.
+
+Note that the original OpenAI package is still required as a project dependency to use this wrapper.
+
+Examples
+--------
+# Import the wrapped OpenAI client instead of the original
+from galileo.openai import openai
+
+# Use it exactly as you would use the regular OpenAI client
+response = openai.chat.completions.create(
+    model="gpt-4o",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Tell me about the solar system."}
+    ]
+)
+
+# All prompts and responses are automatically logged to Galileo
+print(response.choices[0].message.content)
+
+# You can also use it with the galileo_context for more control
+from galileo import galileo_context
+
+with galileo_context(project="my-project", log_stream="my-log-stream"):
+    response = openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Tell me about the solar system."}
+        ]
+    )
+"""
+
 import json
 import logging
 import types
@@ -467,6 +506,26 @@ def _wrap(
 
 
 class ResponseGeneratorSync:
+    """
+    A wrapper for OpenAI streaming responses that logs the response to Galileo.
+    
+    This class wraps the OpenAI streaming response generator and logs the response
+    to Galileo when the generator is exhausted. It implements the iterator protocol
+    to allow for streaming responses.
+    
+    Attributes
+    ----------
+    resource : OpenAiModuleDefinition
+        The OpenAI resource definition.
+    response : Generator or openai.Stream
+        The OpenAI streaming response.
+    input_data : OpenAiInputData
+        The input data for the OpenAI request.
+    logger : GalileoLogger
+        The Galileo logger instance.
+    should_complete_trace : bool
+        Whether to complete the trace when the generator is exhausted.
+    """
     def __init__(self, *, resource, response, input_data, logger: GalileoLogger, should_complete_trace: bool):
         self.items = []
         self.resource = resource
@@ -539,14 +598,48 @@ class ResponseGeneratorSync:
 
 
 class OpenAIGalileo:
+    """    
+    This class is responsible for logging OpenAI API calls and logging them to Galileo.
+    It wraps the OpenAI client methods to add logging functionality without changing
+    the original API behavior.
+    
+    Attributes
+    ----------
+    _galileo_logger : Optional[GalileoLogger]
+        The Galileo logger instance used for logging OpenAI API calls.
+    """
     _galileo_logger: Optional[GalileoLogger] = None
 
     def initialize(self, project: Optional[str], log_stream: Optional[str]) -> Optional[GalileoLogger]:
+        """
+        Initialize a Galileo logger.
+        
+        Parameters
+        ----------
+        project : Optional[str]
+            The project to log to. If None, uses the default project.
+        log_stream : Optional[str]
+            The log stream to log to. If None, uses the default log stream.
+            
+        Returns
+        -------
+        Optional[GalileoLogger]
+            The initialized Galileo logger instance.
+        """
         self._galileo_logger = GalileoLoggerSingleton().get(project=project or None, log_stream=log_stream or None)
 
         return self._galileo_logger
 
     def register_tracing(self) -> None:
+        """        
+        This method wraps the OpenAI client methods to intercept calls and log them to Galileo.
+        It is called automatically when the module is imported.
+        
+        The wrapped methods include:
+        - openai.resources.chat.completions.Completions.create
+        
+        Additional methods can be added to the OPENAI_CLIENT_METHODS list.
+        """
         for resource in OPENAI_CLIENT_METHODS:
             wrap_function_wrapper(
                 resource.module, f"{resource.object}.{resource.method}", (_wrap(resource, self.initialize))
