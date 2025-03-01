@@ -44,6 +44,10 @@ def serialize_datetime(v: dt.datetime) -> str:
 
 
 class EventSerializer(JSONEncoder):
+    """
+    Custom JSON encoder to assist in the serialization of a wide range of objects.
+    """
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.seen: set[int] = set()  # Track seen objects to detect circular references
