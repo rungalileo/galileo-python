@@ -4,7 +4,7 @@ import pytest
 
 from galileo import galileo_context, log
 from galileo_core.schemas.logging.llm import Message, MessageRole
-from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, WorkflowSpan
+from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
 from galileo_core.schemas.shared.document import Document
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
@@ -224,6 +224,103 @@ def test_decorator_llm_span(
 @patch("galileo.logger.LogStreams")
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_workflow_span_output_int(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="workflow")
+    def my_function(arg1, arg2):
+        return arg1 + arg2
+
+    my_function(1, 2)
+    galileo_context.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+    assert isinstance(payload.traces[0].spans[0], WorkflowSpan)
+    assert payload.traces[0].input == '{"arg1": 1, "arg2": 2}'
+    assert payload.traces[0].spans[0].input == '{"arg1": 1, "arg2": 2}'
+    assert payload.traces[0].spans[0].output == "3"
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_workflow_span_io_object(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="workflow")
+    def my_function(system: Message, user: Message):
+        return Document(content="response", metadata={"arg1": "val1", "arg2": "val2"})
+
+    my_function(
+        Message(content="system prompt", role=MessageRole.system), Message(content="query", role=MessageRole.user)
+    )
+    galileo_context.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+    assert isinstance(payload.traces[0].spans[0], WorkflowSpan)
+    assert (
+        payload.traces[0].input
+        == '{"system": {"content": "system prompt", "role": "system"}, "user": {"content": "query", "role": "user"}}'
+    )
+    assert (
+        payload.traces[0].spans[0].input
+        == '{"system": {"content": "system prompt", "role": "system"}, "user": {"content": "query", "role": "user"}}'
+    )
+    assert payload.traces[0].spans[0].output == '{"content": "response", "metadata": {"arg1": "val1", "arg2": "val2"}}'
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_tool_span_io_object(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="tool")
+    def my_function(system: Message, user: Message):
+        return Document(content="response", metadata={"arg1": "val1", "arg2": "val2"})
+
+    my_function(
+        Message(content="system prompt", role=MessageRole.system), Message(content="query", role=MessageRole.user)
+    )
+    galileo_context.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+    assert isinstance(payload.traces[0].spans[0], ToolSpan)
+    assert (
+        payload.traces[0].input
+        == '{"system": {"content": "system prompt", "role": "system"}, "user": {"content": "query", "role": "user"}}'
+    )
+    assert (
+        payload.traces[0].spans[0].input
+        == '{"system": {"content": "system prompt", "role": "system"}, "user": {"content": "query", "role": "user"}}'
+    )
+    assert payload.traces[0].spans[0].output == '{"content": "response", "metadata": {"arg1": "val1", "arg2": "val2"}}'
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
 def test_decorator_nested_span(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -235,7 +332,7 @@ def test_decorator_nested_span(
     def llm_call(query: str):
         return "response"
 
-    @log()
+    @log
     def nested_call(nested_query: str):
         return llm_call(query=nested_query)
 

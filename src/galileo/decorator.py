@@ -57,7 +57,7 @@ from typing_extensions import ParamSpec
 
 from galileo.logger import GalileoLogger
 from galileo.utils import _get_timestamp
-from galileo.utils.serialization import EventSerializer
+from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
 from galileo_core.schemas.shared.traces.types import Trace, WorkflowSpan
 
@@ -427,6 +427,8 @@ class GalileoDecorator:
             if "input" not in span_params:
                 span_params["input"] = input_
 
+            span_params["input_serialized"] = serialize_to_str(span_params["input"])
+
             span_params["created_at"] = start_time
 
             return span_params
@@ -515,12 +517,12 @@ class GalileoDecorator:
         stack = _span_stack_context.get().copy()
         trace = _trace_context.get()
 
-        input = span_params.get("input", "")
+        input_ = span_params.get("input_serialized", "")
         name = span_params.get("name", "")
 
         # If no trace is available, start a new one
         if not trace:
-            trace = client_instance.start_trace(input=json.dumps(input, cls=EventSerializer), name=name)
+            trace = client_instance.start_trace(input=input_, name=name)
             _trace_context.set(trace)
 
         # If the user hasn't specified a span type, create and add a workflow span
@@ -528,9 +530,7 @@ class GalileoDecorator:
             created_at = span_params.get("created_at", _get_timestamp())
 
             logger = self.get_logger_instance(project=project, log_stream=log_stream)
-            span = logger.add_workflow_span(
-                input=json.dumps(input, cls=EventSerializer), name=name, created_at=created_at
-            )
+            span = logger.add_workflow_span(input=input_, name=name, created_at=created_at)
             _span_stack_context.set(stack + [span])
 
     def _get_input_from_func_args(
@@ -610,11 +610,23 @@ class GalileoDecorator:
             The original result
         """
         try:
-            output = span_params.get("output") or (
-                # Serialize and deserialize to ensure proper JSON serialization.
-                # Objects are later serialized again so deserialization is necessary here to avoid unnecessary escaping of quotes.
-                json.loads(json.dumps(result if result is not None else None, cls=EventSerializer))
-            )
+            output = span_params.get("output", None)
+
+            if output is None:
+                # Process result when no output is provided
+                if result is not None:
+                    if not span_type or span_type in ["workflow", "tool"]:
+                        # For workflow/tool spans, directly convert to string
+                        output = serialize_to_str(result)
+                    else:
+                        # Serialize and deserialize to ensure proper JSON serialization.
+                        # Objects are later serialized again so deserialization is necessary here to avoid unnecessary escaping of quotes.
+                        output = json.loads(json.dumps(result, cls=EventSerializer))
+                else:
+                    output = ""
+            elif not isinstance(output, str) and (not span_type or span_type in ["workflow", "tool"]):
+                # Convert output to string if needed for workflow/tool spans
+                output = serialize_to_str(output)
 
             stack = _span_stack_context.get()
 
@@ -642,20 +654,27 @@ class GalileoDecorator:
                 span_methods = {"llm": "add_llm_span", "tool": "add_tool_span", "retriever": "add_retriever_span"}
 
                 if span_type in span_methods:
-                    method = span_methods[span_type]
-                    # target = span or trace
+                    method_name = span_methods[span_type]
+                    method = getattr(logger, method_name)
+
+                    # Get the parameters the function accepts
+                    sig = inspect.signature(method)
+                    valid_params = sig.parameters.keys()
 
                     kwargs = {"output": output, **span_params}
 
                     if span_type != "llm":
-                        kwargs["input"] = json.dumps(kwargs.get("input", None), cls=EventSerializer)
+                        kwargs["input"] = kwargs.get("input_serialized", "")
 
                     if span_type == "llm" and "model" not in kwargs:
                         # TODO: Allow a model to be parsed from the span_params
                         # This only affects direct @log(span_type="llm") calls, not OpenAI
                         kwargs["model"] = ""
 
-                    getattr(logger, method)(**kwargs)
+                    # Filter out kwargs that aren't in the function's parameters
+                    filtered_kwargs = {k: v for k, v in kwargs.items() if k in valid_params}
+
+                    method(**filtered_kwargs)
         except Exception as e:
             _logger.error(f"Failed to create trace: {e}", exc_info=True)
 
