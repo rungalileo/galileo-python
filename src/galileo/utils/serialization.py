@@ -38,10 +38,10 @@ def serialize_datetime(v: dt.datetime) -> str:
     if v.tzinfo is not None:
         return _serialize_zoned_datetime(v)
     else:
-        # First create a timezone-aware datetime using UTC, then convert to local
-        # This approach should work consistently across Python versions
-        local_tz = dt.datetime.now(dt.timezone.utc).astimezone().tzinfo
-        localized_dt = v.replace(tzinfo=local_tz)
+        # Get current time with timezone for mocking purposes
+        now_with_tz = dt.datetime.now(dt.timezone.utc).astimezone()
+        # Use the timezone from current time
+        localized_dt = v.replace(tzinfo=now_with_tz.tzinfo)
         return _serialize_zoned_datetime(localized_dt)
 
 
