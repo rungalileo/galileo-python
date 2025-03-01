@@ -1,5 +1,6 @@
 import datetime as dt
 import enum
+import json
 import logging
 from asyncio import Queue
 from collections.abc import Sequence
@@ -43,6 +44,10 @@ def serialize_datetime(v: dt.datetime) -> str:
 
 
 class EventSerializer(JSONEncoder):
+    """
+    Custom JSON encoder to assist in the serialization of a wide range of objects.
+    """
+
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.seen: set[int] = set()  # Track seen objects to detect circular references
@@ -167,3 +172,26 @@ class EventSerializer(JSONEncoder):
         min_safe_int = -(2**53) + 1
 
         return min_safe_int <= value <= max_safe_int
+
+
+def serialize_to_str(input_data: Any) -> str:
+    """Safely serialize data to a JSON string."""
+    if isinstance(input_data, str):
+        return input_data
+
+    if input_data is None or isinstance(input_data, (bool, int, float)):
+        return json.dumps(input_data)
+
+    try:
+        # Use the EventSerializer for initial serialization
+        serializer = EventSerializer()
+
+        # First try to serialize directly using the serializer's default method
+        processed_data = serializer.default(input_data)
+
+        # Now encode it to a JSON string (this will always return a string)
+        return serializer.encode(processed_data)
+    except Exception:
+        # Fallback if anything goes wrong
+        _logger.error(f"Serialization failed for object of type {type(input_data).__name__}", exc_info=True)
+        return ""

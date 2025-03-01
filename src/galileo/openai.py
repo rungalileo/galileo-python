@@ -37,7 +37,6 @@ with galileo_context(project="my-project", log_stream="my-log-stream"):
     )
 """
 
-import json
 import logging
 import types
 from collections import defaultdict
@@ -53,7 +52,7 @@ from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
 from galileo import GalileoLogger
 from galileo.decorator import galileo_context
 from galileo.utils import _get_timestamp
-from galileo.utils.serialization import EventSerializer
+from galileo.utils.serialization import serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
 
 try:
@@ -458,7 +457,7 @@ def _wrap(
     else:
         # If we don't have an active trace, start a new trace
         # We will conclude it at the end
-        galileo_logger.start_trace(input=json.dumps(input_data.input, cls=EventSerializer), name=input_data.name)
+        galileo_logger.start_trace(input=serialize_to_str(input_data.input), name=input_data.name)
         should_complete_trace = True
 
     try:
@@ -502,7 +501,7 @@ def _wrap(
 
             # Conclude the trace if this is the top-level call
             if should_complete_trace:
-                galileo_logger.conclude(output=json.dumps(completion, cls=EventSerializer), duration_ns=duration_ns)
+                galileo_logger.conclude(output=serialize_to_str(completion), duration_ns=duration_ns)
 
         return openai_response
     except Exception as ex:
