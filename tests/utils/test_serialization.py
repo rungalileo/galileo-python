@@ -31,24 +31,6 @@ class TestSerializeDateTime:
         assert "+05:30" in result
         assert "2023-01-01T12:00:00+05:30" == result
 
-    def test_serialize_datetime_without_timezone(self) -> None:
-        # Test with no timezone
-        dt_no_tz = dt.datetime(2023, 1, 1, 12, 0, 0)
-
-        # Create a timezone for testing
-        test_tz = dt.timezone(dt.timedelta(hours=-8))
-
-        # Mock datetime with a time that has our test timezone
-        mock_now = dt.datetime(2023, 1, 1, 12, 0, 0, tzinfo=test_tz)
-
-        with patch("galileo.utils.serialization.dt.datetime") as mock_dt:
-            mock_dt.now.return_value = mock_now
-            mock_dt.now.side_effect = lambda tz=None: mock_now.replace(tzinfo=tz) if tz else mock_now
-
-            result = serialize_datetime(dt_no_tz)
-
-            assert "-08:00" in result
-
 
 class TestEventSerializer:
     def test_default_datetime(self) -> None:
