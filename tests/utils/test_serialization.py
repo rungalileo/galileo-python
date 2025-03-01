@@ -38,7 +38,7 @@ class TestSerializeDateTime:
         # Mock the current timezone
         mock_now = dt.datetime(2023, 1, 1, 12, 0, 0, tzinfo=dt.timezone(dt.timedelta(hours=-8)))
 
-        with patch("datetime.datetime") as mock_dt:
+        with patch("galileo.utils.serialization.dt.datetime") as mock_dt:
             mock_dt.now.return_value = mock_now
             result = serialize_datetime(dt_no_tz)
 
