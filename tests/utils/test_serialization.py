@@ -188,9 +188,6 @@ class TestEventSerializer:
             def __init__(self, data):
                 self.data = data
 
-            def __init__(self, data):
-                self.data = data
-
             def __getitem__(self, index):
                 return self.data[index]
 
