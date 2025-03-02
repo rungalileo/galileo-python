@@ -1,6 +1,5 @@
 import datetime as dt
 import enum
-import json
 import logging
 from asyncio import Queue
 from collections.abc import Sequence
@@ -95,7 +94,7 @@ class EventSerializer(JSONEncoder):
                     return obj.to_json()
 
                 from langchain_core.agents import AgentAction, AgentFinish
-                from langchain_core.messages import BaseMessage
+                from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
                 from langchain_core.outputs import ChatGeneration, LLMResult
                 from langchain_core.prompt_values import ChatPromptValue
 
@@ -106,7 +105,24 @@ class EventSerializer(JSONEncoder):
                 elif isinstance(obj, LLMResult):
                     return self.default(obj.generations[0])
                 elif isinstance(obj, BaseMessage):
-                    return self.default(obj.model_dump())
+                    # Map the `type` to `role`.
+                    dumped = obj.model_dump(include={"content", "type"})
+                    dumped["role"] = dumped.pop("type")
+                    return self.default(dumped)
+                elif isinstance(obj, (AIMessageChunk, AIMessage)) and obj.tool_calls:
+                    # Map the `type` to `role`.
+                    dumped = obj.model_dump(include={"content", "type", "tool_calls"})
+                    dumped["role"] = dumped.pop("type")
+                    return self.default(dumped)
+                elif isinstance(obj, ToolMessage):
+                    # Map the `type` to `role`.
+                    dumped = obj.model_dump(include={"content", "type", "status", "tool_call_id"})
+                    dumped["role"] = dumped.pop("type")
+                    return self.default(dumped)
+                elif isinstance(obj, BaseModel):
+                    return self.default(
+                        obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
+                    )
 
             # 64-bit integers might overflow the JavaScript safe integer range.
             if isinstance(obj, int):
@@ -179,8 +195,8 @@ def serialize_to_str(input_data: Any) -> str:
     if isinstance(input_data, str):
         return input_data
 
-    if input_data is None or isinstance(input_data, (bool, int, float)):
-        return json.dumps(input_data)
+    if input_data is None or isinstance(input_data, (bool, int, float, UUID)):
+        return str(input_data)
 
     try:
         # Use the EventSerializer for initial serialization
