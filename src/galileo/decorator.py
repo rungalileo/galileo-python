@@ -343,7 +343,7 @@ class GalileoDecorator:
             try:
                 result = func(*args, **kwargs)
             except Exception as e:
-                _logger.error(f"Error while executing function in sync_wrapper: {e}", exc_info=True)
+                _logger.warning(f"Error while executing function in sync_wrapper: {e}", exc_info=True)
             finally:
                 result = self._finalize_call(span_type, span_params, result, project, log_stream)
 
