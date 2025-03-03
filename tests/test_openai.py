@@ -202,7 +202,8 @@ def test_client_fails_because_openai_error_trace_no_exp(
         )
         return chat_completion.choices[0].message.content
 
-    call_openai()
+    with pytest.raises(RuntimeError):
+        call_openai()
 
     galileo_context.flush()
 
