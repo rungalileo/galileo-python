@@ -1,5 +1,6 @@
 import datetime as dt
 import enum
+import json
 import logging
 from asyncio import Queue
 from collections.abc import Sequence
@@ -195,8 +196,8 @@ def serialize_to_str(input_data: Any) -> str:
     if isinstance(input_data, str):
         return input_data
 
-    if input_data is None or isinstance(input_data, (bool, int, float, UUID)):
-        return str(input_data)
+    if input_data is None or isinstance(input_data, (bool, int, float)):
+        return json.dumps(input_data)
 
     try:
         # Use the EventSerializer for initial serialization
