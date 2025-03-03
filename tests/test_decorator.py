@@ -494,3 +494,28 @@ def test_decorator_retriever_span_list_document(
         Document(content="response1", metadata={"key": "value"}),
         Document(content="response2", metadata=None),
     ]
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_we_should_create_trace_but_reraise_exception(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log()
+    def foo():
+        raise Exception("i'm user exception")
+
+    with pytest.raises(Exception):
+        foo()
+
+    galileo_context.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
