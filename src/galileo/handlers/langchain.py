@@ -112,6 +112,9 @@ class GalileoCallback(BaseCallbackHandler):
             _logger.warning("Unable to add nodes to trace: Root node does not exist")
             return
 
+        if self._start_new_trace:
+            self._galileo_logger.start_trace(input=serialize_to_str(root_node.span_params.get("input", "")))
+
         self._log_node_tree(root_node)
 
         # Conclude the trace with the root node's output
@@ -273,13 +276,15 @@ class GalileoCallback(BaseCallbackHandler):
         if tags and "langsmith:hidden" in tags:
             return
 
-        self._start_node(node_type, parent_run_id, run_id, name=node_name, input=inputs, tags=tags, **kwargs)
+        self._start_node(
+            node_type, parent_run_id, run_id, name=node_name, input=serialize_to_str(inputs), tags=tags, **kwargs
+        )
 
     def on_chain_end(
         self, outputs: dict[str, Any], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a chain ends."""
-        self._end_node(run_id, output=outputs)
+        self._end_node(run_id, output=serialize_to_str(outputs))
 
     def on_agent_finish(self, finish: AgentFinish, *, run_id: UUID, **kwargs: Any) -> Any:
         """Langchain callback when an agent finishes."""
@@ -296,7 +301,11 @@ class GalileoCallback(BaseCallbackHandler):
         metadata: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Any:
-        """Langchain callback when an LLM node starts."""
+        """
+        Langchain callback when an LLM node starts.
+
+        Note: This callback is only used for non-chat models.
+        """
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model_name", "")
         temperature = invocation_params.get("temperature", 0.0)
@@ -305,7 +314,7 @@ class GalileoCallback(BaseCallbackHandler):
             parent_run_id,
             run_id,
             name="LLM",
-            input=prompts,
+            input=[{"content": p, "role": "user"} for p in prompts],
             tags=tags,
             model=model,
             temperature=temperature,
