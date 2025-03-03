@@ -29,7 +29,6 @@ except ImportError:
 
 
 SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow"]
-
 LANGCHAIN_NODE_TYPE = Literal["agent", "chain", "chat", "llm", "retriever", "tool"]
 
 
@@ -41,30 +40,28 @@ class Node:
     ----------
     node_type : LANGCHAIN_NODE_TYPE
         The type of node.
-    span_params : Optional[dict[str, str]]
+    span_params : dict[str, Any]
         The parameters for the span that will be created.
     run_id : UUID
         The run ID of the span.
     parent_run_id : Optional[UUID]
         The run ID of the parent span.
+    children : List[UUID]
+        List of run_ids for child nodes
     """
-
-    node_type: LANGCHAIN_NODE_TYPE
-    span_params: Optional[dict[str, str]]
-    run_id: UUID
-    parent_run_id: Optional[UUID]
 
     def __init__(
         self,
         node_type: LANGCHAIN_NODE_TYPE,
-        span_params: Optional[dict[str, str]],
+        span_params: dict[str, Any],
         run_id: UUID,
         parent_run_id: Optional[UUID] = None,
     ) -> None:
-        self.node_type = node_type
-        self.span_params = span_params
-        self.run_id = run_id
-        self.parent_run_id = parent_run_id
+        self.node_type: LANGCHAIN_NODE_TYPE = node_type
+        self.span_params: dict[str, Any] = span_params
+        self.run_id: UUID = run_id
+        self.parent_run_id: Optional[UUID] = parent_run_id
+        self.children: list[UUID] = []
 
 
 _root_node: contextvars.ContextVar[Optional[Node]] = contextvars.ContextVar("langchain_root_node", default=None)
@@ -72,7 +69,7 @@ _root_node: contextvars.ContextVar[Optional[Node]] = contextvars.ContextVar("lan
 
 class GalileoCallback(BaseCallbackHandler):
     """
-    Langchain callback handler for logging traces to Galileo.
+    Langchain callback handler for logging traces to the Galileo platform.
 
     Attributes
     ----------
@@ -81,13 +78,10 @@ class GalileoCallback(BaseCallbackHandler):
     _nodes : dict[UUID, Node]
         A dictionary of nodes, where the key is the run_id and the value is the node.
     _start_new_trace : bool
-        Whether to start a new trace when a chain starts.
+        Whether to start a new trace when a chain starts. Set this to `False` to continue using the current trace.
     _flush_on_chain_end : bool
         Whether to flush the trace when a chain ends.
     """
-
-    _galileo_logger: GalileoLogger
-    _nodes: dict[UUID, Node]
 
     def __init__(
         self,
@@ -95,133 +89,165 @@ class GalileoCallback(BaseCallbackHandler):
         start_new_trace: bool = True,
         flush_on_chain_end: bool = True,
     ):
-        self._galileo_logger = galileo_logger or galileo_context.get_logger_instance()
-        self._start_new_trace = start_new_trace
-        self._flush_on_chain_end = flush_on_chain_end
+        self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance()
+        self._start_new_trace: bool = start_new_trace
+        self._flush_on_chain_end: bool = flush_on_chain_end
         self._nodes: dict[UUID, Node] = {}
 
     def _commit(self) -> None:
         """
         Commit the nodes to the trace using the Galileo Logger. Optionally flush the trace.
         """
-
         if not self._nodes:
+            _logger.warning("No nodes to commit")
             return
 
-        root_node = self._nodes.get(_root_node.get().run_id)
+        root = _root_node.get()
+        if root is None:
+            _logger.warning("Unable to add nodes to trace: Root node not set")
+            return
 
+        root_node = self._nodes.get(root.run_id)
         if root_node is None:
             _logger.warning("Unable to add nodes to trace: Root node does not exist")
             return
 
-        # Create a mapping of parent run IDs to child nodes
-        parent_child_mapping: dict[UUID, list[UUID]] = {}
-        for _, node in self._nodes.items():
-            if node.parent_run_id is not None:
-                parent_child_mapping.setdefault(node.parent_run_id, []).append(node)
+        self._log_node_tree(root_node)
 
-        def recursive_log(node: Node) -> Node:
-            """
-            Recursively logs a node and its children as spans in the Galileo Logger.
-
-            Parameters
-            ----------
-            node : Node
-                The node to log.
-
-            Returns
-            -------
-            Node
-                The logged node.
-            """
-            is_workflow_span = False
-            if node.node_type == "agent" or node.node_type == "chain":
-                self._galileo_logger.add_workflow_span(
-                    input=node.span_params.get("input", ""),
-                    output=node.span_params.get("output", ""),
-                    name=node.span_params.get("name", None),
-                    metadata=node.span_params.get("metadata", None),
-                    tags=node.span_params.get("tags", None),
-                )
-                is_workflow_span = True
-            elif node.node_type == "llm" or node.node_type == "chat":
-                self._galileo_logger.add_llm_span(
-                    input=node.span_params.get("input", ""),
-                    output=node.span_params.get("output", ""),
-                    model=node.span_params.get("model", None),
-                    temperature=node.span_params.get("temperature", None),
-                    name=node.span_params.get("name", None),
-                    metadata=node.span_params.get("metadata", None),
-                    tags=node.span_params.get("tags", None),
-                    num_input_tokens=node.span_params.get("num_input_tokens", None),
-                    num_output_tokens=node.span_params.get("num_output_tokens", None),
-                    total_tokens=node.span_params.get("total_tokens", None),
-                    time_to_first_token_ns=node.span_params.get("time_to_first_token_ns", None),
-                )
-            elif node.node_type == "retriever":
-                self._galileo_logger.add_retriever_span(
-                    input=node.span_params.get("input", ""),
-                    output=node.span_params.get("output", ""),
-                    name=node.span_params.get("name", None),
-                    metadata=node.span_params.get("metadata", None),
-                    tags=node.span_params.get("tags", None),
-                )
-            elif node.node_type == "tool":
-                self._galileo_logger.add_tool_span(
-                    input=node.span_params.get("input", ""),
-                    output=node.span_params.get("output", ""),
-                    name=node.span_params.get("name", None),
-                    metadata=node.span_params.get("metadata", None),
-                    tags=node.span_params.get("tags", None),
-                )
-            else:
-                _logger.warning(f"Unknown node type: {node.node_type}")
-
-            node = None
-            for child in parent_child_mapping.get(node.run_id, []):
-                node = recursive_log(child)
-
-            if is_workflow_span:
-                self._galileo_logger.conclude(
-                    output=serialize_to_str(node.span_params.get("output", "") if node else "")
-                )
-
-            return node
-
-        node = recursive_log(root_node)
-
-        # Conclude the trace
-        self._galileo_logger.conclude(output=serialize_to_str(node.span_params.get("output", "") if node else ""))
+        # Conclude the trace with the root node's output
+        root_output = root_node.span_params.get("output", "")
+        self._galileo_logger.conclude(output=serialize_to_str(root_output))
 
         if self._flush_on_chain_end:
             # Upload the trace to Galileo
             self._galileo_logger.flush()
 
-    def _start_node(self, node_type: LANGCHAIN_NODE_TYPE, parent_run_id: UUID, run_id: UUID, **kwargs: Any) -> Any:
-        """Start a new node in the chain."""
-        assert run_id not in self._nodes, f"Node already exists for run_id {run_id}"
+        # Clear nodes after successful commit
+        self._nodes.clear()
+        _root_node.set(None)
 
+    def _log_node_tree(self, node: Node) -> None:
+        """
+        Log a node and its children recursively.
+
+        Parameters
+        ----------
+        node : Node
+            The node to log.
+        """
+        is_workflow_span = False
+        input = node.span_params.get("input", "")
+        output = node.span_params.get("output", "")
+        name = node.span_params.get("name")
+        metadata = node.span_params.get("metadata")
+        tags = node.span_params.get("tags")
+
+        # Log the current node based on its type
+        if node.node_type in ("agent", "chain"):
+            self._galileo_logger.add_workflow_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+            is_workflow_span = True
+        elif node.node_type in ("llm", "chat"):
+            self._galileo_logger.add_llm_span(
+                input=input,
+                output=output,
+                model=node.span_params.get("model"),
+                temperature=node.span_params.get("temperature"),
+                name=name,
+                metadata=metadata,
+                tags=tags,
+                num_input_tokens=node.span_params.get("num_input_tokens"),
+                num_output_tokens=node.span_params.get("num_output_tokens"),
+                total_tokens=node.span_params.get("total_tokens"),
+                time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
+            )
+        elif node.node_type == "retriever":
+            self._galileo_logger.add_retriever_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+        elif node.node_type == "tool":
+            self._galileo_logger.add_tool_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+        else:
+            _logger.warning(f"Unknown node type: {node.node_type}")
+
+        # Process all child nodes
+        last_child = None
+        for child_id in node.children:
+            child_node = self._nodes.get(child_id)
+            if child_node:
+                self._log_node_tree(child_node)
+                last_child = child_node
+            else:
+                _logger.warning(f"Child node {child_id} not found")
+
+        # Conclude workflow span. Use the last child's output if necessary
+        if is_workflow_span:
+            output = output or (last_child.span_params.get("output", "") if last_child else "")
+            self._galileo_logger.conclude(output=serialize_to_str(output))
+
+    def _start_node(
+        self, node_type: LANGCHAIN_NODE_TYPE, parent_run_id: Optional[UUID], run_id: UUID, **kwargs: Any
+    ) -> Node:
+        """
+        Start a new node in the chain.
+
+        Parameters
+        ----------
+        node_type : LANGCHAIN_NODE_TYPE
+            The type of node.
+        parent_run_id : Optional[UUID]
+            The parent run ID.
+        run_id : UUID
+            The run ID.
+        **kwargs : Any
+            Additional parameters for the span.
+
+        Returns
+        -------
+        Node
+            The created node.
+        """
+        if run_id in self._nodes:
+            _logger.warning(f"Node already exists for run_id {run_id}, overwriting...")
+
+        # Create new node
         node = Node(node_type=node_type, span_params=kwargs, run_id=run_id, parent_run_id=parent_run_id)
+        self._nodes[run_id] = node
 
+        # Set as root node if needed
         if not _root_node.get():
+            _logger.debug(f"Setting root node to {run_id}")
             _root_node.set(node)
 
-        self._nodes[run_id] = node
+        # Add to parent's children if parent exists
+        if parent_run_id:
+            parent = self._nodes.get(parent_run_id)
+            if parent:
+                parent.children.append(run_id)
+            else:
+                _logger.warning(f"Parent node {parent_run_id} not found for {run_id}")
+
         return node
 
-    def _end_node(self, run_id, **kwargs: Any) -> Any:
+    def _end_node(self, run_id: UUID, **kwargs: Any) -> None:
         """
         End a node in the chain. Commit the nodes to a trace if the run_id matches the root node.
-        """
 
-        assert run_id in self._nodes, f"No node exists for run_id {run_id}"
-        node = self._nodes.get(run_id, None)
-        if node is None:
+        Parameters
+        ----------
+        run_id : UUID
+            The run ID.
+        **kwargs : Any
+            Additional parameters to update the span with.
+        """
+        node = self._nodes.get(run_id)
+        if not node:
+            _logger.warning(f"No node exists for run_id {run_id}")
             return
 
+        # Update node parameters
         node.span_params.update(**kwargs)
 
-        if node.run_id == _root_node.get().run_id:
+        # Check if this is the root node and commit if so
+        root = _root_node.get()
+        if root and node.run_id == root.run_id:
             self._commit()
 
     def on_chain_start(
@@ -241,7 +267,7 @@ class GalileoCallback(BaseCallbackHandler):
         # If the `name` is `LangGraph` or `agent`, set the node type to `agent`.
         if node_name in ["LangGraph", "agent"]:
             node_type = "agent"
-            node_name = "agent"
+            node_name = "Agent"
 
         # If the node is tagged with `hidden`, don't log it.
         if tags and "langsmith:hidden" in tags:
@@ -285,17 +311,19 @@ class GalileoCallback(BaseCallbackHandler):
             temperature=temperature,
             metadata=metadata,
             start_time=time.perf_counter(),
+            time_to_first_token_ns=None,
         )
 
-    def on_llm_new_token(self, token: str, run_id: UUID, **kwargs: Any) -> Any:
+    def on_llm_new_token(self, token: str, *, run_id: UUID, **kwargs: Any) -> Any:
         """Langchain callback when an LLM node generates a new token."""
-        node = self._nodes.get(run_id, None)
-        if node is None:
+        node = self._nodes.get(run_id)
+        if not node:
             return
 
-        if node.span_params["time_to_first_token_ns"] is None and node.span_params["start_time"] is not None:
-            node.span_params["time_to_first_token_ns"] = (time.perf_counter() - node.span_params["start_time"]) * 1e9
-            self._nodes[run_id] = node
+        if "time_to_first_token_ns" not in node.span_params or node.span_params["time_to_first_token_ns"] is None:
+            start_time = node.span_params.get("start_time")
+            if start_time is not None:
+                node.span_params["time_to_first_token_ns"] = (time.perf_counter() - start_time) * 1e9
 
     def on_chat_model_start(
         self,
@@ -304,7 +332,6 @@ class GalileoCallback(BaseCallbackHandler):
         *,
         run_id: UUID,
         parent_run_id: Optional[UUID] = None,
-        invocation_params: Optional[dict[str, Any]] = None,
         tags: Optional[list[str]] = None,
         metadata: Optional[dict[str, Any]] = None,
         **kwargs: Any,
@@ -313,29 +340,47 @@ class GalileoCallback(BaseCallbackHandler):
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model", invocation_params.get("_type", "undefined-type"))
         temperature = invocation_params.get("temperature", 0.0)
+
+        # Serialize messages safely
+        try:
+            serialized_messages = json.loads(
+                json.dumps([[m.dict() for m in batch] for batch in messages], cls=EventSerializer)
+            )
+        except Exception as e:
+            _logger.warning(f"Failed to serialize chat messages: {e}")
+            serialized_messages = str(messages)
+
         self._start_node(
             "chat",
             parent_run_id,
             run_id,
             name="Chat Model",
-            input=json.loads(json.dumps([[m.dict() for m in batch] for batch in messages], cls=EventSerializer)),
+            input=serialized_messages,
             tags=tags,
             model=model,
             temperature=temperature,
             metadata=metadata,
+            time_to_first_token_ns=None,
         )
 
     def on_llm_end(
         self, response: LLMResult, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when an LLM node ends."""
-        token_usage = response.llm_output.get("token_usage", {})
+        token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
+
+        try:
+            output = [[m.dict() for m in batch] for batch in response.generations]
+        except Exception as e:
+            _logger.warning(f"Failed to serialize LLM output: {e}")
+            output = str(response.generations)
+
         self._end_node(
             run_id,
-            output=[[m.dict() for m in batch] for batch in response.generations],
-            num_input_tokens=token_usage.get("prompt_tokens", None),
-            num_output_tokens=token_usage.get("completion_tokens", None),
-            total_tokens=token_usage.get("total_tokens", None),
+            output=output,
+            num_input_tokens=token_usage.get("prompt_tokens"),
+            num_output_tokens=token_usage.get("completion_tokens"),
+            total_tokens=token_usage.get("total_tokens"),
         )
 
     def on_tool_start(
@@ -366,4 +411,10 @@ class GalileoCallback(BaseCallbackHandler):
         self, response: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a retriever node ends."""
-        self._end_node(run_id, output=json.loads(json.dumps(response, cls=EventSerializer)))
+        try:
+            serialized_response = json.loads(json.dumps(response, cls=EventSerializer))
+        except Exception as e:
+            _logger.warning(f"Failed to serialize retriever output: {e}")
+            serialized_response = str(response)
+
+        self._end_node(run_id, output=serialized_response)
