@@ -1,10 +1,11 @@
+import asyncio
 import functools
 import logging
 from logging import Logger
-from typing import Any
+from typing import Any, Callable
 
 
-def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception: BaseException = Exception) -> Any:
+def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception: type[Exception] = Exception) -> Any:
     """
     A function wrapper that catches exceptions and logs them to the logger.
     Args:
@@ -15,15 +16,41 @@ def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception
 
     """
 
-    def wrapper(f):
+    def wrapper(f: Callable) -> Callable:
         @functools.wraps(f)
-        def inner(*args, **kwargs):
+        def inner(*args: Any, **kwargs: Any) -> Callable:
             try:
                 result = f(*args, **kwargs)
             except exception as err:
                 logger.warning(f"error happend during executing {f.__name__}: {err}")
-            else:
-                return result
+            return result
+
+        return inner
+
+    return wrapper
+
+
+def async_warn_catch_exception(
+    logger: Logger = logging.getLogger(__name__), exception: type[Exception] = Exception
+) -> Any:
+    """
+    A function wrapper that catches exceptions and logs them to the logger.
+    Args:
+        exception:
+        logger:
+
+    Returns:
+
+    """
+
+    def wrapper(f: Callable) -> Callable:
+        @functools.wraps(f)
+        async def inner(*args: Any, **kwargs: Any) -> Callable:
+            try:
+                result = await f(*args, **kwargs)
+            except exception as err:
+                logger.warning(f"error happend during executing {f.__name__}: {err}")
+            return result
 
         return inner
 
@@ -31,8 +58,11 @@ def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception
 
 
 class DecorateAllMethods:
-    def __init_subclass__(cls, **kwargs):
+    def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         for attr, f in cls.__dict__.items():
             if callable(f):
-                setattr(cls, attr, warn_catch_exception()(f))
+                if asyncio.iscoroutinefunction(f):
+                    setattr(cls, attr, async_warn_catch_exception()(f))
+                else:
+                    setattr(cls, attr, warn_catch_exception()(f))
