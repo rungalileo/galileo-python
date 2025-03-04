@@ -25,10 +25,11 @@ from galileo.resources.models.list_dataset_params import ListDatasetParams
 from galileo.resources.models.list_dataset_response import ListDatasetResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
 from galileo.resources.types import File, Unset
+from galileo.utils.catch_log import DecorateAllMethods
 from galileo_core.utils.dataset import DatasetType, parse_dataset
 
 
-class Dataset(BaseClientModel):
+class Dataset(BaseClientModel, DecorateAllMethods):
     content: Optional[DatasetContent] = None
 
     def __init__(self, dataset_db: DatasetDB, client: Optional[GalileoApiClient] = None) -> None:

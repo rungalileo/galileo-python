@@ -13,6 +13,7 @@ from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.projects import Projects
 from galileo.schema.trace import TracesIngestRequest
+from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo_core.schemas.logging.span import (
     LlmSpan,
@@ -33,7 +34,7 @@ RetrieverSpanAllowedOutputType = Union[
 ]
 
 
-class GalileoLogger(TracesLogger):
+class GalileoLogger(TracesLogger, DecorateAllMethods):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.
@@ -101,55 +102,51 @@ class GalileoLogger(TracesLogger):
     _logger = logging.getLogger("galileo.logger")
 
     def __init__(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
-        try:
-            super().__init__()
+        super().__init__()
 
-            project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
-            log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
+        project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
+        log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
-            if project is None:
-                self.project_name = project_name_from_env
-            else:
-                self.project_name = project
+        if project is None:
+            self.project_name = project_name_from_env
+        else:
+            self.project_name = project
 
-            if log_stream is None:
-                self.log_stream_name = log_stream_name_from_env
-            else:
-                self.log_stream_name = log_stream
+        if log_stream is None:
+            self.log_stream_name = log_stream_name_from_env
+        else:
+            self.log_stream_name = log_stream
 
-            if self.project_name is None or self.log_stream_name is None:
-                raise Exception("Project and log_stream are required to initialize GalileoLogger.")
+        if self.project_name is None or self.log_stream_name is None:
+            raise Exception("Project and log_stream are required to initialize GalileoLogger.")
 
-            # Get project and log stream IDs
-            api_client = GalileoApiClient()
-            projects_client = Projects(client=api_client)
-            log_streams_client = LogStreams(client=api_client)
+        # Get project and log stream IDs
+        api_client = GalileoApiClient()
+        projects_client = Projects(client=api_client)
+        log_streams_client = LogStreams(client=api_client)
 
-            project_obj = projects_client.get(name=self.project_name)
-            if project_obj is None:
-                # Create project if it doesn't exist
-                self.project_id = projects_client.create(name=self.project_name).id
-                self._logger.info(f"🚀 Creating new project... project {self.project_name} created!")
-            else:
-                if project_obj.type != "gen_ai":
-                    raise Exception(f"Project {self.project_name} is not a Galileo 2.0 project")
-                self.project_id = project_obj.id
+        project_obj = projects_client.get(name=self.project_name)
+        if project_obj is None:
+            # Create project if it doesn't exist
+            self.project_id = projects_client.create(name=self.project_name).id
+            self._logger.info(f"🚀 Creating new project... project {self.project_name} created!")
+        else:
+            if project_obj.type != "gen_ai":
+                raise Exception(f"Project {self.project_name} is not a Galileo 2.0 project")
+            self.project_id = project_obj.id
 
-            log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
-            if log_stream_obj is None:
-                # Create log stream if it doesn't exist
-                self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
-                self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
-            else:
-                self.log_stream_id = log_stream_obj.id
+        log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
+        if log_stream_obj is None:
+            # Create log stream if it doesn't exist
+            self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
+            self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
+        else:
+            self.log_stream_id = log_stream_obj.id
 
-            self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
+        self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
 
-            # cleans up when the python interpreter closes
-            atexit.register(self.terminate)
-
-        except Exception as e:
-            self._logger.error(e, exc_info=True)
+        # cleans up when the python interpreter closes
+        atexit.register(self.terminate)
 
     def start_trace(
         self,
@@ -487,28 +484,25 @@ class GalileoLogger(TracesLogger):
         -------
             List[Trace]: The list of uploaded traces.
         """
-        try:
-            if not self.traces:
-                self._logger.warning("No traces to flush.")
-                return list()
+        if not self.traces:
+            self._logger.warning("No traces to flush.")
+            return list()
 
-            if self.current_parent is not None:
-                self._logger.info("Concluding the active trace...")
-                self.conclude(conclude_all=True)
+        if self.current_parent is not None:
+            self._logger.info("Concluding the active trace...")
+            self.conclude(conclude_all=True)
 
-            self._logger.info("Flushing %d traces...", len(self.traces))
+        self._logger.info("Flushing %d traces...", len(self.traces))
 
-            traces_ingest_request = TracesIngestRequest(traces=self.traces)
-            self._client.ingest_traces_sync(traces_ingest_request)
-            logged_traces = self.traces
+        traces_ingest_request = TracesIngestRequest(traces=self.traces)
+        self._client.ingest_traces_sync(traces_ingest_request)
+        logged_traces = self.traces
 
-            self._logger.info("Successfully flushed %d traces.", len(logged_traces))
+        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
 
-            self.traces = list()
-            self._parent_stack = deque()
-            return logged_traces
-        except Exception as e:
-            self._logger.error(e, exc_info=True)
+        self.traces = list()
+        self._parent_stack = deque()
+        return logged_traces
 
     async def async_flush(self) -> list[Trace]:
         """
@@ -518,37 +512,31 @@ class GalileoLogger(TracesLogger):
         -------
             List[Trace]: The list of uploaded workflows.
         """
-        try:
-            if not self.traces:
-                self._logger.warning("No traces to flush.")
-                return list()
+        if not self.traces:
+            self._logger.warning("No traces to flush.")
+            return list()
 
-            if self.current_parent is not None:
-                self._logger.info("Concluding the active trace...")
-                self.conclude(conclude_all=True)
+        if self.current_parent is not None:
+            self._logger.info("Concluding the active trace...")
+            self.conclude(conclude_all=True)
 
-            self._logger.info("Flushing %d traces...", len(self.traces))
+        self._logger.info("Flushing %d traces...", len(self.traces))
 
-            traces_ingest_request = TracesIngestRequest(traces=self.traces)
-            await self._client.ingest_traces(traces_ingest_request)
-            logged_traces = self.traces
+        traces_ingest_request = TracesIngestRequest(traces=self.traces)
+        await self._client.ingest_traces(traces_ingest_request)
+        logged_traces = self.traces
 
-            self._logger.info("Successfully flushed %d traces.", len(logged_traces))
+        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
 
-            self.traces = list()
-            self._parent_stack = deque()
-            return logged_traces
-        except Exception as e:
-            self._logger.error(e, exc_info=True)
+        self.traces = list()
+        self._parent_stack = deque()
+        return logged_traces
 
     def terminate(self):
         """
         Terminate the logger and flush all traces to Galileo.
         """
-        try:
-            # Unregister the atexit handler first
-            atexit.unregister(self.terminate)
+        # Unregister the atexit handler first
+        atexit.unregister(self.terminate)
 
-            self.flush()
-        except Exception as e:
-            self._logger.error(e, exc_info=True)
+        self.flush()

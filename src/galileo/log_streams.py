@@ -11,6 +11,7 @@ from galileo.resources.api.log_stream import (
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
 from galileo.resources.models.log_stream_response import LogStreamResponse
+from galileo.utils.catch_log import DecorateAllMethods
 
 
 class LogStream(LogStreamResponse):
@@ -92,7 +93,7 @@ class LogStream(LogStreamResponse):
             return
 
 
-class LogStreams(BaseClientModel):
+class LogStreams(BaseClientModel, DecorateAllMethods):
     @overload
     def list(self, *, project_id: str) -> list[LogStream]: ...
 
@@ -124,7 +125,7 @@ class LogStreams(BaseClientModel):
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
         """
-        if (project_id is None) == (project_name is None):
+        if (project_id is None) and (project_name is None):
             raise ValueError("Exactly one of 'project_id' or 'project_name' must be provided")
 
         if project_id:
