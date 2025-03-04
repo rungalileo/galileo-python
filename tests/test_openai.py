@@ -34,9 +34,18 @@ def test_basic_openai_call(
     OpenAIGalileo().register_tracing()
 
     chat_completion = openai.chat.completions.create(
-        messages=[{"role": "user", "content": "Say this is a test"}], 
+        messages=[{"role": "user", "content": "Say this is a test"}],
         model="gpt-3.5-turbo",
-        tools=[{"type": "function", "function": {"name": "test", "description": "test", "parameters": {"type": "object", "properties": {"name": {"type": "string"}}}}}]
+        tools=[
+            {
+                "type": "function",
+                "function": {
+                    "name": "test",
+                    "description": "test",
+                    "parameters": {"type": "object", "properties": {"name": {"type": "string"}}},
+                },
+            }
+        ],
     )
 
     response = chat_completion.choices[0].message.content
@@ -51,7 +60,17 @@ def test_basic_openai_call(
     assert payload.traces[0].input == '[{"role": "user", "content": "Say this is a test"}]'
     assert payload.traces[0].spans[0].input == [Message(content="Say this is a test", role=MessageRole.user)]
     assert payload.traces[0].spans[0].output == Message(content="The mock is working! ;)", role=MessageRole.assistant)
-    assert payload.traces[0].spans[0].tools == [{"type": "function", "function": {"name": "test", "description": "test", "parameters": {"type": "object", "properties": {"name": {"type": "string"}}}}}]
+    assert payload.traces[0].spans[0].tools == [
+        {
+            "type": "function",
+            "function": {
+                "name": "test",
+                "description": "test",
+                "parameters": {"type": "object", "properties": {"name": {"type": "string"}}},
+            },
+        }
+    ]
+
 
 @patch("openai.resources.chat.Completions.create")
 @patch("galileo.logger.LogStreams")

@@ -43,7 +43,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from inspect import isclass
-from typing import Any, Callable, Optional, Union
+from typing import Any, Callable, Optional
 
 from packaging.version import Version
 from pydantic import BaseModel
@@ -240,7 +240,9 @@ def _extract_input_data_from_kwargs(
 
     parsed_tools = kwargs.get("tools", None) if not isinstance(kwargs.get("tools", None), NotGiven) else None
 
-    parsed_tool_choice = kwargs.get("tool_choice", None) if not isinstance(kwargs.get("tool_choice", None), NotGiven) else None
+    parsed_tool_choice = (
+        kwargs.get("tool_choice", None) if not isinstance(kwargs.get("tool_choice", None), NotGiven) else None
+    )
 
     # handle deprecated aliases (functions for tools, function_call for tool_choice)
     if parsed_tools is None and kwargs.get("functions") is not None:
