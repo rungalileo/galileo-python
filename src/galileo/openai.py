@@ -150,24 +150,6 @@ def _galileo_wrapper(func: Callable) -> Callable:
     return _with_galileo
 
 
-def _extract_chat_prompt(kwargs: dict) -> Union[list, dict]:
-    """Extracts the user input from prompts. Returns a list of messages or dict with messages and functions"""
-    prompt = {}
-
-    if kwargs.get("functions") is not None:
-        prompt.update({"functions": kwargs["functions"]})
-
-    if kwargs.get("function_call") is not None:
-        prompt.update({"function_call": kwargs["function_call"]})
-
-    if prompt:
-        # if the user provided functions, we need to send these together with messages to Galileo
-        prompt.update({"messages": [message for message in kwargs.get("messages", [])]})
-        return prompt
-    else:
-        return [message for message in kwargs.get("messages", [])]
-
-
 def _extract_chat_response(kwargs: dict) -> dict:
     """Extracts the llm output from the response."""
     response = {"role": kwargs.get("role", None)}
@@ -230,7 +212,7 @@ def _extract_input_data_from_kwargs(
     if resource.type == "completion":
         prompt = kwargs.get("prompt", None)
     elif resource.type == "chat":
-        prompt = _extract_chat_prompt(kwargs)
+        prompt = kwargs.get("messages", [])
 
     parsed_temperature = float(
         kwargs.get("temperature", 1) if not isinstance(kwargs.get("temperature", 1), NotGiven) else 1
@@ -258,12 +240,22 @@ def _extract_input_data_from_kwargs(
 
     parsed_tools = kwargs.get("tools", None) if not isinstance(kwargs.get("tools", None), NotGiven) else None
 
+    parsed_tool_choice = kwargs.get("tool_choice", None) if not isinstance(kwargs.get("tool_choice", None), NotGiven) else None
+
+    # handle deprecated aliases (functions for tools, function_call for tool_choice)
+    if parsed_tools is None and kwargs.get("functions") is not None:
+        parsed_tools = kwargs["functions"]
+
+    if parsed_tool_choice is None and kwargs.get("function_call") is not None:
+        parsed_tool_choice = kwargs["function_call"]
+
     model_parameters = {
         "temperature": parsed_temperature,
         "max_tokens": parsed_max_tokens,
         "top_p": parsed_top_p,
         "frequency_penalty": parsed_frequency_penalty,
         "presence_penalty": parsed_presence_penalty,
+        "tool_choice": parsed_tool_choice,
     }
     if parsed_n is not None and parsed_n > 1:
         model_parameters["n"] = parsed_n
