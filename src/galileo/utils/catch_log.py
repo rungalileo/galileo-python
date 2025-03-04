@@ -18,12 +18,13 @@ def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception
 
     def wrapper(f: Callable) -> Callable:
         @functools.wraps(f)
-        def inner(*args: Any, **kwargs: Any) -> Callable:
+        def inner(*args: Any, **kwargs: Any) -> Any:
             try:
                 result = f(*args, **kwargs)
             except exception as err:
                 logger.warning(f"error happend during executing {f.__name__}: {err}")
-            return result
+            else:
+                return result
 
         return inner
 
@@ -45,12 +46,13 @@ def async_warn_catch_exception(
 
     def wrapper(f: Callable) -> Callable:
         @functools.wraps(f)
-        async def inner(*args: Any, **kwargs: Any) -> Callable:
+        async def inner(*args: Any, **kwargs: Any) -> Any:
             try:
                 result = await f(*args, **kwargs)
             except exception as err:
                 logger.warning(f"error happend during executing {f.__name__}: {err}")
-            return result
+            else:
+                return result
 
         return inner
 
