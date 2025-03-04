@@ -91,6 +91,7 @@ class OpenAiInputData:
     model_parameters: dict
     model: Optional[str]
     temperature: float
+    tools: Optional[list[dict]]
 
 
 _logger = logging.getLogger(__name__)
@@ -158,9 +159,6 @@ def _extract_chat_prompt(kwargs: dict) -> Union[list, dict]:
 
     if kwargs.get("function_call") is not None:
         prompt.update({"function_call": kwargs["function_call"]})
-
-    if kwargs.get("tools") is not None:
-        prompt.update({"tools": kwargs["tools"]})
 
     if prompt:
         # if the user provided functions, we need to send these together with messages to Galileo
@@ -258,6 +256,8 @@ def _extract_input_data_from_kwargs(
 
     parsed_n = kwargs.get("n", 1) if not isinstance(kwargs.get("n", 1), NotGiven) else 1
 
+    parsed_tools = kwargs.get("tools", None) if not isinstance(kwargs.get("tools", None), NotGiven) else None
+
     model_parameters = {
         "temperature": parsed_temperature,
         "max_tokens": parsed_max_tokens,
@@ -281,6 +281,7 @@ def _extract_input_data_from_kwargs(
         model_parameters=model_parameters,
         model=model or None,
         temperature=parsed_temperature,
+        tools=parsed_tools,
     )
 
 
@@ -489,6 +490,7 @@ def _wrap(
             galileo_logger.add_llm_span(
                 input=input_data.input,
                 output=completion,
+                tools=input_data.tools,
                 name=input_data.name,
                 model=model,
                 temperature=input_data.temperature,
@@ -587,6 +589,7 @@ class ResponseGeneratorSync:
         self.logger.add_llm_span(
             input=self.input_data.input,
             output=completion,
+            tools=self.input_data.tools,
             name=self.input_data.name,
             model=model,
             temperature=self.input_data.temperature,
