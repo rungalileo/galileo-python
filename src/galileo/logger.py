@@ -13,7 +13,7 @@ from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.projects import Projects
 from galileo.schema.trace import TracesIngestRequest
-from galileo.utils.catch_log import warn_catch_exception
+from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo_core.schemas.logging.span import (
     LlmSpan,
@@ -34,7 +34,7 @@ RetrieverSpanAllowedOutputType = Union[
 ]
 
 
-class GalileoLogger(TracesLogger):
+class GalileoLogger(TracesLogger, DecorateAllMethods):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.
@@ -101,7 +101,6 @@ class GalileoLogger(TracesLogger):
 
     _logger = logging.getLogger("galileo.logger")
 
-    @warn_catch_exception()
     def __init__(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
         super().__init__()
 
@@ -477,7 +476,6 @@ class GalileoLogger(TracesLogger):
 
         return current_parent
 
-    @warn_catch_exception(logger=_logger)
     def flush(self) -> list[Trace]:
         """
         Upload all traces to Galileo.
@@ -514,30 +512,26 @@ class GalileoLogger(TracesLogger):
         -------
             List[Trace]: The list of uploaded workflows.
         """
-        try:
-            if not self.traces:
-                self._logger.warning("No traces to flush.")
-                return list()
+        if not self.traces:
+            self._logger.warning("No traces to flush.")
+            return list()
 
-            if self.current_parent is not None:
-                self._logger.info("Concluding the active trace...")
-                self.conclude(conclude_all=True)
+        if self.current_parent is not None:
+            self._logger.info("Concluding the active trace...")
+            self.conclude(conclude_all=True)
 
-            self._logger.info("Flushing %d traces...", len(self.traces))
+        self._logger.info("Flushing %d traces...", len(self.traces))
 
-            traces_ingest_request = TracesIngestRequest(traces=self.traces)
-            await self._client.ingest_traces(traces_ingest_request)
-            logged_traces = self.traces
+        traces_ingest_request = TracesIngestRequest(traces=self.traces)
+        await self._client.ingest_traces(traces_ingest_request)
+        logged_traces = self.traces
 
-            self._logger.info("Successfully flushed %d traces.", len(logged_traces))
+        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
 
-            self.traces = list()
-            self._parent_stack = deque()
-            return logged_traces
-        except Exception as e:
-            self._logger.error(e, exc_info=True)
+        self.traces = list()
+        self._parent_stack = deque()
+        return logged_traces
 
-    @warn_catch_exception(logger=_logger)
     def terminate(self):
         """
         Terminate the logger and flush all traces to Galileo.
