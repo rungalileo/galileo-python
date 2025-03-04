@@ -16,4 +16,4 @@ def test_get_all_projects_projects_all_get_exc(get_all_projects_projects_all_get
 
     with caplog.at_level(logging.WARNING):
         projects_client.list()
-        assert "error happend during executing list: unable to get all projects" in caplog.text
+        assert "Error occurred during execution: list: unable to get all projects" in caplog.text
