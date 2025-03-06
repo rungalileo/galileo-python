@@ -1,5 +1,4 @@
 import json
-import logging
 from typing import Optional, Union
 
 from galileo.base import BaseClientModel
@@ -14,8 +13,6 @@ from galileo.resources.models import (
     HTTPValidationError,
     Message,
 )
-
-_logger = logging.getLogger(__name__)
 
 
 class PromptTemplate(BaseClientModel):
@@ -43,7 +40,6 @@ class PromptTemplate(BaseClientModel):
 
         body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
 
-        _logger.debug(f"{body}")
         response = create_prompt_template_with_version_projects_project_id_templates_post.sync_detailed(
             project_id=project.id,
             client=self.client,  # type: ignore[arg-type]
