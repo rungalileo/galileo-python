@@ -107,15 +107,15 @@ class Experiment(BaseClientModel):
             name="prompt_run",  # TODO
             project_id=project.id,
             run_id=experiment.id,
-            prompt_template_id=prompt_template.id,
+            prompt_template_id=prompt_template.selected_version_id,
             dataset_id=dataset.id,
             task_type=EXPERIMENT_TASK_TYPE,
             scorers=scorers,
         )
 
-        # _logger.debug(f"job: {job}")
+        _logger.debug(f"job: {job}")
 
-        # print(f"{job.link}")
+        print(f"{job.link}")
         return job
 
 
