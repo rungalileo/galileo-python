@@ -19,7 +19,7 @@ from galileo.resources.models import (
     ScorerConfig,
     TaskType,
 )
-from galileo.scorers import Scorer
+from galileo.scorers import Scorer, ScorerSettings
 
 _logger = logging.getLogger(__name__)
 
@@ -103,6 +103,8 @@ class Experiment(BaseClientModel):
                     scorers.append(ScorerConfig.from_dict(scorer.to_dict()))
                     break
 
+        ScorerSettings().create(project_id=project.id, run_id=experiment.id, scorers=scorers)
+
         job = Job().create(
             name="prompt_run",  # TODO
             project_id=project.id,
@@ -115,7 +117,7 @@ class Experiment(BaseClientModel):
 
         _logger.debug(f"job: {job}")
 
-        print(f"{job.link}")
+        print(f"open {self.client.get_console_url()}project/{project.id}/experiments/{experiment.id}")
         return job
 
 
