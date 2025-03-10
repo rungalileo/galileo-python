@@ -12,7 +12,6 @@ from galileo.resources.api.experiment import (
     list_experiments_v2_projects_project_id_experiments_get,
 )
 from galileo.resources.models import (
-    CorrectnessScorer,
     ExperimentCreateRequest,
     ExperimentResponse,
     HTTPValidationError,
@@ -24,27 +23,6 @@ from galileo.scorers import Scorer, ScorerSettings
 _logger = logging.getLogger(__name__)
 
 EXPERIMENT_TASK_TYPE = TaskType.VALUE_9
-
-# Order of operations:
-
-# Create a new experiment (using the name) if it doesn't already exist
-# Get the ScorerConfig objects for the specified metrics
-# Get the project id from the name
-
-# Optionally get the dataset id from the name (if name is used)
-# Call the /galileo/job endpoint
-# Job name = "prompt_run"
-# dataset_id
-# project_id
-# Prompt settings
-# prompt_template_version_id
-# run_id = experiment_id
-# task_type = TaskType.experiment (16)
-# Scorers = List[ScorerConfig]
-# For #5, you can analyze the call to the /galileo/job endpoint in the Playground feature in the UI, and also look at api/routers/content/jobs.py:create_job()
-
-
-SCORERS = {"correctness": CorrectnessScorer}
 
 
 class Experiment(BaseClientModel):
@@ -64,9 +42,6 @@ class Experiment(BaseClientModel):
             if experiment.name == experiment_name:
                 return experiment
 
-        # experiment = get_experiment_v2_projects_project_id_experiments_experiment_id_get.sync(
-        #     project_id, experiment_id, client=self.client
-        # )
         return None
 
     def get_or_create(self, project_id: str, experiment_name: str):
@@ -121,7 +96,5 @@ class Experiment(BaseClientModel):
         return job
 
 
-# datasetName | datasetId | dataset,
-# prompt_settings (PromptRunSettings | None),
 def run_experiment(experiment_name: str, *, prompt: Any, project: str, dataset: list[str], metrics: list[str]):
     return Experiment().run(experiment_name, project, prompt, dataset, metrics)
