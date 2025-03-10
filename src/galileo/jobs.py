@@ -2,8 +2,7 @@ import logging
 
 from galileo.base import BaseClientModel
 from galileo.resources.api.jobs import create_job_jobs_post
-from galileo.resources.models import CreateJobRequest, ScorerConfig, TaskType, PromptRunSettings
-
+from galileo.resources.models import CreateJobRequest, ScorerConfig, TaskType
 
 _logger = logging.getLogger(__name__)
 
@@ -29,8 +28,8 @@ class Job(BaseClientModel):
             task_type=task_type,
             scorers=scorers,
         )
-        _logger.info(f'create job: {create_params}')
+        _logger.info(f"create job: {create_params}")
         result = create_job_jobs_post.sync_detailed(client=self.client, body=CreateJobRequest(**create_params))
         if not result.parsed:
-            _logger.error('create job failed: {}'.format(result.content))
+            _logger.error(f"create job failed: {result.content}")
         return result.parsed
