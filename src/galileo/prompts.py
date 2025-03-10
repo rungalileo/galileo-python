@@ -40,6 +40,7 @@ class PromptTemplate(BaseClientModel):
         if not project:
             raise ValueError(f"Project {project_name} does not exist")
 
+        _logger.debug(f"Get template {template_id} from project {project.id}")
         template = get_template_from_project_projects_project_id_templates_template_id_get.sync(
             # TODO: remove type ignore, when migrated to proper AuthenticatedClient
             project_id=project.id,
@@ -80,5 +81,6 @@ def get_prompt(project: str, name: str) -> Optional[Union[BasePromptTemplateResp
     prompt_templates = PromptTemplate().list(project_name=project)
     for prompt_template in prompt_templates:
         if prompt_template.name == name:
+            _logger.info(f"Get template {prompt_template}")
             return prompt_template
     raise ValueError(f"Prompt {name} does not exist")

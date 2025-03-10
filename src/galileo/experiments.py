@@ -3,6 +3,7 @@ import logging
 from typing import Any, Optional, Union
 
 from galileo.base import BaseClientModel
+from galileo.datasets import Dataset
 from galileo.jobs import Job
 from galileo.projects import Projects
 from galileo.prompts import PromptTemplate
@@ -10,7 +11,15 @@ from galileo.resources.api.experiment import (
     create_experiment_v2_projects_project_id_experiments_post,
     list_experiments_v2_projects_project_id_experiments_get,
 )
-from galileo.resources.models import ExperimentCreateRequest, ExperimentResponse, HTTPValidationError, TaskType
+from galileo.resources.models import (
+    CorrectnessScorer,
+    ExperimentCreateRequest,
+    ExperimentResponse,
+    HTTPValidationError,
+    ScorerConfig,
+    TaskType,
+)
+from galileo.scorers import Scorer
 
 _logger = logging.getLogger(__name__)
 
@@ -33,6 +42,9 @@ EXPERIMENT_TASK_TYPE = TaskType.VALUE_9
 # task_type = TaskType.experiment (16)
 # Scorers = List[ScorerConfig]
 # For #5, you can analyze the call to the /galileo/job endpoint in the Playground feature in the UI, and also look at api/routers/content/jobs.py:create_job()
+
+
+SCORERS = {"correctness": CorrectnessScorer}
 
 
 class Experiment(BaseClientModel):
@@ -67,7 +79,14 @@ class Experiment(BaseClientModel):
     def list(self, project_id: str):
         return list_experiments_v2_projects_project_id_experiments_get.sync(project_id=project_id, client=self.client)
 
-    def run(self, experiment_name: str, project_name: str, prompt: Any, dataset: builtins.list[str]):
+    def run(
+        self,
+        experiment_name: str,
+        project_name: str,
+        prompt: Any,
+        dataset: Union[str, Dataset],
+        metrics: builtins.list[str],
+    ):
         project = Projects().get(name=project_name)
         if not project:
             raise ValueError(f"Project {project_name} does not exist")
@@ -76,22 +95,31 @@ class Experiment(BaseClientModel):
 
         prompt_template = PromptTemplate().get(project_name=project_name, template_id=prompt.id)
 
+        scorers = []
+        all_scorers = Scorer().list()
+        for metric in metrics:
+            for scorer in all_scorers:
+                if metric == scorer.name:
+                    scorers.append(ScorerConfig.from_dict(scorer.to_dict()))
+                    break
+
         job = Job().create(
             name="prompt_run",  # TODO
             project_id=project.id,
             run_id=experiment.id,
             prompt_template_id=prompt_template.id,
+            dataset_id=dataset.id,
             task_type=EXPERIMENT_TASK_TYPE,
+            scorers=scorers,
         )
 
-        _logger.debug(f"job: {job}")
+        # _logger.debug(f"job: {job}")
 
-        print(f"{job.link}")
+        # print(f"{job.link}")
         return job
 
 
 # datasetName | datasetId | dataset,
 # prompt_settings (PromptRunSettings | None),
-# metrics (list of strings),
-def run_experiment(experiment_name: str, *, prompt: Any, project: str, dataset: list[str]):
-    return Experiment().run(experiment_name, project, prompt, dataset)
+def run_experiment(experiment_name: str, *, prompt: Any, project: str, dataset: list[str], metrics: list[str]):
+    return Experiment().run(experiment_name, project, prompt, dataset, metrics)
