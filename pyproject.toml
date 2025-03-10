@@ -114,7 +114,11 @@ mypy_path = ["src"]
 disallow_untyped_defs = true
 plugins = ["pydantic.mypy"]
 # TODO: Enable all modules / packages as soon as we are ready.
-modules = ["galileo", "galileo.experiments"]
+modules = [
+    "galileo",
+    "galileo.experiments",
+    "galileo.prompts",
+]
 packages = ["galileo.utils"]
 
 # Release.
