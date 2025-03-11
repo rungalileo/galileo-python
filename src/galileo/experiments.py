@@ -22,7 +22,7 @@ from galileo.scorers import Scorer, ScorerSettings
 
 _logger = logging.getLogger(__name__)
 
-EXPERIMENT_TASK_TYPE = TaskType.VALUE_9
+EXPERIMENT_TASK_TYPE = TaskType.VALUE_16
 
 
 class Experiment(BaseClientModel):
