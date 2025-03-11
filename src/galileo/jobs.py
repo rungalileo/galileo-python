@@ -23,7 +23,7 @@ class Job(BaseClientModel):
             dataset_id=dataset_id,
             job_name=name,
             run_id=run_id,
-            # prompt_settings=PromptRunSettings,
+            prompt_settings={},
             prompt_template_version_id=prompt_template_id,
             task_type=task_type,
             scorers=scorers,

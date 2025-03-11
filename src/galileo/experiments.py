@@ -81,7 +81,7 @@ class Experiment(BaseClientModel):
         ScorerSettings().create(project_id=project.id, run_id=experiment.id, scorers=scorers)
 
         job = Job().create(
-            name="prompt_run",  # TODO
+            name="playground_run",
             project_id=project.id,
             run_id=experiment.id,
             prompt_template_id=prompt_template.selected_version_id,
@@ -92,7 +92,7 @@ class Experiment(BaseClientModel):
 
         _logger.debug(f"job: {job}")
 
-        print(f"open {self.client.get_console_url()}project/{project.id}/experiments/{experiment.id}")
+        print(f"open {self.client.get_console_url()}/project/{project.id}/experiments/{experiment.id}")
         return job
 
 
