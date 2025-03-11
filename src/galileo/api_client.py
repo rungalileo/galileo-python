@@ -48,6 +48,8 @@ class GalileoApiClient(AuthenticatedClient):
     token: Optional[str] = None
 
     api_key_header_name: str = "Galileo-API-Key"
+    client_type_header_name: str = "client-type"
+    client_type_header_value: str = "sdk-python"
 
     @staticmethod
     def get_console_url() -> str:
@@ -78,6 +80,8 @@ class GalileoApiClient(AuthenticatedClient):
             if not self._base_url:
                 raise ValueError("base_url must be set")
 
+            self._headers[self.client_type_header_name] = self.client_type_header_value
+
             self._client = httpx.Client(
                 base_url=self._base_url,
                 cookies=self._cookies,
@@ -101,6 +105,8 @@ class GalileoApiClient(AuthenticatedClient):
 
             if not self._base_url:
                 raise ValueError("base_url must be set")
+
+            self._headers[self.client_type_header_name] = self.client_type_header_value
 
             self._async_client = httpx.AsyncClient(
                 base_url=self._base_url,
