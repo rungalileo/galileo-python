@@ -460,7 +460,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             output: Optional[StepIOType]: Output of the node.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             status_code: Optional[int]: Status code of the node execution.
-            conclude_all: bool: If True, all spans will be concluded, including the current span.False by default.
+            conclude_all: bool: If True, all spans will be concluded, including the current span. False by default.
         Returns:
         -------
             Optional[StepWithChildSpans]: The parent of the current workflow. None if no parent exists.
