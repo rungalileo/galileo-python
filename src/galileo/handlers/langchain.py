@@ -107,7 +107,7 @@ class GalileoCallback(BaseCallbackHandler):
             _logger.warning("Unable to add nodes to trace: Root node not set")
             return
 
-        root_node = self._nodes.get(root.run_id)
+        root_node = self._nodes.get(str(root.run_id))
         if root_node is None:
             _logger.warning("Unable to add nodes to trace: Root node does not exist")
             return
@@ -312,6 +312,7 @@ class GalileoCallback(BaseCallbackHandler):
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model_name", "")
         temperature = invocation_params.get("temperature", 0.0)
+
         self._start_node(
             "llm",
             parent_run_id,
@@ -321,7 +322,7 @@ class GalileoCallback(BaseCallbackHandler):
             tags=tags,
             model=model,
             temperature=temperature,
-            metadata=metadata,
+            metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
             start_time=time.perf_counter(),
             time_to_first_token_ns=None,
         )
@@ -355,9 +356,8 @@ class GalileoCallback(BaseCallbackHandler):
 
         # Serialize messages safely
         try:
-            serialized_messages = json.loads(
-                json.dumps([[m.dict() for m in batch] for batch in messages], cls=EventSerializer)
-            )
+            flattened_messages = [message.dict() for batch in messages for message in batch]
+            serialized_messages = json.loads(json.dumps(flattened_messages, cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize chat messages: {e}")
             serialized_messages = str(messages)
@@ -371,7 +371,7 @@ class GalileoCallback(BaseCallbackHandler):
             tags=tags,
             model=model,
             temperature=temperature,
-            metadata=metadata,
+            metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
             time_to_first_token_ns=None,
         )
 
@@ -382,7 +382,8 @@ class GalileoCallback(BaseCallbackHandler):
         token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
 
         try:
-            output = [m.dict() for m in batch for batch in response.generations]
+            flattened_messages = [message.dict() for batch in response.generations for message in batch]
+            output = json.loads(json.dumps(flattened_messages[0], cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize LLM output: {e}")
             output = str(response.generations)
@@ -407,7 +408,15 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a tool node starts."""
-        self._start_node("tool", parent_run_id, run_id, name="Tool", input=input_str, tags=tags, metadata=metadata)
+        self._start_node(
+            "tool",
+            parent_run_id,
+            run_id,
+            name="Tool",
+            input=input_str,
+            tags=tags,
+            metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
+        )
 
     def on_tool_end(self, output: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any) -> Any:
         """Langchain callback when a tool node ends."""
