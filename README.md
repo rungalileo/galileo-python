@@ -174,6 +174,27 @@ call_openai()
 galileo_context.flush()
 ```
 
+Langchain callback handler:
+
+```python
+from galileo.handlers.langchain import GalileoCallback
+from langchain.schema import HumanMessage
+from langchain_openai import ChatOpenAI
+
+# You can optionally pass a GalileoLogger instance to the callback if you don't want to use the default context
+callback = GalileoCallback()
+
+llm = ChatOpenAI(model="gpt-3.5-turbo", temperature=0.7, callbacks=[callback])
+
+# Create a message with the user's query
+messages = [HumanMessage(content="What is LangChain and how is it used with OpenAI?")]
+
+# Make the API call
+response = llm.invoke(messages)
+
+print(response.content)
+```
+
 ## Local Installation
 
 ### Pre-Requisites
