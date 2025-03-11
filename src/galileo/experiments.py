@@ -2,6 +2,9 @@ import builtins
 import logging
 from typing import Any, Optional, Union
 
+from attrs import define as _attrs_define
+from attrs import field as _attrs_field
+
 from galileo.base import BaseClientModel
 from galileo.datasets import Dataset
 from galileo.jobs import Job
@@ -11,13 +14,7 @@ from galileo.resources.api.experiment import (
     create_experiment_v2_projects_project_id_experiments_post,
     list_experiments_v2_projects_project_id_experiments_get,
 )
-from galileo.resources.models import (
-    ExperimentCreateRequest,
-    ExperimentResponse,
-    HTTPValidationError,
-    ScorerConfig,
-    TaskType,
-)
+from galileo.resources.models import ExperimentResponse, HTTPValidationError, ScorerConfig, TaskType
 from galileo.scorers import Scorer, ScorerSettings
 
 _logger = logging.getLogger(__name__)
@@ -25,9 +22,27 @@ _logger = logging.getLogger(__name__)
 EXPERIMENT_TASK_TYPE = TaskType.VALUE_16
 
 
+@_attrs_define
+class ExperimentCreateRequest:
+    name: str
+    task_type: int
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        name = self.name
+        task_type = self.task_type
+
+        field_dict: dict[str, Any] = {}
+        field_dict.update(self.additional_properties)
+        field_dict.update({"name": name})
+        field_dict.update({"task_type": task_type})
+
+        return field_dict
+
+
 class Experiment(BaseClientModel):
     def create(self, project_id: str, name: str):
-        body = ExperimentCreateRequest(name=name)
+        body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
 
         experiment = create_experiment_v2_projects_project_id_experiments_post.sync(
             project_id=project_id, client=self.client, body=body
@@ -81,7 +96,7 @@ class Experiment(BaseClientModel):
         ScorerSettings().create(project_id=project.id, run_id=experiment.id, scorers=scorers)
 
         job = Job().create(
-            name="prompt_run",  # TODO
+            name="playground_run",
             project_id=project.id,
             run_id=experiment.id,
             prompt_template_id=prompt_template.selected_version_id,
@@ -92,7 +107,7 @@ class Experiment(BaseClientModel):
 
         _logger.debug(f"job: {job}")
 
-        print(f"open {self.client.get_console_url()}project/{project.id}/experiments/{experiment.id}")
+        print(f"open {self.client.get_console_url()}/project/{project.id}/experiments/{experiment.id}")
         return job
 
 
