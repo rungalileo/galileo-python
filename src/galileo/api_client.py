@@ -49,6 +49,14 @@ class GalileoApiClient(AuthenticatedClient):
 
     api_key_header_name: str = "Galileo-API-Key"
 
+    @staticmethod
+    def get_console_url() -> str:
+        console_url = getenv("GALILEO_CONSOLE_URL", DEFAULT_API_URL)
+        if DEFAULT_API_URL == console_url:
+            return "https://app.galileo.ai"
+
+        return console_url
+
     def with_api_key(self, api_key: str) -> "GalileoApiClient":
         """Get a new client matching this one with a new API key"""
         if self._client is not None:

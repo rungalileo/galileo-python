@@ -174,6 +174,7 @@ call_openai()
 galileo_context.flush()
 ```
 
+
 Langchain callback handler:
 
 ```python
@@ -194,6 +195,40 @@ response = llm.invoke(messages)
 
 print(response.content)
 ```
+
+
+Run Experiment:
+
+```python
+from galileo.datasets import get_dataset
+from galileo.experiments import run_experiment
+from galileo.prompts import get_prompt_template, create_prompt_template
+from galileo.resources.models import MessageRole, Message
+
+prompt = get_prompt_template(
+    name="andrii-good-prompt",
+    project="andrii-new-project"
+)
+
+if prompt is None:
+    prompt = create_prompt_template(
+        name="andrii-good-prompt",
+        project="andrii-new-project",
+        messages=[
+            Message(role=MessageRole.SYSTEM, content="you are a helpful assistant"),
+            Message(role=MessageRole.USER, content="why is sky blue?")
+        ]
+    )
+
+results = run_experiment(
+    "my-experiment",
+    dataset=get_dataset(name="storyteller-dataset"),
+    prompt=prompt,
+    metrics=["correctness"],
+    project="andrii-new-project",
+)
+```
+
 
 ## Local Installation
 
