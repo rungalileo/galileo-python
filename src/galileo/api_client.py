@@ -106,6 +106,8 @@ class GalileoApiClient(AuthenticatedClient):
             if not self._base_url:
                 raise ValueError("base_url must be set")
 
+            self._headers[self.client_type_header_name] = self.client_type_header_value
+
             self._async_client = httpx.AsyncClient(
                 base_url=self._base_url,
                 cookies=self._cookies,
@@ -125,5 +127,5 @@ class GalileoApiClient(AuthenticatedClient):
         if any(map(api_url.__contains__, ["localhost", "127.0.0.1"])):
             api_url = "http://localhost:8088"
         else:
-            api_url = api_url.replace("console", "api")
+            api_url = api_url.replace("app.galileo.ai", "api.galileo.ai").replace("console", "api")
         return api_url
