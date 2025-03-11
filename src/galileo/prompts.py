@@ -71,13 +71,13 @@ class PromptTemplate(BaseClientModel):
         return response.parsed
 
 
-def create_prompt(
+def create_prompt_template(
     name: str, project: str, messages: Union[list["Message"], str]
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     return PromptTemplate().create(name=name, project_name=project, template=messages)
 
 
-def get_prompt(project: str, name: str) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+def get_prompt_template(project: str, name: str) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     prompt_templates = PromptTemplate().list(project_name=project)
     for prompt_template in prompt_templates:
         if prompt_template.name == name:
