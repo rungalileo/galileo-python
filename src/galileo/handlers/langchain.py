@@ -46,7 +46,7 @@ class Node:
         The run ID of the span.
     parent_run_id : Optional[UUID]
         The run ID of the parent span.
-    children : List[UUID]
+    children : List[str]
         List of run_ids for child nodes
     """
 
@@ -61,7 +61,7 @@ class Node:
         self.span_params: dict[str, Any] = span_params
         self.run_id: UUID = run_id
         self.parent_run_id: Optional[UUID] = parent_run_id
-        self.children: list[UUID] = []
+        self.children: list[str] = []
 
 
 _root_node: contextvars.ContextVar[Optional[Node]] = contextvars.ContextVar("langchain_root_node", default=None)
@@ -92,7 +92,7 @@ class GalileoCallback(BaseCallbackHandler):
         self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance()
         self._start_new_trace: bool = start_new_trace
         self._flush_on_chain_end: bool = flush_on_chain_end
-        self._nodes: dict[UUID, Node] = {}
+        self._nodes: dict[str, Node] = {}
 
     def _commit(self) -> None:
         """
@@ -207,25 +207,27 @@ class GalileoCallback(BaseCallbackHandler):
         Node
             The created node.
         """
-        if run_id in self._nodes:
+        node_id = str(run_id)
+        parent_node_id = str(parent_run_id) if parent_run_id else None
+        if node_id in self._nodes:
             _logger.warning(f"Node already exists for run_id {run_id}, overwriting...")
 
         # Create new node
         node = Node(node_type=node_type, span_params=kwargs, run_id=run_id, parent_run_id=parent_run_id)
-        self._nodes[run_id] = node
+        self._nodes[node_id] = node
 
         # Set as root node if needed
         if not _root_node.get():
-            _logger.debug(f"Setting root node to {run_id}")
+            _logger.debug(f"Setting root node to {node_id}")
             _root_node.set(node)
 
         # Add to parent's children if parent exists
         if parent_run_id:
-            parent = self._nodes.get(parent_run_id)
+            parent = self._nodes.get(parent_node_id)
             if parent:
-                parent.children.append(run_id)
+                parent.children.append(node_id)
             else:
-                _logger.warning(f"Parent node {parent_run_id} not found for {run_id}")
+                _logger.warning(f"Parent node {parent_node_id} not found for {node_id}")
 
         return node
 
@@ -240,9 +242,10 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs : Any
             Additional parameters to update the span with.
         """
-        node = self._nodes.get(run_id)
+        node_id = str(run_id)
+        node = self._nodes.get(node_id)
         if not node:
-            _logger.warning(f"No node exists for run_id {run_id}")
+            _logger.warning(f"No node exists for run_id {node_id}")
             return
 
         # Update node parameters
@@ -272,13 +275,13 @@ class GalileoCallback(BaseCallbackHandler):
             node_type = "agent"
             node_name = "Agent"
 
+        kwargs["name"] = node_name
+
         # If the node is tagged with `hidden`, don't log it.
         if tags and "langsmith:hidden" in tags:
             return
 
-        self._start_node(
-            node_type, parent_run_id, run_id, name=node_name, input=serialize_to_str(inputs), tags=tags, **kwargs
-        )
+        self._start_node(node_type, parent_run_id, run_id, input=serialize_to_str(inputs), tags=tags, **kwargs)
 
     def on_chain_end(
         self, outputs: dict[str, Any], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
@@ -379,7 +382,7 @@ class GalileoCallback(BaseCallbackHandler):
         token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
 
         try:
-            output = [[m.dict() for m in batch] for batch in response.generations]
+            output = [m.dict() for m in batch for batch in response.generations]
         except Exception as e:
             _logger.warning(f"Failed to serialize LLM output: {e}")
             output = str(response.generations)
