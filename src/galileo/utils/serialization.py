@@ -4,7 +4,7 @@ import json
 import logging
 from asyncio import Queue
 from collections.abc import Sequence
-from dataclasses import asdict, is_dataclass
+from dataclasses import is_dataclass
 from datetime import date, datetime
 from json import JSONEncoder
 from pathlib import Path
@@ -67,7 +67,7 @@ class EventSerializer(JSONEncoder):
                 return type(obj).__name__
 
             if is_dataclass(obj):
-                return asdict(obj)  # type: ignore[no-any-return]
+                return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
 
             if isinstance(obj, UUID):
                 return str(obj)
@@ -147,8 +147,9 @@ class EventSerializer(JSONEncoder):
             if isinstance(obj, Sequence):
                 return [self.default(item) for item in obj]
 
-            if hasattr(obj, "__slots__"):
+            if hasattr(obj, "__slots__") and len(obj.__slots__) > 0:
                 return self.default({slot: getattr(obj, slot, None) for slot in obj.__slots__})
+
             elif hasattr(obj, "__dict__"):
                 obj_id = id(obj)
 
@@ -157,7 +158,7 @@ class EventSerializer(JSONEncoder):
                     return type(obj).__name__
                 else:
                     self.seen.add(obj_id)
-                    result = {k: self.default(v) for k, v in vars(obj).items()}
+                    result = {k: self.default(v) for k, v in vars(obj).items() if not k.startswith("_")}
                     self.seen.remove(obj_id)
 
                     return result
@@ -167,7 +168,7 @@ class EventSerializer(JSONEncoder):
                 return f"<{type(obj).__name__}>"
 
         except Exception:
-            _logger.error(f"Serialization failed for object of type {type(obj).__name__}")
+            _logger.warning(f"Serialization failed for object of type {type(obj).__name__}")
             return f'"<not serializable object of type: {type(obj).__name__}>"'
 
     def encode(self, obj: Any) -> str:
@@ -210,5 +211,5 @@ def serialize_to_str(input_data: Any) -> str:
         return serializer.encode(processed_data)
     except Exception:
         # Fallback if anything goes wrong
-        _logger.error(f"Serialization failed for object of type {type(input_data).__name__}", exc_info=True)
+        _logger.warning(f"Serialization failed for object of type {type(input_data).__name__}")
         return ""

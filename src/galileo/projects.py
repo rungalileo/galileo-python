@@ -1,4 +1,5 @@
 import datetime
+import logging
 from typing import Optional, Union, overload
 
 from galileo.base import BaseClientModel
@@ -16,6 +17,9 @@ from galileo.resources.models.project_db import ProjectDB
 from galileo.resources.models.project_db_thin import ProjectDBThin
 from galileo.resources.models.project_type import ProjectType
 from galileo.resources.types import UNSET, Unset
+from galileo.utils.catch_log import DecorateAllMethods
+
+_logger = logging.getLogger(__name__)
 
 
 class Project:
@@ -86,7 +90,7 @@ class Project:
             self.permissions = project.permissions
 
 
-class Projects(BaseClientModel):
+class Projects(BaseClientModel, DecorateAllMethods):
     def list(self) -> list[Project]:
         """
         Lists all projects.
@@ -138,7 +142,7 @@ class Projects(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
-        if (id is None) == (name is None):
+        if (id is None) and (name is None):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
         if id:
@@ -181,22 +185,18 @@ class Projects(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
-        try:
-            body = ProjectCreate(name=name, type_=ProjectType.GEN_AI, create_example_templates=False, created_by=None)
+        body = ProjectCreate(name=name, type_=ProjectType.GEN_AI, create_example_templates=False, created_by=None)
 
-            response = create_project_projects_post.sync(client=self.client, body=body)
+        response = create_project_projects_post.sync(client=self.client, body=body)
 
-            if isinstance(response, HTTPValidationError):
-                print(response)
-                raise response
+        if isinstance(response, HTTPValidationError):
+            _logger.error(response)
+            raise response
 
-            if not response:
-                raise ValueError("Unable to create project")
+        if not response:
+            raise ValueError(f"Unable to create project: {name}")
 
-            return Project(project=response)
-
-        except Exception as e:
-            raise e
+        return Project(project=response)
 
 
 #

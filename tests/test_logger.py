@@ -1,6 +1,8 @@
 import datetime
+import logging
 from collections import deque
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
+from uuid import UUID
 
 import pytest
 
@@ -12,6 +14,8 @@ from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.workflows.node_type import NodeType
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+
+LOGGER = logging.getLogger(__name__)
 
 
 @patch("galileo.logger.LogStreams")
@@ -556,3 +560,23 @@ def test_flush_with_conclude_all_spans(
 
     assert logger.traces == []
     assert logger._parent_stack == deque()
+
+
+@patch("galileo.logger.Projects.get")
+@patch("galileo.projects.create_project_projects_post")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_galileo_logger_failed_creating_project(
+    mock_core_api_client: Mock, galileo_resources_api_projects: Mock, mock_projects_get: Mock, caplog
+) -> None:
+    mock_instance = mock_core_api_client.return_value
+
+    mock_instance.get_project_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
+    mock_instance.get_log_stream_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
+
+    # galileo_resources_api_projects.= MagicMock()
+    galileo_resources_api_projects.sync = Mock(side_effect=ValueError("Unable to create project"))
+    mock_projects_get.return_value = None
+
+    with caplog.at_level(logging.WARNING):
+        GalileoLogger()
+        assert "Unable to create project" in caplog.text

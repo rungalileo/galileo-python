@@ -12,7 +12,7 @@ from galileo.resources.models.project_create_response import ProjectCreateRespon
 def setup_mock_projects_client(mock_projects_client: Mock):
     now = datetime.datetime.now()
     mock_instance = mock_projects_client.return_value
-    mock_get_project_by_name = Mock(
+    mock_instance.get = Mock(
         return_value=Project(
             ProjectCreateResponse(
                 id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
@@ -23,7 +23,7 @@ def setup_mock_projects_client(mock_projects_client: Mock):
             )
         )
     )
-    mock_create_project = Mock(
+    mock_instance.create = Mock(
         return_value=Project(
             ProjectCreateResponse(
                 id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
@@ -34,15 +34,13 @@ def setup_mock_projects_client(mock_projects_client: Mock):
             )
         )
     )
-    mock_instance.get = mock_get_project_by_name
-    mock_instance.create = mock_create_project
     return mock_instance
 
 
 def setup_mock_logstreams_client(mock_logstreams_client: Mock):
     now = datetime.datetime.now()
     mock_instance = mock_logstreams_client.return_value
-    mock_get_logstream_by_name = Mock(
+    mock_instance.get = Mock(
         return_value=LogStream(
             LogStreamResponse(
                 id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
@@ -53,7 +51,7 @@ def setup_mock_logstreams_client(mock_logstreams_client: Mock):
             )
         )
     )
-    mock_create_logstream = Mock(
+    mock_instance.create = Mock(
         return_value=LogStream(
             LogStreamResponse(
                 id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
@@ -64,17 +62,13 @@ def setup_mock_logstreams_client(mock_logstreams_client: Mock):
             )
         )
     )
-    mock_instance.get = mock_get_logstream_by_name
-    mock_instance.create = mock_create_logstream
     return mock_instance
 
 
 def setup_mock_core_api_client(mock_core_api_client: Mock):
     mock_instance = mock_core_api_client.return_value
-    mock_ingest_traces_sync = AsyncMock(return_value={})
-    mock_ingest_traces_async = AsyncMock(return_value={})
     mock_instance.get_project_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
     mock_instance.get_log_stream_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
-    mock_instance.ingest_traces_sync = mock_ingest_traces_sync
-    mock_instance.ingest_traces = mock_ingest_traces_async
+    mock_instance.ingest_traces_sync = AsyncMock(return_value={})
+    mock_instance.ingest_traces = AsyncMock(return_value={})
     return mock_instance
