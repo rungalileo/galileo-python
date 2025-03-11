@@ -34,6 +34,8 @@ class GalileoCoreApiClient:
     """
 
     api_key_header_name: str = "Galileo-API-Key"
+    client_type_header_name: str = "client-type"
+    client_type_header_value: str = "sdk-python"
 
     project_id: Optional[str] = None
     log_stream_id: Optional[str] = None
@@ -61,6 +63,10 @@ class GalileoCoreApiClient:
     def auth_header(self) -> dict[str, Optional[str]]:
         return {self.api_key_header_name: self.api_key}
 
+    @property
+    def client_type_header(self) -> dict[str, Optional[str]]:
+        return {self.client_type_header_name: self.client_type_header_value}
+
     def _make_request(
         self,
         request_method: RequestMethod,
@@ -75,7 +81,7 @@ class GalileoCoreApiClient:
             content_headers = HttpHeaders.accept_json()
         else:
             content_headers = HttpHeaders.json()
-        headers = {**self.auth_header, **content_headers}
+        headers = {**self.auth_header, **content_headers, **self.client_type_header}
         return GalileoCoreApiClient.make_request_sync(
             request_method=request_method,
             base_url=self.api_url,
