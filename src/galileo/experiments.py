@@ -98,3 +98,15 @@ class Experiment(BaseClientModel):
 
 def run_experiment(experiment_name: str, *, prompt: Any, project: str, dataset: list[str], metrics: list[str]):
     return Experiment().run(experiment_name, project, prompt, dataset, metrics)
+
+
+def create_experiment(project_id: str, experiment_name: str):
+    return Experiment().create(project_id, experiment_name)
+
+
+def get_experiment(project_id, experiment_name):
+    return Experiment().get(project_id, experiment_name)
+
+
+def get_experiments(project_id: str):
+    return Experiment().list(project_id=project_id)
