@@ -18,6 +18,12 @@ from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstre
 LOGGER = logging.getLogger(__name__)
 
 
+def test_galileo_logger_exceptions() -> None:
+    with pytest.raises(Exception) as exc_info:
+        GalileoLogger(project="my_project", log_stream="my_log_stream", experiment_id="my_experiment_id")
+    assert str(exc_info.value) == "User must provide either experiment_id or log_stream, not both."
+
+
 @patch("galileo.logger.LogStreams")
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
@@ -63,6 +69,48 @@ def test_single_span_trace_to_galileo(
                 user_metadata=metadata,
                 status_code=200,
                 spans=[span],
+                metrics=Metrics(duration_ns=1000000),
+            )
+        ],
+    )
+    assert payload == expected_payload
+    assert logger.traces == list()
+    assert logger._parent_stack == deque()
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_single_span_trace_to_galileo_experiment_id(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    metadata = {"key": "value"}
+    logger = GalileoLogger(project="my_project", experiment_id="my_experiment_id")
+    logger.start_trace(
+        input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
+    )
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    expected_payload = TracesIngestRequest(
+        log_stream_id=None,  # TODO: fix this
+        experiment_id="my_experiment_id",
+        traces=[
+            Trace(
+                type=NodeType.trace,
+                input="input",
+                output="output",
+                name="test-trace",
+                created_at=created_at,
+                user_metadata=metadata,
+                status_code=200,
+                spans=[],
                 metrics=Metrics(duration_ns=1000000),
             )
         ],

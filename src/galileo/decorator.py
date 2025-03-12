@@ -80,6 +80,8 @@ _log_stream_context: ContextVar[Optional[str]] = ContextVar("log_stream_context"
 
 _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
 
+_experiment_context: ContextVar[Optional[str]] = ContextVar("experiment_context", default=None)
+
 _span_stack_context: ContextVar[list[WorkflowSpan]] = ContextVar("span_stack_context", default=[])
 
 
@@ -103,8 +105,10 @@ class GalileoDecorator:
 
     _project: Optional[str]
     _log_stream: Optional[str]
+    _experiment: Optional[str]
     _previous_project_context: Optional[str]
     _previous_log_stream_context: Optional[str]
+    _previous_experiment_context: Optional[str]
     _previous_trace_context: Optional[Trace]
     _previous_span_stack_context: Optional[list[WorkflowSpan]]
 
@@ -119,6 +123,7 @@ class GalileoDecorator:
         """
         self._previous_project_context = None
         self._previous_log_stream_context = None
+        self._previous_experiment_context = None
         self._previous_trace_context = None
         self._previous_span_stack_context = None
 
@@ -134,6 +139,7 @@ class GalileoDecorator:
         """
         self._previous_project_context = _project_context.get()
         self._previous_log_stream_context = _log_stream_context.get()
+        self._previous_experiment_context = _experiment_context.get()
         self._previous_trace_context = _trace_context.get()
         self._previous_span_stack_context = _span_stack_context.get()
 
@@ -144,6 +150,8 @@ class GalileoDecorator:
             _project_context.set(self._project)
         if self._log_stream is not None:
             _log_stream_context.set(self._log_stream)
+        if self._experiment is None:
+            _experiment_context.set(self._experiment)
 
         return self  # Allows `as galileo` usage
 
@@ -161,11 +169,14 @@ class GalileoDecorator:
             traceback: Traceback if an exception was raised in the context
         """
         # Flush the logger instance
-        self.get_logger_instance(project=_project_context.get(), log_stream=_log_stream_context.get()).flush()
+        self.get_logger_instance(
+            project=_project_context.get(), log_stream=_log_stream_context.get(), experiment=_experiment_context.get()
+        ).flush()
 
         # Restore the previous context values to avoid contamination across different usages
         _project_context.set(self._previous_project_context)
         _log_stream_context.set(self._previous_log_stream_context)
+        _experiment_context.set(self._previous_experiment_context)
         _trace_context.set(self._previous_trace_context)
         _span_stack_context.set(self._previous_span_stack_context)
 
@@ -182,6 +193,7 @@ class GalileoDecorator:
         """
         self._project = project
         self._log_stream = log_stream
+        self._experiment = self._experiment
         return self
 
     #
@@ -703,7 +715,9 @@ class GalileoDecorator:
 
             self._handle_call_result(span_type, span_params, output)
 
-    def get_logger_instance(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> GalileoLogger:
+    def get_logger_instance(
+        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment: Optional[str] = None
+    ) -> GalileoLogger:
         """
         Get the Galileo Logger instance for the current decorator context.
 
@@ -716,7 +730,9 @@ class GalileoDecorator:
         """
 
         return GalileoLoggerSingleton().get(
-            project=project or _project_context.get(), log_stream=log_stream or _log_stream_context.get()
+            project=project or _project_context.get(),
+            log_stream=log_stream or _log_stream_context.get(),
+            experiment=experiment or _experiment_context.get(),
         )
 
     def get_current_project(self) -> Optional[str]:

@@ -49,6 +49,7 @@ class GalileoCoreApiClient:
         api_key: Optional[str] = None,
         project_id: Optional[str] = None,
         log_stream_id: Optional[str] = None,
+        experiment_id: Optional[str] = None,
     ):
         self.api_url = GalileoApiClient.get_api_url(base_url)
         self.api_key = api_key or getenv("GALILEO_API_KEY", "")  # type: ignore[assignment]
@@ -58,6 +59,10 @@ class GalileoCoreApiClient:
 
         self.project_id = project_id
         self.log_stream_id = log_stream_id
+        self.experiment_id = experiment_id
+
+        if self.log_stream_id is None and self.experiment_id is None:
+            raise ValueError("log_stream_id or experiment_id must be set")
 
     @property
     def auth_header(self) -> dict[str, Optional[str]]:
@@ -120,7 +125,11 @@ class GalileoCoreApiClient:
         )
 
     async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
-        traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
+        if self.log_stream_id:
+            traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
+        elif self.experiment_id:
+            traces_ingest_request.experiment_id = UUID(self.experiment_id)
+
         json = traces_ingest_request.model_dump(mode="json")
 
         return await self._make_async_request(
@@ -128,7 +137,11 @@ class GalileoCoreApiClient:
         )
 
     def ingest_traces_sync(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
-        traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
+        if self.log_stream_id:
+            traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
+        elif self.experiment_id:
+            traces_ingest_request.experiment_id = UUID(self.experiment_id)
+
         json = traces_ingest_request.model_dump(mode="json")
 
         return self._make_request(

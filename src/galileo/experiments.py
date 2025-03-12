@@ -1,6 +1,6 @@
 import builtins
 import logging
-from typing import Any, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -101,6 +101,7 @@ class Experiment(BaseClientModel):
             run_id=experiment.id,
             prompt_template_id=prompt_template.selected_version_id,
             dataset_id=dataset.id,
+            # 17
             task_type=EXPERIMENT_TASK_TYPE,
             scorers=scorers,
         )
@@ -110,9 +111,18 @@ class Experiment(BaseClientModel):
         print(f"open {self.client.get_console_url()}/project/{project.id}/experiments/{experiment.id}")
         return job
 
+    def run_with_function(self, experiment_name: str, project_name: str, dataset: Any, func: Callable):
+        project = Projects().get(name=project_name)
+        if not project:
+            raise ValueError(f"Project {project_name} does not exist")
 
-def run_experiment(experiment_name: str, *, prompt: Any, project: str, dataset: list[str], metrics: list[str]):
-    return Experiment().run(experiment_name, project, prompt, dataset, metrics)
+        self.get_or_create(project.id, experiment_name)
+
+
+def run_experiment(
+    experiment_name: str, *, prompt_template: Any, project: str, dataset: list[str], metrics: list[str], func: Callable
+):
+    return Experiment().run(experiment_name, project, prompt_template, dataset, metrics, func=func)
 
 
 def create_experiment(project_id: str, experiment_name: str):
