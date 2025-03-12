@@ -38,7 +38,7 @@ How to use decorators:
 
 Setup requirements:
 - Galileo API key must be set (via environment variable GALILEO_API_KEY or programmatically)
-- Project and log stream names should be defined (either via decorator parameters or context manager)
+- Project and Log Stream names should be defined if using the `log` decorator (either via environment variables GALILEO_PROJECT and GALILEO_LOG_STREAM, or via `galileo_context.init()`)
 
 For more examples and detailed usage, see the Galileo SDK documentation.
 """
@@ -198,8 +198,6 @@ class GalileoDecorator:
         *,
         name: Optional[str] = None,
         span_type: Optional[SPAN_TYPE] = None,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
         params: Optional[dict[str, Union[str, Callable]]] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]: ...
 
@@ -209,8 +207,6 @@ class GalileoDecorator:
         *,
         name: Optional[str] = None,
         span_type: Optional[SPAN_TYPE] = None,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
         params: Optional[dict[str, Union[str, Callable]]] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]:
         """
@@ -224,8 +220,6 @@ class GalileoDecorator:
             func: The function to decorate (when used without parentheses)
             name: Optional custom name for the span (defaults to function name)
             span_type: Optional span type ("llm", "retriever", "tool", "workflow")
-            project: Optional project name to use for this function
-            log_stream: Optional log stream name to use for this function
             params: Optional parameter mapping for extracting specific values
 
         Returns:
@@ -234,13 +228,9 @@ class GalileoDecorator:
 
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
             return (
-                self._async_log(
-                    func, name=name, span_type=span_type, project=project, log_stream=log_stream, params=params
-                )
+                self._async_log(func, name=name, span_type=span_type, params=params)
                 if asyncio.iscoroutinefunction(func)
-                else self._sync_log(
-                    func, name=name, span_type=span_type, project=project, log_stream=log_stream, params=params
-                )
+                else self._sync_log(func, name=name, span_type=span_type, params=params)
             )
 
         # If the decorator is called without arguments, return the decorator function itself.
@@ -256,8 +246,6 @@ class GalileoDecorator:
         *,
         name: Optional[str],
         span_type: Optional[SPAN_TYPE],
-        project: Optional[str],
-        log_stream: Optional[str],
         params: Optional[dict[str, Union[str, Callable]]] = None,
     ) -> F:
         """
@@ -267,8 +255,6 @@ class GalileoDecorator:
             func: The async function to decorate
             name: Custom name for the span
             span_type: Type of span to create
-            project: Project name to use
-            log_stream: Log stream name to use
             params: Parameter mapping for extracting specific values
 
         Returns:
@@ -286,7 +272,7 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params, project, log_stream)
+            self._prepare_call(span_type, span_params)
             result = None
 
             try:
@@ -294,7 +280,7 @@ class GalileoDecorator:
             except Exception as e:
                 _logger.error(f"Error while executing function in async_wrapper: {e}", exc_info=True)
             finally:
-                result = self._finalize_call(span_type, span_params, result, project, log_stream)
+                result = self._finalize_call(span_type, span_params, result)
 
                 if result is not None:
                     return result
@@ -307,8 +293,6 @@ class GalileoDecorator:
         *,
         name: Optional[str],
         span_type: Optional[SPAN_TYPE],
-        project: Optional[str],
-        log_stream: Optional[str],
         params: Optional[dict[str, Union[str, Callable]]] = None,
     ) -> F:
         """
@@ -318,8 +302,6 @@ class GalileoDecorator:
             func: The function to decorate
             name: Custom name for the span
             span_type: Type of span to create
-            project: Project name to use
-            log_stream: Log stream name to use
             params: Parameter mapping for extracting specific values
 
         Returns:
@@ -337,7 +319,7 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params, project, log_stream)
+            self._prepare_call(span_type, span_params)
             result = None
 
             try:
@@ -346,7 +328,7 @@ class GalileoDecorator:
                 _logger.warning(f"Error while executing function in sync_wrapper: {exc}", exc_info=True)
                 raise exc
             finally:
-                self._finalize_call(span_type, span_params, result, project, log_stream)
+                self._finalize_call(span_type, span_params, result)
             return result
 
         return cast(F, sync_wrapper)
@@ -495,23 +477,15 @@ class GalileoDecorator:
         }
         return span_params.get(span_type, common_params)
 
-    def _prepare_call(
-        self,
-        span_type: Optional[SPAN_TYPE],
-        span_params: dict[str, str],
-        project: Optional[str],
-        log_stream: Optional[str],
-    ):
+    def _prepare_call(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str]):
         """
         Prepare the call for logging by setting up trace and span contexts.
 
         Args:
             span_type: Type of span to create
             span_params: Parameters for the span
-            project: Project name to use
-            log_stream: Log stream name to use
         """
-        client_instance = self.get_logger_instance(project=project, log_stream=log_stream)
+        client_instance = self.get_logger_instance()
 
         stack = _span_stack_context.get().copy()
         trace = _trace_context.get()
@@ -528,7 +502,7 @@ class GalileoDecorator:
         if not span_type or span_type == "workflow":
             created_at = span_params.get("created_at", _get_timestamp())
 
-            logger = self.get_logger_instance(project=project, log_stream=log_stream)
+            logger = self.get_logger_instance()
             span = logger.add_workflow_span(input=input_, name=name, created_at=created_at)
             _span_stack_context.set(stack + [span])
 
@@ -553,14 +527,7 @@ class GalileoDecorator:
         # Serialize and deserialize to ensure proper JSON serialization.
         return json.loads(json.dumps(raw_input, cls=EventSerializer))
 
-    def _finalize_call(
-        self,
-        span_type: Optional[SPAN_TYPE],
-        span_params: dict[str, str],
-        result: Any,
-        project: Optional[str],
-        log_stream: Optional[str],
-    ):
+    def _finalize_call(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any):
         """
         Finalize the call logging by handling the result appropriately.
 
@@ -571,27 +538,18 @@ class GalileoDecorator:
             span_type: Type of span
             span_params: Parameters for the span
             result: Result of the function call
-            project: Project name
-            log_stream: Log stream name
 
         Returns:
             The original result, possibly wrapped if it's a generator
         """
         if inspect.isgenerator(result):
-            return self._wrap_sync_generator_result(span_type, span_params, result, project, log_stream)
+            return self._wrap_sync_generator_result(span_type, span_params, result)
         elif inspect.isasyncgen(result):
-            return self._wrap_async_generator_result(span_type, span_params, result, project, log_stream)
+            return self._wrap_async_generator_result(span_type, span_params, result)
         else:
-            return self._handle_call_result(span_type, span_params, result, project, log_stream)
+            return self._handle_call_result(span_type, span_params, result)
 
-    def _handle_call_result(
-        self,
-        span_type: Optional[SPAN_TYPE],
-        span_params: dict[str, str],
-        result: Any,
-        project: Optional[str],
-        log_stream: Optional[str],
-    ):
+    def _handle_call_result(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any):
         """
         Handle the result of a function call for logging.
 
@@ -602,8 +560,6 @@ class GalileoDecorator:
             span_type: Type of span
             span_params: Parameters for the span
             result: Result of the function call
-            project: Project name
-            log_stream: Log stream name
 
         Returns:
             The original result
@@ -638,7 +594,7 @@ class GalileoDecorator:
                 span_params["created_at"] = created_at
                 span_params["duration_ns"] = 0
 
-            logger = self.get_logger_instance(project=project, log_stream=log_stream)
+            logger = self.get_logger_instance()
 
             # If the span type is a workflow, conclude it
             if span_type == "workflow" or not span_type:
@@ -680,12 +636,7 @@ class GalileoDecorator:
         return result
 
     def _wrap_sync_generator_result(
-        self,
-        span_type: Optional[SPAN_TYPE],
-        span_params: dict[str, str],
-        generator: Generator,
-        project: Optional[str],
-        log_stream: Optional[str],
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], generator: Generator
     ) -> Generator:
         """
         Wrap a synchronous generator to log its results.
@@ -697,8 +648,6 @@ class GalileoDecorator:
             span_type: Type of span
             span_params: Parameters for the span
             generator: The generator to wrap
-            project: Project name
-            log_stream: Log stream name
 
         Returns:
             A wrapped generator that yields the same items as the original
@@ -718,15 +667,10 @@ class GalileoDecorator:
             if all(isinstance(item, str) for item in items):
                 output = "".join(items)
 
-            self._handle_call_result(span_type, span_params, output, project, log_stream)
+            self._handle_call_result(span_type, span_params, output)
 
     async def _wrap_async_generator_result(
-        self,
-        span_type: Optional[SPAN_TYPE],
-        span_params: dict[str, str],
-        generator: AsyncGenerator,
-        project: Optional[str],
-        log_stream: Optional[str],
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], generator: AsyncGenerator
     ) -> AsyncGenerator:
         """
         Wrap an asynchronous generator to log its results.
@@ -738,8 +682,6 @@ class GalileoDecorator:
             span_type: Type of span
             span_params: Parameters for the span
             generator: The async generator to wrap
-            project: Project name
-            log_stream: Log stream name
 
         Returns:
             A wrapped async generator that yields the same items as the original
@@ -759,7 +701,7 @@ class GalileoDecorator:
             if all(isinstance(item, str) for item in items):
                 output = "".join(items)
 
-            self._handle_call_result(span_type, span_params, output, project, log_stream)
+            self._handle_call_result(span_type, span_params, output)
 
     def get_logger_instance(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> GalileoLogger:
         """
