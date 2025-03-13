@@ -518,8 +518,7 @@ class GalileoDecorator:
         if not span_type or span_type == "workflow":
             created_at = span_params.get("created_at", _get_timestamp())
 
-            logger = self.get_logger_instance()
-            span = logger.add_workflow_span(input=input_, name=name, created_at=created_at)
+            span = client_instance.add_workflow_span(input=input_, name=name, created_at=created_at)
             _span_stack_context.set(stack + [span])
 
     def _get_input_from_func_args(
