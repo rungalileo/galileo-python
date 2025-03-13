@@ -121,7 +121,7 @@ class Experiment(BaseClientModel):
         results = []
         galileo_context.init(project=project_name, experiment_id=experiment.id)
 
-        logged_process_func = log()(func, name=experiment_name)
+        logged_process_func = log(name=experiment_name)(func)
 
         #  process each row in the dataset
         for row in dataset:
@@ -137,12 +137,14 @@ class Experiment(BaseClientModel):
 
 def process_row(row, process_func: Callable):
     _logger.info(f"Processing dataset row: {row}")
-    try:
-        output = process_func(row)
-    except Exception as exc:
-        _logger.error(f"error during executing: {process_func.__name__}: {exc}")
-        output = f"error during executing: {process_func.__name__}: {exc}"
+    # try:
+    output = process_func(row)
+    # except Exception as exc:
+    #     _logger.error(f"error during executing: {process_func.__name__}: {exc}")
+    #     output = f"error during executing: {process_func.__name__}: {exc}"
 
+    log = galileo_context.get_logger_instance()
+    log.conclude(output)
     return output
 
 
