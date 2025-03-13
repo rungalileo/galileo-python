@@ -126,10 +126,10 @@ class GalileoCoreApiClient:
         )
 
     async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
-        if self.log_stream_id:
-            traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
-        elif self.experiment_id:
+        if self.experiment_id:
             traces_ingest_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
 
         json = traces_ingest_request.model_dump(mode="json")
 
@@ -138,10 +138,10 @@ class GalileoCoreApiClient:
         )
 
     def ingest_traces_sync(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
-        if self.log_stream_id:
-            traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
-        elif self.experiment_id:
+        if self.experiment_id:
             traces_ingest_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
 
         json = traces_ingest_request.model_dump(mode="json")
 

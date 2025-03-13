@@ -18,7 +18,6 @@ from galileo.resources.api.experiment import (
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, ScorerConfig, TaskType
 from galileo.scorers import Scorer, ScorerSettings
 from galileo.utils import _now_ns
-from galileo.utils.singleton import GalileoLoggerSingleton
 
 _logger = logging.getLogger(__name__)
 
@@ -121,7 +120,7 @@ class Experiment(BaseClientModel):
 
         experiment = self.get_or_create(project.id, experiment_name)
         results = []
-        galileo_context.init(project=project.id, experiment=experiment.id)
+        galileo_context.init(project=project.id, experiment_id=experiment.id)
 
         logged_process_func = log(func, name=experiment_name)
 
@@ -130,7 +129,7 @@ class Experiment(BaseClientModel):
             results.append(process_row(row, logged_process_func))
 
         # flush the logger
-        galileo_context.get_logger_instance().flush()
+        galileo_context.flush()
 
         _logger.info(f"${len(results)} rows processed for experiment {experiment_name}.")
 
@@ -145,17 +144,24 @@ def process_row(row, process_func: Callable):
     except Exception as exc:
         _logger.error(f"error during executing: {process_func.__name__}: {exc}")
 
-    # log = GalileoLoggerSingleton.get()
+    galileo_logger = galileo_context.get_logger_instance()
 
-    # log.conclude(output, duration_ns=_now_ns() - start_ns)
+    galileo_logger.conclude(output, duration_ns=_now_ns() - start_ns)
+
     return output
 
 
 def run_experiment(
-    experiment_name: str, *, prompt_template: Any = None, project: str = None, dataset: list[Any], metrics: list[str], runner: Callable
+    experiment_name: str,
+    *,
+    prompt_template: Any = None,
+    project: str = None,
+    dataset: list[Any],
+    metrics: list[str],
+    function: Callable | None = None,
 ):
-    if runner is not None:
-        return Experiment().run_with_function(experiment_name, project, dataset, runner)
+    if function is not None:
+        return Experiment().run_with_function(experiment_name, project, dataset, function)
     return Experiment().run(experiment_name, project, prompt_template, dataset, metrics)
 
 
