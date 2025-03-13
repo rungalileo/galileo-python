@@ -229,6 +229,33 @@ results = run_experiment(
 )
 ```
 
+Run experiment with a runner function with local dataset:
+```python
+import openai
+from galileo.experiments import run_experiment
+
+
+dataset = [
+    {"name": "Lola"},
+    {"name": "Jo"},
+]
+
+def runner(input):
+    return openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "user", "content": f"Say hello: {input['name']}"}
+        ],
+    ).choices[0].message.content
+
+run_experiment(
+    "test experiment runner",
+    project="awesome-new-project",
+    dataset=dataset,
+    function=runner,
+    metrics=['output_tone'],
+)
+```
 
 ## Local Installation
 
