@@ -138,14 +138,14 @@ class Experiment(BaseClientModel):
 
 def process_row(row, process_func: Callable):
     _logger.info(f"Processing dataset row: {row}")
-    # try:
-    output = process_func(row)
-    # except Exception as exc:
-    #     _logger.error(f"error during executing: {process_func.__name__}: {exc}")
-    #     output = f"error during executing: {process_func.__name__}: {exc}"
-
-    log = galileo_context.get_logger_instance()
-    log.conclude(output)
+    output = None
+    try:
+        output = process_func(row)
+        log = galileo_context.get_logger_instance()
+        log.conclude(output)
+    except Exception as exc:
+        _logger.error(f"error during executing: {process_func.__name__}: {exc}")
+        output = f"error during executing: {process_func.__name__}: {exc}"
     return output
 
 
