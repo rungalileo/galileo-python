@@ -13,7 +13,12 @@ from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.workflows.node_type import NodeType
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+from tests.testutils.setup import (
+    setup_mock_core_api_client,
+    setup_mock_experiment_client,
+    setup_mock_logstreams_client,
+    setup_mock_projects_client,
+)
 
 LOGGER = logging.getLogger(__name__)
 
@@ -78,19 +83,19 @@ def test_single_span_trace_to_galileo(
     assert logger._parent_stack == deque()
 
 
-@patch("galileo.logger.LogStreams")
+@patch("galileo.experiments.Experiment")
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_single_span_trace_to_galileo_experiment_id(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_experiments_client: Mock
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
-    setup_mock_logstreams_client(mock_logstreams_client)
+    setup_mock_experiment_client(mock_experiments_client)
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", experiment_id="my_experiment_id")
+    logger = GalileoLogger(project="my_project", experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")
     logger.start_trace(
         input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
     )
@@ -99,8 +104,8 @@ def test_single_span_trace_to_galileo_experiment_id(
 
     payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     expected_payload = TracesIngestRequest(
-        log_stream_id=None,  # TODO: fix this
-        experiment_id="my_experiment_id",
+        log_stream_id=None,
+        experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
         traces=[
             Trace(
                 type=NodeType.trace,

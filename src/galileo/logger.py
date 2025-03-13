@@ -137,7 +137,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         # Get project and log stream IDs
         api_client = GalileoApiClient()
         projects_client = Projects(client=api_client)
-        log_streams_client = LogStreams(client=api_client)
 
         project_obj = projects_client.get(name=self.project_name)
         if project_obj is None:
@@ -149,15 +148,20 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 raise Exception(f"Project {self.project_name} is not a Galileo 2.0 project")
             self.project_id = project_obj.id
 
-        log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
-        if log_stream_obj is None:
-            # Create log stream if it doesn't exist
-            self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
-            self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
-        else:
-            self.log_stream_id = log_stream_obj.id
+        if self.log_stream_name is not None:
+            log_streams_client = LogStreams(client=api_client)
+            log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
+            if log_stream_obj is None:
+                # Create log stream if it doesn't exist
+                self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
+                self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
+            else:
+                self.log_stream_id = log_stream_obj.id
 
-        self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
+            self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
+
+        elif self.experiment_id is not None:
+            self._client = GalileoCoreApiClient(project_id=self.project_id, experiment_id=self.experiment_id)
 
         # cleans up when the python interpreter closes
         atexit.register(self.terminate)
