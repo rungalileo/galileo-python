@@ -87,7 +87,7 @@ class GalileoCoreApiClient:
         else:
             content_headers = HttpHeaders.json()
         headers = {**self.auth_header, **content_headers, **self.client_type_header}
-        return GalileoCoreApiClient.make_request_sync(
+        result = GalileoCoreApiClient.make_request_sync(
             request_method=request_method,
             base_url=self.api_url,
             endpoint=endpoint,
@@ -97,6 +97,7 @@ class GalileoCoreApiClient:
             params=params,
             headers=headers,
         )
+        return result
 
     async def _make_async_request(
         self,

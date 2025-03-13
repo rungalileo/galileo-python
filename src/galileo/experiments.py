@@ -18,6 +18,7 @@ from galileo.resources.api.experiment import (
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, ScorerConfig, TaskType
 from galileo.scorers import Scorer, ScorerSettings
 from galileo.utils import _now_ns
+from galileo.utils.singleton import GalileoLoggerSingleton
 
 _logger = logging.getLogger(__name__)
 
@@ -120,16 +121,16 @@ class Experiment(BaseClientModel):
 
         experiment = self.get_or_create(project.id, experiment_name)
         results = []
-        galileo_context.init(project=project, experiment_id=experiment.id)
+        galileo_context.init(project=project.id, experiment=experiment.id)
 
-        logged_process_func = log(func)
+        logged_process_func = log(func, name=experiment_name)
 
         #  process each row in the dataset
         for row in dataset:
             results.append(process_row(row, logged_process_func))
 
         # flush the logger
-        galileo_context.flush()
+        galileo_context.get_logger_instance().flush()
 
         _logger.info(f"${len(results)} rows processed for experiment {experiment_name}.")
 
@@ -138,23 +139,23 @@ class Experiment(BaseClientModel):
 
 def process_row(row, process_func: Callable):
     start_ns = _now_ns()
-    metadata = {"timestamp": start_ns}
     _logger.info(f"Processing dataset row: {row}")
     try:
-        output = process_func(row, metadata)
+        output = process_func(row)
     except Exception as exc:
         _logger.error(f"error during executing: {process_func.__name__}: {exc}")
 
-    log = galileo_context.get_logger_instance()
-    log.conclude(output, duration_ns=_now_ns() - start_ns)
+    # log = GalileoLoggerSingleton.get()
+
+    # log.conclude(output, duration_ns=_now_ns() - start_ns)
     return output
 
 
 def run_experiment(
-    experiment_name: str, *, prompt_template: Any, project: str, dataset: list[str], metrics: list[str], func: Callable
+    experiment_name: str, *, prompt_template: Any = None, project: str = None, dataset: list[Any], metrics: list[str], runner: Callable
 ):
-    if func is not None:
-        return Experiment().run_with_function(experiment_name, project, dataset, func)
+    if runner is not None:
+        return Experiment().run_with_function(experiment_name, project, dataset, runner)
     return Experiment().run(experiment_name, project, prompt_template, dataset, metrics)
 
 

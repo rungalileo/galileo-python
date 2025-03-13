@@ -98,7 +98,7 @@ class GalileoLoggerSingleton:
                 return self._galileo_loggers[key]
 
             # Prepare initialization arguments, only including non-None values.
-            galileo_client_init_args = {"project": project, "log_stream": log_stream, "experiment": experiment}
+            galileo_client_init_args = {"project": project, "log_stream": log_stream, "experiment_id": experiment}
             # Create the logger with filtered kwargs.
             logger = GalileoLogger(**{k: v for k, v in galileo_client_init_args.items() if v is not None})
 

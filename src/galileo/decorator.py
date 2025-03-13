@@ -771,7 +771,7 @@ class GalileoDecorator:
         """
         return _trace_context.get()
 
-    def flush(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
+    def flush(self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment: Optional[str] = None) -> None:
         """
         Upload all captured traces under a project and log stream context to Galileo.
 
@@ -781,9 +781,13 @@ class GalileoDecorator:
             project: The project name. Defaults to None.
             log_stream: The log stream name. Defaults to None.
         """
-        self.get_logger_instance(project=project, log_stream=log_stream).flush()
+        self.get_logger_instance(project=project, log_stream=log_stream, experiment=experiment).flush()
 
         if project == _project_context.get() and log_stream == _log_stream_context.get():
+            _span_stack_context.set([])
+            _trace_context.set(None)
+
+        elif project == _project_context.get() and experiment == _experiment_context.get():
             _span_stack_context.set([])
             _trace_context.set(None)
 
@@ -803,13 +807,14 @@ class GalileoDecorator:
 
         This method clears all context variables and resets the logger singleton.
         """
-        GalileoLoggerSingleton().reset(project=_project_context.get(), log_stream=_log_stream_context.get())
+        GalileoLoggerSingleton().reset(project=_project_context.get(), log_stream=_log_stream_context.get(), experiment=_experiment_context.get())
         _project_context.set(None)
         _log_stream_context.set(None)
+        _experiment_context.set(None)
         _span_stack_context.set([])
         _trace_context.set(None)
 
-    def init(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
+    def init(self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment: Optional[str] = None) -> None:
         """
         Initialize the context with a project and log stream. Optionally, it can also be used
         to start a trace.
@@ -821,9 +826,10 @@ class GalileoDecorator:
             project: The project name. Defaults to None.
             log_stream: The log stream name. Defaults to None.
         """
-        GalileoLoggerSingleton().reset(project=project, log_stream=log_stream)
+        GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment=experiment)
         _project_context.set(project)
         _log_stream_context.set(log_stream)
+        _experiment_context.set(experiment)
         _span_stack_context.set([])
         _trace_context.set(None)
 
