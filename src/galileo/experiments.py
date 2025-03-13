@@ -126,6 +126,7 @@ class Experiment(BaseClientModel):
         #  process each row in the dataset
         for row in dataset:
             results.append(process_row(row, logged_process_func))
+            galileo_context.reset_trace_context()
 
         # flush the logger
         galileo_context.flush()

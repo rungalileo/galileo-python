@@ -823,6 +823,13 @@ class GalileoDecorator:
         _span_stack_context.set([])
         _trace_context.set(None)
 
+    def reset_trace_context(self) -> None:
+        """
+        Reset the trace context inside the decorator.
+        """
+        _span_stack_context.set([])
+        _trace_context.set(None)
+
     def init(
         self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
     ) -> None:
