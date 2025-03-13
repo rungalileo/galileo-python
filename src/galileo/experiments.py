@@ -5,6 +5,7 @@ from typing import Any, Callable, Optional, Union
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from galileo import galileo_context, log
 from galileo.base import BaseClientModel
 from galileo.datasets import Dataset
 from galileo.jobs import Job
@@ -16,6 +17,7 @@ from galileo.resources.api.experiment import (
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, ScorerConfig, TaskType
 from galileo.scorers import Scorer, ScorerSettings
+from galileo.utils import _now_ns
 
 _logger = logging.getLogger(__name__)
 
@@ -116,13 +118,44 @@ class Experiment(BaseClientModel):
         if not project:
             raise ValueError(f"Project {project_name} does not exist")
 
-        self.get_or_create(project.id, experiment_name)
+        experiment = self.get_or_create(project.id, experiment_name)
+        results = []
+        galileo_context.init(project=project, experiment_id=experiment.id)
+
+        logged_process_func = log(func)
+
+        #  process each row in the dataset
+        for row in dataset:
+            results.append(process_row(row, logged_process_func))
+
+        # flush the logger
+        galileo_context.flush()
+
+        _logger.info(f"${len(results)} rows processed for experiment {experiment_name}.")
+
+        return results
+
+
+def process_row(row, process_func: Callable):
+    start_ns = _now_ns()
+    metadata = {"timestamp": start_ns}
+    _logger.info(f"Processing dataset row: {row}")
+    try:
+        output = process_func(row, metadata)
+    except Exception as exc:
+        _logger.error(f"error during executing: {process_func.__name__}: {exc}")
+
+    log = galileo_context.get_logger_instance()
+    log.conclude(output, duration_ns=_now_ns() - start_ns)
+    return output
 
 
 def run_experiment(
     experiment_name: str, *, prompt_template: Any, project: str, dataset: list[str], metrics: list[str], func: Callable
 ):
-    return Experiment().run(experiment_name, project, prompt_template, dataset, metrics, func=func)
+    if func is not None:
+        return Experiment().run_with_function(experiment_name, project, dataset, func)
+    return Experiment().run(experiment_name, project, prompt_template, dataset, metrics)
 
 
 def create_experiment(project_id: str, experiment_name: str):
