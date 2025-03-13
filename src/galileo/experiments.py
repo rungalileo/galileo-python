@@ -120,7 +120,7 @@ class Experiment(BaseClientModel):
 
         experiment = self.get_or_create(project.id, experiment_name)
         results = []
-        galileo_context.init(project=project.id, experiment_id=experiment.id)
+        galileo_context.init(project=project_name, experiment_id=experiment.id)
 
         logged_process_func = log(func, name=experiment_name)
 
