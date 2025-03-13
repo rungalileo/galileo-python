@@ -153,7 +153,7 @@ def run_experiment(
     project: str = None,
     dataset: list[Any],
     metrics: list[str],
-    function: Callable | None = None,
+    function: Union[Callable, None] = None,
 ):
     if function is not None:
         return Experiment().run_with_function(experiment_name, project, dataset, function)
