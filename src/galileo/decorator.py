@@ -182,7 +182,9 @@ class GalileoDecorator:
         _trace_context.set(self._previous_trace_context)
         _span_stack_context.set(self._previous_span_stack_context)
 
-    def __call__(self, *, project: Optional[str] = None, log_stream: Optional[str] = None) -> "GalileoDecorator":
+    def __call__(
+        self, *, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+    ) -> "GalileoDecorator":
         """
         Allows context manager usage like `with galileo_context(project="my-project")`.
 
@@ -195,7 +197,7 @@ class GalileoDecorator:
         """
         self._project = project
         self._log_stream = log_stream
-        self._experiment_id = self._experiment_id
+        self._experiment_id = experiment_id
         return self
 
     #

@@ -17,7 +17,6 @@ from galileo.resources.api.experiment import (
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, ScorerConfig, TaskType
 from galileo.scorers import Scorer, ScorerSettings
-from galileo.utils import _now_ns
 
 _logger = logging.getLogger(__name__)
 
@@ -122,7 +121,7 @@ class Experiment(BaseClientModel):
         results = []
         galileo_context.init(project=project_name, experiment_id=experiment.id)
 
-        logged_process_func = log(func, name=experiment_name)
+        logged_process_func = log()(func)
 
         #  process each row in the dataset
         for row in dataset:
@@ -137,16 +136,12 @@ class Experiment(BaseClientModel):
 
 
 def process_row(row, process_func: Callable):
-    start_ns = _now_ns()
     _logger.info(f"Processing dataset row: {row}")
     try:
         output = process_func(row)
     except Exception as exc:
         _logger.error(f"error during executing: {process_func.__name__}: {exc}")
-
-    galileo_logger = galileo_context.get_logger_instance()
-
-    galileo_logger.conclude(output, duration_ns=_now_ns() - start_ns)
+        output = f"error during executing: {process_func.__name__}: {exc}"
 
     return output
 
