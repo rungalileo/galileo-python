@@ -121,7 +121,7 @@ class Experiment(BaseClientModel):
         results = []
         galileo_context.init(project=project_name, experiment_id=experiment.id)
 
-        logged_process_func = log()(func)
+        logged_process_func = log()(func, name=experiment_name)
 
         #  process each row in the dataset
         for row in dataset:
