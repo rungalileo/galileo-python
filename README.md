@@ -20,13 +20,15 @@ Note: if you would like to point to an environment other than app.galileo.ai, yo
 
 ### Usage
 
+#### Logging traces
+
 ```python
 import os
 
 from galileo import galileo_context, openai
 
 # If you've set your GALILEO_PROJECT and GALILEO_LOG_STREAM env vars, you can skip this step
-galileo_context.init(project="your-project-id", log_stream="your-log-stream-id")
+galileo_context.init(project="your-project-name", log_stream="your-log-stream-name")
 
 # Initialize the Galileo wrapped OpenAI client
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -41,6 +43,9 @@ def call_openai():
 
 # This will create a single span trace with the OpenAI call
 call_openai()
+
+# This will upload the trace to Galileo
+galileo_context.flush()
 ```
 
 You can also use the `@log` decorator to log spans. Here's how to create a workflow span with two nested LLM spans:
@@ -53,6 +58,8 @@ def make_nested_call():
     call_openai()
     call_openai()
 
+# If you've set your GALILEO_PROJECT and GALILEO_LOG_STREAM env vars, you can skip this step
+galileo_context.init(project="your-project-name", log_stream="your-log-stream-name")
 
 # This will create a trace with a workflow span and two nested LLM spans containing the OpenAI calls
 make_nested_call()
@@ -82,6 +89,9 @@ def tool_call(input: str = "tool call input"):
 
 # This will create a trace with a tool span containing the tool call output
 tool_call(input="question")
+
+# This will upload the trace to Galileo
+galileo_context.flush()
 ```
 
 In some cases, you may want to wrap a block of code to start and flush a trace automatically. You can do this using the `galileo_context` context manager:
@@ -89,7 +99,7 @@ In some cases, you may want to wrap a block of code to start and flush a trace a
 ```python
 from galileo import galileo_context
 
-# This will log to the project and log stream specified in the context manager
+# This will log a block of code to the project and log stream specified in the context manager
 with galileo_context():
     content = make_nested_call()
     print(content)
@@ -154,7 +164,7 @@ import os
 
 from galileo import galileo_context, openai
 
-galileo_context.init(project="your-project-id", log_stream="your-log-stream-id")
+galileo_context.init(project="your-project-name", log_stream="your-log-stream-name")
 
 # Initialize the Galileo wrapped OpenAI client
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
@@ -174,8 +184,7 @@ call_openai()
 galileo_context.flush()
 ```
 
-
-Langchain callback handler:
+Using the Langchain callback handler:
 
 ```python
 from galileo.handlers.langchain import GalileoCallback
@@ -196,29 +205,56 @@ response = llm.invoke(messages)
 print(response.content)
 ```
 
+#### Datasets
 
-Run Experiment:
+Create a dataset:
+
+```python
+from galileo.datasets import create_dataset
+
+create_dataset(
+    name="names",
+    content=[
+        {"name": "Lola"},
+        {"name": "Jo"},
+    ]
+)
+```
+
+Get a dataset:
+
+```python
+from galileo.datasets import get_dataset
+
+dataset = get_dataset(name="names")
+```
+
+List all datasets:
+
+```python
+from galileo.datasets import list_datasets
+
+datasets = list_datasets()
+```
+
+#### Experiments
+
+Run an experiment with a prompt template:
 
 ```python
 from galileo.datasets import get_dataset
 from galileo.experiments import run_experiment
-from galileo.prompts import get_prompt_template, create_prompt_template
+from galileo.prompts import create_prompt_template
 from galileo.resources.models import MessageRole, Message
 
-prompt = get_prompt_template(
-    name="andrii-good-prompt",
-    project="andrii-new-project"
+prompt = create_prompt_template(
+    name="my-prompt",
+    project="new-project",
+    messages=[
+        Message(role=MessageRole.SYSTEM, content="you are a helpful assistant"),
+        Message(role=MessageRole.USER, content="why is sky blue?")
+    ]
 )
-
-if prompt is None:
-    prompt = create_prompt_template(
-        name="andrii-good-prompt",
-        project="andrii-new-project",
-        messages=[
-            Message(role=MessageRole.SYSTEM, content="you are a helpful assistant"),
-            Message(role=MessageRole.USER, content="why is sky blue?")
-        ]
-    )
 
 results = run_experiment(
     "my-experiment",
@@ -229,7 +265,8 @@ results = run_experiment(
 )
 ```
 
-Run experiment with a runner function with local dataset:
+Run an experiment with a runner function with local dataset:
+
 ```python
 import openai
 from galileo.experiments import run_experiment
