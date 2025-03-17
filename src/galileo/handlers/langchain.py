@@ -7,7 +7,7 @@ from uuid import UUID
 
 from galileo import galileo_context
 from galileo.logger import GalileoLogger
-from galileo.utils.serialization import EventSerializer, serialize_to_str
+from galileo.utils.serialization import EventSerializer, convert_to_string_dict, serialize_to_str
 
 _logger = logging.getLogger("galileo.handlers.langchain")
 
@@ -119,7 +119,10 @@ class GalileoCallback(BaseCallbackHandler):
 
         # Conclude the trace with the root node's output
         root_output = root_node.span_params.get("output", "")
-        self._galileo_logger.conclude(output=serialize_to_str(root_output))
+
+        if self._start_new_trace:
+            # If we started a new trace, we need to conclude it
+            self._galileo_logger.conclude(output=serialize_to_str(root_output))
 
         if self._flush_on_chain_end:
             # Upload the trace to Galileo
@@ -144,6 +147,10 @@ class GalileoCallback(BaseCallbackHandler):
         name = node.span_params.get("name")
         metadata = node.span_params.get("metadata")
         tags = node.span_params.get("tags")
+
+        # Convert metadata to a dict[str, str]
+        if metadata is not None:
+            metadata = convert_to_string_dict(metadata)
 
         # Log the current node based on its type
         if node.node_type in ("agent", "chain"):
@@ -209,8 +216,9 @@ class GalileoCallback(BaseCallbackHandler):
         """
         node_id = str(run_id)
         parent_node_id = str(parent_run_id) if parent_run_id else None
+
         if node_id in self._nodes:
-            _logger.warning(f"Node already exists for run_id {run_id}, overwriting...")
+            _logger.debug(f"Node already exists for run_id {run_id}, overwriting...")
 
         # Create new node
         node = Node(node_type=node_type, span_params=kwargs, run_id=run_id, parent_run_id=parent_run_id)
@@ -227,7 +235,7 @@ class GalileoCallback(BaseCallbackHandler):
             if parent:
                 parent.children.append(node_id)
             else:
-                _logger.warning(f"Parent node {parent_node_id} not found for {node_id}")
+                _logger.debug(f"Parent node {parent_node_id} not found for {node_id}")
 
         return node
 
@@ -244,8 +252,9 @@ class GalileoCallback(BaseCallbackHandler):
         """
         node_id = str(run_id)
         node = self._nodes.get(node_id)
+
         if not node:
-            _logger.warning(f"No node exists for run_id {node_id}")
+            _logger.debug(f"No node exists for run_id {node_id}")
             return
 
         # Update node parameters
