@@ -12,12 +12,11 @@ from galileo.utils.serialization import EventSerializer, convert_to_string_dict,
 _logger = logging.getLogger("galileo.handlers.langchain")
 
 try:
-    from langchain.callbacks.base import BaseCallbackHandler
-    from langchain.schema import Document
-    from langchain.schema.agent import AgentAction
-    from langchain.schema.messages import BaseMessage
-    from langchain.schema.output import LLMResult
-    from langchain_core.agents import AgentFinish
+    from langchain_core.agents import AgentAction, AgentFinish
+    from langchain_core.callbacks.base import BaseCallbackHandler
+    from langchain_core.documents import Document
+    from langchain_core.messages import BaseMessage
+    from langchain_core.outputs import LLMResult
 except ImportError:
     _logger.warning("Failed to import langchain, using stubs")
     BaseCallbackHandler = object

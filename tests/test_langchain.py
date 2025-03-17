@@ -2,9 +2,9 @@ import uuid
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
-from langchain.schema import Document
-from langchain.schema.messages import AIMessage, HumanMessage
 from langchain_core.agents import AgentFinish
+from langchain_core.documents import Document
+from langchain_core.messages import AIMessage, HumanMessage
 
 from galileo.handlers.langchain import GalileoCallback, _root_node
 from galileo.logger import GalileoLogger
