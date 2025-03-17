@@ -502,6 +502,7 @@ class GalileoDecorator:
             span_params: Parameters for the span
         """
         client_instance = self.get_logger_instance()
+        _logger.debug(f"client_instance {id(client_instance)} {client_instance}")
 
         stack = _span_stack_context.get().copy()
         trace = _trace_context.get()
@@ -612,12 +613,14 @@ class GalileoDecorator:
             logger = self.get_logger_instance()
 
             # If the span type is a workflow, conclude it
+            _logger.debug(f"{span_type=} {stack=} {span_params=}")
             if span_type == "workflow" or not span_type:
                 if stack:
                     stack.pop()
                     _span_stack_context.set(stack)
 
                 status_code = span_params.get("status_code", None)
+                _logger.debug(f"conclude {output=} {status_code=}")
                 logger.conclude(output=output, duration_ns=span_params["duration_ns"], status_code=status_code)
             else:
                 # If the span type is not a workflow, add it to the current parent (trace or span)
