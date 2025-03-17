@@ -277,7 +277,7 @@ class GalileoCallback(BaseCallbackHandler):
     ) -> Any:
         """Langchain callback when a chain starts."""
         node_type = "chain"
-        node_name = kwargs.get("name", "Chain")
+        node_name = serialized.get("name", None) or kwargs.get("name", "Chain")
 
         # If the `name` is `LangGraph` or `agent`, set the node type to `agent`.
         if node_name in ["LangGraph", "agent"]:
