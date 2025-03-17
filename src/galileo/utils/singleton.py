@@ -1,9 +1,12 @@
+import logging
 import threading
 from os import getenv
 from typing import Optional
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.logger import GalileoLogger
+
+_logger = logging.getLogger(__name__)
 
 
 class GalileoLoggerSingleton:
@@ -56,15 +59,21 @@ class GalileoLoggerSingleton:
         Returns:
             Tuple[str, str]: A tuple key (project, log_stream) used for caching.
         """
+        _logger.debug("current thread is %s", threading.current_thread().name)
+
+        # GalileoLoggerSingleton must NOT be shared across different threads
+        current_thread_name = threading.current_thread().name
+        key = (current_thread_name,)
+
         if project is None:
             project = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
         if log_stream is None:
             log_stream = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
         if experiment_id is not None:
-            return project, experiment_id
+            return key + (project, experiment_id)
 
-        return project, log_stream
+        return key + (project, log_stream)
 
     def get(
         self, *, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None

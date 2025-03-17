@@ -8,7 +8,7 @@ from attrs import field as _attrs_field
 from galileo import galileo_context, log
 from galileo.base import BaseClientModel
 from galileo.datasets import Dataset
-from galileo.jobs import Job
+from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
 from galileo.resources.api.experiment import (
@@ -16,7 +16,7 @@ from galileo.resources.api.experiment import (
     list_experiments_v2_projects_project_id_experiments_get,
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, ScorerConfig, TaskType
-from galileo.scorers import Scorer, ScorerSettings
+from galileo.scorers import Scorers, ScorerSettings
 
 _logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class ExperimentCreateRequest:
         return field_dict
 
 
-class Experiment(BaseClientModel):
+class Experiments(BaseClientModel):
     def create(self, project_id: str, name: str):
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
 
@@ -75,7 +75,7 @@ class Experiment(BaseClientModel):
         project_id: str, experiment_id: str, metrics: builtins.list[str]
     ) -> builtins.list[ScorerConfig]:
         scorers = []
-        all_scorers = Scorer().list()
+        all_scorers = Scorers().list()
         for metric in metrics:
             for scorer in all_scorers:
                 if metric == scorer.name:
@@ -95,7 +95,7 @@ class Experiment(BaseClientModel):
     ):
         prompt_template = PromptTemplate().get(project_name=project_obj.name, template_id=prompt.id)
 
-        job = Job().create(
+        job = Jobs().create(
             name="playground_run",
             project_id=project_obj.id,
             run_id=experiment_obj.id,
@@ -155,23 +155,23 @@ def run_experiment(
     if not project_obj:
         raise ValueError(f"Project {project} does not exist")
 
-    experiment_obj = Experiment().get_or_create(project_obj.id, experiment_name)
+    experiment_obj = Experiments().get_or_create(project_obj.id, experiment_name)
 
     if metrics is not None:
-        scorer_settings = Experiment.create_run_scorer_settings(project_obj.id, experiment_obj.id, metrics)
+        scorer_settings = Experiments.create_run_scorer_settings(project_obj.id, experiment_obj.id, metrics)
 
     if function is not None:
-        return Experiment().run_with_function(project_obj, experiment_obj, dataset, function)
-    return Experiment().run(project_obj, experiment_obj, prompt_template, dataset, scorer_settings)
+        return Experiments().run_with_function(project_obj, experiment_obj, dataset, function)
+    return Experiments().run(project_obj, experiment_obj, prompt_template, dataset, scorer_settings)
 
 
 def create_experiment(project_id: str, experiment_name: str):
-    return Experiment().create(project_id, experiment_name)
+    return Experiments().create(project_id, experiment_name)
 
 
 def get_experiment(project_id, experiment_name):
-    return Experiment().get(project_id, experiment_name)
+    return Experiments().get(project_id, experiment_name)
 
 
 def get_experiments(project_id: str):
-    return Experiment().list(project_id=project_id)
+    return Experiments().list(project_id=project_id)
