@@ -168,7 +168,6 @@ class GalileoDecorator:
             exc_value: Exception value if an exception was raised in the context
             traceback: Traceback if an exception was raised in the context
         """
-        _logger.debug("create new GalileoDecorator __exit__")
         # Flush the logger instance
         self.get_logger_instance(
             project=_project_context.get(),
@@ -196,7 +195,6 @@ class GalileoDecorator:
         Returns:
             GalileoDecorator: The decorator instance configured with the provided parameters
         """
-        _logger.debug("create new GalileoDecorator __call__")
         self._project = project
         self._log_stream = log_stream
         self._experiment_id = experiment_id
@@ -817,7 +815,6 @@ class GalileoDecorator:
 
         This method clears all context variables and resets the logger singleton.
         """
-        _logger.debug("running reset")
         GalileoLoggerSingleton().reset(
             project=_project_context.get(),
             log_stream=_log_stream_context.get(),

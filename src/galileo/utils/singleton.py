@@ -96,6 +96,11 @@ class GalileoLoggerSingleton:
         # Compute the key based on provided parameters or environment variables.
         key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id)
 
+        # First check without acquiring lock for performance.
+        if key in self._galileo_loggers:
+            return self._galileo_loggers[key]
+
+
         # Acquire lock for thread-safe creation of new logger.
         with self._lock:
             # Double-check in case another thread created the logger while waiting.
