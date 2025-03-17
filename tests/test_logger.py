@@ -15,7 +15,7 @@ from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.workflows.node_type import NodeType
 from tests.testutils.setup import (
     setup_mock_core_api_client,
-    setup_mock_experiment_client,
+    setup_mock_experiments_client,
     setup_mock_logstreams_client,
     setup_mock_projects_client,
 )
@@ -83,7 +83,7 @@ def test_single_span_trace_to_galileo(
     assert logger._parent_stack == deque()
 
 
-@patch("galileo.experiments.Experiment")
+@patch("galileo.experiments.Experiments")
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
 def test_single_span_trace_to_galileo_experiment_id(
@@ -91,7 +91,7 @@ def test_single_span_trace_to_galileo_experiment_id(
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
-    setup_mock_experiment_client(mock_experiments_client)
+    setup_mock_experiments_client(mock_experiments_client)
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}

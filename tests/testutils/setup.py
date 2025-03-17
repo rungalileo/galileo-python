@@ -2,7 +2,7 @@ import datetime
 from unittest.mock import AsyncMock, Mock
 from uuid import UUID
 
-from galileo.experiments import Experiment
+from galileo.experiments import Experiments
 from galileo.log_streams import LogStream
 from galileo.projects import Project
 from galileo.resources.models import ExperimentResponse, ProjectType
@@ -66,11 +66,11 @@ def setup_mock_logstreams_client(mock_logstreams_client: Mock):
     return mock_instance
 
 
-def setup_mock_experiment_client(mock_experiment_client: Mock):
+def setup_mock_experiments_client(mock_experiment_client: Mock):
     now = datetime.datetime.now()
     mock_instance = mock_experiment_client.return_value
     mock_instance.get = Mock(
-        return_value=Experiment(
+        return_value=Experiments(
             ExperimentResponse(
                 id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
                 project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
