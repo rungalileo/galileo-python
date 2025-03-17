@@ -12,7 +12,7 @@ from galileo.resources.models import (
 )
 
 
-class Scorer(BaseClientModel):
+class Scorers(BaseClientModel):
     def list(self):
         body = ListScorersRequest(
             filters=[ScorerTypeFilter(value=ScorerTypes.PRESET, operator=ScorerTypeFilterOperator.EQ)]
