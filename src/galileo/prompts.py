@@ -1,5 +1,4 @@
 import builtins
-import json
 import logging
 from typing import Optional, Union
 
@@ -20,8 +19,35 @@ from galileo.resources.models import (
 _logger = logging.getLogger(__name__)
 
 
-class PromptTemplate(BaseClientModel):
-    def list(self, project_name: str):
+class PromptTemplate(BasePromptTemplateResponse):
+    def __init__(self, prompt_template: Union[None, BasePromptTemplateResponse] = None):
+        """
+        Initialize a PromptTemplate instance.
+
+        Parameters
+        ----------
+        prompt_template : Union[None, BasePromptTemplateResponse], optional
+            The prompt template data to initialize from. If None, creates an empty prompt template instance.
+            Defaults to None.
+        """
+        if prompt_template is not None:
+            super().__init__(
+                all_available_versions=prompt_template.all_available_versions,
+                id=prompt_template.id,
+                max_version=prompt_template.max_version,
+                name=prompt_template.name,
+                selected_version=prompt_template.selected_version,
+                selected_version_id=prompt_template.selected_version_id,
+                template=prompt_template.template,
+                total_versions=prompt_template.total_versions,
+                all_versions=prompt_template.all_versions,
+            )
+            self.additional_properties = prompt_template.additional_properties.copy()
+            return
+
+
+class PromptTemplates(BaseClientModel):
+    def list(self, project_name: str) -> list[PromptTemplate]:
         project = Projects().get(name=project_name)
         if not project:
             raise ValueError(f"Project {project_name} does not exist")
@@ -31,11 +57,13 @@ class PromptTemplate(BaseClientModel):
             project_id=project.id,
             client=self.client,  # type: ignore[arg-type]
         )
-        return templates
 
-    def get(
-        self, *, project_name: str, template_id: str
-    ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+        if not templates or isinstance(templates, HTTPValidationError):
+            return []
+
+        return [PromptTemplate(prompt_template=prompt_template) for prompt_template in templates]
+
+    def get(self, *, project_name: str, template_id: str) -> Optional[PromptTemplate]:
         project = Projects().get(name=project_name)
         if not project:
             raise ValueError(f"Project {project_name} does not exist")
@@ -47,11 +75,15 @@ class PromptTemplate(BaseClientModel):
             template_id=template_id,
             client=self.client,  # type: ignore[arg-type]
         )
-        return template
+
+        if not template or isinstance(template, HTTPValidationError):
+            return None
+
+        return PromptTemplate(prompt_template=template)
 
     def create(
         self, name: str, project_name: str, template: Union[builtins.list[Message], str]
-    ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
+    ) -> Optional[PromptTemplate]:
         project = Projects().get(name=project_name)
         if not project:
             raise ValueError(f"Project {project_name} does not exist")
@@ -65,20 +97,19 @@ class PromptTemplate(BaseClientModel):
             body=body,
         )
 
-        if not response.parsed:
-            raise ValueError(json.loads(response.content)["detail"])
+        if not response.parsed or isinstance(response.parsed, HTTPValidationError):
+            _logger.error(response)
+            raise response
 
-        return response.parsed
-
-
-def create_prompt_template(
-    name: str, project: str, messages: Union[list["Message"], str]
-) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    return PromptTemplate().create(name=name, project_name=project, template=messages)
+        return PromptTemplate(prompt_template=response.parsed)
 
 
-def get_prompt_template(project: str, name: str) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    prompt_templates = PromptTemplate().list(project_name=project)
+def create_prompt_template(name: str, project: str, messages: Union[list["Message"], str]) -> Optional[PromptTemplate]:
+    return PromptTemplates().create(name=name, project_name=project, template=messages)
+
+
+def get_prompt_template(project: str, name: str) -> Optional[PromptTemplate]:
+    prompt_templates = PromptTemplates().list(project_name=project)
     for prompt_template in prompt_templates:
         if prompt_template.name == name:
             _logger.info(f"Get template {prompt_template}")

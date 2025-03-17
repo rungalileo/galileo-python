@@ -7,7 +7,7 @@ from galileo.resources.models import CreateJobRequest, ScorerConfig, TaskType
 _logger = logging.getLogger(__name__)
 
 
-class Job(BaseClientModel):
+class Jobs(BaseClientModel):
     def create(
         self,
         project_id: str,

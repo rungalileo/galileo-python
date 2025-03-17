@@ -41,7 +41,7 @@ class ExperimentCreateRequest:
         return field_dict
 
 
-class Experiment(BaseClientModel):
+class Experiments(BaseClientModel):
     def create(self, project_id: str, name: str):
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
 
@@ -155,23 +155,23 @@ def run_experiment(
     if not project_obj:
         raise ValueError(f"Project {project} does not exist")
 
-    experiment_obj = Experiment().get_or_create(project_obj.id, experiment_name)
+    experiment_obj = Experiments().get_or_create(project_obj.id, experiment_name)
 
     if metrics is not None:
-        scorer_settings = Experiment.create_run_scorer_settings(project_obj.id, experiment_obj.id, metrics)
+        scorer_settings = Experiments.create_run_scorer_settings(project_obj.id, experiment_obj.id, metrics)
 
     if function is not None:
-        return Experiment().run_with_function(project_obj, experiment_obj, dataset, function)
-    return Experiment().run(project_obj, experiment_obj, prompt_template, dataset, scorer_settings)
+        return Experiments().run_with_function(project_obj, experiment_obj, dataset, function)
+    return Experiments().run(project_obj, experiment_obj, prompt_template, dataset, scorer_settings)
 
 
 def create_experiment(project_id: str, experiment_name: str):
-    return Experiment().create(project_id, experiment_name)
+    return Experiments().create(project_id, experiment_name)
 
 
 def get_experiment(project_id, experiment_name):
-    return Experiment().get(project_id, experiment_name)
+    return Experiments().get(project_id, experiment_name)
 
 
 def get_experiments(project_id: str):
-    return Experiment().list(project_id=project_id)
+    return Experiments().list(project_id=project_id)
