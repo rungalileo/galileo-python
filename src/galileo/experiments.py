@@ -8,7 +8,7 @@ from attrs import field as _attrs_field
 from galileo import galileo_context, log
 from galileo.base import BaseClientModel
 from galileo.datasets import Dataset
-from galileo.jobs import Job
+from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
 from galileo.resources.api.experiment import (
@@ -16,7 +16,7 @@ from galileo.resources.api.experiment import (
     list_experiments_v2_projects_project_id_experiments_get,
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, ScorerConfig, TaskType
-from galileo.scorers import Scorer, ScorerSettings
+from galileo.scorers import Scorers, ScorerSettings
 
 _logger = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ class Experiments(BaseClientModel):
         project_id: str, experiment_id: str, metrics: builtins.list[str]
     ) -> builtins.list[ScorerConfig]:
         scorers = []
-        all_scorers = Scorer().list()
+        all_scorers = Scorers().list()
         for metric in metrics:
             for scorer in all_scorers:
                 if metric == scorer.name:
@@ -95,7 +95,7 @@ class Experiments(BaseClientModel):
     ):
         prompt_template = PromptTemplate().get(project_name=project_obj.name, template_id=prompt.id)
 
-        job = Job().create(
+        job = Jobs().create(
             name="playground_run",
             project_id=project_obj.id,
             run_id=experiment_obj.id,
