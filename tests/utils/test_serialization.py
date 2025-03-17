@@ -514,7 +514,7 @@ class TestConvertToStringDict:
         # The object should be serialized using EventSerializer
         obj_str = result["custom_obj"]
         assert isinstance(obj_str, str)
-        assert "tests.utils.test_serialization.SimpleDataclass" in obj_str
+        assert "tests.utils.test_serialization.SimpleDataClass" in obj_str
 
     def test_large_integers(self):
         """Test conversion of integers larger than JavaScript's safe integer range."""
