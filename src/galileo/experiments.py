@@ -10,7 +10,7 @@ from galileo.base import BaseClientModel
 from galileo.datasets import Dataset, convert_dataset_content_to_records, get_dataset
 from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
-from galileo.prompts import PromptTemplate
+from galileo.prompts import PromptTemplates
 from galileo.resources.api.experiment import (
     create_experiment_v2_projects_project_id_experiments_post,
     list_experiments_v2_projects_project_id_experiments_get,
@@ -94,7 +94,7 @@ class Experiments(BaseClientModel):
         scorers: builtins.list[ScorerConfig],
         prompt_settings: Optional[PromptRunSettings] = None,
     ):
-        prompt_template = PromptTemplate().get(project_name=project_obj.name, template_id=prompt.id)
+        prompt_template = PromptTemplates().get(project_name=project_obj.name, template_id=prompt.id)
 
         if prompt_settings is None:
             prompt_settings = PromptRunSettings(
