@@ -25,6 +25,7 @@ from galileo_core.schemas.logging.span import (
     ToolSpan,
     WorkflowSpan,
 )
+from galileo_core.schemas.logging.step import BaseStep
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
@@ -168,7 +169,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         atexit.register(self.terminate)
 
     @staticmethod
-    def _get_last_output(node: Union[StepWithChildSpans, None]) -> Optional[str]:
+    def _get_last_output(node: Union[BaseStep, None]) -> Optional[str]:
         """
         Get the last output of a node or its child spans recursively.
         """
@@ -177,7 +178,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         if node.output:
             return node.output if isinstance(node.output, str) else serialize_to_str(node.output)
-        elif len(node.spans):
+        elif isinstance(node, StepWithChildSpans) and len(node.spans):
             return GalileoLogger._get_last_output(node.spans[-1])
         return None
 

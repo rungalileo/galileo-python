@@ -8,7 +8,7 @@ import pytest
 
 from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
-from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, WorkflowSpan
+from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
@@ -747,4 +747,31 @@ def test_get_last_output_last_child_none() -> None:
     assert GalileoLogger._get_last_output(trace) is None
 
     trace.spans = []
+    assert GalileoLogger._get_last_output(trace) is None
+
+
+def test_get_last_output_last_child_no_output() -> None:
+    trace = Trace(
+        input="input",
+        name="test-trace",
+        created_at=datetime.datetime.now(),
+        duration_ns=1_000_000,
+        status_code=200,
+        metrics=Metrics(),
+        metadata={"key": "value"},
+        tags=["tag1", "tag2"],
+    )
+
+    tool_span = ToolSpan(
+        input="input",
+        name="test-span",
+        created_at=datetime.datetime.now(),
+        duration_ns=1_000_000,
+        status_code=200,
+        metrics=Metrics(),
+        metadata={"key": "value"},
+        tags=["tag1", "tag2"],
+    )
+
+    trace.spans = [tool_span]
     assert GalileoLogger._get_last_output(trace) is None
