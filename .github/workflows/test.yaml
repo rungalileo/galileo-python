@@ -42,7 +42,7 @@ jobs:
       #   run: invoke type-check
 
       - name: Run Tests
-        run: invoke test
+        run: invoke test-report-xml
 
       - name: Upload Test Coverage Reports
         uses: codecov/codecov-action@v5.4.0
