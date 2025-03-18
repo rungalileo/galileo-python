@@ -193,9 +193,6 @@ def _extract_input_data_from_kwargs(
 ) -> OpenAiInputData:
     name: str = kwargs.get("name", "openai-client-generation")
 
-    if name is None:
-        name = "openai-client-generation"
-
     if name is not None and not isinstance(name, str):
         raise TypeError("name must be a string")
 
@@ -431,8 +428,6 @@ def _wrap(
     open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrapped: Callable, args: dict, kwargs: dict
 ) -> Any:
     # Retrieve the decorator context
-    decorator_context_project = galileo_context.get_current_project()
-    decorator_context_log_stream = galileo_context.get_current_log_stream()
     decorator_context_trace = galileo_context.get_current_trace()
 
     start_time = _get_timestamp()
@@ -440,9 +435,7 @@ def _wrap(
 
     input_data = _extract_input_data_from_kwargs(open_ai_resource, start_time, arg_extractor.get_galileo_args())
 
-    galileo_logger: GalileoLogger = initialize(
-        project=decorator_context_project, log_stream=decorator_context_log_stream
-    )
+    galileo_logger: GalileoLogger = initialize()
 
     should_complete_trace = False
     if decorator_context_trace:
@@ -611,7 +604,7 @@ class OpenAIGalileo:
 
     _galileo_logger: Optional[GalileoLogger] = None
 
-    def initialize(self, project: Optional[str], log_stream: Optional[str]) -> Optional[GalileoLogger]:
+    def initialize(self) -> Optional[GalileoLogger]:
         """
         Initialize a Galileo logger.
 
@@ -627,7 +620,7 @@ class OpenAIGalileo:
         Optional[GalileoLogger]
             The initialized Galileo logger instance.
         """
-        self._galileo_logger = galileo_context.get_logger_instance(project=project, log_stream=log_stream)
+        self._galileo_logger = galileo_context.get_logger_instance()
 
         return self._galileo_logger
 
