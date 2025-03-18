@@ -35,6 +35,7 @@ requests-mock = "^1.11.0"
 galileo-core = { extras = ["testing"], version = "^3.5.0" }
 pytest-env = "^1.1.5"
 langchain-core = "^0.3.14"
+pytest-sugar = "^1.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
