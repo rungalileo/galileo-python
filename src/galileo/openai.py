@@ -53,7 +53,6 @@ from galileo import GalileoLogger
 from galileo.decorator import galileo_context
 from galileo.utils import _get_timestamp
 from galileo.utils.serialization import serialize_to_str
-from galileo.utils.singleton import GalileoLoggerSingleton
 
 try:
     import openai
@@ -434,7 +433,6 @@ def _wrap(
     # Retrieve the decorator context
     decorator_context_project = galileo_context.get_current_project()
     decorator_context_log_stream = galileo_context.get_current_log_stream()
-    galileo_context.get_current_span_stack()
     decorator_context_trace = galileo_context.get_current_trace()
 
     start_time = _get_timestamp()
@@ -629,7 +627,7 @@ class OpenAIGalileo:
         Optional[GalileoLogger]
             The initialized Galileo logger instance.
         """
-        self._galileo_logger = GalileoLoggerSingleton().get(project=project or None, log_stream=log_stream or None)
+        self._galileo_logger = galileo_context.get_logger_instance(project=project, log_stream=log_stream)
 
         return self._galileo_logger
 
