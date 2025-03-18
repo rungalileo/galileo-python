@@ -89,13 +89,11 @@ class Experiments(BaseClientModel):
         self,
         project_obj: Project,
         experiment_obj: ExperimentResponse,
-        prompt: Any,
+        prompt_template: PromptTemplate,
         dataset_id: str,
         scorers: builtins.list[ScorerConfig],
         prompt_settings: Optional[PromptRunSettings] = None,
     ):
-        prompt_template = PromptTemplate().get(project_name=project_obj.name, template_id=prompt.id)
-
         if prompt_settings is None:
             prompt_settings = PromptRunSettings(
                 n=1,
@@ -169,46 +167,135 @@ def process_row(row, process_func: Callable):
 def run_experiment(
     experiment_name: str,
     *,
-    prompt_template: Any = None,
+    prompt_template: PromptTemplate = None,
     prompt_settings: Optional[PromptRunSettings] = None,
     project: str = None,
     dataset: Union[Dataset, list[dict[str, str]], str] = None,
     dataset_id: Optional[str] = None,
-    metrics: list[str],
+    dataset_name: Optional[str] = None,
+    metrics: list[str] = None,
     function: Union[Callable, None] = None,
-):
+) -> Any:
+    """
+    Run an experiment with the specified parameters.
+
+    There are two ways to run an experiment:
+    1. Using a prompt template, prompt settings, and a dataset
+    2. Using a runner function and a dataset
+
+    When using a runner function, you can also pass a list of dictionaries to the function to act as a dataset.
+
+    Args:
+        experiment_name: Name of the experiment
+        prompt_template: Template for prompts
+        prompt_settings: Settings for prompt runs
+        project: Project name
+        dataset: Dataset object, list of records, or dataset name
+        dataset_id: ID of the dataset
+        dataset_name: Name of the dataset
+        metrics: List of metrics to evaluate
+        function: Optional function to run with the experiment
+
+    Returns:
+        Experiment run results
+
+    Raises:
+        ValueError: If required parameters are missing or invalid
+    """
+    # Load dataset and records
+    dataset_obj, records = _load_dataset_and_records(dataset, dataset_id, dataset_name)
+
+    # Validate experiment configuration
+    if prompt_template and not dataset_obj:
+        raise ValueError("A dataset record, id, or name of a dataset must be provided when a prompt_template is used")
+
+    if function and not records:
+        raise ValueError(
+            "A dataset record, id or name of a dataset, or list of records must be provided when a function is used"
+        )
+
+    # Get project
     project_obj = Projects().get(name=project)
     if not project_obj:
         raise ValueError(f"Project {project} does not exist")
 
+    # Create or get experiment
     experiment_obj = Experiments().get_or_create(project_obj.id, experiment_name)
 
+    # Set up metrics if provided
+    scorer_settings = None
     if metrics is not None:
         scorer_settings = Experiments.create_run_scorer_settings(project_obj.id, experiment_obj.id, metrics)
 
-    if dataset_id is None:
-        dataset_ = get_dataset(id=dataset_id)
-        dataset_content = dataset_.get_content()
-        records = convert_dataset_content_to_records(dataset_content)
-    else:
-        if isinstance(dataset, str):
-            dataset_ = get_dataset(name=dataset)
-            dataset_content = dataset_.get_content()
-            records = convert_dataset_content_to_records(dataset_content)
-        elif isinstance(dataset, Dataset):
-            dataset_ = dataset
-            dataset_content = dataset.get_content()
-            records = convert_dataset_content_to_records(dataset_content)
-        elif isinstance(dataset, list):
-            records = dataset
-        else:
-            raise ValueError("One of dataset, dataset_name, or dataset_id must be provided")
-
+    # Execute a runner function experiment
     if function is not None:
         return Experiments().run_with_function(project_obj, experiment_obj, records, function)
+
+    # Execute a prompt template experiment
     return Experiments().run(
-        project_obj, experiment_obj, prompt_template, dataset_.dataset.id, scorer_settings, prompt_settings
+        project_obj, experiment_obj, prompt_template, dataset_obj.dataset.id, scorer_settings, prompt_settings
     )
+
+
+def _load_dataset_and_records(
+    dataset: Union[Dataset, list[dict[str, str]], str, None], dataset_id: Optional[str], dataset_name: Optional[str]
+) -> tuple[Optional[Dataset], list[dict[str, str]]]:
+    """
+    Load dataset and records based on provided parameters.
+
+    Args:
+        dataset: Dataset object, list of records, or dataset name
+        dataset_id: ID of the dataset
+        dataset_name: Name of the dataset
+
+    Returns:
+        Tuple containing (Dataset object or None, records list)
+
+    Raises:
+        ValueError: If no dataset information is provided or dataset doesn't exist
+    """
+    # Case 1: dataset_id provided
+    if dataset_id is not None:
+        return _get_dataset_and_records_by_id(dataset_id)
+
+    # Case 2: dataset_name provided
+    if dataset_name is not None:
+        return _get_dataset_and_records_by_name(dataset_name)
+
+    # Case 3: dataset object provided
+    if dataset is not None:
+        if isinstance(dataset, str):
+            # Dataset name provided
+            return _get_dataset_and_records_by_name(dataset)
+        elif isinstance(dataset, Dataset):
+            dataset_content = dataset.get_content()
+            return dataset, convert_dataset_content_to_records(dataset_content)
+        else:
+            # Direct records list
+            return None, dataset
+
+    # No dataset provided
+    raise ValueError("One of dataset, dataset_name, or dataset_id must be provided")
+
+
+def _get_dataset_and_records_by_id(dataset_id: str) -> tuple[Dataset, list[dict[str, str]]]:
+    """Get dataset by ID and convert to records."""
+    dataset = get_dataset(id=dataset_id)
+    if not dataset:
+        raise ValueError(f"Dataset with id {dataset_id} does not exist")
+    dataset_content = dataset.get_content()
+    records = convert_dataset_content_to_records(dataset_content)
+    return dataset, records
+
+
+def _get_dataset_and_records_by_name(dataset_name: str) -> tuple[Dataset, list[dict[str, str]]]:
+    """Get dataset by name and convert to records."""
+    dataset = get_dataset(name=dataset_name)
+    if not dataset:
+        raise ValueError(f"Dataset with name {dataset_name} does not exist")
+    dataset_content = dataset.get_content()
+    records = convert_dataset_content_to_records(dataset_content)
+    return dataset, records
 
 
 def create_experiment(project_id: str, experiment_name: str):
