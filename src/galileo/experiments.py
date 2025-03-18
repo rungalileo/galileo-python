@@ -15,7 +15,7 @@ from galileo.resources.api.experiment import (
     create_experiment_v2_projects_project_id_experiments_post,
     list_experiments_v2_projects_project_id_experiments_get,
 )
-from galileo.resources.models import ExperimentResponse, HTTPValidationError, ScorerConfig, TaskType
+from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
 from galileo.scorers import Scorers, ScorerSettings
 
 _logger = logging.getLogger(__name__)
@@ -92,8 +92,29 @@ class Experiments(BaseClientModel):
         prompt: Any,
         dataset_id: str,
         scorers: builtins.list[ScorerConfig],
+        prompt_settings: Optional[PromptRunSettings] = None,
     ):
         prompt_template = PromptTemplate().get(project_name=project_obj.name, template_id=prompt.id)
+
+        if prompt_settings is None:
+            prompt_settings = PromptRunSettings(
+                n=1,
+                echo=False,
+                tools=None,
+                top_k=40,
+                top_p=1.0,
+                logprobs=True,
+                max_tokens=256,
+                model_alias="GPT-4o",
+                temperature=0.8,
+                tool_choice=None,
+                top_logprobs=5,
+                stop_sequences=None,
+                deployment_name=None,
+                response_format=None,
+                presence_penalty=0.0,
+                frequency_penalty=0.0,
+            )
 
         job = Jobs().create(
             name="playground_run",
@@ -103,6 +124,7 @@ class Experiments(BaseClientModel):
             dataset_id=dataset_id,
             task_type=EXPERIMENT_TASK_TYPE,
             scorers=scorers,
+            prompt_settings=prompt_settings,
         )
 
         _logger.debug(f"job: {job}")
@@ -148,6 +170,7 @@ def run_experiment(
     experiment_name: str,
     *,
     prompt_template: Any = None,
+    prompt_settings: Optional[PromptRunSettings] = None,
     project: str = None,
     dataset: Union[Dataset, list[dict[str, str]], str] = None,
     dataset_id: Optional[str] = None,
@@ -183,7 +206,9 @@ def run_experiment(
 
     if function is not None:
         return Experiments().run_with_function(project_obj, experiment_obj, records, function)
-    return Experiments().run(project_obj, experiment_obj, prompt_template, dataset_.dataset.id, scorer_settings)
+    return Experiments().run(
+        project_obj, experiment_obj, prompt_template, dataset_.dataset.id, scorer_settings, prompt_settings
+    )
 
 
 def create_experiment(project_id: str, experiment_name: str):
