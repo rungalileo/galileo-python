@@ -168,7 +168,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         atexit.register(self.terminate)
 
     @staticmethod
-    def _get_last_output(node: StepWithChildSpans | None) -> Optional[str]:
+    def _get_last_output(node: Union[StepWithChildSpans, None]) -> Optional[str]:
         """
         Get the last output of a node or its child spans recursively.
         """
