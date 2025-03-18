@@ -376,3 +376,13 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
 
     """
     return Datasets().create(name=name, content=content)
+
+
+# TODO: Remove this once the datasets team adds a dictionary field to DatasetRow
+def convert_dataset_content_to_records(dataset_content: DatasetContent):
+    records = []
+    rows = dataset_content.rows
+    for row in rows:
+        for i in range(0, len(dataset_content.column_names)):
+            records.append({dataset_content.column_names[i]: row.values[i]})
+    return records
