@@ -40,7 +40,7 @@ class GalileoLoggerException(Exception):
     pass
 
 
-class GalileoLogger(TracesLogger, DecorateAllMethods):
+class GalileoLogger(TracesLogger, DecorateAllMethods, NopAllMethods):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.
@@ -522,11 +522,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._logger.warning("No traces to flush.")
             return list()
 
-        current_parent = self.current_parent()
-        if current_parent is not None:
+        if self.current_parent is not None:
             self._logger.info("Concluding the active trace...")
-            last_output = GalileoLogger._get_last_output(current_parent)
-            self.conclude(output=last_output, conclude_all=True)
+            self.conclude(conclude_all=True)
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
