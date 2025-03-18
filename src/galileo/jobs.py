@@ -2,7 +2,7 @@ import logging
 
 from galileo.base import BaseClientModel
 from galileo.resources.api.jobs import create_job_jobs_post
-from galileo.resources.models import CreateJobRequest, ScorerConfig, TaskType, PromptRunSettings
+from galileo.resources.models import CreateJobRequest, PromptRunSettings, ScorerConfig, TaskType
 
 _logger = logging.getLogger(__name__)
 

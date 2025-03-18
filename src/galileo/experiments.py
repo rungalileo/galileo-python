@@ -15,7 +15,7 @@ from galileo.resources.api.experiment import (
     create_experiment_v2_projects_project_id_experiments_post,
     list_experiments_v2_projects_project_id_experiments_get,
 )
-from galileo.resources.models import ExperimentResponse, HTTPValidationError, ScorerConfig, TaskType, PromptRunSettings
+from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
 from galileo.scorers import Scorers, ScorerSettings
 
 _logger = logging.getLogger(__name__)
@@ -99,21 +99,21 @@ class Experiments(BaseClientModel):
         if prompt_settings is None:
             prompt_settings = PromptRunSettings(
                 n=1,
-            echo=False,
-            tools=None,
-            top_k=40,
-            top_p=1.0,
-            logprobs=True,
-            max_tokens=256,
-            model_alias='GPT-4o',
-            temperature=0.8,
-            tool_choice=None,
-            top_logprobs=5,
-            stop_sequences=None,
-            deployment_name=None,
-            response_format=None,
-            presence_penalty=0.0,
-            frequency_penalty=0.0
+                echo=False,
+                tools=None,
+                top_k=40,
+                top_p=1.0,
+                logprobs=True,
+                max_tokens=256,
+                model_alias="GPT-4o",
+                temperature=0.8,
+                tool_choice=None,
+                top_logprobs=5,
+                stop_sequences=None,
+                deployment_name=None,
+                response_format=None,
+                presence_penalty=0.0,
+                frequency_penalty=0.0,
             )
 
         job = Jobs().create(
@@ -170,7 +170,7 @@ def run_experiment(
     experiment_name: str,
     *,
     prompt_template: Any = None,
-    prompt_settings:  Any = None,
+    prompt_settings: Any = None,
     project: str = None,
     dataset: Union[Dataset, list[dict[str, str]], str] = None,
     dataset_id: Optional[str] = None,
