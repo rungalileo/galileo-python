@@ -127,12 +127,17 @@ class Experiments(BaseClientModel):
 
         _logger.debug(f"job: {job}")
 
-        print(f"open {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}")
+        print(
+            f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        )
         return job
 
-    @staticmethod
     def run_with_function(
-        project_obj: Project, experiment_obj: ExperimentResponse, records: builtins.list[dict[str, str]], func: Callable
+        self,
+        project_obj: Project,
+        experiment_obj: ExperimentResponse,
+        records: builtins.list[dict[str, str]],
+        func: Callable,
     ):
         results = []
         galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id)
@@ -148,6 +153,10 @@ class Experiments(BaseClientModel):
         galileo_context.flush()
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
+
+        print(
+            f"Experiment {experiment_obj.name} has completed and results are available at {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        )
 
         return results
 
