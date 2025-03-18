@@ -206,7 +206,9 @@ def run_experiment(
 
     if function is not None:
         return Experiments().run_with_function(project_obj, experiment_obj, records, function)
-    return Experiments().run(project_obj, experiment_obj, prompt_template, dataset_.dataset.id, scorer_settings, prompt_settings)
+    return Experiments().run(
+        project_obj, experiment_obj, prompt_template, dataset_.dataset.id, scorer_settings, prompt_settings
+    )
 
 
 def create_experiment(project_id: str, experiment_name: str):
