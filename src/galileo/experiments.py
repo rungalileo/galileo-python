@@ -7,7 +7,7 @@ from attrs import field as _attrs_field
 
 from galileo import galileo_context, log
 from galileo.base import BaseClientModel
-from galileo.datasets import Dataset
+from galileo.datasets import Dataset, convert_dataset_content_to_records, get_dataset
 from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
@@ -90,7 +90,7 @@ class Experiments(BaseClientModel):
         project_obj: Project,
         experiment_obj: ExperimentResponse,
         prompt: Any,
-        dataset: Union[Dataset, str, builtins.list],
+        dataset_id: str,
         scorers: builtins.list[ScorerConfig],
     ):
         prompt_template = PromptTemplate().get(project_name=project_obj.name, template_id=prompt.id)
@@ -100,7 +100,7 @@ class Experiments(BaseClientModel):
             project_id=project_obj.id,
             run_id=experiment_obj.id,
             prompt_template_id=prompt_template.selected_version_id,
-            dataset_id=dataset.id,
+            dataset_id=dataset_id,
             task_type=EXPERIMENT_TASK_TYPE,
             scorers=scorers,
         )
@@ -111,14 +111,16 @@ class Experiments(BaseClientModel):
         return job
 
     @staticmethod
-    def run_with_function(project_obj: Project, experiment_obj: ExperimentResponse, dataset: Any, func: Callable):
+    def run_with_function(
+        project_obj: Project, experiment_obj: ExperimentResponse, records: builtins.list[dict[str, str]], func: Callable
+    ):
         results = []
         galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id)
 
         logged_process_func = log(name=experiment_obj.name)(func)
 
         #  process each row in the dataset
-        for row in dataset:
+        for row in records:
             results.append(process_row(row, logged_process_func))
             galileo_context.reset_trace_context()
 
@@ -147,7 +149,8 @@ def run_experiment(
     *,
     prompt_template: Any = None,
     project: str = None,
-    dataset: Union[Dataset, list, str] = None,
+    dataset: Union[Dataset, list[dict[str, str]], str] = None,
+    dataset_id: Optional[str] = None,
     metrics: list[str],
     function: Union[Callable, None] = None,
 ):
@@ -160,9 +163,27 @@ def run_experiment(
     if metrics is not None:
         scorer_settings = Experiments.create_run_scorer_settings(project_obj.id, experiment_obj.id, metrics)
 
+    if dataset_id is None:
+        dataset_ = get_dataset(id=dataset_id)
+        dataset_content = dataset_.get_content()
+        records = convert_dataset_content_to_records(dataset_content)
+    else:
+        if isinstance(dataset, str):
+            dataset_ = get_dataset(name=dataset)
+            dataset_content = dataset_.get_content()
+            records = convert_dataset_content_to_records(dataset_content)
+        elif isinstance(dataset, Dataset):
+            dataset_ = dataset
+            dataset_content = dataset.get_content()
+            records = convert_dataset_content_to_records(dataset_content)
+        elif isinstance(dataset, list):
+            records = dataset
+        else:
+            raise ValueError("One of dataset, dataset_name, or dataset_id must be provided")
+
     if function is not None:
-        return Experiments().run_with_function(project_obj, experiment_obj, dataset, function)
-    return Experiments().run(project_obj, experiment_obj, prompt_template, dataset, scorer_settings)
+        return Experiments().run_with_function(project_obj, experiment_obj, records, function)
+    return Experiments().run(project_obj, experiment_obj, prompt_template, dataset_.dataset.id, scorer_settings)
 
 
 def create_experiment(project_id: str, experiment_name: str):
