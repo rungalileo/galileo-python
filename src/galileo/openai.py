@@ -184,7 +184,7 @@ def _extract_chat_response(kwargs: dict) -> dict:
 
         response.update({"tool_calls": tool_calls if len(tool_calls) else None})
 
-    response.update({"content": kwargs.get("content", "")})
+    response.update({"content": kwargs.get("content") or ""})
 
     return response
 
