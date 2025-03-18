@@ -297,6 +297,7 @@ class TestGalileoCallback:
             run_id=llm_id,
             parent_run_id=chain_id,
             invocation_params={"model_name": "gpt-4"},
+            metadata={"extras": {"source": "paper"}},
         )
 
         # End LLM
@@ -313,6 +314,7 @@ class TestGalileoCallback:
             input_str="verify(LLMs have seen significant progress)",
             run_id=tool_id,
             parent_run_id=chain_id,
+            metadata={"key": "value", "extras": {"tools": "tool1"}},
         )
 
         # End tool
@@ -352,9 +354,11 @@ class TestGalileoCallback:
             tool_call_id=None,
             tool_calls=None,
         )
+        assert traces[0].spans[0].spans[1].user_metadata == {"extras": "{'source': 'paper'}"}
         assert traces[0].spans[0].spans[2].type == "tool"
         assert traces[0].spans[0].spans[2].input == "verify(LLMs have seen significant progress)"
         assert traces[0].spans[0].spans[2].output == "Verification complete: accurate statement"
+        assert traces[0].spans[0].spans[2].user_metadata == {"key": "value", "extras": "{'tools': 'tool1'}"}
 
     def test_missing_parent_node(self, callback: GalileoCallback):
         """Test handling of missing parent nodes"""
