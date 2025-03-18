@@ -4,7 +4,7 @@ import json
 import logging
 from asyncio import Queue
 from collections.abc import Sequence
-from dataclasses import asdict, is_dataclass
+from dataclasses import is_dataclass
 from datetime import date, datetime
 from json import JSONEncoder
 from pathlib import Path
@@ -67,7 +67,7 @@ class EventSerializer(JSONEncoder):
                 return type(obj).__name__
 
             if is_dataclass(obj):
-                return asdict(obj)  # type: ignore[arg-type]
+                return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
 
             if isinstance(obj, UUID):
                 return str(obj)
@@ -95,7 +95,7 @@ class EventSerializer(JSONEncoder):
                     return obj.to_json()
 
                 from langchain_core.agents import AgentAction, AgentFinish
-                from langchain_core.messages import BaseMessage
+                from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
                 from langchain_core.outputs import ChatGeneration, LLMResult
                 from langchain_core.prompt_values import ChatPromptValue
 
@@ -106,7 +106,24 @@ class EventSerializer(JSONEncoder):
                 elif isinstance(obj, LLMResult):
                     return self.default(obj.generations[0])
                 elif isinstance(obj, BaseMessage):
-                    return self.default(obj.model_dump())
+                    # Map the `type` to `role`.
+                    dumped = obj.model_dump(include={"content", "type"})
+                    dumped["role"] = dumped.pop("type")
+                    return self.default(dumped)
+                elif isinstance(obj, (AIMessageChunk, AIMessage)) and obj.tool_calls:
+                    # Map the `type` to `role`.
+                    dumped = obj.model_dump(include={"content", "type", "tool_calls"})
+                    dumped["role"] = dumped.pop("type")
+                    return self.default(dumped)
+                elif isinstance(obj, ToolMessage):
+                    # Map the `type` to `role`.
+                    dumped = obj.model_dump(include={"content", "type", "status", "tool_call_id"})
+                    dumped["role"] = dumped.pop("type")
+                    return self.default(dumped)
+                elif isinstance(obj, BaseModel):
+                    return self.default(
+                        obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
+                    )
 
             # 64-bit integers might overflow the JavaScript safe integer range.
             if isinstance(obj, int):
@@ -130,8 +147,9 @@ class EventSerializer(JSONEncoder):
             if isinstance(obj, Sequence):
                 return [self.default(item) for item in obj]
 
-            if hasattr(obj, "__slots__"):
+            if hasattr(obj, "__slots__") and len(obj.__slots__) > 0:
                 return self.default({slot: getattr(obj, slot, None) for slot in obj.__slots__})
+
             elif hasattr(obj, "__dict__"):
                 obj_id = id(obj)
 
@@ -140,7 +158,7 @@ class EventSerializer(JSONEncoder):
                     return type(obj).__name__
                 else:
                     self.seen.add(obj_id)
-                    result = {k: self.default(v) for k, v in vars(obj).items()}
+                    result = {k: self.default(v) for k, v in vars(obj).items() if not k.startswith("_")}
                     self.seen.remove(obj_id)
 
                     return result
@@ -150,7 +168,7 @@ class EventSerializer(JSONEncoder):
                 return f"<{type(obj).__name__}>"
 
         except Exception:
-            _logger.error(f"Serialization failed for object of type {type(obj).__name__}")
+            _logger.warning(f"Serialization failed for object of type {type(obj).__name__}")
             return f'"<not serializable object of type: {type(obj).__name__}>"'
 
     def encode(self, obj: Any) -> str:
@@ -193,5 +211,5 @@ def serialize_to_str(input_data: Any) -> str:
         return serializer.encode(processed_data)
     except Exception:
         # Fallback if anything goes wrong
-        _logger.error(f"Serialization failed for object of type {type(input_data).__name__}", exc_info=True)
+        _logger.warning(f"Serialization failed for object of type {type(input_data).__name__}")
         return ""

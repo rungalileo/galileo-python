@@ -63,6 +63,8 @@ class DecorateAllMethods:
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         for attr, f in cls.__dict__.items():
+            if attr == "__init__":
+                continue
             if callable(f):
                 if asyncio.iscoroutinefunction(f):
                     setattr(cls, attr, async_warn_catch_exception()(f))

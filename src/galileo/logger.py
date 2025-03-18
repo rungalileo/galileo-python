@@ -34,6 +34,10 @@ RetrieverSpanAllowedOutputType = Union[
 ]
 
 
+class GalileoLoggerException(Exception):
+    pass
+
+
 class GalileoLogger(TracesLogger, DecorateAllMethods):
     """
     This class can be used to upload traces to Galileo.
@@ -95,35 +99,44 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
     project_name: Optional[str] = None
     log_stream_name: Optional[str] = None
-
     project_id: Optional[str] = None
     log_stream_id: Optional[str] = None
+    experiment_id: Optional[str] = None
 
     _logger = logging.getLogger("galileo.logger")
 
-    def __init__(self, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
+    def __init__(
+        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+    ) -> None:
         super().__init__()
 
         project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
         log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
-        if project is None:
-            self.project_name = project_name_from_env
+        self.project_name = project or project_name_from_env
+
+        if not self.project_name:
+            raise GalileoLoggerException(
+                "User must provide project_name to GalileoLogger, or set it as an environment variable."
+            )
+
+        if log_stream and experiment_id:
+            raise GalileoLoggerException("User must provide either experiment_id or log_stream, not both.")
+
+        if experiment_id:
+            self.experiment_id = experiment_id
         else:
-            self.project_name = project
+            self.log_stream_name = log_stream or log_stream_name_from_env
 
-        if log_stream is None:
-            self.log_stream_name = log_stream_name_from_env
-        else:
-            self.log_stream_name = log_stream
+            if self.log_stream_name is None:
+                raise GalileoLoggerException("log_stream is required to initialize GalileoLogger.")
 
-        if self.project_name is None or self.log_stream_name is None:
-            raise Exception("Project and log_stream are required to initialize GalileoLogger.")
+        self._init_project()
 
+    def _init_project(self):
         # Get project and log stream IDs
         api_client = GalileoApiClient()
         projects_client = Projects(client=api_client)
-        log_streams_client = LogStreams(client=api_client)
 
         project_obj = projects_client.get(name=self.project_name)
         if project_obj is None:
@@ -135,15 +148,20 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 raise Exception(f"Project {self.project_name} is not a Galileo 2.0 project")
             self.project_id = project_obj.id
 
-        log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
-        if log_stream_obj is None:
-            # Create log stream if it doesn't exist
-            self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
-            self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
-        else:
-            self.log_stream_id = log_stream_obj.id
+        if self.log_stream_name is not None:
+            log_streams_client = LogStreams(client=api_client)
+            log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
+            if log_stream_obj is None:
+                # Create log stream if it doesn't exist
+                self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
+                self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
+            else:
+                self.log_stream_id = log_stream_obj.id
 
-        self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
+            self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
+
+        elif self.experiment_id is not None:
+            self._client = GalileoCoreApiClient(project_id=self.project_id, experiment_id=self.experiment_id)
 
         # cleans up when the python interpreter closes
         atexit.register(self.terminate)
@@ -460,7 +478,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             output: Optional[StepIOType]: Output of the node.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             status_code: Optional[int]: Status code of the node execution.
-            conclude_all: bool: If True, all spans will be concluded, including the current span.False by default.
+            conclude_all: bool: If True, all spans will be concluded, including the current span. False by default.
         Returns:
         -------
             Optional[StepWithChildSpans]: The parent of the current workflow. None if no parent exists.
@@ -494,7 +512,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
-        traces_ingest_request = TracesIngestRequest(traces=self.traces)
+        traces_ingest_request = TracesIngestRequest(traces=self.traces, experiment_id=self.experiment_id)
         self._client.ingest_traces_sync(traces_ingest_request)
         logged_traces = self.traces
 

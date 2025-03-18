@@ -318,3 +318,83 @@ class TestSerializeToStr:
 
         result = serialize_to_str(NonSerializable())
         assert result == "{}"
+
+    def test_serialize_obj_with_empty_slots(self) -> None:
+        class NoSlots:
+            __slots__ = []
+
+        assert serialize_to_str(NoSlots()) == '"<NoSlots>"'
+
+    def test_serialize_non_serializable_class(self) -> None:
+        # Test with non-serializable object
+        from openai import OpenAI
+
+        client = OpenAI(api_key="test")
+
+        class NonSerializable:
+            def __init__(self, client: Any) -> None:
+                self.client = client
+
+        n = NonSerializable(client=client)
+
+        assert serialize_to_str(n) == (
+            '{"client": {"api_key": "test", "organization": null, "project": null, '
+            '"websocket_base_url": null, "max_retries": 2, "timeout": {"connect": 5.0, '
+            '"read": 600, "write": 600, "pool": 600}, "completions": {}, "chat": {}, '
+            '"embeddings": {}, "files": {}, "images": {}, "audio": {}, "moderations": {}, '
+            '"models": {}, "fine_tuning": {}, "beta": {}, "batches": {}, "uploads": {}, '
+            '"with_raw_response": {"completions": {"create": {}}, "chat": {}, '
+            '"embeddings": {"create": {}}, "files": {"create": {}, "retrieve": {}, '
+            '"list": {}, "delete": {}, "content": {}, "retrieve_content": {}}, "images": '
+            '{"create_variation": {}, "edit": {}, "generate": {}}, "audio": {}, '
+            '"moderations": {"create": {}}, "models": {"retrieve": {}, "list": {}, '
+            '"delete": {}}, "fine_tuning": {}, "beta": {}, "batches": {"create": {}, '
+            '"retrieve": {}, "list": {}, "cancel": {}}, "uploads": {"create": {}, '
+            '"cancel": {}, "complete": {}}}, "with_streaming_response": {"completions": '
+            '{"create": {}}, "chat": {}, "embeddings": {"create": {}}, "files": '
+            '{"create": {}, "retrieve": {}, "list": {}, "delete": {}, "content": {}, '
+            '"retrieve_content": {}}, "images": {"create_variation": {}, "edit": {}, '
+            '"generate": {}}, "audio": {}, "moderations": {"create": {}}, "models": '
+            '{"retrieve": {}, "list": {}, "delete": {}}, "fine_tuning": {}, "beta": {}, '
+            '"batches": {"create": {}, "retrieve": {}, "list": {}, "cancel": {}}, '
+            '"uploads": {"create": {}, "cancel": {}, "complete": {}}}}}'
+        )
+
+
+def test_serialize_complex_example_with_dataclasses():
+    @dataclass
+    class ModelConfig:
+        model_name: str
+        client: Any
+        supports_tool_calling: bool = False
+        max_tokens: int = 1024
+
+    from openai import OpenAI
+
+    client = OpenAI(api_key="test")
+
+    model_config = ModelConfig(model_name="gpt-4o", client=client, supports_tool_calling=True)
+
+    assert serialize_to_str(model_config) == (
+        '{"model_name": "gpt-4o", "client": {"api_key": "test", "organization": null, '
+        '"project": null, "websocket_base_url": null, "max_retries": 2, "timeout": '
+        '{"connect": 5.0, "read": 600, "write": 600, "pool": 600}, "completions": {}, '
+        '"chat": {}, "embeddings": {}, "files": {}, "images": {}, "audio": {}, '
+        '"moderations": {}, "models": {}, "fine_tuning": {}, "beta": {}, "batches": '
+        '{}, "uploads": {}, "with_raw_response": {"completions": {"create": {}}, '
+        '"chat": {}, "embeddings": {"create": {}}, "files": {"create": {}, '
+        '"retrieve": {}, "list": {}, "delete": {}, "content": {}, "retrieve_content": '
+        '{}}, "images": {"create_variation": {}, "edit": {}, "generate": {}}, '
+        '"audio": {}, "moderations": {"create": {}}, "models": {"retrieve": {}, '
+        '"list": {}, "delete": {}}, "fine_tuning": {}, "beta": {}, "batches": '
+        '{"create": {}, "retrieve": {}, "list": {}, "cancel": {}}, "uploads": '
+        '{"create": {}, "cancel": {}, "complete": {}}}, "with_streaming_response": '
+        '{"completions": {"create": {}}, "chat": {}, "embeddings": {"create": {}}, '
+        '"files": {"create": {}, "retrieve": {}, "list": {}, "delete": {}, "content": '
+        '{}, "retrieve_content": {}}, "images": {"create_variation": {}, "edit": {}, '
+        '"generate": {}}, "audio": {}, "moderations": {"create": {}}, "models": '
+        '{"retrieve": {}, "list": {}, "delete": {}}, "fine_tuning": {}, "beta": {}, '
+        '"batches": {"create": {}, "retrieve": {}, "list": {}, "cancel": {}}, '
+        '"uploads": {"create": {}, "cancel": {}, "complete": {}}}}, '
+        '"supports_tool_calling": true, "max_tokens": 1024}'
+    )
