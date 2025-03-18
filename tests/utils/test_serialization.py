@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 from pydantic import BaseModel
 
-from galileo.utils.serialization import EventSerializer, serialize_datetime, serialize_to_str
+from galileo.utils.serialization import EventSerializer, convert_to_string_dict, serialize_datetime, serialize_to_str
 
 
 class TestSerializeDateTime:
@@ -398,3 +398,132 @@ def test_serialize_complex_example_with_dataclasses():
         '"uploads": {"create": {}, "cancel": {}, "complete": {}}}}, '
         '"supports_tool_calling": true, "max_tokens": 1024}'
     )
+
+
+class TestEnum(enum.Enum):
+    OPTION_A = "a"
+    OPTION_B = "b"
+
+
+class SimpleDataClass:
+    def __init__(self, name: str, value: int):
+        self.name = name
+        self.value = value
+
+
+class TestPydanticModel(BaseModel):
+    name: str
+    value: int
+
+
+@pytest.fixture
+def sample_data() -> dict[Any, Any]:
+    """Fixture providing a dictionary with various types of data."""
+    return {
+        "string_key": "string_value",
+        "int_key": 42,
+        "float_key": 3.14,
+        "bool_key": True,
+        "none_key": None,
+        "dict_key": {"nested": "value"},
+        "list_key": [1, 2, 3],
+        "tuple_key": (4, 5, 6),
+        "datetime_key": dt.datetime(2023, 1, 1, 12, 0, 0),
+        "enum_key": TestEnum.OPTION_A,
+        "uuid_key": uuid.uuid4(),
+        "path_key": Path("/tmp/test"),
+        123: "numeric_key",  # Non-string key
+    }
+
+
+class TestConvertToStringDict:
+    def test_basic_conversion(self):
+        """Test conversion of a simple dictionary with basic types."""
+        input_dict = {"str": "hello", "int": 42, "float": 3.14, "bool": True, "none": None}
+        result = convert_to_string_dict(input_dict)
+
+        assert isinstance(result, dict)
+        assert all(isinstance(k, str) for k in result.keys())
+        assert all(isinstance(v, str) for v in result.values())
+        assert result["str"] == "hello"
+        assert result["int"] == "42"
+        assert result["float"] == "3.14"
+        assert result["bool"] == "True"
+        assert result["none"] == ""
+
+    def test_complex_types(self, sample_data):
+        """Test conversion of complex data types using sample data fixture."""
+        result = convert_to_string_dict(sample_data)
+
+        assert isinstance(result, dict)
+        assert all(isinstance(k, str) for k in result.keys())
+        assert all(isinstance(v, str) for v in result.values())
+
+        # Verify numeric key was converted to string
+        assert "123" in result
+
+        # Verify complex types were properly serialized
+        assert json.loads(result["dict_key"]) == {"nested": "value"}
+        assert json.loads(result["list_key"]) == [1, 2, 3]
+
+        # Verify UUID was converted to string
+        uuid_obj = sample_data["uuid_key"]
+        assert result["uuid_key"] == str(uuid_obj)
+
+        # Verify Path was converted to string
+        assert result["path_key"] == "/tmp/test"
+
+    def test_nested_dicts(self):
+        """Test conversion of deeply nested dictionaries."""
+        nested_dict = {"level1": {"level2": {"level3": "deep_value"}}}
+        result = convert_to_string_dict(nested_dict)
+
+        assert isinstance(result, dict)
+        assert "level1" in result
+        # The nested dict should be serialized as a JSON string
+        nested_json = json.loads(result["level1"])
+        assert nested_json["level2"]["level3"] == "deep_value"
+
+    def test_empty_dict(self):
+        """Test conversion of an empty dictionary."""
+        result = convert_to_string_dict({})
+        assert result == {}
+
+    def test_pydantic_model(self):
+        """Test conversion of a dictionary containing a Pydantic model."""
+        model = TestPydanticModel(name="test", value=42)
+        input_dict = {"model": model}
+
+        result = convert_to_string_dict(input_dict)
+
+        assert isinstance(result, dict)
+        assert "model" in result
+        # The model should be serialized as a JSON string
+        model_dict = result["model"]
+        assert model_dict == "name='test' value=42"
+
+    def test_custom_object(self):
+        """Test conversion of a dictionary containing a custom object."""
+        obj = SimpleDataClass("test", 42)
+        input_dict = {"custom_obj": obj}
+
+        result = convert_to_string_dict(input_dict)
+
+        assert isinstance(result, dict)
+        assert "custom_obj" in result
+        # The object should be serialized using EventSerializer
+        obj_str = result["custom_obj"]
+        assert isinstance(obj_str, str)
+        assert "tests.utils.test_serialization.SimpleDataClass" in obj_str
+
+    def test_large_integers(self):
+        """Test conversion of integers larger than JavaScript's safe integer range."""
+        large_int = 2**54  # Exceeds JavaScript's safe integer range
+        input_dict = {"large_int": large_int}
+
+        result = convert_to_string_dict(input_dict)
+
+        assert isinstance(result, dict)
+        assert "large_int" in result
+        # Should be converted to string directly, not via JSON serialization
+        assert result["large_int"] == str(large_int)

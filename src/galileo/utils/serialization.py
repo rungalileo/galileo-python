@@ -213,3 +213,28 @@ def serialize_to_str(input_data: Any) -> str:
         # Fallback if anything goes wrong
         _logger.warning(f"Serialization failed for object of type {type(input_data).__name__}")
         return ""
+
+
+def convert_to_string_dict(input_: dict) -> dict[str, str]:
+    """
+    Convert a dict with arbitrary values to a dict[str, str] by converting
+    all values to their string representations.
+    """
+    result = {}
+    for key, value in input_.items():
+        # Ensure key is a string
+        string_key = str(key)
+
+        # Convert value to string based on type
+        if value is None:
+            string_value = ""
+        elif isinstance(value, (dict, list, tuple)):
+            # For complex types, use JSON serialization
+            string_value = json.dumps(value, cls=EventSerializer)
+        else:
+            # For primitive types, convert directly to string
+            string_value = str(value)
+
+        result[string_key] = string_value
+
+    return result
