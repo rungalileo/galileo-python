@@ -17,6 +17,7 @@ def setup(ctx: Context) -> None:
 def test_report_xml(ctx: Context) -> None:
     ctx.run("poetry run pytest -vvv --cov=galileo --cov-report=xml", echo=True)
 
+
 @task
 def test(ctx: Context) -> None:
     ctx.run("poetry run pytest --cov=galileo --cov-report=term-missing", echo=True)
