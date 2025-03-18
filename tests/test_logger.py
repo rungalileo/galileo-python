@@ -745,3 +745,6 @@ def test_get_last_output_last_child_none() -> None:
     trace.spans = [workflow_span_1, workflow_span_2]
 
     assert GalileoLogger._get_last_output(trace) is None
+
+    trace.spans = []
+    assert GalileoLogger._get_last_output(trace) is None
