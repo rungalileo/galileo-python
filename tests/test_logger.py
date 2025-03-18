@@ -8,7 +8,7 @@ import pytest
 
 from galileo.logger import GalileoLogger
 from galileo.schema.trace import TracesIngestRequest
-from galileo_core.schemas.logging.span import RetrieverSpan
+from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
@@ -608,8 +608,8 @@ def test_flush_with_conclude_all_spans(
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
     assert len(payload.traces[0].spans[0].spans) == 1
-    assert payload.traces[0].output is None
-    assert payload.traces[0].spans[0].output is None
+    assert payload.traces[0].output == '{"content": "response", "role": "assistant"}'
+    assert payload.traces[0].spans[0].output == '{"content": "response", "role": "assistant"}'
 
     assert logger.traces == []
     assert logger._parent_stack == deque()
@@ -633,3 +633,118 @@ def test_galileo_logger_failed_creating_project(
     with caplog.at_level(logging.WARNING):
         GalileoLogger()
         assert "Unable to create project" in caplog.text
+
+
+def test_get_last_output() -> None:
+    trace = Trace(
+        input="input",
+        name="test-trace",
+        created_at=datetime.datetime.now(),
+        duration_ns=1_000_000,
+        status_code=200,
+        metrics=Metrics(),
+        metadata={"key": "value"},
+        tags=["tag1", "tag2"],
+    )
+
+    workflow_span = WorkflowSpan(
+        input="input",
+        name="test-span",
+        created_at=datetime.datetime.now(),
+        duration_ns=1_000_000,
+        status_code=200,
+        metrics=Metrics(),
+        metadata={"key": "value"},
+        tags=["tag1", "tag2"],
+    )
+
+    llm_span = LlmSpan(
+        input="input",
+        output="llm output",
+        name="test-span",
+        created_at=datetime.datetime.now(),
+        duration_ns=1_000_000,
+        status_code=200,
+        metadata={"key": "value"},
+        tags=["tag1", "tag2"],
+    )
+
+    workflow_span.spans = [llm_span]
+    trace.spans = [workflow_span]
+
+    assert GalileoLogger._get_last_output(trace) == '{"content": "llm output", "role": "assistant"}'
+
+    workflow_span_2 = WorkflowSpan(
+        input="input",
+        output="workflow output",
+        name="test-span",
+        created_at=datetime.datetime.now(),
+        duration_ns=1_000_000,
+        status_code=200,
+        metrics=Metrics(),
+        metadata={"key": "value"},
+        tags=["tag1", "tag2"],
+    )
+
+    workflow_span_2.spans = [llm_span]
+    trace.spans = [workflow_span_2]
+
+    assert GalileoLogger._get_last_output(trace) == "workflow output"
+
+    trace.output = "trace output"
+    assert GalileoLogger._get_last_output(trace) == "trace output"
+
+
+def test_get_last_output_last_child_none() -> None:
+    trace = Trace(
+        input="input",
+        name="test-trace",
+        created_at=datetime.datetime.now(),
+        duration_ns=1_000_000,
+        status_code=200,
+        metrics=Metrics(),
+        metadata={"key": "value"},
+        tags=["tag1", "tag2"],
+    )
+
+    workflow_span_1 = WorkflowSpan(
+        input="input",
+        name="test-span",
+        created_at=datetime.datetime.now(),
+        duration_ns=1_000_000,
+        status_code=200,
+        metrics=Metrics(),
+        metadata={"key": "value"},
+        tags=["tag1", "tag2"],
+    )
+
+    retrieval_span = RetrieverSpan(
+        input="input",
+        output=[Document(content="retrieval output", metadata=None)],
+        name="test-span",
+        created_at=datetime.datetime.now(),
+        duration_ns=1_000_000,
+        status_code=200,
+        metrics=Metrics(),
+        metadata={"key": "value"},
+        tags=["tag1", "tag2"],
+    )
+
+    workflow_span_2 = WorkflowSpan(
+        input="input",
+        name="test-span",
+        created_at=datetime.datetime.now(),
+        duration_ns=1_000_000,
+        status_code=200,
+        metrics=Metrics(),
+        metadata={"key": "value"},
+        tags=["tag1", "tag2"],
+    )
+
+    workflow_span_1.spans = [retrieval_span]
+    trace.spans = [workflow_span_1, workflow_span_2]
+
+    assert GalileoLogger._get_last_output(trace) is None
+
+    trace.spans = []
+    assert GalileoLogger._get_last_output(trace) is None

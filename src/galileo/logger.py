@@ -15,6 +15,7 @@ from galileo.projects import Projects
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
+from galileo.utils.serialization import serialize_to_str
 from galileo_core.schemas.logging.span import (
     LlmSpan,
     LlmSpanAllowedInputType,
@@ -165,6 +166,20 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         # cleans up when the python interpreter closes
         atexit.register(self.terminate)
+
+    @staticmethod
+    def _get_last_output(node: Union[StepWithChildSpans, None]) -> Optional[str]:
+        """
+        Get the last output of a node or its child spans recursively.
+        """
+        if not node:
+            return None
+
+        if node.output:
+            return node.output if isinstance(node.output, str) else serialize_to_str(node.output)
+        elif len(node.spans):
+            return GalileoLogger._get_last_output(node.spans[-1])
+        return None
 
     def start_trace(
         self,
@@ -506,9 +521,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._logger.warning("No traces to flush.")
             return list()
 
-        if self.current_parent is not None:
+        current_parent = self.current_parent()
+        if current_parent is not None:
             self._logger.info("Concluding the active trace...")
-            self.conclude(conclude_all=True)
+            last_output = GalileoLogger._get_last_output(current_parent)
+            self.conclude(output=last_output, conclude_all=True)
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
@@ -534,9 +551,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._logger.warning("No traces to flush.")
             return list()
 
-        if self.current_parent is not None:
+        current_parent = self.current_parent()
+        if current_parent is not None:
             self._logger.info("Concluding the active trace...")
-            self.conclude(conclude_all=True)
+            last_output = GalileoLogger._get_last_output(current_parent)
+            self.conclude(output=last_output, conclude_all=True)
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
