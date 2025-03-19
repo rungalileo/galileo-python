@@ -1,6 +1,6 @@
 import builtins
 import logging
-from typing import Any, Callable, Optional, Union, List
+from typing import Any, Callable, Optional, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -179,10 +179,10 @@ def run_experiment(
     prompt_template: PromptTemplate = None,
     prompt_settings: Optional[PromptRunSettings] = None,
     project: str = None,
-    dataset: Union[Dataset, List[dict[str, str]], str] = None,
+    dataset: Union[Dataset, list[dict[str, str]], str] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
-    metrics: List[str] = None,
+    metrics: list[str] = None,
     function: Union[Callable, None] = None,
 ) -> Any:
     """
