@@ -27,7 +27,7 @@ from galileo.resources.models import (
     ProjectType,
     TaskType,
 )
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_projects_client, setup_mock_logstreams_client
+from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
 @pytest.fixture
@@ -213,7 +213,6 @@ class TestExperiments:
             prompt_settings=ANY,
         )
 
-
     @patch("galileo.logger.LogStreams")
     @patch("galileo.logger.Projects")
     @patch("galileo.logger.GalileoCoreApiClient")
@@ -228,7 +227,7 @@ class TestExperiments:
         mock_core_api_client: Mock,
         mock_projects_client: Mock,
         mock_logstreams_client: Mock,
-        reset_context
+        reset_context,
     ):
         mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
         setup_mock_projects_client(mock_projects_client)
@@ -239,10 +238,11 @@ class TestExperiments:
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
 
         dataset_id = str(UUID(int=0, version=4))
-        function = lambda *args, **kwargs: "dummy_function"
-        run_experiment(
-            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, function=function,
-        )
+
+        def function(*args, **kwargs):
+            return "dummy_function"
+
+        run_experiment("test_experiment", project="awesome-new-project", dataset_id=dataset_id, function=function)
 
         mock_get_project.assert_called_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", "test_experiment")
