@@ -132,7 +132,6 @@ class TestExperiments:
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
 
         _, records = _get_dataset_and_records_by_name(dataset_name="awesome-dataset")
-
         assert records == [{"expected": "Europe", "input": "Which continent is Spain in?"}]
 
         mock_get_dataset.assert_called_once_with(id=None, name="awesome-dataset")
@@ -159,10 +158,7 @@ class TestExperiments:
         assert records == [{"expected": "Europe", "input": "Which continent is Spain in?"}]
         mock_get_dataset.assert_called_once_with(id=dataset_id, name=dataset_name or dataset)
 
-    @patch.object(galileo.datasets.Datasets, "get")
-    def test_load_dataset_and_records_error(self, mock_get_dataset):
-        # mock_get_dataset_instance = mock_get_dataset.return_value
-        # mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
+    def test_load_dataset_and_records_error(self):
         with pytest.raises(ValueError) as exc_info:
             _load_dataset_and_records(dataset=None, dataset_name=None, dataset_id=None)
         assert str(exc_info.value) == "One of dataset, dataset_name, or dataset_id must be provided"
