@@ -5,6 +5,7 @@ from uuid import UUID
 import pytest
 
 import galileo
+from galileo import galileo_context
 from galileo.experiments import (
     Experiments,
     _get_dataset_and_records_by_id,
@@ -26,6 +27,12 @@ from galileo.resources.models import (
     ProjectType,
     TaskType,
 )
+from tests.testutils.setup import setup_mock_core_api_client, setup_mock_projects_client, setup_mock_logstreams_client
+
+
+@pytest.fixture
+def reset_context():
+    galileo_context.reset()
 
 
 def project():
@@ -39,9 +46,9 @@ def project():
 
 def experiment_response():
     return ExperimentResponse(
-        id=str(UUID(int=1)),
+        id=str(UUID(int=1, version=4)),
         name="awesome-new-experiment",
-        project_id=str(UUID(int=0)),
+        project_id=str(UUID(int=0, version=4)),
         updated_at=datetime.now(),
         created_at=datetime.now(),
     )
@@ -198,10 +205,51 @@ class TestExperiments:
         mock_create_job.assert_called_once_with(
             name="playground_run",
             project_id="00000000-0000-0000-0000-000000000000",
-            run_id="00000000-0000-0000-0000-000000000001",
+            run_id="00000000-0000-4000-8000-000000000001",
             prompt_template_id="00000000-0000-0000-0000-000000000003",
             dataset_id=ANY,
             task_type=TaskType.VALUE_16,
             scorers=None,
             prompt_settings=ANY,
         )
+
+
+    @patch("galileo.logger.LogStreams")
+    @patch("galileo.logger.Projects")
+    @patch("galileo.logger.GalileoCoreApiClient")
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_func(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_get_dataset: Mock,
+        mock_core_api_client: Mock,
+        mock_projects_client: Mock,
+        mock_logstreams_client: Mock,
+        reset_context
+    ):
+        mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+        setup_mock_projects_client(mock_projects_client)
+        setup_mock_logstreams_client(mock_logstreams_client)
+
+        # mock dataset.get_content
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
+
+        dataset_id = str(UUID(int=0, version=4))
+        function = lambda *args, **kwargs: "dummy_function"
+        run_experiment(
+            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, function=function,
+        )
+
+        mock_get_project.assert_called_with(name="awesome-new-project")
+        mock_get_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", "test_experiment")
+        mock_get_dataset.assert_called_once_with(id="00000000-0000-4000-8000-000000000000", name=None)
+        mock_get_dataset_instance.get_content.assert_called()
+
+        # check galileo_logger
+        payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+        assert len(payload.traces) == 1
+        assert len(payload.traces[0].spans) == 1
