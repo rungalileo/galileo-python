@@ -11,6 +11,8 @@ from galileo.experiments import (
     _get_dataset_and_records_by_name,
     _load_dataset_and_records,
     create_experiment,
+    get_experiment,
+    get_experiments,
     run_experiment,
 )
 from galileo.projects import Project
@@ -35,7 +37,7 @@ def project():
     )
 
 
-def experiment():
+def experiment_response():
     return ExperimentResponse(
         id=str(UUID(int=1)),
         name="awesome-new-experiment",
@@ -98,11 +100,20 @@ class TestExperiments:
             project_id=str(UUID(int=0)), client=ANY, body=ANY
         )
 
-    def test_get_experiment(self):
-        pass
+    @patch("galileo.experiments.list_experiments_v2_projects_project_id_experiments_get")
+    def test_get_experiment(self, list_experiments_mock: Mock):
+        list_experiments_mock.sync = Mock(return_value=[experiment_response()])
+        experiment = get_experiment(project_id=str(UUID(int=0)), experiment_name=experiment_response().name)
+        assert experiment.name == experiment_response().name
+        list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
 
-    def test_get_experiments(self):
-        pass
+    @patch("galileo.experiments.list_experiments_v2_projects_project_id_experiments_get")
+    def test_get_experiments(self, list_experiments_mock: Mock):
+        list_experiments_mock.sync = Mock(return_value=[experiment_response()])
+        experiments = get_experiments(project_id=str(UUID(int=0)))
+        assert len(experiments) == 1
+        assert experiments[0].name == experiment_response().name
+        list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
 
     @patch.object(galileo.datasets.Datasets, "get")
     def test_get_dataset_and_records_by_id(self, mock_get_dataset):
@@ -165,7 +176,7 @@ class TestExperiments:
 
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
-    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
     def test_run_experiment_without_metrics(
         self, mock_get_project: Mock, mock_get_experiment: Mock, mock_create_job: Mock, mock_get_dataset: Mock
