@@ -523,9 +523,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._logger.warning("No traces to flush.")
             return list()
 
-        if self.current_parent is not None:
+        current_parent = self.current_parent()
+        if current_parent is not None:
             self._logger.info("Concluding the active trace...")
-            self.conclude(conclude_all=True)
+            last_output = GalileoLogger._get_last_output(current_parent)
+            self.conclude(output=last_output, conclude_all=True)
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
