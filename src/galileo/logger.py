@@ -15,6 +15,7 @@ from galileo.projects import Projects
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
+from galileo.utils.nop_logger import NopAllMethods
 from galileo.utils.serialization import serialize_to_str
 from galileo_core.schemas.logging.span import (
     LlmSpan,
@@ -40,7 +41,7 @@ class GalileoLoggerException(Exception):
     pass
 
 
-class GalileoLogger(TracesLogger, DecorateAllMethods, NopAllMethods):
+class GalileoLogger(TracesLogger, DecorateAllMethods):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.
