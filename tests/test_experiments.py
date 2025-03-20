@@ -379,6 +379,7 @@ class TestExperiments:
             prompt_settings=promt_run_settings(),
         )
 
+    @patch.object(galileo.datasets.Datasets, "get")
     def test_run_experiment_with_prompt_template_and_function(self, mock_get_dataset: Mock):
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
@@ -393,6 +394,9 @@ class TestExperiments:
                 prompt_template=prompt_template(),
             )
         assert str(exc_info.value) == "A function or prompt_template should be provided, but not both"
+
+        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000001", name=None)
+        mock_get_dataset_instance.get_content.assert_called()
 
     def test_run_experiment_with_prompt_template_and_local_dataset(self):
         with pytest.raises(ValueError) as exc_info:
