@@ -223,6 +223,9 @@ def run_experiment(
             "A dataset record, id or name of a dataset, or list of records must be provided when a function is used"
         )
 
+    if function and prompt_template:
+        raise ValueError("A function or prompt_template should be provided, but not both")
+
     # Get project
     project_obj = Projects().get(name=project)
     if not project_obj:

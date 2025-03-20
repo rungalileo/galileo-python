@@ -5,6 +5,7 @@ from uuid import UUID
 import pytest
 
 import galileo
+import galileo.experiments
 from galileo import galileo_context
 from galileo.experiments import (
     Experiments,
@@ -16,7 +17,6 @@ from galileo.experiments import (
     get_experiments,
     run_experiment,
 )
-import galileo.experiments
 from galileo.projects import Project
 from galileo.prompts import PromptTemplate
 from galileo.resources.models import (
@@ -26,10 +26,10 @@ from galileo.resources.models import (
     ExperimentResponse,
     ProjectCreateResponse,
     ProjectType,
-    TaskType,
-    ScorerConfig,
-    ScorerTypes,
     PromptRunSettings,
+    ScorerConfig,
+    ScorerResponse,
+    TaskType,
 )
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
@@ -81,26 +81,48 @@ def dataset_content():
     column_names = ["input", "expected"]
     return DatasetContent(column_names=column_names, rows=[row])
 
+
+def local_dataset():
+    return [
+        {"input": "Which continent is Spain in?", "expected": "Europe"},
+        {"input": "Which continent is Japan in?", "expected": "Asia"},
+    ]
+
+
 def scorers():
-    return ScorerConfig(
-        id="dummy",
-        scorer_type=ScorerTypes.PRESET
-    )
+    return [
+        ScorerResponse.from_dict(
+            {
+                "id": "aed89cbc-5515-43c3-87ae-39c3c44c043e",
+                "name": "correctness",
+                "scorer_type": "preset",
+                "tags": ["preset", "factuality", "output quality"],
+                "created_at": "2025-03-11T00:00:28.497645+00:00",
+                "created_by": "7c785f66-89c8-4966-8339-6a4dd910d4a5",
+                "defaults": {"filters": None, "model_name": "GPT-4o mini", "num_judges": 7},
+                "description": "Measures the potential presence of factual errors or inconsistencies in the model's response.",
+                "included_fields": ["model_name", "num_judges", "filters"],
+                "latest_version": None,
+                "updated_at": "2025-03-19T14:00:55.759587+00:00",
+            }
+        )
+    ]
+
 
 def promt_run_settings():
     return PromptRunSettings(
-                n=1,
-                echo=True,
-                top_k=10,
-                top_p=1.0,
-                logprobs=True,
-                max_tokens=128,
-                model_alias="GPT-4o",
-                temperature=0.8,
-                top_logprobs=10,
-                presence_penalty=0.0,
-                frequency_penalty=0.0,
-            )
+        n=1,
+        echo=True,
+        top_k=10,
+        top_p=1.0,
+        logprobs=True,
+        max_tokens=128,
+        model_alias="GPT-4o",
+        temperature=0.8,
+        top_logprobs=10,
+        presence_penalty=0.0,
+        frequency_penalty=0.0,
+    )
 
 
 class TestExperiments:
@@ -280,15 +302,19 @@ class TestExperiments:
         assert len(payload.traces[0].spans) == 1
 
     @patch.object(galileo.experiments.ScorerSettings, "create")
-    @patch.object(galileo.experiments.Scorers, "list", scorers())
+    @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
     def test_run_experiment_w_prompt_template_and_metrics(
-        self, 
-        mock_get_project: Mock, mock_get_experiment: Mock, mock_create_job: Mock, mock_get_dataset: Mock,
-        mock_scorers_list: Mock, mock_scorersettings_create: Mock,
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        mock_scorers_list: Mock,
+        mock_scorersettings_create: Mock,
     ):
         mock_create_job.return_value = MagicMock()
 
@@ -298,7 +324,10 @@ class TestExperiments:
 
         dataset_id = str(UUID(int=0))
         run_experiment(
-            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, prompt_template=prompt_template(), 
+            "test_experiment",
+            project="awesome-new-project",
+            dataset_id=dataset_id,
+            prompt_template=prompt_template(),
             metrics=["correctness"],
         )
 
@@ -306,15 +335,19 @@ class TestExperiments:
         mock_get_experiment.assert_called_once_with(project().id, "test_experiment")
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
+        mock_scorers_list.assert_called_with()
+        mock_scorersettings_create.assert_called_with(
+            project_id="00000000-0000-0000-0000-000000000000",
+            run_id="00000000-0000-4000-8000-000000000001",
+            scorers=[ScorerConfig.from_dict(scorers()[0].to_dict())],
+        )
 
-                
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
     def test_run_experiment_w_prompt_template_and_prompt_settings(
-        self,
-        mock_get_project: Mock, mock_get_experiment: Mock, mock_create_job: Mock, mock_get_dataset: Mock,
+        self, mock_get_project: Mock, mock_get_experiment: Mock, mock_create_job: Mock, mock_get_dataset: Mock
     ):
         mock_create_job.return_value = MagicMock()
 
@@ -324,7 +357,9 @@ class TestExperiments:
 
         dataset_id = str(UUID(int=0))
         run_experiment(
-            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, 
+            "test_experiment",
+            project="awesome-new-project",
+            dataset_id=dataset_id,
             prompt_template=prompt_template(),
             prompt_settings=promt_run_settings(),
         )
@@ -343,32 +378,31 @@ class TestExperiments:
             scorers=None,
             prompt_settings=promt_run_settings(),
         )
-        
-    @patch.object(galileo.datasets.Datasets, "get")
-    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
-    def test_run_experiment_with_prompt_template_and_function(
-        self, 
-        mock_get_project: Mock,
-        mock_get_experiment: Mock,
-        mock_get_dataset: Mock
-    ):
+
+    def test_run_experiment_with_prompt_template_and_function(self, mock_get_dataset: Mock):
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
 
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as exc_info:
             run_experiment(
-                "test_experiment", project="awesome-new-project", 
+                "test_experiment",
+                project="awesome-new-project",
                 dataset_id=str(UUID(int=1)),
                 function=lambda x: x,
                 prompt_template=prompt_template(),
             )
+        assert str(exc_info.value) == "A function or prompt_template should be provided, but not both"
 
     def test_run_experiment_with_prompt_template_and_local_dataset(self):
-         with pytest.raises(ValueError):
+        with pytest.raises(ValueError) as exc_info:
             run_experiment(
-                "test_experiment", project="awesome-new-project", 
-                dataset_id=local_dataset(),
+                "test_experiment",
+                project="awesome-new-project",
+                dataset=local_dataset(),
                 prompt_template=prompt_template(),
             )
+        assert (
+            str(exc_info.value)
+            == "A dataset record, id, or name of a dataset must be provided when a prompt_template is used"
+        )
