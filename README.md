@@ -18,7 +18,7 @@ Set the following environment variables:
 - `GALILEO_API_KEY`: Your Galileo API key
 - `GALILEO_PROJECT`: (Optional) Project name
 - `GALILEO_LOG_STREAM`: (Optional) Log stream name
-- `GALILEO_LOGGING_DISABLED`: (Optional) Disable collecting and sending logs to galileo. 
+- `GALILEO_LOGGING_DISABLED`: (Optional) Disable collecting and sending logs to galileo.
 
 Note: if you would like to point to an environment other than `app.galileo.ai`, you'll need to set the `GALILEO_CONSOLE_URL` environment variable.
 
