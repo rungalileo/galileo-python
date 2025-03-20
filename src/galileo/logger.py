@@ -41,7 +41,7 @@ class GalileoLoggerException(Exception):
     pass
 
 
-class GalileoLogger(TracesLogger, DecorateAllMethods):
+class GalileoLogger(TracesLogger, DecorateAllMethods, NopAllMethods):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.

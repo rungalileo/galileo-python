@@ -13,7 +13,7 @@ def galileo_logging_enabled() -> bool:
     return False
 
 
-def nop_sync(*args, **kwargs) -> Any:
+def nop_sync(*args: Any, **kwargs: Any) -> Any:
     def wrapper(f: Callable) -> Callable:
         @functools.wraps(f)
         def inner(*args: Any, **kwargs: Any) -> Any:
