@@ -18,4 +18,4 @@ from galileo_core.schemas.shared.workflows.step import (
     WorkflowStep,
 )
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
