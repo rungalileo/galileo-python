@@ -20,7 +20,7 @@ openai = { version = "^1.61.0", optional = true }
 
 [project.optional-dependencies]
 langchain = ["langchain-core"]
-openai = ["openai"]
+openai = ["openai", "packaging (>=24.2,<25.0)"]
 all = ["langchain-core", "openai"]
 
 
