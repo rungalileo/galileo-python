@@ -45,7 +45,6 @@ from datetime import datetime
 from inspect import isclass
 from typing import Any, Callable, Optional
 
-from packaging.version import Version
 from pydantic import BaseModel
 from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
 
@@ -59,6 +58,9 @@ try:
     import openai.resources
     from openai._types import NotGiven
     from openai.types.chat import ChatCompletionMessageToolCall
+
+    # it's used only for version check of OpenAI
+    from packaging.version import Version
 except ImportError:
     raise ModuleNotFoundError("Please install OpenAI to use this feature: 'pip install openai'")
 

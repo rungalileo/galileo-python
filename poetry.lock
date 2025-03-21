@@ -2447,9 +2447,9 @@ cffi = ["cffi (>=1.11)"]
 [extras]
 all = ["langchain-core", "openai"]
 langchain = ["langchain-core"]
-openai = ["openai"]
+openai = ["openai", "packaging"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "440374fa0fef33ee6aa170f8e524f080dc1807405fe5ec63424044ea6eddb4e3"
+content-hash = "4d337cff9140c8e97e5419cd56a3626c1a9aa74c5584ded51ec18fb1163e592d"
