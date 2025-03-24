@@ -10,8 +10,10 @@ from galileo.resources.api.datasets import (
     list_datasets_datasets_get,
     query_datasets_datasets_query_post,
     update_dataset_content_datasets_dataset_id_content_patch,
-    upload_dataset_datasets_post,
+    upload_dataset_datasets_post, query_dataset_versions_datasets_dataset_id_versions_query_post,
+    get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get,
 )
+from galileo.resources.models import ListDatasetVersionParams
 from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.models.dataset_db import DatasetDB
@@ -100,6 +102,19 @@ class Dataset(BaseClientModel, DecorateAllMethods):
         self.get_content()
 
         return self
+
+    def get_version_history(self):
+        list_dataset = query_dataset_versions_datasets_dataset_id_versions_query_post.sync(
+            dataset_id=self.dataset.id, client=self.client, body=ListDatasetVersionParams(),
+        )
+        return list_dataset
+
+
+    def load_version(self, version_index: int) -> DatasetContent:
+        return get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get.sync(
+            dataset_id=self.dataset.id, version_index=version_index, client=self.client
+        )
+
 
     def __getattr__(self, attr):
         """
@@ -270,6 +285,7 @@ class Datasets(BaseClientModel):
         return Dataset(dataset_db=response, client=self.client)
 
 
+
 #
 # Convenience methods
 #
@@ -376,6 +392,32 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
 
     """
     return Datasets().create(name=name, content=content)
+
+
+def get_dataset_version_history(dataset_name: str = None, dataset_id: str = None):
+    if dataset_name is None and dataset_id is None:
+        raise ValueError("Either dataset_name or dataset_id must be provided.")
+
+    if dataset_name is not None:
+        dataset = Datasets().get(name=dataset_name)
+        return dataset.get_version_history()
+
+    if dataset_id is not None:
+        dataset = Datasets().get(id=dataset_id)
+        return dataset.get_version_history()
+
+
+def get_dataset_version(version_index: int, dataset_name: str = None, dataset_id: str = None,) -> DatasetContent:
+    if dataset_name is None and dataset_id is None:
+        raise ValueError("Either dataset_name or dataset_id must be provided.")
+
+    if dataset_name is not None:
+        dataset = Datasets().get(name=dataset_name)
+        return dataset.load_version(version_index)
+
+    if dataset_id is not None:
+        dataset = Datasets().get(id=dataset_id)
+        return dataset.load_version(version_index)
 
 
 def convert_dataset_content_to_records(dataset_content: DatasetContent):

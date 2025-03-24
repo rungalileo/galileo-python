@@ -187,7 +187,7 @@ class Projects(BaseClientModel, DecorateAllMethods):
         """
         body = ProjectCreate(name=name, type_=ProjectType.GEN_AI, create_example_templates=False, created_by=None)
 
-        response = create_project_projects_post.sync(client=self.client, body=body)
+        response = create_project_projects_post.sync_detailed(client=self.client, body=body)
 
         if isinstance(response, HTTPValidationError):
             _logger.error(response)
