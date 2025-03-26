@@ -54,7 +54,7 @@ class MetricDescriptions(str, Enum):
         "Measures the presence of prompt injection attacks in inputs to the LLM."
     )
     MEASURES_THE_RELEVANCE_OF_THE_RETRIEVED_CONTEXT_TO_THE_USERS_QUERY_AS_THE_SEMANTIC_DISTANCE_BETWEEN_THE_TWO = (
-        "Measures the relevance of the retrieved context to the user's query as the semantic distance between the two."
+        "Measures whether the retrieved context has enough information to answer the user's query."
     )
     MEASURES_WHETHER_THE_LLMS_RESPONSE_IS_SUPPORTED_BY_OR_BAKED_IN_THE_CONTEXT_PROVIDED = (
         "Measures whether the LLM's response is supported by (or baked in) the context provided. "
