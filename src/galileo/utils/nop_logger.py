@@ -1,4 +1,3 @@
-import asyncio
 import functools
 import logging
 import os
@@ -8,41 +7,26 @@ _logger = logging.getLogger(__name__)
 
 
 def galileo_logging_enabled() -> bool:
-    if os.getenv("GALILEO_LOGGING_DISABLED", "False").lower() in ("true", "1", "t"):
-        return True
-    return False
+    if os.getenv("GALILEO_LOGGING_DISABLED", "false").lower() in ("true", "1", "t"):
+        return False
+    return True
 
 
-def nop_sync(*args: Any, **kwargs: Any) -> Any:
-    def wrapper(f: Callable) -> Callable:
-        @functools.wraps(f)
-        def inner(*args: Any, **kwargs: Any) -> Any:
-            _logger.debug(f"enabled nop logger for {f.__name__}")
-
-        return inner
-
-    return wrapper
-
-
-def nop_async(*args: Any, **kwargs: Any) -> Any:
-    def wrapper(f: Callable) -> Callable:
-        @functools.wraps(f)
-        async def inner(*args: Any, **kwargs: Any) -> Any:
-            _logger.debug(f"enabled nop logger for {f.__name__}")
-
-        return inner
-
-    return wrapper
-
-
-class NopAllMethods:
-    def __init_subclass__(cls, **kwargs: Any) -> None:
-        super().__init_subclass__(**kwargs)
-
+def nop_sync(f: Callable) -> Callable:
+    @functools.wraps(f)
+    def decorated(*args: Any, **kwargs: Any) -> Any:
         if galileo_logging_enabled():
-            for attr, f in cls.__dict__.items():
-                if callable(f):
-                    if asyncio.iscoroutinefunction(f):
-                        setattr(cls, attr, nop_async()(f))
-                    else:
-                        setattr(cls, attr, nop_sync()(f))
+            return f(*args, **kwargs)
+        _logger.warning(f"enabled nop logger for {f.__name__}")
+
+    return decorated
+
+
+def nop_async(f: Callable) -> Callable:
+    @functools.wraps(f)
+    async def decorated(*args: Any, **kwargs: Any) -> Any:
+        if galileo_logging_enabled():
+            return await f(*args, **kwargs)
+        _logger.warning(f"enabled nop logger for {f.__name__}")
+
+    return decorated
