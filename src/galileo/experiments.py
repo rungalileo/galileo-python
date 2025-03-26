@@ -129,7 +129,7 @@ class Experiments(BaseClientModel):
         _logger.debug(f"job: {job}")
 
         print(
-            f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+            f"Experiment `{experiment_obj.name}` has started and is currently processing. Results will be available at {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         )
         return job
 
