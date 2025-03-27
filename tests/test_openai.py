@@ -158,7 +158,7 @@ def test_openai_api_calls_as_parent_span(
 
     assert len(payload.traces[0].spans[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0].spans[0], LlmSpan)
-    assert payload.traces[0].spans[0].status_code == 200
+    assert payload.traces[0].spans[0].spans[0].status_code == 200
     assert payload.traces[0].spans[0].spans[0].input == [Message(content="Say this is a test", role=MessageRole.user)]
     assert payload.traces[0].spans[0].spans[0].output == Message(
         content="The mock is working! ;)", role=MessageRole.assistant
