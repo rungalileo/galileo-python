@@ -15,8 +15,13 @@ from galileo.resources.models import (
     HTTPValidationError,
     Message,
 )
+from galileo.utils.exceptions import APIException
 
 _logger = logging.getLogger(__name__)
+
+
+class PromptTemplateAPIException(APIException):
+    pass
 
 
 class PromptTemplate(BasePromptTemplateResponse):
@@ -97,9 +102,12 @@ class PromptTemplates(BaseClientModel):
             body=body,
         )
 
+        if response.status_code != 200:
+            raise PromptTemplateAPIException(response.content)
+
         if not response.parsed or isinstance(response.parsed, HTTPValidationError):
             _logger.error(response)
-            raise response
+            raise PromptTemplateAPIException(response.content)
 
         return PromptTemplate(prompt_template=response.parsed)
 
