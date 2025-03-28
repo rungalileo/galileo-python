@@ -1,0 +1,434 @@
+interactions:
+- request:
+    body: '{"input":[{"content":"who was the first president of the united states?","role":"user"}],"model":"gpt-4o","include":[],"instructions":"You
+      determine which agent to use based on the user''s homework question","parallel_tool_calls":false,"stream":false,"tools":[{"name":"transfer_to_history_tutor","parameters":{"additionalProperties":false,"type":"object","properties":{},"required":[]},"strict":true,"type":"function","description":"Handoff
+      to the History Tutor agent to handle the request. Specialist agent for historical
+      questions"},{"name":"transfer_to_math_tutor","parameters":{"additionalProperties":false,"type":"object","properties":{},"required":[]},"strict":true,"type":"function","description":"Handoff
+      to the Math Tutor agent to handle the request. Specialist agent for math questions"}]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      authorization:
+      - Bearer sk-test
+      connection:
+      - keep-alive
+      content-length:
+      - '798'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - Agents/Python 0.0.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.69.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.10.13
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_67e6c3e50d048192bcdbe8ec7bb4275907fb4fe6dc87ec9f\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1743176677,\n  \"status\":
+        \"completed\",\n  \"error\": null,\n  \"incomplete_details\": null,\n  \"instructions\":
+        \"You determine which agent to use based on the user's homework question\",\n
+        \ \"max_output_tokens\": null,\n  \"model\": \"gpt-4o-2024-08-06\",\n  \"output\":
+        [\n    {\n      \"type\": \"function_call\",\n      \"id\": \"fc_67e6c3e5c7c481928c5a263854074fc407fb4fe6dc87ec9f\",\n
+        \     \"call_id\": \"call_l6PCQbJe7xMgRuZer1D6eBMl\",\n      \"name\": \"transfer_to_history_tutor\",\n
+        \     \"arguments\": \"{}\",\n      \"status\": \"completed\"\n    }\n  ],\n
+        \ \"parallel_tool_calls\": false,\n  \"previous_response_id\": null,\n  \"reasoning\":
+        {\n    \"effort\": null,\n    \"generate_summary\": null\n  },\n  \"store\":
+        true,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\": {\n      \"type\":
+        \"text\"\n    }\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\": [\n    {\n
+        \     \"type\": \"function\",\n      \"description\": \"Handoff to the History
+        Tutor agent to handle the request. Specialist agent for historical questions\",\n
+        \     \"name\": \"transfer_to_history_tutor\",\n      \"parameters\": {\n
+        \       \"additionalProperties\": false,\n        \"type\": \"object\",\n
+        \       \"properties\": {},\n        \"required\": []\n      },\n      \"strict\":
+        true\n    },\n    {\n      \"type\": \"function\",\n      \"description\":
+        \"Handoff to the Math Tutor agent to handle the request. Specialist agent
+        for math questions\",\n      \"name\": \"transfer_to_math_tutor\",\n      \"parameters\":
+        {\n        \"additionalProperties\": false,\n        \"type\": \"object\",\n
+        \       \"properties\": {},\n        \"required\": []\n      },\n      \"strict\":
+        true\n    }\n  ],\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\":
+        {\n    \"input_tokens\": 122,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 14,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 136\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 92783ff69f8ad232-FRA
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 28 Mar 2025 15:44:38 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - __cf_bm=qfDKgRHl0PIgV.DnYjLXLtj.1lJnSxF0ERzF4PPBcmg-1743176678-1.0.1.1-_kc57vXRfqTpRFHI.MOS1UAtGatkoI94Q6p6wANQfaDAKzEKI5s6GRf11PHNptQkKUyp96thwgJsPDzwLPhX2bMhDR.HExcVpFhawG_NcW8;
+        path=/; expires=Fri, 28-Mar-25 16:14:38 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=Ptan4dgW21WafdEdb.OxtozOYSInA2svgG9AS67K6IE-1743176678017-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1925'
+      openai-organization:
+      - galileo-technologies-inc
+      openai-processing-ms:
+      - '944'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-request-id:
+      - req_c8cf09496b150af5433da28a5024d72d
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input":[{"content":"who was the first president of the united states?","role":"user"}],"model":"gpt-4o","include":[],"instructions":"Check
+      if the user is asking about homework.","parallel_tool_calls":false,"stream":false,"text":{"format":{"type":"json_schema","name":"final_output","schema":{"properties":{"is_homework":{"title":"Is
+      Homework","type":"boolean"},"reasoning":{"title":"Reasoning","type":"string"}},"required":["is_homework","reasoning"],"title":"HomeworkOutput","type":"object","additionalProperties":false},"strict":true}},"tools":[]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      authorization:
+      - Bearer sk-test
+      connection:
+      - keep-alive
+      content-length:
+      - '551'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - Agents/Python 0.0.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.69.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.10.13
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_67e6c3e5050881928f5b869bf25292300a745bed41bc96bc\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1743176677,\n  \"status\":
+        \"completed\",\n  \"error\": null,\n  \"incomplete_details\": null,\n  \"instructions\":
+        \"Check if the user is asking about homework.\",\n  \"max_output_tokens\":
+        null,\n  \"model\": \"gpt-4o-2024-08-06\",\n  \"output\": [\n    {\n      \"type\":
+        \"message\",\n      \"id\": \"msg_67e6c3e5ce40819286d5ddf0895a12140a745bed41bc96bc\",\n
+        \     \"status\": \"completed\",\n      \"role\": \"assistant\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"text\": \"{\\\"is_homework\\\":true,\\\"reasoning\\\":\\\"The
+        question is straightforward and factual, commonly found in educational settings.\\\"}\",\n
+        \         \"annotations\": []\n        }\n      ]\n    }\n  ],\n  \"parallel_tool_calls\":
+        false,\n  \"previous_response_id\": null,\n  \"reasoning\": {\n    \"effort\":
+        null,\n    \"generate_summary\": null\n  },\n  \"store\": true,\n  \"temperature\":
+        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"json_schema\",\n
+        \     \"description\": null,\n      \"name\": \"final_output\",\n      \"schema\":
+        {\n        \"properties\": {\n          \"is_homework\": {\n            \"title\":
+        \"Is Homework\",\n            \"type\": \"boolean\"\n          },\n          \"reasoning\":
+        {\n            \"title\": \"Reasoning\",\n            \"type\": \"string\"\n
+        \         }\n        },\n        \"required\": [\n          \"is_homework\",\n
+        \         \"reasoning\"\n        ],\n        \"title\": \"HomeworkOutput\",\n
+        \       \"type\": \"object\",\n        \"additionalProperties\": false\n      },\n
+        \     \"strict\": true\n    }\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
+        [],\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
+        \   \"input_tokens\": 96,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 25,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 121\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 92783ff69a662bca-FRA
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 28 Mar 2025 15:44:38 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - __cf_bm=Awv7ae5MV6L1gWBzKX7BhlmMVy67TJZJPpPNkk3YuBY-1743176678-1.0.1.1-laNLs1ZOgopkSY9hkz_D0rSuKi2y8V.Ae4j0xcLQtdnGjbr0Z8Zmn0rxG9RpL9Tt_M24NuPN78OJNNcp4HygVZ1Ok92FEajLWySV66a2E58;
+        path=/; expires=Fri, 28-Mar-25 16:14:38 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=wFJcGe.o36SH78C7aCAeg2UG9fPvkNuDyQvHwGj9xoQ-1743176678666-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1856'
+      openai-organization:
+      - galileo-technologies-inc
+      openai-processing-ms:
+      - '1570'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-request-id:
+      - req_974294be8d55b1ba28de67266a7633a7
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input":[{"content":"who was the first president of the united states?","role":"user"},{"arguments":"{}","call_id":"call_l6PCQbJe7xMgRuZer1D6eBMl","name":"transfer_to_history_tutor","type":"function_call","id":"fc_67e6c3e5c7c481928c5a263854074fc407fb4fe6dc87ec9f","status":"completed"},{"call_id":"call_l6PCQbJe7xMgRuZer1D6eBMl","output":"{''assistant'':
+      ''History Tutor''}","type":"function_call_output"}],"model":"gpt-4o","include":[],"instructions":"You
+      provide assistance with historical queries. Explain important events and context
+      clearly.","parallel_tool_calls":false,"stream":false,"tools":[]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      authorization:
+      - Bearer sk-test
+      connection:
+      - keep-alive
+      content-length:
+      - '599'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Awv7ae5MV6L1gWBzKX7BhlmMVy67TJZJPpPNkk3YuBY-1743176678-1.0.1.1-laNLs1ZOgopkSY9hkz_D0rSuKi2y8V.Ae4j0xcLQtdnGjbr0Z8Zmn0rxG9RpL9Tt_M24NuPN78OJNNcp4HygVZ1Ok92FEajLWySV66a2E58;
+        _cfuvid=wFJcGe.o36SH78C7aCAeg2UG9fPvkNuDyQvHwGj9xoQ-1743176678666-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - Agents/Python 0.0.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.69.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.10.13
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_67e6c3e6f1048192852ac1301d82849707fb4fe6dc87ec9f\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1743176678,\n  \"status\":
+        \"completed\",\n  \"error\": null,\n  \"incomplete_details\": null,\n  \"instructions\":
+        \"You provide assistance with historical queries. Explain important events
+        and context clearly.\",\n  \"max_output_tokens\": null,\n  \"model\": \"gpt-4o-2024-08-06\",\n
+        \ \"output\": [\n    {\n      \"type\": \"message\",\n      \"id\": \"msg_67e6c3e74fbc819287527e0aaeadfa3707fb4fe6dc87ec9f\",\n
+        \     \"status\": \"completed\",\n      \"role\": \"assistant\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"text\": \"The
+        first President of the United States was George Washington. He served from
+        1789 to 1797. Washington is often referred to as the \\\"Father of His Country\\\"
+        due to his leadership during the American Revolutionary War and his role in
+        shaping the newly formed United States. He was unanimously elected as the
+        first president and set many precedents for the office, including the establishment
+        of a cabinet and the two-term limit for presidents, which later became law
+        through the 22nd Amendment.\",\n          \"annotations\": []\n        }\n
+        \     ]\n    }\n  ],\n  \"parallel_tool_calls\": false,\n  \"previous_response_id\":
+        null,\n  \"reasoning\": {\n    \"effort\": null,\n    \"generate_summary\":
+        null\n  },\n  \"store\": true,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"text\"\n    }\n  },\n  \"tool_choice\": \"auto\",\n  \"tools\":
+        [],\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\": {\n
+        \   \"input_tokens\": 85,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 98,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 183\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 92784002a8e8d232-FRA
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 28 Mar 2025 15:44:41 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1742'
+      openai-organization:
+      - galileo-technologies-inc
+      openai-processing-ms:
+      - '2658'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-request-id:
+      - req_9fa70cfa91bb60b69e9579e4a4275dd9
+    status:
+      code: 200
+      message: OK
+- request:
+    body: '{"input":[{"content":"what is life","role":"user"}],"model":"gpt-4o","include":[],"instructions":"Check
+      if the user is asking about homework.","parallel_tool_calls":false,"stream":false,"text":{"format":{"type":"json_schema","name":"final_output","schema":{"properties":{"is_homework":{"title":"Is
+      Homework","type":"boolean"},"reasoning":{"title":"Reasoning","type":"string"}},"required":["is_homework","reasoning"],"title":"HomeworkOutput","type":"object","additionalProperties":false},"strict":true}},"tools":[]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      authorization:
+      - Bearer sk-test
+      connection:
+      - keep-alive
+      content-length:
+      - '514'
+      content-type:
+      - application/json
+      cookie:
+      - __cf_bm=Awv7ae5MV6L1gWBzKX7BhlmMVy67TJZJPpPNkk3YuBY-1743176678-1.0.1.1-laNLs1ZOgopkSY9hkz_D0rSuKi2y8V.Ae4j0xcLQtdnGjbr0Z8Zmn0rxG9RpL9Tt_M24NuPN78OJNNcp4HygVZ1Ok92FEajLWySV66a2E58;
+        _cfuvid=wFJcGe.o36SH78C7aCAeg2UG9fPvkNuDyQvHwGj9xoQ-1743176678666-0.0.1.1-604800000
+      host:
+      - api.openai.com
+      user-agent:
+      - Agents/Python 0.0.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.69.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.10.13
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_67e6c3e9d3c081929855bf70661ea276029f68cde1123979\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1743176681,\n  \"status\":
+        \"completed\",\n  \"error\": null,\n  \"incomplete_details\": null,\n  \"instructions\":
+        \"Check if the user is asking about homework.\",\n  \"max_output_tokens\":
+        null,\n  \"model\": \"gpt-4o-2024-08-06\",\n  \"output\": [\n    {\n      \"type\":
+        \"message\",\n      \"id\": \"msg_67e6c3ea74648192adab450aa06368b4029f68cde1123979\",\n
+        \     \"status\": \"completed\",\n      \"role\": \"assistant\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"text\": \"{\\\"is_homework\\\":false,\\\"reasoning\\\":\\\"The
+        question is philosophical and open-ended, typically not related to homework
+        assignments.\\\"}\",\n          \"annotations\": []\n        }\n      ]\n
+        \   }\n  ],\n  \"parallel_tool_calls\": false,\n  \"previous_response_id\":
+        null,\n  \"reasoning\": {\n    \"effort\": null,\n    \"generate_summary\":
+        null\n  },\n  \"store\": true,\n  \"temperature\": 1.0,\n  \"text\": {\n    \"format\":
+        {\n      \"type\": \"json_schema\",\n      \"description\": null,\n      \"name\":
+        \"final_output\",\n      \"schema\": {\n        \"properties\": {\n          \"is_homework\":
+        {\n            \"title\": \"Is Homework\",\n            \"type\": \"boolean\"\n
+        \         },\n          \"reasoning\": {\n            \"title\": \"Reasoning\",\n
+        \           \"type\": \"string\"\n          }\n        },\n        \"required\":
+        [\n          \"is_homework\",\n          \"reasoning\"\n        ],\n        \"title\":
+        \"HomeworkOutput\",\n        \"type\": \"object\",\n        \"additionalProperties\":
+        false\n      },\n      \"strict\": true\n    }\n  },\n  \"tool_choice\": \"auto\",\n
+        \ \"tools\": [],\n  \"top_p\": 1.0,\n  \"truncation\": \"disabled\",\n  \"usage\":
+        {\n    \"input_tokens\": 89,\n    \"input_tokens_details\": {\n      \"cached_tokens\":
+        0\n    },\n    \"output_tokens\": 27,\n    \"output_tokens_details\": {\n
+        \     \"reasoning_tokens\": 0\n    },\n    \"total_tokens\": 116\n  },\n  \"user\":
+        null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 927840149a0d2bca-FRA
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 28 Mar 2025 15:44:43 GMT
+      Server:
+      - cloudflare
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1865'
+      openai-organization:
+      - galileo-technologies-inc
+      openai-processing-ms:
+      - '1166'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-request-id:
+      - req_83d00f59976bb721bca6290688fd55d5
+    status:
+      code: 200
+      message: OK
+version: 1
