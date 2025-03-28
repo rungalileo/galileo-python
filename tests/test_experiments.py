@@ -3,6 +3,7 @@ from unittest.mock import ANY, MagicMock, Mock, patch
 from uuid import UUID
 
 import pytest
+from freezegun import freeze_time
 
 import galileo
 import galileo.experiments
@@ -228,12 +229,19 @@ class TestExperiments:
             _load_dataset_and_records(dataset=None, dataset_name=None, dataset_id=None)
         assert str(exc_info.value) == "One of dataset, dataset_name, or dataset_id must be provided"
 
+    @freeze_time("2012-01-01")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
     def test_run_experiment_without_metrics(
-        self, mock_get_project: Mock, mock_get_experiment: Mock, mock_create_job: Mock, mock_get_dataset: Mock
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
     ):
         mock_create_job.return_value = MagicMock()
 
@@ -247,6 +255,9 @@ class TestExperiments:
         )
         mock_get_project.assert_called_once_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with(project().id, "test_experiment")
+        mock_create_experiment.assert_called_once_with(
+            project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000"
+        )
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
         mock_create_job.assert_called_once_with(
@@ -264,12 +275,14 @@ class TestExperiments:
     @patch("galileo.logger.Projects")
     @patch("galileo.logger.GalileoCoreApiClient")
     @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
     def test_run_experiment_with_func(
         self,
         mock_get_project: Mock,
         mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
         mock_get_dataset: Mock,
         mock_core_api_client: Mock,
         mock_projects_client: Mock,
@@ -293,6 +306,8 @@ class TestExperiments:
 
         mock_get_project.assert_called_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", "test_experiment")
+        mock_create_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", ANY)
+
         mock_get_dataset.assert_called_once_with(id="00000000-0000-4000-8000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
 
@@ -301,16 +316,19 @@ class TestExperiments:
         assert len(payload.traces) == 1
         assert len(payload.traces[0].spans) == 1
 
+    @freeze_time("2012-01-01")
     @patch.object(galileo.experiments.ScorerSettings, "create")
     @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
     def test_run_experiment_w_prompt_template_and_metrics(
         self,
         mock_get_project: Mock,
         mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
         mock_create_job: Mock,
         mock_get_dataset: Mock,
         mock_scorers_list: Mock,
@@ -333,6 +351,9 @@ class TestExperiments:
 
         mock_get_project.assert_called_once_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with(project().id, "test_experiment")
+        mock_create_experiment.assert_called_once_with(
+            project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000"
+        )
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
         mock_scorers_list.assert_called_with()
@@ -342,12 +363,19 @@ class TestExperiments:
             scorers=[ScorerConfig.from_dict(scorers()[0].to_dict())],
         )
 
+    @freeze_time("2012-01-01")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
     def test_run_experiment_w_prompt_template_and_prompt_settings(
-        self, mock_get_project: Mock, mock_get_experiment: Mock, mock_create_job: Mock, mock_get_dataset: Mock
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
     ):
         mock_create_job.return_value = MagicMock()
 
@@ -366,6 +394,10 @@ class TestExperiments:
 
         mock_get_project.assert_called_once_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with(project().id, "test_experiment")
+        mock_create_experiment.assert_called_once_with(
+            project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000"
+        )
+
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
         mock_create_job.assert_called_once_with(
