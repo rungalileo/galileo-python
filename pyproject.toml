@@ -1,6 +1,6 @@
 [project]
 name = "galileo"
-version = "0.2.3"
+version = "0.2.4"
 description = "Client library for the Galileo platform."
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
