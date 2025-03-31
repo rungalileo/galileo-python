@@ -1,4 +1,5 @@
 import builtins
+import datetime
 import logging
 from typing import Any, Callable, Optional, Union
 
@@ -128,7 +129,7 @@ class Experiments(BaseClientModel):
         _logger.debug(f"job: {job}")
 
         print(
-            f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+            f"Experiment `{experiment_obj.name}` has started and is currently processing. Results will be available at {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         )
         return job
 
@@ -232,7 +233,18 @@ def run_experiment(
         raise ValueError(f"Project {project} does not exist")
 
     # Create or get experiment
-    experiment_obj = Experiments().get_or_create(project_obj.id, experiment_name)
+    experiment_obj = Experiments().get(project_obj.id, experiment_name)
+
+    if experiment_obj:
+        logging.warning(f"Experiment {experiment_obj.name} already exists, adding a timestamp")
+        now = datetime.datetime.now(datetime.timezone.utc)
+        # based on TS SDK implementation new Date()
+        #       .toISOString()
+        #       .replace('T', ' at ')
+        #       .replace('Z', '');
+        experiment_name = f"{experiment_obj.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
+
+    experiment_obj = Experiments().create(project_obj.id, experiment_name)
 
     # Set up metrics if provided
     scorer_settings = None

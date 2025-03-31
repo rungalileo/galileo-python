@@ -1,6 +1,6 @@
 [project]
 name = "galileo"
-version = "0.2.3"
+version = "0.2.4"
 description = "Client library for the Galileo platform."
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
@@ -37,6 +37,7 @@ galileo-core = { extras = ["testing"], version = "^3.5.0" }
 pytest-env = "^1.1.5"
 langchain-core = "^0.3.14"
 pytest-sugar = "^1.0.0"
+freezegun = "^1.5.1"
 
 
 [tool.poetry.group.dev.dependencies]
