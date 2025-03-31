@@ -17,7 +17,7 @@ def nop_sync(f: Callable) -> Callable:
     def decorated(*args: Any, **kwargs: Any) -> Any:
         if galileo_logging_enabled():
             return f(*args, **kwargs)
-        _logger.warning(f"enabled nop logger for {f.__name__}")
+        _logger.warning(f"Bypassing logging for {f.__name__}. Logging is currently disabled.")
 
     return decorated
 
@@ -27,6 +27,6 @@ def nop_async(f: Callable) -> Callable:
     async def decorated(*args: Any, **kwargs: Any) -> Any:
         if galileo_logging_enabled():
             return await f(*args, **kwargs)
-        _logger.warning(f"enabled nop logger for {f.__name__}")
+        _logger.warning(f"Bypassing logging for {f.__name__}. Logging is currently disabled.")
 
     return decorated

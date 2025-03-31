@@ -29,7 +29,8 @@ def test_galileo_logger_exceptions() -> None:
     assert str(exc_info.value) == "User must provide either experiment_id or log_stream, not both."
 
 
-def test_disable_galileo_logger(monkeypatch, caplog) -> None:
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_disable_galileo_logger(mock_core_api_client: Mock, monkeypatch, caplog) -> None:
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.WARNING):
@@ -48,10 +49,13 @@ def test_disable_galileo_logger(monkeypatch, caplog) -> None:
         )
         logger.conclude(output="Nice try!", duration_ns=1000)
         logger.flush()
-        assert "enabled nop logger for start_trace" in caplog.text
-        assert "enabled nop logger for add_llm_span" in caplog.text
-        assert "enabled nop logger for conclude" in caplog.text
-        assert "enabled nop logger for flush" in caplog.text
+
+        assert "Bypassing logging for start_trace. Logging is currently disabled." in caplog.text
+        assert "Bypassing logging for add_llm_span. Logging is currently disabled." in caplog.text
+        assert "Bypassing logging for conclude. Logging is currently disabled." in caplog.text
+        assert "Bypassing logging for flush. Logging is currently disabled." in caplog.text
+    mock_core_api_client.assert_not_called()
+    mock_core_api_client.ingest_traces_sync.assert_not_called()
 
 
 @patch("galileo.logger.LogStreams")
