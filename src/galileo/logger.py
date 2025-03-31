@@ -519,7 +519,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             List[Trace]: The list of uploaded traces.
         """
         if not self.traces:
-            self._logger.warning("No traces to flush.")
+            self._logger.info("Attempting to flush on interpreter exit...No traces to flush.")
             return list()
 
         current_parent = self.current_parent()
@@ -549,7 +549,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             List[Trace]: The list of uploaded workflows.
         """
         if not self.traces:
-            self._logger.warning("No traces to flush.")
+            self._logger.info("Attempting to flush on interpreter exit...No traces to flush.")
             return list()
 
         current_parent = self.current_parent()
