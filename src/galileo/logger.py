@@ -143,7 +143,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         project_obj = projects_client.get(name=self.project_name)
         if project_obj is None:
             # Create project if it doesn't exist
-            self.project_id = projects_client.create(name=self.project_name).id
+            project = projects_client.create(name=self.project_name)
+            if project is None:
+                raise GalileoLoggerException(f"Failed to create project {self.project_name}.")
+            self.project_id = project.id
             self._logger.info(f"🚀 Creating new project... project {self.project_name} created!")
         else:
             if project_obj.type != "gen_ai":
