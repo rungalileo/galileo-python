@@ -1,4 +1,5 @@
 import builtins
+import datetime
 import logging
 from typing import Any, Callable, Optional, Union
 
@@ -52,7 +53,7 @@ class Experiments(BaseClientModel):
         return experiment
 
     def get(self, project_id: str, experiment_name: str) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
-        experiments = self.list(project_id=project_id)
+        experiments = self.list(project_id=project_id) or []
 
         for experiment in experiments:
             if experiment.name == experiment_name:
@@ -224,13 +225,27 @@ def run_experiment(
             "A dataset record, id or name of a dataset, or list of records must be provided when a function is used"
         )
 
+    if function and prompt_template:
+        raise ValueError("A function or prompt_template should be provided, but not both")
+
     # Get project
     project_obj = Projects().get(name=project)
     if not project_obj:
         raise ValueError(f"Project {project} does not exist")
 
     # Create or get experiment
-    experiment_obj = Experiments().get_or_create(project_obj.id, experiment_name)
+    experiment_obj = Experiments().get(project_obj.id, experiment_name)
+
+    if experiment_obj:
+        logging.warning(f"Experiment {experiment_obj.name} already exists, adding a timestamp")
+        now = datetime.datetime.now(datetime.timezone.utc)
+        # based on TS SDK implementation new Date()
+        #       .toISOString()
+        #       .replace('T', ' at ')
+        #       .replace('Z', '');
+        experiment_name = f"{experiment_obj.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
+
+    experiment_obj = Experiments().create(project_obj.id, experiment_name)
 
     # Set up metrics if provided
     scorer_settings = None

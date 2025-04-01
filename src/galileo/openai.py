@@ -45,7 +45,6 @@ from datetime import datetime
 from inspect import isclass
 from typing import Any, Callable, Optional
 
-from packaging.version import Version
 from pydantic import BaseModel
 from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
 
@@ -59,6 +58,9 @@ try:
     import openai.resources
     from openai._types import NotGiven
     from openai.types.chat import ChatCompletionMessageToolCall
+
+    # it's used only for version check of OpenAI
+    from packaging.version import Version
 except ImportError:
     raise ModuleNotFoundError("Please install OpenAI to use this feature: 'pip install openai'")
 
@@ -484,6 +486,9 @@ def _wrap(
                 num_output_tokens=usage.get("completion_tokens", 0),
                 total_tokens=usage.get("total_tokens", 0),
                 metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
+                # openai client library doesn't return http_status code, so we only can hardcode it here
+                # because we if we parsed and extracted data from response it means we get it and it's 200OK
+                status_code=200,
             )
 
             # Conclude the trace if this is the top-level call
@@ -583,6 +588,7 @@ class ResponseGeneratorSync:
             num_output_tokens=usage.get("completion_tokens", 0),
             total_tokens=usage.get("total_tokens", 0),
             metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
+            status_code=200,
         )
 
         # Conclude the trace if this is the top-level call
