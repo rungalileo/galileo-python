@@ -127,10 +127,11 @@ class Experiments(BaseClientModel):
 
         _logger.debug(f"job: {job}")
 
-        print(
-            f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
-        )
-        return job
+        link = f"{self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        message = f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {link}"
+        print(message)
+
+        return {"experiment": experiment_obj, "link": link, "message": message}
 
     def run_with_function(
         self,
@@ -154,11 +155,11 @@ class Experiments(BaseClientModel):
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
 
-        print(
-            f"Experiment {experiment_obj.name} has completed and results are available at {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
-        )
+        link = f"{self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        message = f"Experiment {experiment_obj.name} has completed and results are available at {link}"
+        print(message)
 
-        return results
+        return {"experiment": experiment_obj, "link": link, "message": message}
 
 
 def process_row(row, process_func: Callable):
