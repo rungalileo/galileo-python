@@ -53,7 +53,7 @@ class Experiments(BaseClientModel):
         return experiment
 
     def get(self, project_id: str, experiment_name: str) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
-        experiments = self.list(project_id=project_id)
+        experiments = self.list(project_id=project_id) or []
 
         for experiment in experiments:
             if experiment.name == experiment_name:
