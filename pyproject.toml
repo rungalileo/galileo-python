@@ -21,7 +21,7 @@ openai-agents = { version = "^0.0.7", optional = true }
 
 [project.optional-dependencies]
 langchain = ["langchain-core"]
-openai = ["openai", "packaging (>=24.2,<25.0)", "openai-agents (>=0.0.7,<0.0.8)"]
+openai = ["openai", "packaging (>=24.2,<25.0)", "openai-agents"]
 all = ["langchain-core", "openai"]
 
 

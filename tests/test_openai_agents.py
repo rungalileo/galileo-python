@@ -14,12 +14,8 @@ from agents import (
 from pydantic import BaseModel
 from pytest import MonkeyPatch, mark
 
-from galileo import galileo_context
-from galileo.agents import GalileoTracingProcessor
+from galileo.handlers.openai_agents import GalileoTracingProcessor
 from galileo.logger import GalileoLogger
-from galileo.openai import OpenAIGalileo, openai
-from galileo_core.schemas.logging.llm import Message, MessageRole
-from galileo_core.schemas.logging.span import LlmSpan
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
@@ -62,14 +58,26 @@ os.environ["OPENAI_API_KEY"] = "sk-test"
 
 
 @mark.asyncio
+@mark.asyncio
 @vcr.use_cassette(
-    "tests/fixtures/openai_session.yaml", filter_headers=["authorization"], decode_compressed_response=True, record_mode=vcr.mode.NEW_EPISODES
+    "tests/fixtures/openai_agents_complex.yaml",
+    filter_headers=["authorization"],
+    decode_compressed_response=True,
+    record_mode=vcr.mode.NEW_EPISODES,
 )
-async def test_openai_agent(monkeypatch: MonkeyPatch) -> None:
-    """
-    Test the OpenAI agent with a VCR cassette.
-    """
-
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+async def test_complex_agent(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
+    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    # galileo_context.reset()
+    galileo_logger = GalileoLogger(project="test", log_stream="test")
+    gp = GalileoTracingProcessor(galileo_logger=galileo_logger, flush_on_chain_end=False)
+    set_trace_processors([gp])
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
 
     # set_trace_processors([GalileoTracingProcessor()])
@@ -81,17 +89,22 @@ async def test_openai_agent(monkeypatch: MonkeyPatch) -> None:
         result = await Runner.run(triage_agent, "what is life")
         print(result.final_output)
 
+    traces = galileo_logger.traces
+    assert len(traces) == 2
 
 
 @mark.asyncio
 @mark.asyncio
 @vcr.use_cassette(
-    "tests/fixtures/openai_agents.yaml", filter_headers=["authorization"], decode_compressed_response=True, record_mode=vcr.mode.NEW_EPISODES
+    "tests/fixtures/openai_agents.yaml",
+    filter_headers=["authorization"],
+    decode_compressed_response=True,
+    record_mode=vcr.mode.NEW_EPISODES,
 )
 @patch("galileo.logger.LogStreams")
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
-async def test_simple_project(
+async def test_simple_agent(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: MonkeyPatch
 ) -> None:
     mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
