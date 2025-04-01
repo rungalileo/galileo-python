@@ -112,7 +112,8 @@ class GalileoLoggerSingleton:
             logger = GalileoLogger(**{k: v for k, v in galileo_client_init_args.items() if v is not None})
 
             # Cache the newly created logger.
-            self._galileo_loggers[key] = logger
+            if logger:
+                self._galileo_loggers[key] = logger
             return logger
 
     def reset(

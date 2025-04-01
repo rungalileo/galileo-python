@@ -656,7 +656,7 @@ def test_galileo_logger_failed_creating_project(
     mock_instance.get_log_stream_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
 
     # galileo_resources_api_projects.= MagicMock()
-    galileo_resources_api_projects.sync = Mock(side_effect=ValueError("Unable to create project"))
+    galileo_resources_api_projects.sync_detailed = Mock(side_effect=ValueError("Unable to create project"))
     mock_projects_get.return_value = None
 
     with caplog.at_level(logging.WARNING):
