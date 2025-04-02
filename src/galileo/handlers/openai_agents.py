@@ -35,7 +35,7 @@ def _get_span_name(span: tracing.Span[Any]) -> str:
         return type_name.capitalize()
 
 
-class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGeneralTypeIssues]
+class GalileoTracingProcessor(TracingProcessor):
     """
     TracingProcessor that logs OpenAI Agent traces and spans to Galileo.
 
