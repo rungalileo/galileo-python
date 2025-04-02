@@ -6,6 +6,7 @@ from agents import TracingProcessor, tracing
 
 from galileo.decorator import galileo_context
 from galileo.logger import GalileoLogger
+from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.serialization import convert_to_string_dict, serialize_to_str
 
 _logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ def _get_span_name(span: tracing.Span[Any]) -> str:
         return type_name.capitalize()
 
 
-class GalileoTracingProcessor(TracingProcessor):
+class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
     """
     TracingProcessor that logs OpenAI Agent traces and spans to Galileo.
 
@@ -50,30 +51,25 @@ class GalileoTracingProcessor(TracingProcessor):
 
     def on_trace_start(self, trace: tracing.Trace) -> None:
         """Called when a trace starts. Starts a Galileo trace."""
-        try:
-            # Use trace name as input, similar to Langchain example's root node
-            self._galileo_logger.start_trace(input=trace.name or "Unnamed Agent Trace")
-            self._trace_started.add(trace.trace_id)
-            _logger.debug(f"Started Galileo trace for agent trace_id: {trace.trace_id}")
-        except Exception as e:
-            _logger.error(f"Galileo: Error in on_trace_start for trace_id {trace.trace_id}: {e}", exc_info=True)
+        # Use trace name as input, similar to Langchain example's root node
+        self._galileo_logger.start_trace(input=trace.name or "Unnamed Agent Trace")
+        self._trace_started.add(trace.trace_id)
+        _logger.debug(f"Started Galileo trace for agent trace_id: {trace.trace_id}")
 
     def on_trace_end(self, trace: tracing.Trace) -> None:
         """Called when a trace ends. Concludes the Galileo trace."""
         if trace.trace_id not in self._trace_started:
             _logger.warning(f"Galileo: Received on_trace_end for unknown trace_id: {trace.trace_id}")
             return
-        try:
-            # Conclude the overall trace. Output might be hard to determine here,
-            # maybe set a status? The final span's output might be more relevant.
-            self._galileo_logger.conclude(output=f"{trace.name}")
-            self._trace_started.remove(trace.trace_id)
-            _logger.debug(f"Ended Galileo trace for agent trace_id: {trace.trace_id}")
-            # Optionally flush here, or rely on shutdown/force_flush
-            if self._flush_on_chain_end:
-                self._galileo_logger.flush()
-        except Exception as e:
-            _logger.error(f"Galileo: Error in on_trace_end for trace_id {trace.trace_id}: {e}", exc_info=True)
+
+        # Conclude the overall trace. Output might be hard to determine here,
+        # maybe set a status? The final span's output might be more relevant.
+        self._galileo_logger.conclude(output=f"{trace.name}")
+        self._trace_started.remove(trace.trace_id)
+        _logger.debug(f"Ended Galileo trace for agent trace_id: {trace.trace_id}")
+        # Optionally flush here, or rely on shutdown/force_flush
+        if self._flush_on_chain_end:
+            self._galileo_logger.flush()
 
     def _log_span_start(self, span: tracing.Span[Any]) -> None:
         """Handles the start of any span type by logging to Galileo."""
@@ -198,11 +194,8 @@ class GalileoTracingProcessor(TracingProcessor):
             # self.on_trace_start(tracing.Trace(trace_id=span.trace_id, name=f"Inferred Trace {span.trace_id}"))
             return  # Or proceed cautiously? Let's return for now to avoid incorrect nesting.
 
-        try:
-            self._log_span_start(span)
-            _logger.debug(f"Started Galileo span for agent span_id: {span.span_id} (Trace: {span.trace_id})")
-        except Exception as e:
-            _logger.error(f"Galileo: Error in on_span_start for span_id {span.span_id}: {e}", exc_info=True)
+        self._log_span_start(span)
+        _logger.debug(f"Started Galileo span for agent span_id: {span.span_id} (Trace: {span.trace_id})")
 
     def _extract_output_and_error(self, span: tracing.Span[Any]) -> tuple[Any, Any]:
         """Extracts primary output and error from different span types."""
@@ -278,23 +271,16 @@ class GalileoTracingProcessor(TracingProcessor):
         except Exception as e:
             _logger.error(f"Galileo: Error in on_span_end processing for span_id {span.span_id}: {e}", exc_info=True)
             # Attempt to conclude with the error message and default/calculated status/duration
-            try:
-                # Try to recalculate duration if possible, otherwise use the default 0
-                if span.started_at and span.ended_at:
-                    # Parse the string date into datetime objects
-                    started_at = datetime.fromisoformat(span.started_at)
-                    ended_at = datetime.fromisoformat(span.ended_at)
-                    duration_ns = int((ended_at - started_at).total_seconds() * 1e9)
-                # Ensure status code reflects the processing error
-                status_code = 500
-                self._galileo_logger.conclude(
-                    output=f"Error during span end processing: {e}", duration_ns=duration_ns, status_code=status_code
-                )
-            except Exception as conclude_e:
-                _logger.error(
-                    f"Galileo: Failed to conclude span {span.span_id} even after processing error: {conclude_e}",
-                    exc_info=True,
-                )
+            if span.started_at and span.ended_at:
+                # Parse the string date into datetime objects
+                started_at = datetime.fromisoformat(span.started_at)
+                ended_at = datetime.fromisoformat(span.ended_at)
+                duration_ns = int((ended_at - started_at).total_seconds() * 1e9)
+            # Ensure status code reflects the processing error
+            status_code = 500
+            self._galileo_logger.conclude(
+                output=f"Error during span end processing: {e}", duration_ns=duration_ns, status_code=status_code
+            )
 
     def shutdown(self) -> None:
         """Called when the application stops. Flushes remaining traces."""
@@ -308,11 +294,8 @@ class GalileoTracingProcessor(TracingProcessor):
                 self._trace_started.remove(trace_id)
             except Exception as e:
                 _logger.error(f"Galileo: Error concluding trace {trace_id} during shutdown: {e}")
-        try:
-            if self._flush_on_chain_end:
-                self._galileo_logger.flush()
-        except Exception as e:
-            _logger.error(f"Galileo: Error flushing logger during shutdown: {e}", exc_info=True)
+        if self._flush_on_chain_end:
+            self._galileo_logger.flush()
 
     def force_flush(self) -> None:
         """Forces an immediate flush of all queued traces."""
@@ -326,8 +309,5 @@ class GalileoTracingProcessor(TracingProcessor):
                 self._trace_started.remove(trace_id)
             except Exception as e:
                 _logger.error(f"Galileo: Error concluding trace {trace_id} during force_flush: {e}")
-        try:
-            if self._flush_on_chain_end:
-                self._galileo_logger.flush()
-        except Exception as e:
-            _logger.error(f"Galileo: Error flushing logger during force_flush: {e}", exc_info=True)
+        if self._flush_on_chain_end:
+            self._galileo_logger.flush()
