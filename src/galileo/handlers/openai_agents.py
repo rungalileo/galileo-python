@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import Any, Optional
 
 from agents import TracingProcessor, tracing
@@ -84,6 +85,7 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
         # Default input/output - specific handlers will override
         input_data = None
         tags = None  # Add tags if agent spans support them
+        created_at = datetime.fromisoformat(span.started_at) if span.started_at else None
 
         # --- Map Agent Span Types to Galileo Span Types ---
 
@@ -97,6 +99,7 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
                 input="Agent Step Start",  # Input often not known at start
                 metadata=convert_to_string_dict(metadata),
                 tags=tags,
+                created_at=created_at,
             )
 
         elif isinstance(span.span_data, tracing.ResponseSpanData):
@@ -104,14 +107,14 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
             # Input might be available here
             input_data = serialize_to_str(span.span_data.input)
             self._galileo_logger.add_workflow_span(  # Or maybe custom?
-                name=name, input=input_data, metadata=convert_to_string_dict(metadata), tags=tags
+                name=name, input=input_data, metadata=convert_to_string_dict(metadata), tags=tags, created_at=created_at
             )
 
         elif isinstance(span.span_data, tracing.FunctionSpanData):
             # Map Function calls to Galileo Tool spans
             input_data = serialize_to_str(span.span_data.input)
             self._galileo_logger.add_tool_span(
-                name=name, input=input_data, metadata=convert_to_string_dict(metadata), tags=tags
+                name=name, input=input_data, metadata=convert_to_string_dict(metadata), tags=tags, created_at=created_at
             )
 
         elif isinstance(span.span_data, tracing.HandoffSpanData):
@@ -119,14 +122,22 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
             metadata["from_agent"] = serialize_to_str(span.span_data.from_agent)
             metadata["to_agent"] = serialize_to_str(span.span_data.to_agent)
             self._galileo_logger.add_workflow_span(
-                name=name, input="Handoff Start", metadata=convert_to_string_dict(metadata), tags=tags
+                name=name,
+                input="Handoff Start",
+                metadata=convert_to_string_dict(metadata),
+                tags=tags,
+                created_at=created_at,
             )
 
         elif isinstance(span.span_data, tracing.GuardrailSpanData):
             # Log Guardrails as workflow steps (or potentially custom?)
             metadata["triggered"] = str(span.span_data.triggered)  # Ensure string
             self._galileo_logger.add_workflow_span(
-                name=name, input="Guardrail Check", metadata=convert_to_string_dict(metadata), tags=tags
+                name=name,
+                input="Guardrail Check",
+                metadata=convert_to_string_dict(metadata),
+                tags=tags,
+                created_at=created_at,
             )
 
         elif isinstance(span.span_data, tracing.GenerationSpanData):
@@ -144,6 +155,7 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
                 tags=tags,
                 num_input_tokens=prompt_tokens,
                 # Other LLM params like temperature might need extraction from model_config
+                created_at=created_at,
             )
 
         elif isinstance(span.span_data, tracing.CustomSpanData):
@@ -159,7 +171,11 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
             # TODO: Handle custom metrics if Galileo adds explicit support
 
             self._galileo_logger.add_workflow_span(  # Or add_custom_span if available
-                name=name, input=input_data or "Custom Step Start", metadata=convert_to_string_dict(metadata), tags=tags
+                name=name,
+                input=input_data or "Custom Step Start",
+                metadata=convert_to_string_dict(metadata),
+                tags=tags,
+                created_at=created_at,
             )
         else:
             # Fallback for unknown span types - log as a generic workflow step
@@ -169,6 +185,7 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
                 input="Unknown Step Start",
                 metadata=convert_to_string_dict(metadata),
                 tags=tags,
+                created_at=created_at,
             )
 
     def on_span_start(self, span: tracing.Span[Any]) -> None:
@@ -234,8 +251,10 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
 
             # Calculate duration if timestamps are available
             if span.started_at and span.ended_at:
-                duration_ns = int((span.ended_at - span.started_at).total_seconds() * 1e9)
-
+                # Parse the string date into datetime objects
+                started_at = datetime.fromisoformat(span.started_at)
+                ended_at = datetime.fromisoformat(span.ended_at)
+                duration_ns = int((ended_at - started_at).total_seconds() * 1e9)
             # Determine status code based on the presence of an error in the span data
             status_code = 500 if error else 200
 
@@ -260,7 +279,10 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
             try:
                 # Try to recalculate duration if possible, otherwise use the default 0
                 if span.started_at and span.ended_at:
-                    duration_ns = int((span.ended_at - span.started_at).total_seconds() * 1e9)
+                    # Parse the string date into datetime objects
+                    started_at = datetime.fromisoformat(span.started_at)
+                    ended_at = datetime.fromisoformat(span.ended_at)
+                    duration_ns = int((ended_at - started_at).total_seconds() * 1e9)
                 # Ensure status code reflects the processing error
                 status_code = 500
                 self._galileo_logger.conclude(

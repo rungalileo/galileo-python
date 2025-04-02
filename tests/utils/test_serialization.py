@@ -336,28 +336,91 @@ class TestSerializeToStr:
                 self.client = client
 
         n = NonSerializable(client=client)
-
-        assert serialize_to_str(n) == (
-            '{"client": {"api_key": "test", "organization": null, "project": null, '
-            '"websocket_base_url": null, "max_retries": 2, "timeout": {"connect": 5.0, '
-            '"read": 600, "write": 600, "pool": 600}, "completions": {}, "chat": {}, '
-            '"embeddings": {}, "files": {}, "images": {}, "audio": {}, "moderations": {}, '
-            '"models": {}, "fine_tuning": {}, "beta": {}, "batches": {}, "uploads": {}, '
-            '"with_raw_response": {"completions": {"create": {}}, "chat": {}, '
-            '"embeddings": {"create": {}}, "files": {"create": {}, "retrieve": {}, '
-            '"list": {}, "delete": {}, "content": {}, "retrieve_content": {}}, "images": '
-            '{"create_variation": {}, "edit": {}, "generate": {}}, "audio": {}, '
-            '"moderations": {"create": {}}, "models": {"retrieve": {}, "list": {}, '
-            '"delete": {}}, "fine_tuning": {}, "beta": {}, "batches": {"create": {}, '
-            '"retrieve": {}, "list": {}, "cancel": {}}, "uploads": {"create": {}, '
-            '"cancel": {}, "complete": {}}}, "with_streaming_response": {"completions": '
-            '{"create": {}}, "chat": {}, "embeddings": {"create": {}}, "files": '
-            '{"create": {}, "retrieve": {}, "list": {}, "delete": {}, "content": {}, '
-            '"retrieve_content": {}}, "images": {"create_variation": {}, "edit": {}, '
-            '"generate": {}}, "audio": {}, "moderations": {"create": {}}, "models": '
-            '{"retrieve": {}, "list": {}, "delete": {}}, "fine_tuning": {}, "beta": {}, '
-            '"batches": {"create": {}, "retrieve": {}, "list": {}, "cancel": {}}, '
-            '"uploads": {"create": {}, "cancel": {}, "complete": {}}}}}'
+        assert serialize_to_str(n) == json.dumps(
+            {
+                "client": {
+                    "api_key": "test",
+                    "organization": None,
+                    "project": None,
+                    "websocket_base_url": None,
+                    "max_retries": 2,
+                    "timeout": {"connect": 5.0, "read": 600, "write": 600, "pool": 600},
+                    "completions": {},
+                    "chat": {},
+                    "embeddings": {},
+                    "files": {},
+                    "images": {},
+                    "audio": {},
+                    "moderations": {},
+                    "models": {},
+                    "fine_tuning": {},
+                    "vector_stores": {},
+                    "beta": {},
+                    "batches": {},
+                    "uploads": {},
+                    "responses": {},
+                    "with_raw_response": {
+                        "completions": {"create": {}},
+                        "chat": {},
+                        "embeddings": {"create": {}},
+                        "files": {
+                            "create": {},
+                            "retrieve": {},
+                            "list": {},
+                            "delete": {},
+                            "content": {},
+                            "retrieve_content": {},
+                        },
+                        "images": {"create_variation": {}, "edit": {}, "generate": {}},
+                        "audio": {},
+                        "moderations": {"create": {}},
+                        "models": {"retrieve": {}, "list": {}, "delete": {}},
+                        "fine_tuning": {},
+                        "vector_stores": {
+                            "create": {},
+                            "retrieve": {},
+                            "update": {},
+                            "list": {},
+                            "delete": {},
+                            "search": {},
+                        },
+                        "beta": {},
+                        "batches": {"create": {}, "retrieve": {}, "list": {}, "cancel": {}},
+                        "uploads": {"create": {}, "cancel": {}, "complete": {}},
+                        "responses": {"create": {}, "retrieve": {}, "delete": {}},
+                    },
+                    "with_streaming_response": {
+                        "completions": {"create": {}},
+                        "chat": {},
+                        "embeddings": {"create": {}},
+                        "files": {
+                            "create": {},
+                            "retrieve": {},
+                            "list": {},
+                            "delete": {},
+                            "content": {},
+                            "retrieve_content": {},
+                        },
+                        "images": {"create_variation": {}, "edit": {}, "generate": {}},
+                        "audio": {},
+                        "moderations": {"create": {}},
+                        "models": {"retrieve": {}, "list": {}, "delete": {}},
+                        "fine_tuning": {},
+                        "vector_stores": {
+                            "create": {},
+                            "retrieve": {},
+                            "update": {},
+                            "list": {},
+                            "delete": {},
+                            "search": {},
+                        },
+                        "beta": {},
+                        "batches": {"create": {}, "retrieve": {}, "list": {}, "cancel": {}},
+                        "uploads": {"create": {}, "cancel": {}, "complete": {}},
+                        "responses": {"create": {}, "retrieve": {}, "delete": {}},
+                    },
+                }
+            }
         )
 
 
@@ -374,29 +437,97 @@ def test_serialize_complex_example_with_dataclasses():
     client = OpenAI(api_key="test")
 
     model_config = ModelConfig(model_name="gpt-4o", client=client, supports_tool_calling=True)
-
+    serialize_to_str(model_config)
     assert serialize_to_str(model_config) == (
-        '{"model_name": "gpt-4o", "client": {"api_key": "test", "organization": null, '
-        '"project": null, "websocket_base_url": null, "max_retries": 2, "timeout": '
-        '{"connect": 5.0, "read": 600, "write": 600, "pool": 600}, "completions": {}, '
-        '"chat": {}, "embeddings": {}, "files": {}, "images": {}, "audio": {}, '
-        '"moderations": {}, "models": {}, "fine_tuning": {}, "beta": {}, "batches": '
-        '{}, "uploads": {}, "with_raw_response": {"completions": {"create": {}}, '
-        '"chat": {}, "embeddings": {"create": {}}, "files": {"create": {}, '
-        '"retrieve": {}, "list": {}, "delete": {}, "content": {}, "retrieve_content": '
-        '{}}, "images": {"create_variation": {}, "edit": {}, "generate": {}}, '
-        '"audio": {}, "moderations": {"create": {}}, "models": {"retrieve": {}, '
-        '"list": {}, "delete": {}}, "fine_tuning": {}, "beta": {}, "batches": '
-        '{"create": {}, "retrieve": {}, "list": {}, "cancel": {}}, "uploads": '
-        '{"create": {}, "cancel": {}, "complete": {}}}, "with_streaming_response": '
-        '{"completions": {"create": {}}, "chat": {}, "embeddings": {"create": {}}, '
-        '"files": {"create": {}, "retrieve": {}, "list": {}, "delete": {}, "content": '
-        '{}, "retrieve_content": {}}, "images": {"create_variation": {}, "edit": {}, '
-        '"generate": {}}, "audio": {}, "moderations": {"create": {}}, "models": '
-        '{"retrieve": {}, "list": {}, "delete": {}}, "fine_tuning": {}, "beta": {}, '
-        '"batches": {"create": {}, "retrieve": {}, "list": {}, "cancel": {}}, '
-        '"uploads": {"create": {}, "cancel": {}, "complete": {}}}}, '
-        '"supports_tool_calling": true, "max_tokens": 1024}'
+        json.dumps(
+            {
+                "model_name": "gpt-4o",
+                "client": {
+                    "api_key": "test",
+                    "organization": None,
+                    "project": None,
+                    "websocket_base_url": None,
+                    "max_retries": 2,
+                    "timeout": {"connect": 5.0, "read": 600, "write": 600, "pool": 600},
+                    "completions": {},
+                    "chat": {},
+                    "embeddings": {},
+                    "files": {},
+                    "images": {},
+                    "audio": {},
+                    "moderations": {},
+                    "models": {},
+                    "fine_tuning": {},
+                    "vector_stores": {},
+                    "beta": {},
+                    "batches": {},
+                    "uploads": {},
+                    "responses": {},
+                    "with_raw_response": {
+                        "completions": {"create": {}},
+                        "chat": {},
+                        "embeddings": {"create": {}},
+                        "files": {
+                            "create": {},
+                            "retrieve": {},
+                            "list": {},
+                            "delete": {},
+                            "content": {},
+                            "retrieve_content": {},
+                        },
+                        "images": {"create_variation": {}, "edit": {}, "generate": {}},
+                        "audio": {},
+                        "moderations": {"create": {}},
+                        "models": {"retrieve": {}, "list": {}, "delete": {}},
+                        "fine_tuning": {},
+                        "vector_stores": {
+                            "create": {},
+                            "retrieve": {},
+                            "update": {},
+                            "list": {},
+                            "delete": {},
+                            "search": {},
+                        },
+                        "beta": {},
+                        "batches": {"create": {}, "retrieve": {}, "list": {}, "cancel": {}},
+                        "uploads": {"create": {}, "cancel": {}, "complete": {}},
+                        "responses": {"create": {}, "retrieve": {}, "delete": {}},
+                    },
+                    "with_streaming_response": {
+                        "completions": {"create": {}},
+                        "chat": {},
+                        "embeddings": {"create": {}},
+                        "files": {
+                            "create": {},
+                            "retrieve": {},
+                            "list": {},
+                            "delete": {},
+                            "content": {},
+                            "retrieve_content": {},
+                        },
+                        "images": {"create_variation": {}, "edit": {}, "generate": {}},
+                        "audio": {},
+                        "moderations": {"create": {}},
+                        "models": {"retrieve": {}, "list": {}, "delete": {}},
+                        "fine_tuning": {},
+                        "vector_stores": {
+                            "create": {},
+                            "retrieve": {},
+                            "update": {},
+                            "list": {},
+                            "delete": {},
+                            "search": {},
+                        },
+                        "beta": {},
+                        "batches": {"create": {}, "retrieve": {}, "list": {}, "cancel": {}},
+                        "uploads": {"create": {}, "cancel": {}, "complete": {}},
+                        "responses": {"create": {}, "retrieve": {}, "delete": {}},
+                    },
+                },
+                "supports_tool_calling": True,
+                "max_tokens": 1024,
+            }
+        )
     )
 
 
