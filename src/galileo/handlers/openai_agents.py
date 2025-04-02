@@ -103,7 +103,7 @@ class GalileoTracingProcessor(TracingProcessor):
 
         self._galileo_logger.conclude(output=root_node.span_params.get("name", ""))
 
-    def _log_node_tree(self, node: Node) -> None:
+    def _log_node(self, node: Node) -> None:
         """
         Log a node and its children recursively.
 
@@ -170,19 +170,8 @@ class GalileoTracingProcessor(TracingProcessor):
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
 
-        # Process all child nodes
-        last_child = None
-        for child_id in node.children:
-            child_node = self._nodes.get(child_id)
-            if child_node:
-                self._log_node_tree(child_node)
-                last_child = child_node
-            else:
-                _logger.warning(f"Child node {child_id} not found")
-
         # Conclude workflow span. Use the last child's output if necessary
         if is_workflow_span:
-            output = output or (last_child.span_params.get("output", "") if last_child else "")
             self._galileo_logger.conclude(output=serialize_to_str(output))
 
     def on_span_start(self, span: Span[Any]) -> None:
@@ -239,13 +228,6 @@ class GalileoTracingProcessor(TracingProcessor):
         # Create the node
         node = Node(node_type=galileo_type, span_params=initial_params, run_id=span_id, parent_run_id=parent_id)
         self._nodes[span_id] = node
-
-        # Add to parent's children list
-        parent_node = self._nodes.get(parent_id)
-        if parent_node:
-            parent_node.children.append(span_id)
-        else:
-            _logger.warning(f"Parent node {parent_id} not found for span {span_id} in trace {trace_id}")
 
     def on_span_end(self, span: Span[Any]) -> None:
         """Called when an OpenAI Agent span ends."""
@@ -319,6 +301,7 @@ class GalileoTracingProcessor(TracingProcessor):
 
         # Update the node's parameters
         node.span_params.update(end_params)
+        self._log_node(node)
 
     def shutdown(self) -> None:
         """Called when the application stops. Flushes any remaining logs."""
