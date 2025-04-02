@@ -234,16 +234,16 @@ def run_experiment(
         raise ValueError(f"Project {project} does not exist")
 
     # Create or get experiment
-    experiment_obj = Experiments().get(project_obj.id, experiment_name)
+    existing_experiment = Experiments().get(project_obj.id, experiment_name)
 
-    if experiment_obj:
-        logging.warning(f"Experiment {experiment_obj.name} already exists, adding a timestamp")
+    if existing_experiment:
+        logging.warning(f"Experiment {existing_experiment.name} already exists, adding a timestamp")
         now = datetime.datetime.now(datetime.timezone.utc)
         # based on TS SDK implementation new Date()
         #       .toISOString()
         #       .replace('T', ' at ')
         #       .replace('Z', '');
-        experiment_name = f"{experiment_obj.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
+        experiment_name = f"{existing_experiment.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
 
     experiment_obj = Experiments().create(project_obj.id, experiment_name)
 
