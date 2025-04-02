@@ -519,7 +519,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             List[Trace]: The list of uploaded traces.
         """
         if not self.traces:
-            self._logger.info("Attempting to flush on interpreter exit...No traces to flush.")
+            self._logger.info("No traces to flush.")
             return list()
 
         current_parent = self.current_parent()
@@ -549,7 +549,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             List[Trace]: The list of uploaded workflows.
         """
         if not self.traces:
-            self._logger.info("Attempting to flush on interpreter exit...No traces to flush.")
+            self._logger.info("No traces to flush.")
             return list()
 
         current_parent = self.current_parent()
@@ -576,5 +576,5 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
-
+        self._logger.info("Attempting to flush on interpreter exit...")
         self.flush()
