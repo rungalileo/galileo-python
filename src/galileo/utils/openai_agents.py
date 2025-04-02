@@ -13,7 +13,7 @@ from agents import (
 )
 from agents.tracing import ResponseSpanData
 
-from galileo.utils.schemas import LANGCHAIN_NODE_TYPE
+from galileo.schema.handler import LANGCHAIN_NODE_TYPE
 from galileo.utils.serialization import serialize_to_str
 
 _logger = logging.getLogger(__name__)

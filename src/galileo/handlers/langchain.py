@@ -8,7 +8,7 @@ from uuid import UUID
 from galileo import galileo_context
 from galileo.handlers.openai_agents import Node
 from galileo.logger import GalileoLogger
-from galileo.utils.schemas import LANGCHAIN_NODE_TYPE
+from galileo.schema.handler import LANGCHAIN_NODE_TYPE
 from galileo.utils.serialization import EventSerializer, convert_to_string_dict, serialize_to_str
 
 _logger = logging.getLogger(__name__)
