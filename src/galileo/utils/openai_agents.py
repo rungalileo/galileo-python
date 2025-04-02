@@ -1,5 +1,6 @@
 import logging
 from typing import Any
+
 from agents import (
     AgentSpanData,
     CustomSpanData,
@@ -9,8 +10,6 @@ from agents import (
     HandoffSpanData,
     Span,
     SpanData,
-    Trace,
-    TracingProcessor,
 )
 from agents.tracing import ResponseSpanData
 
@@ -48,7 +47,6 @@ def _get_span_name(span: Span[Any]) -> str:
         return span.span_data.type.capitalize()
     else:
         return "Unknown Span"
-    
 
 
 def _parse_usage(usage_data: dict | Any | None) -> dict[str, int | None]:
@@ -245,4 +243,3 @@ def _extract_workflow_data(span_data: AgentSpanData | HandoffSpanData | CustomSp
 
     data = {k: v for k, v in data.items() if v is not None or k in ["input", "output", "metadata"]}
     return data
-

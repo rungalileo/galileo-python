@@ -2,7 +2,7 @@ import contextvars
 import json
 import logging
 import time
-from typing import Any, Literal, Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from galileo import galileo_context
@@ -27,9 +27,6 @@ except ImportError:
     BaseMessage = object
     LLMResult = object
     AgentFinish = object
-
-
-
 
 
 _root_node: contextvars.ContextVar[Optional[Node]] = contextvars.ContextVar("langchain_root_node", default=None)

@@ -1,35 +1,26 @@
 # ./galileo/integrations/openai_agents.py
 from __future__ import annotations
 
-import contextvars
 import logging
 from datetime import datetime, timezone
-from typing import Any, Literal, Optional
+from typing import Any
 
-from agents import (
-    AgentSpanData,
-    CustomSpanData,
-    FunctionSpanData,
-    GenerationSpanData,
-    GuardrailSpanData,
-    HandoffSpanData,
-    Span,
-    SpanData,
-    Trace,
-    TracingProcessor,
-)
-from agents.tracing import ResponseSpanData
+from agents import Span, Trace, TracingProcessor
 
 from galileo import galileo_context
 from galileo.logger import GalileoLogger
 from galileo.utils import _get_timestamp
-from galileo.utils.openai_agents import _extract_llm_data, _extract_tool_data, _extract_workflow_data, _get_galileo_span_type, _get_span_name
+from galileo.utils.openai_agents import (
+    _extract_llm_data,
+    _extract_tool_data,
+    _extract_workflow_data,
+    _get_galileo_span_type,
+    _get_span_name,
+)
 from galileo.utils.schemas import Node
 from galileo.utils.serialization import convert_to_string_dict, serialize_to_str
 
 _logger = logging.getLogger(__name__)
-
-
 
 
 class GalileoTracingProcessor(TracingProcessor):
@@ -58,7 +49,7 @@ class GalileoTracingProcessor(TracingProcessor):
         self._start_new_trace: bool = start_new_trace
         self._flush_on_trace_end: bool = flush_on_trace_end
         self._nodes: dict[str, Node] = {}
-        self._root_node: Optional[str] = None
+        self._root_node: str | None = None
 
     def on_trace_start(self, trace: Trace) -> None:
         """Called when an OpenAI Agent trace starts."""
@@ -70,12 +61,11 @@ class GalileoTracingProcessor(TracingProcessor):
                 "start_time": _get_timestamp(),
                 "name": trace.name,
                 "metadata": convert_to_string_dict(trace.metadata),
-            }
+            },
         )
 
         self._nodes[trace.trace_id] = node
         self._root_node = trace.trace_id
-
 
     def on_trace_end(self, trace: Trace) -> None:
         """Called when an OpenAI Agent trace ends."""
@@ -84,11 +74,11 @@ class GalileoTracingProcessor(TracingProcessor):
             _logger.warning(f"End called for unknown trace_id {trace.trace_id}")
             return
 
-        node.span_params["duration_ns"] = (_get_timestamp() - node.span_params["start_time"] ).total_seconds() * 1e9
+        node.span_params["duration_ns"] = (_get_timestamp() - node.span_params["start_time"]).total_seconds() * 1e9
         # Log the trace to Galileo
         if node.run_id == self._root_node:
             self._commit_trace()
-        
+
         # Optionally flush the log batch
         if self._flush_on_trace_end:
             self._galileo_logger.flush()
@@ -107,7 +97,7 @@ class GalileoTracingProcessor(TracingProcessor):
             duration_ns=root_node.span_params.get("duration_ns"),
             created_at=root_node.span_params.get("start_time"),
             metadata=root_node.span_params.get("metadata", {}),
-            )
+        )
 
         self._log_node_tree(root_node)
 
@@ -135,7 +125,14 @@ class GalileoTracingProcessor(TracingProcessor):
 
         # Log the current node based on its type
         if node.node_type in ("agent", "chain", "workflow"):
-            self._galileo_logger.add_workflow_span(input=input, output=output, name=name, metadata=metadata, tags=tags, duration_ns=node.span_params.get("duration_ns"),)
+            self._galileo_logger.add_workflow_span(
+                input=input,
+                output=output,
+                name=name,
+                metadata=metadata,
+                tags=tags,
+                duration_ns=node.span_params.get("duration_ns"),
+            )
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
             self._galileo_logger.add_llm_span(
@@ -153,9 +150,23 @@ class GalileoTracingProcessor(TracingProcessor):
                 duration_ns=node.span_params.get("duration_ns"),
             )
         elif node.node_type == "retriever":
-            self._galileo_logger.add_retriever_span(input=input, output=output, name=name, metadata=metadata, tags=tags, duration_ns=node.span_params.get("duration_ns"),)
+            self._galileo_logger.add_retriever_span(
+                input=input,
+                output=output,
+                name=name,
+                metadata=metadata,
+                tags=tags,
+                duration_ns=node.span_params.get("duration_ns"),
+            )
         elif node.node_type == "tool":
-            self._galileo_logger.add_tool_span(input=input, output=output, name=name, metadata=metadata, tags=tags, duration_ns=node.span_params.get("duration_ns"),)
+            self._galileo_logger.add_tool_span(
+                input=input,
+                output=output,
+                name=name,
+                metadata=metadata,
+                tags=tags,
+                duration_ns=node.span_params.get("duration_ns"),
+            )
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
 
@@ -174,9 +185,6 @@ class GalileoTracingProcessor(TracingProcessor):
             output = output or (last_child.span_params.get("output", "") if last_child else "")
             self._galileo_logger.conclude(output=serialize_to_str(output))
 
-
-
-
     def on_span_start(self, span: Span[Any]) -> None:
         """Called when an OpenAI Agent span starts."""
 
@@ -192,7 +200,10 @@ class GalileoTracingProcessor(TracingProcessor):
         span_name = _get_span_name(span)
 
         # Extract initial data based on type
-        initial_params: dict[str, Any] = {"name": span_name, "start_time_iso": span.started_at or datetime.now(timezone.utc).isoformat()}
+        initial_params: dict[str, Any] = {
+            "name": span_name,
+            "start_time_iso": span.started_at or datetime.now(timezone.utc).isoformat(),
+        }
         if galileo_type == "llm":
             llm_data = _extract_llm_data(span.span_data)
             initial_params.update(
@@ -226,12 +237,7 @@ class GalileoTracingProcessor(TracingProcessor):
             )
 
         # Create the node
-        node = Node(
-            node_type=galileo_type,
-            span_params=initial_params,
-            run_id=span_id,
-            parent_run_id=parent_id,
-        )
+        node = Node(node_type=galileo_type, span_params=initial_params, run_id=span_id, parent_run_id=parent_id)
         self._nodes[span_id] = node
 
         # Add to parent's children list
@@ -240,8 +246,6 @@ class GalileoTracingProcessor(TracingProcessor):
             parent_node.children.append(span_id)
         else:
             _logger.warning(f"Parent node {parent_id} not found for span {span_id} in trace {trace_id}")
-
-        
 
     def on_span_end(self, span: Span[Any]) -> None:
         """Called when an OpenAI Agent span ends."""
@@ -256,7 +260,9 @@ class GalileoTracingProcessor(TracingProcessor):
         # Update node with final data
         galileo_type = node.node_type
         end_params: dict[str, Any] = {"end_time_iso": span.ended_at or datetime.now(timezone.utc).isoformat()}
-        end_params["duration_ns"] = (datetime.fromisoformat(span.ended_at) - datetime.fromisoformat(node.span_params["start_time_iso"])).total_seconds() * 1e9
+        end_params["duration_ns"] = (
+            datetime.fromisoformat(span.ended_at) - datetime.fromisoformat(node.span_params["start_time_iso"])
+        ).total_seconds() * 1e9
 
         if galileo_type == "llm":
             llm_data = _extract_llm_data(span.span_data)
@@ -314,12 +320,11 @@ class GalileoTracingProcessor(TracingProcessor):
         # Update the node's parameters
         node.span_params.update(end_params)
 
-
     def shutdown(self) -> None:
         """Called when the application stops. Flushes any remaining logs."""
 
         self._galileo_logger.flush()
-        
+
     def force_flush(self) -> None:
         """Forces an immediate flush of all queued traces/spans."""
         self._galileo_logger.flush()
