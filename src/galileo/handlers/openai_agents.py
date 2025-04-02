@@ -54,7 +54,7 @@ class GalileoTracingProcessor(TracingProcessor):
     def on_trace_start(self, trace: Trace) -> None:
         """Called when an OpenAI Agent trace starts."""
 
-        node = Node(
+        root_node = Node(
             node_type="agent",
             run_id=trace.trace_id,
             span_params={
@@ -64,8 +64,15 @@ class GalileoTracingProcessor(TracingProcessor):
             },
         )
 
-        self._nodes[trace.trace_id] = node
-        self._root_node = trace.trace_id
+        self._galileo_logger.start_trace(
+            input=root_node.span_params.get("name", ""),
+            name=root_node.span_params.get("name", ""),
+            duration_ns=root_node.span_params.get("duration_ns"),
+            created_at=root_node.span_params.get("start_time"),
+            metadata=root_node.span_params.get("metadata", {}),
+        )
+
+        self._nodes[trace.trace_id] = root_node
 
     def on_trace_end(self, trace: Trace) -> None:
         """Called when an OpenAI Agent trace ends."""
@@ -76,32 +83,16 @@ class GalileoTracingProcessor(TracingProcessor):
 
         node.span_params["duration_ns"] = (_get_timestamp() - node.span_params["start_time"]).total_seconds() * 1e9
         # Log the trace to Galileo
-        if node.run_id == self._root_node:
-            self._commit_trace()
+        self._galileo_logger.conclude(
+            input=node.span_params.get("name", ""),
+            name=node.span_params.get("name", ""),
+            metadata=node.span_params.get("metadata", {}),
+            duration_ns=node.span_params.get("duration_ns"),
+        )
 
         # Optionally flush the log batch
         if self._flush_on_trace_end:
             self._galileo_logger.flush()
-
-    def _commit_trace(self) -> None:
-        if not self._nodes:
-            _logger.warning("No nodes to commit")
-            return
-        root_node = self._nodes[self._root_node]
-        if root_node is None:
-            _logger.warning("Unable to add nodes to trace: Root node not set")
-            return
-        self._galileo_logger.start_trace(
-            input=root_node.span_params.get("name", ""),
-            name=root_node.span_params.get("name", ""),
-            duration_ns=root_node.span_params.get("duration_ns"),
-            created_at=root_node.span_params.get("start_time"),
-            metadata=root_node.span_params.get("metadata", {}),
-        )
-
-        self._log_node_tree(root_node)
-
-        self._galileo_logger.conclude(output=root_node.span_params.get("name", ""))
 
     def _log_node(self, node: Node) -> None:
         """
