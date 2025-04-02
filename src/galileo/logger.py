@@ -15,6 +15,7 @@ from galileo.projects import Projects
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
+from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
 from galileo_core.schemas.logging.span import (
     LlmSpan,
@@ -135,6 +136,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._init_project()
 
+    @nop_sync
     def _init_project(self):
         # Get project and log stream IDs
         api_client = GalileoApiClient()
@@ -143,7 +145,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         project_obj = projects_client.get(name=self.project_name)
         if project_obj is None:
             # Create project if it doesn't exist
-            self.project_id = projects_client.create(name=self.project_name).id
+            project = projects_client.create(name=self.project_name)
+            if project is None:
+                raise GalileoLoggerException(f"Failed to create project {self.project_name}.")
+            self.project_id = project.id
             self._logger.info(f"🚀 Creating new project... project {self.project_name} created!")
         else:
             if project_obj.type != "gen_ai":
@@ -169,6 +174,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         atexit.register(self.terminate)
 
     @staticmethod
+    @nop_sync
     def _get_last_output(node: Union[BaseStep, None]) -> Optional[str]:
         """
         Get the last output of a node or its child spans recursively.
@@ -182,6 +188,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             return GalileoLogger._get_last_output(node.spans[-1])
         return None
 
+    @nop_sync
     def start_trace(
         self,
         input: StepIOType,
@@ -216,6 +223,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             input=input, name=name, duration_ns=duration_ns, created_at=created_at, user_metadata=metadata, tags=tags
         )
 
+    @nop_sync
     def add_single_llm_span_trace(
         self,
         input: LlmSpanAllowedInputType,
@@ -276,6 +284,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             time_to_first_token_ns=time_to_first_token_ns,
         )
 
+    @nop_sync
     def add_llm_span(
         self,
         input: LlmSpanAllowedInputType,
@@ -335,6 +344,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             time_to_first_token_ns=time_to_first_token_ns,
         )
 
+    @nop_sync
     def add_retriever_span(
         self,
         input: str,
@@ -401,6 +411,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             status_code=status_code,
         )
 
+    @nop_sync
     def add_tool_span(
         self,
         input: str,
@@ -441,6 +452,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             tool_call_id=tool_call_id,
         )
 
+    @nop_sync
     def add_workflow_span(
         self,
         input: str,
@@ -478,6 +490,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             tags=tags,
         )
 
+    @nop_sync
     def conclude(
         self,
         output: Optional[str] = None,
@@ -510,6 +523,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         return current_parent
 
+    @nop_sync
     def flush(self) -> list[Trace]:
         """
         Upload all traces to Galileo.
@@ -540,6 +554,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._parent_stack = deque()
         return logged_traces
 
+    @nop_async
     async def async_flush(self) -> list[Trace]:
         """
         Async upload all traces to Galileo.
@@ -570,6 +585,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._parent_stack = deque()
         return logged_traces
 
+    @nop_sync
     def terminate(self):
         """
         Terminate the logger and flush all traces to Galileo.

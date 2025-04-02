@@ -170,6 +170,13 @@ class TestExperiments:
         assert experiments[0].name == experiment_response().name
         list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
 
+    @patch("galileo.experiments.list_experiments_v2_projects_project_id_experiments_get")
+    def test_get_experiment_not_found(self, list_experiments_mock: Mock):
+        list_experiments_mock.sync = Mock(return_value=None)
+        experiment = get_experiment(experiment_name=experiment_response().name, project_id=str(UUID(int=0)))
+        assert experiment is None
+        list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
+
     @patch.object(galileo.datasets.Datasets, "get")
     def test_get_dataset_and_records_by_id(self, mock_get_dataset):
         mock_get_dataset_instance = mock_get_dataset.return_value

@@ -1,3 +1,4 @@
+import json
 from http import HTTPStatus
 from unittest.mock import Mock, patch
 
@@ -8,23 +9,27 @@ from galileo.resources.models import BasePromptTemplateResponse, Message, Messag
 from galileo.resources.types import Response
 
 
-def project():
-    return [
-        ProjectDB.from_dict(
-            {
-                "created_by_user": {"id": "01ce18ac-3960-46e1-bb79-0e4965069add"},
-                "created_at": "2025-03-03T21:17:44.232862+00:00",
-                "created_by": "01ce18ac-3960-46e1-bb79-0e4965069add",
-                "id": "e343ea54-4df3-4d0b-9bc5-7e8224be348f",
-                "runs": [],
-                "updated_at": "2025-03-03T21:17:44.232864+00:00",
-                "bookmark": False,
-                "name": "andrii-new-project",
-                "permissions": [],
-                "type": "gen_ai",
-            }
-        )
-    ]
+def projects_response():
+    project = ProjectDB.from_dict(
+        {
+            "created_by_user": {"id": "01ce18ac-3960-46e1-bb79-0e4965069add"},
+            "created_at": "2025-03-03T21:17:44.232862+00:00",
+            "created_by": "01ce18ac-3960-46e1-bb79-0e4965069add",
+            "id": "e343ea54-4df3-4d0b-9bc5-7e8224be348f",
+            "runs": [],
+            "updated_at": "2025-03-03T21:17:44.232864+00:00",
+            "bookmark": False,
+            "name": "andrii-new-project",
+            "permissions": [],
+            "type": "gen_ai",
+        }
+    )
+    return Response(
+        content=json.dumps(project.to_dict()).encode("utf-8"),
+        status_code=HTTPStatus.OK,
+        headers={"Content-Type": "application/json"},
+        parsed=[project],
+    )
 
 
 def prompt_template():
@@ -59,7 +64,7 @@ def test_create_prompt(create_prompt_template_mock: Mock, get_projects_projects_
     create_prompt_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
     )
-    get_projects_projects_get_mock.sync.return_value = project()
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
     tmpl = create_prompt_template(
         name="andrii-good-prompt",
         project="andrii-new-project",
@@ -71,7 +76,7 @@ def test_create_prompt(create_prompt_template_mock: Mock, get_projects_projects_
 
     assert tmpl.name == "andrii-good-prompt"
     create_prompt_template_mock.sync_detailed.assert_called_once()
-    get_projects_projects_get_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
 
 
 @patch("galileo.projects.get_projects_projects_get")
@@ -83,7 +88,7 @@ def test_create_prompt_bad_request(create_prompt_template_mock: Mock, get_projec
         headers={},
         parsed=None,
     )
-    get_projects_projects_get_mock.sync.return_value = project()
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
     with pytest.raises(PromptTemplateAPIException):
         create_prompt_template(
             name="andrii-good-prompt",
@@ -94,4 +99,4 @@ def test_create_prompt_bad_request(create_prompt_template_mock: Mock, get_projec
             ],
         )
     create_prompt_template_mock.sync_detailed.assert_called_once()
-    get_projects_projects_get_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()

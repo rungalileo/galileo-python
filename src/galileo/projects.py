@@ -2,6 +2,8 @@ import datetime
 import logging
 from typing import Optional, Union, overload
 
+import httpx
+
 from galileo.base import BaseClientModel
 from galileo.resources.api.projects import (
     create_project_projects_post,
@@ -18,8 +20,13 @@ from galileo.resources.models.project_db_thin import ProjectDBThin
 from galileo.resources.models.project_type import ProjectType
 from galileo.resources.types import UNSET, Unset
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.exceptions import APIException
 
 _logger = logging.getLogger(__name__)
+
+
+class ProjectsAPIException(APIException):
+    pass
 
 
 class Project:
@@ -146,15 +153,24 @@ class Projects(BaseClientModel, DecorateAllMethods):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
         if id:
-            project_response = get_project_projects_project_id_get.sync(project_id=id, client=self.client)
+            detailed_response = get_project_projects_project_id_get.sync_detailed(project_id=id, client=self.client)
+            if detailed_response.status_code != httpx.codes.OK:
+                raise ProjectsAPIException(detailed_response.content)
+
+            project_response = detailed_response.parsed
             if not project_response:
                 return None
             project = Project(project=project_response)
 
         elif name:
-            projects_response = get_projects_projects_get.sync(
+            detailed_response = get_projects_projects_get.sync_detailed(
                 client=self.client, project_name=name, type_=ProjectType.GEN_AI
             )
+
+            if detailed_response.status_code != httpx.codes.OK:
+                raise ProjectsAPIException(detailed_response.content)
+
+            projects_response = detailed_response.parsed
 
             if not projects_response or len(projects_response) == 0:
                 return None
@@ -187,7 +203,12 @@ class Projects(BaseClientModel, DecorateAllMethods):
         """
         body = ProjectCreate(name=name, type_=ProjectType.GEN_AI, create_example_templates=False, created_by=None)
 
-        response = create_project_projects_post.sync(client=self.client, body=body)
+        detailed_response = create_project_projects_post.sync_detailed(client=self.client, body=body)
+
+        if detailed_response.status_code != httpx.codes.OK:
+            raise ProjectsAPIException(detailed_response.content)
+
+        response = detailed_response.parsed
 
         if isinstance(response, HTTPValidationError):
             _logger.error(response)
