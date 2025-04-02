@@ -223,9 +223,24 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
             )
             return
 
+        # Default values in case of early exit or error during processing
+        duration_ns = 0
+        status_code = 500  # Default to error if we can't process properly
+        final_output = "Error during span end processing"
+
         try:
             output, error = self._extract_output_and_error(span)
             kwargs = {}
+
+            # Calculate duration if timestamps are available
+            if span.started_at and span.ended_at:
+                duration_ns = int((span.ended_at - span.started_at).total_seconds() * 1e9)
+
+            # Determine status code based on the presence of an error in the span data
+            status_code = 500 if error else 200
+
+            # Format the final output string
+            final_output = f"{output} (Error: {error})" if error else f"{output}"
 
             # Add LLM-specific metrics on conclude if it's a generation span
             if isinstance(span.span_data, tracing.GenerationSpanData) and span.data_usage:
@@ -234,17 +249,27 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
                 kwargs["total_tokens"] = usage.get("total_tokens")
                 # Note: num_input_tokens logged at start if possible
 
-            self._galileo_logger.conclude(output=f"{output} ({error})", **kwargs)
+            self._galileo_logger.conclude(
+                output=final_output, duration_ns=duration_ns, status_code=status_code, **kwargs
+            )
             _logger.debug(f"Ended Galileo span for agent span_id: {span.span_id} (Trace: {span.trace_id})")
 
         except Exception as e:
-            _logger.error(f"Galileo: Error in on_span_end for span_id {span.span_id}: {e}", exc_info=True)
-            # Attempt to conclude with error even if extraction failed
+            _logger.error(f"Galileo: Error in on_span_end processing for span_id {span.span_id}: {e}", exc_info=True)
+            # Attempt to conclude with the error message and default/calculated status/duration
             try:
-                self._galileo_logger.conclude(output="Error during span end processing" + str(e))
+                # Try to recalculate duration if possible, otherwise use the default 0
+                if span.started_at and span.ended_at:
+                    duration_ns = int((span.ended_at - span.started_at).total_seconds() * 1e9)
+                # Ensure status code reflects the processing error
+                status_code = 500
+                self._galileo_logger.conclude(
+                    output=f"Error during span end processing: {e}", duration_ns=duration_ns, status_code=status_code
+                )
             except Exception as conclude_e:
                 _logger.error(
-                    f"Galileo: Failed to conclude span {span.span_id} even with error: {conclude_e}", exc_info=True
+                    f"Galileo: Failed to conclude span {span.span_id} even after processing error: {conclude_e}",
+                    exc_info=True,
                 )
 
     def shutdown(self) -> None:
