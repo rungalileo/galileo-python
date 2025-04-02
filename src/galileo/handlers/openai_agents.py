@@ -8,7 +8,7 @@ from galileo.decorator import galileo_context
 from galileo.logger import GalileoLogger
 from galileo.utils.serialization import convert_to_string_dict, serialize_to_str
 
-_logger = logging.getLogger("galileo.handlers.agents")
+_logger = logging.getLogger(__name__)
 
 
 def _get_span_name(span: tracing.Span[Any]) -> str:
