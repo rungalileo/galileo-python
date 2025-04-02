@@ -120,6 +120,12 @@ async def test_simple_agent(
     assert result
     traces = galileo_logger.traces
     assert len(traces) == 1
+    trace = traces[0]
+    for span in trace.spans:
+        assert span.status_code != 500
+        assert span.metrics.duration_ns
+        assert span.metrics.duration_ns > 0
+
     galileo_logger.flush()
     payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     assert len(payload.traces) == 1

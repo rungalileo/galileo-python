@@ -229,8 +229,10 @@ class GalileoTracingProcessor(TracingProcessor):  # pyright: ignore[reportGenera
 
         # Other types might not have a distinct 'output' field in their span_data
         # We'll rely on the basic structure and potential error on the span itself.
-
-        return serialize_to_str(output), serialize_to_str(error)
+        error_str = serialize_to_str(error)
+        if error_str == serialize_to_str(None):
+            error_str = None
+        return serialize_to_str(output), error_str
 
     def on_span_end(self, span: tracing.Span[Any]) -> None:
         """Called when a span ends. Concludes the current Galileo span."""
