@@ -76,7 +76,7 @@ async def test_complex_agent(
     setup_mock_logstreams_client(mock_logstreams_client)
     # galileo_context.reset()
     galileo_logger = GalileoLogger(project="test", log_stream="test")
-    gp = GalileoTracingProcessor(galileo_logger=galileo_logger, flush_on_chain_end=False)
+    gp = GalileoTracingProcessor(galileo_logger=galileo_logger, flush_on_trace_end=False)
     set_trace_processors([gp])
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
 
@@ -112,7 +112,7 @@ async def test_simple_agent(
     setup_mock_logstreams_client(mock_logstreams_client)
     # galileo_context.reset()
     galileo_logger = GalileoLogger(project="test", log_stream="test")
-    gp = GalileoTracingProcessor(galileo_logger=galileo_logger, flush_on_chain_end=False)
+    gp = GalileoTracingProcessor(galileo_logger=galileo_logger, flush_on_trace_end=False)
     set_trace_processors([gp])
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
     agent = Agent(name="Assistant", instructions="You are the worlds best assistant.")

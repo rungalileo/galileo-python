@@ -221,6 +221,8 @@ def convert_to_string_dict(input_: dict) -> dict[str, str]:
     all values to their string representations.
     """
     result = {}
+    if not input_:
+        return result
     for key, value in input_.items():
         # Ensure key is a string
         string_key = str(key)
