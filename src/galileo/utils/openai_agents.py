@@ -1,5 +1,5 @@
 import logging
-from typing import Any
+from typing import Any, Union
 
 from agents import (
     AgentSpanData,
@@ -49,9 +49,9 @@ def _get_span_name(span: Span[Any]) -> str:
         return "Unknown Span"
 
 
-def _parse_usage(usage_data: dict | Any | None) -> dict[str, int | None]:
+def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Union[int, None]]:
     """Safely parse usage data into a standardized dictionary."""
-    parsed = {"input_tokens": None, "output_tokens": None, "total_tokens": None}
+    parsed: dict[str, Union[int, None]] = {"input_tokens": None, "output_tokens": None, "total_tokens": None}
     if usage_data is None:
         return parsed
 
@@ -88,7 +88,7 @@ def _parse_usage(usage_data: dict | Any | None) -> dict[str, int | None]:
     return parsed
 
 
-def _extract_llm_data(span_data: GenerationSpanData | ResponseSpanData) -> dict[str, Any]:
+def _extract_llm_data(span_data: Union[GenerationSpanData, ResponseSpanData]) -> dict[str, Any]:
     """Extract data specific to LLM spans (Generation, Response)."""
     data: dict[str, Any] = {
         "input": None,
@@ -169,7 +169,8 @@ def _extract_llm_data(span_data: GenerationSpanData | ResponseSpanData) -> dict[
             # Handle potential error in response object
             if hasattr(response, "error") and response.error:
                 data["metadata"]["error_details"] = response.error
-                data["status_code"] = getattr(response.error, "status_code", 500)  # Best guess for status
+                # Use 500 as default if status_code is not present on error
+                data["status_code"] = getattr(response.error, "status_code", 500)
 
             # Include instructions in metadata if available
             if hasattr(response, "instructions") and response.instructions:
@@ -186,13 +187,13 @@ def _extract_llm_data(span_data: GenerationSpanData | ResponseSpanData) -> dict[
         except (ValueError, TypeError):
             data["temperature"] = None
 
-    # Clean up None values that add_llm_span doesn't expect
+    # Clean up None values that add_llm_span doesn't expect, but keep necessary keys
     data = {k: v for k, v in data.items() if v is not None or k in ["input", "output", "metadata", "model_parameters"]}
 
     return data
 
 
-def _extract_tool_data(span_data: FunctionSpanData | GuardrailSpanData) -> dict[str, Any]:
+def _extract_tool_data(span_data: Union[FunctionSpanData, GuardrailSpanData]) -> dict[str, Any]:
     """Extract data specific to Tool spans (Function, Guardrail)."""
     data: dict[str, Any] = {
         "input": None,
@@ -212,11 +213,12 @@ def _extract_tool_data(span_data: FunctionSpanData | GuardrailSpanData) -> dict[
             # Note: Galileo doesn't have a specific warning status, use metadata
             data["metadata"]["status"] = "warning"
 
+    # Clean up None values, keeping essential keys
     data = {k: v for k, v in data.items() if v is not None or k in ["input", "output", "metadata"]}
     return data
 
 
-def _extract_workflow_data(span_data: AgentSpanData | HandoffSpanData | CustomSpanData) -> dict[str, Any]:
+def _extract_workflow_data(span_data: Union[AgentSpanData, HandoffSpanData, CustomSpanData]) -> dict[str, Any]:
     """Extract data specific to Workflow spans (Agent, Handoff, Custom)."""
     data: dict[str, Any] = {
         "input": None,
@@ -227,9 +229,10 @@ def _extract_workflow_data(span_data: AgentSpanData | HandoffSpanData | CustomSp
     if isinstance(span_data, AgentSpanData):
         # Agent input/output is often implicit; capture config in metadata
         # We might get input/output later from children spans
-        data["metadata"]["tools"] = span_data.tools
-        data["metadata"]["handoffs"] = span_data.handoffs
-        data["metadata"]["output_type"] = span_data.output_type
+        # Use getattr for safety in case these attributes aren't guaranteed
+        data["metadata"]["tools"] = getattr(span_data, "tools", None)
+        data["metadata"]["handoffs"] = getattr(span_data, "handoffs", None)
+        data["metadata"]["output_type"] = getattr(span_data, "output_type", None)
     elif isinstance(span_data, HandoffSpanData):
         data["input"] = serialize_to_str({"from_agent": span_data.from_agent})
         data["output"] = serialize_to_str({"to_agent": span_data.to_agent})
@@ -239,7 +242,13 @@ def _extract_workflow_data(span_data: AgentSpanData | HandoffSpanData | CustomSp
         custom_data_dict = span_data.data or {}
         data["input"] = serialize_to_str(custom_data_dict.get("input"))
         data["output"] = serialize_to_str(custom_data_dict.get("output"))
-        data["metadata"] = {k: v for k, v in custom_data_dict.items() if k not in ["input", "output"]}
+        # Filter out None values from metadata more carefully
+        data["metadata"] = {k: v for k, v in custom_data_dict.items() if k not in ["input", "output"] and v is not None}
 
-    data = {k: v for k, v in data.items() if v is not None or k in ["input", "output", "metadata"]}
+    # Clean up None values, keeping essential keys and non-empty metadata
+    data = {k: v for k, v in data.items() if (v is not None and v != {}) or k in ["input", "output"]}
+    # Ensure metadata is always a dict, even if empty after filtering
+    if "metadata" not in data:
+        data["metadata"] = {}
+
     return data
