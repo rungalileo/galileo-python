@@ -1,4 +1,3 @@
-import contextvars
 import json
 import logging
 import time
@@ -63,9 +62,6 @@ class Node:
         self.children: list[str] = []
 
 
-_root_node: contextvars.ContextVar[Optional[Node]] = contextvars.ContextVar("langchain_root_node", default=None)
-
-
 class GalileoAsyncCallback(AsyncCallbackHandler):
     """
     Async Langchain callback handler for logging traces to the Galileo platform.
@@ -92,6 +88,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         self._start_new_trace: bool = start_new_trace
         self._flush_on_chain_end: bool = flush_on_chain_end
         self._nodes: dict[str, Node] = {}
+        self._root_node: Optional[Node] = None
 
     async def _commit(self) -> None:
         """
@@ -101,7 +98,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             _logger.warning("No nodes to commit")
             return
 
-        root = _root_node.get()
+        root = self._root_node
         if root is None:
             _logger.warning("Unable to add nodes to trace: Root node not set")
             return
@@ -125,11 +122,11 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
 
         if self._flush_on_chain_end:
             # Upload the trace to Galileo
-            self._galileo_logger.flush()
+            await self._galileo_logger.async_flush()
 
         # Clear nodes after successful commit
         self._nodes.clear()
-        _root_node.set(None)
+        self._root_node = None
 
     async def _log_node_tree(self, node: Node) -> None:
         """
@@ -191,7 +188,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             output = output or (last_child.span_params.get("output", "") if last_child else "")
             self._galileo_logger.conclude(output=serialize_to_str(output))
 
-    def _start_node(
+    async def _start_node(
         self, node_type: LANGCHAIN_NODE_TYPE, parent_run_id: Optional[UUID], run_id: UUID, **kwargs: Any
     ) -> Node:
         """
@@ -224,9 +221,9 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         self._nodes[node_id] = node
 
         # Set as root node if needed
-        if not _root_node.get():
+        if not self._root_node:
             _logger.debug(f"Setting root node to {node_id}")
-            _root_node.set(node)
+            self._root_node = node
 
         # Add to parent's children if parent exists
         if parent_run_id:
@@ -260,7 +257,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         node.span_params.update(**kwargs)
 
         # Check if this is the root node and commit if so
-        root = _root_node.get()
+        root = self._root_node
         if root and node.run_id == root.run_id:
             await self._commit()
 
@@ -289,7 +286,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         if tags and "langsmith:hidden" in tags:
             return
 
-        self._start_node(node_type, parent_run_id, run_id, input=serialize_to_str(inputs), tags=tags, **kwargs)
+        await self._start_node(node_type, parent_run_id, run_id, input=serialize_to_str(inputs), tags=tags, **kwargs)
 
     async def on_chain_end(
         self, outputs: dict[str, Any], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
@@ -321,7 +318,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         model = invocation_params.get("model_name", "")
         temperature = invocation_params.get("temperature", 0.0)
 
-        self._start_node(
+        await self._start_node(
             "llm",
             parent_run_id,
             run_id,
@@ -370,7 +367,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             _logger.warning(f"Failed to serialize chat messages: {e}")
             serialized_messages = str(messages)
 
-        self._start_node(
+        await self._start_node(
             "chat",
             parent_run_id,
             run_id,
@@ -416,7 +413,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a tool node starts."""
-        self._start_node(
+        await self._start_node(
             "tool",
             parent_run_id,
             run_id,
@@ -436,7 +433,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         self, query: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a retriever node starts."""
-        self._start_node("retriever", parent_run_id, run_id, name="Retriever", input=serialize_to_str(query))
+        await self._start_node("retriever", parent_run_id, run_id, name="Retriever", input=serialize_to_str(query))
 
     async def on_retriever_end(
         self, response: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
