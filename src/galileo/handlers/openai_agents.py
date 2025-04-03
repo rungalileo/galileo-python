@@ -132,8 +132,12 @@ class GalileoTracingProcessor(TracingProcessor):
             self._galileo_logger.add_llm_span(
                 input=input,
                 output=output,
-                model=node.span_params.get("model"),
-                temperature=node.span_params.get("temperature"),
+                model=node.span_params.get(
+                    "model", node.span_params.get("metadata", {}).get("response_metadata", {}).get("model")
+                ),
+                temperature=node.span_params.get(
+                    "temperature", node.span_params.get("metadata", {}).get("response_metadata", {}).get("temperature")
+                ),
                 name=name,
                 metadata=metadata,
                 tags=tags,
