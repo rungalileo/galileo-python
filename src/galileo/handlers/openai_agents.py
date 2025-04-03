@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timezone
+from queue import Queue
 from typing import Any
 
 from agents import Span, Trace, TracingProcessor
@@ -46,7 +47,7 @@ class GalileoTracingProcessor(TracingProcessor):
         self._start_new_trace: bool = start_new_trace
         self._flush_on_trace_end: bool = flush_on_trace_end
         self._nodes: dict[str, Node] = {}
-        self._root_node: str | None = None
+        self._root_nodes: Queue[str] = Queue()
 
     def on_trace_start(self, trace: Trace) -> None:
         """Called when an OpenAI Agent trace starts."""
@@ -60,9 +61,9 @@ class GalileoTracingProcessor(TracingProcessor):
                 "metadata": convert_to_string_dict(trace.metadata),
             },
         )
-
         self._nodes[trace.trace_id] = node
         self._root_node = trace.trace_id
+        self._galileo_logger.start_trace(input=trace.name)
 
     def on_trace_end(self, trace: Trace) -> None:
         """Called when an OpenAI Agent trace ends."""
@@ -71,34 +72,28 @@ class GalileoTracingProcessor(TracingProcessor):
             _logger.warning(f"End called for unknown trace_id {trace.trace_id}")
             return
 
-        node.span_params["duration_ns"] = (_get_timestamp() - node.span_params["start_time"]).total_seconds() * 1e9
+        node.span_params["duration_ns"] = int((_get_timestamp() - node.span_params["start_time"]).total_seconds() * 1e9)
         # Log the trace to Galileo
-        if node.run_id == self._root_node:
-            self._commit_trace()
+
+        self._commit_trace(trace)
 
         # Optionally flush the log batch
         if self._flush_on_trace_end:
             self._galileo_logger.flush()
 
-    def _commit_trace(self) -> None:
+    def _commit_trace(self, trace: Trace) -> None:
         if not self._nodes:
             _logger.warning("No nodes to commit")
             return
-        root_node = self._nodes[self._root_node]
-        if root_node is None:
-            _logger.warning("Unable to add nodes to trace: Root node not set")
-            return
-        self._galileo_logger.start_trace(
-            input=root_node.span_params.get("name", ""),
-            name=root_node.span_params.get("name", ""),
-            duration_ns=root_node.span_params.get("duration_ns"),
-            created_at=root_node.span_params.get("start_time"),
-            metadata=root_node.span_params.get("metadata", {}),
-        )
 
-        self._log_node_tree(root_node)
-
-        self._galileo_logger.conclude(output=root_node.span_params.get("name", ""))
+        while not self._root_nodes.empty():
+            root_node_id = self._root_nodes.get()
+            root_node = self._nodes.get(root_node_id)
+            if root_node:
+                self._log_node_tree(root_node)
+            else:
+                _logger.warning(f"Root node {root_node_id} not found")
+        self._galileo_logger.conclude(output=trace.name)
 
     def _log_node_tree(self, node: Node) -> None:
         """
@@ -123,12 +118,12 @@ class GalileoTracingProcessor(TracingProcessor):
         # Log the current node based on its type
         if node.node_type in ("agent", "chain", "workflow"):
             self._galileo_logger.add_workflow_span(
-                input=input,
+                input=input or node.node_type.capitalize() + " Step",
                 output=output,
                 name=name,
                 metadata=metadata,
                 tags=tags,
-                duration_ns=node.span_params.get("duration_ns"),
+                duration_ns=int(node.span_params.get("duration_ns")),
             )
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
@@ -144,7 +139,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 num_output_tokens=node.span_params.get("num_output_tokens"),
                 total_tokens=node.span_params.get("total_tokens"),
                 time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
-                duration_ns=node.span_params.get("duration_ns"),
+                duration_ns=int(node.span_params.get("duration_ns")),
             )
         elif node.node_type == "retriever":
             self._galileo_logger.add_retriever_span(
@@ -153,16 +148,16 @@ class GalileoTracingProcessor(TracingProcessor):
                 name=name,
                 metadata=metadata,
                 tags=tags,
-                duration_ns=node.span_params.get("duration_ns"),
+                duration_ns=int(node.span_params.get("duration_ns")),
             )
         elif node.node_type == "tool":
             self._galileo_logger.add_tool_span(
-                input=input,
+                input=input or node.node_type,
                 output=output,
                 name=name,
                 metadata=metadata,
                 tags=tags,
-                duration_ns=node.span_params.get("duration_ns"),
+                duration_ns=int(node.span_params.get("duration_ns")),
             )
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
@@ -187,11 +182,13 @@ class GalileoTracingProcessor(TracingProcessor):
 
         span_id = span.span_id
         trace_id = span.trace_id
-        parent_id = span.parent_id or trace_id  # Parent is previous span or root trace
+        parent_id = span.parent_id  # Parent is previous span or root trace
 
         if span_id in self._nodes:
             _logger.warning(f"Span node already exists for span_id {span_id}, overwriting...")
 
+        if not parent_id:
+            self._root_nodes.put(span_id)
         # Determine span type and name
         galileo_type = _get_galileo_span_type(span.span_data)
         span_name = _get_span_name(span)
@@ -241,7 +238,7 @@ class GalileoTracingProcessor(TracingProcessor):
         parent_node = self._nodes.get(parent_id)
         if parent_node:
             parent_node.children.append(span_id)
-        else:
+        elif parent_id:
             _logger.warning(f"Parent node {parent_id} not found for span {span_id} in trace {trace_id}")
 
     def on_span_end(self, span: Span[Any]) -> None:
@@ -257,9 +254,12 @@ class GalileoTracingProcessor(TracingProcessor):
         # Update node with final data
         galileo_type = node.node_type
         end_params: dict[str, Any] = {"end_time_iso": span.ended_at or datetime.now(timezone.utc).isoformat()}
-        end_params["duration_ns"] = (
-            datetime.fromisoformat(span.ended_at) - datetime.fromisoformat(node.span_params["start_time_iso"])
-        ).total_seconds() * 1e9
+        end_params["duration_ns"] = int(
+            (
+                datetime.fromisoformat(span.ended_at) - datetime.fromisoformat(node.span_params["start_time_iso"])
+            ).total_seconds()
+            * 1e9
+        )
 
         if galileo_type == "llm":
             llm_data = _extract_llm_data(span.span_data)

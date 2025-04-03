@@ -91,6 +91,8 @@ async def test_complex_agent(
 
     traces = galileo_logger.traces
     assert len(traces) == 2
+    spans = traces[0].spans
+    assert len(spans) == 3
 
 
 @mark.asyncio
