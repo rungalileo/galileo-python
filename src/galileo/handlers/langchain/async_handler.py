@@ -138,7 +138,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             The node to log.
         """
         is_workflow_span = False
-        input = node.span_params.get("input", "")
+        input_ = node.span_params.get("input", "")
         output = node.span_params.get("output", "")
         name = node.span_params.get("name")
         metadata = node.span_params.get("metadata")
