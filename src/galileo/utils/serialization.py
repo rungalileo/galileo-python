@@ -240,3 +240,10 @@ def convert_to_string_dict(input_: dict) -> dict[str, str]:
         result[string_key] = string_value
 
     return result
+
+
+def convert_time_delta_to_ns(time_delta: dt.timedelta) -> int:
+    """
+    Convert a timedelta object to nanoseconds.
+    """
+    return int(time_delta.total_seconds() * 1e9)

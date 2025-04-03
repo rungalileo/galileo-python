@@ -15,7 +15,7 @@ from galileo.utils.openai_agents import (
     _get_galileo_span_type,
     _get_span_name,
 )
-from galileo.utils.serialization import convert_to_string_dict, serialize_to_str
+from galileo.utils.serialization import convert_time_delta_to_ns, convert_to_string_dict, serialize_to_str
 
 _logger = logging.getLogger(__name__)
 
@@ -68,10 +68,12 @@ class GalileoTracingProcessor(TracingProcessor):
             _logger.warning(f"End called for unknown trace_id {trace.trace_id}")
             return
 
-        node.span_params["duration_ns"] = int((_get_timestamp() - node.span_params["start_time"]).total_seconds() * 1e9)
+        node.span_params["duration_ns"] = convert_time_delta_to_ns(_get_timestamp() - node.span_params["start_time"])
+
         # Log the trace to Galileo
 
         self._commit_trace(trace)
+        self._galileo_logger.conclude(output=self._last_output, status_code=self._last_status_code)
         self._nodes = {}
 
         self._last_output = None
@@ -274,11 +276,8 @@ class GalileoTracingProcessor(TracingProcessor):
         # Update node with final data
         galileo_type = node.node_type
         end_params: dict[str, Any] = {"end_time_iso": span.ended_at or datetime.now(timezone.utc).isoformat()}
-        end_params["duration_ns"] = int(
-            (
-                datetime.fromisoformat(span.ended_at) - datetime.fromisoformat(node.span_params["start_time_iso"])
-            ).total_seconds()
-            * 1e9
+        end_params["duration_ns"] = convert_time_delta_to_ns(
+            datetime.fromisoformat(span.ended_at) - datetime.fromisoformat(node.span_params["start_time_iso"])
         )
 
         if galileo_type == "llm":
