@@ -48,6 +48,8 @@ class GalileoTracingProcessor(TracingProcessor):
         self._flush_on_trace_end: bool = flush_on_trace_end
         self._nodes: dict[str, Node] = {}
         self._root_nodes: Queue[str] = Queue()
+        self._last_output = None
+        self._last_status_code = None
 
     def on_trace_start(self, trace: Trace) -> None:
         """Called when an OpenAI Agent trace starts."""
@@ -93,7 +95,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 self._log_node_tree(root_node)
             else:
                 _logger.warning(f"Root node {root_node_id} not found")
-        self._galileo_logger.conclude(output=trace.name)
+        self._galileo_logger.conclude(output=self._last_output, status_code=self._last_status_code)
 
     def _log_node_tree(self, node: Node) -> None:
         """
@@ -181,6 +183,8 @@ class GalileoTracingProcessor(TracingProcessor):
                 output = error
                 status_code = 500
             self._galileo_logger.conclude(output=serialize_to_str(output), status_code=status_code)
+            self._last_status_code = status_code
+            self._last_output = output
 
     def on_span_start(self, span: Span[Any]) -> None:
         """Called when an OpenAI Agent span starts."""
@@ -271,11 +275,7 @@ class GalileoTracingProcessor(TracingProcessor):
             llm_data = _extract_llm_data(span.span_data)
             end_params.update(
                 {
-                    "output": llm_data.get("output"),
-                    "num_input_tokens": llm_data.get("num_input_tokens"),
-                    "num_output_tokens": llm_data.get("num_output_tokens"),
-                    "total_tokens": llm_data.get("total_tokens"),
-                    # Overwrite metadata if new info available
+                    **llm_data,
                     "metadata": {**node.span_params.get("metadata", {}), **llm_data.get("metadata", {})},
                     "status_code": llm_data.get("status_code", node.span_params.get("status_code", 200)),
                 }
@@ -288,7 +288,7 @@ class GalileoTracingProcessor(TracingProcessor):
             tool_data = _extract_tool_data(span.span_data)
             end_params.update(
                 {
-                    "output": tool_data.get("output"),
+                    **tool_data,
                     "metadata": {**node.span_params.get("metadata", {}), **tool_data.get("metadata", {})},
                     "status_code": tool_data.get("status_code", node.span_params.get("status_code", 200)),
                 }
@@ -300,7 +300,7 @@ class GalileoTracingProcessor(TracingProcessor):
             wf_data = _extract_workflow_data(span.span_data)
             end_params.update(
                 {
-                    "output": wf_data.get("output"),
+                    **wf_data,
                     "metadata": {**node.span_params.get("metadata", {}), **wf_data.get("metadata", {})},
                     "status_code": wf_data.get("status_code", node.span_params.get("status_code", 200)),
                 }
