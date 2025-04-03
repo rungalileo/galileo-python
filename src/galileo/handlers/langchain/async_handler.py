@@ -447,41 +447,26 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
 
         await self._end_node(run_id, output=serialized_response)
 
-    # # Additional required methods for AsyncCallbackHandler
+    async def on_chain_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Called when a chain errors."""
+        await self._end_node(run_id, output=f"Error: {str(error)}")
 
-    # async def on_chain_error(
-    #     self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
-    # ) -> Any:
-    #     """Called when chain errors."""
-    #     await self._end_node(run_id, output=f"Error: {str(error)}")
+    async def on_llm_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Called when an LLM errors."""
+        await self._end_node(run_id, output=f"Error: {str(error)}")
 
-    # async def on_llm_error(
-    #     self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
-    # ) -> Any:
-    #     """Called when LLM errors."""
-    #     await self._end_node(run_id, output=f"Error: {str(error)}")
+    async def on_tool_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Called when a tool errors."""
+        await self._end_node(run_id, output=f"Error: {str(error)}")
 
-    # async def on_tool_error(
-    #     self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
-    # ) -> Any:
-    #     """Called when tool errors."""
-    #     await self._end_node(run_id, output=f"Error: {str(error)}")
-
-    # async def on_retriever_error(
-    #     self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
-    # ) -> Any:
-    #     """Called when retriever errors."""
-    #     await self._end_node(run_id, output=f"Error: {str(error)}")
-
-    # async def on_agent_action(
-    #     self, action: AgentAction, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
-    # ) -> Any:
-    #     """Called when agent takes an action."""
-    #     # We don't need to do anything special here since the tool execution will be tracked separately
-    #     pass
-
-    # async def on_text(self, text: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any) -> Any:
-    #     """Called when text is received."""
-    #     # This is typically used for human inputs or other text that's not part of a specific node
-    #     # We can ignore this for now
-    #     pass
+    async def on_retriever_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Called when a retriever errors."""
+        await self._end_node(run_id, output=f"Error: {str(error)}")
