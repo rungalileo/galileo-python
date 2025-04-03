@@ -428,7 +428,7 @@ class GalileoCallback(BaseCallbackHandler):
 
     def on_tool_end(self, output: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any) -> Any:
         """Langchain callback when a tool node ends."""
-        self._end_node(run_id, output=serialize_to_str(output))
+        self._end_node(run_id, output=serialize_to_str(output.content))
 
     def on_retriever_start(
         self, query: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
