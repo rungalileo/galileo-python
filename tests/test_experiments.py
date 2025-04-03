@@ -257,9 +257,12 @@ class TestExperiments:
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
 
         dataset_id = str(UUID(int=0))
-        run_experiment(
+        result = run_experiment(
             "test_experiment", project="awesome-new-project", dataset_id=dataset_id, prompt_template=prompt_template()
         )
+        assert result is not None
+        assert result["experiment"] is not None
+        assert f"/project/{project().id}/experiments/{experiment_response().id}" in result["link"]
         mock_get_project.assert_called_once_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with(project().id, "test_experiment")
         mock_create_experiment.assert_called_once_with(
@@ -309,8 +312,12 @@ class TestExperiments:
         def function(*args, **kwargs):
             return "dummy_function"
 
-        run_experiment("test_experiment", project="awesome-new-project", dataset_id=dataset_id, function=function)
-
+        result = run_experiment(
+            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, function=function
+        )
+        assert result is not None
+        assert result["experiment"] is not None
+        assert f"/project/{project().id}/experiments/{experiment_response().id}" in result["link"]
         mock_get_project.assert_called_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", "test_experiment")
         mock_create_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", ANY)

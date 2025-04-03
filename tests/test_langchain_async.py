@@ -5,16 +5,16 @@ import pytest
 from langchain_core.agents import AgentFinish
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage
+from pytest import mark
 
-from galileo.handlers.langchain import GalileoCallback
-from galileo.handlers.langchain.handler import _root_node
+from galileo.handlers.langchain import GalileoAsyncCallback
 from galileo.logger import GalileoLogger
 from galileo_core.schemas.logging.llm import Message, MessageRole
 from galileo_core.schemas.shared.document import Document as GalileoDocument
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
-class TestGalileoCallback:
+class TestGalileoAsyncCallback:
     @pytest.fixture
     @patch("galileo.logger.LogStreams")
     @patch("galileo.logger.Projects")
@@ -28,34 +28,36 @@ class TestGalileoCallback:
         return logger
 
     @pytest.fixture
-    def callback(self, galileo_logger: GalileoLogger) -> GalileoCallback:
+    def callback(self, galileo_logger: GalileoLogger) -> GalileoAsyncCallback:
         """Creates a GalileoCallback with a mock logger"""
-        callback = GalileoCallback(galileo_logger=galileo_logger, flush_on_chain_end=False)
+        callback = GalileoAsyncCallback(galileo_logger=galileo_logger, flush_on_chain_end=False)
         # Reset the root node before each test
-        _root_node.set(None)
+        callback._root_node = None
         yield callback
         # Clean up after each test
-        _root_node.set(None)
+        callback._root_node = None
 
-    def test_initialization(self, galileo_logger: GalileoLogger):
+    @mark.asyncio
+    async def test_initialization(self, galileo_logger: GalileoLogger):
         """Test callback initialization with various parameters"""
         # Default initialization
-        callback = GalileoCallback(galileo_logger=galileo_logger)
+        callback = GalileoAsyncCallback(galileo_logger=galileo_logger)
         assert callback._galileo_logger == galileo_logger
         assert callback._start_new_trace is True
         assert callback._flush_on_chain_end is True
         assert callback._nodes == {}
 
         # Custom initialization
-        callback = GalileoCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
+        callback = GalileoAsyncCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
         assert callback._start_new_trace is False
         assert callback._flush_on_chain_end is False
 
-    def test_start_node(self, callback: GalileoCallback):
+    @mark.asyncio
+    async def test_start_node(self, callback: GalileoAsyncCallback):
         """Test creating a node and establishing parent-child relationships"""
         # Create a parent node
         parent_id = uuid.uuid4()
-        node = callback._start_node(
+        node = await callback._start_node(
             node_type="chain", parent_run_id=None, run_id=parent_id, name="Parent Chain", input={"query": "test"}
         )
 
@@ -68,7 +70,7 @@ class TestGalileoCallback:
 
         # Create a child node
         child_id = uuid.uuid4()
-        child_node = callback._start_node(
+        child_node = await callback._start_node(
             node_type="llm", parent_run_id=parent_id, run_id=child_id, name="Child LLM", input="test prompt"
         )
 
@@ -80,18 +82,19 @@ class TestGalileoCallback:
         assert str(child_id) in callback._nodes[str(parent_id)].children
 
         # Verify root node was set properly
-        assert _root_node.get().run_id == parent_id
+        assert callback._root_node.run_id == parent_id
 
-    def test_end_node(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+    @mark.asyncio
+    async def test_end_node(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
         """Test ending a node and updating its parameters"""
         # Create a node
         run_id = uuid.uuid4()
-        callback._start_node(
+        await callback._start_node(
             node_type="chain", parent_run_id=None, run_id=run_id, name="Test Chain", input='{"query": "test"}'
         )
 
         # End the node and commit the trace
-        callback._end_node(run_id, output='{"result": "test result"}')
+        await callback._end_node(run_id, output='{"result": "test result"}')
 
         traces = galileo_logger.traces
         assert len(traces) == 1
@@ -101,19 +104,21 @@ class TestGalileoCallback:
         assert traces[0].spans[0].input == '{"query": "test"}'
         assert traces[0].spans[0].output == '{"result": "test result"}'
 
-    def test_on_chain_start_end(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+    async def test_on_chain_start_end(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
         """Test chain start and end callbacks"""
         run_id = uuid.uuid4()
 
         # Start chain
-        callback.on_chain_start(serialized={"name": "TestChain"}, inputs='{"query": "test question"}', run_id=run_id)
+        await callback.on_chain_start(
+            serialized={"name": "TestChain"}, inputs='{"query": "test question"}', run_id=run_id
+        )
 
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "chain"
         assert callback._nodes[str(run_id)].span_params["input"] == '{"query": "test question"}'
 
         # End chain
-        callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
+        await callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
 
         # Verify chain was properly ended
         # assert callback._nodes.get(str(run_id)).span_params["output"] == '{"result": "test answer"}'
@@ -126,12 +131,13 @@ class TestGalileoCallback:
         assert traces[0].spans[0].input == '{"query": "test question"}'
         assert traces[0].spans[0].output == '{"result": "test answer"}'
 
-    def test_on_agent_chain(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+    @mark.asyncio
+    async def test_on_agent_chain(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
         """Test agent chain handling"""
         run_id = uuid.uuid4()
 
         # Start agent chain
-        callback.on_chain_start(
+        await callback.on_chain_start(
             serialized={"name": "agent"},
             inputs={"input": "test input"},
             run_id=run_id,
@@ -143,7 +149,7 @@ class TestGalileoCallback:
         # End with agent finish
         finish = AgentFinish(return_values={"output": "test result"}, log="log message")
 
-        callback.on_agent_finish(finish=finish, run_id=run_id)
+        await callback.on_agent_finish(finish=finish, run_id=run_id)
 
         traces = galileo_logger.traces
         assert len(traces) == 1
@@ -153,16 +159,17 @@ class TestGalileoCallback:
         assert traces[0].spans[0].input == '{"input": "test input"}'
         assert traces[0].spans[0].output == '{"return_values": {"output": "test result"}, "log": "log message"}'
 
-    def test_on_llm_start_end(self, callback: GalileoCallback):
+    @mark.asyncio
+    async def test_on_llm_start_end(self, callback: GalileoAsyncCallback):
         """Test LLM start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
 
         # Create parent chain
-        callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+        await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
 
         # Start LLM
-        callback.on_llm_start(
+        await callback.on_llm_start(
             serialized={},
             prompts=["Tell me about AI"],
             run_id=run_id,
@@ -177,7 +184,7 @@ class TestGalileoCallback:
         assert callback._nodes[str(run_id)].span_params["input"] == [{"content": "Tell me about AI", "role": "user"}]
 
         # Add a token to test token timing
-        callback.on_llm_new_token("AI", run_id=run_id)
+        await callback.on_llm_new_token("AI", run_id=run_id)
 
         # End LLM
         llm_response = MagicMock()
@@ -187,27 +194,28 @@ class TestGalileoCallback:
         # Mock dict method on the generation
         llm_response.generations[0][0].dict.return_value = {"text": "AI is a technology..."}
 
-        callback.on_llm_end(response=llm_response, run_id=run_id, parent_run_id=parent_id)
+        await callback.on_llm_end(response=llm_response, run_id=run_id, parent_run_id=parent_id)
 
         # Verify token counts were set
         assert callback._nodes[str(run_id)].span_params["num_input_tokens"] == 10
         assert callback._nodes[str(run_id)].span_params["num_output_tokens"] == 20
         assert callback._nodes[str(run_id)].span_params["total_tokens"] == 30
 
-    def test_on_chat_model_start(self, callback: GalileoCallback):
+    @mark.asyncio
+    async def test_on_chat_model_start(self, callback: GalileoAsyncCallback):
         """Test chat model start callback"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
 
         # Create parent chain
-        callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+        await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
 
         # Start chat model
         human_message = HumanMessage(content="Tell me about AI")
         ai_message = AIMessage(content="AI is a technology...")
         messages = [[human_message, ai_message]]
 
-        callback.on_chat_model_start(
+        await callback.on_chat_model_start(
             serialized={},
             messages=messages,
             run_id=run_id,
@@ -227,16 +235,17 @@ class TestGalileoCallback:
         assert input_data[0]["content"] == "Tell me about AI"
         assert input_data[1]["content"] == "AI is a technology..."
 
-    def test_on_tool_start_end(self, callback: GalileoCallback):
+    @mark.asyncio
+    async def test_on_tool_start_end(self, callback: GalileoAsyncCallback):
         """Test tool start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
 
         # Create parent chain
-        callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+        await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
 
         # Start tool
-        callback.on_tool_start(
+        await callback.on_tool_start(
             serialized={"name": "calculator"}, input_str="2+2", run_id=run_id, parent_run_id=parent_id
         )
 
@@ -245,20 +254,21 @@ class TestGalileoCallback:
         assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
 
         # End tool
-        callback.on_tool_end(output="4", run_id=run_id, parent_run_id=parent_id)
+        await callback.on_tool_end(output="4", run_id=run_id, parent_run_id=parent_id)
 
         assert callback._nodes[str(run_id)].span_params["output"] == "4"
 
-    def test_on_retriever_start_end(self, callback: GalileoCallback):
+    @mark.asyncio
+    async def test_on_retriever_start_end(self, callback: GalileoAsyncCallback):
         """Test retriever start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
 
         # Create parent chain
-        callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+        await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
 
         # Start retriever
-        callback.on_retriever_start(query="AI development", run_id=run_id, parent_run_id=parent_id)
+        await callback.on_retriever_start(query="AI development", run_id=run_id, parent_run_id=parent_id)
 
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "retriever"
@@ -266,12 +276,13 @@ class TestGalileoCallback:
 
         # End retriever
         document = Document(page_content="AI is advancing rapidly", metadata={"source": "textbook"})
-        callback.on_retriever_end(response=[document], run_id=run_id, parent_run_id=parent_id)
+        await callback.on_retriever_end(response=[document], run_id=run_id, parent_run_id=parent_id)
 
         assert isinstance(callback._nodes[str(run_id)].span_params["output"], list)
         assert len(callback._nodes[str(run_id)].span_params["output"]) == 1
 
-    def test_complex_execution_flow(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+    @mark.asyncio
+    async def test_complex_execution_flow(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
         """Test a complex execution flow with multiple component types"""
         # Create UUIDs for different components
         chain_id = uuid.uuid4()
@@ -280,19 +291,19 @@ class TestGalileoCallback:
         retriever_id = uuid.uuid4()
 
         # Start main chain
-        callback.on_chain_start(
+        await callback.on_chain_start(
             serialized={}, inputs={"query": "What can you tell me about the latest AI research?"}, run_id=chain_id
         )
 
         # Start retriever
-        callback.on_retriever_start(query="latest AI research", run_id=retriever_id, parent_run_id=chain_id)
+        await callback.on_retriever_start(query="latest AI research", run_id=retriever_id, parent_run_id=chain_id)
 
         # End retriever
         document = Document(page_content="Recent advances in large language models...", metadata={"source": "paper"})
-        callback.on_retriever_end(response=[document], run_id=retriever_id, parent_run_id=chain_id)
+        await callback.on_retriever_end(response=[document], run_id=retriever_id, parent_run_id=chain_id)
 
         # Start LLM
-        callback.on_llm_start(
+        await callback.on_llm_start(
             serialized={},
             prompts=["Summarize this research: Recent advances in large language models..."],
             run_id=llm_id,
@@ -307,10 +318,10 @@ class TestGalileoCallback:
         llm_response.llm_output = {"token_usage": {"total_tokens": 100}}
         llm_response.generations[0][0].dict.return_value = {"text": "LLMs have seen significant progress..."}
 
-        callback.on_llm_end(response=llm_response, run_id=llm_id, parent_run_id=chain_id)
+        await callback.on_llm_end(response=llm_response, run_id=llm_id, parent_run_id=chain_id)
 
         # Start tool
-        callback.on_tool_start(
+        await callback.on_tool_start(
             serialized={},
             input_str="verify(LLMs have seen significant progress)",
             run_id=tool_id,
@@ -319,10 +330,12 @@ class TestGalileoCallback:
         )
 
         # End tool
-        callback.on_tool_end(output="Verification complete: accurate statement", run_id=tool_id, parent_run_id=chain_id)
+        await callback.on_tool_end(
+            output="Verification complete: accurate statement", run_id=tool_id, parent_run_id=chain_id
+        )
 
         # End chain
-        callback.on_chain_end(
+        await callback.on_chain_end(
             outputs={"result": "Recent AI research has focused on LLMs which have seen significant progress..."},
             run_id=chain_id,
         )
@@ -361,13 +374,14 @@ class TestGalileoCallback:
         assert traces[0].spans[0].spans[2].output == "Verification complete: accurate statement"
         assert traces[0].spans[0].spans[2].user_metadata == {"key": "value", "extras": "{'tools': 'tool1'}"}
 
-    def test_missing_parent_node(self, callback: GalileoCallback):
+    @mark.asyncio
+    async def test_missing_parent_node(self, callback: GalileoAsyncCallback):
         """Test handling of missing parent nodes"""
         parent_id = uuid.uuid4()
         child_id = uuid.uuid4()
 
         # Start child with non-existent parent
-        callback._start_node(
+        await callback._start_node(
             node_type="llm",
             parent_run_id=parent_id,  # This parent doesn't exist
             run_id=child_id,
@@ -379,7 +393,8 @@ class TestGalileoCallback:
         assert str(child_id) in callback._nodes
         assert callback._nodes[str(child_id)].parent_run_id == parent_id
 
-    def test_serialization_error_handling(self, callback: GalileoCallback):
+    @mark.asyncio
+    async def test_serialization_error_handling(self, callback: GalileoAsyncCallback):
         """Test handling of serialization errors"""
         run_id = uuid.uuid4()
 
@@ -391,14 +406,14 @@ class TestGalileoCallback:
         unserializable = UnserializableObject()
 
         # Test retriever with unserializable response
-        callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=run_id)
+        await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=run_id)
 
         retriever_id = uuid.uuid4()
-        callback.on_retriever_start(query="test query", run_id=retriever_id, parent_run_id=run_id)
+        await callback.on_retriever_start(query="test query", run_id=retriever_id, parent_run_id=run_id)
 
         # This should be handled gracefully
         with patch("json.dumps", side_effect=TypeError("Cannot serialize")):
-            callback.on_retriever_end(response=[unserializable], run_id=retriever_id, parent_run_id=run_id)
+            await callback.on_retriever_end(response=[unserializable], run_id=retriever_id, parent_run_id=run_id)
 
         # Node should still exist and output should be a string
         assert str(retriever_id) in callback._nodes
