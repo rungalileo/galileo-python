@@ -150,11 +150,11 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
 
         # Log the current node based on its type
         if node.node_type in ("agent", "chain"):
-            self._galileo_logger.add_workflow_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_workflow_span(input=input_, output=output, name=name, metadata=metadata, tags=tags)
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
             self._galileo_logger.add_llm_span(
-                input=input,
+                input=input_,
                 output=output,
                 model=node.span_params.get("model"),
                 temperature=node.span_params.get("temperature"),
@@ -167,9 +167,11 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
                 time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
             )
         elif node.node_type == "retriever":
-            self._galileo_logger.add_retriever_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_retriever_span(
+                input=input_, output=output, name=name, metadata=metadata, tags=tags
+            )
         elif node.node_type == "tool":
-            self._galileo_logger.add_tool_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_tool_span(input=input_, output=output, name=name, metadata=metadata, tags=tags)
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
 
