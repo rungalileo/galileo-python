@@ -22,7 +22,7 @@ class Scorers(BaseClientModel):
             List of scorers
         """
         body = ListScorersRequest(
-            filters=[ScorerTypeFilter(value=type, operator=ScorerTypeFilterOperator.EQ) for type in types]
+            filters=[ScorerTypeFilter(value=type, operator=ScorerTypeFilterOperator.EQ) for type in (types or [])]
         )
         result = list_scorers_with_filters_scorers_list_post.sync(client=self.client, body=body)
         return result.scorers
