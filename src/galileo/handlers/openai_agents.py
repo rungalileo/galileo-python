@@ -123,7 +123,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 name=name,
                 metadata=metadata,
                 tags=tags,
-                duration_ns=int(node.span_params.get("duration_ns")),
+                duration_ns=node.span_params.get("duration_ns"),
             )
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
@@ -139,7 +139,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 num_output_tokens=node.span_params.get("num_output_tokens"),
                 total_tokens=node.span_params.get("total_tokens"),
                 time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
-                duration_ns=int(node.span_params.get("duration_ns")),
+                duration_ns=node.span_params.get("duration_ns"),
             )
         elif node.node_type == "retriever":
             self._galileo_logger.add_retriever_span(
@@ -148,7 +148,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 name=name,
                 metadata=metadata,
                 tags=tags,
-                duration_ns=int(node.span_params.get("duration_ns")),
+                duration_ns=node.span_params.get("duration_ns"),
             )
         elif node.node_type == "tool":
             self._galileo_logger.add_tool_span(
@@ -157,7 +157,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 name=name,
                 metadata=metadata,
                 tags=tags,
-                duration_ns=int(node.span_params.get("duration_ns")),
+                duration_ns=node.span_params.get("duration_ns"),
             )
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
@@ -175,7 +175,12 @@ class GalileoTracingProcessor(TracingProcessor):
         # Conclude workflow span. Use the last child's output if necessary
         if is_workflow_span:
             output = output or (last_child.span_params.get("output", "") if last_child else "")
-            self._galileo_logger.conclude(output=serialize_to_str(output))
+            error = node.span_params.get("error")
+            status_code = node.span_params.get("status_code", 200)
+            if error:
+                output = error
+                status_code = 500
+            self._galileo_logger.conclude(output=serialize_to_str(output), status_code=status_code)
 
     def on_span_start(self, span: Span[Any]) -> None:
         """Called when an OpenAI Agent span starts."""
@@ -246,6 +251,7 @@ class GalileoTracingProcessor(TracingProcessor):
 
         span_id = span.span_id
         node = self._nodes.get(span_id)
+        node.span_params["name"] = _get_span_name(span)
 
         if not node:
             _logger.warning(f"End called for unknown span_id {span_id}")
