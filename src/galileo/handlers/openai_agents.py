@@ -55,6 +55,7 @@ class GalileoTracingProcessor(TracingProcessor):
             run_id=trace.trace_id,
             span_params={
                 "start_time": _get_timestamp(),
+                "start_time_iso": datetime.now(timezone.utc).isoformat(),
                 "name": trace.name,
                 "metadata": convert_to_string_dict(trace.metadata),
             },
@@ -120,7 +121,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 input=self._first_input or "Agent Workflow",
                 output=self._last_output,
                 duration_ns=node.span_params.get("duration_ns"),
-                created_at=node.span_params.get("start_time"),
+                created_at=datetime.fromisoformat(node.span_params.get("start_time_iso")),
                 name="Trace",
                 tags=tags,
             )
@@ -132,6 +133,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 name=name,
                 metadata=metadata,
                 tags=tags,
+                created_at=datetime.fromisoformat(node.span_params.get("start_time_iso")),
                 duration_ns=node.span_params.get("duration_ns"),
             )
             is_workflow_span = True
@@ -148,6 +150,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 name=name,
                 metadata=metadata,
                 tags=tags,
+                created_at=datetime.fromisoformat(node.span_params.get("start_time_iso")),
                 status_code=node.span_params.get("status_code", 200),
                 num_input_tokens=node.span_params.get("num_input_tokens"),
                 num_output_tokens=node.span_params.get("num_output_tokens"),
@@ -162,6 +165,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 name=name,
                 metadata=metadata,
                 tags=tags,
+                created_at=datetime.fromisoformat(node.span_params.get("start_time_iso")),
                 duration_ns=node.span_params.get("duration_ns"),
             )
         elif node.node_type == "tool":
@@ -171,6 +175,7 @@ class GalileoTracingProcessor(TracingProcessor):
                 name=name,
                 metadata=metadata,
                 tags=tags,
+                created_at=datetime.fromisoformat(node.span_params.get("start_time_iso")),
                 duration_ns=node.span_params.get("duration_ns"),
             )
         else:
