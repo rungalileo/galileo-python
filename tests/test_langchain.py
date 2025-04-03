@@ -6,7 +6,8 @@ from langchain_core.agents import AgentFinish
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage
 
-from galileo.handlers.langchain import GalileoCallback, _root_node
+from galileo.handlers.langchain import GalileoCallback
+from galileo.handlers.langchain.handler import _root_node
 from galileo.logger import GalileoLogger
 from galileo_core.schemas.logging.llm import Message, MessageRole
 from galileo_core.schemas.shared.document import Document as GalileoDocument
