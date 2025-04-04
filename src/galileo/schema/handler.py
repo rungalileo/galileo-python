@@ -1,4 +1,4 @@
-from typing import Any, Literal, Optional
+from typing import Any, Dict, Literal, Optional
 from uuid import UUID
 
 SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow"]
@@ -26,7 +26,7 @@ class Node:
     def __init__(
         self,
         node_type: LANGCHAIN_NODE_TYPE,
-        span_params: dict[str, Any],
+        span_params: Dict[str, Any],
         run_id: UUID,
         parent_run_id: Optional[UUID] = None,
     ) -> None:
