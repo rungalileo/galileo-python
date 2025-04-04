@@ -58,7 +58,6 @@ os.environ["OPENAI_API_KEY"] = "sk-test"
 
 
 @mark.asyncio
-@mark.asyncio
 @vcr.use_cassette(
     "tests/fixtures/openai_agents_complex.yaml",
     filter_headers=["authorization"],
@@ -95,7 +94,6 @@ async def test_complex_agent(
     assert len(spans) == 2
 
 
-@mark.asyncio
 @mark.asyncio
 @vcr.use_cassette(
     "tests/fixtures/openai_agents.yaml",

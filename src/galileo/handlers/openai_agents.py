@@ -6,21 +6,22 @@ from agents import Span, Trace, TracingProcessor
 
 from galileo import galileo_context
 from galileo.logger import GalileoLogger
-from galileo.schema.handler import Node
+from galileo.schema.handlers import Node
 from galileo.utils import _get_timestamp
+from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.openai_agents import (
     _extract_llm_data,
     _extract_tool_data,
     _extract_workflow_data,
-    _get_galileo_span_type,
-    _get_span_name,
+    _map_span_name,
+    _map_span_type,
 )
 from galileo.utils.serialization import convert_time_delta_to_ns, convert_to_string_dict, serialize_to_str
 
 _logger = logging.getLogger(__name__)
 
 
-class GalileoTracingProcessor(TracingProcessor):
+class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
     """
     OpenAI Agents TracingProcessor implementation for logging traces to Galileo.
 
@@ -214,8 +215,8 @@ class GalileoTracingProcessor(TracingProcessor):
             _logger.warning(f"Span node already exists for span_id {span_id}, overwriting...")
 
         # Determine span type and name
-        galileo_type = _get_galileo_span_type(span.span_data)
-        span_name = _get_span_name(span)
+        galileo_type = _map_span_type(span.span_data)
+        span_name = _map_span_name(span)
 
         # Extract initial data based on type
         initial_params: dict[str, Any] = {
@@ -272,11 +273,11 @@ class GalileoTracingProcessor(TracingProcessor):
 
         span_id = span.span_id
         node = self._nodes.get(span_id)
-        node.span_params["name"] = _get_span_name(span)
-
         if not node:
             _logger.warning(f"End called for unknown span_id {span_id}")
             return
+
+        node.span_params["name"] = _map_span_name(span)
 
         # Update node with final data
         galileo_type = node.node_type
@@ -345,9 +346,10 @@ class GalileoTracingProcessor(TracingProcessor):
 
     def shutdown(self) -> None:
         """Called when the application stops. Flushes any remaining logs."""
-
+        self._commit()
         self._galileo_logger.flush()
 
     def force_flush(self) -> None:
         """Forces an immediate flush of all queued traces/spans."""
+        self._commit()
         self._galileo_logger.flush()

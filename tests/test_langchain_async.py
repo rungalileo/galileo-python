@@ -104,6 +104,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].input == '{"query": "test"}'
         assert traces[0].spans[0].output == '{"result": "test result"}'
 
+    @mark.asyncio
     async def test_on_chain_start_end(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
         """Test chain start and end callbacks"""
         run_id = uuid.uuid4()

@@ -13,13 +13,13 @@ from agents import (
 )
 from agents.tracing import ResponseSpanData
 
-from galileo.schema.handler import LANGCHAIN_NODE_TYPE
+from galileo.schema.handlers import LANGCHAIN_NODE_TYPE
 from galileo.utils.serialization import serialize_to_str
 
 _logger = logging.getLogger(__name__)
 
 
-def _get_galileo_span_type(span_data: SpanData) -> LANGCHAIN_NODE_TYPE:
+def _map_span_type(span_data: SpanData) -> LANGCHAIN_NODE_TYPE:
     """Determine the Galileo span type based on the OpenAI Agent span data."""
     if isinstance(span_data, (GenerationSpanData, ResponseSpanData)):
         return "llm"
@@ -33,7 +33,7 @@ def _get_galileo_span_type(span_data: SpanData) -> LANGCHAIN_NODE_TYPE:
         return "workflow"
 
 
-def _get_span_name(span: Span[Any]) -> str:
+def _map_span_name(span: Span[Any]) -> str:
     """Determine the name for a given OpenAI Agent span."""
     if name := getattr(span.span_data, "name", None):
         return name
