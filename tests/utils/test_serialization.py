@@ -437,7 +437,6 @@ def test_serialize_complex_example_with_dataclasses():
     client = OpenAI(api_key="test")
 
     model_config = ModelConfig(model_name="gpt-4o", client=client, supports_tool_calling=True)
-    serialize_to_str(model_config)
     assert serialize_to_str(model_config) == (
         json.dumps(
             {
