@@ -23,7 +23,7 @@ _logger = logging.getLogger(__name__)
 
 class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
     """
-    OpenAI Agents TracingProcessor implementation for logging traces to Galileo.
+    OpenAI Agents TracingProcessor for logging traces to Galileo.
 
     Builds a tree of spans during agent execution and logs them hierarchically
     to Galileo upon trace completion.
@@ -32,8 +32,6 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
     ----------
     _galileo_logger : GalileoLogger
         The Galileo logger instance.
-    _start_new_trace : bool
-        Whether to start a new Galileo trace for each OpenAI Agent trace.
     _flush_on_trace_end : bool
         Whether to automatically flush the log batch to Galileo when a trace ends.
     _nodes : dict[str, Node]
@@ -41,12 +39,21 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
     """
 
     def __init__(self, galileo_logger: Optional[GalileoLogger] = None, flush_on_trace_end: bool = True):
+        """
+        OpenAI Agents TracingProcessor for logging traces to Galileo.
+        Parameters
+        ----------
+        galileo_logger : Optional[GalileoLogger]
+            The Galileo logger instance. If None, a default instance is created.
+        flush_on_trace_end : bool
+            Whether to automatically flush the log batch to Galileo when a trace ends.
+        """
         self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance()
         self._flush_on_trace_end: bool = flush_on_trace_end
         self._nodes: dict[str, Node] = {}
-        self._last_output = None
-        self._last_status_code = None
-        self._first_input = None
+        self._last_output: Any = None
+        self._last_status_code: Optional[int] = None
+        self._first_input: Any = None
 
     def on_trace_start(self, trace: Trace) -> None:
         """Called when an OpenAI Agent trace starts."""
