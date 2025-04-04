@@ -128,10 +128,11 @@ class Experiments(BaseClientModel):
 
         _logger.debug(f"job: {job}")
 
-        print(
-            f"Experiment `{experiment_obj.name}` has started and is currently processing. Results will be available at {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
-        )
-        return job
+        link = f"{self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        message = f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {link}"
+        print(message)
+
+        return {"experiment": experiment_obj, "link": link, "message": message}
 
     def run_with_function(
         self,
@@ -155,11 +156,11 @@ class Experiments(BaseClientModel):
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
 
-        print(
-            f"Experiment {experiment_obj.name} has completed and results are available at {self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
-        )
+        link = f"{self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        message = f"Experiment {experiment_obj.name} has completed and results are available at {link}"
+        print(message)
 
-        return results
+        return {"experiment": experiment_obj, "link": link, "message": message}
 
 
 def process_row(row, process_func: Callable):
@@ -233,16 +234,16 @@ def run_experiment(
         raise ValueError(f"Project {project} does not exist")
 
     # Create or get experiment
-    experiment_obj = Experiments().get(project_obj.id, experiment_name)
+    existing_experiment = Experiments().get(project_obj.id, experiment_name)
 
-    if experiment_obj:
-        logging.warning(f"Experiment {experiment_obj.name} already exists, adding a timestamp")
+    if existing_experiment:
+        logging.warning(f"Experiment {existing_experiment.name} already exists, adding a timestamp")
         now = datetime.datetime.now(datetime.timezone.utc)
         # based on TS SDK implementation new Date()
         #       .toISOString()
         #       .replace('T', ' at ')
         #       .replace('Z', '');
-        experiment_name = f"{experiment_obj.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
+        experiment_name = f"{existing_experiment.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
 
     experiment_obj = Experiments().create(project_obj.id, experiment_name)
 

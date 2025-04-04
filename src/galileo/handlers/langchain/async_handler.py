@@ -1,4 +1,3 @@
-import contextvars
 import json
 import logging
 import time
@@ -6,22 +5,21 @@ from typing import Any, Optional
 from uuid import UUID
 
 from galileo import galileo_context
-from galileo.handlers.openai_agents import Node
 from galileo.logger import GalileoLogger
-from galileo.schema.handler import LANGCHAIN_NODE_TYPE
+from galileo.schema.handlers import LANGCHAIN_NODE_TYPE, Node
 from galileo.utils.serialization import EventSerializer, convert_to_string_dict, serialize_to_str
 
 _logger = logging.getLogger(__name__)
 
 try:
     from langchain_core.agents import AgentAction, AgentFinish
-    from langchain_core.callbacks.base import BaseCallbackHandler
+    from langchain_core.callbacks.base import AsyncCallbackHandler
     from langchain_core.documents import Document
     from langchain_core.messages import BaseMessage
     from langchain_core.outputs import LLMResult
 except ImportError:
     _logger.warning("Failed to import langchain, using stubs")
-    BaseCallbackHandler = object
+    AsyncCallbackHandler = object
     Document = object
     AgentAction = object
     BaseMessage = object
@@ -29,12 +27,9 @@ except ImportError:
     AgentFinish = object
 
 
-_root_node: contextvars.ContextVar[Optional[Node]] = contextvars.ContextVar("langchain_root_node", default=None)
-
-
-class GalileoCallback(BaseCallbackHandler):
+class GalileoAsyncCallback(AsyncCallbackHandler):
     """
-    Langchain callback handler for logging traces to the Galileo platform.
+    Async Langchain callback handler for logging traces to the Galileo platform.
 
     Attributes
     ----------
@@ -58,8 +53,9 @@ class GalileoCallback(BaseCallbackHandler):
         self._start_new_trace: bool = start_new_trace
         self._flush_on_chain_end: bool = flush_on_chain_end
         self._nodes: dict[str, Node] = {}
+        self._root_node: Optional[Node] = None
 
-    def _commit(self) -> None:
+    async def _commit(self) -> None:
         """
         Commit the nodes to the trace using the Galileo Logger. Optionally flush the trace.
         """
@@ -67,7 +63,7 @@ class GalileoCallback(BaseCallbackHandler):
             _logger.warning("No nodes to commit")
             return
 
-        root = _root_node.get()
+        root = self._root_node
         if root is None:
             _logger.warning("Unable to add nodes to trace: Root node not set")
             return
@@ -80,7 +76,7 @@ class GalileoCallback(BaseCallbackHandler):
         if self._start_new_trace:
             self._galileo_logger.start_trace(input=serialize_to_str(root_node.span_params.get("input", "")))
 
-        self._log_node_tree(root_node)
+        await self._log_node_tree(root_node)
 
         # Conclude the trace with the root node's output
         root_output = root_node.span_params.get("output", "")
@@ -91,13 +87,13 @@ class GalileoCallback(BaseCallbackHandler):
 
         if self._flush_on_chain_end:
             # Upload the trace to Galileo
-            self._galileo_logger.flush()
+            await self._galileo_logger.async_flush()
 
         # Clear nodes after successful commit
         self._nodes.clear()
-        _root_node.set(None)
+        self._root_node = None
 
-    def _log_node_tree(self, node: Node) -> None:
+    async def _log_node_tree(self, node: Node) -> None:
         """
         Log a node and its children recursively.
 
@@ -107,7 +103,7 @@ class GalileoCallback(BaseCallbackHandler):
             The node to log.
         """
         is_workflow_span = False
-        input = node.span_params.get("input", "")
+        input_ = node.span_params.get("input", "")
         output = node.span_params.get("output", "")
         name = node.span_params.get("name")
         metadata = node.span_params.get("metadata")
@@ -119,11 +115,11 @@ class GalileoCallback(BaseCallbackHandler):
 
         # Log the current node based on its type
         if node.node_type in ("agent", "chain"):
-            self._galileo_logger.add_workflow_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_workflow_span(input=input_, output=output, name=name, metadata=metadata, tags=tags)
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
             self._galileo_logger.add_llm_span(
-                input=input,
+                input=input_,
                 output=output,
                 model=node.span_params.get("model"),
                 temperature=node.span_params.get("temperature"),
@@ -136,9 +132,11 @@ class GalileoCallback(BaseCallbackHandler):
                 time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
             )
         elif node.node_type == "retriever":
-            self._galileo_logger.add_retriever_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_retriever_span(
+                input=input_, output=output, name=name, metadata=metadata, tags=tags
+            )
         elif node.node_type == "tool":
-            self._galileo_logger.add_tool_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_tool_span(input=input_, output=output, name=name, metadata=metadata, tags=tags)
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
 
@@ -147,7 +145,7 @@ class GalileoCallback(BaseCallbackHandler):
         for child_id in node.children:
             child_node = self._nodes.get(child_id)
             if child_node:
-                self._log_node_tree(child_node)
+                await self._log_node_tree(child_node)
                 last_child = child_node
             else:
                 _logger.warning(f"Child node {child_id} not found")
@@ -157,7 +155,7 @@ class GalileoCallback(BaseCallbackHandler):
             output = output or (last_child.span_params.get("output", "") if last_child else "")
             self._galileo_logger.conclude(output=serialize_to_str(output))
 
-    def _start_node(
+    async def _start_node(
         self, node_type: LANGCHAIN_NODE_TYPE, parent_run_id: Optional[UUID], run_id: UUID, **kwargs: Any
     ) -> Node:
         """
@@ -190,9 +188,9 @@ class GalileoCallback(BaseCallbackHandler):
         self._nodes[node_id] = node
 
         # Set as root node if needed
-        if not _root_node.get():
+        if not self._root_node:
             _logger.debug(f"Setting root node to {node_id}")
-            _root_node.set(node)
+            self._root_node = node
 
         # Add to parent's children if parent exists
         if parent_run_id:
@@ -204,7 +202,7 @@ class GalileoCallback(BaseCallbackHandler):
 
         return node
 
-    def _end_node(self, run_id: UUID, **kwargs: Any) -> None:
+    async def _end_node(self, run_id: UUID, **kwargs: Any) -> None:
         """
         End a node in the chain. Commit the nodes to a trace if the run_id matches the root node.
 
@@ -226,11 +224,11 @@ class GalileoCallback(BaseCallbackHandler):
         node.span_params.update(**kwargs)
 
         # Check if this is the root node and commit if so
-        root = _root_node.get()
+        root = self._root_node
         if root and node.run_id == root.run_id:
-            self._commit()
+            await self._commit()
 
-    def on_chain_start(
+    async def on_chain_start(
         self,
         serialized: dict[str, Any],
         inputs: dict[str, Any],
@@ -255,19 +253,19 @@ class GalileoCallback(BaseCallbackHandler):
         if tags and "langsmith:hidden" in tags:
             return
 
-        self._start_node(node_type, parent_run_id, run_id, input=serialize_to_str(inputs), tags=tags, **kwargs)
+        await self._start_node(node_type, parent_run_id, run_id, input=serialize_to_str(inputs), tags=tags, **kwargs)
 
-    def on_chain_end(
+    async def on_chain_end(
         self, outputs: dict[str, Any], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a chain ends."""
-        self._end_node(run_id, output=serialize_to_str(outputs))
+        await self._end_node(run_id, output=serialize_to_str(outputs))
 
-    def on_agent_finish(self, finish: AgentFinish, *, run_id: UUID, **kwargs: Any) -> Any:
+    async def on_agent_finish(self, finish: AgentFinish, *, run_id: UUID, **kwargs: Any) -> Any:
         """Langchain callback when an agent finishes."""
-        self._end_node(run_id, output=serialize_to_str(finish))
+        await self._end_node(run_id, output=serialize_to_str(finish))
 
-    def on_llm_start(
+    async def on_llm_start(
         self,
         serialized: dict[str, Any],
         prompts: list[str],
@@ -287,7 +285,7 @@ class GalileoCallback(BaseCallbackHandler):
         model = invocation_params.get("model_name", "")
         temperature = invocation_params.get("temperature", 0.0)
 
-        self._start_node(
+        await self._start_node(
             "llm",
             parent_run_id,
             run_id,
@@ -301,9 +299,9 @@ class GalileoCallback(BaseCallbackHandler):
             time_to_first_token_ns=None,
         )
 
-    def on_llm_new_token(self, token: str, *, run_id: UUID, **kwargs: Any) -> Any:
+    async def on_llm_new_token(self, token: str, *, run_id: UUID, **kwargs: Any) -> Any:
         """Langchain callback when an LLM node generates a new token."""
-        node = self._nodes.get(run_id)
+        node = self._nodes.get(str(run_id))
         if not node:
             return
 
@@ -312,7 +310,7 @@ class GalileoCallback(BaseCallbackHandler):
             if start_time is not None:
                 node.span_params["time_to_first_token_ns"] = (time.perf_counter() - start_time) * 1e9
 
-    def on_chat_model_start(
+    async def on_chat_model_start(
         self,
         serialized: dict[str, Any],
         messages: list[list[BaseMessage]],
@@ -336,7 +334,7 @@ class GalileoCallback(BaseCallbackHandler):
             _logger.warning(f"Failed to serialize chat messages: {e}")
             serialized_messages = str(messages)
 
-        self._start_node(
+        await self._start_node(
             "chat",
             parent_run_id,
             run_id,
@@ -349,7 +347,7 @@ class GalileoCallback(BaseCallbackHandler):
             time_to_first_token_ns=None,
         )
 
-    def on_llm_end(
+    async def on_llm_end(
         self, response: LLMResult, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when an LLM node ends."""
@@ -362,7 +360,7 @@ class GalileoCallback(BaseCallbackHandler):
             _logger.warning(f"Failed to serialize LLM output: {e}")
             output = str(response.generations)
 
-        self._end_node(
+        await self._end_node(
             run_id,
             output=output,
             num_input_tokens=token_usage.get("prompt_tokens"),
@@ -370,7 +368,7 @@ class GalileoCallback(BaseCallbackHandler):
             total_tokens=token_usage.get("total_tokens"),
         )
 
-    def on_tool_start(
+    async def on_tool_start(
         self,
         serialized: dict[str, Any],
         input_str: str,
@@ -382,7 +380,7 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a tool node starts."""
-        self._start_node(
+        await self._start_node(
             "tool",
             parent_run_id,
             run_id,
@@ -392,17 +390,19 @@ class GalileoCallback(BaseCallbackHandler):
             metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
         )
 
-    def on_tool_end(self, output: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any) -> Any:
+    async def on_tool_end(
+        self, output: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
         """Langchain callback when a tool node ends."""
-        self._end_node(run_id, output=serialize_to_str(output))
+        await self._end_node(run_id, output=serialize_to_str(output))
 
-    def on_retriever_start(
+    async def on_retriever_start(
         self, query: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a retriever node starts."""
-        self._start_node("retriever", parent_run_id, run_id, name="Retriever", input=serialize_to_str(query))
+        await self._start_node("retriever", parent_run_id, run_id, name="Retriever", input=serialize_to_str(query))
 
-    def on_retriever_end(
+    async def on_retriever_end(
         self, response: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a retriever node ends."""
@@ -412,4 +412,28 @@ class GalileoCallback(BaseCallbackHandler):
             _logger.warning(f"Failed to serialize retriever output: {e}")
             serialized_response = str(response)
 
-        self._end_node(run_id, output=serialized_response)
+        await self._end_node(run_id, output=serialized_response)
+
+    async def on_chain_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Called when a chain errors."""
+        await self._end_node(run_id, output=f"Error: {str(error)}")
+
+    async def on_llm_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Called when an LLM errors."""
+        await self._end_node(run_id, output=f"Error: {str(error)}")
+
+    async def on_tool_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Called when a tool errors."""
+        await self._end_node(run_id, output=f"Error: {str(error)}")
+
+    async def on_retriever_error(
+        self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+    ) -> Any:
+        """Called when a retriever errors."""
+        await self._end_node(run_id, output=f"Error: {str(error)}")
