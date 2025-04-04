@@ -1,0 +1,100 @@
+interactions:
+- request:
+    body: '{"input":[{"content":"Write a haiku about recursion in programming.","role":"user"}],"model":"gpt-4o","include":[],"instructions":"You
+      are the worlds best assistant.","parallel_tool_calls":false,"stream":false,"tools":[]}'
+    headers:
+      accept:
+      - application/json
+      accept-encoding:
+      - gzip, deflate, zstd
+      connection:
+      - keep-alive
+      content-length:
+      - '221'
+      content-type:
+      - application/json
+      host:
+      - api.openai.com
+      user-agent:
+      - Agents/Python 0.0.0
+      x-stainless-arch:
+      - arm64
+      x-stainless-async:
+      - async:asyncio
+      x-stainless-lang:
+      - python
+      x-stainless-os:
+      - MacOS
+      x-stainless-package-version:
+      - 1.69.0
+      x-stainless-read-timeout:
+      - '600'
+      x-stainless-retry-count:
+      - '0'
+      x-stainless-runtime:
+      - CPython
+      x-stainless-runtime-version:
+      - 3.10.13
+    method: POST
+    uri: https://api.openai.com/v1/responses
+  response:
+    body:
+      string: "{\n  \"id\": \"resp_67eaa9245b708191ac951af8203582930bd00035c832e277\",\n
+        \ \"object\": \"response\",\n  \"created_at\": 1743431972,\n  \"status\":
+        \"completed\",\n  \"error\": null,\n  \"incomplete_details\": null,\n  \"instructions\":
+        \"You are the worlds best assistant.\",\n  \"max_output_tokens\": null,\n
+        \ \"model\": \"gpt-4o-2024-08-06\",\n  \"output\": [\n    {\n      \"type\":
+        \"message\",\n      \"id\": \"msg_67eaa92517a081919b52d2ac868fa2310bd00035c832e277\",\n
+        \     \"status\": \"completed\",\n      \"role\": \"assistant\",\n      \"content\":
+        [\n        {\n          \"type\": \"output_text\",\n          \"text\": \"Code
+        within itself,  \\nLoops defining endless paths\\u2014  \\nEchoes of logic.\",\n
+        \         \"annotations\": []\n        }\n      ]\n    }\n  ],\n  \"parallel_tool_calls\":
+        false,\n  \"previous_response_id\": null,\n  \"reasoning\": {\n    \"effort\":
+        null,\n    \"generate_summary\": null\n  },\n  \"store\": true,\n  \"temperature\":
+        1.0,\n  \"text\": {\n    \"format\": {\n      \"type\": \"text\"\n    }\n
+        \ },\n  \"tool_choice\": \"auto\",\n  \"tools\": [],\n  \"top_p\": 1.0,\n
+        \ \"truncation\": \"disabled\",\n  \"usage\": {\n    \"input_tokens\": 27,\n
+        \   \"input_tokens_details\": {\n      \"cached_tokens\": 0\n    },\n    \"output_tokens\":
+        17,\n    \"output_tokens_details\": {\n      \"reasoning_tokens\": 0\n    },\n
+        \   \"total_tokens\": 44\n  },\n  \"user\": null,\n  \"metadata\": {}\n}"
+    headers:
+      CF-RAY:
+      - 929098bcfa86e523-TXL
+      Connection:
+      - keep-alive
+      Content-Type:
+      - application/json
+      Date:
+      - Mon, 31 Mar 2025 14:39:33 GMT
+      Server:
+      - cloudflare
+      Set-Cookie:
+      - __cf_bm=mWbDVADfgyGYwTfjIX_uWtOz0cvPFssWaORlINWgWwA-1743431973-1.0.1.1-IMH6IStDypKr4Ch63k0kywiAOXc6JRnTyMtQlFMU3VxkNeld75ruzEHF.PHbza.nZWJWQn9rYN1XW6gAmPLtyzD00TTCIA26_Mfo7DasatA;
+        path=/; expires=Mon, 31-Mar-25 15:09:33 GMT; domain=.api.openai.com; HttpOnly;
+        Secure; SameSite=None
+      - _cfuvid=kMUXLWMMADxjdnf_VvdsdN6hsJboKiZWyi7FkntdMqQ-1743431973412-0.0.1.1-604800000;
+        path=/; domain=.api.openai.com; HttpOnly; Secure; SameSite=None
+      Transfer-Encoding:
+      - chunked
+      X-Content-Type-Options:
+      - nosniff
+      alt-svc:
+      - h3=":443"; ma=86400
+      cf-cache-status:
+      - DYNAMIC
+      content-length:
+      - '1265'
+      openai-organization:
+      - user-ho1dm61a4zhhafy50j8npno9
+      openai-processing-ms:
+      - '1012'
+      openai-version:
+      - '2020-10-01'
+      strict-transport-security:
+      - max-age=31536000; includeSubDomains; preload
+      x-request-id:
+      - req_d8f40362c49d146081ab7969e72d9252
+    status:
+      code: 200
+      message: OK
+version: 1
