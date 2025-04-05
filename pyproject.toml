@@ -1,6 +1,6 @@
 [project]
 name = "galileo"
-version = "0.3.0"
+version = "0.5.0"
 description = "Client library for the Galileo platform."
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
@@ -16,11 +16,12 @@ wrapt = "^1.14"
 attrs = ">=22.2.0"
 python-dateutil = "^2.8.0"
 langchain-core = { version = "^0.3.14", optional = true }
-openai = { version = "^1.61.0", optional = true }
+openai = { version = "^1.66.5", optional = true }
+openai-agents = { version = "^0.0.7", optional = true }
 
 [project.optional-dependencies]
 langchain = ["langchain-core"]
-openai = ["openai", "packaging (>=24.2,<25.0)"]
+openai = ["openai", "packaging (>=24.2,<25.0)", "openai-agents"]
 all = ["langchain-core", "openai"]
 
 
@@ -36,6 +37,7 @@ galileo-core = { extras = ["testing"], version = "^3.5.0" }
 pytest-env = "^1.1.5"
 langchain-core = "^0.3.14"
 pytest-sugar = "^1.0.0"
+vcrpy = "^7.0.0"
 freezegun = "^1.5.1"
 
 
