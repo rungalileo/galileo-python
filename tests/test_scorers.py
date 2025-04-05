@@ -55,14 +55,16 @@ def test_list_all_scorers(list_scorers_mock: Mock):
     for r in results:
         actual[r.name] = r.scorer_type.name
     # mock return only PRESET types
-    assert actual == {
-        "agentic_workflow_success": "PRESET",
-        "dummy_llm": "LLM",
-    }
+    assert actual == {"agentic_workflow_success": "PRESET", "dummy_llm": "LLM"}
     list_scorers_mock.sync.assert_called_once_with(client=ANY, body=ListScorersRequest(filters=[]))
 
 
 @patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
 def test_list_all_scorers_preset_filter(list_scorers_mock: Mock):
     Scorers().list(types=[ScorerTypes.LLM])
-    list_scorers_mock.sync.assert_called_once_with(client=ANY, body=ListScorersRequest(filters=[ScorerTypeFilter(operator=ScorerTypeFilterOperator.EQ, value=ScorerTypes.LLM)]))
+    list_scorers_mock.sync.assert_called_once_with(
+        client=ANY,
+        body=ListScorersRequest(
+            filters=[ScorerTypeFilter(operator=ScorerTypeFilterOperator.EQ, value=ScorerTypes.LLM)]
+        ),
+    )
