@@ -54,7 +54,6 @@ def test_list_all_scorers(list_scorers_mock: Mock):
     actual = {}
     for r in results:
         actual[r.name] = r.scorer_type.name
-    # mock return only PRESET types
     assert actual == {"agentic_workflow_success": "PRESET", "dummy_llm": "LLM"}
     list_scorers_mock.sync.assert_called_once_with(client=ANY, body=ListScorersRequest(filters=[]))
 
