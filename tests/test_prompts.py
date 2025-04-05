@@ -5,8 +5,9 @@ from unittest.mock import Mock, patch
 import pytest
 
 from galileo.prompts import PromptTemplateAPIException, create_prompt_template
-from galileo.resources.models import BasePromptTemplateResponse, Message, MessageRole, ProjectDB
+from galileo.resources.models import BasePromptTemplateResponse, ProjectDB
 from galileo.resources.types import Response
+from galileo_core.schemas.logging.llm import Message, MessageRole
 
 
 def projects_response():
@@ -69,8 +70,8 @@ def test_create_prompt(create_prompt_template_mock: Mock, get_projects_projects_
         name="andrii-good-prompt",
         project="andrii-new-project",
         messages=[
-            Message(role=MessageRole.SYSTEM, content="you are a helpful assistant"),
-            Message(role=MessageRole.USER, content="why is sky blue?"),
+            Message(role=MessageRole.system, content="you are a helpful assistant"),
+            Message(role=MessageRole.user, content="why is sky blue?"),
         ],
     )
 
@@ -94,8 +95,8 @@ def test_create_prompt_bad_request(create_prompt_template_mock: Mock, get_projec
             name="andrii-good-prompt",
             project="andrii-new-project",
             messages=[
-                Message(role=MessageRole.SYSTEM, content="you are a helpful assistant"),
-                Message(role=MessageRole.USER, content="why is sky blue?"),
+                Message(role=MessageRole.system, content="you are a helpful assistant"),
+                Message(role=MessageRole.user, content="why is sky blue?"),
             ],
         )
     create_prompt_template_mock.sync_detailed.assert_called_once()
