@@ -7,11 +7,12 @@ from galileo.resources.api.datasets import (
     delete_dataset_datasets_dataset_id_delete,
     get_dataset_content_datasets_dataset_id_content_get,
     get_dataset_datasets_dataset_id_get,
+    get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get,
     list_datasets_datasets_get,
+    query_dataset_versions_datasets_dataset_id_versions_query_post,
     query_datasets_datasets_query_post,
     update_dataset_content_datasets_dataset_id_content_patch,
-    upload_dataset_datasets_post, query_dataset_versions_datasets_dataset_id_versions_query_post,
-    get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get,
+    upload_dataset_datasets_post,
 )
 from galileo.resources.models import ListDatasetVersionParams
 from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
@@ -105,16 +106,14 @@ class Dataset(BaseClientModel, DecorateAllMethods):
 
     def get_version_history(self):
         list_dataset = query_dataset_versions_datasets_dataset_id_versions_query_post.sync(
-            dataset_id=self.dataset.id, client=self.client, body=ListDatasetVersionParams(),
+            dataset_id=self.dataset.id, client=self.client, body=ListDatasetVersionParams()
         )
         return list_dataset
-
 
     def load_version(self, version_index: int) -> DatasetContent:
         return get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get.sync(
             dataset_id=self.dataset.id, version_index=version_index, client=self.client
         )
-
 
     def __getattr__(self, attr):
         """
@@ -285,7 +284,6 @@ class Datasets(BaseClientModel):
         return Dataset(dataset_db=response, client=self.client)
 
 
-
 #
 # Convenience methods
 #
@@ -407,7 +405,7 @@ def get_dataset_version_history(dataset_name: str = None, dataset_id: str = None
         return dataset.get_version_history()
 
 
-def get_dataset_version(version_index: int, dataset_name: str = None, dataset_id: str = None,) -> DatasetContent:
+def get_dataset_version(version_index: int, dataset_name: str = None, dataset_id: str = None) -> DatasetContent:
     if dataset_name is None and dataset_id is None:
         raise ValueError("Either dataset_name or dataset_id must be provided.")
 
