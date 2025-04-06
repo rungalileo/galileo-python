@@ -14,7 +14,7 @@ from galileo.resources.api.datasets import (
     update_dataset_content_datasets_dataset_id_content_patch,
     upload_dataset_datasets_post,
 )
-from galileo.resources.models import ListDatasetVersionParams
+from galileo.resources.models import ListDatasetVersionParams, ListDatasetVersionResponse
 from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.models.dataset_db import DatasetDB
@@ -392,7 +392,27 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
     return Datasets().create(name=name, content=content)
 
 
-def get_dataset_version_history(dataset_name: str = None, dataset_id: str = None):
+def get_dataset_version_history(
+    dataset_name: str = None, dataset_id: str = None
+) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
+    """
+    Retrieves a dataset version history by dataset name or dataset id.
+
+    Parameters
+    ----------
+    dataset_name: str
+        The name of the dataset.
+    dataset_id: str
+        The id of the dataset.
+
+    Returns
+    -------
+    ListDatasetVersionResponse
+
+    Raises
+    ------
+    HTTPValidationError
+    """
     if dataset_name is None and dataset_id is None:
         raise ValueError("Either dataset_name or dataset_id must be provided.")
 
@@ -405,7 +425,27 @@ def get_dataset_version_history(dataset_name: str = None, dataset_id: str = None
         return dataset.get_version_history()
 
 
-def get_dataset_version(version_index: int, dataset_name: str = None, dataset_id: str = None) -> DatasetContent:
+def get_dataset_version(
+    version_index: int, dataset_name: str = None, dataset_id: str = None
+) -> Optional[DatasetContent]:
+    """
+    Retrieves a dataset version by dataset name or dataset id.
+
+    Parameters
+    ----------
+    version_index : int
+        The version of the dataset.
+
+    dataset_name: Optional[str]
+        The name of the dataset.
+
+    dataset_id: Optional[str]
+        The id of the dataset.
+
+    Returns
+    -------
+    DatasetContent
+    """
     if dataset_name is None and dataset_id is None:
         raise ValueError("Either dataset_name or dataset_id must be provided.")
 
