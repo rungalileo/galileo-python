@@ -7,11 +7,14 @@ from galileo.resources.api.datasets import (
     delete_dataset_datasets_dataset_id_delete,
     get_dataset_content_datasets_dataset_id_content_get,
     get_dataset_datasets_dataset_id_get,
+    get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get,
     list_datasets_datasets_get,
+    query_dataset_versions_datasets_dataset_id_versions_query_post,
     query_datasets_datasets_query_post,
     update_dataset_content_datasets_dataset_id_content_patch,
     upload_dataset_datasets_post,
 )
+from galileo.resources.models import ListDatasetVersionParams, ListDatasetVersionResponse
 from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.models.dataset_db import DatasetDB
@@ -100,6 +103,17 @@ class Dataset(BaseClientModel, DecorateAllMethods):
         self.get_content()
 
         return self
+
+    def get_version_history(self):
+        list_dataset = query_dataset_versions_datasets_dataset_id_versions_query_post.sync(
+            dataset_id=self.dataset.id, client=self.client, body=ListDatasetVersionParams()
+        )
+        return list_dataset
+
+    def load_version(self, version_index: int) -> DatasetContent:
+        return get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get.sync(
+            dataset_id=self.dataset.id, version_index=version_index, client=self.client
+        )
 
     def __getattr__(self, attr):
         """
@@ -376,6 +390,72 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
 
     """
     return Datasets().create(name=name, content=content)
+
+
+def get_dataset_version_history(
+    dataset_name: str = None, dataset_id: str = None
+) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
+    """
+    Retrieves a dataset version history by dataset name or dataset id.
+
+    Parameters
+    ----------
+    dataset_name: str
+        The name of the dataset.
+    dataset_id: str
+        The id of the dataset.
+
+    Returns
+    -------
+    ListDatasetVersionResponse
+
+    Raises
+    ------
+    HTTPValidationError
+    """
+    if dataset_name is None and dataset_id is None:
+        raise ValueError("Either dataset_name or dataset_id must be provided.")
+
+    if dataset_name is not None:
+        dataset = Datasets().get(name=dataset_name)
+        return dataset.get_version_history()
+
+    if dataset_id is not None:
+        dataset = Datasets().get(id=dataset_id)
+        return dataset.get_version_history()
+
+
+def get_dataset_version(
+    version_index: int, dataset_name: str = None, dataset_id: str = None
+) -> Optional[DatasetContent]:
+    """
+    Retrieves a dataset version by dataset name or dataset id.
+
+    Parameters
+    ----------
+    version_index : int
+        The version of the dataset.
+
+    dataset_name: Optional[str]
+        The name of the dataset.
+
+    dataset_id: Optional[str]
+        The id of the dataset.
+
+    Returns
+    -------
+    DatasetContent
+    """
+    if dataset_name is None and dataset_id is None:
+        raise ValueError("Either dataset_name or dataset_id must be provided.")
+
+    if dataset_name is not None:
+        dataset = Datasets().get(name=dataset_name)
+        return dataset.load_version(version_index)
+
+    if dataset_id is not None:
+        dataset = Datasets().get(id=dataset_id)
+        return dataset.load_version(version_index)
 
 
 def convert_dataset_content_to_records(dataset_content: DatasetContent):
