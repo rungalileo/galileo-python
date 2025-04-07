@@ -57,7 +57,7 @@ triage_agent = Agent(
 os.environ["OPENAI_API_KEY"] = "sk-test"
 
 
-@pytest.skip("flaky test")
+@pytest.mark.skip("flaky test")
 @mark.asyncio
 @vcr.use_cassette(
     "tests/fixtures/openai_agents_complex.yaml",
