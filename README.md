@@ -29,7 +29,8 @@ Note: if you would like to point to an environment other than `app.galileo.ai`, 
 ```python
 import os
 
-from galileo import galileo_context, openai
+from galileo import galileo_context
+from galileo.openai import openai
 
 # If you've set your GALILEO_PROJECT and GALILEO_LOG_STREAM env vars, you can skip this step
 galileo_context.init(project="your-project-name", log_stream="your-log-stream-name")
@@ -148,7 +149,7 @@ OpenAI streaming example:
 ```python
 import os
 
-from galileo import openai
+from galileo.openai import openai
 
 client = openai.OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
 
@@ -166,7 +167,8 @@ In some cases (like long-running processes), it may be necessary to explicitly f
 ```python
 import os
 
-from galileo import galileo_context, openai
+from galileo import galileo_context
+from galileo.openai import openai
 
 galileo_context.init(project="your-project-name", log_stream="your-log-stream-name")
 
