@@ -202,7 +202,7 @@ class TestGalileoCallback:
         # Create parent chain
         callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
 
-        # Start chat model
+        # Start chat model (llm)
         human_message = HumanMessage(content="Tell me about AI")
         ai_message = AIMessage(content="AI is a technology...")
         messages = [[human_message, ai_message]]
@@ -226,6 +226,79 @@ class TestGalileoCallback:
         assert len(input_data) == 2  # Two messages
         assert input_data[0]["content"] == "Tell me about AI"
         assert input_data[1]["content"] == "AI is a technology..."
+
+    def test_on_chat_model_start_end_with_tools(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+        """Test chat model start and end callbacks with tools"""
+        run_id = uuid.uuid4()
+        chain_id = uuid.uuid4()
+
+        # Start chat model
+        human_message = HumanMessage(content="What is the sine of 90 degrees?")
+        messages = [[human_message]]
+
+        callback.on_chat_model_start(
+            serialized={},
+            messages=messages,
+            run_id=run_id,
+            parent_run_id=chain_id,
+            invocation_params={
+                "model": "gpt-4o",
+                "temperature": 0.7,
+                "tools": [
+                    {
+                        "type": "function",
+                        "function": {
+                            "name": "sin",
+                            "description": "Calculate the sine of a number.",
+                            "parameters": {
+                                "properties": {"x": {"type": "number"}},
+                                "required": ["x"],
+                                "type": "object",
+                            },
+                        },
+                    }
+                ],
+            },
+        )
+
+        assert str(run_id) in callback._nodes
+        assert callback._nodes[str(run_id)].node_type == "chat"
+        assert callback._nodes[str(run_id)].span_params["model"] == "gpt-4o"
+        assert callback._nodes[str(run_id)].span_params["temperature"] == 0.7
+        assert callback._nodes[str(run_id)].span_params["tools"] == [
+            {
+                "type": "function",
+                "function": {
+                    "name": "sin",
+                    "description": "Calculate the sine of a number.",
+                    "parameters": {"properties": {"x": {"type": "number"}}, "required": ["x"], "type": "object"},
+                },
+            }
+        ]
+
+        # End chat model (llm)
+        llm_response = MagicMock()
+        llm_response.generations = [[MagicMock()]]
+        llm_response.llm_output = {"token_usage": {"total_tokens": 100}}
+        llm_response.generations[0][0].dict.return_value = "The sine of 90 degrees is 0.9999999999999999"
+
+        callback.on_llm_end(response=llm_response, run_id=run_id, parent_run_id=chain_id)
+
+        traces = galileo_logger.traces
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        assert traces[0].spans[0].name == "Chat Model"
+        assert traces[0].spans[0].type == "llm"
+        assert traces[0].spans[0].tools == [
+            {
+                "type": "function",
+                "function": {
+                    "name": "sin",
+                    "description": "Calculate the sine of a number.",
+                    "parameters": {"properties": {"x": {"type": "number"}}, "required": ["x"], "type": "object"},
+                },
+            }
+        ]
 
     def test_on_tool_start_end(self, callback: GalileoCallback):
         """Test tool start and end callbacks"""
