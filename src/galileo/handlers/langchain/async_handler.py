@@ -123,7 +123,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
                 output=output,
                 model=node.span_params.get("model"),
                 temperature=node.span_params.get("temperature"),
-                tools=node.span_params.get("tools", None),
+                tools=node.span_params.get("tools"),
                 name=name,
                 metadata=metadata,
                 tags=tags,
