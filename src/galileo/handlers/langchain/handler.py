@@ -126,6 +126,7 @@ class GalileoCallback(BaseCallbackHandler):
                 output=output,
                 model=node.span_params.get("model"),
                 temperature=node.span_params.get("temperature"),
+                tools=node.span_params.get("tools"),
                 name=name,
                 metadata=metadata,
                 tags=tags,
@@ -326,6 +327,7 @@ class GalileoCallback(BaseCallbackHandler):
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model", invocation_params.get("_type", "undefined-type"))
         temperature = invocation_params.get("temperature", 0.0)
+        tools = invocation_params.get("tools")
 
         # Serialize messages safely
         try:
@@ -341,6 +343,7 @@ class GalileoCallback(BaseCallbackHandler):
             run_id,
             name="Chat Model",
             input=serialized_messages,
+            tools=json.loads(json.dumps(tools, cls=EventSerializer)) if tools else None,
             tags=tags,
             model=model,
             temperature=temperature,
