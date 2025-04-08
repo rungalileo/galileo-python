@@ -83,6 +83,9 @@ class Experiments(BaseClientModel):
                     scorers.append(ScorerConfig.from_dict(scorer.to_dict()))
                     break
 
+        if not scorers:
+            raise ValueError(f"Non-existent metric is specified `{' '.join(metrics)}`")
+
         ScorerSettings().create(project_id=project_id, run_id=experiment_id, scorers=scorers)
         return scorers
 
