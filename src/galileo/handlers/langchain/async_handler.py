@@ -326,7 +326,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model", invocation_params.get("_type", "undefined-type"))
         temperature = invocation_params.get("temperature", 0.0)
-        tools = invocation_params.get("tools", None)
+        tools = invocation_params.get("tools")
 
         # Serialize messages safely
         try:
