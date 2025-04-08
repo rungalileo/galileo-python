@@ -1,8 +1,9 @@
+from http import HTTPStatus
 from unittest.mock import ANY, Mock, patch
 
 import pytest
 
-from galileo.datasets import get_dataset_version, get_dataset_version_history
+from galileo.datasets import DatasetAPIException, create_dataset, get_dataset_version, get_dataset_version_history
 from galileo.resources.models import (
     DatasetContent,
     DatasetDB,
@@ -15,6 +16,7 @@ from galileo.resources.models import (
     ListDatasetVersionParams,
     ListDatasetVersionResponse,
 )
+from galileo.resources.types import Response
 
 
 def dataset_content():
@@ -123,6 +125,21 @@ def list_dataset_versions():
             "starting_token": 0,
         }
     )
+
+
+@patch("galileo.datasets.upload_dataset_datasets_post")
+def test_create_dataset_validation_error(upload_dataset_datasets_post_mock: Mock):
+    upload_dataset_datasets_post_mock.sync_detailed.return_value = Response(
+        content=b'{"detail":"Invalid CSV data: CSV parse error: Empty CSV file or block: cannot infer number of columns"}',
+        status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+        headers={},
+        parsed=None,
+    )
+
+    with pytest.raises(DatasetAPIException):
+        create_dataset(name="my_dataset_name", content=[{}])
+
+    upload_dataset_datasets_post_mock.sync_detailed.assert_called_once()
 
 
 @patch("galileo.datasets.get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get")
