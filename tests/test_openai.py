@@ -6,9 +6,8 @@ from httpx import Response
 from openai import Stream
 from openai.types.chat import ChatCompletionChunk
 
-from galileo import galileo_context, log
+from galileo import Message, MessageRole, galileo_context, log
 from galileo.openai import OpenAIGalileo, openai
-from galileo_core.schemas.logging.llm import Message, MessageRole
 from galileo_core.schemas.logging.span import LlmSpan, WorkflowSpan
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 from tests.testutils.streaming import EventStream
