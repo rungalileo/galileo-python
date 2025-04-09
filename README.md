@@ -251,14 +251,14 @@ Run an experiment with a prompt template:
 from galileo.datasets import get_dataset
 from galileo.experiments import run_experiment
 from galileo.prompts import create_prompt_template
-from galileo_core.schemas.logging.llm import Message, MessageRole
+from galileo.resources.models import MessageRole, Message
 
 prompt = create_prompt_template(
     name="my-prompt",
     project="new-project",
     messages=[
-        Message(role=MessageRole.system, content="you are a helpful assistant"),
-        Message(role=MessageRole.user, content="why is sky blue?")
+        Message(role=MessageRole.SYSTEM, content="you are a helpful assistant"),
+        Message(role=MessageRole.USER, content="why is sky blue?")
     ]
 )
 
