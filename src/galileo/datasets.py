@@ -29,7 +29,12 @@ from galileo.resources.models.list_dataset_response import ListDatasetResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
 from galileo.resources.types import File, Unset
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.exceptions import APIException
 from galileo_core.utils.dataset import DatasetType, parse_dataset
+
+
+class DatasetAPIException(APIException):
+    pass
 
 
 class Dataset(BaseClientModel, DecorateAllMethods):
@@ -273,15 +278,14 @@ class Datasets(BaseClientModel):
 
         body = BodyUploadDatasetDatasetsPost(file=file)
 
-        response = upload_dataset_datasets_post.sync(client=self.client, body=body, format_=dataset_format)
+        detailed_response = upload_dataset_datasets_post.sync_detailed(
+            client=self.client, body=body, format_=dataset_format
+        )
 
-        if isinstance(response, HTTPValidationError):
-            raise response
+        if not detailed_response.parsed or isinstance(detailed_response.parsed, HTTPValidationError):
+            raise DatasetAPIException(detailed_response.content)
 
-        if not response:
-            raise ValueError("Unable to create dataset")
-
-        return Dataset(dataset_db=response, client=self.client)
+        return Dataset(dataset_db=detailed_response.parsed, client=self.client)
 
 
 #
