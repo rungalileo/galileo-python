@@ -6,10 +6,10 @@ from langchain_core.agents import AgentFinish
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage
 
+from galileo import Message, MessageRole
 from galileo.handlers.langchain import GalileoCallback
 from galileo.handlers.langchain.handler import _root_node
 from galileo.logger import GalileoLogger
-from galileo_core.schemas.logging.llm import Message, MessageRole
 from galileo_core.schemas.shared.document import Document as GalileoDocument
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 

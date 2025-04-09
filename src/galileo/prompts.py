@@ -2,6 +2,7 @@ import builtins
 import logging
 from typing import Optional, Union
 
+from galileo import Message
 from galileo.base import BaseClientModel
 from galileo.projects import Projects
 from galileo.resources.api.prompts import (
@@ -13,7 +14,6 @@ from galileo.resources.models import (
     BasePromptTemplateResponse,
     CreatePromptTemplateWithVersionRequestBody,
     HTTPValidationError,
-    Message,
 )
 from galileo.utils.exceptions import APIException
 
@@ -112,7 +112,7 @@ class PromptTemplates(BaseClientModel):
         return PromptTemplate(prompt_template=response.parsed)
 
 
-def create_prompt_template(name: str, project: str, messages: Union[list["Message"], str]) -> Optional[PromptTemplate]:
+def create_prompt_template(name: str, project: str, messages: Union[list[Message], str]) -> Optional[PromptTemplate]:
     return PromptTemplates().create(name=name, project_name=project, template=messages)
 
 

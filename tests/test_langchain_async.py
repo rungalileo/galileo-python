@@ -7,9 +7,9 @@ from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage
 from pytest import mark
 
+from galileo import Message, MessageRole
 from galileo.handlers.langchain import GalileoAsyncCallback
 from galileo.logger import GalileoLogger
-from galileo_core.schemas.logging.llm import Message, MessageRole
 from galileo_core.schemas.shared.document import Document as GalileoDocument
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 

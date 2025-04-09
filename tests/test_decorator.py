@@ -2,8 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from galileo import galileo_context, log
-from galileo_core.schemas.logging.llm import Message, MessageRole
+from galileo import Message, MessageRole, galileo_context, log
 from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
 from galileo_core.schemas.shared.document import Document
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
