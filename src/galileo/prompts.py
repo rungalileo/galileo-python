@@ -13,9 +13,9 @@ from galileo.resources.models import (
     BasePromptTemplateResponse,
     CreatePromptTemplateWithVersionRequestBody,
     HTTPValidationError,
+    Message,
 )
 from galileo.utils.exceptions import APIException
-from galileo_core.schemas.logging.llm import Message
 
 _logger = logging.getLogger(__name__)
 
