@@ -394,24 +394,36 @@ class GalileoCallback(BaseCallbackHandler):
             metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
         )
 
-    def on_tool_end(self, output: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any) -> Any:
+    def on_tool_end(self, output: Any, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any) -> Any:
         """Langchain callback when a tool node ends."""
-        self._end_node(run_id, output=serialize_to_str(output))
+        if isinstance(output, dict) and "content" in output:
+            output = serialize_to_str(output["content"])
+        elif hasattr(output, "content"):
+            output = serialize_to_str(output.content)
+        else:
+            output = serialize_to_str(output)
+        self._end_node(run_id, output=output)
 
     def on_retriever_start(
-        self, query: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+        self,
+        serialized: dict[str, Any],
+        query: str,
+        *,
+        run_id: UUID,
+        parent_run_id: Optional[UUID] = None,
+        **kwargs: Any,
     ) -> Any:
         """Langchain callback when a retriever node starts."""
         self._start_node("retriever", parent_run_id, run_id, name="Retriever", input=serialize_to_str(query))
 
     def on_retriever_end(
-        self, response: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+        self, documents: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a retriever node ends."""
         try:
-            serialized_response = json.loads(json.dumps(response, cls=EventSerializer))
+            serialized_response = json.loads(json.dumps(documents, cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize retriever output: {e}")
-            serialized_response = str(response)
+            serialized_response = str(documents)
 
         self._end_node(run_id, output=serialized_response)
