@@ -248,10 +248,10 @@ datasets = list_datasets()
 Run an experiment with a prompt template:
 
 ```python
+from galileo import Message, MessageRole
 from galileo.datasets import get_dataset
 from galileo.experiments import run_experiment
 from galileo.prompts import create_prompt_template
-from galileo_core.schemas.logging.llm import Message, MessageRole
 
 prompt = create_prompt_template(
     name="my-prompt",

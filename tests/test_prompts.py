@@ -4,10 +4,10 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from galileo import Message, MessageRole
 from galileo.prompts import PromptTemplateAPIException, create_prompt_template
 from galileo.resources.models import BasePromptTemplateResponse, ProjectDB
 from galileo.resources.types import Response
-from galileo_core.schemas.logging.llm import Message, MessageRole
 
 
 def projects_response():
