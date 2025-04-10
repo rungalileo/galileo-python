@@ -123,3 +123,7 @@ def get_prompt_template(project: str, name: str) -> Optional[PromptTemplate]:
             _logger.info(f"Get template {prompt_template}")
             return prompt_template
     raise ValueError(f"Prompt {name} does not exist")
+
+
+def list_prompt_templates(project: str) -> list[PromptTemplate]:
+    return PromptTemplates().list(project_name=project)

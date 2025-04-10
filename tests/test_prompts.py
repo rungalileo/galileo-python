@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import pytest
 
 from galileo import Message, MessageRole
-from galileo.prompts import PromptTemplateAPIException, create_prompt_template
+from galileo.prompts import PromptTemplateAPIException, create_prompt_template, list_prompt_templates
 from galileo.resources.models import BasePromptTemplateResponse, ProjectDB
 from galileo.resources.types import Response
 
@@ -100,4 +100,18 @@ def test_create_prompt_bad_request(create_prompt_template_mock: Mock, get_projec
             ],
         )
     create_prompt_template_mock.sync_detailed.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_list_prompts(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock):
+    list_prompt_templates_mock.sync.return_value = [prompt_template()]
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+    templates = list_prompt_templates(project="andrii-new-project")
+
+    assert len(templates) == 1
+    assert templates[0].name == "andrii-good-prompt"
+
+    list_prompt_templates_mock.sync.assert_called_once()
     get_projects_projects_get_mock.sync_detailed.assert_called_once()
