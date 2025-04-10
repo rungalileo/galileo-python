@@ -257,3 +257,16 @@ def test_convert_dataset_content_to_records_str(value, expected):
     content = DatasetContent(column_names=column_names, rows=[row])
     result = convert_dataset_content_to_records(content)
     assert result == expected
+
+
+def test_convert_dataset_content_to_records_no_rows():
+    column_names = ["input", "output", "metadata"]
+    content = DatasetContent(column_names=column_names, rows=[])
+    assert convert_dataset_content_to_records(content) == []
+
+
+def test_convert_dataset_content_to_records_empty_values_dict():
+    row = DatasetRow(index=0, values=[])
+    row.additional_properties = {"values_dict": {}}
+    content = DatasetContent(column_names=[], rows=[row])
+    assert convert_dataset_content_to_records(content) == [{}]
