@@ -86,7 +86,10 @@ class Experiments(BaseClientModel):
                 unknown_metrics.append(metric)
 
         if unknown_metrics:
-            raise ValueError(f"One or more non-existent metrics are specified: `{' '.join(unknown_metrics)}`")
+            raise ValueError(
+                "One or more non-existent metrics are specified:"
+                + ", ".join(f"'{metric}'" for metric in unknown_metrics)
+            )
 
         ScorerSettings().create(project_id=project_id, run_id=experiment_id, scorers=scorers)
         return scorers

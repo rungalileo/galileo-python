@@ -481,11 +481,11 @@ class TestExperiments:
             Experiments.create_run_scorer_settings(
                 project_id="00000000", experiment_id="asd", metrics=["Non-ExistentMetric"]
             )
-        assert str(exc_info.value) == "One or more non-existent metrics are specified: `Non-ExistentMetric`"
+        assert str(exc_info.value) == "One or more non-existent metrics are specified:'Non-ExistentMetric'"
         scorer_list.assert_called_once()
 
     @patch("galileo.experiments.Scorers.list")
-    def test_create_run_scorer_settings_one_valid_one_non_existent_metric(self, scorer_list: Mock):
+    def test_create_run_scorer_settings_one_valid_two_non_existent_metric(self, scorer_list: Mock):
         scorer_list.return_value = [
             ScorerResponse.from_dict(
                 {
@@ -506,7 +506,12 @@ class TestExperiments:
         ]
         with pytest.raises(ValueError) as exc_info:
             Experiments.create_run_scorer_settings(
-                project_id="00000000", experiment_id="asd", metrics=["agentic_workflow_success", "Non-ExistentMetric"]
+                project_id="00000000",
+                experiment_id="asd",
+                metrics=["unknown_metric1", "agentic_workflow_success", "Non-ExistentMetric"],
             )
-        assert str(exc_info.value) == "One or more non-existent metrics are specified: `Non-ExistentMetric`"
+        assert (
+            str(exc_info.value)
+            == "One or more non-existent metrics are specified:'unknown_metric1', 'Non-ExistentMetric'"
+        )
         scorer_list.assert_called_once()
