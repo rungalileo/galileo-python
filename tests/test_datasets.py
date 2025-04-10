@@ -3,8 +3,13 @@ from unittest.mock import ANY, Mock, patch
 
 import pytest
 
-from galileo.datasets import DatasetAPIException, create_dataset, get_dataset_version, get_dataset_version_history, \
-    convert_dataset_content_to_records
+from galileo.datasets import (
+    DatasetAPIException,
+    convert_dataset_content_to_records,
+    create_dataset,
+    get_dataset_version,
+    get_dataset_version_history,
+)
 from galileo.resources.models import (
     DatasetContent,
     DatasetDB,
@@ -238,19 +243,16 @@ def test_get_dataset_version_history_wo_dataset_name_or_dataset_id():
 @pytest.mark.parametrize(
     "value, expected",
     [
-        ('{"input": "Which continent is Spain in?", "expected": "Europe"}', [{'expected': 'Europe', 'input': 'Which continent is Spain in?'}]),
-        ('string', ['string']),
-    ]
+        (
+            '{"input": "Which continent is Spain in?", "expected": "Europe"}',
+            [{"expected": "Europe", "input": "Which continent is Spain in?"}],
+        ),
+        ("string", ["string"]),
+    ],
 )
 def test_convert_dataset_content_to_records_str(value, expected):
     row = DatasetRow(index=0, values=[value])
-    row.additional_properties = {
-        "values_dict": {
-            "input": value,
-            "output": None,
-            "metadata": None,
-        }
-    }
+    row.additional_properties = {"values_dict": {"input": value, "output": None, "metadata": None}}
     column_names = ["input", "output", "metadata"]
     content = DatasetContent(column_names=column_names, rows=[row])
     result = convert_dataset_content_to_records(content)
