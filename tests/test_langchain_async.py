@@ -133,6 +133,33 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].output == '{"result": "test answer"}'
 
     @mark.asyncio
+    async def test_on_chain_start_end_with_input_update(
+        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+    ):
+        """Test chain start and end callbacks with input update (streaming mode)"""
+        run_id = uuid.uuid4()
+
+        # Start chain
+        await callback.on_chain_start(serialized={"name": "TestChain"}, inputs="", run_id=run_id)
+
+        assert str(run_id) in callback._nodes
+        assert callback._nodes[str(run_id)].node_type == "chain"
+        assert callback._nodes[str(run_id)].span_params["input"] == ""
+
+        # End chain
+        await callback.on_chain_end(
+            outputs='{"result": "test answer"}', run_id=run_id, inputs={"query": "test question"}
+        )
+
+        traces = galileo_logger.traces
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        assert traces[0].spans[0].name == "TestChain"
+        assert traces[0].spans[0].type == "workflow"
+        assert traces[0].spans[0].input == '{"query": "test question"}'
+        assert traces[0].spans[0].output == '{"result": "test answer"}'
+
+    @mark.asyncio
     async def test_on_agent_chain(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
         """Test agent chain handling"""
         run_id = uuid.uuid4()

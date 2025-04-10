@@ -260,7 +260,10 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         self, outputs: dict[str, Any], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a chain ends."""
-        await self._end_node(run_id, output=serialize_to_str(outputs))
+        # The input is sent via kwargs in on_chain_end in async streaming mode
+        if "inputs" in kwargs:
+            kwargs["input"] = serialize_to_str(kwargs["inputs"])
+        await self._end_node(run_id, output=serialize_to_str(outputs), **kwargs)
 
     async def on_agent_finish(self, finish: AgentFinish, *, run_id: UUID, **kwargs: Any) -> Any:
         """Langchain callback when an agent finishes."""
