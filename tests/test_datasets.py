@@ -3,7 +3,13 @@ from unittest.mock import ANY, Mock, patch
 
 import pytest
 
-from galileo.datasets import DatasetAPIException, create_dataset, get_dataset_version, get_dataset_version_history
+from galileo.datasets import (
+    DatasetAPIException,
+    convert_dataset_content_to_records,
+    create_dataset,
+    get_dataset_version,
+    get_dataset_version_history,
+)
 from galileo.resources.models import (
     DatasetContent,
     DatasetDB,
@@ -232,3 +238,35 @@ def test_get_dataset_version_history_wo_dataset_name_or_dataset_id():
     with pytest.raises(ValueError) as exc_info:
         get_dataset_version_history()
     assert "Either dataset_name or dataset_id must be provided." in str(exc_info.value), str(exc_info)
+
+
+@pytest.mark.parametrize(
+    "value, expected",
+    [
+        (
+            '{"input": "Which continent is Spain in?", "expected": "Europe"}',
+            [{"expected": "Europe", "input": "Which continent is Spain in?"}],
+        ),
+        ("string", ["string"]),
+    ],
+)
+def test_convert_dataset_content_to_records_str(value, expected):
+    row = DatasetRow(index=0, values=[value])
+    row.additional_properties = {"values_dict": {"input": value, "output": None, "metadata": None}}
+    column_names = ["input", "output", "metadata"]
+    content = DatasetContent(column_names=column_names, rows=[row])
+    result = convert_dataset_content_to_records(content)
+    assert result == expected
+
+
+def test_convert_dataset_content_to_records_no_rows():
+    column_names = ["input", "output", "metadata"]
+    content = DatasetContent(column_names=column_names, rows=[])
+    assert convert_dataset_content_to_records(content) == []
+
+
+def test_convert_dataset_content_to_records_empty_values_dict():
+    row = DatasetRow(index=0, values=[])
+    row.additional_properties = {"values_dict": {}}
+    content = DatasetContent(column_names=[], rows=[row])
+    assert convert_dataset_content_to_records(content) == [{}]
