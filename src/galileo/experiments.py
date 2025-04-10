@@ -77,14 +77,16 @@ class Experiments(BaseClientModel):
     ) -> builtins.list[ScorerConfig]:
         scorers = []
         all_scorers = Scorers().list()
+        known_metrics = {metric.name: metric for metric in all_scorers}
+        unknown_metrics = []
         for metric in metrics:
-            for scorer in all_scorers:
-                if metric == scorer.name:
-                    scorers.append(ScorerConfig.from_dict(scorer.to_dict()))
-                    break
+            if metric in known_metrics:
+                scorers.append(ScorerConfig.from_dict(known_metrics[metric].to_dict()))
+            else:
+                unknown_metrics.append(metric)
 
-        if not scorers:
-            raise ValueError(f"Non-existent metric is specified `{' '.join(metrics)}`")
+        if unknown_metrics:
+            raise ValueError(f"One or more non-existent metrics are specified: `{' '.join(unknown_metrics)}`")
 
         ScorerSettings().create(project_id=project_id, run_id=experiment_id, scorers=scorers)
         return scorers

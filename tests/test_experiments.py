@@ -481,5 +481,32 @@ class TestExperiments:
             Experiments.create_run_scorer_settings(
                 project_id="00000000", experiment_id="asd", metrics=["Non-ExistentMetric"]
             )
-        assert str(exc_info.value) == "Non-existent metric is specified `Non-ExistentMetric`"
+        assert str(exc_info.value) == "One or more non-existent metrics are specified: `Non-ExistentMetric`"
+        scorer_list.assert_called_once()
+
+    @patch("galileo.experiments.Scorers.list")
+    def test_create_run_scorer_settings_one_valid_one_non_existent_metric(self, scorer_list: Mock):
+        scorer_list.return_value = [
+            ScorerResponse.from_dict(
+                {
+                    "created_at": "2025-03-28T18:54:02.848267+00:00",
+                    "created_by": "d351012a-dd92-4d0c-a356-57161b1377cd",
+                    "defaults": {"filters": None, "model_name": "GPT-4o", "num_judges": 5},
+                    "description": "Detects whether the user successfully accomplished or advanced towards their goal.",
+                    "id": "f7933a6d-7a65-4ce3-bfe4-b863109a04ee",
+                    "included_fields": ["model_name", "num_judges", "filters"],
+                    "label": "Action Advancement",
+                    "latest_version": None,
+                    "name": "agentic_workflow_success",
+                    "scorer_type": "preset",
+                    "tags": ["preset", "agents"],
+                    "updated_at": "2025-03-28T18:54:02.848269+00:00",
+                }
+            )
+        ]
+        with pytest.raises(ValueError) as exc_info:
+            Experiments.create_run_scorer_settings(
+                project_id="00000000", experiment_id="asd", metrics=["agentic_workflow_success", "Non-ExistentMetric"]
+            )
+        assert str(exc_info.value) == "One or more non-existent metrics are specified: `Non-ExistentMetric`"
         scorer_list.assert_called_once()
