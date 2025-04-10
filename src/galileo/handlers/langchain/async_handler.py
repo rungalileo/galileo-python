@@ -260,7 +260,10 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         self, outputs: dict[str, Any], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a chain ends."""
-        await self._end_node(run_id, output=serialize_to_str(outputs))
+        # The input is sent via kwargs in on_chain_end in async streaming mode
+        if "inputs" in kwargs:
+            kwargs["input"] = serialize_to_str(kwargs["inputs"])
+        await self._end_node(run_id, output=serialize_to_str(outputs), **kwargs)
 
     async def on_agent_finish(self, finish: AgentFinish, *, run_id: UUID, **kwargs: Any) -> Any:
         """Langchain callback when an agent finishes."""
@@ -394,26 +397,38 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         )
 
     async def on_tool_end(
-        self, output: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+        self, output: Any, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a tool node ends."""
-        await self._end_node(run_id, output=serialize_to_str(output))
+        if isinstance(output, dict) and "content" in output:
+            output = serialize_to_str(output["content"])
+        elif hasattr(output, "content"):
+            output = serialize_to_str(output.content)
+        else:
+            output = serialize_to_str(output)
+        await self._end_node(run_id, output=output)
 
     async def on_retriever_start(
-        self, query: str, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+        self,
+        serialized: dict[str, Any],
+        query: str,
+        *,
+        run_id: UUID,
+        parent_run_id: Optional[UUID] = None,
+        **kwargs: Any,
     ) -> Any:
         """Langchain callback when a retriever node starts."""
         await self._start_node("retriever", parent_run_id, run_id, name="Retriever", input=serialize_to_str(query))
 
     async def on_retriever_end(
-        self, response: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
+        self, documents: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a retriever node ends."""
         try:
-            serialized_response = json.loads(json.dumps(response, cls=EventSerializer))
+            serialized_response = json.loads(json.dumps(documents, cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize retriever output: {e}")
-            serialized_response = str(response)
+            serialized_response = str(documents)
 
         await self._end_node(run_id, output=serialized_response)
 

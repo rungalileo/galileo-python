@@ -133,6 +133,33 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].output == '{"result": "test answer"}'
 
     @mark.asyncio
+    async def test_on_chain_start_end_with_input_update(
+        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+    ):
+        """Test chain start and end callbacks with input update (streaming mode)"""
+        run_id = uuid.uuid4()
+
+        # Start chain
+        await callback.on_chain_start(serialized={"name": "TestChain"}, inputs="", run_id=run_id)
+
+        assert str(run_id) in callback._nodes
+        assert callback._nodes[str(run_id)].node_type == "chain"
+        assert callback._nodes[str(run_id)].span_params["input"] == ""
+
+        # End chain
+        await callback.on_chain_end(
+            outputs='{"result": "test answer"}', run_id=run_id, inputs={"query": "test question"}
+        )
+
+        traces = galileo_logger.traces
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        assert traces[0].spans[0].name == "TestChain"
+        assert traces[0].spans[0].type == "workflow"
+        assert traces[0].spans[0].input == '{"query": "test question"}'
+        assert traces[0].spans[0].output == '{"result": "test answer"}'
+
+    @mark.asyncio
     async def test_on_agent_chain(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
         """Test agent chain handling"""
         run_id = uuid.uuid4()
@@ -313,7 +340,7 @@ class TestGalileoAsyncCallback:
         ]
 
     @mark.asyncio
-    async def test_on_tool_start_end(self, callback: GalileoAsyncCallback):
+    async def test_on_tool_start_end_with_string_output(self, callback: GalileoAsyncCallback):
         """Test tool start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -330,10 +357,118 @@ class TestGalileoAsyncCallback:
         assert callback._nodes[str(run_id)].node_type == "tool"
         assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
 
-        # End tool
+        # End tool with a string output
         await callback.on_tool_end(output="4", run_id=run_id, parent_run_id=parent_id)
 
         assert callback._nodes[str(run_id)].span_params["output"] == "4"
+
+    @mark.asyncio
+    async def test_on_tool_start_end_with_object_output(self, callback: GalileoAsyncCallback):
+        """Test tool start and end callbacks"""
+        parent_id = uuid.uuid4()
+        run_id = uuid.uuid4()
+
+        # Create parent chain
+        await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+
+        # Start tool
+        await callback.on_tool_start(
+            serialized={"name": "calculator"}, input_str="2+2", run_id=run_id, parent_run_id=parent_id
+        )
+
+        assert str(run_id) in callback._nodes
+        assert callback._nodes[str(run_id)].node_type == "tool"
+        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
+
+        class ToolResponseWithContent:
+            def __init__(self, content, tool_call_id, status, role):
+                self.content = content
+                self.tool_call_id = tool_call_id
+                self.status = status
+                self.role = role
+
+        # End tool with an object output with a content field
+        await callback.on_tool_end(
+            output=ToolResponseWithContent(content="tool response", tool_call_id="1", status="success", role="tool"),
+            run_id=run_id,
+            parent_run_id=parent_id,
+        )
+
+        assert str(run_id) in callback._nodes
+        assert callback._nodes[str(run_id)].node_type == "tool"
+        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
+        assert callback._nodes[str(run_id)].span_params["output"] == "tool response"
+
+        # Start tool
+        await callback.on_tool_start(
+            serialized={"name": "calculator"}, input_str="2+2", run_id=run_id, parent_run_id=parent_id
+        )
+
+        class ToolResponseWithoutContent:
+            def __init__(self, tool_call_id, status, role):
+                self.tool_call_id = tool_call_id
+                self.status = status
+                self.role = role
+
+        # End tool with an object output without a content field
+        await callback.on_tool_end(
+            output=ToolResponseWithoutContent(tool_call_id="1", status="success", role="tool"),
+            run_id=run_id,
+            parent_run_id=parent_id,
+        )
+
+        assert str(run_id) in callback._nodes
+        assert callback._nodes[str(run_id)].node_type == "tool"
+        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
+        assert (
+            callback._nodes[str(run_id)].span_params["output"]
+            == '{"tool_call_id": "1", "status": "success", "role": "tool"}'
+        )
+
+    @mark.asyncio
+    async def test_on_tool_start_end_with_dict_output(self, callback: GalileoAsyncCallback):
+        """Test tool start and end callbacks"""
+        parent_id = uuid.uuid4()
+        run_id = uuid.uuid4()
+
+        # Create parent chain
+        await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+
+        # Start tool
+        await callback.on_tool_start(
+            serialized={"name": "calculator"}, input_str="2+2", run_id=run_id, parent_run_id=parent_id
+        )
+
+        assert str(run_id) in callback._nodes
+        assert callback._nodes[str(run_id)].node_type == "tool"
+        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
+
+        # End tool with a dict output with a content field
+        await callback.on_tool_end(
+            output={"content": "tool response", "tool_call_id": "1", "status": "success", "role": "tool"},
+            run_id=run_id,
+            parent_run_id=parent_id,
+        )
+
+        assert str(run_id) in callback._nodes
+        assert callback._nodes[str(run_id)].node_type == "tool"
+        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
+        assert callback._nodes[str(run_id)].span_params["output"] == "tool response"
+
+        # Start tool
+        await callback.on_tool_start(
+            serialized={"name": "calculator"}, input_str="2+2", run_id=run_id, parent_run_id=parent_id
+        )
+
+        # End tool with an object output without a content field
+        await callback.on_tool_end(
+            output={"tool_call_id": "1", "status": "success", "role": "tool"}, run_id=run_id, parent_run_id=parent_id
+        )
+
+        assert (
+            callback._nodes[str(run_id)].span_params["output"]
+            == '{"tool_call_id": "1", "status": "success", "role": "tool"}'
+        )
 
     @mark.asyncio
     async def test_on_retriever_start_end(self, callback: GalileoAsyncCallback):
@@ -345,7 +480,7 @@ class TestGalileoAsyncCallback:
         await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
 
         # Start retriever
-        await callback.on_retriever_start(query="AI development", run_id=run_id, parent_run_id=parent_id)
+        await callback.on_retriever_start(serialized={}, query="AI development", run_id=run_id, parent_run_id=parent_id)
 
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "retriever"
@@ -353,7 +488,7 @@ class TestGalileoAsyncCallback:
 
         # End retriever
         document = Document(page_content="AI is advancing rapidly", metadata={"source": "textbook"})
-        await callback.on_retriever_end(response=[document], run_id=run_id, parent_run_id=parent_id)
+        await callback.on_retriever_end(documents=[document], run_id=run_id, parent_run_id=parent_id)
 
         assert isinstance(callback._nodes[str(run_id)].span_params["output"], list)
         assert len(callback._nodes[str(run_id)].span_params["output"]) == 1
@@ -373,11 +508,13 @@ class TestGalileoAsyncCallback:
         )
 
         # Start retriever
-        await callback.on_retriever_start(query="latest AI research", run_id=retriever_id, parent_run_id=chain_id)
+        await callback.on_retriever_start(
+            serialized={}, query="latest AI research", run_id=retriever_id, parent_run_id=chain_id
+        )
 
         # End retriever
         document = Document(page_content="Recent advances in large language models...", metadata={"source": "paper"})
-        await callback.on_retriever_end(response=[document], run_id=retriever_id, parent_run_id=chain_id)
+        await callback.on_retriever_end(documents=[document], run_id=retriever_id, parent_run_id=chain_id)
 
         # Start LLM
         await callback.on_llm_start(
@@ -486,11 +623,11 @@ class TestGalileoAsyncCallback:
         await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=run_id)
 
         retriever_id = uuid.uuid4()
-        await callback.on_retriever_start(query="test query", run_id=retriever_id, parent_run_id=run_id)
+        await callback.on_retriever_start(serialized={}, query="test query", run_id=retriever_id, parent_run_id=run_id)
 
         # This should be handled gracefully
         with patch("json.dumps", side_effect=TypeError("Cannot serialize")):
-            await callback.on_retriever_end(response=[unserializable], run_id=retriever_id, parent_run_id=run_id)
+            await callback.on_retriever_end(documents=[unserializable], run_id=retriever_id, parent_run_id=run_id)
 
         # Node should still exist and output should be a string
         assert str(retriever_id) in callback._nodes
