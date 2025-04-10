@@ -1,3 +1,4 @@
+import json
 import mimetypes
 from typing import Any, Optional, Union, overload
 
@@ -466,4 +467,17 @@ def convert_dataset_content_to_records(dataset_content: DatasetContent):
     rows = dataset_content.rows
     if not rows:
         return []
-    return [row.additional_properties["values_dict"] for row in rows]
+
+    result = []
+    for row in rows:
+        row_values = row.additional_properties["values_dict"]
+        if "input" in row_values:
+            if isinstance(row_values["input"], str):
+                try:
+                    result.append(json.loads(row_values["input"]))
+                except json.decoder.JSONDecodeError:
+                    result.append(row_values["input"])
+        else:
+            result.append(row_values)
+
+    return result
