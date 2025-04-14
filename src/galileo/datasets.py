@@ -17,12 +17,11 @@ from galileo.resources.api.datasets import (
 )
 from galileo.resources.models import ListDatasetVersionParams, ListDatasetVersionResponse
 from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
+from galileo.resources.models.dataset_append_row import DatasetAppendRow
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.models.dataset_db import DatasetDB
 from galileo.resources.models.dataset_name_filter import DatasetNameFilter
 from galileo.resources.models.dataset_name_filter_operator import DatasetNameFilterOperator
-from galileo.resources.models.dataset_update_row import DatasetUpdateRow
-from galileo.resources.models.dataset_update_row_values import DatasetUpdateRowValues
 from galileo.resources.models.dataset_updated_at_sort import DatasetUpdatedAtSort
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.list_dataset_params import ListDatasetParams
@@ -96,14 +95,13 @@ class Dataset(BaseClientModel, DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        for row in row_data:
-            row_values = DatasetUpdateRow(values=DatasetUpdateRowValues.from_dict(row))
-            request = UpdateDatasetContentRequest(edits=[row_values])
-            response = update_dataset_content_datasets_dataset_id_content_patch.sync(
-                client=self.client, dataset_id=self.dataset.id, body=request
-            )
-            if isinstance(response, HTTPValidationError):
-                raise response
+        append_rows: list[DatasetAppendRow] = [DatasetAppendRow(values=row) for row in row_data]
+        request = UpdateDatasetContentRequest(edits=append_rows)
+        response = update_dataset_content_datasets_dataset_id_content_patch.sync(
+            client=self.client, dataset_id=self.dataset.id, body=request
+        )
+        if isinstance(response, HTTPValidationError):
+            raise response
 
         # Refresh the content
         self.get_content()

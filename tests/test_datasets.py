@@ -4,7 +4,10 @@ from unittest.mock import ANY, Mock, patch
 import pytest
 
 from galileo.datasets import (
+    Dataset,
     DatasetAPIException,
+    DatasetAppendRow,
+    UpdateDatasetContentRequest,
     convert_dataset_content_to_records,
     create_dataset,
     get_dataset_version,
@@ -270,3 +273,23 @@ def test_convert_dataset_content_to_records_empty_values_dict():
     row.additional_properties = {"values_dict": {}}
     content = DatasetContent(column_names=[], rows=[row])
     assert convert_dataset_content_to_records(content) == [{}]
+
+
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+@patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
+def test_dataset_add_rows(update_dataset_patch, get_dataset_content_patch):
+    mock_client = Mock()
+    mock_dataset_db = Mock(id="test_db")
+    dataset = Dataset(dataset_db=mock_dataset_db, client=mock_client)
+    dataset.add_rows([{"input": "b"}, {"input": "c"}])
+
+    update_dataset_patch.sync.assert_called_once_with(
+        client=mock_client,
+        dataset_id="test_db",
+        body=UpdateDatasetContentRequest(
+            edits=[
+                DatasetAppendRow(values={"input": "b"}, edit_type="append_row"),
+                DatasetAppendRow(values={"input": "c"}, edit_type="append_row"),
+            ]
+        ),
+    )
