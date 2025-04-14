@@ -18,6 +18,7 @@ from galileo.resources.api.datasets import (
 from galileo.resources.models import ListDatasetVersionParams, ListDatasetVersionResponse
 from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
 from galileo.resources.models.dataset_append_row import DatasetAppendRow
+from galileo.resources.models.dataset_append_row_values import DatasetAppendRowValues
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.models.dataset_db import DatasetDB
 from galileo.resources.models.dataset_name_filter import DatasetNameFilter
@@ -73,6 +74,22 @@ class Dataset(BaseClientModel, DecorateAllMethods):
 
         return content
 
+    def _get_etag(self) -> str | None:
+        """
+        ETag is returned in response headers of API endpoints of the format /datasets.*contents.*
+
+        This is a required parameter to be passed along with all dataset update requests to ensure
+        there isn't a version conflict during updates.
+        """
+        if not self.dataset:
+            return None
+
+        response = get_dataset_content_datasets_dataset_id_content_get.sync_detailed(
+            client=self.client, dataset_id=self.dataset.id
+        )
+
+        return response.headers.get("ETag")
+
     def add_rows(self, row_data: list[dict[str, Any]]) -> "Dataset":
         """
         Adds rows to the dataset.
@@ -95,10 +112,12 @@ class Dataset(BaseClientModel, DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        append_rows: list[DatasetAppendRow] = [DatasetAppendRow(values=row) for row in row_data]
+        append_rows: list[DatasetAppendRow] = [
+            DatasetAppendRow(values=DatasetAppendRowValues.from_dict(row)) for row in row_data
+        ]
         request = UpdateDatasetContentRequest(edits=append_rows)
         response = update_dataset_content_datasets_dataset_id_content_patch.sync(
-            client=self.client, dataset_id=self.dataset.id, body=request
+            client=self.client, dataset_id=self.dataset.id, body=request, if_match=self._get_etag()
         )
         if isinstance(response, HTTPValidationError):
             raise DatasetAPIException("Request to add new rows to dataset failed.")

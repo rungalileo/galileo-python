@@ -7,6 +7,7 @@ from galileo.datasets import (
     Dataset,
     DatasetAPIException,
     DatasetAppendRow,
+    DatasetAppendRowValues,
     UpdateDatasetContentRequest,
     convert_dataset_content_to_records,
     create_dataset,
@@ -276,30 +277,38 @@ def test_convert_dataset_content_to_records_empty_values_dict():
     assert convert_dataset_content_to_records(content) == [{}]
 
 
+@patch("galileo.datasets.Dataset._get_etag", return_value="test_etag")
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 @patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
-def test_dataset_add_rows_success(update_dataset_patch, get_dataset_content_patch):
+def test_dataset_add_rows_success(update_dataset_patch, get_dataset_content_patch, etag_patch):
     mock_client = Mock()
     dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
 
     dataset.add_rows([{"input": "b"}, {"input": "c"}])
 
+    expected_append_row_b = DatasetAppendRowValues()
+    expected_append_row_b.additional_properties = {"input": "b"}
+    expected_append_row_c = DatasetAppendRowValues()
+    expected_append_row_c.additional_properties = {"input": "c"}
     update_dataset_patch.sync.assert_called_once_with(
         client=mock_client,
         dataset_id="78e8035d-c429-47f2-8971-68f10e7e91c9",
         body=UpdateDatasetContentRequest(
             edits=[
-                DatasetAppendRow(values={"input": "b"}, edit_type="append_row"),
-                DatasetAppendRow(values={"input": "c"}, edit_type="append_row"),
+                DatasetAppendRow(values=expected_append_row_b, edit_type="append_row"),
+                DatasetAppendRow(values=expected_append_row_c, edit_type="append_row"),
             ]
         ),
+        if_match="test_etag",
     )
+    etag_patch.assert_called_once()
     get_dataset_content_patch.sync.assert_called_once()
 
 
+@patch("galileo.datasets.Dataset._get_etag", return_value="test_etag")
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 @patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
-def test_dataset_add_rows_failure(update_dataset_patch, get_dataset_content_patch):
+def test_dataset_add_rows_failure(update_dataset_patch, get_dataset_content_patch, etag_patch):
     update_dataset_patch.sync.return_value = HTTPValidationError()
 
     mock_client = Mock()
@@ -309,4 +318,5 @@ def test_dataset_add_rows_failure(update_dataset_patch, get_dataset_content_patc
     # exceptions and log them as errors in error log.
     dataset.add_rows([{"input": "b"}, {"input": "c"}])
 
+    etag_patch.assert_called_once()
     get_dataset_content_patch.sync.assert_not_called()
