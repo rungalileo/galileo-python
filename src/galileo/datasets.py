@@ -101,7 +101,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
             client=self.client, dataset_id=self.dataset.id, body=request
         )
         if isinstance(response, HTTPValidationError):
-            raise response
+            raise DatasetAPIException("Request to add new rows to dataset failed.")
 
         # Refresh the content
         self.get_content()

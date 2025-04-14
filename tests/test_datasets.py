@@ -25,6 +25,7 @@ from galileo.resources.models import (
     ListDatasetVersionParams,
     ListDatasetVersionResponse,
 )
+from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.types import Response
 
 
@@ -277,15 +278,15 @@ def test_convert_dataset_content_to_records_empty_values_dict():
 
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 @patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
-def test_dataset_add_rows(update_dataset_patch, get_dataset_content_patch):
+def test_dataset_add_rows_success(update_dataset_patch, get_dataset_content_patch):
     mock_client = Mock()
-    mock_dataset_db = Mock(id="test_db")
-    dataset = Dataset(dataset_db=mock_dataset_db, client=mock_client)
+    dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
+
     dataset.add_rows([{"input": "b"}, {"input": "c"}])
 
     update_dataset_patch.sync.assert_called_once_with(
         client=mock_client,
-        dataset_id="test_db",
+        dataset_id="78e8035d-c429-47f2-8971-68f10e7e91c9",
         body=UpdateDatasetContentRequest(
             edits=[
                 DatasetAppendRow(values={"input": "b"}, edit_type="append_row"),
@@ -293,3 +294,19 @@ def test_dataset_add_rows(update_dataset_patch, get_dataset_content_patch):
             ]
         ),
     )
+    get_dataset_content_patch.sync.assert_called_once()
+
+
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+@patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
+def test_dataset_add_rows_failure(update_dataset_patch, get_dataset_content_patch):
+    update_dataset_patch.sync.return_value = HTTPValidationError()
+
+    mock_client = Mock()
+    dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
+
+    # NOTE: This method raises an exception. The reason we don't see one here is we catch all
+    # exceptions and log them as errors in error log.
+    dataset.add_rows([{"input": "b"}, {"input": "c"}])
+
+    get_dataset_content_patch.sync.assert_not_called()
