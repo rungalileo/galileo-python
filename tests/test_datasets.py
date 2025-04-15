@@ -1,10 +1,15 @@
 from http import HTTPStatus
 from unittest.mock import ANY, Mock, patch
+from uuid import uuid4
 
 import pytest
 
 from galileo.datasets import (
+    Dataset,
     DatasetAPIException,
+    DatasetAppendRow,
+    DatasetAppendRowValues,
+    UpdateDatasetContentRequest,
     convert_dataset_content_to_records,
     create_dataset,
     get_dataset_version,
@@ -22,6 +27,7 @@ from galileo.resources.models import (
     ListDatasetVersionParams,
     ListDatasetVersionResponse,
 )
+from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.types import Response
 
 
@@ -270,3 +276,65 @@ def test_convert_dataset_content_to_records_empty_values_dict():
     row.additional_properties = {"values_dict": {}}
     content = DatasetContent(column_names=[], rows=[row])
     assert convert_dataset_content_to_records(content) == [{}]
+
+
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
+    mock_client = Mock()
+    dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
+
+    expected_etag: str = str(uuid4())
+    mock_response = Mock()
+    mock_response.headers = {"ETag": expected_etag}
+    get_dataset_content_by_id_patch.sync_detailed.return_value = mock_response
+
+    assert expected_etag == dataset._get_etag()
+    get_dataset_content_by_id_patch.sync_detailed.assert_called_once_with(
+        client=mock_client, dataset_id=dataset.dataset.id
+    )
+
+
+@patch("galileo.datasets.Dataset._get_etag", return_value="test_etag")
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+@patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
+def test_dataset_add_rows_success(update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock):
+    mock_client = Mock()
+    dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
+
+    dataset.add_rows([{"input": "b"}, {"input": "c"}])
+
+    expected_append_row_b = DatasetAppendRowValues()
+    expected_append_row_b.additional_properties = {"input": "b"}
+    expected_append_row_c = DatasetAppendRowValues()
+    expected_append_row_c.additional_properties = {"input": "c"}
+    update_dataset_patch.sync.assert_called_once_with(
+        client=mock_client,
+        dataset_id="78e8035d-c429-47f2-8971-68f10e7e91c9",
+        body=UpdateDatasetContentRequest(
+            edits=[
+                DatasetAppendRow(values=expected_append_row_b, edit_type="append_row"),
+                DatasetAppendRow(values=expected_append_row_c, edit_type="append_row"),
+            ]
+        ),
+        if_match="test_etag",
+    )
+    etag_patch.assert_called_once()
+    get_dataset_content_patch.sync.assert_called_once()
+
+
+@patch("galileo.datasets.Dataset._get_etag", return_value="test_etag")
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+@patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
+def test_dataset_add_rows_failure(update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock):
+    update_dataset_patch.sync.return_value = HTTPValidationError()
+
+    mock_client = Mock()
+    dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
+
+    # NOTE: This method raises an exception. The reason we don't see one here is we catch all
+    # exceptions and log them as errors in error log.
+    dataset.add_rows([{"input": "b"}, {"input": "c"}])
+
+    update_dataset_patch.sync.assert_called_once()
+    etag_patch.assert_called_once()
+    get_dataset_content_patch.sync.assert_not_called()

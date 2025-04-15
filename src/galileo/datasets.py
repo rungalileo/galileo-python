@@ -17,12 +17,12 @@ from galileo.resources.api.datasets import (
 )
 from galileo.resources.models import ListDatasetVersionParams, ListDatasetVersionResponse
 from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
+from galileo.resources.models.dataset_append_row import DatasetAppendRow
+from galileo.resources.models.dataset_append_row_values import DatasetAppendRowValues
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.models.dataset_db import DatasetDB
 from galileo.resources.models.dataset_name_filter import DatasetNameFilter
 from galileo.resources.models.dataset_name_filter_operator import DatasetNameFilterOperator
-from galileo.resources.models.dataset_update_row import DatasetUpdateRow
-from galileo.resources.models.dataset_update_row_values import DatasetUpdateRowValues
 from galileo.resources.models.dataset_updated_at_sort import DatasetUpdatedAtSort
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.list_dataset_params import ListDatasetParams
@@ -74,6 +74,22 @@ class Dataset(BaseClientModel, DecorateAllMethods):
 
         return content
 
+    def _get_etag(self) -> Optional[str]:
+        """
+        ETag is returned in response headers of API endpoints of the format /datasets.*contents.*
+
+        This is a required parameter to be passed along with all dataset update requests to ensure
+        there isn't a version conflict during updates.
+        """
+        if not self.dataset:
+            return None
+
+        response = get_dataset_content_datasets_dataset_id_content_get.sync_detailed(
+            client=self.client, dataset_id=self.dataset.id
+        )
+
+        return response.headers.get("ETag")
+
     def add_rows(self, row_data: list[dict[str, Any]]) -> "Dataset":
         """
         Adds rows to the dataset.
@@ -96,14 +112,15 @@ class Dataset(BaseClientModel, DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        for row in row_data:
-            row_values = DatasetUpdateRow(values=DatasetUpdateRowValues.from_dict(row))
-            request = UpdateDatasetContentRequest(edits=[row_values])
-            response = update_dataset_content_datasets_dataset_id_content_patch.sync(
-                client=self.client, dataset_id=self.dataset.id, body=request
-            )
-            if isinstance(response, HTTPValidationError):
-                raise response
+        append_rows: list[DatasetAppendRow] = [
+            DatasetAppendRow(values=DatasetAppendRowValues.from_dict(row)) for row in row_data
+        ]
+        request = UpdateDatasetContentRequest(edits=append_rows)
+        response = update_dataset_content_datasets_dataset_id_content_patch.sync(
+            client=self.client, dataset_id=self.dataset.id, body=request, if_match=self._get_etag()
+        )
+        if isinstance(response, HTTPValidationError):
+            raise DatasetAPIException("Request to add new rows to dataset failed.")
 
         # Refresh the content
         self.get_content()
