@@ -1,5 +1,6 @@
 from http import HTTPStatus
 from unittest.mock import ANY, Mock, patch
+from uuid import uuid4
 
 import pytest
 
@@ -277,10 +278,26 @@ def test_convert_dataset_content_to_records_empty_values_dict():
     assert convert_dataset_content_to_records(content) == [{}]
 
 
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
+    mock_client = Mock()
+    dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
+
+    expected_etag: str = str(uuid4())
+    mock_response = Mock()
+    mock_response.headers = {"ETag": expected_etag}
+    get_dataset_content_by_id_patch.sync_detailed.return_value = mock_response
+
+    assert expected_etag == dataset._get_etag()
+    get_dataset_content_by_id_patch.sync_detailed.assert_called_once_with(
+        client=mock_client, dataset_id=dataset.dataset.id
+    )
+
+
 @patch("galileo.datasets.Dataset._get_etag", return_value="test_etag")
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 @patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
-def test_dataset_add_rows_success(update_dataset_patch, get_dataset_content_patch, etag_patch):
+def test_dataset_add_rows_success(update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock):
     mock_client = Mock()
     dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
 
@@ -308,7 +325,7 @@ def test_dataset_add_rows_success(update_dataset_patch, get_dataset_content_patc
 @patch("galileo.datasets.Dataset._get_etag", return_value="test_etag")
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 @patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
-def test_dataset_add_rows_failure(update_dataset_patch, get_dataset_content_patch, etag_patch):
+def test_dataset_add_rows_failure(update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock):
     update_dataset_patch.sync.return_value = HTTPValidationError()
 
     mock_client = Mock()
@@ -318,5 +335,6 @@ def test_dataset_add_rows_failure(update_dataset_patch, get_dataset_content_patc
     # exceptions and log them as errors in error log.
     dataset.add_rows([{"input": "b"}, {"input": "c"}])
 
+    update_dataset_patch.sync.assert_called_once()
     etag_patch.assert_called_once()
     get_dataset_content_patch.sync.assert_not_called()
