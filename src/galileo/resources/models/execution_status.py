@@ -1,13 +1,3 @@
-from enum import Enum
-
-
-class ExecutionStatus(str, Enum):
-    ERROR = "error"
-    FAILED = "failed"
-    NOT_TRIGGERED = "not_triggered"
-    PAUSED = "paused"
-    TIMEOUT = "timeout"
-    TRIGGERED = "triggered"
-
-    def __str__(self) -> str:
-        return str(self.value)
+# flake: noqa: F401
+# ruff: noqa: F401
+from ..models.all_galileo_core_models import ExecutionStatus

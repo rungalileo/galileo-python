@@ -1,13 +1,3 @@
-from enum import Enum
-
-
-class AuthMethod(str, Enum):
-    AZURE_AD = "azure-ad"
-    CUSTOM = "custom"
-    EMAIL = "email"
-    GITHUB = "github"
-    GOOGLE = "google"
-    OKTA = "okta"
-
-    def __str__(self) -> str:
-        return str(self.value)
+# flake: noqa: F401
+# ruff: noqa: F401
+from ..models.all_galileo_core_models import AuthMethod

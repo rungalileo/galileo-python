@@ -44,7 +44,7 @@ def project():
     now = datetime.now()
     return Project(
         ProjectCreateResponse(
-            created_at=now, id=str(UUID(int=0)), updated_at=now, name="awesome-new-project", type_=ProjectType.GEN_AI
+            created_at=now, id=str(UUID(int=0)), updated_at=now, name="awesome-new-project", type_=ProjectType.gen_ai
         )
     )
 

@@ -17,7 +17,7 @@ def setup_mock_projects_client(mock_projects_client: Mock):
         return_value=Project(
             ProjectCreateResponse(
                 id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
-                type_=ProjectType.GEN_AI,
+                type_=ProjectType.gen_ai,
                 name="test",
                 created_at=now,
                 updated_at=now,
@@ -28,7 +28,7 @@ def setup_mock_projects_client(mock_projects_client: Mock):
         return_value=Project(
             ProjectCreateResponse(
                 id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
-                type_=ProjectType.GEN_AI,
+                type_=ProjectType.gen_ai,
                 name="test",
                 created_at=now,
                 updated_at=now,

@@ -1,11 +1,3 @@
-from enum import Enum
-
-
-class CollaboratorRole(str, Enum):
-    ANNOTATOR = "annotator"
-    EDITOR = "editor"
-    OWNER = "owner"
-    VIEWER = "viewer"
-
-    def __str__(self) -> str:
-        return str(self.value)
+# flake: noqa: F401
+# ruff: noqa: F401
+from ..models.all_galileo_core_models import CollaboratorRole
