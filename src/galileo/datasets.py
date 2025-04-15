@@ -74,7 +74,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
 
         return content
 
-    def _get_etag(self) -> str | None:
+    def _get_etag(self) -> Optional[str]:
         """
         ETag is returned in response headers of API endpoints of the format /datasets.*contents.*
 
