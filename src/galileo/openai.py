@@ -45,6 +45,7 @@ from datetime import datetime
 from inspect import isclass
 from typing import Any, Callable, Optional
 
+import httpx
 from pydantic import BaseModel
 from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
 
@@ -449,16 +450,22 @@ def _wrap(
         should_complete_trace = True
 
     try:
-        openai_response = wrapped(**arg_extractor.get_openai_args())
+        openai_response = None
+        status_code = httpx.codes.OK
+        try:
+            openai_response = wrapped(**arg_extractor.get_openai_args())
+        except openai.APIStatusError as exc:
+            status_code = exc.status_code
 
         if _is_streaming_response(openai_response):
-            # extract data from streaming reponse
+            # extract data from streaming response
             return ResponseGeneratorSync(
                 resource=open_ai_resource,
                 response=openai_response,
                 input_data=input_data,
                 logger=galileo_logger,
                 should_complete_trace=should_complete_trace,
+                status_code=status_code,
             )
         else:
             model, completion, usage = _extract_data_from_default_response(
@@ -488,12 +495,14 @@ def _wrap(
                 metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
                 # openai client library doesn't return http_status code, so we only can hardcode it here
                 # because we if we parsed and extracted data from response it means we get it and it's 200OK
-                status_code=200,
+                status_code=status_code,
             )
 
             # Conclude the trace if this is the top-level call
             if should_complete_trace:
-                galileo_logger.conclude(output=serialize_to_str(completion), duration_ns=duration_ns)
+                galileo_logger.conclude(
+                    output=serialize_to_str(completion), duration_ns=duration_ns, status_code=status_code
+                )
 
         return openai_response
     except Exception as ex:
@@ -523,7 +532,16 @@ class ResponseGeneratorSync:
         Whether to complete the trace when the generator is exhausted.
     """
 
-    def __init__(self, *, resource, response, input_data, logger: GalileoLogger, should_complete_trace: bool):
+    def __init__(
+        self,
+        *,
+        resource,
+        response,
+        input_data,
+        logger: GalileoLogger,
+        should_complete_trace: bool,
+        status_code: int = 200,
+    ):
         self.items = []
         self.resource = resource
         self.response = response
@@ -531,6 +549,7 @@ class ResponseGeneratorSync:
         self.logger = logger
         self.should_complete_trace = should_complete_trace
         self.completion_start_time = None
+        self.status_code = status_code
 
     def __iter__(self):
         try:
@@ -588,12 +607,12 @@ class ResponseGeneratorSync:
             num_output_tokens=usage.get("completion_tokens", 0),
             total_tokens=usage.get("total_tokens", 0),
             metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
-            status_code=200,
+            status_code=self.status_code,
         )
 
         # Conclude the trace if this is the top-level call
         if self.should_complete_trace:
-            self.logger.conclude(output=completion, duration_ns=duration_ns)
+            self.logger.conclude(output=completion, duration_ns=duration_ns, status_code=self.status_code)
 
 
 class OpenAIGalileo:
