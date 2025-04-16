@@ -451,11 +451,13 @@ def _wrap(
 
     try:
         openai_response = None
+        exc_info = None
         status_code = httpx.codes.OK
         try:
             openai_response = wrapped(**arg_extractor.get_openai_args())
         except openai.APIStatusError as exc:
             status_code = exc.status_code
+            exc_info = exc
 
         if _is_streaming_response(openai_response):
             # extract data from streaming response
@@ -504,6 +506,9 @@ def _wrap(
                     output=serialize_to_str(completion), duration_ns=duration_ns, status_code=status_code
                 )
 
+        # we want to re-raise exception after we process openai_response
+        if exc_info:
+            raise exc_info
         return openai_response
     except Exception as ex:
         _logger.error(f"Error while processing OpenAI request: {ex}")
