@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import httpx
 import pytest
-from httpx import Response
+from httpx import Response, Request
 from openai import Stream
 from openai.types.chat import ChatCompletionChunk
 
@@ -12,6 +12,9 @@ from galileo_core.schemas.logging.span import LlmSpan, WorkflowSpan
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 from tests.testutils.streaming import EventStream
 
+
+def openai_incorrect_api_key_error():
+    return b"{'error': {'message': 'Incorrect API key provided: sk-galil********. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}"
 
 @patch("openai.resources.chat.Completions.create")
 @patch("galileo.logger.LogStreams")
@@ -54,6 +57,7 @@ def test_basic_openai_call(
     payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
 
     assert len(payload.traces) == 1
+    assert payload.traces[0].status_code == 200
     assert len(payload.traces[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0], LlmSpan)
     assert payload.traces[0].spans[0].status_code == 200
@@ -106,6 +110,8 @@ def test_streamed_openai_call(
     payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
 
     assert len(payload.traces) == 1
+    assert payload.traces[0].status_code == 200
+
     assert len(payload.traces[0].spans) == 1
     assert isinstance(payload.traces[0].spans[0], LlmSpan)
     assert payload.traces[0].input == '[{"role": "user", "content": "Say this is a test"}]'
@@ -199,6 +205,42 @@ def test_openai_error_trace(
     payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     assert len(payload.traces) == 1
 
+
+@patch(
+    "openai.resources.chat.Completions.create",
+)
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_openai_error_trace_(
+        mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
+):
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    openai_create.side_effect = openai.APIStatusError("error", response=Response(status_code=401, content=b"", request=Request("GET", "url")), body=openai_incorrect_api_key_error())
+
+    # we want reset context and enable tracing for openai plugin
+    galileo_context.reset()
+    OpenAIGalileo().register_tracing()
+
+    def call_openai(model: str = "gpt-3.5-turbo"):
+        chat_completion = openai.chat.completions.create(
+            messages=[{"role": "user", "content": "Say this is a test"}], model=model
+        )
+        return chat_completion.choices[0].message.content
+
+    with pytest.raises(RuntimeError):
+        call_openai()
+
+    galileo_context.flush()
+
+    openai_create.assert_called_once()
+    mock_core_api_instance.ingest_traces_sync.assert_called()
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    assert len(payload.traces) == 1
+    assert payload.traces[0].status_code == 401
+    assert payload.traces[0].output == "<NoneType response returned from OpenAI>"
 
 @patch(
     "openai.resources.chat.Completions.create",
