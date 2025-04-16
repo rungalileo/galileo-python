@@ -353,10 +353,8 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
 
     def shutdown(self) -> None:
         """Called when the application stops. Flushes any remaining logs."""
-        self._commit()
         self._galileo_logger.flush()
 
     def force_flush(self) -> None:
         """Forces an immediate flush of all queued traces/spans."""
-        self._commit()
         self._galileo_logger.flush()
