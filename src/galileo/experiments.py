@@ -47,12 +47,14 @@ class Experiments(BaseClientModel):
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
 
         experiment = create_experiment_v2_projects_project_id_experiments_post.sync(
-            project_id=project_id, client=self.client, body=body # type: ignore
+            project_id=project_id,
+            client=self.client,
+            body=body,  # type: ignore
         )
 
         return experiment
 
-    def get(self, project_id: str, experiment_name: str) -> Optional[ExperimentResponse | HTTPValidationError]:
+    def get(self, project_id: str, experiment_name: str) -> Optional[ExperimentResponse]:
         experiments = self.list(project_id=project_id)
 
         if experiments is None or isinstance(experiments, HTTPValidationError):
@@ -64,7 +66,9 @@ class Experiments(BaseClientModel):
 
         return None
 
-    def get_or_create(self, project_id: str, experiment_name: str) -> Optional[ExperimentResponse | HTTPValidationError]:
+    def get_or_create(
+        self, project_id: str, experiment_name: str
+    ) -> Optional[ExperimentResponse | HTTPValidationError]:
         experiment = self.get(project_id, experiment_name)
         if not experiment:
             experiment = self.create(project_id, experiment_name)
@@ -192,7 +196,7 @@ def run_experiment(
     prompt_template: Optional[PromptTemplate] = None,
     prompt_settings: Optional[PromptRunSettings] = None,
     project: Optional[str] = None,
-    dataset: Union[Dataset, list[dict[str, str]], str] = None,
+    dataset: Optional[Dataset, list[dict[str, str]], str] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
     metrics: Optional[list[str]] = None,
@@ -334,13 +338,15 @@ def _get_dataset_and_records_by_name(dataset_name: str) -> tuple[Dataset, list[d
     return dataset, records
 
 
-def create_experiment(project_id: str, experiment_name: str):
+def create_experiment(
+    project_id: str, experiment_name: str
+) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
     return Experiments().create(project_id, experiment_name)
 
 
-def get_experiment(project_id, experiment_name):
+def get_experiment(project_id, experiment_name) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
     return Experiments().get(project_id, experiment_name)
 
 
-def get_experiments(project_id: str):
+def get_experiments(project_id: str) -> Optional[HTTPValidationError | list[ExperimentResponse]]:
     return Experiments().list(project_id=project_id)
