@@ -1,10 +1,3 @@
-from enum import Enum
-
-
-class GroupVisibility(str, Enum):
-    HIDDEN = "hidden"
-    PRIVATE = "private"
-    PUBLIC = "public"
-
-    def __str__(self) -> str:
-        return str(self.value)
+# flake: noqa: F401
+# ruff: noqa: F401
+from ..models.all_galileo_core_models import GroupVisibility

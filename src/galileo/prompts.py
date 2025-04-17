@@ -2,7 +2,6 @@ import builtins
 import logging
 from typing import Optional, Union
 
-from galileo import Message
 from galileo.base import BaseClientModel
 from galileo.projects import Projects
 from galileo.resources.api.prompts import (
@@ -14,6 +13,7 @@ from galileo.resources.models import (
     BasePromptTemplateResponse,
     CreatePromptTemplateWithVersionRequestBody,
     HTTPValidationError,
+    Message,
 )
 from galileo.utils.exceptions import APIException
 

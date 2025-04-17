@@ -44,7 +44,7 @@ class Project:
         bookmark (Union[Unset, bool]): Whether the project is bookmarked. Defaults to False.
         name (Union[None, Unset, str]): The name of the project.
         permissions (Union[Unset, list["Permission"]]): The permissions associated with the project.
-        type (Union[None, ProjectType, Unset]): The type of the project, typically GEN_AI.
+        type (Union[None, ProjectType, Unset]): The type of the project, typically gen_ai.
 
     Examples:
          from galileo.projects import get_project, create_project, list_projects
@@ -116,7 +116,7 @@ class Projects(BaseClientModel, DecorateAllMethods):
 
         """
         projects: list[ProjectDBThin] = get_all_projects_projects_all_get.sync(
-            client=self.client, type_=ProjectType.GEN_AI
+            client=self.client, type_=ProjectType.gen_ai
         )
         return [Project(project=project) for project in projects] if projects else []
 
@@ -164,7 +164,7 @@ class Projects(BaseClientModel, DecorateAllMethods):
 
         elif name:
             detailed_response = get_projects_projects_get.sync_detailed(
-                client=self.client, project_name=name, type_=ProjectType.GEN_AI
+                client=self.client, project_name=name, type_=ProjectType.gen_ai
             )
 
             if detailed_response.status_code != httpx.codes.OK:
@@ -201,7 +201,7 @@ class Projects(BaseClientModel, DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        body = ProjectCreate(name=name, type_=ProjectType.GEN_AI, create_example_templates=False, created_by=None)
+        body = ProjectCreate(name=name, type_=ProjectType.gen_ai, create_example_templates=False, created_by=None)
 
         detailed_response = create_project_projects_post.sync_detailed(client=self.client, body=body)
 

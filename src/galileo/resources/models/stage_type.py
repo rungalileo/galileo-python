@@ -1,9 +1,3 @@
-from enum import Enum
-
-
-class StageType(str, Enum):
-    CENTRAL = "central"
-    LOCAL = "local"
-
-    def __str__(self) -> str:
-        return str(self.value)
+# flake: noqa: F401
+# ruff: noqa: F401
+from ..models.all_galileo_core_models import StageType
