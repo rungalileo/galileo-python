@@ -429,7 +429,7 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
     return Datasets().create(name=name, content=content)
 
 
-def get_dataset_version_history(
+def get_dataset_version_history(*,
     dataset_name: str = None, dataset_id: str = None
 ) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
     """
@@ -457,13 +457,14 @@ def get_dataset_version_history(
         dataset = Datasets().get(name=dataset_name)
         return dataset.get_version_history()
 
-    if dataset_id is not None:
+    elif dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
         return dataset.get_version_history()
-
+    else:
+        raise ValueError("Exactly one of 'dataset_name' or 'dataset_id' must be provided")
 
 def get_dataset_version(
-    version_index: int, dataset_name: str = None, dataset_id: str = None
+    *, version_index: int, dataset_name: str = None, dataset_id: str = None
 ) -> Optional[DatasetContent]:
     """
     Retrieves a dataset version by dataset name or dataset id.
@@ -490,10 +491,11 @@ def get_dataset_version(
         dataset = Datasets().get(name=dataset_name)
         return dataset.load_version(version_index)
 
-    if dataset_id is not None:
+    elif dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
         return dataset.load_version(version_index)
-
+    else:
+        raise ValueError("Exactly one of 'dataset_name' or 'dataset_id' must be provided")
 
 def convert_dataset_content_to_records(dataset_content: Optional[DatasetContent]) -> list[Any]:
     if dataset_content is None:

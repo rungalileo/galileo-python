@@ -207,7 +207,7 @@ class TestExperiments:
 
         assert records == [{"expected": "Europe", "input": "Which continent is Spain in?"}]
 
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000")
         mock_get_dataset_instance.get_content.assert_called()
 
     @patch.object(galileo.datasets.Datasets, "get")
@@ -216,7 +216,7 @@ class TestExperiments:
         dataset_id = str(UUID(int=0))
         with pytest.raises(ValueError) as exc_info:
             _get_dataset_and_records_by_id(dataset_id=dataset_id)
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000")
         assert str(exc_info.value) == "Dataset with id 00000000-0000-0000-0000-000000000000 does not exist"
 
     @patch.object(galileo.datasets.Datasets, "get")
@@ -227,7 +227,7 @@ class TestExperiments:
         _, records = _get_dataset_and_records_by_name(dataset_name="awesome-dataset")
         assert records == [{"expected": "Europe", "input": "Which continent is Spain in?"}]
 
-        mock_get_dataset.assert_called_once_with(id=None, name="awesome-dataset")
+        mock_get_dataset.assert_called_once_with(name="awesome-dataset")
         mock_get_dataset_instance.get_content.assert_called()
 
     @patch.object(galileo.datasets.Datasets, "get")
@@ -236,7 +236,7 @@ class TestExperiments:
 
         with pytest.raises(ValueError) as exc_info:
             _get_dataset_and_records_by_name(dataset_name="awesome-dataset")
-        mock_get_dataset.assert_called_once_with(id=None, name="awesome-dataset")
+        mock_get_dataset.assert_called_once_with(name="awesome-dataset")
         assert str(exc_info.value) == "Dataset with name awesome-dataset does not exist"
 
     @pytest.mark.parametrize(
@@ -249,7 +249,11 @@ class TestExperiments:
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
         _, records = _load_dataset_and_records(dataset=dataset, dataset_name=dataset_name, dataset_id=dataset_id)
         assert records == [{"expected": "Europe", "input": "Which continent is Spain in?"}]
-        mock_get_dataset.assert_called_once_with(id=dataset_id, name=dataset_name or dataset)
+        if dataset_id:
+            mock_get_dataset.assert_called_once_with(id=dataset_id)
+        elif dataset_name:
+            mock_get_dataset.assert_called_once_with(name=dataset_name)
+
 
     def test_load_dataset_and_records_error(self):
         with pytest.raises(ValueError) as exc_info:
@@ -288,7 +292,7 @@ class TestExperiments:
         mock_create_experiment.assert_called_once_with(
             project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000"
         )
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000")
         mock_get_dataset_instance.get_content.assert_called()
         mock_create_job.assert_called_once_with(
             name="playground_run",
@@ -342,7 +346,7 @@ class TestExperiments:
         mock_get_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", "test_experiment")
         mock_create_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", ANY)
 
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-4000-8000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(id="00000000-0000-4000-8000-000000000000")
         mock_get_dataset_instance.get_content.assert_called()
 
         # check galileo_logger
@@ -388,7 +392,7 @@ class TestExperiments:
         mock_create_experiment.assert_called_once_with(
             project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000"
         )
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000")
         mock_get_dataset_instance.get_content.assert_called()
         mock_scorers_list.assert_called_with()
         mock_scorersettings_create.assert_called_with(
@@ -432,7 +436,7 @@ class TestExperiments:
             project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000"
         )
 
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000")
         mock_get_dataset_instance.get_content.assert_called()
         mock_create_job.assert_called_once_with(
             name="playground_run",
@@ -490,7 +494,7 @@ class TestExperiments:
         mock_get_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", "test_experiment")
         mock_create_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", ANY)
 
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000")
         mock_get_dataset_instance.get_content.assert_called()
 
         # check galileo_logger
@@ -517,7 +521,7 @@ class TestExperiments:
             )
         assert str(exc_info.value) == "A function or prompt_template should be provided, but not both"
 
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000001", name=None)
+        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000001")
         mock_get_dataset_instance.get_content.assert_called()
 
     def test_run_experiment_with_prompt_template_and_local_dataset(self):

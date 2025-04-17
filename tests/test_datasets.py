@@ -162,7 +162,7 @@ def test_get_dataset_version_using_dataset_id(
     get_dataset_datasets_dataset_id_get.sync.return_value = dataset_db()
     get_dataset_version_mock.sync.return_value = dataset_content()
 
-    result = get_dataset_version(1, dataset_id="78e8035d-c429-47f2-8971-68f10e7e91c9")
+    result = get_dataset_version(version_index=1, dataset_id="78e8035d-c429-47f2-8971-68f10e7e91c9")
     assert result == dataset_content()
 
     get_dataset_datasets_dataset_id_get.sync.assert_called_once_with(
@@ -181,7 +181,7 @@ def test_get_dataset_version_using_dataset_name(
     query_datasets_datasets_query_post.sync.return_value = dataset_response()
     get_dataset_version_mock.sync.return_value = dataset_content()
 
-    result = get_dataset_version(1, dataset_name="test")
+    result = get_dataset_version(version_index=1, dataset_name="test")
     assert result == dataset_content()
 
     ds_name_filter = DatasetNameFilter(operator=DatasetNameFilterOperator.EQ, value="test")
