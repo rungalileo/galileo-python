@@ -430,9 +430,6 @@ def _is_streaming_response(response):
 def _wrap(
     open_ai_resource: OpenAiModuleDefinition, initialize: Callable, wrapped: Callable, args: dict, kwargs: dict
 ) -> Any:
-    # Retrieve the decorator context
-    decorator_context_trace = galileo_context.get_current_trace()
-
     start_time = _get_timestamp()
     arg_extractor = OpenAiArgsExtractor(*args, **kwargs)
 
@@ -441,7 +438,7 @@ def _wrap(
     galileo_logger: GalileoLogger = initialize()
 
     should_complete_trace = False
-    if decorator_context_trace:
+    if galileo_logger.current_parent():
         pass
     else:
         # If we don't have an active trace, start a new trace
