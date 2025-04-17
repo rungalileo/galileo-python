@@ -1,4 +1,4 @@
-from typing import Union, Optional
+from typing import Optional, Union
 
 from galileo.base import BaseClientModel
 from galileo.resources.api.data import list_scorers_with_filters_scorers_list_post
@@ -6,12 +6,14 @@ from galileo.resources.api.run_scorer_settings import (
     upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_post,
 )
 from galileo.resources.models import (
+    HTTPValidationError,
     ListScorersRequest,
     RunScorerSettingsRequest,
     ScorerConfig,
+    ScorerResponse,
     ScorerTypeFilter,
     ScorerTypeFilterOperator,
-    ScorerTypes, HTTPValidationError, ScorerResponse,
+    ScorerTypes,
 )
 from galileo.resources.types import Unset
 
@@ -32,7 +34,9 @@ class Scorers(BaseClientModel):
 
 
 class ScorerSettings(BaseClientModel):
-    def create(self, project_id: str, run_id: str, scorers: list[ScorerConfig]) -> Optional[Union[HTTPValidationError, RunScorerSettingsRequest]]:
+    def create(
+        self, project_id: str, run_id: str, scorers: list[ScorerConfig]
+    ) -> Optional[Union[HTTPValidationError, RunScorerSettingsRequest]]:
         """
         Args:
             project_id: ID of the project

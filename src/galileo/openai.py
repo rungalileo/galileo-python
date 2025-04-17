@@ -40,10 +40,11 @@ with galileo_context(project="my-project", log_stream="my-log-stream"):
 import logging
 import types
 from collections import defaultdict
+from collections.abc import Generator, Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from inspect import isclass
-from typing import Any, Callable, Optional, Tuple, Iterable, Generator, Union
+from typing import Any, Callable, Optional, Union
 
 import httpx
 from pydantic import BaseModel

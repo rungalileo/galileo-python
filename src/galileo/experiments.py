@@ -73,7 +73,7 @@ class Experiments(BaseClientModel):
 
     def get_or_create(
         self, project_id: str, experiment_name: str
-    ) -> Optional[ExperimentResponse | HTTPValidationError]:
+    ) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
         experiment = self.get(project_id, experiment_name)
         if not experiment:
             experiment = self.create(project_id, experiment_name)
@@ -201,7 +201,7 @@ def run_experiment(
     prompt_template: Optional[PromptTemplate] = None,
     prompt_settings: Optional[PromptRunSettings] = None,
     project: Optional[str] = None,
-    dataset: Optional[Dataset | list[dict[str, str]] | str] = None,
+    dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
     metrics: Optional[list[str]] = None,
@@ -363,5 +363,5 @@ def get_experiment(project_id: str, experiment_name: str) -> Optional[Union[Expe
     return Experiments().get(project_id, experiment_name)
 
 
-def get_experiments(project_id: str) -> Optional[HTTPValidationError | list[ExperimentResponse]]:
+def get_experiments(project_id: str) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:
     return Experiments().list(project_id=project_id)

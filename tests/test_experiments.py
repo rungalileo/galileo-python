@@ -254,7 +254,6 @@ class TestExperiments:
         elif dataset_name:
             mock_get_dataset.assert_called_once_with(name=dataset_name)
 
-
     def test_load_dataset_and_records_error(self):
         with pytest.raises(ValueError) as exc_info:
             _load_dataset_and_records(dataset=None, dataset_name=None, dataset_id=None)

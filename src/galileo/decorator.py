@@ -543,7 +543,9 @@ class GalileoDecorator:
         # Serialize and deserialize to ensure proper JSON serialization.
         return json.loads(json.dumps(raw_input, cls=EventSerializer))
 
-    def _finalize_call(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any) -> Union[Generator, AsyncGenerator, Any]:
+    def _finalize_call(
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any
+    ) -> Union[Generator, AsyncGenerator, Any]:
         """
         Finalize the call logging by handling the result appropriately.
 

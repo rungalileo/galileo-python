@@ -36,7 +36,8 @@ def type_check(ctx: Context) -> None:
         "--exclude galileo.logger "
         "--exclude galileo.api_client "
         "--namespace-packages",
-            echo=True)
+        echo=True,
+    )
 
 
 @task
