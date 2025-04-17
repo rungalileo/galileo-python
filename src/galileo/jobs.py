@@ -1,4 +1,5 @@
 import logging
+from typing import Optional
 
 from galileo.base import BaseClientModel
 from galileo.resources.api.jobs import create_job_jobs_post
@@ -16,7 +17,7 @@ class Jobs(BaseClientModel):
         dataset_id: str,
         prompt_template_id: str,
         task_type: TaskType,
-        scorers: list[ScorerConfig],
+        scorers: Optional[list[ScorerConfig]],
         prompt_settings: PromptRunSettings,
     ) -> CreateJobResponse:
         create_params = dict(

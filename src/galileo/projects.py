@@ -251,7 +251,12 @@ def get_project(*, id: Optional[str] = None, name: Optional[str] = None) -> Opti
         If the request takes longer than Client.timeout.
 
     """
-    return Projects().get(id=id, name=name)
+    if id is not None:
+        return Projects().get(id=id)
+    elif name is not None:
+        return Projects().get(name=name)
+    else:
+        raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
 
 def list_projects() -> list[Project]:
