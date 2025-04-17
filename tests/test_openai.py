@@ -321,3 +321,41 @@ def test_galileo_api_client_transport_error_not_blocking_user_code(
 
     mock_projects_client.assert_called_once()
     openai_create.assert_called_once()
+
+
+@patch("openai.resources.chat.Completions.create")
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_openai_calls_in_active_trace(
+    mock_core_api_client: Mock,
+    mock_projects_client: Mock,
+    mock_logstreams_client: Mock,
+    openai_create,
+    create_chat_completion,
+):
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    openai_create.return_value = create_chat_completion
+
+    galileo_context.reset()
+    OpenAIGalileo().register_tracing()
+
+    logger = galileo_context.get_logger_instance()
+    logger.start_trace("test trace")
+
+    openai.chat.completions.create(messages=[{"role": "user", "content": "Say this is a test"}], model="gpt-4o-mini")
+    openai.chat.completions.create(
+        messages=[{"role": "user", "content": "Say this is a second test"}], model="gpt-4o-mini"
+    )
+
+    logger.conclude(output="trace completed", duration_ns=1000)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 2
+    assert payload.traces[0].spans[0].type == "llm"
+    assert payload.traces[0].spans[1].type == "llm"
