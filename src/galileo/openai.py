@@ -43,7 +43,7 @@ from collections import defaultdict
 from dataclasses import dataclass
 from datetime import datetime
 from inspect import isclass
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Tuple
 
 import httpx
 from pydantic import BaseModel
@@ -332,7 +332,7 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
     return model, completion, usage
 
 
-def _extract_streamed_openai_response(resource, chunks):
+def _extract_streamed_openai_response(resource, chunks) -> Any:
     completion = defaultdict(str) if resource.type == "chat" else ""
     model, usage = None, None
 
@@ -415,7 +415,7 @@ def _extract_streamed_openai_response(resource, chunks):
             or None
         )
 
-    return (model, get_response_for_chat() if resource.type == "chat" else completion, usage)
+    return model, get_response_for_chat() if resource.type == "chat" else completion, usage
 
 
 def _is_openai_v1() -> bool:

@@ -25,7 +25,7 @@ def test(ctx: Context) -> None:
 
 @task
 def type_check(ctx: Context) -> None:
-    ctx.run("poetry run mypy --package galileo --exclude galileo.resources --namespace-packages", echo=True)
+    ctx.run("poetry run mypy --package galileo --exclude galileo.resources --namespace-packages" , echo=True)
 
 
 @task
