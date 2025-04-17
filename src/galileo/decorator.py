@@ -278,7 +278,7 @@ class GalileoDecorator:
         """
 
         @wraps(func)
-        async def async_wrapper(*args, **kwargs):
+        async def async_wrapper(*args, **kwargs) -> Any:
             span_params = self._prepare_input(
                 func=func,
                 name=name or func.__name__,
@@ -325,7 +325,7 @@ class GalileoDecorator:
         """
 
         @wraps(func)
-        def sync_wrapper(*args, **kwargs):
+        def sync_wrapper(*args, **kwargs) -> Any:
             span_params = self._prepare_input(
                 func=func,
                 name=name or func.__name__,
@@ -493,7 +493,7 @@ class GalileoDecorator:
         }
         return span_params.get(span_type, common_params)
 
-    def _prepare_call(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str]):
+    def _prepare_call(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str]) -> None:
         """
         Prepare the call for logging by setting up trace and span contexts.
 
@@ -543,7 +543,7 @@ class GalileoDecorator:
         # Serialize and deserialize to ensure proper JSON serialization.
         return json.loads(json.dumps(raw_input, cls=EventSerializer))
 
-    def _finalize_call(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any):
+    def _finalize_call(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any) -> Union[Generator, AsyncGenerator, Any]:
         """
         Finalize the call logging by handling the result appropriately.
 
@@ -565,7 +565,7 @@ class GalileoDecorator:
         else:
             return self._handle_call_result(span_type, span_params, result)
 
-    def _handle_call_result(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any):
+    def _handle_call_result(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any) -> Any:
         """
         Handle the result of a function call for logging.
 

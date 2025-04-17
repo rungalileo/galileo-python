@@ -227,6 +227,9 @@ class Datasets(BaseClientModel):
 
             dataset = Dataset(dataset_db=datasets_response.datasets[0], client=self.client)
 
+        else:
+            raise ValueError("Exactly one of 'id' or 'name' must be provided")
+
         if with_content:
             dataset.get_content()
         return dataset
@@ -455,10 +458,14 @@ def get_dataset_version_history(*,
 
     if dataset_name is not None:
         dataset = Datasets().get(name=dataset_name)
+        if dataset is None:
+            raise ValueError("Dataset '{}' not found".format(dataset_name))
         return dataset.get_version_history()
 
     elif dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
+        if dataset is None:
+            raise ValueError("Dataset '{}' not found".format(dataset_id))
         return dataset.get_version_history()
     else:
         raise ValueError("Exactly one of 'dataset_name' or 'dataset_id' must be provided")
@@ -489,10 +496,14 @@ def get_dataset_version(
 
     if dataset_name is not None:
         dataset = Datasets().get(name=dataset_name)
+        if dataset is None:
+            raise ValueError("Dataset '{}' not found".format(dataset_name))
         return dataset.load_version(version_index)
 
     elif dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
+        if dataset is None:
+            raise ValueError("Dataset '{}' not found".format(dataset_id))
         return dataset.load_version(version_index)
     else:
         raise ValueError("Exactly one of 'dataset_name' or 'dataset_id' must be provided")
