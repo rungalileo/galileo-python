@@ -480,7 +480,10 @@ def get_dataset_version(
         return dataset.load_version(version_index)
 
 
-def convert_dataset_content_to_records(dataset_content: DatasetContent) -> list[Any]:
+def convert_dataset_content_to_records(dataset_content: Optional[DatasetContent]) -> list[Any]:
+    if dataset_content is None:
+        return []
+
     rows = dataset_content.rows
     if not rows:
         return []

@@ -13,13 +13,13 @@ from agents import (
 )
 from agents.tracing import ResponseSpanData
 
-from galileo.schema.handlers import LANGCHAIN_NODE_TYPE
+from galileo.schema.handlers import SPAN_TYPE
 from galileo.utils.serialization import serialize_to_str
 
 _logger = logging.getLogger(__name__)
 
 
-def _map_span_type(span_data: SpanData) -> LANGCHAIN_NODE_TYPE:
+def _map_span_type(span_data: SpanData) -> SPAN_TYPE:
     """Determine the Galileo span type based on the OpenAI Agent span data."""
     if isinstance(span_data, (GenerationSpanData, ResponseSpanData)):
         return "llm"
@@ -80,7 +80,7 @@ def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Union[int, Non
     for key in parsed:
         if parsed[key] is not None:
             try:
-                parsed[key] = int(parsed[key])
+                parsed[key] = int(parsed[key])  # type: ignore[arg-type]
             except (ValueError, TypeError):
                 _logger.warning(f"Could not convert usage value '{parsed[key]}' for key '{key}' to int.")
                 parsed[key] = None  # Reset if conversion fails

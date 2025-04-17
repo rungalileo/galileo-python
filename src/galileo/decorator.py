@@ -846,6 +846,7 @@ class GalileoDecorator:
         Args:
             project: The project name. Defaults to None.
             log_stream: The log stream name. Defaults to None.
+            experiment_id: The experiment id. Defaults to None.
         """
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
         _project_context.set(project)

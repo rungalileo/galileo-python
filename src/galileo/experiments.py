@@ -43,14 +43,19 @@ class ExperimentCreateRequest:
 
 
 class Experiments(BaseClientModel):
-    def create(self, project_id: str, name: str) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
+    def create(self, project_id: str, name: str) -> ExperimentResponse:
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
 
         experiment = create_experiment_v2_projects_project_id_experiments_post.sync(
             project_id=project_id,
             client=self.client,
-            body=body,  # type: ignore
+            body=body,  # type: ignore[arg-type]
         )
+        if experiment is None:
+            raise ValueError("experiment is None")
+
+        if isinstance(experiment, HTTPValidationError):
+            raise ValueError(experiment.detail)
 
         return experiment
 
@@ -107,7 +112,7 @@ class Experiments(BaseClientModel):
         experiment_obj: ExperimentResponse,
         prompt_template: PromptTemplate,
         dataset_id: str,
-        scorers: builtins.list[ScorerConfig],
+        scorers: Optional[builtins.list[ScorerConfig]],
         prompt_settings: Optional[PromptRunSettings] = None,
     ) -> dict[str, Any]:
         if prompt_settings is None:
@@ -157,7 +162,7 @@ class Experiments(BaseClientModel):
         func: Callable,
     ) -> dict[str, Any]:
         results = []
-        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id)
+        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id)  # type: ignore[arg-type]
 
         logged_process_func = log(name=experiment_obj.name)(func)
 
@@ -178,7 +183,7 @@ class Experiments(BaseClientModel):
         return {"experiment": experiment_obj, "link": link, "message": message}
 
 
-def process_row(row, process_func: Callable):
+def process_row(row: dict[str, str], process_func: Callable) -> str:
     _logger.info(f"Processing dataset row: {row}")
     try:
         output = process_func(row)
@@ -196,7 +201,7 @@ def run_experiment(
     prompt_template: Optional[PromptTemplate] = None,
     prompt_settings: Optional[PromptRunSettings] = None,
     project: Optional[str] = None,
-    dataset: Optional[Dataset, list[dict[str, str]], str] = None,
+    dataset: Optional[Dataset | list[dict[str, str]] | str] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
     metrics: Optional[list[str]] = None,
@@ -228,6 +233,10 @@ def run_experiment(
     Raises:
         ValueError: If required parameters are missing or invalid
     """
+    # Get project
+    if project is None:
+        raise ValueError("A project name must be provided")
+
     # Load dataset and records
     dataset_obj, records = _load_dataset_and_records(dataset, dataset_id, dataset_name)
 
@@ -262,14 +271,20 @@ def run_experiment(
 
     experiment_obj = Experiments().create(project_obj.id, experiment_name)
 
+    # Execute a runner function experiment
+    if function is not None:
+        return Experiments().run_with_function(project_obj, experiment_obj, records, function)
+
+    if prompt_template is None:
+        raise ValueError("A prompt template must be provided")
+
+    if dataset_obj is None:
+        raise ValueError("A dataset object must be provided")
+
     # Set up metrics if provided
     scorer_settings = None
     if metrics is not None:
         scorer_settings = Experiments.create_run_scorer_settings(project_obj.id, experiment_obj.id, metrics)
-
-    # Execute a runner function experiment
-    if function is not None:
-        return Experiments().run_with_function(project_obj, experiment_obj, records, function)
 
     # Execute a prompt template experiment
     return Experiments().run(
@@ -344,7 +359,7 @@ def create_experiment(
     return Experiments().create(project_id, experiment_name)
 
 
-def get_experiment(project_id, experiment_name) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
+def get_experiment(project_id: str, experiment_name: str) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
     return Experiments().get(project_id, experiment_name)
 
 
