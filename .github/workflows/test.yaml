@@ -37,8 +37,7 @@ jobs:
 
       - name: Validate Types
         run: |
-          ls -la
-          poetry run mypy --config-file pyproject.toml
+          invoke type-check
 
       - name: Run Tests
         run: invoke test-report-xml
