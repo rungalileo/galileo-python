@@ -25,7 +25,7 @@ import yaml
 def filter_sensitive_defaults(data):
     # Get the schemas section
     schemas = data.get('components', {}).get('schemas', {})
-    
+
     # List of schemas and their properties with sensitive defaults to remove
     sensitive_paths = [
         ('AgenticWorkflowSuccessTemplate', ['metric_system_prompt', 'template']),
@@ -43,7 +43,7 @@ def filter_sensitive_defaults(data):
         ('ToolSelectionQualityTemplate', ['metric_system_prompt', 'template']),
         # Add more schema/property combinations as needed
     ]
-    
+
     # Process each schema and its properties
     for schema_name, properties in sensitive_paths:
         if schema_name in schemas and 'properties' in schemas[schema_name]:
@@ -54,17 +54,17 @@ def filter_sensitive_defaults(data):
                     if 'default' in schema_props[prop]:
                         print(f"Removing default value from {schema_name}.{prop}", file=sys.stderr)
                         del schema_props[prop]['default']
-                        
+
                     # If the property contains examples with sensitive content
                     if 'examples' in schema_props[prop]:
                         print(f"Removing examples from {schema_name}.{prop}", file=sys.stderr)
                         del schema_props[prop]['examples']
-                    
+
                     # Handle const values if present
                     if 'const' in schema_props[prop]:
                         print(f"Removing const value from {schema_name}.{prop}", file=sys.stderr)
                         del schema_props[prop]['const']
-                        
+
     # Also check for any properties named 'metric_few_shot_examples' in any schema
     for schema_name, schema in schemas.items():
         if 'properties' in schema:
@@ -73,14 +73,14 @@ def filter_sensitive_defaults(data):
                 if 'metric_few_shot_examples' == prop_name and 'default' in prop:
                     print(f"Removing default examples from {schema_name}.{prop_name}", file=sys.stderr)
                     del prop['default']
-                
+
                 # Handle the case where examples are nested in other properties
                 if isinstance(prop, dict) and 'properties' in prop:
                     for nested_prop_name, nested_prop in prop['properties'].items():
                         if nested_prop_name == 'metric_few_shot_examples' and 'default' in nested_prop:
                             print(f"Removing nested examples from {schema_name}.{prop_name}.{nested_prop_name}", file=sys.stderr)
                             del nested_prop['default']
-    
+
     return data
 
 # Read JSON from stdin
