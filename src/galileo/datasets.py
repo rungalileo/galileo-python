@@ -385,12 +385,7 @@ def delete_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> N
         If the request takes longer than Client.timeout.
 
     """
-    if id is not None:
-        return Datasets().delete(id=id)
-    elif name is not None:
-        return Datasets().delete(name=name)
-    else:
-        raise ValueError("Exactly one of 'id' or 'name' must be provided")
+    return Datasets().delete(id=id, name=name)  # type: ignore[call-overload]
 
 
 def create_dataset(name: str, content: DatasetType) -> Dataset:
