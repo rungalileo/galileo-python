@@ -338,12 +338,7 @@ def get_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> Opti
         If the request takes longer than Client.timeout.
 
     """
-    if id is not None:
-        return Datasets().get(id=id)
-    elif name is not None:
-        return Datasets().get(name=name)
-    else:
-        raise ValueError("Exactly one of 'id' or 'name' must be provided")
+    return Datasets().get(id=id, name=name)  # type: ignore[call-overload]
 
 
 def list_datasets(limit: Union[Unset, int] = 100) -> list[Dataset]:
