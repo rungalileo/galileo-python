@@ -9,6 +9,7 @@ from galileo.datasets import (
     DatasetAPIException,
     DatasetAppendRow,
     DatasetAppendRowValues,
+    Datasets,
     UpdateDatasetContentRequest,
     convert_dataset_content_to_records,
     create_dataset,
@@ -338,3 +339,31 @@ def test_dataset_add_rows_failure(update_dataset_patch: Mock, get_dataset_conten
     update_dataset_patch.sync.assert_called_once()
     etag_patch.assert_called_once()
     get_dataset_content_patch.sync.assert_not_called()
+
+
+def test_delete_dataset_validation_errors():
+    with pytest.raises(ValueError) as exc_info:
+        Datasets().delete()
+    assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
+
+    with pytest.raises(ValueError) as exc_info:
+        Datasets().delete(id=None)
+    assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
+
+    with pytest.raises(ValueError) as exc_info:
+        Datasets().delete(name=None)
+    assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
+
+
+def test_get_dataset_validation_errors():
+    with pytest.raises(ValueError) as exc_info:
+        Datasets().get()
+    assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
+
+    with pytest.raises(ValueError) as exc_info:
+        Datasets().get(id=None)
+    assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
+
+    with pytest.raises(ValueError) as exc_info:
+        Datasets().get(name=None)
+    assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
