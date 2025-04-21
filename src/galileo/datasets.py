@@ -450,22 +450,18 @@ def get_dataset_version_history(
     ------
     HTTPValidationError
     """
-    if dataset_name is None and dataset_id is None:
-        raise ValueError("Either dataset_name or dataset_id must be provided.")
-
     if dataset_name is not None:
         dataset = Datasets().get(name=dataset_name)
         if dataset is None:
             raise ValueError(f"Dataset '{dataset_name}' not found")
         return dataset.get_version_history()
-
     elif dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
         if dataset is None:
             raise ValueError(f"Dataset '{dataset_id}' not found")
         return dataset.get_version_history()
     else:
-        raise ValueError("Exactly one of 'dataset_name' or 'dataset_id' must be provided")
+        raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
 def get_dataset_version(
@@ -489,9 +485,6 @@ def get_dataset_version(
     -------
     DatasetContent
     """
-    if dataset_name is None and dataset_id is None:
-        raise ValueError("Either dataset_name or dataset_id must be provided.")
-
     if dataset_name is not None:
         dataset = Datasets().get(name=dataset_name)
         if dataset is None:
@@ -504,7 +497,7 @@ def get_dataset_version(
             raise ValueError(f"Dataset '{dataset_id}' not found")
         return dataset.load_version(version_index)
     else:
-        raise ValueError("Exactly one of 'dataset_name' or 'dataset_id' must be provided")
+        raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
 def convert_dataset_content_to_records(dataset_content: Optional[DatasetContent]) -> list[Any]:
