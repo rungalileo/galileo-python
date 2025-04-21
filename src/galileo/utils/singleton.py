@@ -23,7 +23,7 @@ class GalileoLoggerSingleton:
 
     _instance = None  # Class-level attribute to hold the singleton instance.
     _lock = threading.Lock()  # Lock for thread-safe instantiation and operations.
-    _galileo_loggers: dict[tuple[str, str], GalileoLogger] = {}  # Cache for loggers.
+    _galileo_loggers: dict[tuple[str, str, str], GalileoLogger] = {}  # Cache for loggers.
 
     def __new__(cls) -> "GalileoLoggerSingleton":
         """
@@ -43,7 +43,7 @@ class GalileoLoggerSingleton:
     @staticmethod
     def _get_key(
         project: Optional[str], log_stream: Optional[str], experiment_id: Optional[str] = None
-    ) -> tuple[str, str]:
+    ) -> tuple[str, str, str]:
         """
         Generate a key tuple based on project and log_stream parameters.
 
@@ -57,7 +57,7 @@ class GalileoLoggerSingleton:
             experiment_id (Optional[str]): The experiment ID.
 
         Returns:
-            Tuple[str, str]: A tuple key (project, log_stream) used for caching.
+            Tuple[str, str, str]: A tuple key (project, log_stream) used for caching.
         """
         _logger.debug("current thread is %s", threading.current_thread().name)
 
@@ -174,12 +174,12 @@ class GalileoLoggerSingleton:
             for logger in self._galileo_loggers.values():
                 logger.flush()
 
-    def get_all_loggers(self) -> dict[tuple[str, str], GalileoLogger]:
+    def get_all_loggers(self) -> dict[tuple[str, str, str], GalileoLogger]:
         """
         Retrieve a copy of the dictionary containing all active loggers.
 
         Returns:
-            Dict[Tuple[str, str], GalileoLogger]: A dictionary mapping keys
+            Dict[Tuple[str, str, str], GalileoLogger]: A dictionary mapping keys
             (project, log_stream) to their corresponding GalileoLogger instances.
         """
         # Return a shallow copy of the loggers dictionary to prevent external modifications.

@@ -137,7 +137,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._init_project()
 
     @nop_sync
-    def _init_project(self):
+    def _init_project(self) -> None:
         # Get project and log stream IDs
         api_client = GalileoApiClient()
         projects_client = Projects(client=api_client)
@@ -586,7 +586,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         return logged_traces
 
     @nop_sync
-    def terminate(self):
+    def terminate(self) -> None:
         """
         Terminate the logger and flush all traces to Galileo.
         """

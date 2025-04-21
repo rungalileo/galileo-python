@@ -251,7 +251,7 @@ def get_project(*, id: Optional[str] = None, name: Optional[str] = None) -> Opti
         If the request takes longer than Client.timeout.
 
     """
-    return Projects().get(id=id, name=name)
+    return Projects().get(id=id, name=name)  # type: ignore[call-overload]
 
 
 def list_projects() -> list[Project]:

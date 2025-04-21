@@ -40,10 +40,11 @@ with galileo_context(project="my-project", log_stream="my-log-stream"):
 import logging
 import types
 from collections import defaultdict
+from collections.abc import Generator, Iterable
 from dataclasses import dataclass
 from datetime import datetime
 from inspect import isclass
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Union
 
 import httpx
 from pydantic import BaseModel
@@ -332,7 +333,7 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
     return model, completion, usage
 
 
-def _extract_streamed_openai_response(resource, chunks):
+def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: Iterable) -> Any:
     completion = defaultdict(str) if resource.type == "chat" else ""
     model, usage = None, None
 
@@ -404,7 +405,7 @@ def _extract_streamed_openai_response(resource, chunks):
             if resource.type == "completion":
                 completion += choice.get("text", None)
 
-    def get_response_for_chat():
+    def get_response_for_chat() -> Any:
         return (
             completion["content"]
             or (completion["function_call"] and {"role": "assistant", "function_call": completion["function_call"]})
@@ -415,14 +416,14 @@ def _extract_streamed_openai_response(resource, chunks):
             or None
         )
 
-    return (model, get_response_for_chat() if resource.type == "chat" else completion, usage)
+    return model, get_response_for_chat() if resource.type == "chat" else completion, usage
 
 
 def _is_openai_v1() -> bool:
     return Version(openai.__version__) >= Version("1.0.0")
 
 
-def _is_streaming_response(response):
+def _is_streaming_response(response) -> bool:
     return isinstance(response, types.GeneratorType) or (_is_openai_v1() and isinstance(response, openai.Stream))
 
 
@@ -537,20 +538,20 @@ class ResponseGeneratorSync:
     def __init__(
         self,
         *,
-        resource,
-        response,
-        input_data,
+        resource: OpenAiModuleDefinition,
+        response: Union[Generator, openai.Stream],
+        input_data: OpenAiInputData,
         logger: GalileoLogger,
         should_complete_trace: bool,
         status_code: int = 200,
     ):
-        self.items = []
+        self.items: list[Any] = []
         self.resource = resource
         self.response = response
         self.input_data = input_data
         self.logger = logger
         self.should_complete_trace = should_complete_trace
-        self.completion_start_time = None
+        self.completion_start_time: Optional[datetime] = None
         self.status_code = status_code
 
     def __iter__(self):
@@ -586,7 +587,7 @@ class ResponseGeneratorSync:
     def __exit__(self, exc_type, exc_value, traceback):
         pass
 
-    def _finalize(self):
+    def _finalize(self) -> None:
         model, completion, usage = _extract_streamed_openai_response(self.resource, self.items)
 
         if usage is None:

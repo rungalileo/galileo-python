@@ -7,7 +7,7 @@ class APIException(Exception):
     and put it to message.
     """
 
-    def __init__(self, message):
+    def __init__(self, message: str) -> None:
         try:
             self.message = json.loads(message)["detail"]
         except (KeyError, TypeError, ValueError):

@@ -127,7 +127,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
 
         return self
 
-    def get_version_history(self):
+    def get_version_history(self) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
         list_dataset = query_dataset_versions_datasets_dataset_id_versions_query_post.sync(
             dataset_id=self.dataset.id, client=self.client, body=ListDatasetVersionParams()
         )
@@ -138,7 +138,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
             dataset_id=self.dataset.id, version_index=version_index, client=self.client
         )
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr: str) -> Any:
         """
         Delegate attribute access to the underlying DatasetDB instance.
         """
@@ -257,7 +257,8 @@ class Datasets(BaseClientModel):
         if (id is None) == (name is None):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
-        dataset = self.get(id=id, name=name)
+        dataset = self.get(id=id, name=name)  # type: ignore[call-overload]
+
         if not dataset:
             raise ValueError(f"Dataset {name} not found")
         return delete_dataset_datasets_dataset_id_delete.sync(client=self.client, dataset_id=dataset.id)
@@ -337,7 +338,7 @@ def get_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> Opti
         If the request takes longer than Client.timeout.
 
     """
-    return Datasets().get(id=id, name=name)
+    return Datasets().get(id=id, name=name)  # type: ignore[call-overload]
 
 
 def list_datasets(limit: Union[Unset, int] = 100) -> list[Dataset]:
@@ -384,7 +385,7 @@ def delete_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> N
         If the request takes longer than Client.timeout.
 
     """
-    return Datasets().delete(id=id, name=name)
+    return Datasets().delete(id=id, name=name)  # type: ignore[call-overload]
 
 
 def create_dataset(name: str, content: DatasetType) -> Dataset:
@@ -415,7 +416,7 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
 
 
 def get_dataset_version_history(
-    dataset_name: str = None, dataset_id: str = None
+    *, dataset_name: str = None, dataset_id: str = None
 ) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
     """
     Retrieves a dataset version history by dataset name or dataset id.
@@ -435,20 +436,22 @@ def get_dataset_version_history(
     ------
     HTTPValidationError
     """
-    if dataset_name is None and dataset_id is None:
-        raise ValueError("Either dataset_name or dataset_id must be provided.")
-
     if dataset_name is not None:
         dataset = Datasets().get(name=dataset_name)
+        if dataset is None:
+            raise ValueError(f"Dataset '{dataset_name}' not found")
         return dataset.get_version_history()
-
-    if dataset_id is not None:
+    elif dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
+        if dataset is None:
+            raise ValueError(f"Dataset '{dataset_id}' not found")
         return dataset.get_version_history()
+    else:
+        raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
 def get_dataset_version(
-    version_index: int, dataset_name: str = None, dataset_id: str = None
+    *, version_index: int, dataset_name: str = None, dataset_id: str = None
 ) -> Optional[DatasetContent]:
     """
     Retrieves a dataset version by dataset name or dataset id.
@@ -468,19 +471,25 @@ def get_dataset_version(
     -------
     DatasetContent
     """
-    if dataset_name is None and dataset_id is None:
-        raise ValueError("Either dataset_name or dataset_id must be provided.")
-
     if dataset_name is not None:
         dataset = Datasets().get(name=dataset_name)
+        if dataset is None:
+            raise ValueError(f"Dataset '{dataset_name}' not found")
         return dataset.load_version(version_index)
 
-    if dataset_id is not None:
+    elif dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
+        if dataset is None:
+            raise ValueError(f"Dataset '{dataset_id}' not found")
         return dataset.load_version(version_index)
+    else:
+        raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
-def convert_dataset_content_to_records(dataset_content: DatasetContent):
+def convert_dataset_content_to_records(dataset_content: Optional[DatasetContent]) -> list[Any]:
+    if dataset_content is None:
+        return []
+
     rows = dataset_content.rows
     if not rows:
         return []
