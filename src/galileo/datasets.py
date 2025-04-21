@@ -257,7 +257,7 @@ class Datasets(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
-        if id is None and name is None:
+        if (id is None) == (name is None):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
         if id is not None:
