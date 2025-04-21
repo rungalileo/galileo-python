@@ -1,9 +1,20 @@
 # Galileo Python SDK
 
-[![PyPI version](https://img.shields.io/pypi/v/galileo.svg)](https://pypi.org/project/galileo/)
-![codecov.io](https://codecov.io/github/rungalileo/galileo-python/coverage.svg?branch=main)
+<div align="center">
 
-The Python client library for the Galileo AI platform.
+<strong>The Python client library for the Galileo AI platform.</strong>
+
+[![PyPI][pypi-badge]][pypi-url]
+[![Python Version][python-badge]][python-url]
+![codecov.io][codecov-url]
+
+</div>
+
+[pypi-badge]: https://img.shields.io/pypi/v/galileo.svg
+[pypi-url]: https://pypi.org/project/galileo/
+[python-badge]: https://img.shields.io/pypi/pyversions/galileo.svg
+[python-url]: https://www.python.org/downloads/
+[codecov-url]: https://codecov.io/github/rungalileo/galileo-python/coverage.svg?branch=main
 
 ## Getting Started
 
