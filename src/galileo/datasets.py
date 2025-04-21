@@ -227,9 +227,6 @@ class Datasets(BaseClientModel):
 
             dataset = Dataset(dataset_db=datasets_response.datasets[0], client=self.client)
 
-        else:
-            raise ValueError("Exactly one of 'id' or 'name' must be provided")
-
         if with_content:
             dataset.get_content()
         return dataset
