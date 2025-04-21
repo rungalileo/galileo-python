@@ -257,12 +257,8 @@ class Datasets(BaseClientModel):
         if (id is None) == (name is None):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
-        if id is not None:
-            dataset = self.get(id=id)
-        elif name is not None:
-            dataset = self.get(name=name)
-        else:
-            raise ValueError("Exactly one of 'id' or 'name' must be provided")
+        dataset = self.get(id=id, name=name)  # type: ignore[call-overload]
+
         if not dataset:
             raise ValueError(f"Dataset {name} not found")
         return delete_dataset_datasets_dataset_id_delete.sync(client=self.client, dataset_id=dataset.id)
