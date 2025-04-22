@@ -1,9 +1,3 @@
-from enum import Enum
-
-
-class ActionType(str, Enum):
-    OVERRIDE = "OVERRIDE"
-    PASSTHROUGH = "PASSTHROUGH"
-
-    def __str__(self) -> str:
-        return str(self.value)
+# flake: noqa: F401
+# ruff: noqa: F401
+from ..models.all_galileo_core_models import ActionType
