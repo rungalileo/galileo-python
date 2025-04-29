@@ -220,7 +220,7 @@ def convert_to_string_dict(input_: dict) -> dict[str, str]:
     Convert a dict with arbitrary values to a dict[str, str] by converting
     all values to their string representations.
     """
-    result = {}
+    result: dict[str, str] = {}
     if not input_:
         return result
     for key, value in input_.items():

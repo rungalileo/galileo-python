@@ -12,7 +12,7 @@ class BaseClientModel:
         client (Optional[GalileoApiClient], optional): The client to use. Defaults to None.
     """
 
-    client: Optional[GalileoApiClient] = None
+    client: GalileoApiClient
 
     def __init__(self, client: Optional[GalileoApiClient] = None) -> None:
         if client is not None:

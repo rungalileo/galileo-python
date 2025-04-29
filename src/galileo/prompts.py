@@ -93,21 +93,21 @@ class PromptTemplates(BaseClientModel):
         if not project:
             raise ValueError(f"Project {project_name} does not exist")
 
-        body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
+        body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)  # type: ignore[arg-type]
 
         _logger.debug(f"{body}")
         response = create_prompt_template_with_version_projects_project_id_templates_post.sync_detailed(
             project_id=project.id,
             client=self.client,  # type: ignore[arg-type]
-            body=body,
+            body=body,  # type: ignore[arg-type]
         )
 
         if response.status_code != 200:
-            raise PromptTemplateAPIException(response.content)
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
 
         if not response.parsed or isinstance(response.parsed, HTTPValidationError):
             _logger.error(response)
-            raise PromptTemplateAPIException(response.content)
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
 
         return PromptTemplate(prompt_template=response.parsed)
 

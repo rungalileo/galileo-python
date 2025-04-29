@@ -43,17 +43,27 @@ class ExperimentCreateRequest:
 
 
 class Experiments(BaseClientModel):
-    def create(self, project_id: str, name: str):
+    def create(self, project_id: str, name: str) -> ExperimentResponse:
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
 
         experiment = create_experiment_projects_project_id_experiments_post.sync(
-            project_id=project_id, client=self.client, body=body
+            project_id=project_id,
+            client=self.client,
+            body=body,  # type: ignore[arg-type]
         )
+        if experiment is None:
+            raise ValueError("experiment is None")
+
+        if isinstance(experiment, HTTPValidationError):
+            raise ValueError(experiment.detail)
 
         return experiment
 
-    def get(self, project_id: str, experiment_name: str) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
-        experiments = self.list(project_id=project_id) or []
+    def get(self, project_id: str, experiment_name: str) -> Optional[ExperimentResponse]:
+        experiments = self.list(project_id=project_id)
+
+        if experiments is None or isinstance(experiments, HTTPValidationError):
+            return None
 
         for experiment in experiments:
             if experiment.name == experiment_name:
@@ -61,14 +71,16 @@ class Experiments(BaseClientModel):
 
         return None
 
-    def get_or_create(self, project_id: str, experiment_name: str):
+    def get_or_create(
+        self, project_id: str, experiment_name: str
+    ) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
         experiment = self.get(project_id, experiment_name)
         if not experiment:
             experiment = self.create(project_id, experiment_name)
 
         return experiment
 
-    def list(self, project_id: str):
+    def list(self, project_id: str) -> Optional[Union[HTTPValidationError, list["ExperimentResponse"]]]:
         return list_experiments_projects_project_id_experiments_get.sync(project_id=project_id, client=self.client)
 
     @staticmethod
@@ -100,9 +112,9 @@ class Experiments(BaseClientModel):
         experiment_obj: ExperimentResponse,
         prompt_template: PromptTemplate,
         dataset_id: str,
-        scorers: builtins.list[ScorerConfig],
+        scorers: Optional[builtins.list[ScorerConfig]],
         prompt_settings: Optional[PromptRunSettings] = None,
-    ):
+    ) -> dict[str, Any]:
         if prompt_settings is None:
             prompt_settings = PromptRunSettings(
                 n=1,
@@ -148,9 +160,9 @@ class Experiments(BaseClientModel):
         experiment_obj: ExperimentResponse,
         records: builtins.list[dict[str, str]],
         func: Callable,
-    ):
+    ) -> dict[str, Any]:
         results = []
-        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id)
+        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id)  # type: ignore[arg-type]
 
         logged_process_func = log(name=experiment_obj.name)(func)
 
@@ -171,7 +183,7 @@ class Experiments(BaseClientModel):
         return {"experiment": experiment_obj, "link": link, "message": message}
 
 
-def process_row(row, process_func: Callable):
+def process_row(row: dict[str, str], process_func: Callable) -> str:
     _logger.info(f"Processing dataset row: {row}")
     try:
         output = process_func(row)
@@ -186,14 +198,14 @@ def process_row(row, process_func: Callable):
 def run_experiment(
     experiment_name: str,
     *,
-    prompt_template: PromptTemplate = None,
+    prompt_template: Optional[PromptTemplate] = None,
     prompt_settings: Optional[PromptRunSettings] = None,
-    project: str = None,
-    dataset: Union[Dataset, list[dict[str, str]], str] = None,
+    project: Optional[str] = None,
+    dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
-    metrics: list[str] = None,
-    function: Union[Callable, None] = None,
+    metrics: Optional[list[str]] = None,
+    function: Optional[Callable] = None,
 ) -> Any:
     """
     Run an experiment with the specified parameters.
@@ -221,6 +233,10 @@ def run_experiment(
     Raises:
         ValueError: If required parameters are missing or invalid
     """
+    # Get project
+    if project is None:
+        raise ValueError("A project name must be provided")
+
     # Load dataset and records
     dataset_obj, records = _load_dataset_and_records(dataset, dataset_id, dataset_name)
 
@@ -255,14 +271,20 @@ def run_experiment(
 
     experiment_obj = Experiments().create(project_obj.id, experiment_name)
 
+    # Execute a runner function experiment
+    if function is not None:
+        return Experiments().run_with_function(project_obj, experiment_obj, records, function)
+
+    if prompt_template is None:
+        raise ValueError("A prompt template must be provided")
+
+    if dataset_obj is None:
+        raise ValueError("A dataset object must be provided")
+
     # Set up metrics if provided
     scorer_settings = None
     if metrics is not None:
         scorer_settings = Experiments.create_run_scorer_settings(project_obj.id, experiment_obj.id, metrics)
-
-    # Execute a runner function experiment
-    if function is not None:
-        return Experiments().run_with_function(project_obj, experiment_obj, records, function)
 
     # Execute a prompt template experiment
     return Experiments().run(
@@ -331,13 +353,15 @@ def _get_dataset_and_records_by_name(dataset_name: str) -> tuple[Dataset, list[d
     return dataset, records
 
 
-def create_experiment(project_id: str, experiment_name: str):
+def create_experiment(
+    project_id: str, experiment_name: str
+) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
     return Experiments().create(project_id, experiment_name)
 
 
-def get_experiment(project_id, experiment_name):
+def get_experiment(project_id: str, experiment_name: str) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
     return Experiments().get(project_id, experiment_name)
 
 
-def get_experiments(project_id: str):
+def get_experiments(project_id: str) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:
     return Experiments().list(project_id=project_id)

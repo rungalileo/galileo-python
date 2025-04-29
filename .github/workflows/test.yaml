@@ -35,11 +35,9 @@ jobs:
       - name: Install Dependencies
         run: invoke install
 
-      # TODO: Enable this when we're ready to run the mypy checks.
-      # We run the `mypy` check here since it requires all of the packages to be installed.
-      # Doing that in the pre-commit step would be duplicative and spend more time in CI.
-      # - name: Validate Types
-      #   run: invoke type-check
+      - name: Validate Types
+        run: |
+          invoke type-check
 
       - name: Run Tests
         run: invoke test-report-xml

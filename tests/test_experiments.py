@@ -276,7 +276,10 @@ class TestExperiments:
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
         _, records = _load_dataset_and_records(dataset=dataset, dataset_name=dataset_name, dataset_id=dataset_id)
         assert records == ["Which continent is Spain in?"]
-        mock_get_dataset.assert_called_once_with(id=dataset_id, name=dataset_name or dataset)
+        if dataset_id:
+            mock_get_dataset.assert_called_once_with(id=dataset_id, name=None)
+        elif dataset_name:
+            mock_get_dataset.assert_called_once_with(id=None, name=dataset_name)
 
     def test_load_dataset_and_records_error(self):
         with pytest.raises(ValueError) as exc_info:

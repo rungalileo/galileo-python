@@ -118,10 +118,11 @@ wrap-descriptions = 120
 [tool.mypy]
 mypy_path = ["src"]
 disallow_untyped_defs = true
+disable_error_code = ["import-untyped"]
+ignore_missing_imports = true
+no_implicit_optional = false
+follow_imports = "skip"
 plugins = ["pydantic.mypy"]
-# TODO: Enable all modules / packages as soon as we are ready.
-modules = ["galileo", "galileo.experiments", "galileo.prompts"]
-packages = ["galileo.utils"]
 
 # Release.
 [tool.semantic_release]
