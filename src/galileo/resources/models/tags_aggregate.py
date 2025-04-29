@@ -35,12 +35,7 @@ class TagsAggregate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "counts": counts,
-                "unrated_count": unrated_count,
-            }
-        )
+        field_dict.update({"counts": counts, "unrated_count": unrated_count})
         if feedback_type is not UNSET:
             field_dict["feedback_type"] = feedback_type
 
@@ -59,11 +54,7 @@ class TagsAggregate:
         if feedback_type != "tags" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'tags', got '{feedback_type}'")
 
-        tags_aggregate = cls(
-            counts=counts,
-            unrated_count=unrated_count,
-            feedback_type=feedback_type,
-        )
+        tags_aggregate = cls(counts=counts, unrated_count=unrated_count, feedback_type=feedback_type)
 
         tags_aggregate.additional_properties = d
         return tags_aggregate

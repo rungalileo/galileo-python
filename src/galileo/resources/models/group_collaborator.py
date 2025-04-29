@@ -56,13 +56,7 @@ class GroupCollaborator:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "created_at": created_at,
-                "group_id": group_id,
-                "group_name": group_name,
-                "id": id,
-                "role": role,
-            }
+            {"created_at": created_at, "group_id": group_id, "group_name": group_name, "id": id, "role": role}
         )
         if permissions is not UNSET:
             field_dict["permissions"] = permissions
@@ -92,12 +86,7 @@ class GroupCollaborator:
             permissions.append(permissions_item)
 
         group_collaborator = cls(
-            created_at=created_at,
-            group_id=group_id,
-            group_name=group_name,
-            id=id,
-            role=role,
-            permissions=permissions,
+            created_at=created_at, group_id=group_id, group_name=group_name, id=id, role=role, permissions=permissions
         )
 
         group_collaborator.additional_properties = d

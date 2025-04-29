@@ -135,11 +135,7 @@ class ScorerDefaults:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        scorer_defaults = cls(
-            filters=filters,
-            model_name=model_name,
-            num_judges=num_judges,
-        )
+        scorer_defaults = cls(filters=filters, model_name=model_name, num_judges=num_judges)
 
         scorer_defaults.additional_properties = d
         return scorer_defaults

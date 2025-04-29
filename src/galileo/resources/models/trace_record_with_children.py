@@ -179,15 +179,7 @@ class TraceRecordWithChildren:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "input": input_,
-                "project_id": project_id,
-                "run_id": run_id,
-                "trace_id": trace_id,
-            }
-        )
+        field_dict.update({"id": id, "input": input_, "project_id": project_id, "run_id": run_id, "trace_id": trace_id})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:

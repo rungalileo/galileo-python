@@ -27,11 +27,7 @@ class TextRating:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "value": value,
-            }
-        )
+        field_dict.update({"value": value})
         if feedback_type is not UNSET:
             field_dict["feedback_type"] = feedback_type
 
@@ -46,10 +42,7 @@ class TextRating:
         if feedback_type != "text" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'text', got '{feedback_type}'")
 
-        text_rating = cls(
-            value=value,
-            feedback_type=feedback_type,
-        )
+        text_rating = cls(value=value, feedback_type=feedback_type)
 
         text_rating.additional_properties = d
         return text_rating

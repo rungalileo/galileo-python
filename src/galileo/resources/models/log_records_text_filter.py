@@ -45,13 +45,7 @@ class LogRecordsTextFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_id": column_id,
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"column_id": column_id, "operator": operator, "value": value})
         if case_sensitive is not UNSET:
             field_dict["case_sensitive"] = case_sensitive
         if type_ is not UNSET:
@@ -86,11 +80,7 @@ class LogRecordsTextFilter:
             raise ValueError(f"type must match const 'text', got '{type_}'")
 
         log_records_text_filter = cls(
-            column_id=column_id,
-            operator=operator,
-            value=value,
-            case_sensitive=case_sensitive,
-            type_=type_,
+            column_id=column_id, operator=operator, value=value, case_sensitive=case_sensitive, type_=type_
         )
 
         log_records_text_filter.additional_properties = d

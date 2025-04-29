@@ -42,13 +42,7 @@ class BasePromptTemplateVersionResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "template": template,
-                "version": version,
-            }
-        )
+        field_dict.update({"id": id, "template": template, "version": version})
 
         return field_dict
 
@@ -79,11 +73,7 @@ class BasePromptTemplateVersionResponse:
 
         version = d.pop("version")
 
-        base_prompt_template_version_response = cls(
-            id=id,
-            template=template,
-            version=version,
-        )
+        base_prompt_template_version_response = cls(id=id, template=template, version=version)
 
         base_prompt_template_version_response.additional_properties = d
         return base_prompt_template_version_response

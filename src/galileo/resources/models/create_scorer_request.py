@@ -54,12 +54,7 @@ class CreateScorerRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-                "scorer_type": scorer_type,
-            }
-        )
+        field_dict.update({"name": name, "scorer_type": scorer_type})
         if defaults is not UNSET:
             field_dict["defaults"] = defaults
         if description is not UNSET:
@@ -100,11 +95,7 @@ class CreateScorerRequest:
         tags = cast(list[str], d.pop("tags", UNSET))
 
         create_scorer_request = cls(
-            name=name,
-            scorer_type=scorer_type,
-            defaults=defaults,
-            description=description,
-            tags=tags,
+            name=name, scorer_type=scorer_type, defaults=defaults, description=description, tags=tags
         )
 
         create_scorer_request.additional_properties = d

@@ -27,11 +27,7 @@ class ColumnMappingConfig:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "columns": columns,
-            }
-        )
+        field_dict.update({"columns": columns})
         if flatten is not UNSET:
             field_dict["flatten"] = flatten
 
@@ -44,10 +40,7 @@ class ColumnMappingConfig:
 
         flatten = d.pop("flatten", UNSET)
 
-        column_mapping_config = cls(
-            columns=columns,
-            flatten=flatten,
-        )
+        column_mapping_config = cls(columns=columns, flatten=flatten)
 
         column_mapping_config.additional_properties = d
         return column_mapping_config

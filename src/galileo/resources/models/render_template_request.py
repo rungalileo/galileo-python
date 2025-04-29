@@ -36,12 +36,7 @@ class RenderTemplateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "data": data,
-                "template": template,
-            }
-        )
+        field_dict.update({"data": data, "template": template})
 
         return field_dict
 
@@ -71,10 +66,7 @@ class RenderTemplateRequest:
 
         template = d.pop("template")
 
-        render_template_request = cls(
-            data=data,
-            template=template,
-        )
+        render_template_request = cls(data=data, template=template)
 
         render_template_request.additional_properties = d
         return render_template_request

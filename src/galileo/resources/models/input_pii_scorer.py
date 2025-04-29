@@ -107,10 +107,7 @@ class InputPIIScorer:
         if name != "input_pii" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'input_pii', got '{name}'")
 
-        input_pii_scorer = cls(
-            filters=filters,
-            name=name,
-        )
+        input_pii_scorer = cls(filters=filters, name=name)
 
         input_pii_scorer.additional_properties = d
         return input_pii_scorer

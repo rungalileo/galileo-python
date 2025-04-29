@@ -10,22 +10,14 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    scorer_id: str,
-    *,
-    version: Union[Unset, int] = UNSET,
-) -> dict[str, Any]:
+def _get_kwargs(scorer_id: str, *, version: Union[Unset, int] = UNSET) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     params["version"] = version
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/scorers/{scorer_id}/version",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/scorers/{scorer_id}/version", "params": params}
 
     return _kwargs
 
@@ -59,10 +51,7 @@ def _build_response(
 
 
 def sync_detailed(
-    scorer_id: str,
-    *,
-    client: AuthenticatedClient,
-    version: Union[Unset, int] = UNSET,
+    scorer_id: str, *, client: AuthenticatedClient, version: Union[Unset, int] = UNSET
 ) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
     """Get Scorer Version Or Latest
 
@@ -78,23 +67,15 @@ def sync_detailed(
         Response[Union[BaseScorerVersionResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        scorer_id=scorer_id,
-        version=version,
-    )
+    kwargs = _get_kwargs(scorer_id=scorer_id, version=version)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    scorer_id: str,
-    *,
-    client: AuthenticatedClient,
-    version: Union[Unset, int] = UNSET,
+    scorer_id: str, *, client: AuthenticatedClient, version: Union[Unset, int] = UNSET
 ) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
     """Get Scorer Version Or Latest
 
@@ -110,18 +91,11 @@ def sync(
         Union[BaseScorerVersionResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        scorer_id=scorer_id,
-        client=client,
-        version=version,
-    ).parsed
+    return sync_detailed(scorer_id=scorer_id, client=client, version=version).parsed
 
 
 async def asyncio_detailed(
-    scorer_id: str,
-    *,
-    client: AuthenticatedClient,
-    version: Union[Unset, int] = UNSET,
+    scorer_id: str, *, client: AuthenticatedClient, version: Union[Unset, int] = UNSET
 ) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
     """Get Scorer Version Or Latest
 
@@ -137,10 +111,7 @@ async def asyncio_detailed(
         Response[Union[BaseScorerVersionResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        scorer_id=scorer_id,
-        version=version,
-    )
+    kwargs = _get_kwargs(scorer_id=scorer_id, version=version)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -148,10 +119,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    scorer_id: str,
-    *,
-    client: AuthenticatedClient,
-    version: Union[Unset, int] = UNSET,
+    scorer_id: str, *, client: AuthenticatedClient, version: Union[Unset, int] = UNSET
 ) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
     """Get Scorer Version Or Latest
 
@@ -167,10 +135,4 @@ async def asyncio(
         Union[BaseScorerVersionResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            scorer_id=scorer_id,
-            client=client,
-            version=version,
-        )
-    ).parsed
+    return (await asyncio_detailed(scorer_id=scorer_id, client=client, version=version)).parsed

@@ -161,13 +161,7 @@ class InputSexistScorer:
         else:
             type_ = InputSexistScorerType(_type_)
 
-        input_sexist_scorer = cls(
-            filters=filters,
-            model_name=model_name,
-            name=name,
-            num_judges=num_judges,
-            type_=type_,
-        )
+        input_sexist_scorer = cls(filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_)
 
         input_sexist_scorer.additional_properties = d
         return input_sexist_scorer

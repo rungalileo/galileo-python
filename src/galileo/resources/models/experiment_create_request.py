@@ -39,11 +39,7 @@ class ExperimentCreateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
         if dataset_version_id is not UNSET:
             field_dict["dataset_version_id"] = dataset_version_id
         if task_type is not UNSET:
@@ -79,11 +75,7 @@ class ExperimentCreateRequest:
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
-        experiment_create_request = cls(
-            name=name,
-            dataset_version_id=dataset_version_id,
-            task_type=task_type,
-        )
+        experiment_create_request = cls(name=name, dataset_version_id=dataset_version_id, task_type=task_type)
 
         experiment_create_request.additional_properties = d
         return experiment_create_request

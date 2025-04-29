@@ -30,12 +30,7 @@ class CreateLLMScorerVersionRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "chain_poll_template": chain_poll_template,
-                "instructions": instructions,
-            }
-        )
+        field_dict.update({"chain_poll_template": chain_poll_template, "instructions": instructions})
 
         return field_dict
 
@@ -48,10 +43,7 @@ class CreateLLMScorerVersionRequest:
 
         instructions = d.pop("instructions")
 
-        create_llm_scorer_version_request = cls(
-            chain_poll_template=chain_poll_template,
-            instructions=instructions,
-        )
+        create_llm_scorer_version_request = cls(chain_poll_template=chain_poll_template, instructions=instructions)
 
         create_llm_scorer_version_request.additional_properties = d
         return create_llm_scorer_version_request

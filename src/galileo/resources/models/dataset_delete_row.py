@@ -74,11 +74,7 @@ class DatasetDeleteRow:
 
         row_id = _parse_row_id(d.pop("row_id", UNSET))
 
-        dataset_delete_row = cls(
-            edit_type=edit_type,
-            index=index,
-            row_id=row_id,
-        )
+        dataset_delete_row = cls(edit_type=edit_type, index=index, row_id=row_id)
 
         dataset_delete_row.additional_properties = d
         return dataset_delete_row

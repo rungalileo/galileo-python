@@ -21,11 +21,7 @@ class RollbackRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "rollback_version": rollback_version,
-            }
-        )
+        field_dict.update({"rollback_version": rollback_version})
 
         return field_dict
 
@@ -34,9 +30,7 @@ class RollbackRequest:
         d = src_dict.copy()
         rollback_version = d.pop("rollback_version")
 
-        rollback_request = cls(
-            rollback_version=rollback_version,
-        )
+        rollback_request = cls(rollback_version=rollback_version)
 
         rollback_request.additional_properties = d
         return rollback_request

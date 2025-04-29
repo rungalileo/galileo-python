@@ -70,11 +70,7 @@ class MetricThreshold:
 
         inverted = d.pop("inverted", UNSET)
 
-        metric_threshold = cls(
-            buckets=buckets,
-            display_value_levels=display_value_levels,
-            inverted=inverted,
-        )
+        metric_threshold = cls(buckets=buckets, display_value_levels=display_value_levels, inverted=inverted)
 
         metric_threshold.additional_properties = d
         return metric_threshold

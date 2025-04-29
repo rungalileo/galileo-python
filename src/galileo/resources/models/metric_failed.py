@@ -86,11 +86,7 @@ class MetricFailed:
         if status_type != "failed" and not isinstance(status_type, Unset):
             raise ValueError(f"status_type must match const 'failed', got '{status_type}'")
 
-        metric_failed = cls(
-            message=message,
-            scorer_type=scorer_type,
-            status_type=status_type,
-        )
+        metric_failed = cls(message=message, scorer_type=scorer_type, status_type=status_type)
 
         metric_failed.additional_properties = d
         return metric_failed

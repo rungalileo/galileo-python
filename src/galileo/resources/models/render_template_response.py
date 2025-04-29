@@ -43,11 +43,7 @@ class RenderTemplateResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "rendered_templates": rendered_templates,
-            }
-        )
+        field_dict.update({"rendered_templates": rendered_templates})
         if limit is not UNSET:
             field_dict["limit"] = limit
         if next_starting_token is not UNSET:

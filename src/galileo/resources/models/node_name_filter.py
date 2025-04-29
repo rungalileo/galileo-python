@@ -41,12 +41,7 @@ class NodeNameFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"operator": operator, "value": value})
         if case_sensitive is not UNSET:
             field_dict["case_sensitive"] = case_sensitive
         if filter_type is not UNSET:
@@ -74,11 +69,7 @@ class NodeNameFilter:
             raise ValueError(f"name must match const 'node_name', got '{name}'")
 
         node_name_filter = cls(
-            operator=operator,
-            value=value,
-            case_sensitive=case_sensitive,
-            filter_type=filter_type,
-            name=name,
+            operator=operator, value=value, case_sensitive=case_sensitive, filter_type=filter_type, name=name
         )
 
         node_name_filter.additional_properties = d

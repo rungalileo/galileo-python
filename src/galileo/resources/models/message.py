@@ -54,12 +54,7 @@ class Message:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "content": content,
-                "role": role,
-            }
-        )
+        field_dict.update({"content": content, "role": role})
         if tool_call_id is not UNSET:
             field_dict["tool_call_id"] = tool_call_id
         if tool_calls is not UNSET:
@@ -107,12 +102,7 @@ class Message:
 
         tool_calls = _parse_tool_calls(d.pop("tool_calls", UNSET))
 
-        message = cls(
-            content=content,
-            role=role,
-            tool_call_id=tool_call_id,
-            tool_calls=tool_calls,
-        )
+        message = cls(content=content, role=role, tool_call_id=tool_call_id, tool_calls=tool_calls)
 
         message.additional_properties = d
         return message

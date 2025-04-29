@@ -42,10 +42,7 @@ class TaskResourceLimits:
 
         memory_mb = d.pop("memory_mb", UNSET)
 
-        task_resource_limits = cls(
-            cpu_time=cpu_time,
-            memory_mb=memory_mb,
-        )
+        task_resource_limits = cls(cpu_time=cpu_time, memory_mb=memory_mb)
 
         task_resource_limits.additional_properties = d
         return task_resource_limits

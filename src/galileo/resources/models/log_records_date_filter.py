@@ -38,13 +38,7 @@ class LogRecordsDateFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_id": column_id,
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"column_id": column_id, "operator": operator, "value": value})
         if type_ is not UNSET:
             field_dict["type"] = type_
 
@@ -63,12 +57,7 @@ class LogRecordsDateFilter:
         if type_ != "date" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'date', got '{type_}'")
 
-        log_records_date_filter = cls(
-            column_id=column_id,
-            operator=operator,
-            value=value,
-            type_=type_,
-        )
+        log_records_date_filter = cls(column_id=column_id, operator=operator, value=value, type_=type_)
 
         log_records_date_filter.additional_properties = d
         return log_records_date_filter

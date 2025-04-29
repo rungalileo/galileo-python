@@ -119,11 +119,7 @@ class BodyCreateDatasetDatasetsPost:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        body_create_dataset_datasets_post = cls(
-            draft=draft,
-            file=file,
-            name=name,
-        )
+        body_create_dataset_datasets_post = cls(draft=draft, file=file, name=name)
 
         body_create_dataset_datasets_post.additional_properties = d
         return body_create_dataset_datasets_post

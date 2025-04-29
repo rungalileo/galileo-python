@@ -27,11 +27,7 @@ class LikeDislikeRating:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "value": value,
-            }
-        )
+        field_dict.update({"value": value})
         if feedback_type is not UNSET:
             field_dict["feedback_type"] = feedback_type
 
@@ -46,10 +42,7 @@ class LikeDislikeRating:
         if feedback_type != "like_dislike" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'like_dislike', got '{feedback_type}'")
 
-        like_dislike_rating = cls(
-            value=value,
-            feedback_type=feedback_type,
-        )
+        like_dislike_rating = cls(value=value, feedback_type=feedback_type)
 
         like_dislike_rating.additional_properties = d
         return like_dislike_rating

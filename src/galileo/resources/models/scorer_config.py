@@ -92,12 +92,7 @@ class ScorerConfig:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "scorer_type": scorer_type,
-            }
-        )
+        field_dict.update({"id": id, "scorer_type": scorer_type})
         if filters is not UNSET:
             field_dict["filters"] = filters
         if model_name is not UNSET:

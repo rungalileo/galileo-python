@@ -31,12 +31,7 @@ class RecomputeSettingsLogStream:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "filters": filters,
-                "run_id": run_id,
-            }
-        )
+        field_dict.update({"filters": filters, "run_id": run_id})
         if mode is not UNSET:
             field_dict["mode"] = mode
 
@@ -53,11 +48,7 @@ class RecomputeSettingsLogStream:
         if mode != "log_stream_filters" and not isinstance(mode, Unset):
             raise ValueError(f"mode must match const 'log_stream_filters', got '{mode}'")
 
-        recompute_settings_log_stream = cls(
-            filters=filters,
-            run_id=run_id,
-            mode=mode,
-        )
+        recompute_settings_log_stream = cls(filters=filters, run_id=run_id, mode=mode)
 
         recompute_settings_log_stream.additional_properties = d
         return recompute_settings_log_stream

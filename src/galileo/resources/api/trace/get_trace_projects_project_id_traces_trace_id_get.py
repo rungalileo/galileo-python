@@ -10,14 +10,8 @@ from ...models.trace_record_with_children import TraceRecordWithChildren
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    trace_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/projects/{project_id}/traces/{trace_id}",
-    }
+def _get_kwargs(project_id: str, trace_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/traces/{trace_id}"}
 
     return _kwargs
 
@@ -51,10 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    trace_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, trace_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, TraceRecordWithChildren]]:
     """Get Trace
 
@@ -70,23 +61,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, TraceRecordWithChildren]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        trace_id=trace_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, trace_id=trace_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    trace_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, trace_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, TraceRecordWithChildren]]:
     """Get Trace
 
@@ -102,18 +85,11 @@ def sync(
         Union[HTTPValidationError, TraceRecordWithChildren]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        trace_id=trace_id,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, trace_id=trace_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    trace_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, trace_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, TraceRecordWithChildren]]:
     """Get Trace
 
@@ -129,10 +105,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, TraceRecordWithChildren]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        trace_id=trace_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, trace_id=trace_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -140,10 +113,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    trace_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, trace_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, TraceRecordWithChildren]]:
     """Get Trace
 
@@ -159,10 +129,4 @@ async def asyncio(
         Union[HTTPValidationError, TraceRecordWithChildren]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            trace_id=trace_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, trace_id=trace_id, client=client)).parsed

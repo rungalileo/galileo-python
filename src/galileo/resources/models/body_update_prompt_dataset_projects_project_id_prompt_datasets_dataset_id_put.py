@@ -122,8 +122,7 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
         file = _parse_file(d.pop("file", UNSET))
 
         body_update_prompt_dataset_projects_project_id_prompt_datasets_dataset_id_put = cls(
-            column_names=column_names,
-            file=file,
+            column_names=column_names, file=file
         )
 
         body_update_prompt_dataset_projects_project_id_prompt_datasets_dataset_id_put.additional_properties = d
