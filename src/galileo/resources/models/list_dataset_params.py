@@ -7,6 +7,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.dataset_created_at_sort import DatasetCreatedAtSort
+    from ..models.dataset_draft_filter import DatasetDraftFilter
     from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
     from ..models.dataset_name_filter import DatasetNameFilter
     from ..models.dataset_name_sort import DatasetNameSort
@@ -24,13 +25,13 @@ T = TypeVar("T", bound="ListDatasetParams")
 class ListDatasetParams:
     """
     Attributes:
-        filters (Union[Unset, list[Union['DatasetNameFilter', 'DatasetUsedInProjectFilter']]]):
+        filters (Union[Unset, list[Union['DatasetDraftFilter', 'DatasetNameFilter', 'DatasetUsedInProjectFilter']]]):
         sort (Union['DatasetCreatedAtSort', 'DatasetLastEditedByUserAtSort', 'DatasetNameSort',
             'DatasetProjectLastUsedAtSort', 'DatasetProjectsSort', 'DatasetRowsSort', 'DatasetUpdatedAtSort', None, Unset]):
             Default: None.
     """
 
-    filters: Union[Unset, list[Union["DatasetNameFilter", "DatasetUsedInProjectFilter"]]] = UNSET
+    filters: Union[Unset, list[Union["DatasetDraftFilter", "DatasetNameFilter", "DatasetUsedInProjectFilter"]]] = UNSET
     sort: Union[
         "DatasetCreatedAtSort",
         "DatasetLastEditedByUserAtSort",
@@ -46,6 +47,7 @@ class ListDatasetParams:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_created_at_sort import DatasetCreatedAtSort
+        from ..models.dataset_draft_filter import DatasetDraftFilter
         from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
         from ..models.dataset_name_filter import DatasetNameFilter
         from ..models.dataset_name_sort import DatasetNameSort
@@ -60,6 +62,8 @@ class ListDatasetParams:
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
                 if isinstance(filters_item_data, DatasetNameFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, DatasetDraftFilter):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
@@ -99,6 +103,7 @@ class ListDatasetParams:
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.dataset_created_at_sort import DatasetCreatedAtSort
+        from ..models.dataset_draft_filter import DatasetDraftFilter
         from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
         from ..models.dataset_name_filter import DatasetNameFilter
         from ..models.dataset_name_sort import DatasetNameSort
@@ -113,7 +118,9 @@ class ListDatasetParams:
         _filters = d.pop("filters", UNSET)
         for filters_item_data in _filters or []:
 
-            def _parse_filters_item(data: object) -> Union["DatasetNameFilter", "DatasetUsedInProjectFilter"]:
+            def _parse_filters_item(
+                data: object,
+            ) -> Union["DatasetDraftFilter", "DatasetNameFilter", "DatasetUsedInProjectFilter"]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
@@ -122,11 +129,19 @@ class ListDatasetParams:
                     return filters_item_type_0
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    filters_item_type_1 = DatasetDraftFilter.from_dict(data)
+
+                    return filters_item_type_1
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                filters_item_type_1 = DatasetUsedInProjectFilter.from_dict(data)
+                filters_item_type_2 = DatasetUsedInProjectFilter.from_dict(data)
 
-                return filters_item_type_1
+                return filters_item_type_2
 
             filters_item = _parse_filters_item(filters_item_data)
 

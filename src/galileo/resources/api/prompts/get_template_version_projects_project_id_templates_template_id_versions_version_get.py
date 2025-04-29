@@ -60,8 +60,6 @@ def sync_detailed(
         Template ID.
     version : int
         Version number to fetch.
-    current_user : User, optional
-        User who is authorized, by default Depends(authentication_service.current_user).
     db_read : Session, optional
         Database session, by default Depends(get_db_read)
 
@@ -103,8 +101,6 @@ def sync(
         Template ID.
     version : int
         Version number to fetch.
-    current_user : User, optional
-        User who is authorized, by default Depends(authentication_service.current_user).
     db_read : Session, optional
         Database session, by default Depends(get_db_read)
 
@@ -142,8 +138,6 @@ async def asyncio_detailed(
         Template ID.
     version : int
         Version number to fetch.
-    current_user : User, optional
-        User who is authorized, by default Depends(authentication_service.current_user).
     db_read : Session, optional
         Database session, by default Depends(get_db_read)
 
@@ -185,8 +179,6 @@ async def asyncio(
         Template ID.
     version : int
         Version number to fetch.
-    current_user : User, optional
-        User who is authorized, by default Depends(authentication_service.current_user).
     db_read : Session, optional
         Database session, by default Depends(get_db_read)
 

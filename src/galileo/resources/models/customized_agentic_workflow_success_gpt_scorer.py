@@ -16,7 +16,6 @@ if TYPE_CHECKING:
     )
     from ..models.metadata_filter import MetadataFilter
     from ..models.node_name_filter import NodeNameFilter
-    from ..models.prompt_run_settings import PromptRunSettings
 
 
 T = TypeVar("T", bound="CustomizedAgenticWorkflowSuccessGPTScorer")
@@ -35,12 +34,11 @@ class CustomizedAgenticWorkflowSuccessGPTScorer:
         extra (Union['CustomizedAgenticWorkflowSuccessGPTScorerExtraType0', None, Unset]):
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
         generated_scorer_id (Union[None, Unset, str]):
-        gpt_settings (Union[Unset, PromptRunSettings]): Prompt run settings.
         indices (Union[None, Unset, list[int]]):
         metric_name (Union[None, Unset, str]):
-        model_alias (Union[None, Unset, str]): Model alias to use for scoring.
+        model_alias (Union[Unset, str]):  Default: 'GPT-4o'.
         name (Union[Literal['agentic_workflow_success'], Unset]):  Default: 'agentic_workflow_success'.
-        num_judges (Union[None, Unset, int]): Number of judges for the scorer.
+        num_judges (Union[Unset, int]):  Default: 5.
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
         scorer_name (Union[Literal['_customized_agentic_workflow_success'], Unset]):  Default:
@@ -56,12 +54,11 @@ class CustomizedAgenticWorkflowSuccessGPTScorer:
     extra: Union["CustomizedAgenticWorkflowSuccessGPTScorerExtraType0", None, Unset] = UNSET
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     generated_scorer_id: Union[None, Unset, str] = UNSET
-    gpt_settings: Union[Unset, "PromptRunSettings"] = UNSET
     indices: Union[None, Unset, list[int]] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
-    model_alias: Union[None, Unset, str] = UNSET
+    model_alias: Union[Unset, str] = "GPT-4o"
     name: Union[Literal["agentic_workflow_success"], Unset] = "agentic_workflow_success"
-    num_judges: Union[None, Unset, int] = UNSET
+    num_judges: Union[Unset, int] = 5
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
     scorer_name: Union[Literal["_customized_agentic_workflow_success"], Unset] = "_customized_agentic_workflow_success"
@@ -131,10 +128,6 @@ class CustomizedAgenticWorkflowSuccessGPTScorer:
         else:
             generated_scorer_id = self.generated_scorer_id
 
-        gpt_settings: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.gpt_settings, Unset):
-            gpt_settings = self.gpt_settings.to_dict()
-
         indices: Union[None, Unset, list[int]]
         if isinstance(self.indices, Unset):
             indices = UNSET
@@ -150,19 +143,11 @@ class CustomizedAgenticWorkflowSuccessGPTScorer:
         else:
             metric_name = self.metric_name
 
-        model_alias: Union[None, Unset, str]
-        if isinstance(self.model_alias, Unset):
-            model_alias = UNSET
-        else:
-            model_alias = self.model_alias
+        model_alias = self.model_alias
 
         name = self.name
 
-        num_judges: Union[None, Unset, int]
-        if isinstance(self.num_judges, Unset):
-            num_judges = UNSET
-        else:
-            num_judges = self.num_judges
+        num_judges = self.num_judges
 
         regex_field = self.regex_field
 
@@ -207,8 +192,6 @@ class CustomizedAgenticWorkflowSuccessGPTScorer:
             field_dict["filters"] = filters
         if generated_scorer_id is not UNSET:
             field_dict["generated_scorer_id"] = generated_scorer_id
-        if gpt_settings is not UNSET:
-            field_dict["gpt_settings"] = gpt_settings
         if indices is not UNSET:
             field_dict["indices"] = indices
         if metric_name is not UNSET:
@@ -243,7 +226,6 @@ class CustomizedAgenticWorkflowSuccessGPTScorer:
         )
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
-        from ..models.prompt_run_settings import PromptRunSettings
 
         d = src_dict.copy()
         aggregate_keys = cast(list[str], d.pop("aggregate_keys", UNSET))
@@ -347,13 +329,6 @@ class CustomizedAgenticWorkflowSuccessGPTScorer:
 
         generated_scorer_id = _parse_generated_scorer_id(d.pop("generated_scorer_id", UNSET))
 
-        _gpt_settings = d.pop("gpt_settings", UNSET)
-        gpt_settings: Union[Unset, PromptRunSettings]
-        if isinstance(_gpt_settings, Unset):
-            gpt_settings = UNSET
-        else:
-            gpt_settings = PromptRunSettings.from_dict(_gpt_settings)
-
         def _parse_indices(data: object) -> Union[None, Unset, list[int]]:
             if data is None:
                 return data
@@ -380,27 +355,13 @@ class CustomizedAgenticWorkflowSuccessGPTScorer:
 
         metric_name = _parse_metric_name(d.pop("metric_name", UNSET))
 
-        def _parse_model_alias(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        model_alias = _parse_model_alias(d.pop("model_alias", UNSET))
+        model_alias = d.pop("model_alias", UNSET)
 
         name = cast(Union[Literal["agentic_workflow_success"], Unset], d.pop("name", UNSET))
         if name != "agentic_workflow_success" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'agentic_workflow_success', got '{name}'")
 
-        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, int], data)
-
-        num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
+        num_judges = d.pop("num_judges", UNSET)
 
         regex_field = d.pop("regex_field", UNSET)
 
@@ -451,7 +412,6 @@ class CustomizedAgenticWorkflowSuccessGPTScorer:
             extra=extra,
             filters=filters,
             generated_scorer_id=generated_scorer_id,
-            gpt_settings=gpt_settings,
             indices=indices,
             metric_name=metric_name,
             model_alias=model_alias,

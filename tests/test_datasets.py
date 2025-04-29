@@ -33,9 +33,13 @@ from galileo.resources.types import Response
 
 
 def dataset_content():
-    row = DatasetRow(index=0, values=["Which continent is Spain in?", "Europe"])
-    row.additional_properties = {"values_dict": {"input": "Which continent is Spain in?", "expected": "Europe"}}
-
+    row = DatasetRow(
+        index=0,
+        values=["Which continent is Spain in?", "Europe"],
+        metadata=None,
+        row_id="",
+        values_dict={"input": "Which continent is Spain in?", "expected": "Europe"},
+    )
     column_names = ["input", "expected"]
     return DatasetContent(column_names=column_names, rows=[row])
 
@@ -47,7 +51,7 @@ def dataset_db():
             "column_names": ["input", "output", "metadata"],
             "created_at": "2025-03-10T15:25:03.088471+00:00",
             "created_by_user": {
-                "email": "andriisoldatenko@galileo.ai",
+                # "email": "andriisoldatenko@galileo.ai",
                 "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
                 "first_name": "",
                 "last_name": "",
@@ -72,7 +76,7 @@ def dataset_response():
                     "column_names": ["input", "output", "metadata"],
                     "created_at": "2025-03-10T15:25:03.088471+00:00",
                     "created_by_user": {
-                        "email": "andriisoldatenko@galileo.ai",
+                        # "email": "andriisoldatenko@galileo.ai",
                         "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
                         "first_name": "",
                         "last_name": "",
@@ -140,9 +144,9 @@ def list_dataset_versions():
     )
 
 
-@patch("galileo.datasets.upload_dataset_datasets_post")
-def test_create_dataset_validation_error(upload_dataset_datasets_post_mock: Mock):
-    upload_dataset_datasets_post_mock.sync_detailed.return_value = Response(
+@patch("galileo.datasets.create_dataset_datasets_post")
+def test_create_dataset_validation_error(create_dataset_datasets_post_mock: Mock):
+    create_dataset_datasets_post_mock.sync_detailed.return_value = Response(
         content=b'{"detail":"Invalid CSV data: CSV parse error: Empty CSV file or block: cannot infer number of columns"}',
         status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
         headers={},
@@ -152,7 +156,7 @@ def test_create_dataset_validation_error(upload_dataset_datasets_post_mock: Mock
     with pytest.raises(DatasetAPIException):
         create_dataset(name="my_dataset_name", content=[{}])
 
-    upload_dataset_datasets_post_mock.sync_detailed.assert_called_once()
+    create_dataset_datasets_post_mock.sync_detailed.assert_called_once()
 
 
 @patch("galileo.datasets.get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get")
@@ -258,8 +262,8 @@ def test_get_dataset_version_history_wo_dataset_name_or_dataset_id():
     ],
 )
 def test_convert_dataset_content_to_records_str(value, expected):
-    row = DatasetRow(index=0, values=[value])
-    row.additional_properties = {"values_dict": {"input": value, "output": None, "metadata": None}}
+    values_dict = {"input": value, "output": None, "metadata": None}
+    row = DatasetRow(index=0, values=[value], metadata=None, row_id="", values_dict=values_dict)
     column_names = ["input", "output", "metadata"]
     content = DatasetContent(column_names=column_names, rows=[row])
     result = convert_dataset_content_to_records(content)
@@ -273,8 +277,7 @@ def test_convert_dataset_content_to_records_no_rows():
 
 
 def test_convert_dataset_content_to_records_empty_values_dict():
-    row = DatasetRow(index=0, values=[])
-    row.additional_properties = {"values_dict": {}}
+    row = DatasetRow(index=0, values=[], metadata=None, row_id="", values_dict={})
     content = DatasetContent(column_names=[], rows=[row])
     assert convert_dataset_content_to_records(content) == [{}]
 
