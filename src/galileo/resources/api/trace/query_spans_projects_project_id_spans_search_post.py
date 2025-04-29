@@ -6,15 +6,22 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.log_data_query_request import LogDataQueryRequest
-from ...models.log_data_query_response import LogDataQueryResponse
+from ...models.log_records_query_request import LogRecordsQueryRequest
+from ...models.log_records_query_response import LogRecordsQueryResponse
 from ...types import Response
 
 
-def _get_kwargs(project_id: str, *, body: LogDataQueryRequest) -> dict[str, Any]:
+def _get_kwargs(
+    project_id: str,
+    *,
+    body: LogRecordsQueryRequest,
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/spans/search"}
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": f"/projects/{project_id}/spans/search",
+    }
 
     _body = body.to_dict()
 
@@ -27,9 +34,9 @@ def _get_kwargs(project_id: str, *, body: LogDataQueryRequest) -> dict[str, Any]
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, LogDataQueryResponse]]:
+) -> Optional[Union[HTTPValidationError, LogRecordsQueryResponse]]:
     if response.status_code == 200:
-        response_200 = LogDataQueryResponse.from_dict(response.json())
+        response_200 = LogRecordsQueryResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -44,7 +51,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, LogDataQueryResponse]]:
+) -> Response[Union[HTTPValidationError, LogRecordsQueryResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -54,67 +61,88 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, *, client: AuthenticatedClient, body: LogDataQueryRequest
-) -> Response[Union[HTTPValidationError, LogDataQueryResponse]]:
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: LogRecordsQueryRequest,
+) -> Response[Union[HTTPValidationError, LogRecordsQueryResponse]]:
     """Query Spans
 
     Args:
         project_id (str):
-        body (LogDataQueryRequest):
+        body (LogRecordsQueryRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, LogDataQueryResponse]]
+        Response[Union[HTTPValidationError, LogRecordsQueryResponse]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, body=body)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        body=body,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, *, client: AuthenticatedClient, body: LogDataQueryRequest
-) -> Optional[Union[HTTPValidationError, LogDataQueryResponse]]:
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: LogRecordsQueryRequest,
+) -> Optional[Union[HTTPValidationError, LogRecordsQueryResponse]]:
     """Query Spans
 
     Args:
         project_id (str):
-        body (LogDataQueryRequest):
+        body (LogRecordsQueryRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, LogDataQueryResponse]
+        Union[HTTPValidationError, LogRecordsQueryResponse]
     """
 
-    return sync_detailed(project_id=project_id, client=client, body=body).parsed
+    return sync_detailed(
+        project_id=project_id,
+        client=client,
+        body=body,
+    ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, *, client: AuthenticatedClient, body: LogDataQueryRequest
-) -> Response[Union[HTTPValidationError, LogDataQueryResponse]]:
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: LogRecordsQueryRequest,
+) -> Response[Union[HTTPValidationError, LogRecordsQueryResponse]]:
     """Query Spans
 
     Args:
         project_id (str):
-        body (LogDataQueryRequest):
+        body (LogRecordsQueryRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, LogDataQueryResponse]]
+        Response[Union[HTTPValidationError, LogRecordsQueryResponse]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, body=body)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        body=body,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -122,20 +150,29 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, *, client: AuthenticatedClient, body: LogDataQueryRequest
-) -> Optional[Union[HTTPValidationError, LogDataQueryResponse]]:
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: LogRecordsQueryRequest,
+) -> Optional[Union[HTTPValidationError, LogRecordsQueryResponse]]:
     """Query Spans
 
     Args:
         project_id (str):
-        body (LogDataQueryRequest):
+        body (LogRecordsQueryRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, LogDataQueryResponse]
+        Union[HTTPValidationError, LogRecordsQueryResponse]
     """
 
-    return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed
+    return (
+        await asyncio_detailed(
+            project_id=project_id,
+            client=client,
+            body=body,
+        )
+    ).parsed

@@ -14,20 +14,23 @@ class ProjectRunsFilter:
     """
     Attributes:
         operator (ProjectRunsFilterOperator):
-        value (Union[int, list[int]]):
+        value (Union[float, int, list[float], list[int]]):
         name (Union[Literal['runs'], Unset]):  Default: 'runs'.
     """
 
     operator: ProjectRunsFilterOperator
-    value: Union[int, list[int]]
+    value: Union[float, int, list[float], list[int]]
     name: Union[Literal["runs"], Unset] = "runs"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         operator = self.operator.value
 
-        value: Union[int, list[int]]
+        value: Union[float, int, list[float], list[int]]
         if isinstance(self.value, list):
+            value = self.value
+
+        elif isinstance(self.value, list):
             value = self.value
 
         else:
@@ -37,7 +40,12 @@ class ProjectRunsFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"operator": operator, "value": value})
+        field_dict.update(
+            {
+                "operator": operator,
+                "value": value,
+            }
+        )
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -48,16 +56,24 @@ class ProjectRunsFilter:
         d = src_dict.copy()
         operator = ProjectRunsFilterOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> Union[int, list[int]]:
+        def _parse_value(data: object) -> Union[float, int, list[float], list[int]]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[int], data)
+                value_type_2 = cast(list[int], data)
 
-                return value_type_1
+                return value_type_2
             except:  # noqa: E722
                 pass
-            return cast(Union[int, list[int]], data)
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                value_type_3 = cast(list[float], data)
+
+                return value_type_3
+            except:  # noqa: E722
+                pass
+            return cast(Union[float, int, list[float], list[int]], data)
 
         value = _parse_value(d.pop("value"))
 
@@ -65,7 +81,11 @@ class ProjectRunsFilter:
         if name != "runs" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'runs', got '{name}'")
 
-        project_runs_filter = cls(operator=operator, value=value, name=name)
+        project_runs_filter = cls(
+            operator=operator,
+            value=value,
+            name=name,
+        )
 
         project_runs_filter.additional_properties = d
         return project_runs_filter

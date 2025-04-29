@@ -132,7 +132,12 @@ class UpdateScorerRequest:
 
         tags = _parse_tags(d.pop("tags", UNSET))
 
-        update_scorer_request = cls(defaults=defaults, description=description, name=name, tags=tags)
+        update_scorer_request = cls(
+            defaults=defaults,
+            description=description,
+            name=name,
+            tags=tags,
+        )
 
         update_scorer_request.additional_properties = d
         return update_scorer_request

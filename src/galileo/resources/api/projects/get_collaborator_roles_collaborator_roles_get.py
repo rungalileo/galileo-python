@@ -10,7 +10,10 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": "/collaborator_roles"}
+    _kwargs: dict[str, Any] = {
+        "method": "get",
+        "url": "/collaborator_roles",
+    }
 
     return _kwargs
 
@@ -44,7 +47,10 @@ def _build_response(
     )
 
 
-def sync_detailed(*, client: AuthenticatedClient) -> Response[list["CollaboratorRoleInfo"]]:
+def sync_detailed(
+    *,
+    client: AuthenticatedClient,
+) -> Response[list["CollaboratorRoleInfo"]]:
     """Get Collaborator Roles
 
     Raises:
@@ -57,12 +63,17 @@ def sync_detailed(*, client: AuthenticatedClient) -> Response[list["Collaborator
 
     kwargs = _get_kwargs()
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: AuthenticatedClient) -> Optional[list["CollaboratorRoleInfo"]]:
+def sync(
+    *,
+    client: AuthenticatedClient,
+) -> Optional[list["CollaboratorRoleInfo"]]:
     """Get Collaborator Roles
 
     Raises:
@@ -73,10 +84,15 @@ def sync(*, client: AuthenticatedClient) -> Optional[list["CollaboratorRoleInfo"
         list['CollaboratorRoleInfo']
     """
 
-    return sync_detailed(client=client).parsed
+    return sync_detailed(
+        client=client,
+    ).parsed
 
 
-async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[list["CollaboratorRoleInfo"]]:
+async def asyncio_detailed(
+    *,
+    client: AuthenticatedClient,
+) -> Response[list["CollaboratorRoleInfo"]]:
     """Get Collaborator Roles
 
     Raises:
@@ -94,7 +110,10 @@ async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[list["Col
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: AuthenticatedClient) -> Optional[list["CollaboratorRoleInfo"]]:
+async def asyncio(
+    *,
+    client: AuthenticatedClient,
+) -> Optional[list["CollaboratorRoleInfo"]]:
     """Get Collaborator Roles
 
     Raises:
@@ -105,4 +124,8 @@ async def asyncio(*, client: AuthenticatedClient) -> Optional[list["Collaborator
         list['CollaboratorRoleInfo']
     """
 
-    return (await asyncio_detailed(client=client)).parsed
+    return (
+        await asyncio_detailed(
+            client=client,
+        )
+    ).parsed

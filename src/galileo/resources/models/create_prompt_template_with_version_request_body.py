@@ -6,7 +6,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.message import Message
+    from ..models.messages_list_item import MessagesListItem
 
 
 T = TypeVar("T", bound="CreatePromptTemplateWithVersionRequestBody")
@@ -20,12 +20,12 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         Attributes:
             name (str):
-            template (Union[list['Message'], str]):
+            template (Union[list['MessagesListItem'], str]):
             version (Union[None, Unset, int]):
     """
 
     name: str
-    template: Union[list["Message"], str]
+    template: Union[list["MessagesListItem"], str]
     version: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -50,7 +50,12 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"name": name, "template": template})
+        field_dict.update(
+            {
+                "name": name,
+                "template": template,
+            }
+        )
         if version is not UNSET:
             field_dict["version"] = version
 
@@ -58,26 +63,26 @@ class CreatePromptTemplateWithVersionRequestBody:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        from ..models.message import Message
+        from ..models.messages_list_item import MessagesListItem
 
         d = src_dict.copy()
         name = d.pop("name")
 
-        def _parse_template(data: object) -> Union[list["Message"], str]:
+        def _parse_template(data: object) -> Union[list["MessagesListItem"], str]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
                 template_type_1 = []
                 _template_type_1 = data
                 for componentsschemas_messages_item_data in _template_type_1:
-                    componentsschemas_messages_item = Message.from_dict(componentsschemas_messages_item_data)
+                    componentsschemas_messages_item = MessagesListItem.from_dict(componentsschemas_messages_item_data)
 
                     template_type_1.append(componentsschemas_messages_item)
 
                 return template_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[list["Message"], str], data)
+            return cast(Union[list["MessagesListItem"], str], data)
 
         template = _parse_template(d.pop("template"))
 
@@ -90,7 +95,11 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         version = _parse_version(d.pop("version", UNSET))
 
-        create_prompt_template_with_version_request_body = cls(name=name, template=template, version=version)
+        create_prompt_template_with_version_request_body = cls(
+            name=name,
+            template=template,
+            version=version,
+        )
 
         create_prompt_template_with_version_request_body.additional_properties = d
         return create_prompt_template_with_version_request_body

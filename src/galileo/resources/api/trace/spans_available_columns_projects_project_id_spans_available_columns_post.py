@@ -6,15 +6,22 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.log_data_available_columns_request import LogDataAvailableColumnsRequest
-from ...models.log_data_available_columns_response import LogDataAvailableColumnsResponse
+from ...models.log_records_available_columns_request import LogRecordsAvailableColumnsRequest
+from ...models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
 from ...types import Response
 
 
-def _get_kwargs(project_id: str, *, body: LogDataAvailableColumnsRequest) -> dict[str, Any]:
+def _get_kwargs(
+    project_id: str,
+    *,
+    body: LogRecordsAvailableColumnsRequest,
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/spans/available_columns"}
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": f"/projects/{project_id}/spans/available_columns",
+    }
 
     _body = body.to_dict()
 
@@ -27,9 +34,9 @@ def _get_kwargs(project_id: str, *, body: LogDataAvailableColumnsRequest) -> dic
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, LogDataAvailableColumnsResponse]]:
+) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     if response.status_code == 200:
-        response_200 = LogDataAvailableColumnsResponse.from_dict(response.json())
+        response_200 = LogRecordsAvailableColumnsResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -44,7 +51,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, LogDataAvailableColumnsResponse]]:
+) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -54,67 +61,88 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, *, client: AuthenticatedClient, body: LogDataAvailableColumnsRequest
-) -> Response[Union[HTTPValidationError, LogDataAvailableColumnsResponse]]:
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: LogRecordsAvailableColumnsRequest,
+) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     """Spans Available Columns
 
     Args:
         project_id (str):
-        body (LogDataAvailableColumnsRequest):
+        body (LogRecordsAvailableColumnsRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, LogDataAvailableColumnsResponse]]
+        Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, body=body)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        body=body,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, *, client: AuthenticatedClient, body: LogDataAvailableColumnsRequest
-) -> Optional[Union[HTTPValidationError, LogDataAvailableColumnsResponse]]:
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: LogRecordsAvailableColumnsRequest,
+) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     """Spans Available Columns
 
     Args:
         project_id (str):
-        body (LogDataAvailableColumnsRequest):
+        body (LogRecordsAvailableColumnsRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, LogDataAvailableColumnsResponse]
+        Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]
     """
 
-    return sync_detailed(project_id=project_id, client=client, body=body).parsed
+    return sync_detailed(
+        project_id=project_id,
+        client=client,
+        body=body,
+    ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, *, client: AuthenticatedClient, body: LogDataAvailableColumnsRequest
-) -> Response[Union[HTTPValidationError, LogDataAvailableColumnsResponse]]:
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: LogRecordsAvailableColumnsRequest,
+) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     """Spans Available Columns
 
     Args:
         project_id (str):
-        body (LogDataAvailableColumnsRequest):
+        body (LogRecordsAvailableColumnsRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, LogDataAvailableColumnsResponse]]
+        Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, body=body)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        body=body,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -122,20 +150,29 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, *, client: AuthenticatedClient, body: LogDataAvailableColumnsRequest
-) -> Optional[Union[HTTPValidationError, LogDataAvailableColumnsResponse]]:
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: LogRecordsAvailableColumnsRequest,
+) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     """Spans Available Columns
 
     Args:
         project_id (str):
-        body (LogDataAvailableColumnsRequest):
+        body (LogRecordsAvailableColumnsRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, LogDataAvailableColumnsResponse]
+        Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]
     """
 
-    return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed
+    return (
+        await asyncio_detailed(
+            project_id=project_id,
+            client=client,
+            body=body,
+        )
+    ).parsed

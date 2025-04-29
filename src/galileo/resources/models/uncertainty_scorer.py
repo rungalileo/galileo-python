@@ -107,7 +107,10 @@ class UncertaintyScorer:
         if name != "uncertainty" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'uncertainty', got '{name}'")
 
-        uncertainty_scorer = cls(filters=filters, name=name)
+        uncertainty_scorer = cls(
+            filters=filters,
+            name=name,
+        )
 
         uncertainty_scorer.additional_properties = d
         return uncertainty_scorer

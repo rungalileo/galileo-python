@@ -1,9 +1,14 @@
-from typing import Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.metadata_filter import MetadataFilter
+    from ..models.node_name_filter import NodeNameFilter
+
 
 T = TypeVar("T", bound="ScorerDefaults")
 
@@ -12,15 +17,37 @@ T = TypeVar("T", bound="ScorerDefaults")
 class ScorerDefaults:
     """
     Attributes:
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
+            scorer.
         model_name (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
     """
 
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.node_name_filter import NodeNameFilter
+
+        filters: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.filters, Unset):
+            filters = UNSET
+        elif isinstance(self.filters, list):
+            filters = []
+            for filters_type_0_item_data in self.filters:
+                filters_type_0_item: dict[str, Any]
+                if isinstance(filters_type_0_item_data, NodeNameFilter):
+                    filters_type_0_item = filters_type_0_item_data.to_dict()
+                else:
+                    filters_type_0_item = filters_type_0_item_data.to_dict()
+
+                filters.append(filters_type_0_item)
+
+        else:
+            filters = self.filters
+
         model_name: Union[None, Unset, str]
         if isinstance(self.model_name, Unset):
             model_name = UNSET
@@ -36,6 +63,8 @@ class ScorerDefaults:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if filters is not UNSET:
+            field_dict["filters"] = filters
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if num_judges is not UNSET:
@@ -45,7 +74,48 @@ class ScorerDefaults:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+        from ..models.metadata_filter import MetadataFilter
+        from ..models.node_name_filter import NodeNameFilter
+
         d = src_dict.copy()
+
+        def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                filters_type_0 = []
+                _filters_type_0 = data
+                for filters_type_0_item_data in _filters_type_0:
+
+                    def _parse_filters_type_0_item(data: object) -> Union["MetadataFilter", "NodeNameFilter"]:
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+
+                            return filters_type_0_item_type_0
+                        except:  # noqa: E722
+                            pass
+                        if not isinstance(data, dict):
+                            raise TypeError()
+                        filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
+
+                        return filters_type_0_item_type_1
+
+                    filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
+
+                    filters_type_0.append(filters_type_0_item)
+
+                return filters_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]], data)
+
+        filters = _parse_filters(d.pop("filters", UNSET))
 
         def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -65,7 +135,11 @@ class ScorerDefaults:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        scorer_defaults = cls(model_name=model_name, num_judges=num_judges)
+        scorer_defaults = cls(
+            filters=filters,
+            model_name=model_name,
+            num_judges=num_judges,
+        )
 
         scorer_defaults.additional_properties = d
         return scorer_defaults

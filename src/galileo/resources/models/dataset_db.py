@@ -23,6 +23,7 @@ class DatasetDB:
         created_at (datetime.datetime):
         created_by_user (Union['UserInfo', None]):
         current_version_index (int):
+        draft (bool):
         id (str):
         name (str):
         num_rows (Union[None, int]):
@@ -35,6 +36,7 @@ class DatasetDB:
     created_at: datetime.datetime
     created_by_user: Union["UserInfo", None]
     current_version_index: int
+    draft: bool
     id: str
     name: str
     num_rows: Union[None, int]
@@ -63,6 +65,8 @@ class DatasetDB:
 
         current_version_index = self.current_version_index
 
+        draft = self.draft
+
         id = self.id
 
         name = self.name
@@ -89,6 +93,7 @@ class DatasetDB:
                 "created_at": created_at,
                 "created_by_user": created_by_user,
                 "current_version_index": current_version_index,
+                "draft": draft,
                 "id": id,
                 "name": name,
                 "num_rows": num_rows,
@@ -142,6 +147,8 @@ class DatasetDB:
 
         current_version_index = d.pop("current_version_index")
 
+        draft = d.pop("draft")
+
         id = d.pop("id")
 
         name = d.pop("name")
@@ -169,6 +176,7 @@ class DatasetDB:
             created_at=created_at,
             created_by_user=created_by_user,
             current_version_index=current_version_index,
+            draft=draft,
             id=id,
             name=name,
             num_rows=num_rows,

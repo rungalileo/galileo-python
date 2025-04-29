@@ -40,7 +40,13 @@ class Segment:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"end": end, "start": start, "value": value})
+        field_dict.update(
+            {
+                "end": end,
+                "start": start,
+                "value": value,
+            }
+        )
         if prob is not UNSET:
             field_dict["prob"] = prob
 
@@ -67,7 +73,12 @@ class Segment:
 
         prob = _parse_prob(d.pop("prob", UNSET))
 
-        segment = cls(end=end, start=start, value=value, prob=prob)
+        segment = cls(
+            end=end,
+            start=start,
+            value=value,
+            prob=prob,
+        )
 
         segment.additional_properties = d
         return segment

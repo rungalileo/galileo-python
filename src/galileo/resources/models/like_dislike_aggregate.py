@@ -35,7 +35,13 @@ class LikeDislikeAggregate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"dislike_count": dislike_count, "like_count": like_count, "unrated_count": unrated_count})
+        field_dict.update(
+            {
+                "dislike_count": dislike_count,
+                "like_count": like_count,
+                "unrated_count": unrated_count,
+            }
+        )
         if feedback_type is not UNSET:
             field_dict["feedback_type"] = feedback_type
 
@@ -55,7 +61,10 @@ class LikeDislikeAggregate:
             raise ValueError(f"feedback_type must match const 'like_dislike', got '{feedback_type}'")
 
         like_dislike_aggregate = cls(
-            dislike_count=dislike_count, like_count=like_count, unrated_count=unrated_count, feedback_type=feedback_type
+            dislike_count=dislike_count,
+            like_count=like_count,
+            unrated_count=unrated_count,
+            feedback_type=feedback_type,
         )
 
         like_dislike_aggregate.additional_properties = d

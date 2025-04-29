@@ -3,14 +3,10 @@ from galileo.resources.api.data import list_scorers_with_filters_scorers_list_po
 from galileo.resources.api.run_scorer_settings import (
     upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_post,
 )
-from galileo.resources.models import (
-    ListScorersRequest,
-    RunScorerSettingsRequest,
-    ScorerConfig,
-    ScorerTypeFilter,
-    ScorerTypeFilterOperator,
-    ScorerTypes,
-)
+from galileo.resources.models.list_scorers_request import ListScorersRequest
+from galileo.resources.models.run_scorer_settings_patch_request import RunScorerSettingsPatchRequest
+from galileo.resources.models.scorer_config import ScorerConfig, ScorerTypes
+from galileo.resources.models.scorer_type_filter import ScorerTypeFilter, ScorerTypeFilterOperator
 
 
 class Scorers(BaseClientModel):
@@ -42,5 +38,5 @@ class ScorerSettings(BaseClientModel):
             project_id=project_id,
             run_id=run_id,
             client=self.client,
-            body=RunScorerSettingsRequest(run_id=run_id, scorers=scorers),
+            body=RunScorerSettingsPatchRequest(run_id=run_id, scorers=scorers),
         )

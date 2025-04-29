@@ -32,7 +32,11 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/prompt_datasets", "params": params}
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": f"/projects/{project_id}/prompt_datasets",
+        "params": params,
+    }
 
     _body = body.to_multipart()
 
@@ -92,9 +96,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, PromptDatasetDB]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, body=body, format_=format_)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        body=body,
+        format_=format_,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
@@ -121,7 +131,12 @@ def sync(
         Union[HTTPValidationError, PromptDatasetDB]
     """
 
-    return sync_detailed(project_id=project_id, client=client, body=body, format_=format_).parsed
+    return sync_detailed(
+        project_id=project_id,
+        client=client,
+        body=body,
+        format_=format_,
+    ).parsed
 
 
 async def asyncio_detailed(
@@ -146,7 +161,11 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, PromptDatasetDB]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, body=body, format_=format_)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        body=body,
+        format_=format_,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -175,4 +194,11 @@ async def asyncio(
         Union[HTTPValidationError, PromptDatasetDB]
     """
 
-    return (await asyncio_detailed(project_id=project_id, client=client, body=body, format_=format_)).parsed
+    return (
+        await asyncio_detailed(
+            project_id=project_id,
+            client=client,
+            body=body,
+            format_=format_,
+        )
+    ).parsed

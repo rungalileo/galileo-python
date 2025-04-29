@@ -149,7 +149,9 @@ class ListScorersRequest:
 
             filters.append(filters_item)
 
-        list_scorers_request = cls(filters=filters)
+        list_scorers_request = cls(
+            filters=filters,
+        )
 
         list_scorers_request.additional_properties = d
         return list_scorers_request

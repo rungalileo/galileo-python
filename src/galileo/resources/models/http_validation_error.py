@@ -45,14 +45,14 @@ class HTTPValidationError:
         d = src_dict.copy()
         detail = []
         _detail = d.pop("detail", UNSET)
+        for detail_item_data in _detail or []:
+            detail_item = ValidationError.from_dict(detail_item_data)
 
-        if isinstance(_detail, list):
-            for detail_item_data in _detail:
-                detail_item = ValidationError.from_dict(detail_item_data)
+            detail.append(detail_item)
 
-                detail.append(detail_item)
-
-        http_validation_error = cls(detail=detail)
+        http_validation_error = cls(
+            detail=detail,
+        )
 
         http_validation_error.additional_properties = d
         return http_validation_error

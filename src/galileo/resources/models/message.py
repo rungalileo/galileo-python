@@ -1,9 +1,14 @@
-from typing import Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.message_role import MessageRole
+from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.tool_call import ToolCall
+
 
 T = TypeVar("T", bound="Message")
 
@@ -13,47 +18,101 @@ class Message:
     """
     Attributes:
         content (str):
-        role (Union[MessageRole, str]):
+        role (MessageRole):
+        tool_call_id (Union[None, Unset, str]):
+        tool_calls (Union[None, Unset, list['ToolCall']]):
     """
 
     content: str
-    role: Union[MessageRole, str]
+    role: MessageRole
+    tool_call_id: Union[None, Unset, str] = UNSET
+    tool_calls: Union[None, Unset, list["ToolCall"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         content = self.content
 
-        role: str
-        if isinstance(self.role, MessageRole):
-            role = self.role.value
+        role = self.role.value
+
+        tool_call_id: Union[None, Unset, str]
+        if isinstance(self.tool_call_id, Unset):
+            tool_call_id = UNSET
         else:
-            role = self.role
+            tool_call_id = self.tool_call_id
+
+        tool_calls: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.tool_calls, Unset):
+            tool_calls = UNSET
+        elif isinstance(self.tool_calls, list):
+            tool_calls = []
+            for tool_calls_type_0_item_data in self.tool_calls:
+                tool_calls_type_0_item = tool_calls_type_0_item_data.to_dict()
+                tool_calls.append(tool_calls_type_0_item)
+
+        else:
+            tool_calls = self.tool_calls
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"content": content, "role": role})
+        field_dict.update(
+            {
+                "content": content,
+                "role": role,
+            }
+        )
+        if tool_call_id is not UNSET:
+            field_dict["tool_call_id"] = tool_call_id
+        if tool_calls is not UNSET:
+            field_dict["tool_calls"] = tool_calls
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+        from ..models.tool_call import ToolCall
+
         d = src_dict.copy()
         content = d.pop("content")
 
-        def _parse_role(data: object) -> Union[MessageRole, str]:
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                role_type_1 = MessageRole(data)
+        role = MessageRole(d.pop("role"))
 
-                return role_type_1
+        def _parse_tool_call_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        tool_call_id = _parse_tool_call_id(d.pop("tool_call_id", UNSET))
+
+        def _parse_tool_calls(data: object) -> Union[None, Unset, list["ToolCall"]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                tool_calls_type_0 = []
+                _tool_calls_type_0 = data
+                for tool_calls_type_0_item_data in _tool_calls_type_0:
+                    tool_calls_type_0_item = ToolCall.from_dict(tool_calls_type_0_item_data)
+
+                    tool_calls_type_0.append(tool_calls_type_0_item)
+
+                return tool_calls_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union[MessageRole, str], data)
+            return cast(Union[None, Unset, list["ToolCall"]], data)
 
-        role = _parse_role(d.pop("role"))
+        tool_calls = _parse_tool_calls(d.pop("tool_calls", UNSET))
 
-        message = cls(content=content, role=role)
+        message = cls(
+            content=content,
+            role=role,
+            tool_call_id=tool_call_id,
+            tool_calls=tool_calls,
+        )
 
         message.additional_properties = d
         return message

@@ -11,6 +11,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.permission import Permission
     from ..models.run_db import RunDB
+    from ..models.user_info import UserInfo
 
 
 T = TypeVar("T", bound="ProjectDB")
@@ -22,6 +23,7 @@ class ProjectDB:
     Attributes:
         created_at (datetime.datetime):
         created_by (str):
+        created_by_user (UserInfo): A user's basic information, used for display purposes.
         id (str):
         runs (list['RunDB']):
         updated_at (datetime.datetime):
@@ -33,6 +35,7 @@ class ProjectDB:
 
     created_at: datetime.datetime
     created_by: str
+    created_by_user: "UserInfo"
     id: str
     runs: list["RunDB"]
     updated_at: datetime.datetime
@@ -46,6 +49,8 @@ class ProjectDB:
         created_at = self.created_at.isoformat()
 
         created_by = self.created_by
+
+        created_by_user = self.created_by_user.to_dict()
 
         id = self.id
 
@@ -82,7 +87,14 @@ class ProjectDB:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {"created_at": created_at, "created_by": created_by, "id": id, "runs": runs, "updated_at": updated_at}
+            {
+                "created_at": created_at,
+                "created_by": created_by,
+                "created_by_user": created_by_user,
+                "id": id,
+                "runs": runs,
+                "updated_at": updated_at,
+            }
         )
         if bookmark is not UNSET:
             field_dict["bookmark"] = bookmark
@@ -99,11 +111,14 @@ class ProjectDB:
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.permission import Permission
         from ..models.run_db import RunDB
+        from ..models.user_info import UserInfo
 
         d = src_dict.copy()
         created_at = isoparse(d.pop("created_at"))
 
         created_by = d.pop("created_by")
+
+        created_by_user = UserInfo.from_dict(d.pop("created_by_user"))
 
         id = d.pop("id")
 
@@ -154,6 +169,7 @@ class ProjectDB:
         project_db = cls(
             created_at=created_at,
             created_by=created_by,
+            created_by_user=created_by_user,
             id=id,
             runs=runs,
             updated_at=updated_at,

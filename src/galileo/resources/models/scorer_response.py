@@ -30,6 +30,7 @@ class ScorerResponse:
         description (Union[None, Unset, str]):
         included_fields (Union[Unset, list[str]]): Fields that can be used in the scorer to configure it. i.e. model,
             num_judges, etc. This enables the ui to know which fields a user can configure when they're setting a scorer
+        label (Union[Unset, str]):  Default: ''.
         latest_version (Union['BaseScorerVersionResponse', None, Unset]):
         updated_at (Union[None, Unset, datetime.datetime]):
     """
@@ -43,6 +44,7 @@ class ScorerResponse:
     defaults: Union["ScorerDefaults", None, Unset] = UNSET
     description: Union[None, Unset, str] = UNSET
     included_fields: Union[Unset, list[str]] = UNSET
+    label: Union[Unset, str] = ""
     latest_version: Union["BaseScorerVersionResponse", None, Unset] = UNSET
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -91,6 +93,8 @@ class ScorerResponse:
         if not isinstance(self.included_fields, Unset):
             included_fields = self.included_fields
 
+        label = self.label
+
         latest_version: Union[None, Unset, dict[str, Any]]
         if isinstance(self.latest_version, Unset):
             latest_version = UNSET
@@ -109,7 +113,14 @@ class ScorerResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"id": id, "name": name, "scorer_type": scorer_type, "tags": tags})
+        field_dict.update(
+            {
+                "id": id,
+                "name": name,
+                "scorer_type": scorer_type,
+                "tags": tags,
+            }
+        )
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if created_by is not UNSET:
@@ -120,6 +131,8 @@ class ScorerResponse:
             field_dict["description"] = description
         if included_fields is not UNSET:
             field_dict["included_fields"] = included_fields
+        if label is not UNSET:
+            field_dict["label"] = label
         if latest_version is not UNSET:
             field_dict["latest_version"] = latest_version
         if updated_at is not UNSET:
@@ -195,6 +208,8 @@ class ScorerResponse:
 
         included_fields = cast(list[str], d.pop("included_fields", UNSET))
 
+        label = d.pop("label", UNSET)
+
         def _parse_latest_version(data: object) -> Union["BaseScorerVersionResponse", None, Unset]:
             if data is None:
                 return data
@@ -239,6 +254,7 @@ class ScorerResponse:
             defaults=defaults,
             description=description,
             included_fields=included_fields,
+            label=label,
             latest_version=latest_version,
             updated_at=updated_at,
         )

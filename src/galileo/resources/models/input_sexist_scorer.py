@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.input_sexist_scorer_type import InputSexistScorerType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -19,11 +20,17 @@ class InputSexistScorer:
     Attributes:
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
+        model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
         name (Union[Literal['input_sexist'], Unset]):  Default: 'input_sexist'.
+        num_judges (Union[None, Unset, int]): Number of judges for the scorer.
+        type_ (Union[Unset, InputSexistScorerType]):  Default: InputSexistScorerType.LUNA.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
+    model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["input_sexist"], Unset] = "input_sexist"
+    num_judges: Union[None, Unset, int] = UNSET
+    type_: Union[Unset, InputSexistScorerType] = InputSexistScorerType.LUNA
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -46,15 +53,37 @@ class InputSexistScorer:
         else:
             filters = self.filters
 
+        model_name: Union[None, Unset, str]
+        if isinstance(self.model_name, Unset):
+            model_name = UNSET
+        else:
+            model_name = self.model_name
+
         name = self.name
+
+        num_judges: Union[None, Unset, int]
+        if isinstance(self.num_judges, Unset):
+            num_judges = UNSET
+        else:
+            num_judges = self.num_judges
+
+        type_: Union[Unset, str] = UNSET
+        if not isinstance(self.type_, Unset):
+            type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
         if filters is not UNSET:
             field_dict["filters"] = filters
+        if model_name is not UNSET:
+            field_dict["model_name"] = model_name
         if name is not UNSET:
             field_dict["name"] = name
+        if num_judges is not UNSET:
+            field_dict["num_judges"] = num_judges
+        if type_ is not UNSET:
+            field_dict["type"] = type_
 
         return field_dict
 
@@ -103,11 +132,42 @@ class InputSexistScorer:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
+        def _parse_model_name(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        model_name = _parse_model_name(d.pop("model_name", UNSET))
+
         name = cast(Union[Literal["input_sexist"], Unset], d.pop("name", UNSET))
         if name != "input_sexist" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'input_sexist', got '{name}'")
 
-        input_sexist_scorer = cls(filters=filters, name=name)
+        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
+
+        _type_ = d.pop("type", UNSET)
+        type_: Union[Unset, InputSexistScorerType]
+        if isinstance(_type_, Unset):
+            type_ = UNSET
+        else:
+            type_ = InputSexistScorerType(_type_)
+
+        input_sexist_scorer = cls(
+            filters=filters,
+            model_name=model_name,
+            name=name,
+            num_judges=num_judges,
+            type_=type_,
+        )
 
         input_sexist_scorer.additional_properties = d
         return input_sexist_scorer

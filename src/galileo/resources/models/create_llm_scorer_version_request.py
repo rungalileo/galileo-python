@@ -1,9 +1,7 @@
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.chain_poll_template import ChainPollTemplate
@@ -19,12 +17,10 @@ class CreateLLMScorerVersionRequest:
         chain_poll_template (ChainPollTemplate): Template for a chainpoll metric prompt,
             containing all the info necessary to send a chainpoll prompt.
         instructions (str):
-        version_description (Union[None, Unset, str]):
     """
 
     chain_poll_template: "ChainPollTemplate"
     instructions: str
-    version_description: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -32,17 +28,14 @@ class CreateLLMScorerVersionRequest:
 
         instructions = self.instructions
 
-        version_description: Union[None, Unset, str]
-        if isinstance(self.version_description, Unset):
-            version_description = UNSET
-        else:
-            version_description = self.version_description
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"chain_poll_template": chain_poll_template, "instructions": instructions})
-        if version_description is not UNSET:
-            field_dict["version_description"] = version_description
+        field_dict.update(
+            {
+                "chain_poll_template": chain_poll_template,
+                "instructions": instructions,
+            }
+        )
 
         return field_dict
 
@@ -55,17 +48,9 @@ class CreateLLMScorerVersionRequest:
 
         instructions = d.pop("instructions")
 
-        def _parse_version_description(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        version_description = _parse_version_description(d.pop("version_description", UNSET))
-
         create_llm_scorer_version_request = cls(
-            chain_poll_template=chain_poll_template, instructions=instructions, version_description=version_description
+            chain_poll_template=chain_poll_template,
+            instructions=instructions,
         )
 
         create_llm_scorer_version_request.additional_properties = d

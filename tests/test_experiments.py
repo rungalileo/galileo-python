@@ -56,6 +56,7 @@ def experiment_response():
         project_id=str(UUID(int=0, version=4)),
         updated_at=datetime.now(),
         created_at=datetime.now(),
+        task_type=TaskType.VALUE_16,
     )
 
 
@@ -76,28 +77,40 @@ def prompt_template():
 
 
 def dataset_content():
-    row = DatasetRow(index=0, values=['{"input": "Which continent is Spain in?", "expected": "Europe"}', None, None])
-    row.additional_properties = {
-        "values_dict": {
-            "input": '{"input": "Which continent is Spain in?", "expected": "Europe"}',
-            "output": None,
-            "metadata": None,
-        }
-    }
+    row = DatasetRow(
+        index=0,
+        values=['{"input": "Which continent is Spain in?", "expected": "Europe"}'],
+        values_dict={"input": "Which continent is Spain in?", "expected": "Europe"},
+        row_id="",
+        metadata=None,
+    )
+    # row.additional_properties = {
+    #     "values_dict": {
+    #         "input": '{"input": "Which continent is Spain in?", "expected": "Europe"}',
+    #         "output": None,
+    #         "metadata": None,
+    #     }
+    # }
 
     column_names = ["input", "output", "metadata"]
     return DatasetContent(column_names=column_names, rows=[row])
 
 
 def dataset_content_with_question():
-    row = DatasetRow(index=0, values=['{"question": "Which continent is Spain in?", "expected": "Europe"}'])
-    row.additional_properties = {
-        "values_dict": {
-            "input": '{"question": "Which continent is Spain in?", "expected": "Europe"}',
-            "output": None,
-            "metadata": None,
-        }
-    }
+    row = DatasetRow(
+        index=0,
+        values=['{"question": "Which continent is Spain in?", "expected": "Europe"}'],
+        values_dict={"question": "Which continent is Spain in?", "expected": "Europe"},
+        row_id="",
+        metadata=None,
+    )
+    # row.additional_properties = {
+    #     "values_dict": {
+    #         "input": '{"question": "Which continent is Spain in?", "expected": "Europe"}',
+    #         "output": None,
+    #         "metadata": None,
+    #     }
+    # }
 
     column_names = ["input", "output", "metadata"]
     return DatasetContent(column_names=column_names, rows=[row])
@@ -130,7 +143,7 @@ def scorers():
     ]
 
 
-def promt_run_settings():
+def prompt_run_settings():
     return PromptRunSettings(
         n=1,
         echo=True,
@@ -147,12 +160,19 @@ def promt_run_settings():
 
 
 class TestExperiments:
-    @patch("galileo.experiments.create_experiment_v2_projects_project_id_experiments_post")
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
     def test_create(self, galileo_resources_api_create_experiment: Mock):
         now = datetime(2020, 1, 1).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         galileo_resources_api_create_experiment.sync = Mock(
             return_value=ExperimentResponse.from_dict(
-                dict(id="test", name="test_experiment", project_id="test", created_at=now, updated_at=now)
+                dict(
+                    id="test",
+                    name="test_experiment",
+                    project_id="test",
+                    created_at=now,
+                    updated_at=now,
+                    task_type=TaskType.VALUE_16,
+                )
             )
         )
         experiment = Experiments().create(project_id="test", name="test_experiment")
@@ -160,12 +180,19 @@ class TestExperiments:
         assert experiment.project_id == "test"
         galileo_resources_api_create_experiment.sync.assert_called_once_with(project_id="test", client=ANY, body=ANY)
 
-    @patch("galileo.experiments.create_experiment_v2_projects_project_id_experiments_post")
+    @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
     def test_create_experiment(self, galileo_resources_api_create_experiment: Mock):
         now = datetime(2020, 1, 1).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         galileo_resources_api_create_experiment.sync = Mock(
             return_value=ExperimentResponse.from_dict(
-                dict(id="test", name="test_experiment", project_id="test", created_at=now, updated_at=now)
+                dict(
+                    id="test",
+                    name="test_experiment",
+                    project_id="test",
+                    created_at=now,
+                    updated_at=now,
+                    task_type=TaskType.VALUE_16,
+                )
             )
         )
 
@@ -175,14 +202,14 @@ class TestExperiments:
             project_id=str(UUID(int=0)), client=ANY, body=ANY
         )
 
-    @patch("galileo.experiments.list_experiments_v2_projects_project_id_experiments_get")
+    @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
     def test_get_experiment(self, list_experiments_mock: Mock):
         list_experiments_mock.sync = Mock(return_value=[experiment_response()])
         experiment = get_experiment(project_id=str(UUID(int=0)), experiment_name=experiment_response().name)
         assert experiment.name == experiment_response().name
         list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
 
-    @patch("galileo.experiments.list_experiments_v2_projects_project_id_experiments_get")
+    @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
     def test_get_experiments(self, list_experiments_mock: Mock):
         list_experiments_mock.sync = Mock(return_value=[experiment_response()])
         experiments = get_experiments(project_id=str(UUID(int=0)))
@@ -190,7 +217,7 @@ class TestExperiments:
         assert experiments[0].name == experiment_response().name
         list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
 
-    @patch("galileo.experiments.list_experiments_v2_projects_project_id_experiments_get")
+    @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
     def test_get_experiment_not_found(self, list_experiments_mock: Mock):
         list_experiments_mock.sync = Mock(return_value=None)
         experiment = get_experiment(experiment_name=experiment_response().name, project_id=str(UUID(int=0)))
@@ -205,7 +232,7 @@ class TestExperiments:
 
         _, records = _get_dataset_and_records_by_id(dataset_id=dataset_id)
 
-        assert records == [{"expected": "Europe", "input": "Which continent is Spain in?"}]
+        assert records == ["Which continent is Spain in?"]
 
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
@@ -225,7 +252,7 @@ class TestExperiments:
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
 
         _, records = _get_dataset_and_records_by_name(dataset_name="awesome-dataset")
-        assert records == [{"expected": "Europe", "input": "Which continent is Spain in?"}]
+        assert records == ["Which continent is Spain in?"]
 
         mock_get_dataset.assert_called_once_with(id=None, name="awesome-dataset")
         mock_get_dataset_instance.get_content.assert_called()
@@ -248,7 +275,7 @@ class TestExperiments:
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
         _, records = _load_dataset_and_records(dataset=dataset, dataset_name=dataset_name, dataset_id=dataset_id)
-        assert records == [{"expected": "Europe", "input": "Which continent is Spain in?"}]
+        assert records == ["Which continent is Spain in?"]
         mock_get_dataset.assert_called_once_with(id=dataset_id, name=dataset_name or dataset)
 
     def test_load_dataset_and_records_error(self):
@@ -423,7 +450,7 @@ class TestExperiments:
             project="awesome-new-project",
             dataset_id=dataset_id,
             prompt_template=prompt_template(),
-            prompt_settings=promt_run_settings(),
+            prompt_settings=prompt_run_settings(),
         )
 
         mock_get_project.assert_called_once_with(name="awesome-new-project")
@@ -442,7 +469,7 @@ class TestExperiments:
             dataset_id=ANY,
             task_type=TaskType.VALUE_16,
             scorers=None,
-            prompt_settings=promt_run_settings(),
+            prompt_settings=prompt_run_settings(),
         )
 
     @freeze_time("2012-01-01")

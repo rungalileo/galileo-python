@@ -7,8 +7,14 @@
 # Define the paths to the OpenAPI spec and config file
 OPENAPI_SPEC_PATH="../openapi.yaml"
 CONFIG_PATH="../openapi-client-config.yaml"
-OUTPUT_PATH="./src/galileo/resources"
-CLIENT_DIR_NAME="galileo_api_server_client"
+OUTPUT_PATH="../src/galileo/resources"
+CLIENT_DIR_NAME="fast_api_client"
+
+HOME_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "$HOME_DIR"
+
+cd "$HOME_DIR"
 
 # Backup the current output path
 mv "$OUTPUT_PATH"  "$OUTPUT_PATH"_backup

@@ -4,11 +4,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.dataset_add_column import DatasetAddColumn
     from ..models.dataset_append_row import DatasetAppendRow
-    from ..models.dataset_delete_column import DatasetDeleteColumn
     from ..models.dataset_delete_row import DatasetDeleteRow
-    from ..models.dataset_rename_column import DatasetRenameColumn
     from ..models.dataset_update_row import DatasetUpdateRow
 
 
@@ -19,27 +16,14 @@ T = TypeVar("T", bound="UpdateDatasetContentRequest")
 class UpdateDatasetContentRequest:
     """
     Attributes:
-        edits (list[Union['DatasetAddColumn', 'DatasetAppendRow', 'DatasetDeleteColumn', 'DatasetDeleteRow',
-            'DatasetRenameColumn', 'DatasetUpdateRow']]):
+        edits (list[Union['DatasetAppendRow', 'DatasetDeleteRow', 'DatasetUpdateRow']]):
     """
 
-    edits: list[
-        Union[
-            "DatasetAddColumn",
-            "DatasetAppendRow",
-            "DatasetDeleteColumn",
-            "DatasetDeleteRow",
-            "DatasetRenameColumn",
-            "DatasetUpdateRow",
-        ]
-    ]
+    edits: list[Union["DatasetAppendRow", "DatasetDeleteRow", "DatasetUpdateRow"]]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_append_row import DatasetAppendRow
-        from ..models.dataset_delete_column import DatasetDeleteColumn
-        from ..models.dataset_delete_row import DatasetDeleteRow
-        from ..models.dataset_rename_column import DatasetRenameColumn
         from ..models.dataset_update_row import DatasetUpdateRow
 
         edits = []
@@ -49,12 +33,6 @@ class UpdateDatasetContentRequest:
                 edits_item = edits_item_data.to_dict()
             elif isinstance(edits_item_data, DatasetUpdateRow):
                 edits_item = edits_item_data.to_dict()
-            elif isinstance(edits_item_data, DatasetDeleteRow):
-                edits_item = edits_item_data.to_dict()
-            elif isinstance(edits_item_data, DatasetDeleteColumn):
-                edits_item = edits_item_data.to_dict()
-            elif isinstance(edits_item_data, DatasetRenameColumn):
-                edits_item = edits_item_data.to_dict()
             else:
                 edits_item = edits_item_data.to_dict()
 
@@ -62,17 +40,18 @@ class UpdateDatasetContentRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"edits": edits})
+        field_dict.update(
+            {
+                "edits": edits,
+            }
+        )
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        from ..models.dataset_add_column import DatasetAddColumn
         from ..models.dataset_append_row import DatasetAppendRow
-        from ..models.dataset_delete_column import DatasetDeleteColumn
         from ..models.dataset_delete_row import DatasetDeleteRow
-        from ..models.dataset_rename_column import DatasetRenameColumn
         from ..models.dataset_update_row import DatasetUpdateRow
 
         d = src_dict.copy()
@@ -80,16 +59,7 @@ class UpdateDatasetContentRequest:
         _edits = d.pop("edits")
         for edits_item_data in _edits:
 
-            def _parse_edits_item(
-                data: object,
-            ) -> Union[
-                "DatasetAddColumn",
-                "DatasetAppendRow",
-                "DatasetDeleteColumn",
-                "DatasetDeleteRow",
-                "DatasetRenameColumn",
-                "DatasetUpdateRow",
-            ]:
+            def _parse_edits_item(data: object) -> Union["DatasetAppendRow", "DatasetDeleteRow", "DatasetUpdateRow"]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
@@ -106,41 +76,19 @@ class UpdateDatasetContentRequest:
                     return edits_item_type_1
                 except:  # noqa: E722
                     pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    edits_item_type_2 = DatasetDeleteRow.from_dict(data)
-
-                    return edits_item_type_2
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    edits_item_type_3 = DatasetDeleteColumn.from_dict(data)
-
-                    return edits_item_type_3
-                except:  # noqa: E722
-                    pass
-                try:
-                    if not isinstance(data, dict):
-                        raise TypeError()
-                    edits_item_type_4 = DatasetRenameColumn.from_dict(data)
-
-                    return edits_item_type_4
-                except:  # noqa: E722
-                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                edits_item_type_5 = DatasetAddColumn.from_dict(data)
+                edits_item_type_2 = DatasetDeleteRow.from_dict(data)
 
-                return edits_item_type_5
+                return edits_item_type_2
 
             edits_item = _parse_edits_item(edits_item_data)
 
             edits.append(edits_item)
 
-        update_dataset_content_request = cls(edits=edits)
+        update_dataset_content_request = cls(
+            edits=edits,
+        )
 
         update_dataset_content_request.additional_properties = d
         return update_dataset_content_request
