@@ -17,6 +17,7 @@ class ScorersConfiguration:
 
         Attributes:
             adherence_nli (Union[Unset, bool]):  Default: False.
+            agentic_session_success (Union[Unset, bool]):  Default: False.
             agentic_workflow_success (Union[Unset, bool]):  Default: False.
             bleu (Union[Unset, bool]):  Default: True.
             chunk_attribution_utilization_gpt (Union[Unset, bool]):  Default: False.
@@ -30,24 +31,30 @@ class ScorersConfiguration:
             groundedness (Union[Unset, bool]):  Default: False.
             input_pii (Union[Unset, bool]):  Default: False.
             input_sexist (Union[Unset, bool]):  Default: False.
+            input_sexist_gpt (Union[Unset, bool]):  Default: False.
             input_tone (Union[Unset, bool]):  Default: False.
             input_toxicity (Union[Unset, bool]):  Default: False.
+            input_toxicity_gpt (Union[Unset, bool]):  Default: False.
             instruction_adherence (Union[Unset, bool]):  Default: False.
             latency (Union[Unset, bool]):  Default: True.
             pii (Union[Unset, bool]):  Default: False.
             prompt_injection (Union[Unset, bool]):  Default: False.
+            prompt_injection_gpt (Union[Unset, bool]):  Default: False.
             prompt_perplexity (Union[Unset, bool]):  Default: False.
             protect_status (Union[Unset, bool]):  Default: True.
             rouge (Union[Unset, bool]):  Default: True.
             sexist (Union[Unset, bool]):  Default: False.
+            sexist_gpt (Union[Unset, bool]):  Default: False.
             tone (Union[Unset, bool]):  Default: False.
             tool_error_rate (Union[Unset, bool]):  Default: False.
             tool_selection_quality (Union[Unset, bool]):  Default: False.
             toxicity (Union[Unset, bool]):  Default: False.
+            toxicity_gpt (Union[Unset, bool]):  Default: False.
             uncertainty (Union[Unset, bool]):  Default: False.
     """
 
     adherence_nli: Union[Unset, bool] = False
+    agentic_session_success: Union[Unset, bool] = False
     agentic_workflow_success: Union[Unset, bool] = False
     bleu: Union[Unset, bool] = True
     chunk_attribution_utilization_gpt: Union[Unset, bool] = False
@@ -61,25 +68,32 @@ class ScorersConfiguration:
     groundedness: Union[Unset, bool] = False
     input_pii: Union[Unset, bool] = False
     input_sexist: Union[Unset, bool] = False
+    input_sexist_gpt: Union[Unset, bool] = False
     input_tone: Union[Unset, bool] = False
     input_toxicity: Union[Unset, bool] = False
+    input_toxicity_gpt: Union[Unset, bool] = False
     instruction_adherence: Union[Unset, bool] = False
     latency: Union[Unset, bool] = True
     pii: Union[Unset, bool] = False
     prompt_injection: Union[Unset, bool] = False
+    prompt_injection_gpt: Union[Unset, bool] = False
     prompt_perplexity: Union[Unset, bool] = False
     protect_status: Union[Unset, bool] = True
     rouge: Union[Unset, bool] = True
     sexist: Union[Unset, bool] = False
+    sexist_gpt: Union[Unset, bool] = False
     tone: Union[Unset, bool] = False
     tool_error_rate: Union[Unset, bool] = False
     tool_selection_quality: Union[Unset, bool] = False
     toxicity: Union[Unset, bool] = False
+    toxicity_gpt: Union[Unset, bool] = False
     uncertainty: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         adherence_nli = self.adherence_nli
+
+        agentic_session_success = self.agentic_session_success
 
         agentic_workflow_success = self.agentic_workflow_success
 
@@ -107,9 +121,13 @@ class ScorersConfiguration:
 
         input_sexist = self.input_sexist
 
+        input_sexist_gpt = self.input_sexist_gpt
+
         input_tone = self.input_tone
 
         input_toxicity = self.input_toxicity
+
+        input_toxicity_gpt = self.input_toxicity_gpt
 
         instruction_adherence = self.instruction_adherence
 
@@ -119,6 +137,8 @@ class ScorersConfiguration:
 
         prompt_injection = self.prompt_injection
 
+        prompt_injection_gpt = self.prompt_injection_gpt
+
         prompt_perplexity = self.prompt_perplexity
 
         protect_status = self.protect_status
@@ -126,6 +146,8 @@ class ScorersConfiguration:
         rouge = self.rouge
 
         sexist = self.sexist
+
+        sexist_gpt = self.sexist_gpt
 
         tone = self.tone
 
@@ -135,6 +157,8 @@ class ScorersConfiguration:
 
         toxicity = self.toxicity
 
+        toxicity_gpt = self.toxicity_gpt
+
         uncertainty = self.uncertainty
 
         field_dict: dict[str, Any] = {}
@@ -142,6 +166,8 @@ class ScorersConfiguration:
         field_dict.update({})
         if adherence_nli is not UNSET:
             field_dict["adherence_nli"] = adherence_nli
+        if agentic_session_success is not UNSET:
+            field_dict["agentic_session_success"] = agentic_session_success
         if agentic_workflow_success is not UNSET:
             field_dict["agentic_workflow_success"] = agentic_workflow_success
         if bleu is not UNSET:
@@ -168,10 +194,14 @@ class ScorersConfiguration:
             field_dict["input_pii"] = input_pii
         if input_sexist is not UNSET:
             field_dict["input_sexist"] = input_sexist
+        if input_sexist_gpt is not UNSET:
+            field_dict["input_sexist_gpt"] = input_sexist_gpt
         if input_tone is not UNSET:
             field_dict["input_tone"] = input_tone
         if input_toxicity is not UNSET:
             field_dict["input_toxicity"] = input_toxicity
+        if input_toxicity_gpt is not UNSET:
+            field_dict["input_toxicity_gpt"] = input_toxicity_gpt
         if instruction_adherence is not UNSET:
             field_dict["instruction_adherence"] = instruction_adherence
         if latency is not UNSET:
@@ -180,6 +210,8 @@ class ScorersConfiguration:
             field_dict["pii"] = pii
         if prompt_injection is not UNSET:
             field_dict["prompt_injection"] = prompt_injection
+        if prompt_injection_gpt is not UNSET:
+            field_dict["prompt_injection_gpt"] = prompt_injection_gpt
         if prompt_perplexity is not UNSET:
             field_dict["prompt_perplexity"] = prompt_perplexity
         if protect_status is not UNSET:
@@ -188,6 +220,8 @@ class ScorersConfiguration:
             field_dict["rouge"] = rouge
         if sexist is not UNSET:
             field_dict["sexist"] = sexist
+        if sexist_gpt is not UNSET:
+            field_dict["sexist_gpt"] = sexist_gpt
         if tone is not UNSET:
             field_dict["tone"] = tone
         if tool_error_rate is not UNSET:
@@ -196,6 +230,8 @@ class ScorersConfiguration:
             field_dict["tool_selection_quality"] = tool_selection_quality
         if toxicity is not UNSET:
             field_dict["toxicity"] = toxicity
+        if toxicity_gpt is not UNSET:
+            field_dict["toxicity_gpt"] = toxicity_gpt
         if uncertainty is not UNSET:
             field_dict["uncertainty"] = uncertainty
 
@@ -205,6 +241,8 @@ class ScorersConfiguration:
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         d = src_dict.copy()
         adherence_nli = d.pop("adherence_nli", UNSET)
+
+        agentic_session_success = d.pop("agentic_session_success", UNSET)
 
         agentic_workflow_success = d.pop("agentic_workflow_success", UNSET)
 
@@ -232,9 +270,13 @@ class ScorersConfiguration:
 
         input_sexist = d.pop("input_sexist", UNSET)
 
+        input_sexist_gpt = d.pop("input_sexist_gpt", UNSET)
+
         input_tone = d.pop("input_tone", UNSET)
 
         input_toxicity = d.pop("input_toxicity", UNSET)
+
+        input_toxicity_gpt = d.pop("input_toxicity_gpt", UNSET)
 
         instruction_adherence = d.pop("instruction_adherence", UNSET)
 
@@ -244,6 +286,8 @@ class ScorersConfiguration:
 
         prompt_injection = d.pop("prompt_injection", UNSET)
 
+        prompt_injection_gpt = d.pop("prompt_injection_gpt", UNSET)
+
         prompt_perplexity = d.pop("prompt_perplexity", UNSET)
 
         protect_status = d.pop("protect_status", UNSET)
@@ -251,6 +295,8 @@ class ScorersConfiguration:
         rouge = d.pop("rouge", UNSET)
 
         sexist = d.pop("sexist", UNSET)
+
+        sexist_gpt = d.pop("sexist_gpt", UNSET)
 
         tone = d.pop("tone", UNSET)
 
@@ -260,10 +306,13 @@ class ScorersConfiguration:
 
         toxicity = d.pop("toxicity", UNSET)
 
+        toxicity_gpt = d.pop("toxicity_gpt", UNSET)
+
         uncertainty = d.pop("uncertainty", UNSET)
 
         scorers_configuration = cls(
             adherence_nli=adherence_nli,
+            agentic_session_success=agentic_session_success,
             agentic_workflow_success=agentic_workflow_success,
             bleu=bleu,
             chunk_attribution_utilization_gpt=chunk_attribution_utilization_gpt,
@@ -277,20 +326,25 @@ class ScorersConfiguration:
             groundedness=groundedness,
             input_pii=input_pii,
             input_sexist=input_sexist,
+            input_sexist_gpt=input_sexist_gpt,
             input_tone=input_tone,
             input_toxicity=input_toxicity,
+            input_toxicity_gpt=input_toxicity_gpt,
             instruction_adherence=instruction_adherence,
             latency=latency,
             pii=pii,
             prompt_injection=prompt_injection,
+            prompt_injection_gpt=prompt_injection_gpt,
             prompt_perplexity=prompt_perplexity,
             protect_status=protect_status,
             rouge=rouge,
             sexist=sexist,
+            sexist_gpt=sexist_gpt,
             tone=tone,
             tool_error_rate=tool_error_rate,
             tool_selection_quality=tool_selection_quality,
             toxicity=toxicity,
+            toxicity_gpt=toxicity_gpt,
             uncertainty=uncertainty,
         )
 

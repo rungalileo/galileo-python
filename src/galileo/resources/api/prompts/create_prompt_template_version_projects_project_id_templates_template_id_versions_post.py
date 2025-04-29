@@ -66,8 +66,6 @@ def sync_detailed(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    current_user : User, optional
-        Authenticated user, by default Depends(authentication_service.current_user)
     body : dict, optional
         Body of the request, by default Body( ...,
             examples=[CreatePromptTemplateVersionRequest.test_data()],
@@ -113,8 +111,6 @@ def sync(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    current_user : User, optional
-        Authenticated user, by default Depends(authentication_service.current_user)
     body : dict, optional
         Body of the request, by default Body( ...,
             examples=[CreatePromptTemplateVersionRequest.test_data()],
@@ -156,8 +152,6 @@ async def asyncio_detailed(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    current_user : User, optional
-        Authenticated user, by default Depends(authentication_service.current_user)
     body : dict, optional
         Body of the request, by default Body( ...,
             examples=[CreatePromptTemplateVersionRequest.test_data()],
@@ -203,8 +197,6 @@ async def asyncio(
         Project ID.
     template_id : UUID4
         Prompt template ID.
-    current_user : User, optional
-        Authenticated user, by default Depends(authentication_service.current_user)
     body : dict, optional
         Body of the request, by default Body( ...,
             examples=[CreatePromptTemplateVersionRequest.test_data()],

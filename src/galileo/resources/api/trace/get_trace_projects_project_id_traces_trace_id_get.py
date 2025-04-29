@@ -6,7 +6,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.trace_with_metrics import TraceWithMetrics
+from ...models.trace_record_with_children import TraceRecordWithChildren
 from ...types import Response
 
 
@@ -18,9 +18,9 @@ def _get_kwargs(project_id: str, trace_id: str) -> dict[str, Any]:
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, TraceWithMetrics]]:
+) -> Optional[Union[HTTPValidationError, TraceRecordWithChildren]]:
     if response.status_code == 200:
-        response_200 = TraceWithMetrics.from_dict(response.json())
+        response_200 = TraceRecordWithChildren.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -35,7 +35,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, TraceWithMetrics]]:
+) -> Response[Union[HTTPValidationError, TraceRecordWithChildren]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -46,7 +46,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, trace_id: str, *, client: AuthenticatedClient
-) -> Response[Union[HTTPValidationError, TraceWithMetrics]]:
+) -> Response[Union[HTTPValidationError, TraceRecordWithChildren]]:
     """Get Trace
 
     Args:
@@ -58,7 +58,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, TraceWithMetrics]]
+        Response[Union[HTTPValidationError, TraceRecordWithChildren]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, trace_id=trace_id)
@@ -70,7 +70,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, trace_id: str, *, client: AuthenticatedClient
-) -> Optional[Union[HTTPValidationError, TraceWithMetrics]]:
+) -> Optional[Union[HTTPValidationError, TraceRecordWithChildren]]:
     """Get Trace
 
     Args:
@@ -82,7 +82,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, TraceWithMetrics]
+        Union[HTTPValidationError, TraceRecordWithChildren]
     """
 
     return sync_detailed(project_id=project_id, trace_id=trace_id, client=client).parsed
@@ -90,7 +90,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, trace_id: str, *, client: AuthenticatedClient
-) -> Response[Union[HTTPValidationError, TraceWithMetrics]]:
+) -> Response[Union[HTTPValidationError, TraceRecordWithChildren]]:
     """Get Trace
 
     Args:
@@ -102,7 +102,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, TraceWithMetrics]]
+        Response[Union[HTTPValidationError, TraceRecordWithChildren]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, trace_id=trace_id)
@@ -114,7 +114,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, trace_id: str, *, client: AuthenticatedClient
-) -> Optional[Union[HTTPValidationError, TraceWithMetrics]]:
+) -> Optional[Union[HTTPValidationError, TraceRecordWithChildren]]:
     """Get Trace
 
     Args:
@@ -126,7 +126,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, TraceWithMetrics]
+        Union[HTTPValidationError, TraceRecordWithChildren]
     """
 
     return (await asyncio_detailed(project_id=project_id, trace_id=trace_id, client=client)).parsed

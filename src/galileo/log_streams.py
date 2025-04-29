@@ -4,9 +4,9 @@ from typing import Optional, Union, overload
 from galileo.base import BaseClientModel
 from galileo.projects import Projects
 from galileo.resources.api.log_stream import (
-    create_log_stream_v2_projects_project_id_log_streams_post,
-    get_log_stream_v2_projects_project_id_log_streams_log_stream_id_get,
-    list_log_streams_v2_projects_project_id_log_streams_get,
+    create_log_stream_projects_project_id_log_streams_post,
+    get_log_stream_projects_project_id_log_streams_log_stream_id_get,
+    list_log_streams_projects_project_id_log_streams_get,
 )
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
@@ -129,14 +129,14 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
             raise ValueError("Exactly one of 'project_id' or 'project_name' must be provided")
 
         if project_id:
-            log_streams = list_log_streams_v2_projects_project_id_log_streams_get.sync(
+            log_streams = list_log_streams_projects_project_id_log_streams_get.sync(
                 client=self.client, project_id=project_id
             )
         else:
             project = Projects(client=self.client).get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
-            log_streams = list_log_streams_v2_projects_project_id_log_streams_get.sync(
+            log_streams = list_log_streams_projects_project_id_log_streams_get.sync(
                 client=self.client, project_id=project.id
             )
         return [LogStream(log_stream=log_stream) for log_stream in log_streams] if log_streams else []
@@ -199,7 +199,7 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
             project_id = project.id
 
         if id:
-            log_stream_response = get_log_stream_v2_projects_project_id_log_streams_log_stream_id_get.sync(
+            log_stream_response = get_log_stream_projects_project_id_log_streams_log_stream_id_get.sync(
                 project_id=project_id, log_stream_id=id, client=self.client
             )
             if not log_stream_response:
@@ -262,7 +262,7 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
             project_id = project.id
 
         body = LogStreamCreateRequest(name=name)
-        response = create_log_stream_v2_projects_project_id_log_streams_post.sync(
+        response = create_log_stream_projects_project_id_log_streams_post.sync(
             project_id=project_id, client=self.client, body=body
         )
 

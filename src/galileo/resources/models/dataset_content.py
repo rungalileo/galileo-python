@@ -22,6 +22,7 @@ class DatasetContent:
         paginated (Union[Unset, bool]):  Default: False.
         rows (Union[Unset, list['DatasetRow']]):
         starting_token (Union[Unset, int]):  Default: 0.
+        warning_message (Union[None, Unset, str]):
     """
 
     column_names: Union[Unset, list[str]] = UNSET
@@ -30,6 +31,7 @@ class DatasetContent:
     paginated: Union[Unset, bool] = False
     rows: Union[Unset, list["DatasetRow"]] = UNSET
     starting_token: Union[Unset, int] = 0
+    warning_message: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -56,6 +58,12 @@ class DatasetContent:
 
         starting_token = self.starting_token
 
+        warning_message: Union[None, Unset, str]
+        if isinstance(self.warning_message, Unset):
+            warning_message = UNSET
+        else:
+            warning_message = self.warning_message
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -71,6 +79,8 @@ class DatasetContent:
             field_dict["rows"] = rows
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if warning_message is not UNSET:
+            field_dict["warning_message"] = warning_message
 
         return field_dict
 
@@ -103,6 +113,15 @@ class DatasetContent:
 
         starting_token = d.pop("starting_token", UNSET)
 
+        def _parse_warning_message(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        warning_message = _parse_warning_message(d.pop("warning_message", UNSET))
+
         dataset_content = cls(
             column_names=column_names,
             limit=limit,
@@ -110,6 +129,7 @@ class DatasetContent:
             paginated=paginated,
             rows=rows,
             starting_token=starting_token,
+            warning_message=warning_message,
         )
 
         dataset_content.additional_properties = d
