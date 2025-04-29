@@ -12,7 +12,6 @@ if TYPE_CHECKING:
     from ..models.chain_poll_template import ChainPollTemplate
     from ..models.metadata_filter import MetadataFilter
     from ..models.node_name_filter import NodeNameFilter
-    from ..models.prompt_run_settings import PromptRunSettings
 
 
 T = TypeVar("T", bound="BaseScorer")
@@ -29,10 +28,11 @@ class BaseScorer:
         extra (Union['BaseScorerExtraType0', None, Unset]):
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
         generated_scorer_id (Union[None, Unset, str]):
-        gpt_settings (Union['PromptRunSettings', None, Unset]):
         indices (Union[None, Unset, list[int]]):
         metric_name (Union[None, Unset, str]):
+        model_alias (Union[None, Unset, str]):
         name (Union[Unset, str]):  Default: ''.
+        num_judges (Union[None, Unset, int]):
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
         scorer_name (Union[Unset, str]):  Default: ''.
@@ -47,10 +47,11 @@ class BaseScorer:
     extra: Union["BaseScorerExtraType0", None, Unset] = UNSET
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     generated_scorer_id: Union[None, Unset, str] = UNSET
-    gpt_settings: Union["PromptRunSettings", None, Unset] = UNSET
     indices: Union[None, Unset, list[int]] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
+    model_alias: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
+    num_judges: Union[None, Unset, int] = UNSET
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
     scorer_name: Union[Unset, str] = ""
@@ -63,7 +64,6 @@ class BaseScorer:
         from ..models.base_scorer_extra_type_0 import BaseScorerExtraType0
         from ..models.chain_poll_template import ChainPollTemplate
         from ..models.node_name_filter import NodeNameFilter
-        from ..models.prompt_run_settings import PromptRunSettings
 
         aggregate_keys: Union[None, Unset, list[str]]
         if isinstance(self.aggregate_keys, Unset):
@@ -127,14 +127,6 @@ class BaseScorer:
         else:
             generated_scorer_id = self.generated_scorer_id
 
-        gpt_settings: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.gpt_settings, Unset):
-            gpt_settings = UNSET
-        elif isinstance(self.gpt_settings, PromptRunSettings):
-            gpt_settings = self.gpt_settings.to_dict()
-        else:
-            gpt_settings = self.gpt_settings
-
         indices: Union[None, Unset, list[int]]
         if isinstance(self.indices, Unset):
             indices = UNSET
@@ -150,7 +142,19 @@ class BaseScorer:
         else:
             metric_name = self.metric_name
 
+        model_alias: Union[None, Unset, str]
+        if isinstance(self.model_alias, Unset):
+            model_alias = UNSET
+        else:
+            model_alias = self.model_alias
+
         name = self.name
+
+        num_judges: Union[None, Unset, int]
+        if isinstance(self.num_judges, Unset):
+            num_judges = UNSET
+        else:
+            num_judges = self.num_judges
 
         regex_field = self.regex_field
 
@@ -195,14 +199,16 @@ class BaseScorer:
             field_dict["filters"] = filters
         if generated_scorer_id is not UNSET:
             field_dict["generated_scorer_id"] = generated_scorer_id
-        if gpt_settings is not UNSET:
-            field_dict["gpt_settings"] = gpt_settings
         if indices is not UNSET:
             field_dict["indices"] = indices
         if metric_name is not UNSET:
             field_dict["metric_name"] = metric_name
+        if model_alias is not UNSET:
+            field_dict["model_alias"] = model_alias
         if name is not UNSET:
             field_dict["name"] = name
+        if num_judges is not UNSET:
+            field_dict["num_judges"] = num_judges
         if regex_field is not UNSET:
             field_dict["regex_field"] = regex_field
         if registered_scorer_id is not UNSET:
@@ -223,7 +229,6 @@ class BaseScorer:
         from ..models.chain_poll_template import ChainPollTemplate
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
-        from ..models.prompt_run_settings import PromptRunSettings
 
         d = src_dict.copy()
 
@@ -351,23 +356,6 @@ class BaseScorer:
 
         generated_scorer_id = _parse_generated_scorer_id(d.pop("generated_scorer_id", UNSET))
 
-        def _parse_gpt_settings(data: object) -> Union["PromptRunSettings", None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                gpt_settings_type_0 = PromptRunSettings.from_dict(data)
-
-                return gpt_settings_type_0
-            except:  # noqa: E722
-                pass
-            return cast(Union["PromptRunSettings", None, Unset], data)
-
-        gpt_settings = _parse_gpt_settings(d.pop("gpt_settings", UNSET))
-
         def _parse_indices(data: object) -> Union[None, Unset, list[int]]:
             if data is None:
                 return data
@@ -394,7 +382,25 @@ class BaseScorer:
 
         metric_name = _parse_metric_name(d.pop("metric_name", UNSET))
 
+        def _parse_model_alias(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        model_alias = _parse_model_alias(d.pop("model_alias", UNSET))
+
         name = d.pop("name", UNSET)
+
+        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
         regex_field = d.pop("regex_field", UNSET)
 
@@ -441,10 +447,11 @@ class BaseScorer:
             extra=extra,
             filters=filters,
             generated_scorer_id=generated_scorer_id,
-            gpt_settings=gpt_settings,
             indices=indices,
             metric_name=metric_name,
+            model_alias=model_alias,
             name=name,
+            num_judges=num_judges,
             regex_field=regex_field,
             registered_scorer_id=registered_scorer_id,
             scorer_name=scorer_name,

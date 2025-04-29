@@ -4,10 +4,12 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.scorer_name import ScorerName
 from ..models.task_type import TaskType
 from ..types import UNSET, File, FileJsonType, Unset
 
 if TYPE_CHECKING:
+    from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
     from ..models.agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
     from ..models.base_scorer import BaseScorer
     from ..models.bleu_scorer import BleuScorer
@@ -16,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.context_adherence_scorer import ContextAdherenceScorer
     from ..models.context_relevance_scorer import ContextRelevanceScorer
     from ..models.correctness_scorer import CorrectnessScorer
+    from ..models.customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
     from ..models.customized_agentic_workflow_success_gpt_scorer import CustomizedAgenticWorkflowSuccessGPTScorer
     from ..models.customized_chunk_attribution_utilization_gpt_scorer import (
         CustomizedChunkAttributionUtilizationGPTScorer,
@@ -24,9 +27,14 @@ if TYPE_CHECKING:
     from ..models.customized_factuality_gpt_scorer import CustomizedFactualityGPTScorer
     from ..models.customized_ground_truth_adherence_gpt_scorer import CustomizedGroundTruthAdherenceGPTScorer
     from ..models.customized_groundedness_gpt_scorer import CustomizedGroundednessGPTScorer
+    from ..models.customized_input_sexist_gpt_scorer import CustomizedInputSexistGPTScorer
+    from ..models.customized_input_toxicity_gpt_scorer import CustomizedInputToxicityGPTScorer
     from ..models.customized_instruction_adherence_gpt_scorer import CustomizedInstructionAdherenceGPTScorer
+    from ..models.customized_prompt_injection_gpt_scorer import CustomizedPromptInjectionGPTScorer
+    from ..models.customized_sexist_gpt_scorer import CustomizedSexistGPTScorer
     from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
     from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
+    from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
     from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
     from ..models.input_pii_scorer import InputPIIScorer
     from ..models.input_sexist_scorer import InputSexistScorer
@@ -46,6 +54,8 @@ if TYPE_CHECKING:
     from ..models.rouge_scorer import RougeScorer
     from ..models.scorer_config import ScorerConfig
     from ..models.scorers_configuration import ScorersConfiguration
+    from ..models.segment_filter import SegmentFilter
+    from ..models.task_resource_limits import TaskResourceLimits
     from ..models.tool_error_rate_scorer import ToolErrorRateScorer
     from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
     from ..models.uncertainty_scorer import UncertaintyScorer
@@ -74,10 +84,12 @@ class CreateJobRequest:
         non_inference_logged (Union[Unset, bool]):  Default: False.
         process_existing_inference_runs (Union[Unset, bool]):  Default: False.
         prompt_customized_scorers_configuration (Union[None, Unset,
-            list[Union['CustomizedAgenticWorkflowSuccessGPTScorer', 'CustomizedChunkAttributionUtilizationGPTScorer',
-            'CustomizedCompletenessGPTScorer', 'CustomizedFactualityGPTScorer', 'CustomizedGroundTruthAdherenceGPTScorer',
-            'CustomizedGroundednessGPTScorer', 'CustomizedInstructionAdherenceGPTScorer',
-            'CustomizedToolErrorRateGPTScorer', 'CustomizedToolSelectionQualityGPTScorer']]]):
+            list[Union['CustomizedAgenticSessionSuccessGPTScorer', 'CustomizedAgenticWorkflowSuccessGPTScorer',
+            'CustomizedChunkAttributionUtilizationGPTScorer', 'CustomizedCompletenessGPTScorer',
+            'CustomizedFactualityGPTScorer', 'CustomizedGroundTruthAdherenceGPTScorer', 'CustomizedGroundednessGPTScorer',
+            'CustomizedInputSexistGPTScorer', 'CustomizedInputToxicityGPTScorer', 'CustomizedInstructionAdherenceGPTScorer',
+            'CustomizedPromptInjectionGPTScorer', 'CustomizedSexistGPTScorer', 'CustomizedToolErrorRateGPTScorer',
+            'CustomizedToolSelectionQualityGPTScorer', 'CustomizedToxicityGPTScorer']]]):
         prompt_dataset_id (Union[None, Unset, str]):
         prompt_generated_scorers_configuration (Union[None, Unset, list[str]]):
         prompt_optimization_configuration (Union['PromptOptimizationConfiguration', None, Unset]):
@@ -88,14 +100,19 @@ class CreateJobRequest:
         prompt_template_version_id (Union[None, Unset, str]):
         protect_scorer_payload (Union[File, None, Unset]):
         protect_trace_id (Union[None, Unset, str]):
-        scorers (Union[None, Unset, list['ScorerConfig'], list[Union['AgenticWorkflowSuccessScorer', 'BleuScorer',
-            'ChunkAttributionUtilizationScorer', 'CompletenessScorer', 'ContextAdherenceScorer', 'ContextRelevanceScorer',
-            'CorrectnessScorer', 'GroundTruthAdherenceScorer', 'InputPIIScorer', 'InputSexistScorer', 'InputToneScorer',
-            'InputToxicityScorer', 'InstructionAdherenceScorer', 'OutputPIIScorer', 'OutputSexistScorer',
-            'OutputToneScorer', 'OutputToxicityScorer', 'PromptInjectionScorer', 'PromptPerplexityScorer', 'RougeScorer',
-            'ToolErrorRateScorer', 'ToolSelectionQualityScorer', 'UncertaintyScorer']]]): For G2.0 we send all scorers as
-            ScorerConfig, for G1.0 we send preset scorers  as GalileoScorer
+        resource_limits (Union['TaskResourceLimits', None, Unset]):
+        scorer_config (Union['ScorerConfig', None, Unset]):
+        scorers (Union[None, Unset, list['ScorerConfig'], list[Union['AgenticSessionSuccessScorer',
+            'AgenticWorkflowSuccessScorer', 'BleuScorer', 'ChunkAttributionUtilizationScorer', 'CompletenessScorer',
+            'ContextAdherenceScorer', 'ContextRelevanceScorer', 'CorrectnessScorer', 'GroundTruthAdherenceScorer',
+            'InputPIIScorer', 'InputSexistScorer', 'InputToneScorer', 'InputToxicityScorer', 'InstructionAdherenceScorer',
+            'OutputPIIScorer', 'OutputSexistScorer', 'OutputToneScorer', 'OutputToxicityScorer', 'PromptInjectionScorer',
+            'PromptPerplexityScorer', 'RougeScorer', 'ToolErrorRateScorer', 'ToolSelectionQualityScorer',
+            'UncertaintyScorer']]]): For G2.0 we send all scorers as ScorerConfig, for G1.0 we send preset scorers  as
+            GalileoScorer
+        segment_filters (Union[None, Unset, list['SegmentFilter']]):
         should_retry (Union[Unset, bool]):  Default: True.
+        sub_scorers (Union[Unset, list[ScorerName]]):
         task_type (Union[None, TaskType, Unset]):
         tasks (Union[None, Unset, list[str]]):
         user_id (Union[None, Unset, str]):
@@ -122,15 +139,21 @@ class CreateJobRequest:
         Unset,
         list[
             Union[
+                "CustomizedAgenticSessionSuccessGPTScorer",
                 "CustomizedAgenticWorkflowSuccessGPTScorer",
                 "CustomizedChunkAttributionUtilizationGPTScorer",
                 "CustomizedCompletenessGPTScorer",
                 "CustomizedFactualityGPTScorer",
                 "CustomizedGroundTruthAdherenceGPTScorer",
                 "CustomizedGroundednessGPTScorer",
+                "CustomizedInputSexistGPTScorer",
+                "CustomizedInputToxicityGPTScorer",
                 "CustomizedInstructionAdherenceGPTScorer",
+                "CustomizedPromptInjectionGPTScorer",
+                "CustomizedSexistGPTScorer",
                 "CustomizedToolErrorRateGPTScorer",
                 "CustomizedToolSelectionQualityGPTScorer",
+                "CustomizedToxicityGPTScorer",
             ]
         ],
     ] = UNSET
@@ -144,12 +167,15 @@ class CreateJobRequest:
     prompt_template_version_id: Union[None, Unset, str] = UNSET
     protect_scorer_payload: Union[File, None, Unset] = UNSET
     protect_trace_id: Union[None, Unset, str] = UNSET
+    resource_limits: Union["TaskResourceLimits", None, Unset] = UNSET
+    scorer_config: Union["ScorerConfig", None, Unset] = UNSET
     scorers: Union[
         None,
         Unset,
         list["ScorerConfig"],
         list[
             Union[
+                "AgenticSessionSuccessScorer",
                 "AgenticWorkflowSuccessScorer",
                 "BleuScorer",
                 "ChunkAttributionUtilizationScorer",
@@ -176,7 +202,9 @@ class CreateJobRequest:
             ]
         ],
     ] = UNSET
+    segment_filters: Union[None, Unset, list["SegmentFilter"]] = UNSET
     should_retry: Union[Unset, bool] = True
+    sub_scorers: Union[Unset, list[ScorerName]] = UNSET
     task_type: Union[None, TaskType, Unset] = UNSET
     tasks: Union[None, Unset, list[str]] = UNSET
     user_id: Union[None, Unset, str] = UNSET
@@ -184,6 +212,7 @@ class CreateJobRequest:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
         from ..models.agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
         from ..models.base_scorer import BaseScorer
         from ..models.bleu_scorer import BleuScorer
@@ -192,6 +221,7 @@ class CreateJobRequest:
         from ..models.context_adherence_scorer import ContextAdherenceScorer
         from ..models.context_relevance_scorer import ContextRelevanceScorer
         from ..models.correctness_scorer import CorrectnessScorer
+        from ..models.customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
         from ..models.customized_agentic_workflow_success_gpt_scorer import CustomizedAgenticWorkflowSuccessGPTScorer
         from ..models.customized_chunk_attribution_utilization_gpt_scorer import (
             CustomizedChunkAttributionUtilizationGPTScorer,
@@ -200,8 +230,13 @@ class CreateJobRequest:
         from ..models.customized_factuality_gpt_scorer import CustomizedFactualityGPTScorer
         from ..models.customized_ground_truth_adherence_gpt_scorer import CustomizedGroundTruthAdherenceGPTScorer
         from ..models.customized_groundedness_gpt_scorer import CustomizedGroundednessGPTScorer
+        from ..models.customized_input_sexist_gpt_scorer import CustomizedInputSexistGPTScorer
         from ..models.customized_instruction_adherence_gpt_scorer import CustomizedInstructionAdherenceGPTScorer
+        from ..models.customized_prompt_injection_gpt_scorer import CustomizedPromptInjectionGPTScorer
+        from ..models.customized_sexist_gpt_scorer import CustomizedSexistGPTScorer
+        from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
         from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
+        from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
         from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
         from ..models.input_pii_scorer import InputPIIScorer
         from ..models.input_sexist_scorer import InputSexistScorer
@@ -218,7 +253,9 @@ class CreateJobRequest:
         from ..models.prompt_perplexity_scorer import PromptPerplexityScorer
         from ..models.prompt_run_settings import PromptRunSettings
         from ..models.rouge_scorer import RougeScorer
+        from ..models.scorer_config import ScorerConfig
         from ..models.scorers_configuration import ScorersConfiguration
+        from ..models.task_resource_limits import TaskResourceLimits
         from ..models.tool_error_rate_scorer import ToolErrorRateScorer
         from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
 
@@ -313,6 +350,12 @@ class CreateJobRequest:
             ) in self.prompt_customized_scorers_configuration:
                 prompt_customized_scorers_configuration_type_0_item: dict[str, Any]
                 if isinstance(
+                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedAgenticSessionSuccessGPTScorer
+                ):
+                    prompt_customized_scorers_configuration_type_0_item = (
+                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
+                    )
+                elif isinstance(
                     prompt_customized_scorers_configuration_type_0_item_data, CustomizedAgenticWorkflowSuccessGPTScorer
                 ):
                     prompt_customized_scorers_configuration_type_0_item = (
@@ -356,8 +399,34 @@ class CreateJobRequest:
                         prompt_customized_scorers_configuration_type_0_item_data.to_dict()
                     )
                 elif isinstance(
+                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedPromptInjectionGPTScorer
+                ):
+                    prompt_customized_scorers_configuration_type_0_item = (
+                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
+                    )
+                elif isinstance(prompt_customized_scorers_configuration_type_0_item_data, CustomizedSexistGPTScorer):
+                    prompt_customized_scorers_configuration_type_0_item = (
+                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
+                    )
+                elif isinstance(
+                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedInputSexistGPTScorer
+                ):
+                    prompt_customized_scorers_configuration_type_0_item = (
+                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
+                    )
+                elif isinstance(
                     prompt_customized_scorers_configuration_type_0_item_data, CustomizedToolSelectionQualityGPTScorer
                 ):
+                    prompt_customized_scorers_configuration_type_0_item = (
+                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
+                    )
+                elif isinstance(
+                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedToolErrorRateGPTScorer
+                ):
+                    prompt_customized_scorers_configuration_type_0_item = (
+                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
+                    )
+                elif isinstance(prompt_customized_scorers_configuration_type_0_item_data, CustomizedToxicityGPTScorer):
                     prompt_customized_scorers_configuration_type_0_item = (
                         prompt_customized_scorers_configuration_type_0_item_data.to_dict()
                     )
@@ -455,6 +524,22 @@ class CreateJobRequest:
         else:
             protect_trace_id = self.protect_trace_id
 
+        resource_limits: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.resource_limits, Unset):
+            resource_limits = UNSET
+        elif isinstance(self.resource_limits, TaskResourceLimits):
+            resource_limits = self.resource_limits.to_dict()
+        else:
+            resource_limits = self.resource_limits
+
+        scorer_config: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.scorer_config, Unset):
+            scorer_config = UNSET
+        elif isinstance(self.scorer_config, ScorerConfig):
+            scorer_config = self.scorer_config.to_dict()
+        else:
+            scorer_config = self.scorer_config
+
         scorers: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.scorers, Unset):
             scorers = UNSET
@@ -469,6 +554,8 @@ class CreateJobRequest:
             for scorers_type_1_item_data in self.scorers:
                 scorers_type_1_item: dict[str, Any]
                 if isinstance(scorers_type_1_item_data, AgenticWorkflowSuccessScorer):
+                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
+                elif isinstance(scorers_type_1_item_data, AgenticSessionSuccessScorer):
                     scorers_type_1_item = scorers_type_1_item_data.to_dict()
                 elif isinstance(scorers_type_1_item_data, BleuScorer):
                     scorers_type_1_item = scorers_type_1_item_data.to_dict()
@@ -520,7 +607,26 @@ class CreateJobRequest:
         else:
             scorers = self.scorers
 
+        segment_filters: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.segment_filters, Unset):
+            segment_filters = UNSET
+        elif isinstance(self.segment_filters, list):
+            segment_filters = []
+            for segment_filters_type_0_item_data in self.segment_filters:
+                segment_filters_type_0_item = segment_filters_type_0_item_data.to_dict()
+                segment_filters.append(segment_filters_type_0_item)
+
+        else:
+            segment_filters = self.segment_filters
+
         should_retry = self.should_retry
+
+        sub_scorers: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.sub_scorers, Unset):
+            sub_scorers = []
+            for sub_scorers_item_data in self.sub_scorers:
+                sub_scorers_item = sub_scorers_item_data.value
+                sub_scorers.append(sub_scorers_item)
 
         task_type: Union[None, Unset, int]
         if isinstance(self.task_type, Unset):
@@ -598,10 +704,18 @@ class CreateJobRequest:
             field_dict["protect_scorer_payload"] = protect_scorer_payload
         if protect_trace_id is not UNSET:
             field_dict["protect_trace_id"] = protect_trace_id
+        if resource_limits is not UNSET:
+            field_dict["resource_limits"] = resource_limits
+        if scorer_config is not UNSET:
+            field_dict["scorer_config"] = scorer_config
         if scorers is not UNSET:
             field_dict["scorers"] = scorers
+        if segment_filters is not UNSET:
+            field_dict["segment_filters"] = segment_filters
         if should_retry is not UNSET:
             field_dict["should_retry"] = should_retry
+        if sub_scorers is not UNSET:
+            field_dict["sub_scorers"] = sub_scorers
         if task_type is not UNSET:
             field_dict["task_type"] = task_type
         if tasks is not UNSET:
@@ -615,6 +729,7 @@ class CreateJobRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+        from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
         from ..models.agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
         from ..models.base_scorer import BaseScorer
         from ..models.bleu_scorer import BleuScorer
@@ -623,6 +738,7 @@ class CreateJobRequest:
         from ..models.context_adherence_scorer import ContextAdherenceScorer
         from ..models.context_relevance_scorer import ContextRelevanceScorer
         from ..models.correctness_scorer import CorrectnessScorer
+        from ..models.customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
         from ..models.customized_agentic_workflow_success_gpt_scorer import CustomizedAgenticWorkflowSuccessGPTScorer
         from ..models.customized_chunk_attribution_utilization_gpt_scorer import (
             CustomizedChunkAttributionUtilizationGPTScorer,
@@ -631,9 +747,14 @@ class CreateJobRequest:
         from ..models.customized_factuality_gpt_scorer import CustomizedFactualityGPTScorer
         from ..models.customized_ground_truth_adherence_gpt_scorer import CustomizedGroundTruthAdherenceGPTScorer
         from ..models.customized_groundedness_gpt_scorer import CustomizedGroundednessGPTScorer
+        from ..models.customized_input_sexist_gpt_scorer import CustomizedInputSexistGPTScorer
+        from ..models.customized_input_toxicity_gpt_scorer import CustomizedInputToxicityGPTScorer
         from ..models.customized_instruction_adherence_gpt_scorer import CustomizedInstructionAdherenceGPTScorer
+        from ..models.customized_prompt_injection_gpt_scorer import CustomizedPromptInjectionGPTScorer
+        from ..models.customized_sexist_gpt_scorer import CustomizedSexistGPTScorer
         from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
         from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
+        from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
         from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
         from ..models.input_pii_scorer import InputPIIScorer
         from ..models.input_sexist_scorer import InputSexistScorer
@@ -653,6 +774,8 @@ class CreateJobRequest:
         from ..models.rouge_scorer import RougeScorer
         from ..models.scorer_config import ScorerConfig
         from ..models.scorers_configuration import ScorersConfiguration
+        from ..models.segment_filter import SegmentFilter
+        from ..models.task_resource_limits import TaskResourceLimits
         from ..models.tool_error_rate_scorer import ToolErrorRateScorer
         from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
         from ..models.uncertainty_scorer import UncertaintyScorer
@@ -799,15 +922,21 @@ class CreateJobRequest:
             Unset,
             list[
                 Union[
+                    "CustomizedAgenticSessionSuccessGPTScorer",
                     "CustomizedAgenticWorkflowSuccessGPTScorer",
                     "CustomizedChunkAttributionUtilizationGPTScorer",
                     "CustomizedCompletenessGPTScorer",
                     "CustomizedFactualityGPTScorer",
                     "CustomizedGroundTruthAdherenceGPTScorer",
                     "CustomizedGroundednessGPTScorer",
+                    "CustomizedInputSexistGPTScorer",
+                    "CustomizedInputToxicityGPTScorer",
                     "CustomizedInstructionAdherenceGPTScorer",
+                    "CustomizedPromptInjectionGPTScorer",
+                    "CustomizedSexistGPTScorer",
                     "CustomizedToolErrorRateGPTScorer",
                     "CustomizedToolSelectionQualityGPTScorer",
+                    "CustomizedToxicityGPTScorer",
                 ]
             ],
         ]:
@@ -827,21 +956,27 @@ class CreateJobRequest:
                     def _parse_prompt_customized_scorers_configuration_type_0_item(
                         data: object,
                     ) -> Union[
+                        "CustomizedAgenticSessionSuccessGPTScorer",
                         "CustomizedAgenticWorkflowSuccessGPTScorer",
                         "CustomizedChunkAttributionUtilizationGPTScorer",
                         "CustomizedCompletenessGPTScorer",
                         "CustomizedFactualityGPTScorer",
                         "CustomizedGroundTruthAdherenceGPTScorer",
                         "CustomizedGroundednessGPTScorer",
+                        "CustomizedInputSexistGPTScorer",
+                        "CustomizedInputToxicityGPTScorer",
                         "CustomizedInstructionAdherenceGPTScorer",
+                        "CustomizedPromptInjectionGPTScorer",
+                        "CustomizedSexistGPTScorer",
                         "CustomizedToolErrorRateGPTScorer",
                         "CustomizedToolSelectionQualityGPTScorer",
+                        "CustomizedToxicityGPTScorer",
                     ]:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
                             prompt_customized_scorers_configuration_type_0_item_type_0 = (
-                                CustomizedAgenticWorkflowSuccessGPTScorer.from_dict(data)
+                                CustomizedAgenticSessionSuccessGPTScorer.from_dict(data)
                             )
 
                             return prompt_customized_scorers_configuration_type_0_item_type_0
@@ -851,7 +986,7 @@ class CreateJobRequest:
                             if not isinstance(data, dict):
                                 raise TypeError()
                             prompt_customized_scorers_configuration_type_0_item_type_1 = (
-                                CustomizedChunkAttributionUtilizationGPTScorer.from_dict(data)
+                                CustomizedAgenticWorkflowSuccessGPTScorer.from_dict(data)
                             )
 
                             return prompt_customized_scorers_configuration_type_0_item_type_1
@@ -861,7 +996,7 @@ class CreateJobRequest:
                             if not isinstance(data, dict):
                                 raise TypeError()
                             prompt_customized_scorers_configuration_type_0_item_type_2 = (
-                                CustomizedCompletenessGPTScorer.from_dict(data)
+                                CustomizedChunkAttributionUtilizationGPTScorer.from_dict(data)
                             )
 
                             return prompt_customized_scorers_configuration_type_0_item_type_2
@@ -871,7 +1006,7 @@ class CreateJobRequest:
                             if not isinstance(data, dict):
                                 raise TypeError()
                             prompt_customized_scorers_configuration_type_0_item_type_3 = (
-                                CustomizedFactualityGPTScorer.from_dict(data)
+                                CustomizedCompletenessGPTScorer.from_dict(data)
                             )
 
                             return prompt_customized_scorers_configuration_type_0_item_type_3
@@ -881,7 +1016,7 @@ class CreateJobRequest:
                             if not isinstance(data, dict):
                                 raise TypeError()
                             prompt_customized_scorers_configuration_type_0_item_type_4 = (
-                                CustomizedGroundednessGPTScorer.from_dict(data)
+                                CustomizedFactualityGPTScorer.from_dict(data)
                             )
 
                             return prompt_customized_scorers_configuration_type_0_item_type_4
@@ -891,7 +1026,7 @@ class CreateJobRequest:
                             if not isinstance(data, dict):
                                 raise TypeError()
                             prompt_customized_scorers_configuration_type_0_item_type_5 = (
-                                CustomizedInstructionAdherenceGPTScorer.from_dict(data)
+                                CustomizedGroundednessGPTScorer.from_dict(data)
                             )
 
                             return prompt_customized_scorers_configuration_type_0_item_type_5
@@ -901,7 +1036,7 @@ class CreateJobRequest:
                             if not isinstance(data, dict):
                                 raise TypeError()
                             prompt_customized_scorers_configuration_type_0_item_type_6 = (
-                                CustomizedGroundTruthAdherenceGPTScorer.from_dict(data)
+                                CustomizedInstructionAdherenceGPTScorer.from_dict(data)
                             )
 
                             return prompt_customized_scorers_configuration_type_0_item_type_6
@@ -911,19 +1046,79 @@ class CreateJobRequest:
                             if not isinstance(data, dict):
                                 raise TypeError()
                             prompt_customized_scorers_configuration_type_0_item_type_7 = (
-                                CustomizedToolSelectionQualityGPTScorer.from_dict(data)
+                                CustomizedGroundTruthAdherenceGPTScorer.from_dict(data)
                             )
 
                             return prompt_customized_scorers_configuration_type_0_item_type_7
                         except:  # noqa: E722
                             pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            prompt_customized_scorers_configuration_type_0_item_type_8 = (
+                                CustomizedPromptInjectionGPTScorer.from_dict(data)
+                            )
+
+                            return prompt_customized_scorers_configuration_type_0_item_type_8
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            prompt_customized_scorers_configuration_type_0_item_type_9 = (
+                                CustomizedSexistGPTScorer.from_dict(data)
+                            )
+
+                            return prompt_customized_scorers_configuration_type_0_item_type_9
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            prompt_customized_scorers_configuration_type_0_item_type_10 = (
+                                CustomizedInputSexistGPTScorer.from_dict(data)
+                            )
+
+                            return prompt_customized_scorers_configuration_type_0_item_type_10
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            prompt_customized_scorers_configuration_type_0_item_type_11 = (
+                                CustomizedToolSelectionQualityGPTScorer.from_dict(data)
+                            )
+
+                            return prompt_customized_scorers_configuration_type_0_item_type_11
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            prompt_customized_scorers_configuration_type_0_item_type_12 = (
+                                CustomizedToolErrorRateGPTScorer.from_dict(data)
+                            )
+
+                            return prompt_customized_scorers_configuration_type_0_item_type_12
+                        except:  # noqa: E722
+                            pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            prompt_customized_scorers_configuration_type_0_item_type_13 = (
+                                CustomizedToxicityGPTScorer.from_dict(data)
+                            )
+
+                            return prompt_customized_scorers_configuration_type_0_item_type_13
+                        except:  # noqa: E722
+                            pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        prompt_customized_scorers_configuration_type_0_item_type_8 = (
-                            CustomizedToolErrorRateGPTScorer.from_dict(data)
+                        prompt_customized_scorers_configuration_type_0_item_type_14 = (
+                            CustomizedInputToxicityGPTScorer.from_dict(data)
                         )
 
-                        return prompt_customized_scorers_configuration_type_0_item_type_8
+                        return prompt_customized_scorers_configuration_type_0_item_type_14
 
                     prompt_customized_scorers_configuration_type_0_item = (
                         _parse_prompt_customized_scorers_configuration_type_0_item(
@@ -944,15 +1139,21 @@ class CreateJobRequest:
                     Unset,
                     list[
                         Union[
+                            "CustomizedAgenticSessionSuccessGPTScorer",
                             "CustomizedAgenticWorkflowSuccessGPTScorer",
                             "CustomizedChunkAttributionUtilizationGPTScorer",
                             "CustomizedCompletenessGPTScorer",
                             "CustomizedFactualityGPTScorer",
                             "CustomizedGroundTruthAdherenceGPTScorer",
                             "CustomizedGroundednessGPTScorer",
+                            "CustomizedInputSexistGPTScorer",
+                            "CustomizedInputToxicityGPTScorer",
                             "CustomizedInstructionAdherenceGPTScorer",
+                            "CustomizedPromptInjectionGPTScorer",
+                            "CustomizedSexistGPTScorer",
                             "CustomizedToolErrorRateGPTScorer",
                             "CustomizedToolSelectionQualityGPTScorer",
+                            "CustomizedToxicityGPTScorer",
                         ]
                     ],
                 ],
@@ -1130,6 +1331,40 @@ class CreateJobRequest:
 
         protect_trace_id = _parse_protect_trace_id(d.pop("protect_trace_id", UNSET))
 
+        def _parse_resource_limits(data: object) -> Union["TaskResourceLimits", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                resource_limits_type_0 = TaskResourceLimits.from_dict(data)
+
+                return resource_limits_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["TaskResourceLimits", None, Unset], data)
+
+        resource_limits = _parse_resource_limits(d.pop("resource_limits", UNSET))
+
+        def _parse_scorer_config(data: object) -> Union["ScorerConfig", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                scorer_config_type_0 = ScorerConfig.from_dict(data)
+
+                return scorer_config_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["ScorerConfig", None, Unset], data)
+
+        scorer_config = _parse_scorer_config(d.pop("scorer_config", UNSET))
+
         def _parse_scorers(
             data: object,
         ) -> Union[
@@ -1138,6 +1373,7 @@ class CreateJobRequest:
             list["ScorerConfig"],
             list[
                 Union[
+                    "AgenticSessionSuccessScorer",
                     "AgenticWorkflowSuccessScorer",
                     "BleuScorer",
                     "ChunkAttributionUtilizationScorer",
@@ -1191,6 +1427,7 @@ class CreateJobRequest:
                     def _parse_scorers_type_1_item(
                         data: object,
                     ) -> Union[
+                        "AgenticSessionSuccessScorer",
                         "AgenticWorkflowSuccessScorer",
                         "BleuScorer",
                         "ChunkAttributionUtilizationScorer",
@@ -1226,7 +1463,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_1 = BleuScorer.from_dict(data)
+                            scorers_type_1_item_type_1 = AgenticSessionSuccessScorer.from_dict(data)
 
                             return scorers_type_1_item_type_1
                         except:  # noqa: E722
@@ -1234,7 +1471,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_2 = ChunkAttributionUtilizationScorer.from_dict(data)
+                            scorers_type_1_item_type_2 = BleuScorer.from_dict(data)
 
                             return scorers_type_1_item_type_2
                         except:  # noqa: E722
@@ -1242,7 +1479,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_3 = CompletenessScorer.from_dict(data)
+                            scorers_type_1_item_type_3 = ChunkAttributionUtilizationScorer.from_dict(data)
 
                             return scorers_type_1_item_type_3
                         except:  # noqa: E722
@@ -1250,7 +1487,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_4 = ContextAdherenceScorer.from_dict(data)
+                            scorers_type_1_item_type_4 = CompletenessScorer.from_dict(data)
 
                             return scorers_type_1_item_type_4
                         except:  # noqa: E722
@@ -1258,7 +1495,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_5 = ContextRelevanceScorer.from_dict(data)
+                            scorers_type_1_item_type_5 = ContextAdherenceScorer.from_dict(data)
 
                             return scorers_type_1_item_type_5
                         except:  # noqa: E722
@@ -1266,7 +1503,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_6 = CorrectnessScorer.from_dict(data)
+                            scorers_type_1_item_type_6 = ContextRelevanceScorer.from_dict(data)
 
                             return scorers_type_1_item_type_6
                         except:  # noqa: E722
@@ -1274,7 +1511,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_7 = GroundTruthAdherenceScorer.from_dict(data)
+                            scorers_type_1_item_type_7 = CorrectnessScorer.from_dict(data)
 
                             return scorers_type_1_item_type_7
                         except:  # noqa: E722
@@ -1282,7 +1519,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_8 = InputPIIScorer.from_dict(data)
+                            scorers_type_1_item_type_8 = GroundTruthAdherenceScorer.from_dict(data)
 
                             return scorers_type_1_item_type_8
                         except:  # noqa: E722
@@ -1290,7 +1527,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_9 = InputSexistScorer.from_dict(data)
+                            scorers_type_1_item_type_9 = InputPIIScorer.from_dict(data)
 
                             return scorers_type_1_item_type_9
                         except:  # noqa: E722
@@ -1298,7 +1535,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_10 = InputToneScorer.from_dict(data)
+                            scorers_type_1_item_type_10 = InputSexistScorer.from_dict(data)
 
                             return scorers_type_1_item_type_10
                         except:  # noqa: E722
@@ -1306,7 +1543,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_11 = InputToxicityScorer.from_dict(data)
+                            scorers_type_1_item_type_11 = InputToneScorer.from_dict(data)
 
                             return scorers_type_1_item_type_11
                         except:  # noqa: E722
@@ -1314,7 +1551,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_12 = InstructionAdherenceScorer.from_dict(data)
+                            scorers_type_1_item_type_12 = InputToxicityScorer.from_dict(data)
 
                             return scorers_type_1_item_type_12
                         except:  # noqa: E722
@@ -1322,7 +1559,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_13 = OutputPIIScorer.from_dict(data)
+                            scorers_type_1_item_type_13 = InstructionAdherenceScorer.from_dict(data)
 
                             return scorers_type_1_item_type_13
                         except:  # noqa: E722
@@ -1330,7 +1567,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_14 = OutputSexistScorer.from_dict(data)
+                            scorers_type_1_item_type_14 = OutputPIIScorer.from_dict(data)
 
                             return scorers_type_1_item_type_14
                         except:  # noqa: E722
@@ -1338,7 +1575,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_15 = OutputToneScorer.from_dict(data)
+                            scorers_type_1_item_type_15 = OutputSexistScorer.from_dict(data)
 
                             return scorers_type_1_item_type_15
                         except:  # noqa: E722
@@ -1346,7 +1583,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_16 = OutputToxicityScorer.from_dict(data)
+                            scorers_type_1_item_type_16 = OutputToneScorer.from_dict(data)
 
                             return scorers_type_1_item_type_16
                         except:  # noqa: E722
@@ -1354,7 +1591,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_17 = PromptInjectionScorer.from_dict(data)
+                            scorers_type_1_item_type_17 = OutputToxicityScorer.from_dict(data)
 
                             return scorers_type_1_item_type_17
                         except:  # noqa: E722
@@ -1362,7 +1599,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_18 = PromptPerplexityScorer.from_dict(data)
+                            scorers_type_1_item_type_18 = PromptInjectionScorer.from_dict(data)
 
                             return scorers_type_1_item_type_18
                         except:  # noqa: E722
@@ -1370,7 +1607,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_19 = RougeScorer.from_dict(data)
+                            scorers_type_1_item_type_19 = PromptPerplexityScorer.from_dict(data)
 
                             return scorers_type_1_item_type_19
                         except:  # noqa: E722
@@ -1378,7 +1615,7 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_20 = ToolErrorRateScorer.from_dict(data)
+                            scorers_type_1_item_type_20 = RougeScorer.from_dict(data)
 
                             return scorers_type_1_item_type_20
                         except:  # noqa: E722
@@ -1386,16 +1623,24 @@ class CreateJobRequest:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_21 = ToolSelectionQualityScorer.from_dict(data)
+                            scorers_type_1_item_type_21 = ToolErrorRateScorer.from_dict(data)
 
                             return scorers_type_1_item_type_21
                         except:  # noqa: E722
                             pass
+                        try:
+                            if not isinstance(data, dict):
+                                raise TypeError()
+                            scorers_type_1_item_type_22 = ToolSelectionQualityScorer.from_dict(data)
+
+                            return scorers_type_1_item_type_22
+                        except:  # noqa: E722
+                            pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        scorers_type_1_item_type_22 = UncertaintyScorer.from_dict(data)
+                        scorers_type_1_item_type_23 = UncertaintyScorer.from_dict(data)
 
-                        return scorers_type_1_item_type_22
+                        return scorers_type_1_item_type_23
 
                     scorers_type_1_item = _parse_scorers_type_1_item(scorers_type_1_item_data)
 
@@ -1411,6 +1656,7 @@ class CreateJobRequest:
                     list["ScorerConfig"],
                     list[
                         Union[
+                            "AgenticSessionSuccessScorer",
                             "AgenticWorkflowSuccessScorer",
                             "BleuScorer",
                             "ChunkAttributionUtilizationScorer",
@@ -1442,7 +1688,36 @@ class CreateJobRequest:
 
         scorers = _parse_scorers(d.pop("scorers", UNSET))
 
+        def _parse_segment_filters(data: object) -> Union[None, Unset, list["SegmentFilter"]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                segment_filters_type_0 = []
+                _segment_filters_type_0 = data
+                for segment_filters_type_0_item_data in _segment_filters_type_0:
+                    segment_filters_type_0_item = SegmentFilter.from_dict(segment_filters_type_0_item_data)
+
+                    segment_filters_type_0.append(segment_filters_type_0_item)
+
+                return segment_filters_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["SegmentFilter"]], data)
+
+        segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
+
         should_retry = d.pop("should_retry", UNSET)
+
+        sub_scorers = []
+        _sub_scorers = d.pop("sub_scorers", UNSET)
+        for sub_scorers_item_data in _sub_scorers or []:
+            sub_scorers_item = ScorerName(sub_scorers_item_data)
+
+            sub_scorers.append(sub_scorers_item)
 
         def _parse_task_type(data: object) -> Union[None, TaskType, Unset]:
             if data is None:
@@ -1516,8 +1791,12 @@ class CreateJobRequest:
             prompt_template_version_id=prompt_template_version_id,
             protect_scorer_payload=protect_scorer_payload,
             protect_trace_id=protect_trace_id,
+            resource_limits=resource_limits,
+            scorer_config=scorer_config,
             scorers=scorers,
+            segment_filters=segment_filters,
             should_retry=should_retry,
+            sub_scorers=sub_scorers,
             task_type=task_type,
             tasks=tasks,
             user_id=user_id,

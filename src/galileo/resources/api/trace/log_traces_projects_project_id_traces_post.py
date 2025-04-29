@@ -6,12 +6,12 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.traces_ingest_request import TracesIngestRequest
-from ...models.traces_ingest_response import TracesIngestResponse
+from ...models.log_records_ingest_request import LogRecordsIngestRequest
+from ...models.log_records_ingest_response import LogRecordsIngestResponse
 from ...types import Response
 
 
-def _get_kwargs(project_id: str, *, body: TracesIngestRequest) -> dict[str, Any]:
+def _get_kwargs(project_id: str, *, body: LogRecordsIngestRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/traces"}
@@ -27,9 +27,9 @@ def _get_kwargs(project_id: str, *, body: TracesIngestRequest) -> dict[str, Any]
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, TracesIngestResponse]]:
+) -> Optional[Union[HTTPValidationError, LogRecordsIngestResponse]]:
     if response.status_code == 200:
-        response_200 = TracesIngestResponse.from_dict(response.json())
+        response_200 = LogRecordsIngestResponse.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -44,7 +44,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, TracesIngestResponse]]:
+) -> Response[Union[HTTPValidationError, LogRecordsIngestResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -54,20 +54,20 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, *, client: AuthenticatedClient, body: TracesIngestRequest
-) -> Response[Union[HTTPValidationError, TracesIngestResponse]]:
+    project_id: str, *, client: AuthenticatedClient, body: LogRecordsIngestRequest
+) -> Response[Union[HTTPValidationError, LogRecordsIngestResponse]]:
     """Log Traces
 
     Args:
         project_id (str):
-        body (TracesIngestRequest):
+        body (LogRecordsIngestRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, TracesIngestResponse]]
+        Response[Union[HTTPValidationError, LogRecordsIngestResponse]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, body=body)
@@ -78,40 +78,40 @@ def sync_detailed(
 
 
 def sync(
-    project_id: str, *, client: AuthenticatedClient, body: TracesIngestRequest
-) -> Optional[Union[HTTPValidationError, TracesIngestResponse]]:
+    project_id: str, *, client: AuthenticatedClient, body: LogRecordsIngestRequest
+) -> Optional[Union[HTTPValidationError, LogRecordsIngestResponse]]:
     """Log Traces
 
     Args:
         project_id (str):
-        body (TracesIngestRequest):
+        body (LogRecordsIngestRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, TracesIngestResponse]
+        Union[HTTPValidationError, LogRecordsIngestResponse]
     """
 
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, *, client: AuthenticatedClient, body: TracesIngestRequest
-) -> Response[Union[HTTPValidationError, TracesIngestResponse]]:
+    project_id: str, *, client: AuthenticatedClient, body: LogRecordsIngestRequest
+) -> Response[Union[HTTPValidationError, LogRecordsIngestResponse]]:
     """Log Traces
 
     Args:
         project_id (str):
-        body (TracesIngestRequest):
+        body (LogRecordsIngestRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, TracesIngestResponse]]
+        Response[Union[HTTPValidationError, LogRecordsIngestResponse]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, body=body)
@@ -122,20 +122,20 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, *, client: AuthenticatedClient, body: TracesIngestRequest
-) -> Optional[Union[HTTPValidationError, TracesIngestResponse]]:
+    project_id: str, *, client: AuthenticatedClient, body: LogRecordsIngestRequest
+) -> Optional[Union[HTTPValidationError, LogRecordsIngestResponse]]:
     """Log Traces
 
     Args:
         project_id (str):
-        body (TracesIngestRequest):
+        body (LogRecordsIngestRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, TracesIngestResponse]
+        Union[HTTPValidationError, LogRecordsIngestResponse]
     """
 
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

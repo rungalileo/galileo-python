@@ -13,8 +13,8 @@ from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
 from galileo.resources.api.experiment import (
-    create_experiment_v2_projects_project_id_experiments_post,
-    list_experiments_v2_projects_project_id_experiments_get,
+    create_experiment_projects_project_id_experiments_post,
+    list_experiments_projects_project_id_experiments_get,
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
 from galileo.scorers import Scorers, ScorerSettings
@@ -46,7 +46,7 @@ class Experiments(BaseClientModel):
     def create(self, project_id: str, name: str) -> ExperimentResponse:
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
 
-        experiment = create_experiment_v2_projects_project_id_experiments_post.sync(
+        experiment = create_experiment_projects_project_id_experiments_post.sync(
             project_id=project_id,
             client=self.client,
             body=body,  # type: ignore[arg-type]
@@ -81,7 +81,7 @@ class Experiments(BaseClientModel):
         return experiment
 
     def list(self, project_id: str) -> Optional[Union[HTTPValidationError, list["ExperimentResponse"]]]:
-        return list_experiments_v2_projects_project_id_experiments_get.sync(project_id=project_id, client=self.client)
+        return list_experiments_projects_project_id_experiments_get.sync(project_id=project_id, client=self.client)
 
     @staticmethod
     def create_run_scorer_settings(

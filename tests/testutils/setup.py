@@ -8,6 +8,7 @@ from galileo.projects import Project
 from galileo.resources.models import ExperimentResponse, ProjectType
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.resources.models.project_create_response import ProjectCreateResponse
+from galileo.resources.models.task_type import TaskType
 
 
 def setup_mock_projects_client(mock_projects_client: Mock):
@@ -77,6 +78,7 @@ def setup_mock_experiments_client(mock_experiment_client: Mock):
                 name="test",
                 created_at=now,
                 updated_at=now,
+                task_type=TaskType.VALUE_16,
             )
         )
     )

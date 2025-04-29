@@ -13,7 +13,12 @@ from galileo.resources.types import Response
 def projects_response():
     project = ProjectDB.from_dict(
         {
-            "created_by_user": {"id": "01ce18ac-3960-46e1-bb79-0e4965069add"},
+            "created_by_user": {
+                "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                "email": "andriisoldatenko@galileo.ai",
+                "first_name": "Andrii",
+                "last_name": "Soldatenko",
+            },
             "created_at": "2025-03-03T21:17:44.232862+00:00",
             "created_by": "01ce18ac-3960-46e1-bb79-0e4965069add",
             "id": "e343ea54-4df3-4d0b-9bc5-7e8224be348f",

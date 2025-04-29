@@ -19,6 +19,7 @@ class TaskType(IntEnum):
     VALUE_14 = 14
     VALUE_15 = 15
     VALUE_16 = 16
+    VALUE_17 = 17
 
     def __str__(self) -> str:
         return str(self.value)

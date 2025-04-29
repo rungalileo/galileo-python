@@ -4,7 +4,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.message import Message
+    from ..models.messages_list_item import MessagesListItem
 
 
 T = TypeVar("T", bound="BasePromptTemplateVersionResponse")
@@ -16,12 +16,12 @@ class BasePromptTemplateVersionResponse:
 
     Attributes:
         id (str):
-        template (Union[list['Message'], str]):
+        template (Union[list['MessagesListItem'], str]):
         version (int):
     """
 
     id: str
-    template: Union[list["Message"], str]
+    template: Union[list["MessagesListItem"], str]
     version: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -48,26 +48,26 @@ class BasePromptTemplateVersionResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        from ..models.message import Message
+        from ..models.messages_list_item import MessagesListItem
 
         d = src_dict.copy()
         id = d.pop("id")
 
-        def _parse_template(data: object) -> Union[list["Message"], str]:
+        def _parse_template(data: object) -> Union[list["MessagesListItem"], str]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
                 template_type_1 = []
                 _template_type_1 = data
                 for componentsschemas_messages_item_data in _template_type_1:
-                    componentsschemas_messages_item = Message.from_dict(componentsschemas_messages_item_data)
+                    componentsschemas_messages_item = MessagesListItem.from_dict(componentsschemas_messages_item_data)
 
                     template_type_1.append(componentsschemas_messages_item)
 
                 return template_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[list["Message"], str], data)
+            return cast(Union[list["MessagesListItem"], str], data)
 
         template = _parse_template(d.pop("template"))
 
