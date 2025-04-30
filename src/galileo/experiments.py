@@ -86,7 +86,7 @@ class Experiments(BaseClientModel):
 
     @staticmethod
     def create_scorer_configs(
-        project_id: str, experiment_id: str, metrics: builtins.list[str | LocalScorerConfig]
+        project_id: str, experiment_id: str, metrics: builtins.list[Union[str, LocalScorerConfig]]
     ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalScorerConfig]]:
         scorers = []
         local_metrics = []
@@ -213,7 +213,7 @@ def run_experiment(
     dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
-    metrics: Optional[list[str | LocalScorerConfig]] = None,
+    metrics: Optional[list[Union[str, LocalScorerConfig]]] = None,
     function: Optional[Callable] = None,
 ) -> Any:
     """
@@ -281,7 +281,7 @@ def run_experiment(
     experiment_obj = Experiments().create(project_obj.id, experiment_name)
 
     # Set up metrics if provided
-    scorer_settings: list[ScorerConfig] | None = None
+    scorer_settings: Optional[list[ScorerConfig]] = None
     local_scorers: list[LocalScorerConfig] = list()
     if metrics is not None:
         scorer_settings, local_scorers = Experiments.create_scorer_configs(project_obj.id, experiment_obj.id, metrics)
