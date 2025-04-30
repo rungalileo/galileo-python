@@ -2,6 +2,7 @@ import atexit
 import json
 import logging
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from os import getenv
 from typing import Optional, Union
@@ -12,9 +13,11 @@ from galileo.api_client import GalileoApiClient
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.projects import Projects
+from galileo.schema.metrics import LocalScorerConfig
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
+from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
 from galileo_core.schemas.logging.span import (
@@ -104,11 +107,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     project_id: Optional[str] = None
     log_stream_id: Optional[str] = None
     experiment_id: Optional[str] = None
+    local_scorers: Optional[list[LocalScorerConfig]] = None
 
     _logger = logging.getLogger("galileo.logger")
 
     def __init__(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        local_scorers: Optional[list[LocalScorerConfig]] = None,
     ) -> None:
         super().__init__()
 
@@ -132,6 +140,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
             if self.log_stream_name is None:
                 raise GalileoLoggerException("log_stream is required to initialize GalileoLogger.")
+
+        if local_scorers:
+            self.local_scorers = local_scorers
 
         self._init_project()
 
@@ -540,6 +551,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._logger.info("Concluding the active trace...")
             last_output = GalileoLogger._get_last_output(current_parent)
             self.conclude(output=last_output, conclude_all=True)
+
+        if self.local_scorers:
+            self._logger.info("Computing metrics for local scorers...")
+            with ThreadPoolExecutor() as executor:
+                list(executor.map(lambda trace: populate_local_metrics(trace, self.local_scorers), self.traces))
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 

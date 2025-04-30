@@ -171,7 +171,7 @@ class Experiments(BaseClientModel):
         local_scorers: builtins.list[LocalScorerConfig],
     ) -> dict[str, Any]:
         results = []
-        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id)  # type: ignore[arg-type]
+        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id, local_scorers=local_scorers)  # type: ignore[arg-type]
 
         logged_process_func = log(name=experiment_obj.name)(func)
 
@@ -181,7 +181,7 @@ class Experiments(BaseClientModel):
             galileo_context.reset_trace_context()
 
         # flush the logger
-        galileo_context.flush(local_scorers=local_scorers)
+        galileo_context.flush()
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
 

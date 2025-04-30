@@ -60,7 +60,7 @@ from galileo.schema.metrics import LocalScorerConfig
 from galileo.utils import _get_timestamp
 from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
-from galileo_core.schemas.logging.span import Span, StepWithChildSpans, WorkflowSpan
+from galileo_core.schemas.logging.span import WorkflowSpan
 from galileo_core.schemas.logging.trace import Trace
 
 _logger = logging.getLogger(__name__)
@@ -85,6 +85,10 @@ _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", defaul
 _experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_context", default=None)
 
 _span_stack_context: ContextVar[list[WorkflowSpan]] = ContextVar("span_stack_context", default=[])
+
+_local_scorers_context: ContextVar[Optional[list[LocalScorerConfig]]] = ContextVar(
+    "local_scorers_context", default=None
+)
 
 
 class GalileoDecorator:
@@ -743,6 +747,7 @@ class GalileoDecorator:
             project=project or _project_context.get(),
             log_stream=log_stream or _log_stream_context.get(),
             experiment_id=experiment_id or _experiment_id_context.get(),
+            local_scorers=_local_scorers_context.get(),
         )
 
     def get_current_project(self) -> Optional[str]:
@@ -782,11 +787,7 @@ class GalileoDecorator:
         return _trace_context.get()
 
     def flush(
-        self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        local_scorers: Optional[list[LocalScorerConfig]] = [],
+        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
     ) -> None:
         """
         Upload all captured traces under a project and log stream context to Galileo.
@@ -797,11 +798,7 @@ class GalileoDecorator:
             project: The project name. Defaults to None.
             log_stream: The log stream name. Defaults to None.
         """
-        logger = self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id)
-        if local_scorers:
-            for trace in logger.traces:
-                self._populate_metrics(trace, local_scorers)
-        logger.flush()
+        self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id).flush()
 
         if project == _project_context.get() and log_stream == _log_stream_context.get():
             _span_stack_context.set([])
@@ -810,14 +807,6 @@ class GalileoDecorator:
         elif project == _project_context.get() and experiment_id == _experiment_id_context.get():
             _span_stack_context.set([])
             _trace_context.set(None)
-
-    def _populate_metrics(self, step: Trace | Span, local_metrics: list[LocalScorerConfig]):
-        if local_metrics:
-            for metric in local_metrics:
-                setattr(step.metrics, metric.name, metric.func(step))
-            if isinstance(step, StepWithChildSpans):
-                for span in step.spans:
-                    self._populate_metrics(span, local_metrics)
 
     def flush_all(self) -> None:
         """
@@ -843,6 +832,7 @@ class GalileoDecorator:
         _project_context.set(None)
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
+        _local_scorers_context.set(None)
         _span_stack_context.set([])
         _trace_context.set(None)
 
@@ -854,7 +844,11 @@ class GalileoDecorator:
         _trace_context.set(None)
 
     def init(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        local_scorers: Optional[list[LocalScorerConfig]] = None,
     ) -> None:
         """
         Initialize the context with a project and log stream. Optionally, it can also be used
@@ -872,6 +866,7 @@ class GalileoDecorator:
         _project_context.set(project)
         _log_stream_context.set(log_stream)
         _experiment_id_context.set(experiment_id)
+        _local_scorers_context.set(local_scorers)
         _span_stack_context.set([])
         _trace_context.set(None)
 
