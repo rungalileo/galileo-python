@@ -493,14 +493,14 @@ python-dateutil = ">=2.7"
 
 [[package]]
 name = "galileo-core"
-version = "3.19.0"
+version = "3.29.0"
 description = "Shared schemas and configuration for Galileo's Python packages."
 optional = false
 python-versions = ">=3.8.1"
 groups = ["main", "test"]
 files = [
-    {file = "galileo_core-3.19.0-py3-none-any.whl", hash = "sha256:5b9224d5afbd5ac6f2a640c6dab463de335d61548c67345e6e81d4eea9cc9ec8"},
-    {file = "galileo_core-3.19.0.tar.gz", hash = "sha256:a4d887fcd4be7c2edc92c2458909c0e221204d8ec7cc6483af720caffa5f71e1"},
+    {file = "galileo_core-3.29.0-py3-none-any.whl", hash = "sha256:d103a18ce4f78ae01cd138451e2d927929431e6330b7b1f843a1a2135adbe2cd"},
+    {file = "galileo_core-3.29.0.tar.gz", hash = "sha256:3890bedaa76baa4b40d7182e771b7fc66c2f3ddef0536803f185f43f2f697178"},
 ]
 
 [package.dependencies]
@@ -3028,4 +3028,4 @@ openai = ["openai", "openai-agents", "packaging"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "9f3cfdf5c48763c8329aa3b03c129bbb8da0b2cc30d3df858a99f5f45e26ade9"
+content-hash = "8d09efac5479bc05eae08b50b4a2502e3359097ca807f67113d70ac4b8c0c07c"

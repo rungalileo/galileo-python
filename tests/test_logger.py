@@ -12,7 +12,6 @@ from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, ToolSpan, 
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
-from galileo_core.schemas.shared.workflows.node_type import NodeType
 from tests.testutils.setup import (
     setup_mock_core_api_client,
     setup_mock_experiments_client,
@@ -95,7 +94,6 @@ def test_single_span_trace_to_galileo(
         experiment_id=None,
         traces=[
             Trace(
-                type=NodeType.trace,
                 input="input",
                 output="output",
                 name="test-trace",
@@ -137,7 +135,6 @@ def test_single_span_trace_to_galileo_experiment_id(
         experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
         traces=[
             Trace(
-                type=NodeType.trace,
                 input="input",
                 output="output",
                 name="test-trace",
@@ -262,7 +259,6 @@ def test_multi_span_trace_to_galileo(
         experiment_id=None,
         traces=[
             Trace(
-                type=NodeType.trace,
                 input="input",
                 output="response2",
                 name="test-trace",
@@ -317,7 +313,6 @@ async def test_single_span_trace_to_galileo_with_async(
         experiment_id=None,
         traces=[
             Trace(
-                type=NodeType.trace,
                 input="input",
                 output="output",
                 name="test-trace",

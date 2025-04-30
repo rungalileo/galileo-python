@@ -26,11 +26,10 @@ from galileo_core.schemas.logging.span import (
     ToolSpan,
     WorkflowSpan,
 )
-from galileo_core.schemas.logging.step import BaseStep
+from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
-from galileo_core.schemas.shared.workflows.step import StepIOType
 
 RetrieverSpanAllowedOutputType = Union[
     str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None
@@ -191,7 +190,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     @nop_sync
     def start_trace(
         self,
-        input: StepIOType,
+        input: StepAllowedInputType,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,

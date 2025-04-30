@@ -59,7 +59,8 @@ from galileo.logger import GalileoLogger
 from galileo.utils import _get_timestamp
 from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
-from galileo_core.schemas.shared.traces.types import Trace, WorkflowSpan
+from galileo_core.schemas.logging.span import WorkflowSpan
+from galileo_core.schemas.logging.trace import Trace
 
 _logger = logging.getLogger(__name__)
 
