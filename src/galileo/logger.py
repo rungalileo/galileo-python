@@ -588,6 +588,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             last_output = GalileoLogger._get_last_output(current_parent)
             self.conclude(output=last_output, conclude_all=True)
 
+        if self.local_scorers:
+            self._logger.info("Computing metrics for local scorers...")
+            import asyncio
+
+            tasks = [asyncio.to_thread(populate_local_metrics, trace, self.local_scorers) for trace in self.traces]
+            await asyncio.gather(*tasks)
+
         self._logger.info("Flushing %d traces...", len(self.traces))
 
         traces_ingest_request = TracesIngestRequest(traces=self.traces)

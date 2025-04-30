@@ -7,8 +7,9 @@ from uuid import UUID
 import pytest
 
 from galileo.logger import GalileoLogger
+from galileo.schema.metrics import LocalScorerConfig
 from galileo.schema.trace import TracesIngestRequest
-from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
+from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
@@ -288,7 +289,15 @@ async def test_single_span_trace_to_galileo_with_async(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    def local_scorer(step: Trace | Span) -> int:
+        return len(step.input)
+
+    logger = GalileoLogger(
+        project="my_project",
+        log_stream="my_log_stream",
+        local_scorers=[LocalScorerConfig(name="length", func=local_scorer)],
+    )
     logger.start_trace(
         input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
     )
@@ -307,6 +316,8 @@ async def test_single_span_trace_to_galileo_with_async(
     logger.conclude("output", status_code=200)
     await logger.async_flush()
 
+    setattr(span.metrics, "length", 6)
+
     payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
@@ -320,7 +331,7 @@ async def test_single_span_trace_to_galileo_with_async(
                 user_metadata=metadata,
                 status_code=200,
                 spans=[span],
-                metrics=Metrics(duration_ns=1000000),
+                metrics=Metrics(duration_ns=1000000, length=5),
             )
         ],
     )
