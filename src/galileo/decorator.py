@@ -360,7 +360,9 @@ class GalileoDecorator:
         Returns:
             bool: True if 'cls' or 'self' is in the callable's parameters, False otherwise
         """
-        return "self" in inspect.signature(func).parameters or "cls" in inspect.signature(func).parameters
+        # Only call inspect.signature(func) ONCE for improved performance
+        params = inspect.signature(func).parameters
+        return "self" in params or "cls" in params
 
     def _prepare_input(
         self,
