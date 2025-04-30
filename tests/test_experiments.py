@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Any, Union
 from unittest.mock import ANY, MagicMock, Mock, patch
 from uuid import UUID
 
@@ -30,11 +31,10 @@ from galileo.resources.models import (
     PromptRunSettings,
     ScorerConfig,
     ScorerResponse,
+    ScorerTypes,
     TaskType,
 )
 from galileo.schema.metrics import LocalScorerConfig
-from galileo_core.schemas.logging.span import Span
-from galileo_core.schemas.logging.trace import Trace
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
@@ -341,6 +341,21 @@ class TestExperiments:
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @pytest.mark.parametrize(
+        ["metrics", "results"],
+        [
+            ([], []),
+            (
+                [
+                    LocalScorerConfig(name="length", func=lambda step: len(step.input)),
+                    LocalScorerConfig(name="output", func=lambda step: step.output),
+                    LocalScorerConfig(name="decimal", func=lambda step: 4.53),
+                    LocalScorerConfig(name="bool", func=lambda step: True),
+                ],
+                [40, "dummy_function", 4.53, True],
+            ),
+        ],
+    )
     def test_run_experiment_with_func(
         self,
         mock_get_project: Mock,
@@ -351,6 +366,8 @@ class TestExperiments:
         mock_projects_client: Mock,
         mock_logstreams_client: Mock,
         reset_context,
+        metrics: list[Union[str, LocalScorerConfig]],
+        results: list[Any],
     ):
         mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
         setup_mock_projects_client(mock_projects_client)
@@ -365,15 +382,8 @@ class TestExperiments:
         def function(*args, **kwargs):
             return "dummy_function"
 
-        def local_scorer(step: Trace | Span) -> int:
-            return len(step.input)
-
         result = run_experiment(
-            "test_experiment",
-            project="awesome-new-project",
-            dataset_id=dataset_id,
-            function=function,
-            metrics=[LocalScorerConfig(name="length", func=local_scorer)],
+            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, function=function, metrics=metrics
         )
         assert result is not None
         assert result["experiment"] is not None
@@ -390,8 +400,9 @@ class TestExperiments:
         assert len(payload.traces) == 1
         assert len(payload.traces[0].spans) == 1
 
-        assert hasattr(payload.traces[0].metrics, "length")
-        assert payload.traces[0].metrics.length == 40
+        for metric, metric_result in zip(metrics, results):
+            assert hasattr(payload.traces[0].metrics, metric.name)
+            assert getattr(payload.traces[0].metrics, metric.name) == metric_result
 
     @freeze_time("2012-01-01")
     @patch.object(galileo.experiments.ScorerSettings, "create")
@@ -576,8 +587,60 @@ class TestExperiments:
             == "A dataset record, id, or name of a dataset must be provided when a prompt_template is used"
         )
 
+    @patch("galileo.logger.Projects")
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_local_scorers_and_prompt_template(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_dataset: Mock,
+        mock_projects_client: Mock,
+    ):
+        setup_mock_projects_client(mock_projects_client)
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_with_question())
+
+        local_scorer = LocalScorerConfig(name="local_scorer", func=lambda x: x)  # Create a LocalScorerConfig instance
+        with pytest.raises(ValueError) as exc_info:
+            run_experiment(
+                "test_experiment",
+                project="awesome-new-project",
+                dataset_id=str(UUID(int=1)),
+                prompt_template=prompt_template(),
+                metrics=[local_scorer],
+            )
+        assert (
+            str(exc_info.value)
+            == "Local metrics can only be used with a locally run experiment, not a prompt experiment."
+        )
+
+    @patch("galileo.experiments.Scorers")
+    @patch("galileo.experiments.ScorerSettings")
+    def test_create_scorer_configs(self, mock_scorer_settings, mock_scorers):
+        # Setup mock return values
+        mock_scorers_instance = mock_scorers.return_value
+        mock_scorers_instance.list.return_value = [
+            ScorerConfig(id="1", name="metric1", scorer_type=ScorerTypes.PRESET),
+            ScorerConfig(id="2", name="metric2", scorer_type=ScorerTypes.PRESET),
+        ]
+
+        # Test valid metrics
+        scorers, local_scorers = Experiments.create_scorer_configs(
+            "project_id", "experiment_id", ["metric1", LocalScorerConfig(name="length", func=lambda x: len(x))]
+        )
+        assert len(scorers) == 1  # Should return one valid scorer
+        assert len(local_scorers) == 1  # Should return one local scorer
+
+        # Test unknown metrics
+        with pytest.raises(ValueError):
+            Experiments.create_scorer_configs("project_id", "experiment_id", ["unknown_metric"])
+
     @patch("galileo.experiments.Scorers.list")
-    def test_create_run_scorer_settings_non_existent_metric(self, scorer_list: Mock):
+    def test_create_scorer_configs_non_existent_metric(self, scorer_list: Mock):
         scorer_list.return_value = [
             ScorerResponse.from_dict(
                 {
@@ -604,7 +667,7 @@ class TestExperiments:
         scorer_list.assert_called_once()
 
     @patch("galileo.experiments.Scorers.list")
-    def test_create_run_scorer_settings_one_valid_two_non_existent_metric(self, scorer_list: Mock):
+    def test_create_scorer_configs_one_valid_two_non_existent_metric(self, scorer_list: Mock):
         scorer_list.return_value = [
             ScorerResponse.from_dict(
                 {
