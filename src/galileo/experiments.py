@@ -89,8 +89,6 @@ class Experiments(BaseClientModel):
         project_id: str, experiment_id: str, metrics: builtins.list[Union[str, LocalScorerConfig]]
     ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalScorerConfig]]:
         scorers = []
-        local_metrics = []
-
         scorer_names = [metric for metric in metrics if isinstance(metric, str)]
         if scorer_names:
             all_scorers = Scorers().list()
@@ -109,10 +107,8 @@ class Experiments(BaseClientModel):
             ScorerSettings().create(project_id=project_id, run_id=experiment_id, scorers=scorers)
 
         local_scorers = [metric for metric in metrics if isinstance(metric, LocalScorerConfig)]
-        for metric in local_scorers:
-            local_metrics.append(metric)
 
-        return scorers, local_metrics
+        return scorers, local_scorers
 
     def run(
         self,
