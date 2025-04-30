@@ -3028,4 +3028,4 @@ openai = ["openai", "openai-agents", "packaging"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "8d09efac5479bc05eae08b50b4a2502e3359097ca807f67113d70ac4b8c0c07c"
+content-hash = "379dba9abb2015e526e52344a8274dd70bf700dc8e3763b6a87ca4c9e7f030df"
