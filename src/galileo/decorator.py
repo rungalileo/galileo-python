@@ -86,10 +86,6 @@ _experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_co
 
 _span_stack_context: ContextVar[list[WorkflowSpan]] = ContextVar("span_stack_context", default=[])
 
-_local_scorers_context: ContextVar[Optional[list[LocalScorerConfig]]] = ContextVar(
-    "local_scorers_context", default=None
-)
-
 
 class GalileoDecorator:
     """
@@ -747,7 +743,6 @@ class GalileoDecorator:
             project=project or _project_context.get(),
             log_stream=log_stream or _log_stream_context.get(),
             experiment_id=experiment_id or _experiment_id_context.get(),
-            local_scorers=_local_scorers_context.get(),
         )
 
     def get_current_project(self) -> Optional[str]:
@@ -832,7 +827,6 @@ class GalileoDecorator:
         _project_context.set(None)
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
-        _local_scorers_context.set(None)
         _span_stack_context.set([])
         _trace_context.set(None)
 
@@ -863,10 +857,13 @@ class GalileoDecorator:
             experiment_id: The experiment id. Defaults to None.
         """
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
+        GalileoLoggerSingleton().get(
+            project=project, log_stream=log_stream, experiment_id=experiment_id, local_scorers=local_scorers
+        )
+
         _project_context.set(project)
         _log_stream_context.set(log_stream)
         _experiment_id_context.set(experiment_id)
-        _local_scorers_context.set(local_scorers)
         _span_stack_context.set([])
         _trace_context.set(None)
 
