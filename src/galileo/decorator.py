@@ -56,10 +56,11 @@ from typing import Any, Callable, Literal, Optional, TypeVar, Union, cast, overl
 from typing_extensions import ParamSpec
 
 from galileo.logger import GalileoLogger
+from galileo.schema.metrics import LocalScorerConfig
 from galileo.utils import _get_timestamp
 from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
-from galileo_core.schemas.logging.span import WorkflowSpan
+from galileo_core.schemas.logging.span import Span, StepWithChildSpans, WorkflowSpan
 from galileo_core.schemas.logging.trace import Trace
 
 _logger = logging.getLogger(__name__)
@@ -781,7 +782,11 @@ class GalileoDecorator:
         return _trace_context.get()
 
     def flush(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        local_scorers: Optional[list[LocalScorerConfig]] = [],
     ) -> None:
         """
         Upload all captured traces under a project and log stream context to Galileo.
@@ -792,7 +797,11 @@ class GalileoDecorator:
             project: The project name. Defaults to None.
             log_stream: The log stream name. Defaults to None.
         """
-        self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id).flush()
+        logger = self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id)
+        if local_scorers:
+            for trace in logger.traces:
+                self._populate_metrics(trace, local_scorers)
+        logger.flush()
 
         if project == _project_context.get() and log_stream == _log_stream_context.get():
             _span_stack_context.set([])
@@ -801,6 +810,14 @@ class GalileoDecorator:
         elif project == _project_context.get() and experiment_id == _experiment_id_context.get():
             _span_stack_context.set([])
             _trace_context.set(None)
+
+    def _populate_metrics(self, step: Trace | Span, local_metrics: list[LocalScorerConfig]):
+        if local_metrics:
+            for metric in local_metrics:
+                setattr(step.metrics, metric.name, metric.func(step))
+            if isinstance(step, StepWithChildSpans):
+                for span in step.spans:
+                    self._populate_metrics(span, local_metrics)
 
     def flush_all(self) -> None:
         """

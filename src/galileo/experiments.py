@@ -17,6 +17,7 @@ from galileo.resources.api.experiment import (
     list_experiments_projects_project_id_experiments_get,
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
+from galileo.schema.metrics import LocalScorerConfig
 from galileo.scorers import Scorers, ScorerSettings
 
 _logger = logging.getLogger(__name__)
@@ -84,27 +85,34 @@ class Experiments(BaseClientModel):
         return list_experiments_projects_project_id_experiments_get.sync(project_id=project_id, client=self.client)
 
     @staticmethod
-    def create_run_scorer_settings(
-        project_id: str, experiment_id: str, metrics: builtins.list[str]
-    ) -> builtins.list[ScorerConfig]:
+    def create_scorer_configs(
+        project_id: str, experiment_id: str, metrics: builtins.list[str | LocalScorerConfig]
+    ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalScorerConfig]]:
         scorers = []
-        all_scorers = Scorers().list()
-        known_metrics = {metric.name: metric for metric in all_scorers}
-        unknown_metrics = []
-        for metric in metrics:
-            if metric in known_metrics:
-                scorers.append(ScorerConfig.from_dict(known_metrics[metric].to_dict()))
-            else:
-                unknown_metrics.append(metric)
+        local_metrics = []
 
-        if unknown_metrics:
-            raise ValueError(
-                "One or more non-existent metrics are specified:"
-                + ", ".join(f"'{metric}'" for metric in unknown_metrics)
-            )
+        scorer_names = [metric for metric in metrics if isinstance(metric, str)]
+        if scorer_names:
+            all_scorers = Scorers().list()
+            known_metrics = {metric.name: metric for metric in all_scorers}
+            unknown_metrics = []
+            for metric in scorer_names:
+                if metric in known_metrics:
+                    scorers.append(ScorerConfig.from_dict(known_metrics[metric].to_dict()))
+                else:
+                    unknown_metrics.append(metric)
+            if unknown_metrics:
+                raise ValueError(
+                    "One or more non-existent metrics are specified:"
+                    + ", ".join(f"'{metric}'" for metric in unknown_metrics)
+                )
+            ScorerSettings().create(project_id=project_id, run_id=experiment_id, scorers=scorers)
 
-        ScorerSettings().create(project_id=project_id, run_id=experiment_id, scorers=scorers)
-        return scorers
+        local_scorers = [metric for metric in metrics if isinstance(metric, LocalScorerConfig)]
+        for metric in local_scorers:
+            local_metrics.append(metric)
+
+        return scorers, local_metrics
 
     def run(
         self,
@@ -160,6 +168,7 @@ class Experiments(BaseClientModel):
         experiment_obj: ExperimentResponse,
         records: builtins.list[dict[str, str]],
         func: Callable,
+        local_scorers: builtins.list[LocalScorerConfig],
     ) -> dict[str, Any]:
         results = []
         galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id)  # type: ignore[arg-type]
@@ -172,7 +181,7 @@ class Experiments(BaseClientModel):
             galileo_context.reset_trace_context()
 
         # flush the logger
-        galileo_context.flush()
+        galileo_context.flush(local_scorers=local_scorers)
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
 
@@ -204,7 +213,7 @@ def run_experiment(
     dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
-    metrics: Optional[list[str]] = None,
+    metrics: Optional[list[str | LocalScorerConfig]] = None,
     function: Optional[Callable] = None,
 ) -> Any:
     """
@@ -271,9 +280,15 @@ def run_experiment(
 
     experiment_obj = Experiments().create(project_obj.id, experiment_name)
 
+    # Set up metrics if provided
+    scorer_settings: list[ScorerConfig] | None = None
+    local_scorers: list[LocalScorerConfig] = list()
+    if metrics is not None:
+        scorer_settings, local_scorers = Experiments.create_scorer_configs(project_obj.id, experiment_obj.id, metrics)
+
     # Execute a runner function experiment
     if function is not None:
-        return Experiments().run_with_function(project_obj, experiment_obj, records, function)
+        return Experiments().run_with_function(project_obj, experiment_obj, records, function, local_scorers)
 
     if prompt_template is None:
         raise ValueError("A prompt template must be provided")
@@ -281,10 +296,8 @@ def run_experiment(
     if dataset_obj is None:
         raise ValueError("A dataset object must be provided")
 
-    # Set up metrics if provided
-    scorer_settings = None
-    if metrics is not None:
-        scorer_settings = Experiments.create_run_scorer_settings(project_obj.id, experiment_obj.id, metrics)
+    if local_scorers:
+        raise ValueError("Local metrics can only be used with a locally run experiment, not a prompt experiment.")
 
     # Execute a prompt template experiment
     return Experiments().run(

@@ -32,6 +32,9 @@ from galileo.resources.models import (
     ScorerResponse,
     TaskType,
 )
+from galileo.schema.metrics import LocalScorerConfig
+from galileo_core.schemas.logging.span import Span
+from galileo_core.schemas.logging.trace import Trace
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
@@ -362,8 +365,15 @@ class TestExperiments:
         def function(*args, **kwargs):
             return "dummy_function"
 
+        def local_scorer(step: Trace | Span) -> int:
+            return len(step.input)
+
         result = run_experiment(
-            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, function=function
+            "test_experiment",
+            project="awesome-new-project",
+            dataset_id=dataset_id,
+            function=function,
+            metrics=[LocalScorerConfig(name="length", func=local_scorer)],
         )
         assert result is not None
         assert result["experiment"] is not None
@@ -379,6 +389,9 @@ class TestExperiments:
         payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
         assert len(payload.traces) == 1
         assert len(payload.traces[0].spans) == 1
+
+        assert hasattr(payload.traces[0].metrics, "length")
+        assert payload.traces[0].metrics.length == 40
 
     @freeze_time("2012-01-01")
     @patch.object(galileo.experiments.ScorerSettings, "create")
@@ -584,7 +597,7 @@ class TestExperiments:
             )
         ]
         with pytest.raises(ValueError) as exc_info:
-            Experiments.create_run_scorer_settings(
+            Experiments.create_scorer_configs(
                 project_id="00000000", experiment_id="asd", metrics=["Non-ExistentMetric"]
             )
         assert str(exc_info.value) == "One or more non-existent metrics are specified:'Non-ExistentMetric'"
@@ -611,7 +624,7 @@ class TestExperiments:
             )
         ]
         with pytest.raises(ValueError) as exc_info:
-            Experiments.create_run_scorer_settings(
+            Experiments.create_scorer_configs(
                 project_id="00000000",
                 experiment_id="asd",
                 metrics=["unknown_metric1", "agentic_workflow_success", "Non-ExistentMetric"],
