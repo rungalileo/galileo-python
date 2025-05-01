@@ -822,3 +822,51 @@ def test_session_create(mock_core_api_client: Mock, mock_projects_client: Mock, 
     assert payload.external_id == "test"
 
     assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_session_clear(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_session(
+        name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
+    )
+
+    assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+
+    logger.clear_session()
+
+    assert logger.session_id is None
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_session_id_on_flush(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_session(
+        name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
+    )
+
+    logger.start_trace(input="input", name="test-trace", created_at=datetime.datetime.now())
+    logger.add_retriever_span(
+        input="prompt", output="response", name="test-span", created_at=datetime.datetime.now(), status_code=200
+    )
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    assert payload.session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
