@@ -8,7 +8,7 @@ from httpx import Client, Timeout
 
 from galileo.api_client import GalileoApiClient
 from galileo.constants.routes import Routes
-from galileo.schema.trace import SessionCreateRequest, SessionCreateResponse, TracesIngestRequest
+from galileo.schema.trace import SessionCreateRequest, TracesIngestRequest
 from galileo.utils.request import HttpHeaders, make_request
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient as CoreApiClient
@@ -149,7 +149,7 @@ class GalileoCoreApiClient:
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
         )
 
-    def create_session_sync(self, session_create_request: SessionCreateRequest) -> SessionCreateResponse:
+    def create_session_sync(self, session_create_request: SessionCreateRequest) -> dict[str, str]:
         if self.experiment_id:
             session_create_request.experiment_id = UUID(self.experiment_id)
         elif self.log_stream_id:
@@ -157,11 +157,13 @@ class GalileoCoreApiClient:
 
         json = session_create_request.model_dump(mode="json")
 
-        return self._make_request(
+        response = self._make_request(
             RequestMethod.POST, endpoint=Routes.sessions.format(project_id=self.project_id), json=json
         )
 
-    async def create_session(self, session_create_request: SessionCreateRequest) -> SessionCreateResponse:
+        return response
+
+    async def create_session(self, session_create_request: SessionCreateRequest) -> dict[str, str]:
         if self.experiment_id:
             session_create_request.experiment_id = UUID(self.experiment_id)
         elif self.log_stream_id:

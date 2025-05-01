@@ -545,7 +545,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._logger.info("Flushing %d traces...", len(self.traces))
 
         traces_ingest_request = TracesIngestRequest(
-            traces=self.traces, experiment_id=self.experiment_id, session_id=self._session_id
+            traces=self.traces, experiment_id=self.experiment_id, session_id=self.session_id
         )
         self._client.ingest_traces_sync(traces_ingest_request)
         logged_traces = self.traces
@@ -577,7 +577,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
-        traces_ingest_request = TracesIngestRequest(traces=self.traces, session_id=self._session_id)
+        traces_ingest_request = TracesIngestRequest(traces=self.traces, session_id=self.session_id)
         await self._client.ingest_traces(traces_ingest_request)
         logged_traces = self.traces
 
@@ -606,11 +606,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
         )
 
-        self._logger.info("Session started with ID: %s", session.id)
+        self._logger.info("Session started with ID: %s", session["id"])
 
-        self._session_id = session.id
+        self.session_id = str(session["id"])
 
     def clear_session(self) -> None:
         self._logger.info("Clearing the current session from the logger...")
-        self._session_id = None
+        self.session_id = None
         self._logger.info("Current session cleared.")
