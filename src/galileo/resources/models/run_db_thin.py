@@ -29,6 +29,7 @@ class RunDBThin:
         updated_at (datetime.datetime):
         winner (bool):
         dataset_hash (Union[None, Unset, str]):
+        dataset_version_id (Union[None, Unset, str]):
         example_content_id (Union[None, Unset, str]):
         name (Union[None, Unset, str]):
         project_id (Union[None, Unset, str]):
@@ -45,6 +46,7 @@ class RunDBThin:
     updated_at: datetime.datetime
     winner: bool
     dataset_hash: Union[None, Unset, str] = UNSET
+    dataset_version_id: Union[None, Unset, str] = UNSET
     example_content_id: Union[None, Unset, str] = UNSET
     name: Union[None, Unset, str] = UNSET
     project_id: Union[None, Unset, str] = UNSET
@@ -74,6 +76,12 @@ class RunDBThin:
             dataset_hash = UNSET
         else:
             dataset_hash = self.dataset_hash
+
+        dataset_version_id: Union[None, Unset, str]
+        if isinstance(self.dataset_version_id, Unset):
+            dataset_version_id = UNSET
+        else:
+            dataset_version_id = self.dataset_version_id
 
         example_content_id: Union[None, Unset, str]
         if isinstance(self.example_content_id, Unset):
@@ -124,6 +132,8 @@ class RunDBThin:
         )
         if dataset_hash is not UNSET:
             field_dict["dataset_hash"] = dataset_hash
+        if dataset_version_id is not UNSET:
+            field_dict["dataset_version_id"] = dataset_version_id
         if example_content_id is not UNSET:
             field_dict["example_content_id"] = example_content_id
         if name is not UNSET:
@@ -167,6 +177,15 @@ class RunDBThin:
             return cast(Union[None, Unset, str], data)
 
         dataset_hash = _parse_dataset_hash(d.pop("dataset_hash", UNSET))
+
+        def _parse_dataset_version_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        dataset_version_id = _parse_dataset_version_id(d.pop("dataset_version_id", UNSET))
 
         def _parse_example_content_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -229,6 +248,7 @@ class RunDBThin:
             updated_at=updated_at,
             winner=winner,
             dataset_hash=dataset_hash,
+            dataset_version_id=dataset_version_id,
             example_content_id=example_content_id,
             name=name,
             project_id=project_id,

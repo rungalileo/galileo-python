@@ -5,6 +5,7 @@ from typing import Any, Optional, Union, overload
 from galileo.api_client import GalileoApiClient
 from galileo.base import BaseClientModel
 from galileo.resources.api.datasets import (
+    create_dataset_datasets_post,
     delete_dataset_datasets_dataset_id_delete,
     get_dataset_content_datasets_dataset_id_content_get,
     get_dataset_datasets_dataset_id_get,
@@ -13,10 +14,9 @@ from galileo.resources.api.datasets import (
     query_dataset_versions_datasets_dataset_id_versions_query_post,
     query_datasets_datasets_query_post,
     update_dataset_content_datasets_dataset_id_content_patch,
-    upload_dataset_datasets_post,
 )
 from galileo.resources.models import ListDatasetVersionParams, ListDatasetVersionResponse
-from galileo.resources.models.body_upload_dataset_datasets_post import BodyUploadDatasetDatasetsPost
+from galileo.resources.models.body_create_dataset_datasets_post import BodyCreateDatasetDatasetsPost
 from galileo.resources.models.dataset_append_row import DatasetAppendRow
 from galileo.resources.models.dataset_append_row_values import DatasetAppendRowValues
 from galileo.resources.models.dataset_content import DatasetContent
@@ -295,9 +295,9 @@ class Datasets(BaseClientModel):
             mime_type=mimetypes.guess_type(file_path)[0] or "application/octet-stream",
         )
 
-        body = BodyUploadDatasetDatasetsPost(file=file)
+        body = BodyCreateDatasetDatasetsPost(file=file, name=name)
 
-        detailed_response = upload_dataset_datasets_post.sync_detailed(
+        detailed_response = create_dataset_datasets_post.sync_detailed(
             client=self.client, body=body, format_=dataset_format
         )
 
@@ -496,7 +496,7 @@ def convert_dataset_content_to_records(dataset_content: Optional[DatasetContent]
 
     result = []
     for row in rows:
-        row_values = row.additional_properties["values_dict"]
+        row_values = row.values_dict
         if "input" in row_values:
             if isinstance(row_values["input"], str):
                 try:

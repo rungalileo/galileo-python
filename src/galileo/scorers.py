@@ -8,13 +8,14 @@ from galileo.resources.api.run_scorer_settings import (
 from galileo.resources.models import (
     HTTPValidationError,
     ListScorersRequest,
-    RunScorerSettingsRequest,
     ScorerConfig,
     ScorerResponse,
     ScorerTypeFilter,
     ScorerTypeFilterOperator,
     ScorerTypes,
 )
+from galileo.resources.models.run_scorer_settings_patch_request import RunScorerSettingsPatchRequest
+from galileo.resources.models.run_scorer_settings_response import RunScorerSettingsResponse
 from galileo.resources.types import Unset
 
 
@@ -36,7 +37,7 @@ class Scorers(BaseClientModel):
 class ScorerSettings(BaseClientModel):
     def create(
         self, project_id: str, run_id: str, scorers: list[ScorerConfig]
-    ) -> Optional[Union[HTTPValidationError, RunScorerSettingsRequest]]:
+    ) -> Optional[Union[HTTPValidationError, RunScorerSettingsResponse]]:
         """
         Args:
             project_id: ID of the project
@@ -49,5 +50,5 @@ class ScorerSettings(BaseClientModel):
             project_id=project_id,
             run_id=run_id,
             client=self.client,
-            body=RunScorerSettingsRequest(run_id=run_id, scorers=scorers),
+            body=RunScorerSettingsPatchRequest(run_id=run_id, scorers=scorers),
         )

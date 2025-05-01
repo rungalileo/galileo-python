@@ -14,21 +14,26 @@ class ScorerNameFilter:
     """
     Attributes:
         operator (ScorerNameFilterOperator):
-        value (str):
-        case_sensitive (Union[Unset, bool]):  Default: True.
+        value (Union[list[str], str]):
+        case_sensitive (Union[Unset, bool]):  Default: False.
         name (Union[Literal['name'], Unset]):  Default: 'name'.
     """
 
     operator: ScorerNameFilterOperator
-    value: str
-    case_sensitive: Union[Unset, bool] = True
+    value: Union[list[str], str]
+    case_sensitive: Union[Unset, bool] = False
     name: Union[Literal["name"], Unset] = "name"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         operator = self.operator.value
 
-        value = self.value
+        value: Union[list[str], str]
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         case_sensitive = self.case_sensitive
 
@@ -49,7 +54,18 @@ class ScorerNameFilter:
         d = src_dict.copy()
         operator = ScorerNameFilterOperator(d.pop("operator"))
 
-        value = d.pop("value")
+        def _parse_value(data: object) -> Union[list[str], str]:
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                value_type_1 = cast(list[str], data)
+
+                return value_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[list[str], str], data)
+
+        value = _parse_value(d.pop("value"))
 
         case_sensitive = d.pop("case_sensitive", UNSET)
 

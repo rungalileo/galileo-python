@@ -6,10 +6,10 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.llm_span_with_metrics import LlmSpanWithMetrics
-from ...models.retriever_span_with_metrics import RetrieverSpanWithMetrics
-from ...models.tool_span_with_metrics import ToolSpanWithMetrics
-from ...models.workflow_span_with_metrics import WorkflowSpanWithMetrics
+from ...models.llm_span_record import LlmSpanRecord
+from ...models.retriever_span_record import RetrieverSpanRecord
+from ...models.tool_span_record import ToolSpanRecord
+from ...models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
 from ...types import Response
 
 
@@ -24,18 +24,18 @@ def _parse_response(
 ) -> Optional[
     Union[
         HTTPValidationError,
-        Union["LlmSpanWithMetrics", "RetrieverSpanWithMetrics", "ToolSpanWithMetrics", "WorkflowSpanWithMetrics"],
+        Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"],
     ]
 ]:
     if response.status_code == 200:
 
         def _parse_response_200(
             data: object,
-        ) -> Union["LlmSpanWithMetrics", "RetrieverSpanWithMetrics", "ToolSpanWithMetrics", "WorkflowSpanWithMetrics"]:
+        ) -> Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"]:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_0 = WorkflowSpanWithMetrics.from_dict(data)
+                response_200_type_0 = WorkflowSpanRecordWithChildren.from_dict(data)
 
                 return response_200_type_0
             except:  # noqa: E722
@@ -43,7 +43,7 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_1 = LlmSpanWithMetrics.from_dict(data)
+                response_200_type_1 = LlmSpanRecord.from_dict(data)
 
                 return response_200_type_1
             except:  # noqa: E722
@@ -51,14 +51,14 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_2 = RetrieverSpanWithMetrics.from_dict(data)
+                response_200_type_2 = ToolSpanRecord.from_dict(data)
 
                 return response_200_type_2
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            response_200_type_3 = ToolSpanWithMetrics.from_dict(data)
+            response_200_type_3 = RetrieverSpanRecord.from_dict(data)
 
             return response_200_type_3
 
@@ -80,7 +80,7 @@ def _build_response(
 ) -> Response[
     Union[
         HTTPValidationError,
-        Union["LlmSpanWithMetrics", "RetrieverSpanWithMetrics", "ToolSpanWithMetrics", "WorkflowSpanWithMetrics"],
+        Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"],
     ]
 ]:
     return Response(
@@ -96,7 +96,7 @@ def sync_detailed(
 ) -> Response[
     Union[
         HTTPValidationError,
-        Union["LlmSpanWithMetrics", "RetrieverSpanWithMetrics", "ToolSpanWithMetrics", "WorkflowSpanWithMetrics"],
+        Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"],
     ]
 ]:
     """Get Span
@@ -110,7 +110,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['LlmSpanWithMetrics', 'RetrieverSpanWithMetrics', 'ToolSpanWithMetrics', 'WorkflowSpanWithMetrics']]]
+        Response[Union[HTTPValidationError, Union['LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
@@ -125,7 +125,7 @@ def sync(
 ) -> Optional[
     Union[
         HTTPValidationError,
-        Union["LlmSpanWithMetrics", "RetrieverSpanWithMetrics", "ToolSpanWithMetrics", "WorkflowSpanWithMetrics"],
+        Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"],
     ]
 ]:
     """Get Span
@@ -139,7 +139,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['LlmSpanWithMetrics', 'RetrieverSpanWithMetrics', 'ToolSpanWithMetrics', 'WorkflowSpanWithMetrics']]
+        Union[HTTPValidationError, Union['LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]
     """
 
     return sync_detailed(project_id=project_id, span_id=span_id, client=client).parsed
@@ -150,7 +150,7 @@ async def asyncio_detailed(
 ) -> Response[
     Union[
         HTTPValidationError,
-        Union["LlmSpanWithMetrics", "RetrieverSpanWithMetrics", "ToolSpanWithMetrics", "WorkflowSpanWithMetrics"],
+        Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"],
     ]
 ]:
     """Get Span
@@ -164,7 +164,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['LlmSpanWithMetrics', 'RetrieverSpanWithMetrics', 'ToolSpanWithMetrics', 'WorkflowSpanWithMetrics']]]
+        Response[Union[HTTPValidationError, Union['LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
@@ -179,7 +179,7 @@ async def asyncio(
 ) -> Optional[
     Union[
         HTTPValidationError,
-        Union["LlmSpanWithMetrics", "RetrieverSpanWithMetrics", "ToolSpanWithMetrics", "WorkflowSpanWithMetrics"],
+        Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"],
     ]
 ]:
     """Get Span
@@ -193,7 +193,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['LlmSpanWithMetrics', 'RetrieverSpanWithMetrics', 'ToolSpanWithMetrics', 'WorkflowSpanWithMetrics']]
+        Union[HTTPValidationError, Union['LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]
     """
 
     return (await asyncio_detailed(project_id=project_id, span_id=span_id, client=client)).parsed

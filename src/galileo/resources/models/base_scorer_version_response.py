@@ -25,7 +25,6 @@ class BaseScorerVersionResponse:
         version (int):
         generated_scorer (Union['GeneratedScorerResponse', None, Unset]):
         registered_scorer (Union['CreateUpdateRegisteredScorerResponse', None, Unset]):
-        version_description (Union[None, Unset, str]):
     """
 
     created_at: datetime.datetime
@@ -34,7 +33,6 @@ class BaseScorerVersionResponse:
     version: int
     generated_scorer: Union["GeneratedScorerResponse", None, Unset] = UNSET
     registered_scorer: Union["CreateUpdateRegisteredScorerResponse", None, Unset] = UNSET
-    version_description: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -65,12 +63,6 @@ class BaseScorerVersionResponse:
         else:
             registered_scorer = self.registered_scorer
 
-        version_description: Union[None, Unset, str]
-        if isinstance(self.version_description, Unset):
-            version_description = UNSET
-        else:
-            version_description = self.version_description
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"created_at": created_at, "id": id, "updated_at": updated_at, "version": version})
@@ -78,8 +70,6 @@ class BaseScorerVersionResponse:
             field_dict["generated_scorer"] = generated_scorer
         if registered_scorer is not UNSET:
             field_dict["registered_scorer"] = registered_scorer
-        if version_description is not UNSET:
-            field_dict["version_description"] = version_description
 
         return field_dict
 
@@ -131,15 +121,6 @@ class BaseScorerVersionResponse:
 
         registered_scorer = _parse_registered_scorer(d.pop("registered_scorer", UNSET))
 
-        def _parse_version_description(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        version_description = _parse_version_description(d.pop("version_description", UNSET))
-
         base_scorer_version_response = cls(
             created_at=created_at,
             id=id,
@@ -147,7 +128,6 @@ class BaseScorerVersionResponse:
             version=version,
             generated_scorer=generated_scorer,
             registered_scorer=registered_scorer,
-            version_description=version_description,
         )
 
         base_scorer_version_response.additional_properties = d

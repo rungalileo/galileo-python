@@ -1,6 +1,6 @@
 [project]
 name = "galileo"
-version = "0.7.0"
+version = "0.8.1"
 description = "Client library for the Galileo platform."
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
@@ -11,7 +11,7 @@ dynamic = ["dependencies"]
 python = "^3.9,<3.14"
 pydantic = "^2.5.2"
 pyjwt = "^2.8.0"
-galileo-core = "^3.19.0"
+galileo-core = "~=3.29.0"
 wrapt = "^1.14"
 attrs = ">=22.2.0"
 python-dateutil = "^2.8.0"
@@ -33,7 +33,7 @@ pytest-xdist = "^3.3.1"
 pytest-socket = "^0.7"
 pytest-asyncio = "^0.25.3"
 requests-mock = "^1.11.0"
-galileo-core = { extras = ["testing"], version = "^3.5.0" }
+galileo-core = { extras = ["testing"], version = "~=3.29.0" }
 pytest-env = "^1.1.5"
 langchain-core = "^0.3.14"
 pytest-sugar = "^1.0.0"

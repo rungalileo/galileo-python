@@ -13,7 +13,7 @@ fi
 # Normalize the URL to ensure it doesn't end with a slash
 HOST_URL="${1%/}"
 
-HOME_DIR="$(cd .. && pwd)"
+HOME_DIR="$(pwd)"
 
 # Fetch the OpenAPI JSON and convert it to YAML
 curl -s "${HOST_URL}/openapi.json" | python3 -c 'import sys, json, yaml; yaml.safe_dump(json.load(sys.stdin), sys.stdout)' > "$HOME_DIR/openapi.yaml"

@@ -18,10 +18,12 @@ class DatasetAppendRow:
     Attributes:
         values (DatasetAppendRowValues):
         edit_type (Union[Literal['append_row'], Unset]):  Default: 'append_row'.
+        row_id (Union[None, Unset, str]):
     """
 
     values: "DatasetAppendRowValues"
     edit_type: Union[Literal["append_row"], Unset] = "append_row"
+    row_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -29,11 +31,19 @@ class DatasetAppendRow:
 
         edit_type = self.edit_type
 
+        row_id: Union[None, Unset, str]
+        if isinstance(self.row_id, Unset):
+            row_id = UNSET
+        else:
+            row_id = self.row_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"values": values})
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
+        if row_id is not UNSET:
+            field_dict["row_id"] = row_id
 
         return field_dict
 
@@ -48,7 +58,16 @@ class DatasetAppendRow:
         if edit_type != "append_row" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'append_row', got '{edit_type}'")
 
-        dataset_append_row = cls(values=values, edit_type=edit_type)
+        def _parse_row_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        row_id = _parse_row_id(d.pop("row_id", UNSET))
+
+        dataset_append_row = cls(values=values, edit_type=edit_type, row_id=row_id)
 
         dataset_append_row.additional_properties = d
         return dataset_append_row

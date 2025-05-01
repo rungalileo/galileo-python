@@ -25,8 +25,8 @@ class PromptRunSettings:
         frequency_penalty (Union[Unset, float]):  Default: 0.0.
         known_models (Union[Unset, list['Model']]):
         logprobs (Union[Unset, bool]):  Default: True.
-        max_tokens (Union[Unset, int]):  Default: 256.
-        model_alias (Union[Unset, str]):  Default: 'ChatGPT (4K context)'.
+        max_tokens (Union[Unset, int]):  Default: 1024.
+        model_alias (Union[Unset, str]):  Default: 'GPT-4o mini'.
         n (Union[Unset, int]):  Default: 1.
         presence_penalty (Union[Unset, float]):  Default: 0.0.
         response_format (Union['PromptRunSettingsResponseFormatType0', None, Unset]):
@@ -44,8 +44,8 @@ class PromptRunSettings:
     frequency_penalty: Union[Unset, float] = 0.0
     known_models: Union[Unset, list["Model"]] = UNSET
     logprobs: Union[Unset, bool] = True
-    max_tokens: Union[Unset, int] = 256
-    model_alias: Union[Unset, str] = "ChatGPT (4K context)"
+    max_tokens: Union[Unset, int] = 1024
+    model_alias: Union[Unset, str] = "GPT-4o mini"
     n: Union[Unset, int] = 1
     presence_penalty: Union[Unset, float] = 0.0
     response_format: Union["PromptRunSettingsResponseFormatType0", None, Unset] = UNSET
