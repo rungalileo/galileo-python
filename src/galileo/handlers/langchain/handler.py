@@ -2,7 +2,7 @@ import contextvars
 import json
 import logging
 import time
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from uuid import UUID
 
 from galileo import galileo_context
@@ -230,6 +230,19 @@ class GalileoCallback(BaseCallbackHandler):
         if root and node.run_id == root.run_id:
             self._commit()
 
+    def _get_node_name(self, serialized: dict[str, Any], node_type: LANGCHAIN_NODE_TYPE) -> Union[str, None]:
+        try:
+            node_class_reference = None
+            if serialized is not None and isinstance(serialized, dict):
+                node_name = serialized.get("name") or node_type.capitalize()
+                node_class_reference = serialized.get("id")
+            if node_class_reference and isinstance(node_class_reference, list):
+                node_name = node_class_reference[-1]
+            return node_name
+        except Exception as e:
+            _logger.error(f"Failed to get node name: {e}")
+            return node_type.capitalize()
+
     def on_chain_start(
         self,
         serialized: dict[str, Any],
@@ -242,10 +255,10 @@ class GalileoCallback(BaseCallbackHandler):
     ) -> Any:
         """Langchain callback when a chain starts."""
         node_type = "chain"
-        node_name = serialized.get("name", None) or kwargs.get("name", "Chain")
+        node_name = self._get_node_name(serialized, node_type)
 
-        # If the `name` is `LangGraph` or `agent`, set the node type to `agent`.
-        if node_name in ["LangGraph", "agent"]:
+        # If the `name` is `LangGraph` or `Agent`, set the node type to `agent`.
+        if node_name in ["LangGraph", "Agent"]:
             node_type = "agent"
             node_name = "Agent"
 
@@ -283,6 +296,7 @@ class GalileoCallback(BaseCallbackHandler):
 
         Note: This callback is only used for non-chat models.
         """
+        node_name = self._get_node_name(serialized, "llm")
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model_name", "")
         temperature = invocation_params.get("temperature", 0.0)
@@ -291,7 +305,7 @@ class GalileoCallback(BaseCallbackHandler):
             "llm",
             parent_run_id,
             run_id,
-            name="LLM",
+            name=node_name,
             input=[{"content": p, "role": "user"} for p in prompts],
             tags=tags,
             model=model,
@@ -324,6 +338,7 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a chat model starts."""
+        node_name = self._get_node_name(serialized, "chat")
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model", invocation_params.get("_type", "undefined-type"))
         temperature = invocation_params.get("temperature", 0.0)
@@ -341,7 +356,7 @@ class GalileoCallback(BaseCallbackHandler):
             "chat",
             parent_run_id,
             run_id,
-            name="Chat Model",
+            name=node_name,
             input=serialized_messages,
             tools=json.loads(json.dumps(tools, cls=EventSerializer)) if tools else None,
             tags=tags,
@@ -384,11 +399,12 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a tool node starts."""
+        node_name = self._get_node_name(serialized, "tool")
         self._start_node(
             "tool",
             parent_run_id,
             run_id,
-            name="Tool",
+            name=node_name,
             input=input_str,
             tags=tags,
             metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
@@ -414,7 +430,8 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a retriever node starts."""
-        self._start_node("retriever", parent_run_id, run_id, name="Retriever", input=serialize_to_str(query))
+        node_name = self._get_node_name(serialized, "retriever")
+        self._start_node("retriever", parent_run_id, run_id, name=node_name, input=serialize_to_str(query))
 
     def on_retriever_end(
         self, documents: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
