@@ -12,7 +12,7 @@ from galileo.api_client import GalileoApiClient
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.projects import Projects
-from galileo.schema.trace import TracesIngestRequest
+from galileo.schema.trace import SessionCreateRequest, TracesIngestRequest
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo.utils.nop_logger import nop_async, nop_sync
@@ -104,6 +104,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     project_id: Optional[str] = None
     log_stream_id: Optional[str] = None
     experiment_id: Optional[str] = None
+    session_id: Optional[str] = None
 
     _logger = logging.getLogger("galileo.logger")
 
@@ -543,7 +544,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
-        traces_ingest_request = TracesIngestRequest(traces=self.traces, experiment_id=self.experiment_id)
+        traces_ingest_request = TracesIngestRequest(
+            traces=self.traces, experiment_id=self.experiment_id, session_id=self._session_id
+        )
         self._client.ingest_traces_sync(traces_ingest_request)
         logged_traces = self.traces
 
@@ -574,7 +577,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
-        traces_ingest_request = TracesIngestRequest(traces=self.traces)
+        traces_ingest_request = TracesIngestRequest(traces=self.traces, session_id=self._session_id)
         await self._client.ingest_traces(traces_ingest_request)
         logged_traces = self.traces
 
@@ -593,3 +596,21 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         atexit.unregister(self.terminate)
         self._logger.info("Attempting to flush on interpreter exit...")
         self.flush()
+
+    def start_session(
+        self, name: str, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> None:
+        self._logger.info("Starting a new session...")
+
+        session = self._client.create_session_sync(
+            SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
+        )
+
+        self._logger.info("Session started with ID: %s", session.id)
+
+        self._session_id = session.id
+
+    def clear_session(self) -> None:
+        self._logger.info("Clearing the current session from the logger...")
+        self._session_id = None
+        self._logger.info("Current session cleared.")
