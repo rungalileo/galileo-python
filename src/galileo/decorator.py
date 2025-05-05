@@ -513,7 +513,10 @@ class GalileoDecorator:
 
         # If no trace is available, start a new one
         if not trace:
-            trace = client_instance.start_trace(input=input_, name=name)
+            if client_instance.current_parent():
+                trace = client_instance.traces[-1]
+            else:
+                trace = client_instance.start_trace(input=input_, name=name)
             _trace_context.set(trace)
 
         # If the user hasn't specified a span type, create and add a workflow span
