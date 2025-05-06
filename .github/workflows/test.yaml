@@ -29,6 +29,21 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache-dependency-path: "pyproject.toml"
 
+      # Set the credentials for the git-based repositories. We allow this only on non-main branches to avoid using branch based dependencies in production.
+      - name: Set up Git Repositories
+        if: ${{ !contains(github.ref, 'main')}}
+        run: |
+          poetry config repositories.git-galileo-core https://github.com/rungalileo/galileo-core.git
+          poetry config http-basic.git-galileo-core ${{ vars.GALILEO_AUTOMATION_CROSS_REPO_READONLY_USERNAME }} ${{ secrets.GALILEO_AUTOMATION_CROSS_REPO_READONLY_PASSWORD }}
+          poetry config repositories.git-cachegalileo https://github.com/rungalileo/cachegalileo.git
+          poetry config http-basic.git-cachegalileo ${{ vars.GALILEO_AUTOMATION_CROSS_REPO_READONLY_USERNAME }} ${{ secrets.GALILEO_AUTOMATION_CROSS_REPO_READONLY_PASSWORD }}
+          poetry config repositories.git-rungalileo https://github.com/rungalileo/rungalileo.git
+          poetry config http-basic.git-rungalileo ${{ vars.GALILEO_AUTOMATION_CROSS_REPO_READONLY_USERNAME }} ${{ secrets.GALILEO_AUTOMATION_CROSS_REPO_READONLY_PASSWORD }}
+          poetry config repositories.git-promptgalileo https://github.com/rungalileo/promptgalileo.git
+          poetry config http-basic.git-promptgalileo ${{ vars.GALILEO_AUTOMATION_CROSS_REPO_READONLY_USERNAME }} ${{ secrets.GALILEO_AUTOMATION_CROSS_REPO_READONLY_PASSWORD }}
+          poetry config repositories.git-setgalileo https://github.com/rungalileo/setgalileo.git
+          poetry config http-basic.git-setgalileo ${{ vars.GALILEO_AUTOMATION_CROSS_REPO_READONLY_USERNAME }} ${{ secrets.GALILEO_AUTOMATION_CROSS_REPO_READONLY_PASSWORD }}
+
       - name: Install invoke
         run: pipx install invoke
 
