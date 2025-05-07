@@ -75,15 +75,19 @@ F = TypeVar("F", bound=Callable[..., Any])
 P = ParamSpec("P")
 R = TypeVar("R")
 
+# Context variables for current values
 _project_context: ContextVar[Optional[str]] = ContextVar("project_context", default=None)
-
 _log_stream_context: ContextVar[Optional[str]] = ContextVar("log_stream_context", default=None)
-
 _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
-
 _experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_context", default=None)
-
 _span_stack_context: ContextVar[list[WorkflowSpan]] = ContextVar("span_stack_context", default=[])
+
+# Stack variables for storing previous values (for proper nesting)
+_project_stack: ContextVar[list[Optional[str]]] = ContextVar("project_stack", default=[])
+_log_stream_stack: ContextVar[list[Optional[str]]] = ContextVar("log_stream_stack", default=[])
+_trace_stack: ContextVar[list[Optional[Trace]]] = ContextVar("trace_stack", default=[])
+_experiment_id_stack: ContextVar[list[Optional[str]]] = ContextVar("experiment_id_stack", default=[])
+_span_stack_stack: ContextVar[list[list[WorkflowSpan]]] = ContextVar("span_stack_stack", default=[])
 
 
 class GalileoDecorator:
@@ -94,66 +98,16 @@ class GalileoDecorator:
     This class can be used as:
     1. A function decorator via the `log` method
     2. A context manager via the `__call__` method
-
-    Attributes:
-        _project (Optional[str]): The project name for the current context
-        _log_stream (Optional[str]): The log stream name for the current context
-        _previous_project_context (Optional[str]): Stored project context for restoration
-        _previous_log_stream_context (Optional[str]): Stored log stream context for restoration
-        _previous_trace_context (Optional[Trace]): Stored trace context for restoration
-        _previous_span_stack_context (Optional[list[WorkflowSpan]]): Stored span stack for restoration
     """
-
-    _project: Optional[str]
-    _log_stream: Optional[str]
-    _experiment_id: Optional[str]
-    _previous_project_context: Optional[str]
-    _previous_log_stream_context: Optional[str]
-    _previous_experiment_id_context: Optional[str]
-    _previous_trace_context: Optional[Trace]
-    _previous_span_stack_context: Optional[list[WorkflowSpan]]
-
-    #
-    # Context manager methods
-    #
-
-    def __init__(self) -> None:
-        """
-        Initialize a new GalileoDecorator instance.
-        Sets up the context variables for storing previous context state.
-        """
-        self._previous_project_context = None
-        self._previous_log_stream_context = None
-        self._previous_experiment_id_context = None
-        self._previous_trace_context = None
-        self._previous_span_stack_context = None
 
     def __enter__(self) -> "GalileoDecorator":
         """
         Entry point for the context manager.
 
-        Saves the current context state and sets up a new context with the
-        specified project and log stream.
-
         Returns:
             GalileoDecorator: The decorator instance for use in a with statement
         """
-        self._previous_project_context = _project_context.get()
-        self._previous_log_stream_context = _log_stream_context.get()
-        self._previous_experiment_id_context = _experiment_id_context.get()
-        self._previous_trace_context = _trace_context.get()
-        self._previous_span_stack_context = _span_stack_context.get()
-
-        _span_stack_context.set([])
-        _trace_context.set(None)
-
-        if self._project is not None:
-            _project_context.set(self._project)
-        if self._log_stream is not None:
-            _log_stream_context.set(self._log_stream)
-        if self._experiment_id is not None:
-            _experiment_id_context.set(self._experiment_id)
-
+        # Nothing to do here since __call__ has already set up the context
         return self  # Allows `as galileo` usage
 
     def __exit__(
@@ -176,29 +130,52 @@ class GalileoDecorator:
             experiment_id=_experiment_id_context.get(),
         ).flush()
 
-        # Restore the previous context values to avoid contamination across different usages
-        _project_context.set(self._previous_project_context)
-        _log_stream_context.set(self._previous_log_stream_context)
-        _experiment_id_context.set(self._previous_experiment_id_context)
-        _trace_context.set(self._previous_trace_context)
-        _span_stack_context.set(self._previous_span_stack_context)
+        # Pop values from the stacks and restore the previous context
+        _project_context.set(_project_stack.get().pop())
+        _log_stream_context.set(_log_stream_stack.get().pop())
+        _experiment_id_context.set(_experiment_id_stack.get().pop())
+        _trace_context.set(_trace_stack.get().pop())
+        _span_stack_context.set(_span_stack_stack.get().pop())
 
     def __call__(
         self, *, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
     ) -> "GalileoDecorator":
         """
-        Allows context manager usage like `with galileo_context(project="my-project")`.
+        Call method to use the decorator as a context manager.
+
+        This allows usage like:
+        ```python
+        with galileo_context(project="my_project", log_stream="my_stream"):
+            # Code to be traced
+        ```
 
         Args:
-            project: Optional project name to use for this context
-            log_stream: Optional log stream name to use for this context
+            project: The project name to use for this context
+            log_stream: The log stream name to use for this context
+            experiment_id: The experiment ID to use for this context
 
         Returns:
-            GalileoDecorator: The decorator instance configured with the provided parameters
+            The decorator instance for use in a with statement
         """
-        self._project = project
-        self._log_stream = log_stream
-        self._experiment_id = experiment_id
+        # Push current values onto the stacks
+        _project_stack.get().append(_project_context.get())
+        _log_stream_stack.get().append(_log_stream_context.get())
+        _experiment_id_stack.get().append(_experiment_id_context.get())
+        _trace_stack.get().append(_trace_context.get())
+        _span_stack_stack.get().append(_span_stack_context.get().copy())
+
+        # Set new context values
+        _span_stack_context.set([])
+        _trace_context.set(None)
+
+        # Set the new values from parameters
+        if project is not None:
+            _project_context.set(project)
+        if log_stream is not None:
+            _log_stream_context.set(log_stream)
+        if experiment_id is not None:
+            _experiment_id_context.set(experiment_id)
+
         return self
 
     #
@@ -505,23 +482,19 @@ class GalileoDecorator:
         client_instance = self.get_logger_instance()
         _logger.debug(f"client_instance {id(client_instance)} {client_instance}")
 
-        stack = _span_stack_context.get().copy()
-        trace = _trace_context.get()
-
         input_ = span_params.get("input_serialized", "")
         name = span_params.get("name", "")
 
         # If no trace is available, start a new one
-        if not trace:
+        if not _trace_context.get():
             trace = client_instance.start_trace(input=input_, name=name)
             _trace_context.set(trace)
 
         # If the user hasn't specified a span type, create and add a workflow span
         if not span_type or span_type == "workflow":
             created_at = span_params.get("created_at", _get_timestamp())
-
             span = client_instance.add_workflow_span(input=input_, name=name, created_at=created_at)
-            _span_stack_context.set(stack + [span])
+            _span_stack_context.get().append(span)
 
     def _get_input_from_func_args(
         self, *, is_method: bool = False, func_args: tuple = (), func_kwargs: dict = {}
@@ -823,11 +796,19 @@ class GalileoDecorator:
             log_stream=_log_stream_context.get(),
             experiment_id=_experiment_id_context.get(),
         )
+        # Reset current context values
         _project_context.set(None)
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
         _span_stack_context.set([])
         _trace_context.set(None)
+
+        # Clear all stacks
+        _project_stack.get().clear()
+        _log_stream_stack.get().clear()
+        _trace_stack.get().clear()
+        _experiment_id_stack.get().clear()
+        _span_stack_stack.get().clear()
 
     def reset_trace_context(self) -> None:
         """
