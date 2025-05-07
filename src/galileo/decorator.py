@@ -50,11 +50,13 @@ import logging
 from collections.abc import AsyncGenerator, Generator
 from contextvars import ContextVar
 from functools import wraps
+from os import getenv
 from types import TracebackType
 from typing import Any, Callable, Literal, Optional, TypeVar, Union, cast, overload
 
 from typing_extensions import ParamSpec
 
+from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.logger import GalileoLogger
 from galileo.utils import _get_timestamp
 from galileo.utils.serialization import EventSerializer, serialize_to_str
@@ -99,6 +101,11 @@ class GalileoDecorator:
     1. A function decorator via the `log` method
     2. A context manager via the `__call__` method
     """
+
+    def __init__(self):
+        # Get default values from environment variables
+        self.project_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
+        self.log_stream_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
     def __enter__(self) -> "GalileoDecorator":
         """
@@ -164,11 +171,16 @@ class GalileoDecorator:
         _trace_stack.get().append(_trace_context.get())
         _span_stack_stack.get().append(_span_stack_context.get().copy())
 
-        # Set new context values
+        # Reset context values
         _span_stack_context.set([])
         _trace_context.set(None)
 
-        # Set the new values from parameters
+        # Set context values to environment defaults
+        _project_context.set(self.project_from_env)
+        _log_stream_context.set(self.log_stream_from_env)
+        _experiment_id_context.set(None)
+
+        # Override with explicitly provided values
         if project is not None:
             _project_context.set(project)
         if log_stream is not None:
