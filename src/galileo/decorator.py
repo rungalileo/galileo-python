@@ -55,6 +55,7 @@ from typing import Any, Callable, Literal, Optional, TypeVar, Union, cast, overl
 
 from typing_extensions import ParamSpec
 
+from galileo.datasets import DatasetRecord
 from galileo.logger import GalileoLogger
 from galileo.schema.metrics import LocalScorerConfig
 from galileo.utils import _get_timestamp
@@ -226,6 +227,7 @@ class GalileoDecorator:
         name: Optional[str] = None,
         span_type: Optional[SPAN_TYPE] = None,
         params: Optional[dict[str, Union[str, Callable]]] = None,
+        dataset_record: Optional[DatasetRecord] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]:
         """
         Main decorator function for logging function calls.
@@ -239,6 +241,7 @@ class GalileoDecorator:
             name: Optional custom name for the span (defaults to function name)
             span_type: Optional span type ("llm", "retriever", "tool", "workflow")
             params: Optional parameter mapping for extracting specific values
+            dataset_record: Optional parameter for dataset values
 
         Returns:
             A decorated function that logs its execution
@@ -246,9 +249,9 @@ class GalileoDecorator:
 
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
             return (
-                self._async_log(func, name=name, span_type=span_type, params=params)
+                self._async_log(func, name=name, span_type=span_type, params=params, dataset_record=dataset_record)
                 if asyncio.iscoroutinefunction(func)
-                else self._sync_log(func, name=name, span_type=span_type, params=params)
+                else self._sync_log(func, name=name, span_type=span_type, params=params, dataset_record=dataset_record)
             )
 
         # If the decorator is called without arguments, return the decorator function itself.
@@ -265,6 +268,7 @@ class GalileoDecorator:
         name: Optional[str],
         span_type: Optional[SPAN_TYPE],
         params: Optional[dict[str, Union[str, Callable]]] = None,
+        dataset_record: Optional[DatasetRecord] = None,
     ) -> F:
         """
         Internal method to handle logging for async functions.
@@ -290,7 +294,7 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params)
+            self._prepare_call(span_type, span_params, dataset_record)
             result = None
 
             try:
@@ -312,6 +316,7 @@ class GalileoDecorator:
         name: Optional[str],
         span_type: Optional[SPAN_TYPE],
         params: Optional[dict[str, Union[str, Callable]]] = None,
+        dataset_record: Optional[DatasetRecord] = None,
     ) -> F:
         """
         Internal method to handle logging for synchronous functions.
@@ -337,7 +342,7 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params)
+            self._prepare_call(span_type, span_params, dataset_record)
             result = None
 
             try:
@@ -374,7 +379,7 @@ class GalileoDecorator:
         is_method: bool = False,
         func_args: tuple = (),
         func_kwargs: dict = {},
-    ) -> Optional[dict[str, str]]:
+    ) -> Optional[dict[str, Any]]:
         """
         Prepare the input parameters for logging.
 
@@ -486,7 +491,7 @@ class GalileoDecorator:
         Returns:
             List of parameter names that can be used with the specified span type
         """
-        common_params = ["name", "input", "metadata", "tags"]
+        common_params = ["name", "input", "user_metadata", "tags"]
         span_params = {
             "llm": common_params + ["model", "temperature", "tools"],
             "retriever": common_params,
@@ -495,7 +500,9 @@ class GalileoDecorator:
         }
         return span_params.get(span_type, common_params)
 
-    def _prepare_call(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str]) -> None:
+    def _prepare_call(
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], dataset_record: Optional[DatasetRecord]
+    ) -> None:
         """
         Prepare the call for logging by setting up trace and span contexts.
 
@@ -514,7 +521,14 @@ class GalileoDecorator:
 
         # If no trace is available, start a new one
         if not trace:
-            trace = client_instance.start_trace(input=input_, name=name)
+            trace = client_instance.start_trace(
+                input=input_,
+                name=name,
+                dataset_input=dataset_record.input if dataset_record else None,
+                dataset_output=dataset_record.output if dataset_record else None,
+                dataset_metadata=dataset_record.metadata if dataset_record else None,
+                external_id=dataset_record.id if dataset_record else None,
+            )
             _trace_context.set(trace)
 
         # If the user hasn't specified a span type, create and add a workflow span

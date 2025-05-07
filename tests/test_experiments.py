@@ -1,14 +1,15 @@
 from datetime import datetime
 from typing import Any, Union
 from unittest.mock import ANY, MagicMock, Mock, patch
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
-from freezegun import freeze_time
+from time_machine import travel
 
 import galileo
 import galileo.experiments
 from galileo import galileo_context
+from galileo.datasets import DatasetRecord
 from galileo.experiments import (
     Experiments,
     _get_dataset_and_records_by_id,
@@ -25,6 +26,7 @@ from galileo.resources.models import (
     BasePromptTemplateResponse,
     DatasetContent,
     DatasetRow,
+    DatasetRowValuesDict,
     ExperimentResponse,
     ProjectCreateResponse,
     ProjectType,
@@ -79,21 +81,19 @@ def prompt_template():
     )
 
 
+TEST_DATASET_ROW_ID = str(uuid4())
+
+
 def dataset_content():
     row = DatasetRow(
         index=0,
-        values=['{"input": "Which continent is Spain in?", "expected": "Europe"}'],
-        values_dict={"input": "Which continent is Spain in?", "expected": "Europe"},
-        row_id="",
+        values=["Which continent is Spain in?", "Europe", '{"meta": "data"}'],
+        values_dict=DatasetRowValuesDict.from_dict(
+            {"input": "Which continent is Spain in?", "output": "Europe", "metadata": {"meta": "data"}}
+        ),
+        row_id=TEST_DATASET_ROW_ID,
         metadata=None,
     )
-    # row.additional_properties = {
-    #     "values_dict": {
-    #         "input": '{"input": "Which continent is Spain in?", "expected": "Europe"}',
-    #         "output": None,
-    #         "metadata": None,
-    #     }
-    # }
 
     column_names = ["input", "output", "metadata"]
     return DatasetContent(column_names=column_names, rows=[row])
@@ -102,18 +102,17 @@ def dataset_content():
 def dataset_content_with_question():
     row = DatasetRow(
         index=0,
-        values=['{"question": "Which continent is Spain in?", "expected": "Europe"}'],
-        values_dict={"question": "Which continent is Spain in?", "expected": "Europe"},
+        values=['{"question": "Which continent is Spain in?", "expected": "Europe"}', None, None],
+        values_dict=DatasetRowValuesDict.from_dict(
+            {
+                "input": {"question": "Which continent is Spain in?", "expected": "Europe"},
+                "output": None,
+                "metadata": None,
+            }
+        ),
         row_id="",
         metadata=None,
     )
-    # row.additional_properties = {
-    #     "values_dict": {
-    #         "input": '{"question": "Which continent is Spain in?", "expected": "Europe"}',
-    #         "output": None,
-    #         "metadata": None,
-    #     }
-    # }
 
     column_names = ["input", "output", "metadata"]
     return DatasetContent(column_names=column_names, rows=[row])
@@ -121,8 +120,8 @@ def dataset_content_with_question():
 
 def local_dataset():
     return [
-        {"input": "Which continent is Spain in?", "expected": "Europe"},
-        {"input": "Which continent is Japan in?", "expected": "Asia"},
+        {"input": "Which continent is Spain in?", "output": "Europe"},
+        {"input": "Which continent is Japan in?", "output": "Asia"},
     ]
 
 
@@ -278,7 +277,11 @@ class TestExperiments:
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
         _, records = _load_dataset_and_records(dataset=dataset, dataset_name=dataset_name, dataset_id=dataset_id)
-        assert records == ["Which continent is Spain in?"]
+        assert records == [
+            DatasetRecord(
+                id=TEST_DATASET_ROW_ID, input="Which continent is Spain in?", output="Europe", metadata={"meta": "data"}
+            )
+        ]
         if dataset_id:
             mock_get_dataset.assert_called_once_with(id=dataset_id, name=None)
         elif dataset_name:
@@ -289,7 +292,7 @@ class TestExperiments:
             _load_dataset_and_records(dataset=None, dataset_name=None, dataset_id=None)
         assert str(exc_info.value) == "One of dataset, dataset_name, or dataset_id must be provided"
 
-    @freeze_time("2012-01-01")
+    @travel(datetime(2012, 1, 1))
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -397,14 +400,24 @@ class TestExperiments:
 
         # check galileo_logger
         payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
         assert len(payload.traces) == 1
-        assert len(payload.traces[0].spans) == 1
+        trace = payload.traces[0]
+        assert trace.dataset_input == "Which continent is Spain in?"
+        assert trace.dataset_output == "Europe"
+        assert trace.dataset_metadata == {"meta": "data"}
+
+        assert len(trace.spans) == 1
+        span = trace.spans[0]
+        assert span.dataset_input == "Which continent is Spain in?"
+        assert span.dataset_output == "Europe"
+        assert span.dataset_metadata == {"meta": "data"}
 
         for metric, metric_result in zip(metrics, results):
             assert hasattr(payload.traces[0].metrics, metric.name)
             assert getattr(payload.traces[0].metrics, metric.name) == metric_result
 
-    @freeze_time("2012-01-01")
+    @travel(datetime(2012, 1, 1))
     @patch.object(galileo.experiments.ScorerSettings, "create")
     @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
     @patch.object(galileo.datasets.Datasets, "get")
@@ -451,7 +464,7 @@ class TestExperiments:
             scorers=[ScorerConfig.from_dict(scorers()[0].to_dict())],
         )
 
-    @freeze_time("2012-01-01")
+    @travel(datetime(2012, 1, 1))
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -499,7 +512,7 @@ class TestExperiments:
             prompt_settings=prompt_run_settings(),
         )
 
-    @freeze_time("2012-01-01")
+    @travel(datetime(2012, 1, 1))
     @patch("galileo.logger.LogStreams")
     @patch("galileo.logger.Projects")
     @patch("galileo.logger.GalileoCoreApiClient")

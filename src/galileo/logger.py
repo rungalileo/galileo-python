@@ -207,6 +207,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         created_at: Optional[datetime] = None,
         metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
+        dataset_input: Optional[str] = None,
+        dataset_output: Optional[str] = None,
+        dataset_metadata: Optional[dict[str, str]] = None,
+        external_id: Optional[str] = None,
     ) -> Trace:
         """
         Create a new trace and add it to the list of traces.
@@ -230,7 +234,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Trace: The created trace.
         """
         return super().add_trace(
-            input=input, name=name, duration_ns=duration_ns, created_at=created_at, user_metadata=metadata, tags=tags
+            input=input,
+            name=name,
+            duration_ns=duration_ns,
+            created_at=created_at,
+            user_metadata=metadata,
+            tags=tags,
+            dataset_input=dataset_input,
+            dataset_output=dataset_output,
+            dataset_metadata=dataset_metadata,
+            external_id=external_id,
         )
 
     @nop_sync
@@ -251,6 +264,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         temperature: Optional[float] = None,
         status_code: Optional[int] = None,
         time_to_first_token_ns: Optional[int] = None,
+        dataset_input: Optional[str] = None,
+        dataset_output: Optional[str] = None,
+        dataset_metadata: Optional[dict[str, str]] = None,
     ) -> Trace:
         """
         Create a new trace with a single span and add it to the list of traces.
@@ -292,6 +308,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             temperature=temperature,
             status_code=status_code,
             time_to_first_token_ns=time_to_first_token_ns,
+            dataset_input=dataset_input,
+            dataset_output=dataset_output,
+            dataset_metadata=dataset_metadata,
         )
 
     @nop_sync

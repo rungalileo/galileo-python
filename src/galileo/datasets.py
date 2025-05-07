@@ -1,6 +1,9 @@
 import json
 import mimetypes
+from functools import cached_property
 from typing import Any, Optional, Union, overload
+
+from pydantic import BaseModel
 
 from galileo.api_client import GalileoApiClient
 from galileo.base import BaseClientModel
@@ -15,7 +18,7 @@ from galileo.resources.api.datasets import (
     query_datasets_datasets_query_post,
     update_dataset_content_datasets_dataset_id_content_patch,
 )
-from galileo.resources.models import ListDatasetVersionParams, ListDatasetVersionResponse
+from galileo.resources.models import DatasetRow, ListDatasetVersionParams, ListDatasetVersionResponse
 from galileo.resources.models.body_create_dataset_datasets_post import BodyCreateDatasetDatasetsPost
 from galileo.resources.models.dataset_append_row import DatasetAppendRow
 from galileo.resources.models.dataset_append_row_values import DatasetAppendRowValues
@@ -507,3 +510,58 @@ def convert_dataset_content_to_records(dataset_content: Optional[DatasetContent]
             result.append(row_values)
 
     return result
+
+
+def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
+    values_dict = dataset_row.values_dict
+    if "input" not in values_dict or not values_dict["input"]:
+        raise ValueError("Dataset row must have input field")
+    input = values_dict["input"]
+    if not isinstance(input, str):
+        input = json.dumps(input)
+
+    output = None
+    if "output" in values_dict and values_dict["output"]:
+        output = values_dict["output"]
+        if not isinstance(output, str):
+            output = json.dumps(output)
+
+    metadata = {}
+    if "metadata" in values_dict and values_dict["metadata"]:
+        if isinstance(values_dict["metadata"], str):
+            try:
+                metadata = json.loads(values_dict["metadata"])
+            except json.decoder.JSONDecodeError:
+                raise ValueError("Metadata field must be a serialized json object with string values")
+        else:
+            metadata = values_dict["metadata"]
+        if not isinstance(metadata, dict):
+            raise ValueError("Metadata must be a dictionary")
+        for key, value in metadata.items():
+            if not isinstance(value, str):
+                raise ValueError("Metadata values must be strings")
+
+    return DatasetRecord(id=dataset_row.row_id, input=input, output=output, metadata=metadata)
+
+
+class DatasetRecord(BaseModel):
+    id: Optional[str] = None
+    input: str
+    output: Optional[str] = None
+    metadata: Optional[dict[str, str]] = None
+
+    @cached_property
+    def deserialized_input(self) -> Any:
+        try:
+            return json.loads(self.input)
+        except json.decoder.JSONDecodeError:
+            return self.input
+
+    @cached_property
+    def deserialized_output(self) -> Optional[Any]:
+        if self.output is None:
+            return None
+        try:
+            return json.loads(self.output)
+        except json.decoder.JSONDecodeError:
+            return self.output

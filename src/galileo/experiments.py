@@ -8,7 +8,13 @@ from attrs import field as _attrs_field
 
 from galileo import galileo_context, log
 from galileo.base import BaseClientModel
-from galileo.datasets import Dataset, convert_dataset_content_to_records, get_dataset
+from galileo.datasets import (
+    Dataset,
+    DatasetRecord,
+    convert_dataset_content_to_records,
+    convert_dataset_row_to_record,
+    get_dataset,
+)
 from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
@@ -162,18 +168,19 @@ class Experiments(BaseClientModel):
         self,
         project_obj: Project,
         experiment_obj: ExperimentResponse,
-        records: builtins.list[dict[str, str]],
+        records: builtins.list[DatasetRecord],
         func: Callable,
         local_scorers: builtins.list[LocalScorerConfig],
     ) -> dict[str, Any]:
         results = []
         galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id, local_scorers=local_scorers)  # type: ignore[arg-type]
 
-        logged_process_func = log(name=experiment_obj.name)(func)
+        def logged_process_func(row: DatasetRecord) -> Callable:
+            return log(name=experiment_obj.name, dataset_record=row)(func)
 
         #  process each row in the dataset
         for row in records:
-            results.append(process_row(row, logged_process_func))
+            results.append(process_row(row, logged_process_func(row)))
             galileo_context.reset_trace_context()
 
         # flush the logger
@@ -188,10 +195,10 @@ class Experiments(BaseClientModel):
         return {"experiment": experiment_obj, "link": link, "message": message}
 
 
-def process_row(row: dict[str, str], process_func: Callable) -> str:
+def process_row(row: DatasetRecord, process_func: Callable) -> str:
     _logger.info(f"Processing dataset row: {row}")
     try:
-        output = process_func(row)
+        output = process_func(row.deserialized_input)
         log = galileo_context.get_logger_instance()
         log.conclude(output)
     except Exception as exc:
@@ -303,7 +310,7 @@ def run_experiment(
 
 def _load_dataset_and_records(
     dataset: Union[Dataset, list[dict[str, str]], str, None], dataset_id: Optional[str], dataset_name: Optional[str]
-) -> tuple[Optional[Dataset], list[dict[str, str]]]:
+) -> tuple[Optional[Dataset], list[DatasetRecord]]:
     """
     Load dataset and records based on provided parameters.
 
@@ -318,28 +325,45 @@ def _load_dataset_and_records(
     Raises:
         ValueError: If no dataset information is provided or dataset doesn't exist
     """
-    # Case 1: dataset_id provided
-    if dataset_id is not None:
-        return _get_dataset_and_records_by_id(dataset_id)
+    match dataset_id, dataset_name, dataset:
+        case str(), _, _:
+            return _get_dataset_and_rows(id=dataset_id)
+        case _, str(), _:
+            return _get_dataset_and_rows(name=dataset_name)
+        case _, _, str():
+            return _get_dataset_and_rows(name=dataset)
+        case _, _, Dataset():
+            return dataset, _get_rows_for_dataset(dataset)
+        case _, _, list():
+            return None, _create_rows_from_records(dataset)
+        case _:
+            raise ValueError("One of dataset, dataset_name, or dataset_id must be provided")
 
-    # Case 2: dataset_name provided
-    if dataset_name is not None:
-        return _get_dataset_and_records_by_name(dataset_name)
 
-    # Case 3: dataset object provided
-    if dataset is not None:
-        if isinstance(dataset, str):
-            # Dataset name provided
-            return _get_dataset_and_records_by_name(dataset)
-        elif isinstance(dataset, Dataset):
-            dataset_content = dataset.get_content()
-            return dataset, convert_dataset_content_to_records(dataset_content)
-        else:
-            # Direct records list
-            return None, dataset
+def _get_dataset_and_rows(id: Optional[str] = None, name: Optional[str] = None) -> tuple[Dataset, list[DatasetRecord]]:
+    if id:
+        dataset = get_dataset(id=id)
+        if not dataset:
+            raise ValueError("Could not find dataset with id " + id)
+    elif name:
+        dataset = get_dataset(name=name)
+        if not dataset:
+            raise ValueError("Could not find dataset with name " + name)
+    else:
+        raise ValueError("One of id or name must be provided")
 
-    # No dataset provided
-    raise ValueError("One of dataset, dataset_name, or dataset_id must be provided")
+    return dataset, _get_rows_for_dataset(dataset)
+
+
+def _get_rows_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
+    content = dataset.get_content()
+    if not content:
+        raise ValueError("dataset has no content")
+    return [convert_dataset_row_to_record(row) for row in content.rows]
+
+
+def _create_rows_from_records(records: list[dict[str, str]]) -> list[DatasetRecord]:
+    return [DatasetRecord(**record) for record in records]
 
 
 def _get_dataset_and_records_by_id(dataset_id: str) -> tuple[Dataset, list[dict[str, str]]]:
