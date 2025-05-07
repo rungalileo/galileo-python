@@ -5,7 +5,7 @@ from typing import Optional
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.logger import GalileoLogger
-from galileo.schema.metrics import LocalScorerConfig
+from galileo.schema.metrics import LocalMetricConfig
 
 _logger = logging.getLogger(__name__)
 
@@ -82,7 +82,7 @@ class GalileoLoggerSingleton:
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
-        local_scorers: Optional[list[LocalScorerConfig]] = None,
+        local_metrics: Optional[list[LocalMetricConfig]] = None,
     ) -> GalileoLogger:
         """
         Retrieve an existing GalileoLogger or create a new one if it does not exist.
@@ -95,7 +95,7 @@ class GalileoLoggerSingleton:
             project (Optional[str], optional): The project name. Defaults to None.
             log_stream (Optional[str], optional): The log stream name. Defaults to None.
             experiment_id (Optional[str], optional): The experiment ID. Defaults to None.
-            local_scorers (Optional[list[LocalScorerConfig]], optional): Local scorers to run on traces/spans.
+            local_metrics (Optional[list[LocalScorerConfig]], optional): Local scorers to run on traces/spans.
                 Only used if initializing a new logger, ignored otherwise.  Defaults to None.
 
         Returns:
@@ -119,7 +119,7 @@ class GalileoLoggerSingleton:
                 "project": project,
                 "log_stream": log_stream,
                 "experiment_id": experiment_id,
-                "local_scorers": local_scorers,
+                "local_metrics": local_metrics,
             }
             # Create the logger with filtered kwargs.
             logger = GalileoLogger(**{k: v for k, v in galileo_client_init_args.items() if v is not None})

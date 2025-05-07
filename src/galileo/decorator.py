@@ -55,9 +55,9 @@ from typing import Any, Callable, Literal, Optional, TypeVar, Union, cast, overl
 
 from typing_extensions import ParamSpec
 
-from galileo.datasets import DatasetRecord
 from galileo.logger import GalileoLogger
-from galileo.schema.metrics import LocalScorerConfig
+from galileo.schema.datasets import DatasetRecord
+from galileo.schema.metrics import LocalMetricConfig
 from galileo.utils import _get_timestamp
 from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
@@ -856,7 +856,7 @@ class GalileoDecorator:
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
-        local_scorers: Optional[list[LocalScorerConfig]] = None,
+        local_metrics: Optional[list[LocalMetricConfig]] = None,
     ) -> None:
         """
         Initialize the context with a project and log stream. Optionally, it can also be used
@@ -872,7 +872,7 @@ class GalileoDecorator:
         """
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
         GalileoLoggerSingleton().get(
-            project=project, log_stream=log_stream, experiment_id=experiment_id, local_scorers=local_scorers
+            project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics
         )
 
         _project_context.set(project)

@@ -1,9 +1,6 @@
 import json
 import mimetypes
-from functools import cached_property
 from typing import Any, Optional, Union, overload
-
-from pydantic import BaseModel
 
 from galileo.api_client import GalileoApiClient
 from galileo.base import BaseClientModel
@@ -32,6 +29,7 @@ from galileo.resources.models.list_dataset_params import ListDatasetParams
 from galileo.resources.models.list_dataset_response import ListDatasetResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
 from galileo.resources.types import File, Unset
+from galileo.schema.datasets import DatasetRecord
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.exceptions import APIException
 from galileo_core.utils.dataset import DatasetType, parse_dataset
@@ -489,29 +487,6 @@ def get_dataset_version(
         raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
-def convert_dataset_content_to_records(dataset_content: Optional[DatasetContent]) -> list[Any]:
-    if dataset_content is None:
-        return []
-
-    rows = dataset_content.rows
-    if not rows:
-        return []
-
-    result = []
-    for row in rows:
-        row_values = row.values_dict
-        if "input" in row_values:
-            if isinstance(row_values["input"], str):
-                try:
-                    result.append(json.loads(row_values["input"]))
-                except json.decoder.JSONDecodeError:
-                    result.append(row_values["input"])
-        else:
-            result.append(row_values)
-
-    return result
-
-
 def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
     values_dict = dataset_row.values_dict
     if "input" not in values_dict or not values_dict["input"]:
@@ -542,26 +517,3 @@ def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
                 raise ValueError("Metadata values must be strings")
 
     return DatasetRecord(id=dataset_row.row_id, input=input, output=output, metadata=metadata)
-
-
-class DatasetRecord(BaseModel):
-    id: Optional[str] = None
-    input: str
-    output: Optional[str] = None
-    metadata: Optional[dict[str, str]] = None
-
-    @cached_property
-    def deserialized_input(self) -> Any:
-        try:
-            return json.loads(self.input)
-        except json.decoder.JSONDecodeError:
-            return self.input
-
-    @cached_property
-    def deserialized_output(self) -> Optional[Any]:
-        if self.output is None:
-            return None
-        try:
-            return json.loads(self.output)
-        except json.decoder.JSONDecodeError:
-            return self.output

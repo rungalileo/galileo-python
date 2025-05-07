@@ -1,5 +1,8 @@
+import operator
 from datetime import datetime
-from typing import Any, Union
+from functools import reduce
+from statistics import mean
+from typing import Union
 from unittest.mock import ANY, MagicMock, Mock, patch
 from uuid import UUID, uuid4
 
@@ -9,11 +12,8 @@ from time_machine import travel
 import galileo
 import galileo.experiments
 from galileo import galileo_context
-from galileo.datasets import DatasetRecord
 from galileo.experiments import (
     Experiments,
-    _get_dataset_and_records_by_id,
-    _get_dataset_and_records_by_name,
     _load_dataset_and_records,
     create_experiment,
     get_experiment,
@@ -36,7 +36,9 @@ from galileo.resources.models import (
     ScorerTypes,
     TaskType,
 )
-from galileo.schema.metrics import LocalScorerConfig
+from galileo.schema.datasets import DatasetRecord
+from galileo.schema.metrics import LocalMetricConfig
+from galileo_core.schemas.shared.metric import MetricValueType
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
@@ -226,47 +228,47 @@ class TestExperiments:
         assert experiment is None
         list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
 
-    @patch.object(galileo.datasets.Datasets, "get")
-    def test_get_dataset_and_records_by_id(self, mock_get_dataset):
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
-        dataset_id = str(UUID(int=0))
-
-        _, records = _get_dataset_and_records_by_id(dataset_id=dataset_id)
-
-        assert records == ["Which continent is Spain in?"]
-
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
-        mock_get_dataset_instance.get_content.assert_called()
-
-    @patch.object(galileo.datasets.Datasets, "get")
-    def test_get_dataset_and_records_by_id_error(self, mock_get_dataset):
-        mock_get_dataset.return_value = None
-        dataset_id = str(UUID(int=0))
-        with pytest.raises(ValueError) as exc_info:
-            _get_dataset_and_records_by_id(dataset_id=dataset_id)
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
-        assert str(exc_info.value) == "Dataset with id 00000000-0000-0000-0000-000000000000 does not exist"
-
-    @patch.object(galileo.datasets.Datasets, "get")
-    def test_get_dataset_and_records_by_name(self, mock_get_dataset):
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
-
-        _, records = _get_dataset_and_records_by_name(dataset_name="awesome-dataset")
-        assert records == ["Which continent is Spain in?"]
-
-        mock_get_dataset.assert_called_once_with(id=None, name="awesome-dataset")
-        mock_get_dataset_instance.get_content.assert_called()
-
-    @patch.object(galileo.datasets.Datasets, "get")
-    def test_get_dataset_and_records_by_name_error(self, mock_get_dataset):
-        mock_get_dataset.return_value = None
-
-        with pytest.raises(ValueError) as exc_info:
-            _get_dataset_and_records_by_name(dataset_name="awesome-dataset")
-        mock_get_dataset.assert_called_once_with(id=None, name="awesome-dataset")
-        assert str(exc_info.value) == "Dataset with name awesome-dataset does not exist"
+    # @patch.object(galileo.datasets.Datasets, "get")
+    # def test_get_dataset_and_records_by_id(self, mock_get_dataset):
+    #     mock_get_dataset_instance = mock_get_dataset.return_value
+    #     mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
+    #     dataset_id = str(UUID(int=0))
+    #
+    #     _, records = _get_dataset_and_records_by_id(dataset_id=dataset_id)
+    #
+    #     assert records == ["Which continent is Spain in?"]
+    #
+    #     mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+    #     mock_get_dataset_instance.get_content.assert_called()
+    #
+    # @patch.object(galileo.datasets.Datasets, "get")
+    # def test_get_dataset_and_records_by_id_error(self, mock_get_dataset):
+    #     mock_get_dataset.return_value = None
+    #     dataset_id = str(UUID(int=0))
+    #     with pytest.raises(ValueError) as exc_info:
+    #         _get_dataset_and_records_by_id(dataset_id=dataset_id)
+    #     mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+    #     assert str(exc_info.value) == "Dataset with id 00000000-0000-0000-0000-000000000000 does not exist"
+    #
+    # @patch.object(galileo.datasets.Datasets, "get")
+    # def test_get_dataset_and_records_by_name(self, mock_get_dataset):
+    #     mock_get_dataset_instance = mock_get_dataset.return_value
+    #     mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
+    #
+    #     _, records = _get_dataset_and_records_by_name(dataset_name="awesome-dataset")
+    #     assert records == ["Which continent is Spain in?"]
+    #
+    #     mock_get_dataset.assert_called_once_with(id=None, name="awesome-dataset")
+    #     mock_get_dataset_instance.get_content.assert_called()
+    #
+    # @patch.object(galileo.datasets.Datasets, "get")
+    # def test_get_dataset_and_records_by_name_error(self, mock_get_dataset):
+    #     mock_get_dataset.return_value = None
+    #
+    #     with pytest.raises(ValueError) as exc_info:
+    #         _get_dataset_and_records_by_name(dataset_name="awesome-dataset")
+    #     mock_get_dataset.assert_called_once_with(id=None, name="awesome-dataset")
+    #     assert str(exc_info.value) == "Dataset with name awesome-dataset does not exist"
 
     @pytest.mark.parametrize(
         "dataset,dataset_name,dataset_id",
@@ -345,16 +347,31 @@ class TestExperiments:
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
     @pytest.mark.parametrize(
-        ["metrics", "results"],
+        ["metrics", "results", "aggregate_results"],
         [
-            ([], []),
+            ([], [], []),
             (
                 [
-                    LocalScorerConfig(name="length", func=lambda step: len(step.input)),
-                    LocalScorerConfig(name="output", func=lambda step: step.output),
-                    LocalScorerConfig(name="decimal", func=lambda step: 4.53),
-                    LocalScorerConfig(name="bool", func=lambda step: True),
+                    LocalMetricConfig[int](
+                        name="length",
+                        scorer_fn=lambda step: len(step.input[0].content),
+                        aggregator_fn=lambda lengths: sum(lengths),
+                    ),
+                    LocalMetricConfig[str](
+                        name="output",
+                        scorer_fn=lambda step: step.output.content,
+                        aggregator_fn=lambda outputs: ",".join(outputs),
+                    ),
+                    LocalMetricConfig[float](
+                        name="decimal", scorer_fn=lambda step: 4.53, aggregator_fn=lambda values: mean(values)
+                    ),
+                    LocalMetricConfig[bool](
+                        name="bool",
+                        scorer_fn=lambda step: True,
+                        aggregator_fn=lambda values: reduce(operator.or_, values),
+                    ),
                 ],
+                [40, "dummy_function", 4.53, True],
                 [40, "dummy_function", 4.53, True],
             ),
         ],
@@ -369,8 +386,9 @@ class TestExperiments:
         mock_projects_client: Mock,
         mock_logstreams_client: Mock,
         reset_context,
-        metrics: list[Union[str, LocalScorerConfig]],
-        results: list[Any],
+        metrics: list[Union[str, LocalMetricConfig]],
+        results: list[MetricValueType],
+        aggregate_results: list[MetricValueType],
     ):
         mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
         setup_mock_projects_client(mock_projects_client)
@@ -407,6 +425,10 @@ class TestExperiments:
         assert trace.dataset_output == "Europe"
         assert trace.dataset_metadata == {"meta": "data"}
 
+        for metric, metric_result in zip(metrics, aggregate_results):
+            assert hasattr(trace.metrics, metric.name)
+            assert getattr(trace.metrics, metric.name) == metric_result
+
         assert len(trace.spans) == 1
         span = trace.spans[0]
         assert span.dataset_input == "Which continent is Spain in?"
@@ -414,8 +436,8 @@ class TestExperiments:
         assert span.dataset_metadata == {"meta": "data"}
 
         for metric, metric_result in zip(metrics, results):
-            assert hasattr(payload.traces[0].metrics, metric.name)
-            assert getattr(payload.traces[0].metrics, metric.name) == metric_result
+            assert hasattr(span.metrics, metric.name)
+            assert getattr(span.metrics, metric.name) == metric_result
 
     @travel(datetime(2012, 1, 1))
     @patch.object(galileo.experiments.ScorerSettings, "create")
@@ -563,9 +585,7 @@ class TestExperiments:
         # check galileo_logger
         payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
         assert len(payload.traces) == 1
-        assert (
-            payload.traces[0].input == '{"input": {"question": "Which continent is Spain in?", "expected": "Europe"}}'
-        )
+        assert payload.traces[0].input == '{"question": "Which continent is Spain in?", "expected": "Europe"}'
         assert payload.traces[0].output == "Say hello: Which continent is Spain in?"
 
     @patch.object(galileo.datasets.Datasets, "get")
@@ -617,7 +637,9 @@ class TestExperiments:
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_with_question())
 
-        local_scorer = LocalScorerConfig(name="local_scorer", func=lambda x: x)  # Create a LocalScorerConfig instance
+        local_scorer = LocalMetricConfig(
+            name="local_scorer", scorer_fn=lambda x: x
+        )  # Create a LocalScorerConfig instance
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
                 "test_experiment",
@@ -642,15 +664,15 @@ class TestExperiments:
         ]
 
         # Test valid metrics
-        scorers, local_scorers = Experiments.create_scorer_configs(
-            "project_id", "experiment_id", ["metric1", LocalScorerConfig(name="length", func=lambda x: len(x))]
+        scorers, local_scorers = Experiments.create_metric_configs(
+            "project_id", "experiment_id", ["metric1", LocalMetricConfig(name="length", scorer_fn=lambda x: len(x))]
         )
         assert len(scorers) == 1  # Should return one valid scorer
         assert len(local_scorers) == 1  # Should return one local scorer
 
         # Test unknown metrics
         with pytest.raises(ValueError):
-            Experiments.create_scorer_configs("project_id", "experiment_id", ["unknown_metric"])
+            Experiments.create_metric_configs("project_id", "experiment_id", ["unknown_metric"])
 
     @patch("galileo.experiments.Scorers.list")
     def test_create_scorer_configs_non_existent_metric(self, scorer_list: Mock):
@@ -673,7 +695,7 @@ class TestExperiments:
             )
         ]
         with pytest.raises(ValueError) as exc_info:
-            Experiments.create_scorer_configs(
+            Experiments.create_metric_configs(
                 project_id="00000000", experiment_id="asd", metrics=["Non-ExistentMetric"]
             )
         assert str(exc_info.value) == "One or more non-existent metrics are specified:'Non-ExistentMetric'"
@@ -700,7 +722,7 @@ class TestExperiments:
             )
         ]
         with pytest.raises(ValueError) as exc_info:
-            Experiments.create_scorer_configs(
+            Experiments.create_metric_configs(
                 project_id="00000000",
                 experiment_id="asd",
                 metrics=["unknown_metric1", "agentic_workflow_success", "Non-ExistentMetric"],

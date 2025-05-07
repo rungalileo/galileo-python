@@ -8,13 +8,8 @@ from attrs import field as _attrs_field
 
 from galileo import galileo_context, log
 from galileo.base import BaseClientModel
-from galileo.datasets import (
-    Dataset,
-    DatasetRecord,
-    convert_dataset_content_to_records,
-    convert_dataset_row_to_record,
-    get_dataset,
-)
+from galileo.datasets import Dataset, convert_dataset_row_to_record, get_dataset
+from galileo.decorator import SPAN_TYPE
 from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
@@ -23,7 +18,8 @@ from galileo.resources.api.experiment import (
     list_experiments_projects_project_id_experiments_get,
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
-from galileo.schema.metrics import LocalScorerConfig
+from galileo.schema.datasets import DatasetRecord
+from galileo.schema.metrics import LocalMetricConfig
 from galileo.scorers import Scorers, ScorerSettings
 
 _logger = logging.getLogger(__name__)
@@ -91,9 +87,9 @@ class Experiments(BaseClientModel):
         return list_experiments_projects_project_id_experiments_get.sync(project_id=project_id, client=self.client)
 
     @staticmethod
-    def create_scorer_configs(
-        project_id: str, experiment_id: str, metrics: builtins.list[Union[str, LocalScorerConfig]]
-    ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalScorerConfig]]:
+    def create_metric_configs(
+        project_id: str, experiment_id: str, metrics: builtins.list[Union[str, LocalMetricConfig]]
+    ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
         scorers = []
         scorer_names = [metric for metric in metrics if isinstance(metric, str)]
         if scorer_names:
@@ -112,9 +108,9 @@ class Experiments(BaseClientModel):
                 )
             ScorerSettings().create(project_id=project_id, run_id=experiment_id, scorers=scorers)
 
-        local_scorers = [metric for metric in metrics if isinstance(metric, LocalScorerConfig)]
+        local_metric_configs = [metric for metric in metrics if isinstance(metric, LocalMetricConfig)]
 
-        return scorers, local_scorers
+        return scorers, local_metric_configs
 
     def run(
         self,
@@ -170,13 +166,14 @@ class Experiments(BaseClientModel):
         experiment_obj: ExperimentResponse,
         records: builtins.list[DatasetRecord],
         func: Callable,
-        local_scorers: builtins.list[LocalScorerConfig],
+        local_metrics: builtins.list[LocalMetricConfig] = [],
+        span_type: SPAN_TYPE = "llm",
     ) -> dict[str, Any]:
         results = []
-        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id, local_scorers=local_scorers)  # type: ignore[arg-type]
+        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id, local_metrics=local_metrics)  # type: ignore[arg-type]
 
         def logged_process_func(row: DatasetRecord) -> Callable:
-            return log(name=experiment_obj.name, dataset_record=row)(func)
+            return log(name=experiment_obj.name, span_type=span_type, dataset_record=row)(func)
 
         #  process each row in the dataset
         for row in records:
@@ -216,7 +213,7 @@ def run_experiment(
     dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
-    metrics: Optional[list[Union[str, LocalScorerConfig]]] = None,
+    metrics: Optional[list[Union[str, LocalMetricConfig]]] = None,
     function: Optional[Callable] = None,
 ) -> Any:
     """
@@ -285,13 +282,13 @@ def run_experiment(
 
     # Set up metrics if provided
     scorer_settings: Optional[list[ScorerConfig]] = None
-    local_scorers: list[LocalScorerConfig] = list()
+    local_metrics: list[LocalMetricConfig] = list()
     if metrics is not None:
-        scorer_settings, local_scorers = Experiments.create_scorer_configs(project_obj.id, experiment_obj.id, metrics)
+        scorer_settings, local_metrics = Experiments.create_metric_configs(project_obj.id, experiment_obj.id, metrics)
 
     # Execute a runner function experiment
     if function is not None:
-        return Experiments().run_with_function(project_obj, experiment_obj, records, function, local_scorers)
+        return Experiments().run_with_function(project_obj, experiment_obj, records, function, local_metrics)
 
     if prompt_template is None:
         raise ValueError("A prompt template must be provided")
@@ -299,7 +296,7 @@ def run_experiment(
     if dataset_obj is None:
         raise ValueError("A dataset object must be provided")
 
-    if local_scorers:
+    if local_metrics:
         raise ValueError("Local metrics can only be used with a locally run experiment, not a prompt experiment.")
 
     # Execute a prompt template experiment
@@ -327,20 +324,22 @@ def _load_dataset_and_records(
     """
     match dataset_id, dataset_name, dataset:
         case str(), _, _:
-            return _get_dataset_and_rows(id=dataset_id)
+            return _get_dataset_and_records(id=dataset_id)
         case _, str(), _:
-            return _get_dataset_and_rows(name=dataset_name)
+            return _get_dataset_and_records(name=dataset_name)
         case _, _, str():
-            return _get_dataset_and_rows(name=dataset)
+            return _get_dataset_and_records(name=dataset)
         case _, _, Dataset():
-            return dataset, _get_rows_for_dataset(dataset)
+            return dataset, _get_records_for_dataset(dataset)
         case _, _, list():
             return None, _create_rows_from_records(dataset)
         case _:
             raise ValueError("One of dataset, dataset_name, or dataset_id must be provided")
 
 
-def _get_dataset_and_rows(id: Optional[str] = None, name: Optional[str] = None) -> tuple[Dataset, list[DatasetRecord]]:
+def _get_dataset_and_records(
+    id: Optional[str] = None, name: Optional[str] = None
+) -> tuple[Dataset, list[DatasetRecord]]:
     if id:
         dataset = get_dataset(id=id)
         if not dataset:
@@ -352,10 +351,10 @@ def _get_dataset_and_rows(id: Optional[str] = None, name: Optional[str] = None) 
     else:
         raise ValueError("One of id or name must be provided")
 
-    return dataset, _get_rows_for_dataset(dataset)
+    return dataset, _get_records_for_dataset(dataset)
 
 
-def _get_rows_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
+def _get_records_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
     content = dataset.get_content()
     if not content:
         raise ValueError("dataset has no content")
@@ -364,26 +363,6 @@ def _get_rows_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
 
 def _create_rows_from_records(records: list[dict[str, str]]) -> list[DatasetRecord]:
     return [DatasetRecord(**record) for record in records]
-
-
-def _get_dataset_and_records_by_id(dataset_id: str) -> tuple[Dataset, list[dict[str, str]]]:
-    """Get dataset by ID and convert to records."""
-    dataset = get_dataset(id=dataset_id)
-    if not dataset:
-        raise ValueError(f"Dataset with id {dataset_id} does not exist")
-    dataset_content = dataset.get_content()
-    records = convert_dataset_content_to_records(dataset_content)
-    return dataset, records
-
-
-def _get_dataset_and_records_by_name(dataset_name: str) -> tuple[Dataset, list[dict[str, str]]]:
-    """Get dataset by name and convert to records."""
-    dataset = get_dataset(name=dataset_name)
-    if not dataset:
-        raise ValueError(f"Dataset with name {dataset_name} does not exist")
-    dataset_content = dataset.get_content()
-    records = convert_dataset_content_to_records(dataset_content)
-    return dataset, records
 
 
 def create_experiment(

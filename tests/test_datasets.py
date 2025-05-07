@@ -11,7 +11,6 @@ from galileo.datasets import (
     DatasetAppendRowValues,
     Datasets,
     UpdateDatasetContentRequest,
-    convert_dataset_content_to_records,
     create_dataset,
     get_dataset_version,
     get_dataset_version_history,
@@ -251,35 +250,35 @@ def test_get_dataset_version_history_wo_dataset_name_or_dataset_id():
     assert "Either dataset_name or dataset_id must be provided." in str(exc_info.value), str(exc_info)
 
 
-@pytest.mark.parametrize(
-    "value, expected",
-    [
-        (
-            '{"input": "Which continent is Spain in?", "expected": "Europe"}',
-            [{"expected": "Europe", "input": "Which continent is Spain in?"}],
-        ),
-        ("string", ["string"]),
-    ],
-)
-def test_convert_dataset_content_to_records_str(value, expected):
-    values_dict = {"input": value, "output": None, "metadata": None}
-    row = DatasetRow(index=0, values=[value], metadata=None, row_id="", values_dict=values_dict)
-    column_names = ["input", "output", "metadata"]
-    content = DatasetContent(column_names=column_names, rows=[row])
-    result = convert_dataset_content_to_records(content)
-    assert result == expected
-
-
-def test_convert_dataset_content_to_records_no_rows():
-    column_names = ["input", "output", "metadata"]
-    content = DatasetContent(column_names=column_names, rows=[])
-    assert convert_dataset_content_to_records(content) == []
-
-
-def test_convert_dataset_content_to_records_empty_values_dict():
-    row = DatasetRow(index=0, values=[], metadata=None, row_id="", values_dict={})
-    content = DatasetContent(column_names=[], rows=[row])
-    assert convert_dataset_content_to_records(content) == [{}]
+# @pytest.mark.parametrize(
+#     "value, expected",
+#     [
+#         (
+#             '{"input": "Which continent is Spain in?", "expected": "Europe"}',
+#             [{"expected": "Europe", "input": "Which continent is Spain in?"}],
+#         ),
+#         ("string", ["string"]),
+#     ],
+# )
+# def test_convert_dataset_content_to_records_str(value, expected):
+#     values_dict = {"input": value, "output": None, "metadata": None}
+#     row = DatasetRow(index=0, values=[value], metadata=None, row_id="", values_dict=values_dict)
+#     column_names = ["input", "output", "metadata"]
+#     content = DatasetContent(column_names=column_names, rows=[row])
+#     result = convert_dataset_content_to_records(content)
+#     assert result == expected
+#
+#
+# def test_convert_dataset_content_to_records_no_rows():
+#     column_names = ["input", "output", "metadata"]
+#     content = DatasetContent(column_names=column_names, rows=[])
+#     assert convert_dataset_content_to_records(content) == []
+#
+#
+# def test_convert_dataset_content_to_records_empty_values_dict():
+#     row = DatasetRow(index=0, values=[], metadata=None, row_id="", values_dict={})
+#     content = DatasetContent(column_names=[], rows=[row])
+#     assert convert_dataset_content_to_records(content) == [{}]
 
 
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")

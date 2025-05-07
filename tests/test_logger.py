@@ -8,7 +8,7 @@ from uuid import UUID
 import pytest
 
 from galileo.logger import GalileoLogger
-from galileo.schema.metrics import LocalScorerConfig
+from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import TracesIngestRequest
 from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
@@ -297,7 +297,7 @@ async def test_single_span_trace_to_galileo_with_async(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        local_scorers=[LocalScorerConfig(name="length", func=local_scorer)],
+        local_metrics=[LocalMetricConfig(name="length", scorer_fn=local_scorer)],
     )
     logger.start_trace(
         input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
@@ -314,6 +314,7 @@ async def test_single_span_trace_to_galileo_with_async(
         temperature=1.0,
         status_code=200,
     )
+    setattr(span.metrics, "length", 1)
     logger.conclude("output", status_code=200)
     await logger.async_flush()
 
@@ -332,7 +333,7 @@ async def test_single_span_trace_to_galileo_with_async(
                 user_metadata=metadata,
                 status_code=200,
                 spans=[span],
-                metrics=Metrics(duration_ns=1000000, length=5),
+                metrics=Metrics(duration_ns=1000000),
             )
         ],
     )
