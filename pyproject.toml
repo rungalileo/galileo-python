@@ -39,7 +39,7 @@ pytest-env = "^1.1.5"
 langchain-core = "^0.3.14"
 pytest-sugar = "^1.0.0"
 vcrpy = "^7.0.0"
-time-machine = "^2.16.0"
+time-machine = "^2.16.0"  # freezegun causes problems with pydantic model validations
 
 
 [tool.poetry.group.dev.dependencies]
