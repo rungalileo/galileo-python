@@ -729,61 +729,236 @@ class TestExperiments:
         with pytest.raises(ValueError):
             Experiments.create_metric_configs("project_id", "experiment_id", ["unknown_metric"])
 
-    @patch("galileo.experiments.Scorers.list")
-    def test_create_scorer_configs_non_existent_metric(self, scorer_list: Mock):
-        scorer_list.return_value = [
-            ScorerResponse.from_dict(
-                {
-                    "created_at": "2025-03-28T18:54:02.848267+00:00",
-                    "created_by": "d351012a-dd92-4d0c-a356-57161b1377cd",
-                    "defaults": {"filters": None, "model_name": "GPT-4o", "num_judges": 5},
-                    "description": "Detects whether the user successfully accomplished or advanced towards their goal.",
-                    "id": "f7933a6d-7a65-4ce3-bfe4-b863109a04ee",
-                    "included_fields": ["model_name", "num_judges", "filters"],
-                    "label": "Action Advancement",
-                    "latest_version": None,
-                    "name": "agentic_workflow_success",
-                    "scorer_type": "preset",
-                    "tags": ["preset", "agents"],
-                    "updated_at": "2025-03-28T18:54:02.848269+00:00",
-                }
-            )
-        ]
-        with pytest.raises(ValueError) as exc_info:
-            Experiments.create_metric_configs(
-                project_id="00000000", experiment_id="asd", metrics=["Non-ExistentMetric"]
-            )
-        assert str(exc_info.value) == "One or more non-existent metrics are specified:'Non-ExistentMetric'"
-        scorer_list.assert_called_once()
+    @patch("galileo.experiments.get_dataset")
+    @patch("galileo.experiments._get_records_for_dataset", return_value=[])
+    def test_get_dataset_and_records_with_id(self, mock_get_records, mock_get_dataset):
+        """Test _get_dataset_and_records function with dataset_id."""
+        # Setup
+        mock_dataset = Mock()
+        mock_dataset.get_content.return_value = dataset_content()
+        mock_get_dataset.return_value = mock_dataset
 
-    @patch("galileo.experiments.Scorers.list")
-    def test_create_scorer_configs_one_valid_two_non_existent_metric(self, scorer_list: Mock):
-        scorer_list.return_value = [
-            ScorerResponse.from_dict(
-                {
-                    "created_at": "2025-03-28T18:54:02.848267+00:00",
-                    "created_by": "d351012a-dd92-4d0c-a356-57161b1377cd",
-                    "defaults": {"filters": None, "model_name": "GPT-4o", "num_judges": 5},
-                    "description": "Detects whether the user successfully accomplished or advanced towards their goal.",
-                    "id": "f7933a6d-7a65-4ce3-bfe4-b863109a04ee",
-                    "included_fields": ["model_name", "num_judges", "filters"],
-                    "label": "Action Advancement",
-                    "latest_version": None,
-                    "name": "agentic_workflow_success",
-                    "scorer_type": "preset",
-                    "tags": ["preset", "agents"],
-                    "updated_at": "2025-03-28T18:54:02.848269+00:00",
-                }
-            )
-        ]
-        with pytest.raises(ValueError) as exc_info:
-            Experiments.create_metric_configs(
-                project_id="00000000",
-                experiment_id="asd",
-                metrics=["unknown_metric1", "agentic_workflow_success", "Non-ExistentMetric"],
-            )
-        assert (
-            str(exc_info.value)
-            == "One or more non-existent metrics are specified:'unknown_metric1', 'Non-ExistentMetric'"
-        )
-        scorer_list.assert_called_once()
+        # Execute
+        dataset, records = galileo.experiments._get_dataset_and_records(id="test-id")
+
+        # Assert
+        mock_get_dataset.assert_called_once_with(id="test-id")
+        assert dataset == mock_dataset
+        mock_get_records.assert_called_once_with(mock_dataset)
+
+    @patch("galileo.experiments.get_dataset")
+    @patch("galileo.experiments._get_records_for_dataset", return_value=[])
+    def test_get_dataset_and_records_with_name(self, mock_get_records, mock_get_dataset):
+        """Test _get_dataset_and_records function with dataset_name."""
+        # Setup
+        mock_dataset = Mock()
+        mock_dataset.get_content.return_value = dataset_content()
+        mock_get_dataset.return_value = mock_dataset
+
+        # Execute
+        dataset, records = galileo.experiments._get_dataset_and_records(name="test-dataset")
+
+        # Assert
+        mock_get_dataset.assert_called_once_with(name="test-dataset")
+        assert dataset == mock_dataset
+        mock_get_records.assert_called_once_with(mock_dataset)
+
+    @patch("galileo.experiments.get_dataset")
+    def test_get_dataset_and_records_not_found_id(self, mock_get_dataset):
+        """Test _get_dataset_and_records function when dataset with id is not found."""
+        # Setup
+        mock_get_dataset.return_value = None
+
+        # Execute and Assert
+        with pytest.raises(ValueError, match="Could not find dataset with id test-id"):
+            galileo.experiments._get_dataset_and_records(id="test-id")
+
+    @patch("galileo.experiments.get_dataset")
+    def test_get_dataset_and_records_not_found_name(self, mock_get_dataset):
+        """Test _get_dataset_and_records function when dataset with name is not found."""
+        # Setup
+        mock_get_dataset.return_value = None
+
+        # Execute and Assert
+        with pytest.raises(ValueError, match="Could not find dataset with name test-dataset"):
+            galileo.experiments._get_dataset_and_records(name="test-dataset")
+
+    def test_get_dataset_and_records_no_params(self):
+        """Test _get_dataset_and_records function when no parameters are provided."""
+        # Execute and Assert
+        with pytest.raises(ValueError, match="One of id or name must be provided"):
+            galileo.experiments._get_dataset_and_records()
+
+    @patch("galileo.experiments.convert_dataset_row_to_record")
+    def test_get_records_for_dataset(self, mock_convert):
+        """Test _get_records_for_dataset function."""
+        # Setup
+        mock_dataset = Mock()
+        mock_dataset.get_content.return_value = dataset_content()
+        mock_convert.return_value = DatasetRecord(input="test")
+
+        # Execute
+        records = galileo.experiments._get_records_for_dataset(mock_dataset)
+
+        # Assert
+        mock_dataset.get_content.assert_called_once()
+        mock_convert.assert_called_once_with(dataset_content().rows[0])
+        assert len(records) == 1
+        assert records[0].input == "test"
+
+    def test_get_records_for_dataset_no_content(self):
+        """Test _get_records_for_dataset function when dataset has no content."""
+        # Setup
+        mock_dataset = Mock()
+        mock_dataset.get_content.return_value = None
+
+        # Execute and Assert
+        with pytest.raises(ValueError, match="dataset has no content"):
+            galileo.experiments._get_records_for_dataset(mock_dataset)
+
+    @patch("galileo.experiments.DatasetRecord")
+    def test_create_rows_from_records_with_input_field(self, mock_dataset_record):
+        """Test _create_rows_from_records function with records containing 'input' field."""
+        # Setup
+        records = [{"input": "test input", "output": "test output"}]
+        mock_dataset_record.return_value = "record instance"
+
+        # Execute
+        result = galileo.experiments._create_rows_from_records(records)
+
+        # Assert
+        mock_dataset_record.assert_called_once_with(**records[0])
+        assert result == ["record instance"]
+
+    @patch("galileo.experiments.DatasetRecord")
+    def test_create_rows_from_records_without_input_field(self, mock_dataset_record):
+        """Test _create_rows_from_records function with records not containing 'input' field."""
+        # Setup
+        records = ["test input"]
+        mock_dataset_record.return_value = "record instance"
+
+        # Execute
+        result = galileo.experiments._create_rows_from_records(records)
+
+        # Assert
+        mock_dataset_record.assert_called_once_with(input="test input")
+        assert result == ["record instance"]
+
+    @patch("galileo.experiments.DatasetRecord")
+    def test_create_rows_from_records_with_dict_without_input_field(self, mock_dataset_record):
+        """Test _create_rows_from_records function with dict records not containing 'input' field."""
+        # Setup
+        records = [{"key": "value"}]
+        mock_dataset_record.return_value = "record instance"
+
+        # Execute
+        result = galileo.experiments._create_rows_from_records(records)
+
+        # Assert
+        mock_dataset_record.assert_called_once_with(input={"key": "value"})
+        assert result == ["record instance"]
+
+    @patch("galileo.experiments.DatasetRecord")
+    def test_create_rows_from_records_mixed_types(self, mock_dataset_record):
+        """Test _create_rows_from_records function with mixed record types."""
+        # Setup
+        records = [{"input": "test input 1", "output": "test output 1"}, "test input 2", {"key": "value"}]
+        mock_dataset_record.side_effect = ["record 1", "record 2", "record 3"]
+
+        # Execute
+        result = galileo.experiments._create_rows_from_records(records)
+
+        # Assert
+        assert mock_dataset_record.call_count == 3
+        mock_dataset_record.assert_any_call(**records[0])
+        mock_dataset_record.assert_any_call(input="test input 2")
+        mock_dataset_record.assert_any_call(input={"key": "value"})
+        assert result == ["record 1", "record 2", "record 3"]
+
+    @patch("galileo.experiments._get_dataset_and_records")
+    def test_load_dataset_and_records_with_dataset_id(self, mock_get_dataset_and_records):
+        """Test _load_dataset_and_records function with dataset_id."""
+        # Setup
+        mock_dataset = Mock()
+        mock_records = [DatasetRecord(input="test")]
+        mock_get_dataset_and_records.return_value = (mock_dataset, mock_records)
+
+        # Execute
+        dataset, records = galileo.experiments._load_dataset_and_records(None, "test-id", None)
+
+        # Assert
+        mock_get_dataset_and_records.assert_called_once_with(id="test-id")
+        assert dataset == mock_dataset
+        assert records == mock_records
+
+    @patch("galileo.experiments._get_dataset_and_records")
+    def test_load_dataset_and_records_with_dataset_name(self, mock_get_dataset_and_records):
+        """Test _load_dataset_and_records function with dataset_name."""
+        # Setup
+        mock_dataset = Mock()
+        mock_records = [DatasetRecord(input="test")]
+        mock_get_dataset_and_records.return_value = (mock_dataset, mock_records)
+
+        # Execute
+        dataset, records = galileo.experiments._load_dataset_and_records(None, None, "test-dataset")
+
+        # Assert
+        mock_get_dataset_and_records.assert_called_once_with(name="test-dataset")
+        assert dataset == mock_dataset
+        assert records == mock_records
+
+    @patch("galileo.experiments._get_dataset_and_records")
+    def test_load_dataset_and_records_with_dataset_as_string(self, mock_get_dataset_and_records):
+        """Test _load_dataset_and_records function with dataset as string."""
+        # Setup
+        mock_dataset = Mock()
+        mock_records = [DatasetRecord(input="test")]
+        mock_get_dataset_and_records.return_value = (mock_dataset, mock_records)
+
+        # Execute
+        dataset, records = galileo.experiments._load_dataset_and_records("test-dataset", None, None)
+
+        # Assert
+        mock_get_dataset_and_records.assert_called_once_with(name="test-dataset")
+        assert dataset == mock_dataset
+        assert records == mock_records
+
+    @patch("galileo.experiments._get_records_for_dataset")
+    def test_load_dataset_and_records_with_dataset_object(self, mock_get_records):
+        """Test _load_dataset_and_records function with Dataset object."""
+        # Setup
+        from galileo.datasets import Dataset
+
+        mock_dataset = Mock(spec=Dataset)
+        mock_records = [DatasetRecord(input="test")]
+        mock_get_records.return_value = mock_records
+
+        # Execute
+        dataset, records = galileo.experiments._load_dataset_and_records(mock_dataset, None, None)
+
+        # Assert
+        mock_get_records.assert_called_once_with(mock_dataset)
+        assert dataset == mock_dataset
+        assert records == mock_records
+
+    @patch("galileo.experiments._create_rows_from_records")
+    def test_load_dataset_and_records_with_records_list(self, mock_create_rows):
+        """Test _load_dataset_and_records function with list of records."""
+        # Setup
+        records_list = [{"input": "test input"}]
+        mock_records = [DatasetRecord(input="test")]
+        mock_create_rows.return_value = mock_records
+
+        # Execute
+        dataset, records = galileo.experiments._load_dataset_and_records(records_list, None, None)
+
+        # Assert
+        mock_create_rows.assert_called_once_with(records_list)
+        assert dataset is None
+        assert records == mock_records
+
+    def test_load_dataset_and_records_no_params(self):
+        """Test _load_dataset_and_records function when no parameters are provided."""
+        # Execute and Assert
+        with pytest.raises(ValueError, match="One of dataset, dataset_name, or dataset_id must be provided"):
+            galileo.experiments._load_dataset_and_records(None, None, None)

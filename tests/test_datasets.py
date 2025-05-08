@@ -1,3 +1,4 @@
+import json
 from http import HTTPStatus
 from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
@@ -11,6 +12,7 @@ from galileo.datasets import (
     DatasetAppendRowValues,
     Datasets,
     UpdateDatasetContentRequest,
+    convert_dataset_row_to_record,
     create_dataset,
     get_dataset_version,
     get_dataset_version_history,
@@ -20,15 +22,17 @@ from galileo.resources.models import (
     DatasetDB,
     DatasetNameFilter,
     DatasetNameFilterOperator,
-    DatasetRow,
     DatasetUpdatedAtSort,
     ListDatasetParams,
     ListDatasetResponse,
     ListDatasetVersionParams,
     ListDatasetVersionResponse,
 )
+from galileo.resources.models.dataset_row import DatasetRow
+from galileo.resources.models.dataset_row_values_dict import DatasetRowValuesDict
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.types import Response
+from galileo.schema.datasets import DatasetRecord
 
 
 def dataset_content():
@@ -250,35 +254,85 @@ def test_get_dataset_version_history_wo_dataset_name_or_dataset_id():
     assert "Either dataset_name or dataset_id must be provided." in str(exc_info.value), str(exc_info)
 
 
-# @pytest.mark.parametrize(
-#     "value, expected",
-#     [
-#         (
-#             '{"input": "Which continent is Spain in?", "expected": "Europe"}',
-#             [{"expected": "Europe", "input": "Which continent is Spain in?"}],
-#         ),
-#         ("string", ["string"]),
-#     ],
-# )
-# def test_convert_dataset_content_to_records_str(value, expected):
-#     values_dict = {"input": value, "output": None, "metadata": None}
-#     row = DatasetRow(index=0, values=[value], metadata=None, row_id="", values_dict=values_dict)
-#     column_names = ["input", "output", "metadata"]
-#     content = DatasetContent(column_names=column_names, rows=[row])
-#     result = convert_dataset_content_to_records(content)
-#     assert result == expected
-#
-#
-# def test_convert_dataset_content_to_records_no_rows():
-#     column_names = ["input", "output", "metadata"]
-#     content = DatasetContent(column_names=column_names, rows=[])
-#     assert convert_dataset_content_to_records(content) == []
-#
-#
-# def test_convert_dataset_content_to_records_empty_values_dict():
-#     row = DatasetRow(index=0, values=[], metadata=None, row_id="", values_dict={})
-#     content = DatasetContent(column_names=[], rows=[row])
-#     assert convert_dataset_content_to_records(content) == [{}]
+def test_convert_dataset_row_to_record():
+    """Test the convert_dataset_row_to_record function with various inputs."""
+
+    # Case 1: Normal case with input, output, and metadata
+    values_dict = DatasetRowValuesDict()
+    values_dict["input"] = "Which continent is Spain in?"
+    values_dict["output"] = "Europe"
+    values_dict["metadata"] = json.dumps({"confidence": "high"})
+    row = DatasetRow(
+        index=0,
+        values=["Which continent is Spain in?", "Europe", json.dumps({"confidence": "high"})],
+        metadata=None,
+        row_id="row1",
+        values_dict=values_dict,
+    )
+    record = convert_dataset_row_to_record(row)
+    assert isinstance(record, DatasetRecord)
+    assert record.id == "row1"
+    assert record.input == "Which continent is Spain in?"
+    assert record.output == "Europe"
+    assert record.metadata == {"confidence": "high"}
+
+    # Case 2: With input but no output
+    values_dict = DatasetRowValuesDict()
+    values_dict["input"] = "Which continent is Spain in?"
+    row = DatasetRow(
+        index=0, values=["Which continent is Spain in?"], metadata=None, row_id="row2", values_dict=values_dict
+    )
+    record = convert_dataset_row_to_record(row)
+    assert record.id == "row2"
+    assert record.input == "Which continent is Spain in?"
+    assert record.output is None
+    assert record.metadata is None
+
+    # Case 3: With input and metadata but no output
+    values_dict = DatasetRowValuesDict()
+    values_dict["input"] = "Which continent is Spain in?"
+    values_dict["metadata"] = json.dumps({"source": "geography"})
+    row = DatasetRow(
+        index=0,
+        values=["Which continent is Spain in?", None, json.dumps({"source": "geography"})],
+        metadata=None,
+        row_id="row3",
+        values_dict=values_dict,
+    )
+    record = convert_dataset_row_to_record(row)
+    assert record.id == "row3"
+    assert record.input == "Which continent is Spain in?"
+    assert record.output is None
+    assert record.metadata == {"source": "geography"}
+
+    # Case 4: With input that is not a string (should be converted to string)
+    values_dict = DatasetRowValuesDict()
+    values_dict["input"] = {"question": "Which continent is Spain in?"}
+    row = DatasetRow(
+        index=0,
+        values=[{"question": "Which continent is Spain in?"}],
+        metadata=None,
+        row_id="row4",
+        values_dict=values_dict,
+    )
+    record = convert_dataset_row_to_record(row)
+    assert record.id == "row4"
+    assert record.input == json.dumps({"question": "Which continent is Spain in?"})
+    assert record.output is None
+    assert record.metadata is None
+
+    # Case 5: Missing input (should raise ValueError)
+    values_dict = DatasetRowValuesDict()
+    row = DatasetRow(index=0, values=[], metadata=None, row_id="row5", values_dict=values_dict)
+    with pytest.raises(ValueError, match="Dataset row must have input field"):
+        convert_dataset_row_to_record(row)
+
+    # Case 6: Empty input (should raise ValueError)
+    values_dict = DatasetRowValuesDict()
+    values_dict["input"] = ""
+    row = DatasetRow(index=0, values=[""], metadata=None, row_id="row6", values_dict=values_dict)
+    with pytest.raises(ValueError, match="Dataset row must have input field"):
+        convert_dataset_row_to_record(row)
 
 
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
