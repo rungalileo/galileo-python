@@ -270,6 +270,7 @@ class TestExperiments:
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @pytest.mark.parametrize("thread_pool", [True, False])
     @pytest.mark.parametrize(
         ["function", "metrics", "num_spans", "span_type", "results", "aggregate_results"],
         [
@@ -346,6 +347,7 @@ class TestExperiments:
         span_type: SPAN_TYPE,
         results: list[MetricValueType],
         aggregate_results: list[MetricValueType],
+        thread_pool: bool,
     ):
         mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
         setup_mock_projects_client(mock_projects_client)

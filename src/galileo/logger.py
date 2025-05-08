@@ -2,7 +2,6 @@ import atexit
 import json
 import logging
 from collections import deque
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from os import getenv
 from typing import Optional, Union
@@ -572,8 +571,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         if self.local_metrics:
             self._logger.info("Computing local metrics...")
-            with ThreadPoolExecutor() as executor:
-                list(executor.map(lambda trace: populate_local_metrics(trace, self.local_metrics), self.traces))
+            # TODO: parallelize, possibly with ThreadPoolExecutor
+            for trace in self.traces:
+                populate_local_metrics(trace, self.local_metrics)
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
@@ -608,10 +608,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         if self.local_metrics:
             self._logger.info("Computing metrics for local scorers...")
-            import asyncio
-
-            tasks = [asyncio.to_thread(populate_local_metrics, trace, self.local_metrics) for trace in self.traces]
-            await asyncio.gather(*tasks)
+            # TODO: parallelize, possibly with asyncio to_thread/gather
+            for trace in self.traces:
+                populate_local_metrics(trace, self.local_metrics)
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
