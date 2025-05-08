@@ -8,7 +8,7 @@ from attrs import field as _attrs_field
 
 from galileo import galileo_context, log
 from galileo.base import BaseClientModel
-from galileo.datasets import Dataset, convert_dataset_row_to_record, get_dataset
+from galileo.datasets import Dataset
 from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
@@ -20,6 +20,7 @@ from galileo.resources.models import ExperimentResponse, HTTPValidationError, Pr
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.scorers import Scorers, ScorerSettings
+from galileo.utils.datasets import load_dataset_and_records
 
 _logger = logging.getLogger(__name__)
 
@@ -245,7 +246,7 @@ def run_experiment(
         raise ValueError("A project name must be provided")
 
     # Load dataset and records
-    dataset_obj, records = _load_dataset_and_records(dataset, dataset_id, dataset_name)
+    dataset_obj, records = load_dataset_and_records(dataset, dataset_id, dataset_name)
 
     # Validate experiment configuration
     if prompt_template and not dataset_obj:
@@ -307,72 +308,6 @@ def run_experiment(
     return Experiments().run(
         project_obj, experiment_obj, prompt_template, dataset_obj.dataset.id, scorer_settings, prompt_settings
     )
-
-
-def _load_dataset_and_records(
-    dataset: Union[Dataset, list[dict[str, str]], str, None], dataset_id: Optional[str], dataset_name: Optional[str]
-) -> tuple[Optional[Dataset], list[DatasetRecord]]:
-    """
-    Load dataset and records based on provided parameters.
-
-    Args:
-        dataset: Dataset object, list of records, or dataset name
-        dataset_id: ID of the dataset
-        dataset_name: Name of the dataset
-
-    Returns:
-        Tuple containing (Dataset object or None, records list)
-
-    Raises:
-        ValueError: If no dataset information is provided or dataset doesn't exist
-    """
-    match dataset_id, dataset_name, dataset:
-        case str(), _, _:
-            return _get_dataset_and_records(id=dataset_id)
-        case _, str(), _:
-            return _get_dataset_and_records(name=dataset_name)
-        case _, _, str():
-            return _get_dataset_and_records(name=dataset)
-        case _, _, Dataset():
-            return dataset, _get_records_for_dataset(dataset)
-        case _, _, list():
-            return None, _create_rows_from_records(dataset)
-        case _:
-            raise ValueError("One of dataset, dataset_name, or dataset_id must be provided")
-
-
-def _get_dataset_and_records(
-    id: Optional[str] = None, name: Optional[str] = None
-) -> tuple[Dataset, list[DatasetRecord]]:
-    if id:
-        dataset = get_dataset(id=id)
-        if not dataset:
-            raise ValueError("Could not find dataset with id " + id)
-    elif name:
-        dataset = get_dataset(name=name)
-        if not dataset:
-            raise ValueError("Could not find dataset with name " + name)
-    else:
-        raise ValueError("One of id or name must be provided")
-
-    return dataset, _get_records_for_dataset(dataset)
-
-
-def _get_records_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
-    content = dataset.get_content()
-    if not content:
-        raise ValueError("dataset has no content")
-    return [convert_dataset_row_to_record(row) for row in content.rows]
-
-
-def _create_rows_from_records(records: list[dict[str, str]]) -> list[DatasetRecord]:
-    result = []
-    for record in records:
-        if isinstance(record, dict) and "input" in record:
-            result.append(DatasetRecord(**record))
-        else:
-            result.append(DatasetRecord(input=record))
-    return result
 
 
 def create_experiment(
