@@ -1,37 +1,38 @@
+import operator
 from datetime import datetime
+from functools import reduce
+from statistics import mean
+from typing import Callable, Union
 from unittest.mock import ANY, MagicMock, Mock, patch
 from uuid import UUID
 
 import pytest
-from freezegun import freeze_time
+from time_machine import travel
 
-import galileo
 import galileo.experiments
+import galileo.utils.datasets
 from galileo import galileo_context
-from galileo.experiments import (
-    Experiments,
-    _get_dataset_and_records_by_id,
-    _get_dataset_and_records_by_name,
-    _load_dataset_and_records,
-    create_experiment,
-    get_experiment,
-    get_experiments,
-    run_experiment,
-)
+from galileo.decorator import SPAN_TYPE
+from galileo.experiments import Experiments, create_experiment, get_experiment, get_experiments, run_experiment
 from galileo.projects import Project
 from galileo.prompts import PromptTemplate
 from galileo.resources.models import (
     BasePromptTemplateResponse,
     DatasetContent,
-    DatasetRow,
     ExperimentResponse,
     ProjectCreateResponse,
     ProjectType,
     PromptRunSettings,
     ScorerConfig,
     ScorerResponse,
+    ScorerTypes,
     TaskType,
 )
+from galileo.schema.datasets import DatasetRecord
+from galileo.schema.metrics import LocalMetricConfig
+from galileo.utils.datasets import load_dataset_and_records
+from galileo_core.schemas.logging.span import Span, StepWithChildSpans
+from galileo_core.schemas.shared.metric import MetricValueType
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
@@ -76,53 +77,6 @@ def prompt_template():
     )
 
 
-def dataset_content():
-    row = DatasetRow(
-        index=0,
-        values=['{"input": "Which continent is Spain in?", "expected": "Europe"}'],
-        values_dict={"input": "Which continent is Spain in?", "expected": "Europe"},
-        row_id="",
-        metadata=None,
-    )
-    # row.additional_properties = {
-    #     "values_dict": {
-    #         "input": '{"input": "Which continent is Spain in?", "expected": "Europe"}',
-    #         "output": None,
-    #         "metadata": None,
-    #     }
-    # }
-
-    column_names = ["input", "output", "metadata"]
-    return DatasetContent(column_names=column_names, rows=[row])
-
-
-def dataset_content_with_question():
-    row = DatasetRow(
-        index=0,
-        values=['{"question": "Which continent is Spain in?", "expected": "Europe"}'],
-        values_dict={"question": "Which continent is Spain in?", "expected": "Europe"},
-        row_id="",
-        metadata=None,
-    )
-    # row.additional_properties = {
-    #     "values_dict": {
-    #         "input": '{"question": "Which continent is Spain in?", "expected": "Europe"}',
-    #         "output": None,
-    #         "metadata": None,
-    #     }
-    # }
-
-    column_names = ["input", "output", "metadata"]
-    return DatasetContent(column_names=column_names, rows=[row])
-
-
-def local_dataset():
-    return [
-        {"input": "Which continent is Spain in?", "expected": "Europe"},
-        {"input": "Which continent is Japan in?", "expected": "Asia"},
-    ]
-
-
 def scorers():
     return [
         ScorerResponse.from_dict(
@@ -157,6 +111,13 @@ def prompt_run_settings():
         presence_penalty=0.0,
         frequency_penalty=0.0,
     )
+
+
+def complex_trace_function(input):
+    logger = galileo_context.get_logger_instance()
+    output = input + " output"
+    logger.add_llm_span(input=input, output=output, model="example")
+    return output
 
 
 class TestExperiments:
@@ -224,58 +185,28 @@ class TestExperiments:
         assert experiment is None
         list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
 
-    @patch.object(galileo.datasets.Datasets, "get")
-    def test_get_dataset_and_records_by_id(self, mock_get_dataset):
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
-        dataset_id = str(UUID(int=0))
-
-        _, records = _get_dataset_and_records_by_id(dataset_id=dataset_id)
-
-        assert records == ["Which continent is Spain in?"]
-
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
-        mock_get_dataset_instance.get_content.assert_called()
-
-    @patch.object(galileo.datasets.Datasets, "get")
-    def test_get_dataset_and_records_by_id_error(self, mock_get_dataset):
-        mock_get_dataset.return_value = None
-        dataset_id = str(UUID(int=0))
-        with pytest.raises(ValueError) as exc_info:
-            _get_dataset_and_records_by_id(dataset_id=dataset_id)
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
-        assert str(exc_info.value) == "Dataset with id 00000000-0000-0000-0000-000000000000 does not exist"
-
-    @patch.object(galileo.datasets.Datasets, "get")
-    def test_get_dataset_and_records_by_name(self, mock_get_dataset):
-        mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
-
-        _, records = _get_dataset_and_records_by_name(dataset_name="awesome-dataset")
-        assert records == ["Which continent is Spain in?"]
-
-        mock_get_dataset.assert_called_once_with(id=None, name="awesome-dataset")
-        mock_get_dataset_instance.get_content.assert_called()
-
-    @patch.object(galileo.datasets.Datasets, "get")
-    def test_get_dataset_and_records_by_name_error(self, mock_get_dataset):
-        mock_get_dataset.return_value = None
-
-        with pytest.raises(ValueError) as exc_info:
-            _get_dataset_and_records_by_name(dataset_name="awesome-dataset")
-        mock_get_dataset.assert_called_once_with(id=None, name="awesome-dataset")
-        assert str(exc_info.value) == "Dataset with name awesome-dataset does not exist"
-
     @pytest.mark.parametrize(
         "dataset,dataset_name,dataset_id",
         [("awesome-dataset", None, None), (None, "awesome-dataset", None), (None, None, "dataset_id")],
     )
     @patch.object(galileo.datasets.Datasets, "get")
-    def test_load_dataset_and_records(self, mock_get_dataset, dataset, dataset_name, dataset_id):
+    def test_load_dataset_and_records(
+        self,
+        mock_get_dataset,
+        dataset,
+        dataset_name,
+        dataset_id,
+        dataset_content: DatasetContent,
+        test_dataset_row_id: str,
+    ):
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
-        _, records = _load_dataset_and_records(dataset=dataset, dataset_name=dataset_name, dataset_id=dataset_id)
-        assert records == ["Which continent is Spain in?"]
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+        _, records = load_dataset_and_records(dataset=dataset, dataset_name=dataset_name, dataset_id=dataset_id)
+        assert records == [
+            DatasetRecord(
+                id=test_dataset_row_id, input="Which continent is Spain in?", output="Europe", metadata={"meta": "data"}
+            )
+        ]
         if dataset_id:
             mock_get_dataset.assert_called_once_with(id=dataset_id, name=None)
         elif dataset_name:
@@ -283,10 +214,10 @@ class TestExperiments:
 
     def test_load_dataset_and_records_error(self):
         with pytest.raises(ValueError) as exc_info:
-            _load_dataset_and_records(dataset=None, dataset_name=None, dataset_id=None)
-        assert str(exc_info.value) == "One of dataset, dataset_name, or dataset_id must be provided"
+            load_dataset_and_records(dataset=None, dataset_name=None, dataset_id=None)
+        assert str(exc_info.value) == "To load dataset records, dataset, dataset_name, or dataset_id must be provided"
 
-    @freeze_time("2012-01-01")
+    @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -299,12 +230,13 @@ class TestExperiments:
         mock_create_experiment: Mock,
         mock_create_job: Mock,
         mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
     ):
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         dataset_id = str(UUID(int=0))
         result = run_experiment(
@@ -338,6 +270,66 @@ class TestExperiments:
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @pytest.mark.parametrize("thread_pool", [True, False])
+    @pytest.mark.parametrize(
+        ["function", "metrics", "num_spans", "span_type", "results", "aggregate_results"],
+        [
+            (lambda *args, **kwargs: "dummy_function", [], 1, "llm", [], []),
+            (
+                lambda *args, **kwargs: "dummy_function",
+                [
+                    LocalMetricConfig[int](
+                        name="length",
+                        scorer_fn=lambda step: len(step.input),
+                        scorable_types=["workflow"],
+                        aggregator_fn=lambda lengths: sum(lengths),
+                    ),
+                    LocalMetricConfig[str](
+                        name="output",
+                        scorer_fn=lambda step: step.output,
+                        scorable_types=["workflow"],
+                        aggregator_fn=lambda outputs: ",".join(outputs),
+                    ),
+                    LocalMetricConfig[float](
+                        name="decimal",
+                        scorer_fn=lambda step: 4.53,
+                        scorable_types=["workflow"],
+                        aggregator_fn=lambda values: mean(values),
+                    ),
+                    LocalMetricConfig[bool](
+                        name="bool",
+                        scorer_fn=lambda step: True,
+                        scorable_types=["workflow"],
+                        aggregator_fn=lambda values: reduce(operator.or_, values),
+                    ),
+                ],
+                1,
+                "workflow",
+                [40, "dummy_function", 4.53, True],
+                [40, "dummy_function", 4.53, True],
+            ),
+            (complex_trace_function, [], 2, "llm", [], []),
+            (
+                complex_trace_function,
+                [
+                    LocalMetricConfig[int](
+                        name="length",
+                        scorer_fn=lambda step: len(step.input[0].content),
+                        aggregator_fn=lambda lengths: sum(lengths),
+                    ),
+                    LocalMetricConfig[str](
+                        name="output",
+                        scorer_fn=lambda step: step.output.content,
+                        aggregator_fn=lambda outputs: ",".join(outputs),
+                    ),
+                ],
+                2,
+                "llm",
+                [28, "Which continent is Spain in? output"],
+                [28, "Which continent is Spain in? output"],
+            ),
+        ],
+    )
     def test_run_experiment_with_func(
         self,
         mock_get_project: Mock,
@@ -348,6 +340,14 @@ class TestExperiments:
         mock_projects_client: Mock,
         mock_logstreams_client: Mock,
         reset_context,
+        dataset_content: DatasetContent,
+        function: Callable,
+        metrics: list[Union[str, LocalMetricConfig]],
+        num_spans: int,
+        span_type: SPAN_TYPE,
+        results: list[MetricValueType],
+        aggregate_results: list[MetricValueType],
+        thread_pool: bool,
     ):
         mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
         setup_mock_projects_client(mock_projects_client)
@@ -355,15 +355,16 @@ class TestExperiments:
 
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         dataset_id = str(UUID(int=0, version=4))
 
-        def function(*args, **kwargs):
-            return "dummy_function"
-
         result = run_experiment(
-            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, function=function
+            experiment_name="test_experiment",
+            project="awesome-new-project",
+            dataset_id=dataset_id,
+            function=function,
+            metrics=metrics,
         )
         assert result is not None
         assert result["experiment"] is not None
@@ -377,10 +378,39 @@ class TestExperiments:
 
         # check galileo_logger
         payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
-        assert len(payload.traces) == 1
-        assert len(payload.traces[0].spans) == 1
 
-    @freeze_time("2012-01-01")
+        assert len(payload.traces) == 1
+        trace = payload.traces[0]
+        assert trace.dataset_input == "Which continent is Spain in?"
+        assert trace.dataset_output == "Europe"
+        assert trace.dataset_metadata == {"meta": "data"}
+
+        for metric, metric_result in zip(metrics, aggregate_results):
+            assert hasattr(trace.metrics, metric.name)
+            assert getattr(trace.metrics, metric.name) == metric_result
+
+        def check_span(span: Span) -> int:
+            span_count = 1
+            assert span.dataset_input == "Which continent is Spain in?"
+            assert span.dataset_output == "Europe"
+            assert span.dataset_metadata == {"meta": "data"}
+
+            for metric, metric_result in zip(metrics, results):
+                if span.type == span_type:
+                    assert hasattr(span.metrics, metric.name)
+                    assert getattr(span.metrics, metric.name) == metric_result
+                else:
+                    assert not hasattr(span.metrics, metric.name)
+
+            if isinstance(span, StepWithChildSpans):
+                for child_span in span.spans:
+                    span_count += check_span(child_span)
+
+            return span_count
+
+        assert num_spans == sum(check_span(span) for span in trace.spans)
+
+    @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.experiments.ScorerSettings, "create")
     @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
     @patch.object(galileo.datasets.Datasets, "get")
@@ -397,12 +427,13 @@ class TestExperiments:
         mock_get_dataset: Mock,
         mock_scorers_list: Mock,
         mock_scorersettings_create: Mock,
+        dataset_content: DatasetContent,
     ):
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         dataset_id = str(UUID(int=0))
         run_experiment(
@@ -427,7 +458,7 @@ class TestExperiments:
             scorers=[ScorerConfig.from_dict(scorers()[0].to_dict())],
         )
 
-    @freeze_time("2012-01-01")
+    @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -440,12 +471,13 @@ class TestExperiments:
         mock_create_experiment: Mock,
         mock_create_job: Mock,
         mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
     ):
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         dataset_id = str(UUID(int=0))
         run_experiment(
@@ -475,7 +507,7 @@ class TestExperiments:
             prompt_settings=prompt_run_settings(),
         )
 
-    @freeze_time("2012-01-01")
+    @travel(datetime(2012, 1, 1), tick=False)
     @patch("galileo.logger.LogStreams")
     @patch("galileo.logger.Projects")
     @patch("galileo.logger.GalileoCoreApiClient")
@@ -495,6 +527,7 @@ class TestExperiments:
         mock_projects_client: Mock,
         mock_logstreams_client: Mock,
         reset_context,
+        dataset_content_with_question: DatasetContent,
     ):
         mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
         setup_mock_projects_client(mock_projects_client)
@@ -504,7 +537,7 @@ class TestExperiments:
 
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_with_question())
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_with_question)
 
         def runner(input):
             # emulate using input
@@ -532,10 +565,12 @@ class TestExperiments:
         assert payload.traces[0].output == "Say hello: Which continent is Spain in?"
 
     @patch.object(galileo.datasets.Datasets, "get")
-    def test_run_experiment_with_prompt_template_and_function(self, mock_get_dataset: Mock):
+    def test_run_experiment_with_prompt_template_and_function(
+        self, mock_get_dataset: Mock, dataset_content: DatasetContent
+    ):
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
-        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content())
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
@@ -550,12 +585,12 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000001", name=None)
         mock_get_dataset_instance.get_content.assert_called()
 
-    def test_run_experiment_with_prompt_template_and_local_dataset(self):
+    def test_run_experiment_with_prompt_template_and_local_dataset(self, local_dataset: list[dict[str, str]]):
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
                 "test_experiment",
                 project="awesome-new-project",
-                dataset=local_dataset(),
+                dataset=local_dataset,
                 prompt_template=prompt_template(),
             )
         assert (
@@ -563,61 +598,57 @@ class TestExperiments:
             == "A dataset record, id, or name of a dataset must be provided when a prompt_template is used"
         )
 
-    @patch("galileo.experiments.Scorers.list")
-    def test_create_run_scorer_settings_non_existent_metric(self, scorer_list: Mock):
-        scorer_list.return_value = [
-            ScorerResponse.from_dict(
-                {
-                    "created_at": "2025-03-28T18:54:02.848267+00:00",
-                    "created_by": "d351012a-dd92-4d0c-a356-57161b1377cd",
-                    "defaults": {"filters": None, "model_name": "GPT-4o", "num_judges": 5},
-                    "description": "Detects whether the user successfully accomplished or advanced towards their goal.",
-                    "id": "f7933a6d-7a65-4ce3-bfe4-b863109a04ee",
-                    "included_fields": ["model_name", "num_judges", "filters"],
-                    "label": "Action Advancement",
-                    "latest_version": None,
-                    "name": "agentic_workflow_success",
-                    "scorer_type": "preset",
-                    "tags": ["preset", "agents"],
-                    "updated_at": "2025-03-28T18:54:02.848269+00:00",
-                }
-            )
-        ]
-        with pytest.raises(ValueError) as exc_info:
-            Experiments.create_run_scorer_settings(
-                project_id="00000000", experiment_id="asd", metrics=["Non-ExistentMetric"]
-            )
-        assert str(exc_info.value) == "One or more non-existent metrics are specified:'Non-ExistentMetric'"
-        scorer_list.assert_called_once()
+    @patch("galileo.logger.Projects")
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_local_scorers_and_prompt_template(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_dataset: Mock,
+        mock_projects_client: Mock,
+        dataset_content_with_question: DatasetContent,
+    ):
+        setup_mock_projects_client(mock_projects_client)
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_with_question)
 
-    @patch("galileo.experiments.Scorers.list")
-    def test_create_run_scorer_settings_one_valid_two_non_existent_metric(self, scorer_list: Mock):
-        scorer_list.return_value = [
-            ScorerResponse.from_dict(
-                {
-                    "created_at": "2025-03-28T18:54:02.848267+00:00",
-                    "created_by": "d351012a-dd92-4d0c-a356-57161b1377cd",
-                    "defaults": {"filters": None, "model_name": "GPT-4o", "num_judges": 5},
-                    "description": "Detects whether the user successfully accomplished or advanced towards their goal.",
-                    "id": "f7933a6d-7a65-4ce3-bfe4-b863109a04ee",
-                    "included_fields": ["model_name", "num_judges", "filters"],
-                    "label": "Action Advancement",
-                    "latest_version": None,
-                    "name": "agentic_workflow_success",
-                    "scorer_type": "preset",
-                    "tags": ["preset", "agents"],
-                    "updated_at": "2025-03-28T18:54:02.848269+00:00",
-                }
-            )
-        ]
+        local_scorer = LocalMetricConfig(
+            name="local_scorer", scorer_fn=lambda x: x
+        )  # Create a LocalMetricConfig instance
         with pytest.raises(ValueError) as exc_info:
-            Experiments.create_run_scorer_settings(
-                project_id="00000000",
-                experiment_id="asd",
-                metrics=["unknown_metric1", "agentic_workflow_success", "Non-ExistentMetric"],
+            run_experiment(
+                "test_experiment",
+                project="awesome-new-project",
+                dataset_id=str(UUID(int=1)),
+                prompt_template=prompt_template(),
+                metrics=[local_scorer],
             )
         assert (
             str(exc_info.value)
-            == "One or more non-existent metrics are specified:'unknown_metric1', 'Non-ExistentMetric'"
+            == "Local metrics can only be used with a locally run experiment, not a prompt experiment."
         )
-        scorer_list.assert_called_once()
+
+    @patch("galileo.experiments.Scorers")
+    @patch("galileo.experiments.ScorerSettings")
+    def test_create_scorer_configs(self, mock_scorer_settings, mock_scorers):
+        # Setup mock return values
+        mock_scorers_instance = mock_scorers.return_value
+        mock_scorers_instance.list.return_value = [
+            ScorerConfig(id="1", name="metric1", scorer_type=ScorerTypes.PRESET),
+            ScorerConfig(id="2", name="metric2", scorer_type=ScorerTypes.PRESET),
+        ]
+
+        # Test valid metrics
+        scorers, local_scorers = Experiments.create_metric_configs(
+            "project_id", "experiment_id", ["metric1", LocalMetricConfig(name="length", scorer_fn=lambda x: len(x))]
+        )
+        assert len(scorers) == 1  # Should return one valid scorer
+        assert len(local_scorers) == 1  # Should return one local scorer
+
+        # Test unknown metrics
+        with pytest.raises(ValueError):
+            Experiments.create_metric_configs("project_id", "experiment_id", ["unknown_metric"])

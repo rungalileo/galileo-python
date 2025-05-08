@@ -1,14 +1,16 @@
 import datetime
 import logging
 from collections import deque
+from typing import Union
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import UUID
 
 import pytest
 
 from galileo.logger import GalileoLogger
+from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import TracesIngestRequest
-from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
+from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
@@ -288,7 +290,15 @@ async def test_single_span_trace_to_galileo_with_async(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    def local_scorer(step: Union[Trace, Span]) -> int:
+        return len(step.input)
+
+    logger = GalileoLogger(
+        project="my_project",
+        log_stream="my_log_stream",
+        local_metrics=[LocalMetricConfig(name="length", scorer_fn=local_scorer)],
+    )
     logger.start_trace(
         input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
     )
@@ -304,8 +314,11 @@ async def test_single_span_trace_to_galileo_with_async(
         temperature=1.0,
         status_code=200,
     )
+    setattr(span.metrics, "length", 1)
     logger.conclude("output", status_code=200)
     await logger.async_flush()
+
+    setattr(span.metrics, "length", 6)
 
     payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
