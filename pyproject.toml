@@ -11,13 +11,14 @@ dynamic = ["dependencies"]
 python = "^3.9,<3.14"
 pydantic = "^2.5.2"
 pyjwt = "^2.8.0"
-galileo-core = "~=3.29.0"
 wrapt = "^1.14"
 attrs = ">=22.2.0"
 python-dateutil = "^2.8.0"
 langchain-core = { version = "^0.3.14", optional = true }
-openai = { version = "^1.66.5", optional = true }
-openai-agents = { version = "^0.0.12", optional = true }
+openai = { version = "<1.67.0", optional = true }
+openai-agents = { version = "<0.0.13", optional = true }
+
+galileo-core = "~=3.32.0"
 
 [project.optional-dependencies]
 langchain = ["langchain-core"]
@@ -33,12 +34,12 @@ pytest-xdist = "^3.3.1"
 pytest-socket = "^0.7"
 pytest-asyncio = "^0.25.3"
 requests-mock = "^1.11.0"
-galileo-core = { extras = ["testing"], version = "~=3.29.0" }
+galileo-core = { extras = ["testing"], version = "~=3.32.0" }
 pytest-env = "^1.1.5"
 langchain-core = "^0.3.14"
 pytest-sugar = "^1.0.0"
 vcrpy = "^7.0.0"
-freezegun = "^1.5.1"
+time-machine = "^2.16.0"  # freezegun causes problems with pydantic model validations
 
 
 [tool.poetry.group.dev.dependencies]

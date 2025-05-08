@@ -1,4 +1,3 @@
-import json
 import mimetypes
 from typing import Any, Optional, Union, overload
 
@@ -15,7 +14,7 @@ from galileo.resources.api.datasets import (
     query_datasets_datasets_query_post,
     update_dataset_content_datasets_dataset_id_content_patch,
 )
-from galileo.resources.models import ListDatasetVersionParams, ListDatasetVersionResponse
+from galileo.resources.models import DatasetRow, ListDatasetVersionParams, ListDatasetVersionResponse
 from galileo.resources.models.body_create_dataset_datasets_post import BodyCreateDatasetDatasetsPost
 from galileo.resources.models.dataset_append_row import DatasetAppendRow
 from galileo.resources.models.dataset_append_row_values import DatasetAppendRowValues
@@ -29,6 +28,7 @@ from galileo.resources.models.list_dataset_params import ListDatasetParams
 from galileo.resources.models.list_dataset_response import ListDatasetResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
 from galileo.resources.types import File, Unset
+from galileo.schema.datasets import DatasetRecord
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.exceptions import APIException
 from galileo_core.utils.dataset import DatasetType, parse_dataset
@@ -486,24 +486,15 @@ def get_dataset_version(
         raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
-def convert_dataset_content_to_records(dataset_content: Optional[DatasetContent]) -> list[Any]:
-    if dataset_content is None:
-        return []
+def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
+    values_dict = dataset_row.values_dict
 
-    rows = dataset_content.rows
-    if not rows:
-        return []
+    if "input" not in values_dict or not values_dict["input"]:
+        raise ValueError("Dataset row must have input field")
 
-    result = []
-    for row in rows:
-        row_values = row.values_dict
-        if "input" in row_values:
-            if isinstance(row_values["input"], str):
-                try:
-                    result.append(json.loads(row_values["input"]))
-                except json.decoder.JSONDecodeError:
-                    result.append(row_values["input"])
-        else:
-            result.append(row_values)
-
-    return result
+    return DatasetRecord(
+        id=dataset_row.row_id,
+        input=values_dict["input"],
+        output=values_dict["output"] if "output" in values_dict else None,
+        metadata=values_dict["metadata"] if "metadata" in values_dict else None,
+    )

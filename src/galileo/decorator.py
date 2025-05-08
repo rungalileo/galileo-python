@@ -58,6 +58,8 @@ from typing_extensions import ParamSpec
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.logger import GalileoLogger
+from galileo.schema.datasets import DatasetRecord
+from galileo.schema.metrics import LocalMetricConfig
 from galileo.utils import _get_timestamp
 from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
@@ -214,6 +216,7 @@ class GalileoDecorator:
         name: Optional[str] = None,
         span_type: Optional[SPAN_TYPE] = None,
         params: Optional[dict[str, Union[str, Callable]]] = None,
+        dataset_record: Optional[DatasetRecord] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]:
         """
         Main decorator function for logging function calls.
@@ -227,6 +230,7 @@ class GalileoDecorator:
             name: Optional custom name for the span (defaults to function name)
             span_type: Optional span type ("llm", "retriever", "tool", "workflow")
             params: Optional parameter mapping for extracting specific values
+            dataset_record: Optional parameter for dataset values.  This is used by the local experiment module to set the dataset fields on the trace/spans and not generally provided for logging to log streams.
 
         Returns:
             A decorated function that logs its execution
@@ -234,9 +238,9 @@ class GalileoDecorator:
 
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
             return (
-                self._async_log(func, name=name, span_type=span_type, params=params)
+                self._async_log(func, name=name, span_type=span_type, params=params, dataset_record=dataset_record)
                 if asyncio.iscoroutinefunction(func)
-                else self._sync_log(func, name=name, span_type=span_type, params=params)
+                else self._sync_log(func, name=name, span_type=span_type, params=params, dataset_record=dataset_record)
             )
 
         # If the decorator is called without arguments, return the decorator function itself.
@@ -253,6 +257,7 @@ class GalileoDecorator:
         name: Optional[str],
         span_type: Optional[SPAN_TYPE],
         params: Optional[dict[str, Union[str, Callable]]] = None,
+        dataset_record: Optional[DatasetRecord] = None,
     ) -> F:
         """
         Internal method to handle logging for async functions.
@@ -278,7 +283,7 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params)
+            self._prepare_call(span_type, span_params, dataset_record)
             result = None
 
             try:
@@ -300,6 +305,7 @@ class GalileoDecorator:
         name: Optional[str],
         span_type: Optional[SPAN_TYPE],
         params: Optional[dict[str, Union[str, Callable]]] = None,
+        dataset_record: Optional[DatasetRecord] = None,
     ) -> F:
         """
         Internal method to handle logging for synchronous functions.
@@ -325,7 +331,7 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params)
+            self._prepare_call(span_type, span_params, dataset_record)
             result = None
 
             try:
@@ -362,7 +368,7 @@ class GalileoDecorator:
         is_method: bool = False,
         func_args: tuple = (),
         func_kwargs: dict = {},
-    ) -> Optional[dict[str, str]]:
+    ) -> Optional[dict[str, Any]]:
         """
         Prepare the input parameters for logging.
 
@@ -483,7 +489,9 @@ class GalileoDecorator:
         }
         return span_params.get(span_type, common_params)
 
-    def _prepare_call(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str]) -> None:
+    def _prepare_call(
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], dataset_record: Optional[DatasetRecord]
+    ) -> None:
         """
         Prepare the call for logging by setting up trace and span contexts.
 
@@ -499,7 +507,14 @@ class GalileoDecorator:
 
         # If no trace is available, start a new one
         if not _trace_context.get():
-            trace = client_instance.start_trace(input=input_, name=name)
+            trace = client_instance.start_trace(
+                input=input_,
+                name=name,
+                # TODO: add dataset_row_id
+                dataset_input=dataset_record.input if dataset_record else None,
+                dataset_output=dataset_record.output if dataset_record else None,
+                dataset_metadata=dataset_record.metadata if dataset_record else None,
+            )
             _trace_context.set(trace)
 
         # If the user hasn't specified a span type, create and add a workflow span
@@ -830,7 +845,11 @@ class GalileoDecorator:
         _trace_context.set(None)
 
     def init(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        local_metrics: Optional[list[LocalMetricConfig]] = None,
     ) -> None:
         """
         Initialize the context with a project and log stream. Optionally, it can also be used
@@ -843,8 +862,13 @@ class GalileoDecorator:
             project: The project name. Defaults to None.
             log_stream: The log stream name. Defaults to None.
             experiment_id: The experiment id. Defaults to None.
+            local_metrics: Local metrics configs to run on the traces/spans before submitting them for ingestion.  Defaults to None.
         """
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
+        GalileoLoggerSingleton().get(
+            project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics
+        )
+
         _project_context.set(project)
         _log_stream_context.set(log_stream)
         _experiment_id_context.set(experiment_id)
