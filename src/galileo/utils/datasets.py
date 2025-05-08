@@ -21,19 +21,18 @@ def load_dataset_and_records(
     Raises:
         ValueError: If no dataset information is provided or dataset doesn't exist
     """
-    match dataset_id, dataset_name, dataset:
-        case str(), _, _:
-            return get_dataset_and_records(id=dataset_id)
-        case _, str(), _:
-            return get_dataset_and_records(name=dataset_name)
-        case _, _, str():
-            return get_dataset_and_records(name=dataset)
-        case _, _, Dataset():
-            return dataset, get_records_for_dataset(dataset)
-        case _, _, list():
-            return None, create_rows_from_records(dataset)
-        case _:
-            raise ValueError("To load dataset records, dataset, dataset_name, or dataset_id must be provided")
+    if dataset_id:
+        return get_dataset_and_records(id=dataset_id)
+    elif dataset_name:
+        return get_dataset_and_records(name=dataset_name)
+    elif dataset and isinstance(dataset, str):
+        return get_dataset_and_records(name=dataset)
+    elif dataset and isinstance(dataset, Dataset):
+        return dataset, get_records_for_dataset(dataset)
+    elif dataset and isinstance(dataset, list):
+        return None, create_rows_from_records(dataset)
+    else:
+        raise ValueError("To load dataset records, dataset, dataset_name, or dataset_id must be provided")
 
 
 def get_dataset_and_records(
