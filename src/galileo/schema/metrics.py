@@ -21,7 +21,7 @@ class LocalMetricConfig(BaseModel, Generic[MetricType]):
         description="function to call to produce the aggregate metric values from individual metric values",
     )
     scorable_types: list[StepType] = Field(default=[StepType.llm])
-    aggregatable_types: list[StepType] = Field(default=[StepType.trace, StepType.workflow])
+    aggregatable_types: list[StepType] = Field(default=[StepType.trace])
 
     @field_validator("aggregatable_types", mode="before")
     def set_aggregatable_types(cls, value: list[StepType], info: ValidationInfo) -> list[StepType]:
@@ -29,4 +29,7 @@ class LocalMetricConfig(BaseModel, Generic[MetricType]):
             scorable_type in value for scorable_type in info.data["scorable_types"]
         ):
             raise ValidationError("aggregatable_types cannot contain any types in scorable_types")
+        for step_type in value:
+            if step_type not in [StepType.workflow, StepType.trace]:
+                raise ValidationError("aggregatable_types can only contain trace or workflow steps")
         return value

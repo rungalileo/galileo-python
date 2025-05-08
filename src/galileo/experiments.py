@@ -9,7 +9,6 @@ from attrs import field as _attrs_field
 from galileo import galileo_context, log
 from galileo.base import BaseClientModel
 from galileo.datasets import Dataset, convert_dataset_row_to_record, get_dataset
-from galileo.decorator import SPAN_TYPE
 from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
@@ -166,14 +165,13 @@ class Experiments(BaseClientModel):
         experiment_obj: ExperimentResponse,
         records: builtins.list[DatasetRecord],
         func: Callable,
-        local_metrics: builtins.list[LocalMetricConfig] = [],
-        span_type: SPAN_TYPE = "llm",
+        local_metrics: builtins.list[LocalMetricConfig],
     ) -> dict[str, Any]:
         results = []
         galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id, local_metrics=local_metrics)  # type: ignore[arg-type]
 
         def logged_process_func(row: DatasetRecord) -> Callable:
-            return log(name=experiment_obj.name, span_type=span_type, dataset_record=row)(func)
+            return log(name=experiment_obj.name, dataset_record=row)(func)
 
         #  process each row in the dataset
         for row in records:
@@ -288,7 +286,13 @@ def run_experiment(
 
     # Execute a runner function experiment
     if function is not None:
-        return Experiments().run_with_function(project_obj, experiment_obj, records, function, local_metrics)
+        return Experiments().run_with_function(
+            project_obj=project_obj,
+            experiment_obj=experiment_obj,
+            records=records,
+            func=function,
+            local_metrics=local_metrics,
+        )
 
     if prompt_template is None:
         raise ValueError("A prompt template must be provided")

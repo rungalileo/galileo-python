@@ -510,10 +510,10 @@ class GalileoDecorator:
             trace = client_instance.start_trace(
                 input=input_,
                 name=name,
+                # TODO: add dataset_row_id
                 dataset_input=dataset_record.input if dataset_record else None,
                 dataset_output=dataset_record.output if dataset_record else None,
                 dataset_metadata=dataset_record.metadata if dataset_record else None,
-                external_id=dataset_record.id if dataset_record else None,
             )
             _trace_context.set(trace)
 

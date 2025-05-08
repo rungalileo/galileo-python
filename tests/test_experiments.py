@@ -2,7 +2,7 @@ import operator
 from datetime import datetime
 from functools import reduce
 from statistics import mean
-from typing import Union
+from typing import Callable, Union
 from unittest.mock import ANY, MagicMock, Mock, patch
 from uuid import UUID, uuid4
 
@@ -12,6 +12,7 @@ from time_machine import travel
 import galileo
 import galileo.experiments
 from galileo import galileo_context
+from galileo.decorator import SPAN_TYPE
 from galileo.experiments import (
     Experiments,
     _load_dataset_and_records,
@@ -38,6 +39,7 @@ from galileo.resources.models import (
 )
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import LocalMetricConfig
+from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.shared.metric import MetricValueType
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
@@ -91,7 +93,7 @@ def dataset_content():
         index=0,
         values=["Which continent is Spain in?", "Europe", '{"meta": "data"}'],
         values_dict=DatasetRowValuesDict.from_dict(
-            {"input": "Which continent is Spain in?", "output": "Europe", "metadata": {"meta": "data"}}
+            {"input": "Which continent is Spain in?", "output": "Europe", "metadata": '{"meta": "data"}'}
         ),
         row_id=TEST_DATASET_ROW_ID,
         metadata=None,
@@ -339,6 +341,13 @@ class TestExperiments:
             prompt_settings=ANY,
         )
 
+    @staticmethod
+    def complex_trace_function(input):
+        logger = galileo_context.get_logger_instance()
+        output = input + " output"
+        logger.add_llm_span(input=input, output=output, model="example")
+        return output
+
     @patch("galileo.logger.LogStreams")
     @patch("galileo.logger.Projects")
     @patch("galileo.logger.GalileoCoreApiClient")
@@ -347,10 +356,45 @@ class TestExperiments:
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
     @pytest.mark.parametrize(
-        ["metrics", "results", "aggregate_results"],
+        ["function", "metrics", "num_spans", "span_type", "results", "aggregate_results"],
         [
-            ([], [], []),
+            (lambda *args, **kwargs: "dummy_function", [], 1, "llm", [], []),
             (
+                lambda *args, **kwargs: "dummy_function",
+                [
+                    LocalMetricConfig[int](
+                        name="length",
+                        scorer_fn=lambda step: len(step.input),
+                        scorable_types=["workflow"],
+                        aggregator_fn=lambda lengths: sum(lengths),
+                    ),
+                    LocalMetricConfig[str](
+                        name="output",
+                        scorer_fn=lambda step: step.output,
+                        scorable_types=["workflow"],
+                        aggregator_fn=lambda outputs: ",".join(outputs),
+                    ),
+                    LocalMetricConfig[float](
+                        name="decimal",
+                        scorer_fn=lambda step: 4.53,
+                        scorable_types=["workflow"],
+                        aggregator_fn=lambda values: mean(values),
+                    ),
+                    LocalMetricConfig[bool](
+                        name="bool",
+                        scorer_fn=lambda step: True,
+                        scorable_types=["workflow"],
+                        aggregator_fn=lambda values: reduce(operator.or_, values),
+                    ),
+                ],
+                1,
+                "workflow",
+                [40, "dummy_function", 4.53, True],
+                [40, "dummy_function", 4.53, True],
+            ),
+            (complex_trace_function, [], 2, "llm", [], []),
+            (
+                complex_trace_function,
                 [
                     LocalMetricConfig[int](
                         name="length",
@@ -362,17 +406,11 @@ class TestExperiments:
                         scorer_fn=lambda step: step.output.content,
                         aggregator_fn=lambda outputs: ",".join(outputs),
                     ),
-                    LocalMetricConfig[float](
-                        name="decimal", scorer_fn=lambda step: 4.53, aggregator_fn=lambda values: mean(values)
-                    ),
-                    LocalMetricConfig[bool](
-                        name="bool",
-                        scorer_fn=lambda step: True,
-                        aggregator_fn=lambda values: reduce(operator.or_, values),
-                    ),
                 ],
-                [40, "dummy_function", 4.53, True],
-                [40, "dummy_function", 4.53, True],
+                2,
+                "llm",
+                [28, "Which continent is Spain in? output"],
+                [28, "Which continent is Spain in? output"],
             ),
         ],
     )
@@ -386,7 +424,10 @@ class TestExperiments:
         mock_projects_client: Mock,
         mock_logstreams_client: Mock,
         reset_context,
+        function: Callable,
         metrics: list[Union[str, LocalMetricConfig]],
+        num_spans: int,
+        span_type: SPAN_TYPE,
         results: list[MetricValueType],
         aggregate_results: list[MetricValueType],
     ):
@@ -400,11 +441,12 @@ class TestExperiments:
 
         dataset_id = str(UUID(int=0, version=4))
 
-        def function(*args, **kwargs):
-            return "dummy_function"
-
         result = run_experiment(
-            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, function=function, metrics=metrics
+            experiment_name="test_experiment",
+            project="awesome-new-project",
+            dataset_id=dataset_id,
+            function=function,
+            metrics=metrics,
         )
         assert result is not None
         assert result["experiment"] is not None
@@ -429,15 +471,26 @@ class TestExperiments:
             assert hasattr(trace.metrics, metric.name)
             assert getattr(trace.metrics, metric.name) == metric_result
 
-        assert len(trace.spans) == 1
-        span = trace.spans[0]
-        assert span.dataset_input == "Which continent is Spain in?"
-        assert span.dataset_output == "Europe"
-        assert span.dataset_metadata == {"meta": "data"}
+        def check_span(span: Span) -> int:
+            span_count = 1
+            assert span.dataset_input == "Which continent is Spain in?"
+            assert span.dataset_output == "Europe"
+            assert span.dataset_metadata == {"meta": "data"}
 
-        for metric, metric_result in zip(metrics, results):
-            assert hasattr(span.metrics, metric.name)
-            assert getattr(span.metrics, metric.name) == metric_result
+            for metric, metric_result in zip(metrics, results):
+                if span.type == span_type:
+                    assert hasattr(span.metrics, metric.name)
+                    assert getattr(span.metrics, metric.name) == metric_result
+                else:
+                    assert not hasattr(span.metrics, metric.name)
+
+            if isinstance(span, StepWithChildSpans):
+                for child_span in span.spans:
+                    span_count += check_span(child_span)
+
+            return span_count
+
+        assert num_spans == sum(check_span(span) for span in trace.spans)
 
     @travel(datetime(2012, 1, 1))
     @patch.object(galileo.experiments.ScorerSettings, "create")
@@ -585,7 +638,9 @@ class TestExperiments:
         # check galileo_logger
         payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
         assert len(payload.traces) == 1
-        assert payload.traces[0].input == '{"question": "Which continent is Spain in?", "expected": "Europe"}'
+        assert (
+            payload.traces[0].input == '{"input": {"question": "Which continent is Spain in?", "expected": "Europe"}}'
+        )
         assert payload.traces[0].output == "Say hello: Which continent is Spain in?"
 
     @patch.object(galileo.datasets.Datasets, "get")
