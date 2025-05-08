@@ -113,6 +113,13 @@ def prompt_run_settings():
     )
 
 
+def complex_trace_function(input):
+    logger = galileo_context.get_logger_instance()
+    output = input + " output"
+    logger.add_llm_span(input=input, output=output, model="example")
+    return output
+
+
 class TestExperiments:
     @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
     def test_create(self, galileo_resources_api_create_experiment: Mock):
@@ -255,13 +262,6 @@ class TestExperiments:
             scorers=None,
             prompt_settings=ANY,
         )
-
-    @staticmethod
-    def complex_trace_function(input):
-        logger = galileo_context.get_logger_instance()
-        output = input + " output"
-        logger.add_llm_span(input=input, output=output, model="example")
-        return output
 
     @patch("galileo.logger.LogStreams")
     @patch("galileo.logger.Projects")
