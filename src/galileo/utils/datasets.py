@@ -33,7 +33,7 @@ def load_dataset_and_records(
         case _, _, list():
             return None, create_rows_from_records(dataset)
         case _:
-            raise ValueError("One of dataset, dataset_name, or dataset_id must be provided")
+            raise ValueError("To load dataset records, dataset, dataset_name, or dataset_id must be provided")
 
 
 def get_dataset_and_records(
@@ -48,7 +48,7 @@ def get_dataset_and_records(
         if not dataset:
             raise ValueError("Could not find dataset with name " + name)
     else:
-        raise ValueError("One of id or name must be provided")
+        raise ValueError("Either the dataset id or name must be provided")
 
     return dataset, get_records_for_dataset(dataset)
 

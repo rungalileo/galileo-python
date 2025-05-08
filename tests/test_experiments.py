@@ -208,7 +208,7 @@ class TestExperiments:
     def test_load_dataset_and_records_error(self):
         with pytest.raises(ValueError) as exc_info:
             load_dataset_and_records(dataset=None, dataset_name=None, dataset_id=None)
-        assert str(exc_info.value) == "One of dataset, dataset_name, or dataset_id must be provided"
+        assert str(exc_info.value) == "To load dataset records, dataset, dataset_name, or dataset_id must be provided"
 
     @travel(datetime(2012, 1, 1))
     @patch.object(galileo.datasets.Datasets, "get")

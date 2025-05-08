@@ -230,7 +230,7 @@ class GalileoDecorator:
             name: Optional custom name for the span (defaults to function name)
             span_type: Optional span type ("llm", "retriever", "tool", "workflow")
             params: Optional parameter mapping for extracting specific values
-            dataset_record: Optional parameter for dataset values
+            dataset_record: Optional parameter for dataset values.  This is used by the local experiment module to set the dataset fields on the trace/spans and not generally provided for logging to log streams.
 
         Returns:
             A decorated function that logs its execution
@@ -480,7 +480,7 @@ class GalileoDecorator:
         Returns:
             List of parameter names that can be used with the specified span type
         """
-        common_params = ["name", "input", "user_metadata", "tags"]
+        common_params = ["name", "input", "metadata", "tags"]
         span_params = {
             "llm": common_params + ["model", "temperature", "tools"],
             "retriever": common_params,
@@ -862,6 +862,7 @@ class GalileoDecorator:
             project: The project name. Defaults to None.
             log_stream: The log stream name. Defaults to None.
             experiment_id: The experiment id. Defaults to None.
+            local_metrics: Local metrics configs to run on the traces/spans before submitting them for ingestion.  Defaults to None.
         """
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
         GalileoLoggerSingleton().get(

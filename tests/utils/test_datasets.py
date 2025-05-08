@@ -72,7 +72,7 @@ def test_get_dataset_and_records_not_found_name(mock_get_dataset):
 def test_get_dataset_and_records_no_params():
     """Test _get_dataset_and_records function when no parameters are provided."""
     # Execute and Assert
-    with pytest.raises(ValueError, match="One of id or name must be provided"):
+    with pytest.raises(ValueError, match="Either the dataset id or name must be provided"):
         get_dataset_and_records()
 
 
@@ -258,5 +258,7 @@ def test_load_dataset_and_records_with_records_list(mockcreate_rows):
 def test_load_dataset_and_records_no_params():
     """Test load_dataset_and_records function when no parameters are provided."""
     # Execute and Assert
-    with pytest.raises(ValueError, match="One of dataset, dataset_name, or dataset_id must be provided"):
+    with pytest.raises(
+        ValueError, match="To load dataset records, dataset, dataset_name, or dataset_id must be provided"
+    ):
         load_dataset_and_records(None, None, None)
