@@ -361,7 +361,6 @@ class GalileoDecorator:
         Returns:
             bool: True if 'cls' or 'self' is in the callable's parameters, False otherwise
         """
-        # Only call inspect.signature(func) ONCE for improved performance
         params = inspect.signature(func).parameters
         return "self" in params or "cls" in params
 
