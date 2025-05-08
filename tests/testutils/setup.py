@@ -91,4 +91,15 @@ def setup_mock_core_api_client(mock_core_api_client: Mock):
     mock_instance.get_log_stream_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
     mock_instance.ingest_traces_sync = AsyncMock(return_value={})
     mock_instance.ingest_traces = AsyncMock(return_value={})
+    mock_instance.create_session_sync = Mock(
+        return_value={
+            "id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"),
+            "name": "test",
+            "previous_session_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e"),
+            "external_id": "test",
+            "project_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a"),
+            "project_name": "test project",
+            "log_stream_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"),
+        }
+    )
     return mock_instance
