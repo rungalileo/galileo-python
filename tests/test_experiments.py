@@ -210,7 +210,7 @@ class TestExperiments:
             load_dataset_and_records(dataset=None, dataset_name=None, dataset_id=None)
         assert str(exc_info.value) == "To load dataset records, dataset, dataset_name, or dataset_id must be provided"
 
-    @travel(datetime(2012, 1, 1))
+    @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -408,7 +408,7 @@ class TestExperiments:
 
         assert num_spans == sum(check_span(span) for span in trace.spans)
 
-    @travel(datetime(2012, 1, 1))
+    @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.experiments.ScorerSettings, "create")
     @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
     @patch.object(galileo.datasets.Datasets, "get")
@@ -456,7 +456,7 @@ class TestExperiments:
             scorers=[ScorerConfig.from_dict(scorers()[0].to_dict())],
         )
 
-    @travel(datetime(2012, 1, 1))
+    @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -505,7 +505,7 @@ class TestExperiments:
             prompt_settings=prompt_run_settings(),
         )
 
-    @travel(datetime(2012, 1, 1))
+    @travel(datetime(2012, 1, 1), tick=False)
     @patch("galileo.logger.LogStreams")
     @patch("galileo.logger.Projects")
     @patch("galileo.logger.GalileoCoreApiClient")
