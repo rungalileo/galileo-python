@@ -546,9 +546,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         # TODO: Allow the final span output to propagate to the parent spans
         current_parent = None
-        if conclude_all:
-            while self.current_parent() is not None:
-                current_parent = super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
+        while self.current_parent() is not None:
+            current_parent = super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
 
         return current_parent
 
