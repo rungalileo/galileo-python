@@ -694,7 +694,7 @@ class TestExperiments:
 
         local_scorer = LocalMetricConfig(
             name="local_scorer", scorer_fn=lambda x: x
-        )  # Create a LocalScorerConfig instance
+        )  # Create a LocalMetricConfig instance
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
                 "test_experiment",

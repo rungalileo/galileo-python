@@ -2,7 +2,7 @@ import json
 from functools import cached_property
 from typing import Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError, field_validator
 
 
 class DatasetRecord(BaseModel):
@@ -10,6 +10,39 @@ class DatasetRecord(BaseModel):
     input: str
     output: Optional[str] = None
     metadata: Optional[dict[str, str]] = None
+
+    @field_validator("input", mode="before")
+    @classmethod
+    def validate_input(cls, value: Any) -> str:
+        if not isinstance(value, str):
+            value = json.dumps(value)
+        return value
+
+    @field_validator("output", mode="before")
+    @classmethod
+    def validate_output(cls, value: Any) -> Optional[str]:
+        if value is None:
+            return None
+        if not isinstance(value, str):
+            value = json.dumps(value)
+        return value
+
+    @field_validator("metadata", mode="before")
+    @classmethod
+    def validate_metadata(cls, value: Any) -> Optional[dict[str, str]]:
+        if value is None:
+            return None
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except json.decoder.JSONDecodeError:
+                value = {"metadata": value}
+        if not isinstance(value, dict):
+            raise ValidationError("Metadata must be a dictionary")
+        for key, v in value.items():
+            if not isinstance(v, str):
+                raise ValidationError("Metadata values must be strings")
+        return value
 
     @cached_property
     def deserialized_input(self) -> Any:

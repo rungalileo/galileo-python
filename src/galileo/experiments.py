@@ -366,7 +366,10 @@ def _get_records_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
 
 
 def _create_rows_from_records(records: list[dict[str, str]]) -> list[DatasetRecord]:
-    return [DatasetRecord(**record) for record in records]
+    if "input" in records:
+        return [DatasetRecord(**record) for record in records]
+    else:
+        return [DatasetRecord(input=record) for record in records]
 
 
 def create_experiment(

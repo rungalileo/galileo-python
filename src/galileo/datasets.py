@@ -1,4 +1,3 @@
-import json
 import mimetypes
 from typing import Any, Optional, Union, overload
 
@@ -489,31 +488,13 @@ def get_dataset_version(
 
 def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
     values_dict = dataset_row.values_dict
+
     if "input" not in values_dict or not values_dict["input"]:
         raise ValueError("Dataset row must have input field")
-    input = values_dict["input"]
-    if not isinstance(input, str):
-        input = json.dumps(input)
 
-    output = None
-    if "output" in values_dict and values_dict["output"]:
-        output = values_dict["output"]
-        if not isinstance(output, str):
-            output = json.dumps(output)
-
-    metadata = {}
-    if "metadata" in values_dict and values_dict["metadata"]:
-        if isinstance(values_dict["metadata"], str):
-            try:
-                metadata = json.loads(values_dict["metadata"])
-            except json.decoder.JSONDecodeError:
-                raise ValueError("Metadata field must be a serialized json object with string values")
-        else:
-            metadata = values_dict["metadata"]
-        if not isinstance(metadata, dict):
-            raise ValueError("Metadata must be a dictionary")
-        for key, value in metadata.items():
-            if not isinstance(value, str):
-                raise ValueError("Metadata values must be strings")
-
-    return DatasetRecord(id=dataset_row.row_id, input=input, output=output, metadata=metadata)
+    return DatasetRecord(
+        id=dataset_row.row_id,
+        input=values_dict["input"],
+        output=values_dict["output"] if "output" in values_dict else None,
+        metadata=values_dict["metadata"] if "metadata" in values_dict else None,
+    )
