@@ -548,7 +548,7 @@ class TestPydanticModel(BaseModel):
 
 
 @pytest.fixture
-def sample_data() -> dict[Any, Any]:
+def sample_data(tmp_path: Path) -> dict[Any, Any]:
     """Fixture providing a dictionary with various types of data."""
     return {
         "string_key": "string_value",
@@ -562,7 +562,7 @@ def sample_data() -> dict[Any, Any]:
         "datetime_key": dt.datetime(2023, 1, 1, 12, 0, 0),
         "enum_key": TestEnum.OPTION_A,
         "uuid_key": uuid.uuid4(),
-        "path_key": Path("/tmp/test"),
+        "path_key": tmp_path.joinpath("test"),
         123: "numeric_key",  # Non-string key
     }
 
@@ -602,7 +602,7 @@ class TestConvertToStringDict:
         assert result["uuid_key"] == str(uuid_obj)
 
         # Verify Path was converted to string
-        assert result["path_key"] == "/tmp/test"
+        assert result["path_key"] == str(sample_data["path_key"])
 
     def test_nested_dicts(self):
         """Test conversion of deeply nested dictionaries."""
