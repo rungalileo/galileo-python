@@ -119,12 +119,13 @@ class TestEventSerializer:
         decoded_result = json.loads(result)
         assert decoded_result == {"name": "test", "value": 42}
 
-    def test_default_path(self) -> None:
+    def test_default_path(self, tmp_path: Path) -> None:
         # Test Path serialization
-        path = Path("/tmp/test/file.txt")
-        result = json.dumps(path, cls=EventSerializer)
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        file_path = tmp_path.joinpath("file.txt")
+        result = json.dumps(file_path, cls=EventSerializer)
         decoded_result = json.loads(result)
-        assert decoded_result == "/tmp/test/file.txt"
+        assert decoded_result == str(file_path)
 
     @pytest.mark.parametrize(
         "value,expected",
