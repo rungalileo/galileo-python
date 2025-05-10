@@ -875,6 +875,27 @@ class GalileoDecorator:
         _span_stack_context.set([])
         _trace_context.set(None)
 
+    def start_session(
+        self, name: str, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> None:
+        """
+        Start a session in the active context logger instance.
+
+        Args:
+            name: The name of the session.
+            previous_session_id: The id of the previous session. Defaults to None.
+            external_id: The external id of the session. Defaults to None.
+        """
+        self.get_logger_instance().start_session(
+            name=name, previous_session_id=previous_session_id, external_id=external_id
+        )
+
+    def clear_session(self) -> None:
+        """
+        Clear the session in the active context logger instance.
+        """
+        self.get_logger_instance().clear_session()
+
 
 galileo_context = GalileoDecorator()
 log = galileo_context.log
