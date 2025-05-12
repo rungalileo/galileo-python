@@ -1,26 +1,32 @@
+from platform import system
+
 from invoke.context import Context
 from invoke.tasks import task
+
+# Disable `pty` on Windows to avoid issues with subprocesses.
+# https://github.com/pyinvoke/invoke/issues/561
+COMMON_PARAMS = dict(echo=True, pty=not system().lower().startswith("win"))
 
 
 @task
 def install(ctx: Context) -> None:
-    ctx.run("poetry install --all-extras --without docs --no-root", echo=True)
+    ctx.run("poetry install --all-extras --without docs --no-root", **COMMON_PARAMS)
 
 
 @task
 def setup(ctx: Context) -> None:
     install(ctx)
-    ctx.run("poetry run pre-commit install --hook-type pre-commit", echo=True)
+    ctx.run("poetry run pre-commit install --hook-type pre-commit", **COMMON_PARAMS)
 
 
 @task
 def test_report_xml(ctx: Context) -> None:
-    ctx.run("poetry run pytest -vvv --cov=galileo --cov-report=xml", echo=True)
+    ctx.run("poetry run pytest -vvv --cov=galileo --cov-report=xml", **COMMON_PARAMS)
 
 
 @task
 def test(ctx: Context) -> None:
-    ctx.run("poetry run pytest --cov=galileo --cov-report=term-missing", echo=True)
+    ctx.run("poetry run pytest --cov=galileo --cov-report=term-missing", **COMMON_PARAMS)
 
 
 @task
@@ -36,10 +42,10 @@ def type_check(ctx: Context) -> None:
         "--exclude galileo.logger "
         "--exclude galileo.api_client "
         "--namespace-packages",
-        echo=True,
+        **COMMON_PARAMS,
     )
 
 
 @task
 def docs_build(ctx: Context) -> None:
-    ctx.run("poetry run mkdocs build --verbose", echo=True)
+    ctx.run("poetry run mkdocs build --verbose", **COMMON_PARAMS)

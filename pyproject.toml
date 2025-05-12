@@ -83,8 +83,8 @@ addopts = [
     "--durations=10",
     # Disable internet access.
     "--disable-socket",
-    # Enable Unix socket access for async tests.
-    "--allow-unix-socket",
+    # Enable local socket access.
+    "--allow-hosts=127.0.0.1,localhost",
 ]
 asyncio_default_fixture_loop_scope = "function"
 
