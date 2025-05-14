@@ -501,7 +501,7 @@ testing = ["pytest (>=8.2.1,<9.0.0)", "respx (>=0.22.0,<0.23.0)"]
 type = "git"
 url = "https://github.com/rungalileo/core/"
 reference = "rob/hackathon-2025"
-resolved_reference = "41ee2dc828e05f3c5993bf109e680960a481521c"
+resolved_reference = "bbf4da3c8c7913dae7ff801a974324db4ff4e908"
 
 [[package]]
 name = "ghp-import"
