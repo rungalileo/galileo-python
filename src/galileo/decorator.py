@@ -295,7 +295,8 @@ class GalileoDecorator:
                 _logger.error(f"Error while executing function in async_wrapper: {e}", exc_info=True)
             finally:
                 stack = self._get_stack_trace()
-                result = self._finalize_call(span_type, span_params, result, stack=stack)
+                span_params["stack"] = stack
+                result = self._finalize_call(span_type, span_params, result)
 
                 if result is not None:
                     return result
@@ -345,7 +346,8 @@ class GalileoDecorator:
                 raise exc
             finally:
                 stack = self._get_stack_trace()
-                self._finalize_call(span_type, span_params, result, stack=stack)
+                span_params["stack"] = stack
+                self._finalize_call(span_type, span_params, result)
             return result
 
         return cast(F, sync_wrapper)
@@ -446,6 +448,8 @@ class GalileoDecorator:
             span_params["input_serialized"] = serialize_to_str(span_params["input"])
 
             span_params["created_at"] = start_time
+
+            span_params["stack"] = None
 
             return span_params
         except Exception as e:
