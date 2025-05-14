@@ -345,8 +345,6 @@ class GalileoDecorator:
                 _logger.warning(f"Error while executing function in sync_wrapper: {exc}", exc_info=True)
                 raise exc
             finally:
-                stack = self._get_stack_trace()
-                span_params["stack"] = stack
                 self._finalize_call(span_type, span_params, result)
             return result
 
@@ -359,6 +357,8 @@ class GalileoDecorator:
         _logger.info("Getting stack trace")
         frames = []
         for frame_info in inspect.stack():
+            if frame_info.filename.endswith("galileo-python/src/galileo/decorator.py"):
+                continue
             try:
                 serialized = serialize_frame(frame_info.frame)
                 _logger.info(f"Stack frame: {serialized}")
@@ -450,6 +450,12 @@ class GalileoDecorator:
             span_params["created_at"] = start_time
 
             span_params["stack"] = None
+
+            try:
+                stack = self._get_stack_trace()
+                span_params["stack"] = stack
+            except Exception as e:
+                _logger.warning(f"Error while getting stack trace: {e}", exc_info=True)
 
             return span_params
         except Exception as e:
@@ -547,7 +553,12 @@ class GalileoDecorator:
         # If the user hasn't specified a span type, create and add a workflow span
         if not span_type or span_type == "workflow":
             created_at = span_params.get("created_at", _get_timestamp())
-            span = client_instance.add_workflow_span(input=input_, name=name, created_at=created_at)
+            span = client_instance.add_workflow_span(
+                input=input_,
+                name=name,
+                created_at=created_at,
+                stack=span_params.get("stack", None),
+            )
             _span_stack_context.get().append(span)
 
     def _get_input_from_func_args(
