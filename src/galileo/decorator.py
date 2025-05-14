@@ -65,9 +65,6 @@ from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
 from galileo_core.schemas.logging.span import WorkflowSpan
 from galileo_core.schemas.logging.trace import Trace
-from galileo_core.schemas.logging.code import LoggedStackFrame, LoggedStack
-
-from sentry_sdk.utils import serialize_frame
 
 _logger = logging.getLogger(__name__)
 

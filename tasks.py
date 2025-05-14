@@ -15,7 +15,7 @@ def install(ctx: Context) -> None:
 
 @task
 def lock(ctx: Context) -> None:
-    ctx.run("poetry lock --no-cache", **COMMON_PARAMS)
+    ctx.run("poetry lock", **COMMON_PARAMS)
 
 
 @task
