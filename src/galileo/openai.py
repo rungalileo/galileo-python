@@ -53,6 +53,7 @@ from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
 from galileo import GalileoLogger
 from galileo.decorator import galileo_context
 from galileo.utils import _get_timestamp
+from galileo.utils.stack import get_stack_trace
 from galileo.utils.serialization import serialize_to_str
 
 try:
@@ -496,6 +497,7 @@ def _wrap(
                 # openai client library doesn't return http_status code, so we only can hardcode it here
                 # because we if we parsed and extracted data from response it means we get it and it's 200OK
                 status_code=status_code,
+                stack=get_stack_trace(),
             )
 
             # Conclude the trace if this is the top-level call
@@ -611,6 +613,7 @@ class ResponseGeneratorSync:
             total_tokens=usage.get("total_tokens", 0),
             metadata={str(k): str(v) for k, v in self.input_data.model_parameters.items()},
             status_code=self.status_code,
+            stack=get_stack_trace()
         )
 
         # Conclude the trace if this is the top-level call

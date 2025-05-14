@@ -67,7 +67,7 @@ from galileo_core.schemas.logging.span import WorkflowSpan
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.logging.code import LoggedStackFrame, LoggedStack
 
-from sentry_sdk.utils import serialize_frame
+from galileo.utils.stack import get_stack_trace
 
 _logger = logging.getLogger(__name__)
 
@@ -351,23 +351,24 @@ class GalileoDecorator:
         return cast(F, sync_wrapper)
 
     def _get_stack_trace(self) -> Optional[LoggedStack]:
-        """
-        Get the stack trace for the current function.
-        """
-        _logger.info("Getting stack trace")
-        frames = []
-        for frame_info in inspect.stack():
-            if frame_info.filename.endswith("galileo-python/src/galileo/decorator.py"):
-                continue
-            try:
-                serialized = serialize_frame(frame_info.frame)
-                _logger.info(f"Stack frame: {serialized}")
-                frames.append(LoggedStackFrame.model_validate(serialized))
-                _logger.info("Stack frame added")
-            except Exception as e:
-                _logger.error(f"Error while serializing stack frame: {e}", exc_info=True)
-                continue
-        return LoggedStack(frames=frames)
+        return get_stack_trace()
+        # """
+        # Get the stack trace for the current function.
+        # """
+        # _logger.info("Getting stack trace")
+        # frames = []
+        # for frame_info in inspect.stack():
+        #     if "galileo-python/src/galileo/" in frame_info.filename:
+        #         continue
+        #     try:
+        #         serialized = serialize_frame(frame_info.frame)
+        #         _logger.info(f"Stack frame: {serialized}")
+        #         frames.append(LoggedStackFrame.model_validate(serialized))
+        #         _logger.info("Stack frame added")
+        #     except Exception as e:
+        #         _logger.error(f"Error while serializing stack frame: {e}", exc_info=True)
+        #         continue
+        # return LoggedStack(frames=frames)
 
 
     @staticmethod
