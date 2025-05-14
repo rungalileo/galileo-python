@@ -16,7 +16,10 @@ def get_stack_trace() -> Optional[LoggedStack]:
     _logger.info("Getting stack trace")
     frames = []
     for frame_info in inspect.stack():
-        if "galileo-python/src/galileo/" in frame_info.filename:
+        if any(
+            subs in frame_info.filename
+            for subs in ("galileo-python/src/galileo/", "galileo/src/galileo")
+        ):
             continue
         try:
             serialized = serialize_frame(frame_info.frame)
