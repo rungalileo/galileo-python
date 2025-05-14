@@ -144,7 +144,8 @@ class GalileoCoreApiClient:
             traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
 
         json = traces_ingest_request.model_dump(mode="json")
-        _logger.info(f"Ingesting traces: {json}")
+        from pprint import pformat
+        _logger.info(f"Ingesting traces: {pformat(json)}")
 
         return self._make_request(
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
