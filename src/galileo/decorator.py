@@ -354,6 +354,7 @@ class GalileoDecorator:
         """
         Get the stack trace for the current function.
         """
+        _logger.info("Getting stack trace")
         frames = []
         for frame_info in inspect.stack():
             try:
@@ -364,11 +365,8 @@ class GalileoDecorator:
             except Exception as e:
                 _logger.error(f"Error while serializing stack frame: {e}", exc_info=True)
                 continue
-        try:
-            return LoggedStack(frames=frames)
-        except Exception as e:
-            _logger.error(f"Error while getting stack trace: {e}", exc_info=True)
-            return None
+        return LoggedStack(frames=frames)
+
 
     @staticmethod
     def _is_method(func: Callable) -> bool:
