@@ -14,6 +14,16 @@ def install(ctx: Context) -> None:
 
 
 @task
+def lock(ctx: Context) -> None:
+    ctx.run("poetry lock --no-cache", **COMMON_PARAMS)
+
+
+@task
+def add(ctx: Context, package: str) -> None:
+    ctx.run(f"poetry add {package}", **COMMON_PARAMS)
+
+
+@task
 def setup(ctx: Context) -> None:
     install(ctx)
     ctx.run("poetry run pre-commit install --hook-type pre-commit", **COMMON_PARAMS)

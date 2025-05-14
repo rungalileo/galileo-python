@@ -497,27 +497,31 @@ typing = ["typing-extensions (>=4.12.2) ; python_version < \"3.11\""]
 
 [[package]]
 name = "galileo-core"
-version = "3.32.0"
+version = "3.33.0"
 description = "Shared schemas and configuration for Galileo's Python packages."
 optional = false
-python-versions = ">=3.8.1"
+python-versions = "^3.8.1"
 groups = ["main", "test"]
-files = [
-    {file = "galileo_core-3.32.0-py3-none-any.whl", hash = "sha256:07164254e7069866dabc1c99ca8f37ae630571dc2a2500f75ff2420fe5217c68"},
-    {file = "galileo_core-3.32.0.tar.gz", hash = "sha256:5a2e3c0b1c622175761582c6c81e2ac4477700949f0f4bbdd4b5f43decad8045"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 httpx = ">=0.27.0,<0.29.0"
-pydantic = ">=2.6.0,<3.0.0"
-pydantic-settings = ">=2.2.1,<3.0.0"
-pyjwt = ">=2.8.0,<3.0.0"
-pytest = {version = ">=8.2.1,<9.0.0", optional = true, markers = "extra == \"testing\""}
-respx = {version = ">=0.22.0,<0.23.0", optional = true, markers = "extra == \"testing\""}
-typing-extensions = ">=4.12.2,<5.0.0"
+pydantic = "^2.6.0"
+pydantic-settings = "^2.2.1"
+pyjwt = "^2.8.0"
+pytest = {version = "^8.2.1", optional = true}
+respx = {version = "^0.22.0", optional = true}
+typing-extensions = "^4.12.2"
 
 [package.extras]
 testing = ["pytest (>=8.2.1,<9.0.0)", "respx (>=0.22.0,<0.23.0)"]
+
+[package.source]
+type = "git"
+url = "https://github.com/rungalileo/core/"
+reference = "rob/hackathon-2025"
+resolved_reference = "41ee2dc828e05f3c5993bf109e680960a481521c"
 
 [[package]]
 name = "ghp-import"
@@ -2262,6 +2266,63 @@ files = [
 httpx = ">=0.25.0"
 
 [[package]]
+name = "sentry-sdk"
+version = "2.28.0"
+description = "Python client for Sentry (https://sentry.io)"
+optional = false
+python-versions = ">=3.6"
+groups = ["main"]
+files = [
+    {file = "sentry_sdk-2.28.0-py2.py3-none-any.whl", hash = "sha256:51496e6cb3cb625b99c8e08907c67a9112360259b0ef08470e532c3ab184a232"},
+    {file = "sentry_sdk-2.28.0.tar.gz", hash = "sha256:14d2b73bc93afaf2a9412490329099e6217761cbab13b6ee8bc0e82927e1504e"},
+]
+
+[package.dependencies]
+certifi = "*"
+urllib3 = ">=1.26.11"
+
+[package.extras]
+aiohttp = ["aiohttp (>=3.5)"]
+anthropic = ["anthropic (>=0.16)"]
+arq = ["arq (>=0.23)"]
+asyncpg = ["asyncpg (>=0.23)"]
+beam = ["apache-beam (>=2.12)"]
+bottle = ["bottle (>=0.12.13)"]
+celery = ["celery (>=3)"]
+celery-redbeat = ["celery-redbeat (>=2)"]
+chalice = ["chalice (>=1.16.0)"]
+clickhouse-driver = ["clickhouse-driver (>=0.2.0)"]
+django = ["django (>=1.8)"]
+falcon = ["falcon (>=1.4)"]
+fastapi = ["fastapi (>=0.79.0)"]
+flask = ["blinker (>=1.1)", "flask (>=0.11)", "markupsafe"]
+grpcio = ["grpcio (>=1.21.1)", "protobuf (>=3.8.0)"]
+http2 = ["httpcore[http2] (==1.*)"]
+httpx = ["httpx (>=0.16.0)"]
+huey = ["huey (>=2)"]
+huggingface-hub = ["huggingface_hub (>=0.22)"]
+langchain = ["langchain (>=0.0.210)"]
+launchdarkly = ["launchdarkly-server-sdk (>=9.8.0)"]
+litestar = ["litestar (>=2.0.0)"]
+loguru = ["loguru (>=0.5)"]
+openai = ["openai (>=1.0.0)", "tiktoken (>=0.3.0)"]
+openfeature = ["openfeature-sdk (>=0.7.1)"]
+opentelemetry = ["opentelemetry-distro (>=0.35b0)"]
+opentelemetry-experimental = ["opentelemetry-distro"]
+pure-eval = ["asttokens", "executing", "pure_eval"]
+pymongo = ["pymongo (>=3.1)"]
+pyspark = ["pyspark (>=2.4.4)"]
+quart = ["blinker (>=1.1)", "quart (>=0.16.1)"]
+rq = ["rq (>=0.6)"]
+sanic = ["sanic (>=0.8)"]
+sqlalchemy = ["sqlalchemy (>=1.2)"]
+starlette = ["starlette (>=0.19.1)"]
+starlite = ["starlite (>=1.48)"]
+statsig = ["statsig (>=0.55.3)"]
+tornado = ["tornado (>=6)"]
+unleash = ["UnleashClient (>=6.0.1)"]
+
+[[package]]
 name = "six"
 version = "1.17.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -3058,4 +3119,4 @@ openai = ["openai", "openai-agents", "packaging"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "691b7c6419a5f123dc15b6b299a55f5f92dae9685afee7765c0ce9a8f2f3dc7b"
+content-hash = "6918e301b713a3b113f7a5eaadcd6ca90075e736ed6df908f255e5167664f76e"
