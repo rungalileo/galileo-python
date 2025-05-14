@@ -67,6 +67,8 @@ from galileo_core.schemas.logging.span import WorkflowSpan
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.logging.code import LoggedStackFrame, LoggedStack
 
+from sentry_sdk.utils import serialize_frame
+
 _logger = logging.getLogger(__name__)
 
 # Span types supported by the Galileo SDK
@@ -292,7 +294,8 @@ class GalileoDecorator:
             except Exception as e:
                 _logger.error(f"Error while executing function in async_wrapper: {e}", exc_info=True)
             finally:
-                result = self._finalize_call(span_type, span_params, result)
+                stack = self._get_stack_trace()
+                result = self._finalize_call(span_type, span_params, result, stack=stack)
 
                 if result is not None:
                     return result
@@ -341,10 +344,31 @@ class GalileoDecorator:
                 _logger.warning(f"Error while executing function in sync_wrapper: {exc}", exc_info=True)
                 raise exc
             finally:
-                self._finalize_call(span_type, span_params, result)
+                stack = self._get_stack_trace()
+                self._finalize_call(span_type, span_params, result, stack=stack)
             return result
 
         return cast(F, sync_wrapper)
+
+    def _get_stack_trace(self) -> Optional[LoggedStack]:
+        """
+        Get the stack trace for the current function.
+        """
+        frames = []
+        for frame_info in inspect.stack():
+            try:
+                serialized = serialize_frame(frame_info.frame)
+                _logger.info(f"Stack frame: {serialized}")
+                frames.append(LoggedStackFrame.model_validate(serialized))
+                _logger.info("Stack frame added")
+            except Exception as e:
+                _logger.error(f"Error while serializing stack frame: {e}", exc_info=True)
+                continue
+        try:
+            return LoggedStack(frames=frames)
+        except Exception as e:
+            _logger.error(f"Error while getting stack trace: {e}", exc_info=True)
+            return None
 
     @staticmethod
     def _is_method(func: Callable) -> bool:
