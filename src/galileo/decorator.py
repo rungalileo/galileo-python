@@ -65,6 +65,7 @@ from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
 from galileo_core.schemas.logging.span import WorkflowSpan
 from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.logging.code import LoggedStackFrame, LoggedStack
 
 _logger = logging.getLogger(__name__)
 
@@ -545,7 +546,11 @@ class GalileoDecorator:
         return json.loads(json.dumps(raw_input, cls=EventSerializer))
 
     def _finalize_call(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any
+        self,
+        span_type: Optional[SPAN_TYPE],
+        span_params: dict[str, str],
+        result: Any,
+        stack: Optional[LoggedStack] = None,
     ) -> Union[Generator, AsyncGenerator, Any]:
         """
         Finalize the call logging by handling the result appropriately.
@@ -566,9 +571,11 @@ class GalileoDecorator:
         elif inspect.isasyncgen(result):
             return self._wrap_async_generator_result(span_type, span_params, result)
         else:
-            return self._handle_call_result(span_type, span_params, result)
+            return self._handle_call_result(span_type, span_params, result, stack=stack)
 
-    def _handle_call_result(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any) -> Any:
+    def _handle_call_result(
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any, stack: Optional[LoggedStack] = None
+    ) -> Any:
         """
         Handle the result of a function call for logging.
 

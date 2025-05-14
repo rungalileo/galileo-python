@@ -28,6 +28,7 @@ from galileo_core.schemas.logging.span import (
     ToolSpan,
     WorkflowSpan,
 )
+from galileo_core.schemas.logging.code import LoggedStack
 from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
@@ -267,6 +268,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         dataset_input: Optional[str] = None,
         dataset_output: Optional[str] = None,
         dataset_metadata: Optional[dict[str, str]] = None,
+        stack: Optional[LoggedStack] = None,
     ) -> Trace:
         """
         Create a new trace with a single span and add it to the list of traces.
@@ -288,6 +290,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             ground_truth: Optional[str]: Ground truth, expected output of the workflow.
             status_code: Optional[int]: Status code of the node execution.
             time_to_first_token_ns: Optional[int]: Time until the first token was returned.
+            stack: Optional[LoggedStack]: Stack trace of the node.
         Returns:
         -------
             Trace: The created trace.
@@ -311,6 +314,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             dataset_input=dataset_input,
             dataset_output=dataset_output,
             dataset_metadata=dataset_metadata,
+            stack=stack,
         )
 
     @nop_sync
@@ -331,6 +335,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         temperature: Optional[float] = None,
         status_code: Optional[int] = None,
         time_to_first_token_ns: Optional[int] = None,
+        stack: Optional[LoggedStack] = None,
     ) -> LlmSpan:
         """
         Add a new llm span to the current parent.
@@ -351,6 +356,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             temperature: Optional[float]: Temperature used for generation.
             status_code: Optional[int]: Status code of the node execution.
             time_to_first_token_ns: Optional[int]: Time until the first token was returned.
+            stack: Optional[LoggedStack]: Stack trace of the node.
         Returns:
         -------
             LlmSpan: The created span.
@@ -371,6 +377,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             temperature=temperature,
             status_code=status_code,
             time_to_first_token_ns=time_to_first_token_ns,
+            stack=stack,
         )
 
     @nop_sync
@@ -384,6 +391,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
         status_code: Optional[int] = None,
+        stack: Optional[LoggedStack] = None,
     ) -> RetrieverSpan:
         """
         Add a new retriever span to the current parent.
@@ -398,6 +406,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[Dict[str, str]]: Metadata associated with this span.
             status_code: Optional[int]: Status code of the node execution.
+            stack: Optional[LoggedStack]: Stack trace of the node.
         Returns:
         -------
             RetrieverSpan: The created span.
@@ -438,6 +447,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             user_metadata=metadata,
             tags=tags,
             status_code=status_code,
+            stack=stack,
         )
 
     @nop_sync
@@ -452,6 +462,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         tags: Optional[list[str]] = None,
         status_code: Optional[int] = None,
         tool_call_id: Optional[str] = None,
+        stack: Optional[LoggedStack] = None,
     ) -> ToolSpan:
         """
         Add a new tool span to the current parent.
@@ -479,6 +490,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             tags=tags,
             status_code=status_code,
             tool_call_id=tool_call_id,
+            stack=stack,
         )
 
     @nop_sync
@@ -491,6 +503,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         created_at: Optional[datetime] = None,
         metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
+        stack: Optional[LoggedStack] = None,
     ) -> WorkflowSpan:
         """
         Add a workflow span to the current parent. This is useful when you want to create a nested workflow span
@@ -505,6 +518,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            stack: Optional[LoggedStack]: Stack trace of the node.
         Returns:
         -------
             WorkflowSpan: The created span.
@@ -517,6 +531,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             created_at=created_at,
             user_metadata=metadata,
             tags=tags,
+            stack=stack,
         )
 
     @nop_sync
