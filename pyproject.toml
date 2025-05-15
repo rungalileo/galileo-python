@@ -18,7 +18,7 @@ langchain-core = { version = "^0.3.14", optional = true }
 openai = { version = "<1.67.0", optional = true }
 openai-agents = { version = "<0.0.13", optional = true }
 
-galileo-core = "~=3.32.0"
+galileo-core = "^3.32.0"
 
 [project.optional-dependencies]
 langchain = ["langchain-core"]
