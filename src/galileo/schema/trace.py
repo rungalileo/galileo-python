@@ -2,7 +2,13 @@ from typing import Optional
 
 from pydantic import UUID4, BaseModel, Field
 
-from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.logging.trace import Trace as CoreTrace
+
+
+class Trace(CoreTrace):
+    """Extended Trace class that includes support for audio files."""
+    input_audio_file_id: Optional[str] = None
+    output_audio_file_id: Optional[str] = None
 
 
 class BaseLogStreamOrExperimentModel(BaseModel):
