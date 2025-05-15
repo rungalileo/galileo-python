@@ -185,6 +185,20 @@ def get_function_from_frameinfo(frame_info):
     return frame_info.frame.f_globals[frame_info.function]
 
 
+def should_exclude_source_file(fn):
+    if "site-packages" in fn:
+        return True
+    if 'lib/python' in fn:
+        return True
+    if 'ipykernel' in fn:
+        return True
+    if 'galileo-python/src/galileo' in fn:
+        return True
+    if 'galileo/src/galileo' in fn:
+        return True
+    return False
+
+
 def get_stack_trace() -> Optional[LoggedStack]:
     """
     Get the stack trace for the current function.
@@ -192,10 +206,7 @@ def get_stack_trace() -> Optional[LoggedStack]:
     _logger.info("Getting stack trace")
     frames = []
     for frame_info in inspect.stack():
-        if any(
-            subs in frame_info.filename
-            for subs in ("galileo-python/src/galileo/", "galileo/src/galileo")
-        ):
+        if should_exclude_source_file(frame_info.filename):
             continue
         try:
             serialized = serialize_frame(frame_info.frame)
