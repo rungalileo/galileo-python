@@ -22,6 +22,7 @@ def serialize_frame(
     include_source_context=True,
     max_value_length=None,
     custom_repr=None,
+    always_get_whole_function: bool = False,
 ):
     # type: (FrameType, Optional[int], bool, bool, Optional[int], Optional[Callable[..., Optional[str]]]) -> Dict[str, Any]
     f_code = getattr(frame, "f_code", None)
@@ -53,8 +54,8 @@ def serialize_frame(
             frame, 
             tb_lineno, 
             max_value_length,
-            source_lines=source_lines, 
-            source_lineno=source_lineno,
+            source_lines=source_lines if always_get_whole_function else None, 
+            source_lineno=source_lineno if always_get_whole_function else None,
         )
 
     if include_local_variables:

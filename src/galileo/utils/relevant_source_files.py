@@ -59,7 +59,11 @@ def exclude_source_file_name(fn):
 
     return False
 
-def get_relevant_source_files(f: Callable, fns: dict | None = None):
+def get_relevant_source_files(
+    f: Callable, 
+    fns: dict | None = None,
+    always_get_whole_file: bool = True,
+):
     if fns is None:
         fns = defaultdict(SourceFileMeta)
 
@@ -79,7 +83,9 @@ def get_relevant_source_files(f: Callable, fns: dict | None = None):
             if not exclude_source_file_name(fn):
                 # print(f"handling {name}->{fn}")
                 if inspect.isfunction(val):
-                    if fns[fn].linenos is not None:
+                    if always_get_whole_file:
+                        fns[fn] = SourceFileMeta(linenos=None)
+                    elif fns[fn].linenos is not None:
                         lines, startno = inspect.getsourcelines(val)
                         startno -= 1 # zero indexed
                         # print(f"handling {name}->{fn}: {(startno, startno+len(lines))}")
