@@ -203,11 +203,14 @@ def get_stack_trace() -> Optional[LoggedStack]:
     """
     Get the stack trace for the current function.
     """
-    _logger.info("Getting stack trace")
+    _logger.debug("Getting stack trace")
     frames = []
     for frame_info in inspect.stack():
-        if should_exclude_source_file(frame_info.filename):
+        _logger.debug(os.path.abspath(frame_info.frame.f_code.co_filename))
+        if should_exclude_source_file(os.path.abspath(frame_info.frame.f_code.co_filename)):
+            _logger.debug("excluding")
             continue
+        _logger.debug("not excluding")
         try:
             serialized = serialize_frame(frame_info.frame)
             additional_context: list[str] | None = None
@@ -216,9 +219,9 @@ def get_stack_trace() -> Optional[LoggedStack]:
             except KeyError as e:
                 pass
             serialized["additional_context"] = additional_context
-            _logger.info(f"Stack frame: {serialized}")
+            _logger.debug(f"Stack frame: {serialized}")
             frames.append(LoggedStackFrame.model_validate(serialized))
-            _logger.info("Stack frame added")
+            _logger.debug("Stack frame added")
         except Exception as e:
             _logger.error(f"Error while serializing stack frame: {e}", exc_info=True)
             continue
