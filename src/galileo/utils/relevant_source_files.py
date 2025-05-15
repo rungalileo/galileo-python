@@ -1,3 +1,4 @@
+import os
 from typing import Callable, Dict
 import inspect
 from itertools import chain
@@ -33,11 +34,12 @@ class SourceSnippet:
             self.content = None
 
     def render(self):
+        pathspec = os.path.relpath(self.file_path)
         linespec=''
         if self.start_line is not None and self.end_line is not None:
             linespec = f":{self.start_line+1}:{self.end_line+1}"
         return f"""\
-`{self.file_path}{linespec}`
+`{pathspec}{linespec}`
 
 ```python
 {self.content}

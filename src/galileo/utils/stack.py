@@ -42,7 +42,8 @@ def serialize_frame(
 
     rv = {
         "filename": sentry_sdk.utils.filename_for_module(module, abs_path) or None,
-        "abs_path": os.path.abspath(abs_path) if abs_path else None,
+        # this is a hack to avoid having to update the data model
+        "abs_path": os.path.relpath(abs_path) if abs_path else None,
         "function": function or "<unknown>",
         "module": module,
         "lineno": tb_lineno,
