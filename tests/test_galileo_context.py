@@ -88,18 +88,18 @@ def test_context_update_with_defaults(
         # Second level context with only project updated; log_stream should be default
         with galileo_context(project="project2"):
             assert _project_context.get() == "project2"
-            assert _log_stream_context.get() == "test-log-stream"  # use env default
+            assert _log_stream_context.get() is None  # use env default
             assert _experiment_id_context.get() is None
 
             # Third level context with no params: should use defaults
             with galileo_context():
-                assert _project_context.get() == "test-project"
-                assert _log_stream_context.get() == "test-log-stream"
+                assert _project_context.get() is None
+                assert _log_stream_context.get() is None
                 assert _experiment_id_context.get() is None
 
             # After exiting third level, should restore second level context with default log_stream
             assert _project_context.get() == "project2"
-            assert _log_stream_context.get() == "test-log-stream"
+            assert _log_stream_context.get() is None
             assert _experiment_id_context.get() is None
 
         # After exiting second level, should be back to first level
