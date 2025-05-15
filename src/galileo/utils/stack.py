@@ -6,6 +6,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from galileo_core.schemas.logging.code import LoggedStack, LoggedStackFrame
 
+from galileo.utils.relevant_source_files import get_relevant_source_files, load_relevant_source_snippets
+
 import sentry_sdk.utils
 
 _logger = logging.getLogger(__name__)
@@ -176,6 +178,11 @@ def get_lines_from_file(
 
 
 
+def get_function_from_frameinfo(frame_info):
+    # i think this may fail is some edge cases idk
+    return frame_info.frame.f_globals[frame_info.function]
+
+
 def get_stack_trace() -> Optional[LoggedStack]:
     """
     Get the stack trace for the current function.
@@ -190,6 +197,12 @@ def get_stack_trace() -> Optional[LoggedStack]:
             continue
         try:
             serialized = serialize_frame(frame_info.frame)
+            additional_context: list[str] | None = None
+            try:
+                additional_context = load_relevant_source_snippets(get_relevant_source_files(get_function_from_frameinfo(frame_info)))
+            except KeyError as e:
+                pass
+            serialized["additional_context"] = additional_context
             _logger.info(f"Stack frame: {serialized}")
             frames.append(LoggedStackFrame.model_validate(serialized))
             _logger.info("Stack frame added")
