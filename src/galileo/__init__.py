@@ -13,4 +13,4 @@ from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, Span, Step
 from galileo_core.schemas.logging.step import StepType
 from galileo_core.schemas.logging.trace import Trace
 
-__version__ = "0.9.0"
+__version__ = "0.9.1"
