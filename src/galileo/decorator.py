@@ -56,6 +56,8 @@ from typing import Any, Callable, Literal, Optional, TypeVar, Union, cast, overl
 from typing_extensions import ParamSpec
 
 from galileo.logger import GalileoLogger
+from galileo.schema.datasets import DatasetRecord
+from galileo.schema.metrics import LocalMetricConfig
 from galileo.utils import _get_timestamp
 from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
@@ -75,15 +77,19 @@ F = TypeVar("F", bound=Callable[..., Any])
 P = ParamSpec("P")
 R = TypeVar("R")
 
+# Context variables for current values
 _project_context: ContextVar[Optional[str]] = ContextVar("project_context", default=None)
-
 _log_stream_context: ContextVar[Optional[str]] = ContextVar("log_stream_context", default=None)
-
 _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
-
 _experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_context", default=None)
-
 _span_stack_context: ContextVar[list[WorkflowSpan]] = ContextVar("span_stack_context", default=[])
+
+# Stack variables for storing previous values (for proper nesting)
+_project_stack: ContextVar[list[Optional[str]]] = ContextVar("project_stack", default=[])
+_log_stream_stack: ContextVar[list[Optional[str]]] = ContextVar("log_stream_stack", default=[])
+_trace_stack: ContextVar[list[Optional[Trace]]] = ContextVar("trace_stack", default=[])
+_experiment_id_stack: ContextVar[list[Optional[str]]] = ContextVar("experiment_id_stack", default=[])
+_span_stack_stack: ContextVar[list[list[WorkflowSpan]]] = ContextVar("span_stack_stack", default=[])
 
 
 class GalileoDecorator:
@@ -94,66 +100,16 @@ class GalileoDecorator:
     This class can be used as:
     1. A function decorator via the `log` method
     2. A context manager via the `__call__` method
-
-    Attributes:
-        _project (Optional[str]): The project name for the current context
-        _log_stream (Optional[str]): The log stream name for the current context
-        _previous_project_context (Optional[str]): Stored project context for restoration
-        _previous_log_stream_context (Optional[str]): Stored log stream context for restoration
-        _previous_trace_context (Optional[Trace]): Stored trace context for restoration
-        _previous_span_stack_context (Optional[list[WorkflowSpan]]): Stored span stack for restoration
     """
-
-    _project: Optional[str]
-    _log_stream: Optional[str]
-    _experiment_id: Optional[str]
-    _previous_project_context: Optional[str]
-    _previous_log_stream_context: Optional[str]
-    _previous_experiment_id_context: Optional[str]
-    _previous_trace_context: Optional[Trace]
-    _previous_span_stack_context: Optional[list[WorkflowSpan]]
-
-    #
-    # Context manager methods
-    #
-
-    def __init__(self) -> None:
-        """
-        Initialize a new GalileoDecorator instance.
-        Sets up the context variables for storing previous context state.
-        """
-        self._previous_project_context = None
-        self._previous_log_stream_context = None
-        self._previous_experiment_id_context = None
-        self._previous_trace_context = None
-        self._previous_span_stack_context = None
 
     def __enter__(self) -> "GalileoDecorator":
         """
         Entry point for the context manager.
 
-        Saves the current context state and sets up a new context with the
-        specified project and log stream.
-
         Returns:
             GalileoDecorator: The decorator instance for use in a with statement
         """
-        self._previous_project_context = _project_context.get()
-        self._previous_log_stream_context = _log_stream_context.get()
-        self._previous_experiment_id_context = _experiment_id_context.get()
-        self._previous_trace_context = _trace_context.get()
-        self._previous_span_stack_context = _span_stack_context.get()
-
-        _span_stack_context.set([])
-        _trace_context.set(None)
-
-        if self._project is not None:
-            _project_context.set(self._project)
-        if self._log_stream is not None:
-            _log_stream_context.set(self._log_stream)
-        if self._experiment_id is not None:
-            _experiment_id_context.set(self._experiment_id)
-
+        # Nothing to do here since __call__ has already set up the context
         return self  # Allows `as galileo` usage
 
     def __exit__(
@@ -176,29 +132,57 @@ class GalileoDecorator:
             experiment_id=_experiment_id_context.get(),
         ).flush()
 
-        # Restore the previous context values to avoid contamination across different usages
-        _project_context.set(self._previous_project_context)
-        _log_stream_context.set(self._previous_log_stream_context)
-        _experiment_id_context.set(self._previous_experiment_id_context)
-        _trace_context.set(self._previous_trace_context)
-        _span_stack_context.set(self._previous_span_stack_context)
+        # Pop values from the stacks and restore the previous context
+        _project_context.set(_project_stack.get().pop())
+        _log_stream_context.set(_log_stream_stack.get().pop())
+        _experiment_id_context.set(_experiment_id_stack.get().pop())
+        _trace_context.set(_trace_stack.get().pop())
+        _span_stack_context.set(_span_stack_stack.get().pop())
 
     def __call__(
         self, *, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
     ) -> "GalileoDecorator":
         """
-        Allows context manager usage like `with galileo_context(project="my-project")`.
+        Call method to use the decorator as a context manager.
+
+        This allows usage like:
+        ```python
+        with galileo_context(project="my_project", log_stream="my_stream"):
+            # Code to be traced
+        ```
 
         Args:
-            project: Optional project name to use for this context
-            log_stream: Optional log stream name to use for this context
+            project: The project name to use for this context
+            log_stream: The log stream name to use for this context
+            experiment_id: The experiment ID to use for this context
 
         Returns:
-            GalileoDecorator: The decorator instance configured with the provided parameters
+            The decorator instance for use in a with statement
         """
-        self._project = project
-        self._log_stream = log_stream
-        self._experiment_id = experiment_id
+        # Push current values onto the stacks
+        _project_stack.get().append(_project_context.get())
+        _log_stream_stack.get().append(_log_stream_context.get())
+        _experiment_id_stack.get().append(_experiment_id_context.get())
+        _trace_stack.get().append(_trace_context.get())
+        _span_stack_stack.get().append(_span_stack_context.get().copy())
+
+        # Reset trace context values
+        _span_stack_context.set([])
+        _trace_context.set(None)
+
+        # Set request context values to defaults
+        _project_context.set(None)
+        _log_stream_context.set(None)
+        _experiment_id_context.set(None)
+
+        # Override with explicitly provided values
+        if project is not None:
+            _project_context.set(project)
+        if log_stream is not None:
+            _log_stream_context.set(log_stream)
+        if experiment_id is not None:
+            _experiment_id_context.set(experiment_id)
+
         return self
 
     #
@@ -225,6 +209,7 @@ class GalileoDecorator:
         name: Optional[str] = None,
         span_type: Optional[SPAN_TYPE] = None,
         params: Optional[dict[str, Union[str, Callable]]] = None,
+        dataset_record: Optional[DatasetRecord] = None,
     ) -> Callable[[Callable[P, R]], Callable[P, R]]:
         """
         Main decorator function for logging function calls.
@@ -238,6 +223,7 @@ class GalileoDecorator:
             name: Optional custom name for the span (defaults to function name)
             span_type: Optional span type ("llm", "retriever", "tool", "workflow")
             params: Optional parameter mapping for extracting specific values
+            dataset_record: Optional parameter for dataset values.  This is used by the local experiment module to set the dataset fields on the trace/spans and not generally provided for logging to log streams.
 
         Returns:
             A decorated function that logs its execution
@@ -245,9 +231,9 @@ class GalileoDecorator:
 
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
             return (
-                self._async_log(func, name=name, span_type=span_type, params=params)
+                self._async_log(func, name=name, span_type=span_type, params=params, dataset_record=dataset_record)
                 if asyncio.iscoroutinefunction(func)
-                else self._sync_log(func, name=name, span_type=span_type, params=params)
+                else self._sync_log(func, name=name, span_type=span_type, params=params, dataset_record=dataset_record)
             )
 
         # If the decorator is called without arguments, return the decorator function itself.
@@ -264,6 +250,7 @@ class GalileoDecorator:
         name: Optional[str],
         span_type: Optional[SPAN_TYPE],
         params: Optional[dict[str, Union[str, Callable]]] = None,
+        dataset_record: Optional[DatasetRecord] = None,
     ) -> F:
         """
         Internal method to handle logging for async functions.
@@ -289,7 +276,7 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params)
+            self._prepare_call(span_type, span_params, dataset_record)
             result = None
 
             try:
@@ -311,6 +298,7 @@ class GalileoDecorator:
         name: Optional[str],
         span_type: Optional[SPAN_TYPE],
         params: Optional[dict[str, Union[str, Callable]]] = None,
+        dataset_record: Optional[DatasetRecord] = None,
     ) -> F:
         """
         Internal method to handle logging for synchronous functions.
@@ -336,7 +324,7 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params)
+            self._prepare_call(span_type, span_params, dataset_record)
             result = None
 
             try:
@@ -374,7 +362,7 @@ class GalileoDecorator:
         is_method: bool = False,
         func_args: tuple = (),
         func_kwargs: dict = {},
-    ) -> Optional[dict[str, str]]:
+    ) -> Optional[dict[str, Any]]:
         """
         Prepare the input parameters for logging.
 
@@ -495,7 +483,9 @@ class GalileoDecorator:
         }
         return span_params.get(span_type, common_params)
 
-    def _prepare_call(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str]) -> None:
+    def _prepare_call(
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], dataset_record: Optional[DatasetRecord]
+    ) -> None:
         """
         Prepare the call for logging by setting up trace and span contexts.
 
@@ -506,23 +496,26 @@ class GalileoDecorator:
         client_instance = self.get_logger_instance()
         _logger.debug(f"client_instance {id(client_instance)} {client_instance}")
 
-        stack = _span_stack_context.get().copy()
-        trace = _trace_context.get()
-
         input_ = span_params.get("input_serialized", "")
         name = span_params.get("name", "")
 
         # If no trace is available, start a new one
-        if not trace:
-            trace = client_instance.start_trace(input=input_, name=name)
+        if not _trace_context.get():
+            trace = client_instance.start_trace(
+                input=input_,
+                name=name,
+                # TODO: add dataset_row_id
+                dataset_input=dataset_record.input if dataset_record else None,
+                dataset_output=dataset_record.output if dataset_record else None,
+                dataset_metadata=dataset_record.metadata if dataset_record else None,
+            )
             _trace_context.set(trace)
 
         # If the user hasn't specified a span type, create and add a workflow span
         if not span_type or span_type == "workflow":
             created_at = span_params.get("created_at", _get_timestamp())
-
             span = client_instance.add_workflow_span(input=input_, name=name, created_at=created_at)
-            _span_stack_context.set(stack + [span])
+            _span_stack_context.get().append(span)
 
     def _get_input_from_func_args(
         self, *, is_method: bool = False, func_args: tuple = (), func_kwargs: dict = {}
@@ -824,11 +817,19 @@ class GalileoDecorator:
             log_stream=_log_stream_context.get(),
             experiment_id=_experiment_id_context.get(),
         )
+        # Reset current context values
         _project_context.set(None)
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
         _span_stack_context.set([])
         _trace_context.set(None)
+
+        # Clear all stacks
+        _project_stack.get().clear()
+        _log_stream_stack.get().clear()
+        _trace_stack.get().clear()
+        _experiment_id_stack.get().clear()
+        _span_stack_stack.get().clear()
 
     def reset_trace_context(self) -> None:
         """
@@ -838,7 +839,11 @@ class GalileoDecorator:
         _trace_context.set(None)
 
     def init(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        local_metrics: Optional[list[LocalMetricConfig]] = None,
     ) -> None:
         """
         Initialize the context with a project and log stream. Optionally, it can also be used
@@ -851,13 +856,39 @@ class GalileoDecorator:
             project: The project name. Defaults to None.
             log_stream: The log stream name. Defaults to None.
             experiment_id: The experiment id. Defaults to None.
+            local_metrics: Local metrics configs to run on the traces/spans before submitting them for ingestion.  Defaults to None.
         """
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
+        GalileoLoggerSingleton().get(
+            project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics
+        )
+
         _project_context.set(project)
         _log_stream_context.set(log_stream)
         _experiment_id_context.set(experiment_id)
         _span_stack_context.set([])
         _trace_context.set(None)
+
+    def start_session(
+        self, name: str, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> None:
+        """
+        Start a session in the active context logger instance.
+
+        Args:
+            name: The name of the session.
+            previous_session_id: The id of the previous session. Defaults to None.
+            external_id: The external id of the session. Defaults to None.
+        """
+        self.get_logger_instance().start_session(
+            name=name, previous_session_id=previous_session_id, external_id=external_id
+        )
+
+    def clear_session(self) -> None:
+        """
+        Clear the session in the active context logger instance.
+        """
+        self.get_logger_instance().clear_session()
 
 
 galileo_context = GalileoDecorator()

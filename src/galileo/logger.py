@@ -12,9 +12,11 @@ from galileo.api_client import GalileoApiClient
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.projects import Projects
-from galileo.schema.trace import TracesIngestRequest
+from galileo.schema.metrics import LocalMetricConfig
+from galileo.schema.trace import SessionCreateRequest, TracesIngestRequest
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
+from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
 from galileo_core.schemas.logging.span import (
@@ -104,11 +106,17 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     project_id: Optional[str] = None
     log_stream_id: Optional[str] = None
     experiment_id: Optional[str] = None
+    session_id: Optional[str] = None
+    local_metrics: Optional[list[LocalMetricConfig]] = None
 
     _logger = logging.getLogger("galileo.logger")
 
     def __init__(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        local_metrics: Optional[list[LocalMetricConfig]] = None,
     ) -> None:
         super().__init__()
 
@@ -132,6 +140,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
             if self.log_stream_name is None:
                 raise GalileoLoggerException("log_stream is required to initialize GalileoLogger.")
+
+        if local_metrics:
+            self.local_metrics = local_metrics
 
         self._init_project()
 
@@ -196,6 +207,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         created_at: Optional[datetime] = None,
         metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
+        dataset_input: Optional[str] = None,
+        dataset_output: Optional[str] = None,
+        dataset_metadata: Optional[dict[str, str]] = None,
+        external_id: Optional[str] = None,
     ) -> Trace:
         """
         Create a new trace and add it to the list of traces.
@@ -219,7 +234,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Trace: The created trace.
         """
         return super().add_trace(
-            input=input, name=name, duration_ns=duration_ns, created_at=created_at, user_metadata=metadata, tags=tags
+            input=input,
+            name=name,
+            duration_ns=duration_ns,
+            created_at=created_at,
+            user_metadata=metadata,
+            tags=tags,
+            dataset_input=dataset_input,
+            dataset_output=dataset_output,
+            dataset_metadata=dataset_metadata,
+            external_id=external_id,
         )
 
     @nop_sync
@@ -240,6 +264,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         temperature: Optional[float] = None,
         status_code: Optional[int] = None,
         time_to_first_token_ns: Optional[int] = None,
+        dataset_input: Optional[str] = None,
+        dataset_output: Optional[str] = None,
+        dataset_metadata: Optional[dict[str, str]] = None,
     ) -> Trace:
         """
         Create a new trace with a single span and add it to the list of traces.
@@ -281,6 +308,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             temperature=temperature,
             status_code=status_code,
             time_to_first_token_ns=time_to_first_token_ns,
+            dataset_input=dataset_input,
+            dataset_output=dataset_output,
+            dataset_metadata=dataset_metadata,
         )
 
     @nop_sync
@@ -516,9 +546,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         # TODO: Allow the final span output to propagate to the parent spans
         current_parent = None
-        if conclude_all:
-            while self.current_parent() is not None:
-                current_parent = super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
+        while self.current_parent() is not None:
+            current_parent = super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
 
         return current_parent
 
@@ -541,9 +570,17 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             last_output = GalileoLogger._get_last_output(current_parent)
             self.conclude(output=last_output, conclude_all=True)
 
+        if self.local_metrics:
+            self._logger.info("Computing local metrics...")
+            # TODO: parallelize, possibly with ThreadPoolExecutor
+            for trace in self.traces:
+                populate_local_metrics(trace, self.local_metrics)
+
         self._logger.info("Flushing %d traces...", len(self.traces))
 
-        traces_ingest_request = TracesIngestRequest(traces=self.traces, experiment_id=self.experiment_id)
+        traces_ingest_request = TracesIngestRequest(
+            traces=self.traces, experiment_id=self.experiment_id, session_id=self.session_id
+        )
         self._client.ingest_traces_sync(traces_ingest_request)
         logged_traces = self.traces
 
@@ -572,9 +609,15 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             last_output = GalileoLogger._get_last_output(current_parent)
             self.conclude(output=last_output, conclude_all=True)
 
+        if self.local_metrics:
+            self._logger.info("Computing metrics for local scorers...")
+            # TODO: parallelize, possibly with asyncio to_thread/gather
+            for trace in self.traces:
+                populate_local_metrics(trace, self.local_metrics)
+
         self._logger.info("Flushing %d traces...", len(self.traces))
 
-        traces_ingest_request = TracesIngestRequest(traces=self.traces)
+        traces_ingest_request = TracesIngestRequest(traces=self.traces, session_id=self.session_id)
         await self._client.ingest_traces(traces_ingest_request)
         logged_traces = self.traces
 
@@ -593,3 +636,21 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         atexit.unregister(self.terminate)
         self._logger.info("Attempting to flush on interpreter exit...")
         self.flush()
+
+    def start_session(
+        self, name: str, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> None:
+        self._logger.info("Starting a new session...")
+
+        session = self._client.create_session_sync(
+            SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
+        )
+
+        self._logger.info("Session started with ID: %s", session["id"])
+
+        self.session_id = str(session["id"])
+
+    def clear_session(self) -> None:
+        self._logger.info("Clearing the current session from the logger...")
+        self.session_id = None
+        self._logger.info("Current session cleared.")

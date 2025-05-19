@@ -1,14 +1,16 @@
 import datetime
 import logging
 from collections import deque
-from unittest.mock import AsyncMock, Mock, patch
+from typing import Union
+from unittest.mock import Mock, patch
 from uuid import UUID
 
 import pytest
 
 from galileo.logger import GalileoLogger
+from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import TracesIngestRequest
-from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
+from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
@@ -288,7 +290,15 @@ async def test_single_span_trace_to_galileo_with_async(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    def local_scorer(step: Union[Trace, Span]) -> int:
+        return len(step.input)
+
+    logger = GalileoLogger(
+        project="my_project",
+        log_stream="my_log_stream",
+        local_metrics=[LocalMetricConfig(name="length", scorer_fn=local_scorer)],
+    )
     logger.start_trace(
         input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
     )
@@ -304,8 +314,11 @@ async def test_single_span_trace_to_galileo_with_async(
         temperature=1.0,
         status_code=200,
     )
+    setattr(span.metrics, "length", 1)
     logger.conclude("output", status_code=200)
     await logger.async_flush()
+
+    setattr(span.metrics, "length", 6)
 
     payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
@@ -647,8 +660,8 @@ def test_galileo_logger_failed_creating_project(
 ) -> None:
     mock_instance = mock_core_api_client.return_value
 
-    mock_instance.get_project_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
-    mock_instance.get_log_stream_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
+    mock_instance.get_project_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
+    mock_instance.get_log_stream_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
 
     # galileo_resources_api_projects.= MagicMock()
     galileo_resources_api_projects.sync_detailed = Mock(side_effect=ValueError("Unable to create project"))
@@ -799,3 +812,74 @@ def test_get_last_output_last_child_no_output() -> None:
 
     trace.spans = [tool_span]
     assert GalileoLogger._get_last_output(trace) is None
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_session_create(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_session(
+        name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
+    )
+
+    payload = mock_core_api_instance.create_session_sync.call_args[0][0]
+
+    assert payload.name == "test-session"
+    assert payload.previous_session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
+    assert payload.external_id == "test"
+
+    assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_session_clear(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_session(
+        name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
+    )
+
+    assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+
+    logger.clear_session()
+
+    assert logger.session_id is None
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_session_id_on_flush(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    datetime.datetime.now()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_session(
+        name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
+    )
+
+    logger.start_trace(input="input", name="test-trace", created_at=datetime.datetime.now())
+    logger.add_retriever_span(
+        input="prompt", output="response", name="test-span", created_at=datetime.datetime.now(), status_code=200
+    )
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    assert payload.session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")

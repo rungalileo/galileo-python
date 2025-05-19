@@ -1,4 +1,5 @@
 from unittest.mock import Mock, patch
+from uuid import UUID
 
 import pytest
 
@@ -518,3 +519,63 @@ def test_decorator_we_should_create_trace_but_reraise_exception(
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_start_session(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log()
+    def foo():
+        return "response"
+
+    foo()
+    galileo_context.start_session(
+        name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
+    )
+
+    logger = galileo_context.get_logger_instance()
+    assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+
+    galileo_context.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert payload.session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_clear_session(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log()
+    def foo():
+        return "response"
+
+    foo()
+    galileo_context.start_session(name="test-session")
+
+    logger = galileo_context.get_logger_instance()
+    assert logger.session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+
+    galileo_context.clear_session()
+
+    assert logger.session_id is None
+
+    galileo_context.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert payload.session_id is None
