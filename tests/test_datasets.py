@@ -7,7 +7,6 @@ import pytest
 
 from galileo.datasets import (
     Dataset,
-    DatasetAPIException,
     DatasetAppendRow,
     DatasetAppendRowValues,
     Datasets,
@@ -18,8 +17,10 @@ from galileo.datasets import (
     get_dataset_version_history,
 )
 from galileo.resources.models import (
+    BodyCreateDatasetDatasetsPost,
     DatasetContent,
     DatasetDB,
+    DatasetFormat,
     DatasetNameFilter,
     DatasetNameFilterOperator,
     DatasetUpdatedAtSort,
@@ -149,17 +150,71 @@ def list_dataset_versions():
 
 @patch("galileo.datasets.create_dataset_datasets_post")
 def test_create_dataset_validation_error(create_dataset_datasets_post_mock: Mock):
+    with pytest.raises(ValueError) as exc_info:
+        create_dataset(name="my_dataset_name", content=None)
+    assert "Invalid dataset type: '<class 'NoneType'>'." in str(exc_info.value), str(exc_info)
+
+
+@patch("galileo.datasets.create_dataset_datasets_post")
+def test_create_dataset_with_empty_list(create_dataset_datasets_post_mock: Mock):
     create_dataset_datasets_post_mock.sync_detailed.return_value = Response(
-        content=b'{"detail":"Invalid CSV data: CSV parse error: Empty CSV file or block: cannot infer number of columns"}',
-        status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+        content=b'{"id":"bb830fae-99d3-4ce7-bef9-300d528e0060","permissions":[],"name":"my_dataset_name","created_at":"2025-05-16T16:26:41.76451","email":"user.test@galileo.ai","first_name":"","last_name":""},"current_version_index":1,"draft":false}',
+        status_code=HTTPStatus.OK,
         headers={},
-        parsed=None,
+        parsed=DatasetDB.from_dict(
+            {
+                "draft": False,
+                "column_names": ["input", "output", "metadata"],
+                "created_at": "2025-03-10T15:25:03.088471+00:00",
+                "created_by_user": {"id": "01ce18ac-3960-46e1-bb79-0e4965069add"},
+                "current_version_index": 1,
+                "id": "bb830fae-99d3-4ce7-bef9-300d528e0060",
+                "name": "my_dataset_name",
+                "updated_at": "2025-03-26T12:00:44.558105+00:00",
+                "num_rows": 1,
+                "project_count": 0,
+                "permissions": [],
+            }
+        ),
     )
 
-    with pytest.raises(DatasetAPIException):
-        create_dataset(name="my_dataset_name", content=[{}])
+    create_dataset(name="my_dataset_name", content=[])
+    create_dataset_datasets_post_mock.sync_detailed.assert_called_once_with(
+        client=ANY,
+        body=BodyCreateDatasetDatasetsPost(draft=False, file=ANY, name="my_dataset_name"),
+        format_=DatasetFormat.JSONL,
+    )
 
-    create_dataset_datasets_post_mock.sync_detailed.assert_called_once()
+
+@patch("galileo.datasets.create_dataset_datasets_post")
+def test_create_dataset_with_empty_dict(create_dataset_datasets_post_mock: Mock):
+    create_dataset_datasets_post_mock.sync_detailed.return_value = Response(
+        content=b'{"id":"bb830fae-99d3-4ce7-bef9-300d528e0060","permissions":[],"name":"my_dataset_name","created_at":"2025-05-16T16:26:41.76451","email":"user.test@galileo.ai","first_name":"","last_name":""},"current_version_index":1,"draft":false}',
+        status_code=HTTPStatus.OK,
+        headers={},
+        parsed=DatasetDB.from_dict(
+            {
+                "draft": False,
+                "column_names": ["input", "output", "metadata"],
+                "created_at": "2025-03-10T15:25:03.088471+00:00",
+                "created_by_user": {"id": "01ce18ac-3960-46e1-bb79-0e4965069add"},
+                "current_version_index": 1,
+                "id": "bb830fae-99d3-4ce7-bef9-300d528e0060",
+                "name": "my_dataset_name",
+                "updated_at": "2025-03-26T12:00:44.558105+00:00",
+                "num_rows": 1,
+                "project_count": 0,
+                "permissions": [],
+            }
+        ),
+    )
+
+    create_dataset(name="my_dataset_name", content={})
+    create_dataset_datasets_post_mock.sync_detailed.assert_called_once_with(
+        client=ANY,
+        body=BodyCreateDatasetDatasetsPost(draft=False, file=ANY, name="my_dataset_name"),
+        format_=DatasetFormat.JSONL,
+    )
 
 
 @patch("galileo.datasets.get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get")

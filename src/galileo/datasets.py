@@ -287,7 +287,10 @@ class Datasets(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
-
+        if isinstance(content, (list, dict)) and len(content) == 0:
+            # we want to avoid errors: Invalid CSV data: CSV parse error:
+            # Empty CSV file or block: cannot infer number of columns
+            content = [{}]
         file_path, dataset_format = parse_dataset(content)
         file = File(
             payload=file_path.open("rb"),
