@@ -2,7 +2,7 @@ import datetime
 import logging
 from collections import deque
 from typing import Union
-from unittest.mock import AsyncMock, Mock, patch
+from unittest.mock import Mock, patch
 from uuid import UUID
 
 import pytest
@@ -660,8 +660,8 @@ def test_galileo_logger_failed_creating_project(
 ) -> None:
     mock_instance = mock_core_api_client.return_value
 
-    mock_instance.get_project_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
-    mock_instance.get_log_stream_by_name = AsyncMock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
+    mock_instance.get_project_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
+    mock_instance.get_log_stream_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
 
     # galileo_resources_api_projects.= MagicMock()
     galileo_resources_api_projects.sync_detailed = Mock(side_effect=ValueError("Unable to create project"))
