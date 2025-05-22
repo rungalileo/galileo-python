@@ -498,16 +498,20 @@ class GalileoDecorator:
         input_ = span_params.get("input_serialized", "")
         name = span_params.get("name", "")
 
-        # If no trace is available, start a new one
         if not _trace_context.get():
-            trace = client_instance.start_trace(
-                input=input_,
-                name=name,
-                # TODO: add dataset_row_id
-                dataset_input=dataset_record.input if dataset_record else None,
-                dataset_output=dataset_record.output if dataset_record else None,
-                dataset_metadata=dataset_record.metadata if dataset_record else None,
-            )
+            # If the singleton logger has an active trace, use it
+            if client_instance.current_parent():
+                trace = client_instance.traces[-1]
+            else:
+                # If no trace is available, start a new one
+                trace = client_instance.start_trace(
+                    input=input_,
+                    name=name,
+                    # TODO: add dataset_row_id
+                    dataset_input=dataset_record.input if dataset_record else None,
+                    dataset_output=dataset_record.output if dataset_record else None,
+                    dataset_metadata=dataset_record.metadata if dataset_record else None,
+                )
             _trace_context.set(trace)
 
         # If the user hasn't specified a span type, create and add a workflow span

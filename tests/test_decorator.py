@@ -579,3 +579,37 @@ def test_decorator_clear_session(
     payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
 
     assert payload.session_id is None
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_decorator_with_active_trace(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log()
+    def foo(input: str):
+        return "response"
+
+    logger = galileo_context.get_logger_instance()
+
+    logger.start_trace(input="test input")
+
+    foo(input="foo input")
+
+    logger.conclude(output="test output", status_code=200)
+
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert payload.traces[0].input == "test input"
+    assert payload.traces[0].output == "test output"
+    assert payload.traces[0].status_code == 200
+    assert payload.traces[0].spans[0].input == '{"input": "foo input"}'
+    assert payload.traces[0].spans[0].output == "response"
+    assert payload.traces[0].spans[0].type == "workflow"
