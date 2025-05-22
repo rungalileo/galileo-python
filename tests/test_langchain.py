@@ -584,28 +584,28 @@ class TestGalileoCallback:
         """Test the _get_node_name method to ensure it correctly extracts names from serialized data"""
         # Case 1: Serialized has a name key
         serialized = {"name": "CustomNodeName", "other_key": "value"}
-        result = callback._get_node_name(serialized, "chain")
+        result = callback._get_node_name("chain", serialized)
         assert result == "CustomNodeName"
 
         # Case 2: Serialized has no name key but has an id key with a list value
         serialized = {"id": ["module", "class", "method_name"], "other_key": "value"}
-        result = callback._get_node_name(serialized, "llm")
+        result = callback._get_node_name("llm", serialized)
         assert result == "method_name"
 
         # Case 3: Serialized has both name and id, name should be used first
         serialized = {"name": "NamedNode", "id": ["module", "class", "method_name"], "other_key": "value"}
-        result = callback._get_node_name(serialized, "tool")
+        result = callback._get_node_name("tool", serialized)
         assert result == "NamedNode"
 
         # Case 4: Serialized has neither name nor id keys
         serialized = {"other_key": "value"}
-        result = callback._get_node_name(serialized, "retriever")
+        result = callback._get_node_name("retriever", serialized)
         assert result == "Retriever"  # Should capitalize the node_type
 
         # Case 5: Serialized is None
-        result = callback._get_node_name(None, "agent")
+        result = callback._get_node_name("agent", None)
         assert result == "Agent"  # Should capitalize the node_type
 
         # Case 6: Exception occurs (providing a non-dictionary serialized)
-        result = callback._get_node_name("not_a_dict", "chain")
+        result = callback._get_node_name("chain", "not_a_dict")
         assert result == "Chain"  # Should capitalize the node_type

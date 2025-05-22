@@ -2,7 +2,7 @@ import contextvars
 import json
 import logging
 import time
-from typing import Any, Optional, Union
+from typing import Any, Optional
 from uuid import UUID
 
 from galileo import galileo_context
@@ -230,18 +230,22 @@ class GalileoCallback(BaseCallbackHandler):
         if root and node.run_id == root.run_id:
             self._commit()
 
-    def _get_node_name(self, serialized: dict[str, Any], node_type: LANGCHAIN_NODE_TYPE) -> Union[str, None]:
+    @staticmethod
+    def _get_node_name(node_type: LANGCHAIN_NODE_TYPE, serialized: Optional[dict[str, Any]] = None) -> str:
         try:
             node_name = None
             node_class_reference = None
-            if serialized:
+            # Langchain can pass None or non-dict objects as serialized
+            if serialized is not None and isinstance(serialized, dict):
                 node_name = serialized.get("name")
                 node_class_reference = serialized.get("id")
-            if not node_name and node_class_reference and isinstance(node_class_reference, list):
-                node_name = node_class_reference[-1]
-            if not node_name:
-                node_name = node_type.capitalize()
-            return node_name
+
+            if node_name:
+                return node_name
+            elif node_class_reference and isinstance(node_class_reference, list):
+                return node_class_reference[-1]
+            else:
+                return node_type.capitalize()
         except Exception as e:
             _logger.error(f"Failed to get node name: {e}")
             return node_type.capitalize()
@@ -258,7 +262,7 @@ class GalileoCallback(BaseCallbackHandler):
     ) -> Any:
         """Langchain callback when a chain starts."""
         node_type = "chain"
-        node_name = self._get_node_name(serialized, node_type)
+        node_name = self._get_node_name(node_type, serialized)
 
         # If the `name` is `LangGraph` or `Agent`, set the node type to `agent`.
         if node_name in ["LangGraph", "Agent"]:
@@ -299,13 +303,14 @@ class GalileoCallback(BaseCallbackHandler):
 
         Note: This callback is only used for non-chat models.
         """
-        node_name = self._get_node_name(serialized, "llm")
+        node_type = "llm"
+        node_name = self._get_node_name(node_type, serialized)
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model_name", "")
         temperature = invocation_params.get("temperature", 0.0)
 
         self._start_node(
-            "llm",
+            node_type,
             parent_run_id,
             run_id,
             name=node_name,
@@ -341,7 +346,8 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a chat model starts."""
-        node_name = self._get_node_name(serialized, "chat")
+        node_type = "chat"
+        node_name = self._get_node_name(node_type, serialized)
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model", invocation_params.get("_type", "undefined-type"))
         temperature = invocation_params.get("temperature", 0.0)
@@ -356,7 +362,7 @@ class GalileoCallback(BaseCallbackHandler):
             serialized_messages = str(messages)
 
         self._start_node(
-            "chat",
+            node_type,
             parent_run_id,
             run_id,
             name=node_name,
@@ -402,9 +408,10 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a tool node starts."""
-        node_name = self._get_node_name(serialized, "tool")
+        node_type = "tool"
+        node_name = self._get_node_name(node_type, serialized)
         self._start_node(
-            "tool",
+            node_type,
             parent_run_id,
             run_id,
             name=node_name,
@@ -433,8 +440,9 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a retriever node starts."""
-        node_name = self._get_node_name(serialized, "retriever")
-        self._start_node("retriever", parent_run_id, run_id, name=node_name, input=serialize_to_str(query))
+        node_type = "retriever"
+        node_name = self._get_node_name(node_type, serialized)
+        self._start_node(node_type, parent_run_id, run_id, name=node_name, input=serialize_to_str(query))
 
     def on_retriever_end(
         self, documents: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
