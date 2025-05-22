@@ -627,3 +627,40 @@ class TestGalileoAsyncCallback:
         # Node should still exist and output should be a string
         assert str(retriever_id) in callback._nodes
         assert isinstance(callback._nodes[str(retriever_id)].span_params["output"], str)
+
+    @mark.asyncio
+    async def test_callback_with_active_trace(self, galileo_logger: GalileoLogger):
+        """Test that the callback properly handles an active trace."""
+        run_id = uuid.uuid4()
+
+        galileo_logger.start_trace(input="test input")
+
+        # Pass the active logger to the callback
+        callback = GalileoAsyncCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
+
+        # Start a chain (creates a workflow span)
+        await callback._start_node("chain", None, run_id, name="Test Chain", input='{"query": "test"}')
+
+        # Add a retriever span
+        retriever_id = uuid.uuid4()
+        await callback.on_retriever_start(serialized={}, query="test query", run_id=retriever_id, parent_run_id=run_id)
+        await callback.on_retriever_end(
+            documents=[Document(page_content="test document")], run_id=retriever_id, parent_run_id=run_id
+        )
+
+        # End the chain (ends the workflow span)
+        await callback._end_node(run_id, output='{"result": "test result"}')
+
+        galileo_logger.conclude(output="test output", status_code=200)
+
+        traces = galileo_logger.traces
+
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        assert traces[0].spans[0].type == "workflow"
+        assert traces[0].spans[0].input == '{"query": "test"}'
+        assert traces[0].spans[0].output == '{"result": "test result"}'
+        assert traces[0].spans[0].spans[0].name == "Retriever"
+        assert traces[0].spans[0].spans[0].type == "retriever"
+        assert traces[0].spans[0].spans[0].input == "test query"
+        assert traces[0].spans[0].spans[0].output == [GalileoDocument(content="test document", metadata={})]
