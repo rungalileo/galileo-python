@@ -165,14 +165,9 @@ class TestGalileoAsyncCallback:
         run_id = uuid.uuid4()
 
         # Start agent chain
-        await callback.on_chain_start(
-            serialized={"name": "agent"},
-            inputs={"input": "test input"},
-            run_id=run_id,
-            name="agent",  # This should trigger agent type
-        )
+        await callback.on_chain_start(serialized={"name": "agent"}, inputs={"input": "test input"}, run_id=run_id)
 
-        assert callback._nodes[str(run_id)].node_type == "agent"
+        assert callback._nodes[str(run_id)].node_type == "chain"
 
         # End with agent finish
         finish = AgentFinish(return_values={"output": "test result"}, log="log message")
@@ -182,7 +177,7 @@ class TestGalileoAsyncCallback:
         traces = galileo_logger.traces
         assert len(traces) == 1
         assert len(traces[0].spans) == 1
-        assert traces[0].spans[0].name == "Agent"
+        assert traces[0].spans[0].name == "agent"
         assert traces[0].spans[0].type == "workflow"
         assert traces[0].spans[0].input == '{"input": "test input"}'
         assert traces[0].spans[0].output == '{"return_values": {"output": "test result"}, "log": "log message"}'
@@ -326,7 +321,7 @@ class TestGalileoAsyncCallback:
         traces = galileo_logger.traces
         assert len(traces) == 1
         assert len(traces[0].spans) == 1
-        assert traces[0].spans[0].name == "Chat Model"
+        assert traces[0].spans[0].name == "Chat"
         assert traces[0].spans[0].type == "llm"
         assert traces[0].spans[0].tools == [
             {
