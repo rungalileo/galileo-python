@@ -119,12 +119,13 @@ class TestEventSerializer:
         decoded_result = json.loads(result)
         assert decoded_result == {"name": "test", "value": 42}
 
-    def test_default_path(self) -> None:
+    def test_default_path(self, tmp_path: Path) -> None:
         # Test Path serialization
-        path = Path("/tmp/test/file.txt")
-        result = json.dumps(path, cls=EventSerializer)
+        tmp_path.mkdir(parents=True, exist_ok=True)
+        file_path = tmp_path.joinpath("file.txt")
+        result = json.dumps(file_path, cls=EventSerializer)
         decoded_result = json.loads(result)
-        assert decoded_result == "/tmp/test/file.txt"
+        assert decoded_result == str(file_path)
 
     @pytest.mark.parametrize(
         "value,expected",
@@ -547,7 +548,7 @@ class TestPydanticModel(BaseModel):
 
 
 @pytest.fixture
-def sample_data() -> dict[Any, Any]:
+def sample_data(tmp_path: Path) -> dict[Any, Any]:
     """Fixture providing a dictionary with various types of data."""
     return {
         "string_key": "string_value",
@@ -561,7 +562,7 @@ def sample_data() -> dict[Any, Any]:
         "datetime_key": dt.datetime(2023, 1, 1, 12, 0, 0),
         "enum_key": TestEnum.OPTION_A,
         "uuid_key": uuid.uuid4(),
-        "path_key": Path("/tmp/test"),
+        "path_key": tmp_path.joinpath("test"),
         123: "numeric_key",  # Non-string key
     }
 
@@ -601,7 +602,7 @@ class TestConvertToStringDict:
         assert result["uuid_key"] == str(uuid_obj)
 
         # Verify Path was converted to string
-        assert result["path_key"] == "/tmp/test"
+        assert result["path_key"] == str(sample_data["path_key"])
 
     def test_nested_dicts(self):
         """Test conversion of deeply nested dictionaries."""
