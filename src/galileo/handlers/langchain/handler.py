@@ -232,12 +232,15 @@ class GalileoCallback(BaseCallbackHandler):
 
     def _get_node_name(self, serialized: dict[str, Any], node_type: LANGCHAIN_NODE_TYPE) -> Union[str, None]:
         try:
+            node_name = None
             node_class_reference = None
-            if serialized is not None and isinstance(serialized, dict):
-                node_name = serialized.get("name") or node_type.capitalize()
+            if serialized:
+                node_name = serialized.get("name")
                 node_class_reference = serialized.get("id")
-            if node_class_reference and isinstance(node_class_reference, list):
+            if not node_name and node_class_reference and isinstance(node_class_reference, list):
                 node_name = node_class_reference[-1]
+            if not node_name:
+                node_name = node_type.capitalize()
             return node_name
         except Exception as e:
             _logger.error(f"Failed to get node name: {e}")

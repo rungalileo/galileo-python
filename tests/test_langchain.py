@@ -131,12 +131,7 @@ class TestGalileoCallback:
         run_id = uuid.uuid4()
 
         # Start agent chain
-        callback.on_chain_start(
-            serialized={"name": "agent"},
-            inputs={"input": "test input"},
-            run_id=run_id,
-            name="agent",  # This should trigger agent type
-        )
+        callback.on_chain_start(serialized={"name": "Agent"}, inputs={"input": "test input"}, run_id=run_id)
 
         assert callback._nodes[str(run_id)].node_type == "agent"
 
@@ -287,7 +282,7 @@ class TestGalileoCallback:
         traces = galileo_logger.traces
         assert len(traces) == 1
         assert len(traces[0].spans) == 1
-        assert traces[0].spans[0].name == "Chat Model"
+        assert traces[0].spans[0].name == "Chat"
         assert traces[0].spans[0].type == "llm"
         assert traces[0].spans[0].tools == [
             {
@@ -584,3 +579,33 @@ class TestGalileoCallback:
         # Node should still exist and output should be a string
         assert str(retriever_id) in callback._nodes
         assert isinstance(callback._nodes[str(retriever_id)].span_params["output"], str)
+
+    def test_get_node_name(self, callback: GalileoCallback):
+        """Test the _get_node_name method to ensure it correctly extracts names from serialized data"""
+        # Case 1: Serialized has a name key
+        serialized = {"name": "CustomNodeName", "other_key": "value"}
+        result = callback._get_node_name(serialized, "chain")
+        assert result == "CustomNodeName"
+
+        # Case 2: Serialized has no name key but has an id key with a list value
+        serialized = {"id": ["module", "class", "method_name"], "other_key": "value"}
+        result = callback._get_node_name(serialized, "llm")
+        assert result == "method_name"
+
+        # Case 3: Serialized has both name and id, name should be used first
+        serialized = {"name": "NamedNode", "id": ["module", "class", "method_name"], "other_key": "value"}
+        result = callback._get_node_name(serialized, "tool")
+        assert result == "NamedNode"
+
+        # Case 4: Serialized has neither name nor id keys
+        serialized = {"other_key": "value"}
+        result = callback._get_node_name(serialized, "retriever")
+        assert result == "Retriever"  # Should capitalize the node_type
+
+        # Case 5: Serialized is None
+        result = callback._get_node_name(None, "agent")
+        assert result == "Agent"  # Should capitalize the node_type
+
+        # Case 6: Exception occurs (providing a non-dictionary serialized)
+        result = callback._get_node_name("not_a_dict", "chain")
+        assert result == "Chain"  # Should capitalize the node_type
