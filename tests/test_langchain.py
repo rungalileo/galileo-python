@@ -126,6 +126,46 @@ class TestGalileoCallback:
         assert traces[0].spans[0].input == '{"query": "test question"}'
         assert traces[0].spans[0].output == '{"result": "test answer"}'
 
+    def test_on_chain_start_with_kwargs_serialised_none(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+        run_id = uuid.uuid4()
+
+        # Start chain
+        callback.on_chain_start(
+            serialized=None,
+            inputs={
+                "messages": [
+                    HumanMessage(
+                        content="What does Lilian Weng say about the types of agent memory?",
+                        additional_kwargs={},
+                        response_metadata={},
+                    )
+                ]
+            },
+            run_id=run_id,
+            name="LangGraph",
+        )
+
+        assert str(run_id) in callback._nodes
+        assert callback._nodes[str(run_id)].node_type == "agent"
+        assert (
+            callback._nodes[str(run_id)].span_params["input"]
+            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?"}]}'
+        )
+
+        # End chain
+        callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
+
+        traces = galileo_logger.traces
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        assert traces[0].spans[0].name == "Agent"
+        assert traces[0].spans[0].type == "workflow"
+        assert (
+            traces[0].spans[0].input
+            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?"}]}'
+        )
+        assert traces[0].spans[0].output == '{"result": "test answer"}'
+
     def test_on_agent_chain(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
         """Test agent chain handling"""
         run_id = uuid.uuid4()
