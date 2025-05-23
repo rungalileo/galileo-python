@@ -639,7 +639,19 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
     def start_session(
         self, name: str, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
-    ) -> None:
+    ) -> str:
+        """
+        Start a new session.
+
+        Parameters:
+        ----------
+            name: str: Name of the session.
+            previous_session_id: Optional[str]: ID of the previous session.
+            external_id: Optional[str]: External ID of the session.
+        Returns:
+        -------
+            str: The ID of the newly created session.
+        """
         self._logger.info("Starting a new session...")
 
         session = self._client.create_session_sync(
@@ -649,6 +661,21 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._logger.info("Session started with ID: %s", session["id"])
 
         self.session_id = str(session["id"])
+        return self.session_id
+
+    def set_session(self, session_id: str) -> None:
+        """
+        Parameters:
+        ----------
+            session_id: str: ID of the session to set.
+
+        Returns:
+        -------
+            None
+        """
+        self._logger.info("Setting the current session to %s", session_id)
+        self.session_id = session_id
+        self._logger.info("Current session set to %s", session_id)
 
     def clear_session(self) -> None:
         self._logger.info("Clearing the current session from the logger...")
