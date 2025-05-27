@@ -6,14 +6,20 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.rollback_request import RollbackRequest
+from ...models.template_stub_request import TemplateStubRequest
 from ...types import Response
 
 
-def _get_kwargs(dataset_id: str, *, body: RollbackRequest) -> dict[str, Any]:
+def _get_kwargs(
+    *,
+    body: TemplateStubRequest,
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "put", "url": f"/datasets/{dataset_id}/content"}
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": "/input_stub",
+    }
 
     _body = body.to_dict()
 
@@ -52,15 +58,14 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str, *, client: AuthenticatedClient, body: RollbackRequest
+    *,
+    client: AuthenticatedClient,
+    body: TemplateStubRequest,
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Rollback Dataset Content
-
-     Rollback the content of a dataset to a previous version.
+    """Generate Template Input Stub
 
     Args:
-        dataset_id (str):
-        body (RollbackRequest):
+        body (TemplateStubRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -70,23 +75,26 @@ def sync_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
+    kwargs = _get_kwargs(
+        body=body,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    dataset_id: str, *, client: AuthenticatedClient, body: RollbackRequest
+    *,
+    client: AuthenticatedClient,
+    body: TemplateStubRequest,
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Rollback Dataset Content
-
-     Rollback the content of a dataset to a previous version.
+    """Generate Template Input Stub
 
     Args:
-        dataset_id (str):
-        body (RollbackRequest):
+        body (TemplateStubRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -96,19 +104,21 @@ def sync(
         Union[Any, HTTPValidationError]
     """
 
-    return sync_detailed(dataset_id=dataset_id, client=client, body=body).parsed
+    return sync_detailed(
+        client=client,
+        body=body,
+    ).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str, *, client: AuthenticatedClient, body: RollbackRequest
+    *,
+    client: AuthenticatedClient,
+    body: TemplateStubRequest,
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Rollback Dataset Content
-
-     Rollback the content of a dataset to a previous version.
+    """Generate Template Input Stub
 
     Args:
-        dataset_id (str):
-        body (RollbackRequest):
+        body (TemplateStubRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -118,7 +128,9 @@ async def asyncio_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
+    kwargs = _get_kwargs(
+        body=body,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -126,15 +138,14 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str, *, client: AuthenticatedClient, body: RollbackRequest
+    *,
+    client: AuthenticatedClient,
+    body: TemplateStubRequest,
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Rollback Dataset Content
-
-     Rollback the content of a dataset to a previous version.
+    """Generate Template Input Stub
 
     Args:
-        dataset_id (str):
-        body (RollbackRequest):
+        body (TemplateStubRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -144,4 +155,9 @@ async def asyncio(
         Union[Any, HTTPValidationError]
     """
 
-    return (await asyncio_detailed(dataset_id=dataset_id, client=client, body=body)).parsed
+    return (
+        await asyncio_detailed(
+            client=client,
+            body=body,
+        )
+    ).parsed

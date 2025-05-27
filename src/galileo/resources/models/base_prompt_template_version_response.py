@@ -4,6 +4,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
+    from ..models.base_prompt_template_version_response_settings import BasePromptTemplateVersionResponseSettings
     from ..models.messages_list_item import MessagesListItem
 
 
@@ -16,17 +17,41 @@ class BasePromptTemplateVersionResponse:
 
     Attributes:
         id (str):
+        lines_added (int):
+        lines_edited (int):
+        lines_removed (int):
+        model_changed (bool):
+        settings (BasePromptTemplateVersionResponseSettings):
+        settings_changed (bool):
         template (Union[list['MessagesListItem'], str]):
         version (int):
     """
 
     id: str
+    lines_added: int
+    lines_edited: int
+    lines_removed: int
+    model_changed: bool
+    settings: "BasePromptTemplateVersionResponseSettings"
+    settings_changed: bool
     template: Union[list["MessagesListItem"], str]
     version: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         id = self.id
+
+        lines_added = self.lines_added
+
+        lines_edited = self.lines_edited
+
+        lines_removed = self.lines_removed
+
+        model_changed = self.model_changed
+
+        settings = self.settings.to_dict()
+
+        settings_changed = self.settings_changed
 
         template: Union[list[dict[str, Any]], str]
         if isinstance(self.template, list):
@@ -42,16 +67,41 @@ class BasePromptTemplateVersionResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"id": id, "template": template, "version": version})
+        field_dict.update(
+            {
+                "id": id,
+                "lines_added": lines_added,
+                "lines_edited": lines_edited,
+                "lines_removed": lines_removed,
+                "model_changed": model_changed,
+                "settings": settings,
+                "settings_changed": settings_changed,
+                "template": template,
+                "version": version,
+            }
+        )
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+        from ..models.base_prompt_template_version_response_settings import BasePromptTemplateVersionResponseSettings
         from ..models.messages_list_item import MessagesListItem
 
         d = src_dict.copy()
         id = d.pop("id")
+
+        lines_added = d.pop("lines_added")
+
+        lines_edited = d.pop("lines_edited")
+
+        lines_removed = d.pop("lines_removed")
+
+        model_changed = d.pop("model_changed")
+
+        settings = BasePromptTemplateVersionResponseSettings.from_dict(d.pop("settings"))
+
+        settings_changed = d.pop("settings_changed")
 
         def _parse_template(data: object) -> Union[list["MessagesListItem"], str]:
             try:
@@ -73,7 +123,17 @@ class BasePromptTemplateVersionResponse:
 
         version = d.pop("version")
 
-        base_prompt_template_version_response = cls(id=id, template=template, version=version)
+        base_prompt_template_version_response = cls(
+            id=id,
+            lines_added=lines_added,
+            lines_edited=lines_edited,
+            lines_removed=lines_removed,
+            model_changed=model_changed,
+            settings=settings,
+            settings_changed=settings_changed,
+            template=template,
+            version=version,
+        )
 
         base_prompt_template_version_response.additional_properties = d
         return base_prompt_template_version_response

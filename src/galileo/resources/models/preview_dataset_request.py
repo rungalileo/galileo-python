@@ -64,7 +64,9 @@ class PreviewDatasetRequest:
 
         column_mapping = _parse_column_mapping(d.pop("column_mapping", UNSET))
 
-        preview_dataset_request = cls(column_mapping=column_mapping)
+        preview_dataset_request = cls(
+            column_mapping=column_mapping,
+        )
 
         preview_dataset_request.additional_properties = d
         return preview_dataset_request

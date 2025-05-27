@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.llm_span_record import LlmSpanRecord
     from ..models.retriever_span_record import RetrieverSpanRecord
+    from ..models.session_record import SessionRecord
     from ..models.tool_span_record import ToolSpanRecord
     from ..models.trace_record import TraceRecord
     from ..models.workflow_span_record import WorkflowSpanRecord
@@ -23,8 +24,8 @@ class LogRecordsQueryResponse:
         limit (Union[Unset, int]):  Default: 100.
         next_starting_token (Union[None, Unset, int]):
         paginated (Union[Unset, bool]):  Default: False.
-        records (Union[Unset, list[Union['LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'TraceRecord',
-            'WorkflowSpanRecord']]]): records matching the query
+        records (Union[Unset, list[Union['LlmSpanRecord', 'RetrieverSpanRecord', 'SessionRecord', 'ToolSpanRecord',
+            'TraceRecord', 'WorkflowSpanRecord']]]): records matching the query
         starting_token (Union[Unset, int]):  Default: 0.
     """
 
@@ -33,13 +34,23 @@ class LogRecordsQueryResponse:
     paginated: Union[Unset, bool] = False
     records: Union[
         Unset,
-        list[Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "TraceRecord", "WorkflowSpanRecord"]],
+        list[
+            Union[
+                "LlmSpanRecord",
+                "RetrieverSpanRecord",
+                "SessionRecord",
+                "ToolSpanRecord",
+                "TraceRecord",
+                "WorkflowSpanRecord",
+            ]
+        ],
     ] = UNSET
     starting_token: Union[Unset, int] = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.llm_span_record import LlmSpanRecord
+        from ..models.retriever_span_record import RetrieverSpanRecord
         from ..models.tool_span_record import ToolSpanRecord
         from ..models.trace_record import TraceRecord
         from ..models.workflow_span_record import WorkflowSpanRecord
@@ -66,6 +77,8 @@ class LogRecordsQueryResponse:
                 elif isinstance(records_item_data, LlmSpanRecord):
                     records_item = records_item_data.to_dict()
                 elif isinstance(records_item_data, ToolSpanRecord):
+                    records_item = records_item_data.to_dict()
+                elif isinstance(records_item_data, RetrieverSpanRecord):
                     records_item = records_item_data.to_dict()
                 else:
                     records_item = records_item_data.to_dict()
@@ -94,6 +107,7 @@ class LogRecordsQueryResponse:
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.llm_span_record import LlmSpanRecord
         from ..models.retriever_span_record import RetrieverSpanRecord
+        from ..models.session_record import SessionRecord
         from ..models.tool_span_record import ToolSpanRecord
         from ..models.trace_record import TraceRecord
         from ..models.workflow_span_record import WorkflowSpanRecord
@@ -118,7 +132,14 @@ class LogRecordsQueryResponse:
 
             def _parse_records_item(
                 data: object,
-            ) -> Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "TraceRecord", "WorkflowSpanRecord"]:
+            ) -> Union[
+                "LlmSpanRecord",
+                "RetrieverSpanRecord",
+                "SessionRecord",
+                "ToolSpanRecord",
+                "TraceRecord",
+                "WorkflowSpanRecord",
+            ]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
@@ -151,11 +172,19 @@ class LogRecordsQueryResponse:
                     return records_item_type_1_type_2
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    records_item_type_1_type_3 = RetrieverSpanRecord.from_dict(data)
+
+                    return records_item_type_1_type_3
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                records_item_type_1_type_3 = RetrieverSpanRecord.from_dict(data)
+                records_item_type_2 = SessionRecord.from_dict(data)
 
-                return records_item_type_1_type_3
+                return records_item_type_2
 
             records_item = _parse_records_item(records_item_data)
 

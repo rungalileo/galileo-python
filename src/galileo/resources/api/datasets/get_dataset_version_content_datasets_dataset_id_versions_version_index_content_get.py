@@ -11,7 +11,11 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    dataset_id: str, version_index: int, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    dataset_id: str,
+    version_index: int,
+    *,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -82,9 +86,16 @@ def sync_detailed(
         Response[Union[DatasetContent, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, starting_token=starting_token, limit=limit)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        version_index=version_index,
+        starting_token=starting_token,
+        limit=limit,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
@@ -114,7 +125,11 @@ def sync(
     """
 
     return sync_detailed(
-        dataset_id=dataset_id, version_index=version_index, client=client, starting_token=starting_token, limit=limit
+        dataset_id=dataset_id,
+        version_index=version_index,
+        client=client,
+        starting_token=starting_token,
+        limit=limit,
     ).parsed
 
 
@@ -142,7 +157,12 @@ async def asyncio_detailed(
         Response[Union[DatasetContent, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, starting_token=starting_token, limit=limit)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        version_index=version_index,
+        starting_token=starting_token,
+        limit=limit,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 

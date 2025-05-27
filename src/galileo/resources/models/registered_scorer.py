@@ -134,7 +134,11 @@ class RegisteredScorer:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        registered_scorer = cls(filters=filters, id=id, name=name)
+        registered_scorer = cls(
+            filters=filters,
+            id=id,
+            name=name,
+        )
 
         registered_scorer.additional_properties = d
         return registered_scorer

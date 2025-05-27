@@ -27,7 +27,11 @@ class ProjectBookmarkFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"value": value})
+        field_dict.update(
+            {
+                "value": value,
+            }
+        )
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -42,7 +46,10 @@ class ProjectBookmarkFilter:
         if name != "bookmark" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'bookmark', got '{name}'")
 
-        project_bookmark_filter = cls(value=value, name=name)
+        project_bookmark_filter = cls(
+            value=value,
+            name=name,
+        )
 
         project_bookmark_filter.additional_properties = d
         return project_bookmark_filter

@@ -24,7 +24,11 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"file": file})
+        field_dict.update(
+            {
+                "file": file,
+            }
+        )
 
         return field_dict
 
@@ -35,7 +39,11 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
         for prop_name, prop in self.additional_properties.items():
             field_dict[prop_name] = (None, str(prop).encode(), "text/plain")
 
-        field_dict.update({"file": file})
+        field_dict.update(
+            {
+                "file": file,
+            }
+        )
 
         return field_dict
 
@@ -44,7 +52,9 @@ class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
         d = src_dict.copy()
         file = File(payload=BytesIO(d.pop("file")))
 
-        body_create_code_scorer_version_scorers_scorer_id_version_code_post = cls(file=file)
+        body_create_code_scorer_version_scorers_scorer_id_version_code_post = cls(
+            file=file,
+        )
 
         body_create_code_scorer_version_scorers_scorer_id_version_code_post.additional_properties = d
         return body_create_code_scorer_version_scorers_scorer_id_version_code_post

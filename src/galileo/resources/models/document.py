@@ -30,7 +30,11 @@ class Document:
             metadata = self.metadata.to_dict()
 
         field_dict: dict[str, Any] = {}
-        field_dict.update({"page_content": page_content})
+        field_dict.update(
+            {
+                "page_content": page_content,
+            }
+        )
         if metadata is not UNSET:
             field_dict["metadata"] = metadata
 
@@ -50,6 +54,9 @@ class Document:
         else:
             metadata = DocumentMetadata.from_dict(_metadata)
 
-        document = cls(page_content=page_content, metadata=metadata)
+        document = cls(
+            page_content=page_content,
+            metadata=metadata,
+        )
 
         return document

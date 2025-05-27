@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from ..models.metrics import Metrics
     from ..models.retriever_span import RetrieverSpan
     from ..models.tool_span import ToolSpan
+    from ..models.workflow_span_dataset_metadata import WorkflowSpanDatasetMetadata
     from ..models.workflow_span_user_metadata import WorkflowSpanUserMetadata
 
 
@@ -26,19 +27,30 @@ class WorkflowSpan:
     Attributes:
         input_ (Union[list['Message'], str]): Input to the trace or span.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
+        dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
+        dataset_metadata (Union[Unset, WorkflowSpanDatasetMetadata]): Metadata from the dataset associated with this
+            trace
+        dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
+        external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
+        id (Union[None, Unset, str]): Galileo ID of the session, trace or span
         metrics (Union[Unset, Metrics]):
-        name (Union[Unset, str]): Name of the trace or span. Default: ''.
+        name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
         spans (Union[Unset, list[Union['LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]]): Child spans.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
-        type_ (Union[Literal['workflow'], Unset]): Type of the trace or span. Default: 'workflow'.
+        type_ (Union[Literal['workflow'], Unset]): Type of the trace, span or session. Default: 'workflow'.
         user_metadata (Union[Unset, WorkflowSpanUserMetadata]): Metadata associated with this trace or span.
     """
 
     input_: Union[list["Message"], str]
     created_at: Union[Unset, datetime.datetime] = UNSET
+    dataset_input: Union[None, Unset, str] = UNSET
+    dataset_metadata: Union[Unset, "WorkflowSpanDatasetMetadata"] = UNSET
+    dataset_output: Union[None, Unset, str] = UNSET
+    external_id: Union[None, Unset, str] = UNSET
+    id: Union[None, Unset, str] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
@@ -67,6 +79,34 @@ class WorkflowSpan:
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
             created_at = self.created_at.isoformat()
+
+        dataset_input: Union[None, Unset, str]
+        if isinstance(self.dataset_input, Unset):
+            dataset_input = UNSET
+        else:
+            dataset_input = self.dataset_input
+
+        dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.dataset_metadata, Unset):
+            dataset_metadata = self.dataset_metadata.to_dict()
+
+        dataset_output: Union[None, Unset, str]
+        if isinstance(self.dataset_output, Unset):
+            dataset_output = UNSET
+        else:
+            dataset_output = self.dataset_output
+
+        external_id: Union[None, Unset, str]
+        if isinstance(self.external_id, Unset):
+            external_id = UNSET
+        else:
+            external_id = self.external_id
+
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
         metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metrics, Unset):
@@ -122,9 +162,23 @@ class WorkflowSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"input": input_})
+        field_dict.update(
+            {
+                "input": input_,
+            }
+        )
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
+        if dataset_input is not UNSET:
+            field_dict["dataset_input"] = dataset_input
+        if dataset_metadata is not UNSET:
+            field_dict["dataset_metadata"] = dataset_metadata
+        if dataset_output is not UNSET:
+            field_dict["dataset_output"] = dataset_output
+        if external_id is not UNSET:
+            field_dict["external_id"] = external_id
+        if id is not UNSET:
+            field_dict["id"] = id
         if metrics is not UNSET:
             field_dict["metrics"] = metrics
         if name is not UNSET:
@@ -152,6 +206,7 @@ class WorkflowSpan:
         from ..models.metrics import Metrics
         from ..models.retriever_span import RetrieverSpan
         from ..models.tool_span import ToolSpan
+        from ..models.workflow_span_dataset_metadata import WorkflowSpanDatasetMetadata
         from ..models.workflow_span_user_metadata import WorkflowSpanUserMetadata
 
         d = src_dict.copy()
@@ -180,6 +235,49 @@ class WorkflowSpan:
             created_at = UNSET
         else:
             created_at = isoparse(_created_at)
+
+        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
+
+        _dataset_metadata = d.pop("dataset_metadata", UNSET)
+        dataset_metadata: Union[Unset, WorkflowSpanDatasetMetadata]
+        if isinstance(_dataset_metadata, Unset):
+            dataset_metadata = UNSET
+        else:
+            dataset_metadata = WorkflowSpanDatasetMetadata.from_dict(_dataset_metadata)
+
+        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
+
+        def _parse_external_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        external_id = _parse_external_id(d.pop("external_id", UNSET))
+
+        def _parse_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        id = _parse_id(d.pop("id", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Union[Unset, Metrics]
@@ -284,6 +382,11 @@ class WorkflowSpan:
         workflow_span = cls(
             input_=input_,
             created_at=created_at,
+            dataset_input=dataset_input,
+            dataset_metadata=dataset_metadata,
+            dataset_output=dataset_output,
+            external_id=external_id,
+            id=id,
             metrics=metrics,
             name=name,
             output=output,

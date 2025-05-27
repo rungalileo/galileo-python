@@ -65,7 +65,10 @@ class LogRecordsAvailableColumnsRequest:
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        log_records_available_columns_request = cls(experiment_id=experiment_id, log_stream_id=log_stream_id)
+        log_records_available_columns_request = cls(
+            experiment_id=experiment_id,
+            log_stream_id=log_stream_id,
+        )
 
         log_records_available_columns_request.additional_properties = d
         return log_records_available_columns_request

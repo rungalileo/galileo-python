@@ -42,7 +42,10 @@ class GeneratedScorerConfiguration:
 
         num_judges = d.pop("num_judges", UNSET)
 
-        generated_scorer_configuration = cls(model_alias=model_alias, num_judges=num_judges)
+        generated_scorer_configuration = cls(
+            model_alias=model_alias,
+            num_judges=num_judges,
+        )
 
         generated_scorer_configuration.additional_properties = d
         return generated_scorer_configuration

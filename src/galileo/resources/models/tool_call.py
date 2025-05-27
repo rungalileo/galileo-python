@@ -29,7 +29,12 @@ class ToolCall:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"function": function, "id": id})
+        field_dict.update(
+            {
+                "function": function,
+                "id": id,
+            }
+        )
 
         return field_dict
 
@@ -42,7 +47,10 @@ class ToolCall:
 
         id = d.pop("id")
 
-        tool_call = cls(function=function, id=id)
+        tool_call = cls(
+            function=function,
+            id=id,
+        )
 
         tool_call.additional_properties = d
         return tool_call

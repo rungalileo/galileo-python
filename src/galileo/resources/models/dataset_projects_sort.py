@@ -54,7 +54,11 @@ class DatasetProjectsSort:
         if sort_type != "custom" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'custom', got '{sort_type}'")
 
-        dataset_projects_sort = cls(ascending=ascending, name=name, sort_type=sort_type)
+        dataset_projects_sort = cls(
+            ascending=ascending,
+            name=name,
+            sort_type=sort_type,
+        )
 
         dataset_projects_sort.additional_properties = d
         return dataset_projects_sort

@@ -27,7 +27,11 @@ class RecomputeSettingsObserve:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"filters": filters})
+        field_dict.update(
+            {
+                "filters": filters,
+            }
+        )
         if mode is not UNSET:
             field_dict["mode"] = mode
 
@@ -42,7 +46,10 @@ class RecomputeSettingsObserve:
         if mode != "observe_filters" and not isinstance(mode, Unset):
             raise ValueError(f"mode must match const 'observe_filters', got '{mode}'")
 
-        recompute_settings_observe = cls(filters=filters, mode=mode)
+        recompute_settings_observe = cls(
+            filters=filters,
+            mode=mode,
+        )
 
         recompute_settings_observe.additional_properties = d
         return recompute_settings_observe

@@ -56,7 +56,13 @@ class ColumnMapping:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"input": input_, "metadata": metadata, "output": output})
+        field_dict.update(
+            {
+                "input": input_,
+                "metadata": metadata,
+                "output": output,
+            }
+        )
 
         return field_dict
 
@@ -135,7 +141,11 @@ class ColumnMapping:
 
         output = _parse_output(d.pop("output"))
 
-        column_mapping = cls(input_=input_, metadata=metadata, output=output)
+        column_mapping = cls(
+            input_=input_,
+            metadata=metadata,
+            output=output,
+        )
 
         column_mapping.additional_properties = d
         return column_mapping

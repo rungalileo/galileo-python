@@ -237,7 +237,10 @@ class ListDatasetParams:
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
-        list_dataset_params = cls(filters=filters, sort=sort)
+        list_dataset_params = cls(
+            filters=filters,
+            sort=sort,
+        )
 
         list_dataset_params.additional_properties = d
         return list_dataset_params

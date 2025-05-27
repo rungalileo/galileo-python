@@ -13,23 +13,15 @@ class ExperimentUpdateRequest:
     """
     Attributes:
         name (str):
-        dataset_version_id (Union[None, Unset, str]):
         task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
     """
 
     name: str
-    dataset_version_id: Union[None, Unset, str] = UNSET
     task_type: Union[Literal[16], Literal[17], Unset] = 16
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
-
-        dataset_version_id: Union[None, Unset, str]
-        if isinstance(self.dataset_version_id, Unset):
-            dataset_version_id = UNSET
-        else:
-            dataset_version_id = self.dataset_version_id
 
         task_type: Union[Literal[16], Literal[17], Unset]
         if isinstance(self.task_type, Unset):
@@ -39,9 +31,11 @@ class ExperimentUpdateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"name": name})
-        if dataset_version_id is not UNSET:
-            field_dict["dataset_version_id"] = dataset_version_id
+        field_dict.update(
+            {
+                "name": name,
+            }
+        )
         if task_type is not UNSET:
             field_dict["task_type"] = task_type
 
@@ -51,15 +45,6 @@ class ExperimentUpdateRequest:
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         d = src_dict.copy()
         name = d.pop("name")
-
-        def _parse_dataset_version_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        dataset_version_id = _parse_dataset_version_id(d.pop("dataset_version_id", UNSET))
 
         def _parse_task_type(data: object) -> Union[Literal[16], Literal[17], Unset]:
             if isinstance(data, Unset):
@@ -75,7 +60,10 @@ class ExperimentUpdateRequest:
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
-        experiment_update_request = cls(name=name, dataset_version_id=dataset_version_id, task_type=task_type)
+        experiment_update_request = cls(
+            name=name,
+            task_type=task_type,
+        )
 
         experiment_update_request.additional_properties = d
         return experiment_update_request

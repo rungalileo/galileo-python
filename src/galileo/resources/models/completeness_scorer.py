@@ -161,7 +161,13 @@ class CompletenessScorer:
         else:
             type_ = CompletenessScorerType(_type_)
 
-        completeness_scorer = cls(filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_)
+        completeness_scorer = cls(
+            filters=filters,
+            model_name=model_name,
+            name=name,
+            num_judges=num_judges,
+            type_=type_,
+        )
 
         completeness_scorer.additional_properties = d
         return completeness_scorer

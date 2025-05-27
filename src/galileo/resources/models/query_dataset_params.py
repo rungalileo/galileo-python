@@ -83,7 +83,10 @@ class QueryDatasetParams:
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
-        query_dataset_params = cls(filters=filters, sort=sort)
+        query_dataset_params = cls(
+            filters=filters,
+            sort=sort,
+        )
 
         query_dataset_params.additional_properties = d
         return query_dataset_params

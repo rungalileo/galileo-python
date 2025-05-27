@@ -26,6 +26,7 @@ class LogRecordsIngestRequest:
             immediately before verifying that the traces have been successfully ingested, and no error message will be
             returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
             return an error message if there is an ingestion failure. Default: False.
+        session_id (Union[None, Unset, str]): Session id associated with the traces.
     """
 
     traces: list["Trace"]
@@ -34,6 +35,7 @@ class LogRecordsIngestRequest:
     log_stream_id: Union[None, Unset, str] = UNSET
     logging_method: Union[Unset, LoggingMethod] = UNSET
     reliable: Union[Unset, bool] = False
+    session_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -66,9 +68,19 @@ class LogRecordsIngestRequest:
 
         reliable = self.reliable
 
+        session_id: Union[None, Unset, str]
+        if isinstance(self.session_id, Unset):
+            session_id = UNSET
+        else:
+            session_id = self.session_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"traces": traces})
+        field_dict.update(
+            {
+                "traces": traces,
+            }
+        )
         if client_version is not UNSET:
             field_dict["client_version"] = client_version
         if experiment_id is not UNSET:
@@ -79,6 +91,8 @@ class LogRecordsIngestRequest:
             field_dict["logging_method"] = logging_method
         if reliable is not UNSET:
             field_dict["reliable"] = reliable
+        if session_id is not UNSET:
+            field_dict["session_id"] = session_id
 
         return field_dict
 
@@ -130,6 +144,15 @@ class LogRecordsIngestRequest:
 
         reliable = d.pop("reliable", UNSET)
 
+        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_id = _parse_session_id(d.pop("session_id", UNSET))
+
         log_records_ingest_request = cls(
             traces=traces,
             client_version=client_version,
@@ -137,6 +160,7 @@ class LogRecordsIngestRequest:
             log_stream_id=log_stream_id,
             logging_method=logging_method,
             reliable=reliable,
+            session_id=session_id,
         )
 
         log_records_ingest_request.additional_properties = d

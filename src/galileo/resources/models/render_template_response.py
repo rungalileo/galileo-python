@@ -1,9 +1,13 @@
-from typing import Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.rendered_template import RenderedTemplate
+
 
 T = TypeVar("T", bound="RenderTemplateResponse")
 
@@ -12,14 +16,14 @@ T = TypeVar("T", bound="RenderTemplateResponse")
 class RenderTemplateResponse:
     """
     Attributes:
-        rendered_templates (list[str]):
+        rendered_templates (list['RenderedTemplate']):
         limit (Union[Unset, int]):  Default: 100.
         next_starting_token (Union[None, Unset, int]):
         paginated (Union[Unset, bool]):  Default: False.
         starting_token (Union[Unset, int]):  Default: 0.
     """
 
-    rendered_templates: list[str]
+    rendered_templates: list["RenderedTemplate"]
     limit: Union[Unset, int] = 100
     next_starting_token: Union[None, Unset, int] = UNSET
     paginated: Union[Unset, bool] = False
@@ -27,7 +31,10 @@ class RenderTemplateResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        rendered_templates = self.rendered_templates
+        rendered_templates = []
+        for rendered_templates_item_data in self.rendered_templates:
+            rendered_templates_item = rendered_templates_item_data.to_dict()
+            rendered_templates.append(rendered_templates_item)
 
         limit = self.limit
 
@@ -43,7 +50,11 @@ class RenderTemplateResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"rendered_templates": rendered_templates})
+        field_dict.update(
+            {
+                "rendered_templates": rendered_templates,
+            }
+        )
         if limit is not UNSET:
             field_dict["limit"] = limit
         if next_starting_token is not UNSET:
@@ -57,8 +68,15 @@ class RenderTemplateResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+        from ..models.rendered_template import RenderedTemplate
+
         d = src_dict.copy()
-        rendered_templates = cast(list[str], d.pop("rendered_templates"))
+        rendered_templates = []
+        _rendered_templates = d.pop("rendered_templates")
+        for rendered_templates_item_data in _rendered_templates:
+            rendered_templates_item = RenderedTemplate.from_dict(rendered_templates_item_data)
+
+            rendered_templates.append(rendered_templates_item)
 
         limit = d.pop("limit", UNSET)
 

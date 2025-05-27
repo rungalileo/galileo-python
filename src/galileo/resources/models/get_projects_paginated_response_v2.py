@@ -55,7 +55,12 @@ class GetProjectsPaginatedResponseV2:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"projects": projects, "total_count": total_count})
+        field_dict.update(
+            {
+                "projects": projects,
+                "total_count": total_count,
+            }
+        )
         if limit is not UNSET:
             field_dict["limit"] = limit
         if next_starting_token is not UNSET:
