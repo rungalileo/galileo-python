@@ -66,6 +66,7 @@ class TestGalileoAsyncCallback:
         assert node.parent_run_id is None
         assert "name" in node.span_params
         assert node.span_params["name"] == "Parent Chain"
+        assert node.span_params["start_time"] > 0
         assert str(parent_id) in callback._nodes
 
         # Create a child node
@@ -117,6 +118,7 @@ class TestGalileoAsyncCallback:
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "chain"
         assert callback._nodes[str(run_id)].span_params["input"] == '{"query": "test question"}'
+        assert callback._nodes[str(run_id)].span_params["start_time"] > 0
 
         # End chain
         await callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
@@ -223,6 +225,7 @@ class TestGalileoAsyncCallback:
         assert callback._nodes[str(run_id)].span_params["num_input_tokens"] == 10
         assert callback._nodes[str(run_id)].span_params["num_output_tokens"] == 20
         assert callback._nodes[str(run_id)].span_params["total_tokens"] == 30
+        assert callback._nodes[str(run_id)].span_params["duration_ns"] > 0
 
     @mark.asyncio
     async def test_on_chat_model_start(self, callback: GalileoAsyncCallback):
