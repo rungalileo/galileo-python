@@ -118,7 +118,14 @@ class GalileoCallback(BaseCallbackHandler):
 
         # Log the current node based on its type
         if node.node_type in ("agent", "chain"):
-            self._galileo_logger.add_workflow_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_workflow_span(
+                input=input,
+                output=output,
+                name=name,
+                duration_ns=node.span_params.get("duration_ns"),
+                metadata=metadata,
+                tags=tags,
+            )
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
             self._galileo_logger.add_llm_span(
@@ -128,6 +135,7 @@ class GalileoCallback(BaseCallbackHandler):
                 temperature=node.span_params.get("temperature"),
                 tools=node.span_params.get("tools"),
                 name=name,
+                duration_ns=node.span_params.get("duration_ns"),
                 metadata=metadata,
                 tags=tags,
                 num_input_tokens=node.span_params.get("num_input_tokens"),
@@ -136,9 +144,23 @@ class GalileoCallback(BaseCallbackHandler):
                 time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
             )
         elif node.node_type == "retriever":
-            self._galileo_logger.add_retriever_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_retriever_span(
+                input=input,
+                output=output,
+                name=name,
+                duration_ns=node.span_params.get("duration_ns"),
+                metadata=metadata,
+                tags=tags,
+            )
         elif node.node_type == "tool":
-            self._galileo_logger.add_tool_span(input=input, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_tool_span(
+                input=input,
+                output=output,
+                name=name,
+                duration_ns=node.span_params.get("duration_ns"),
+                metadata=metadata,
+                tags=tags,
+            )
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
 
@@ -187,6 +209,10 @@ class GalileoCallback(BaseCallbackHandler):
 
         # Create new node
         node = Node(node_type=node_type, span_params=kwargs, run_id=run_id, parent_run_id=parent_run_id)
+
+        if "start_time" not in node.span_params:
+            node.span_params["start_time"] = time.perf_counter_ns()
+
         self._nodes[node_id] = node
 
         # Set as root node if needed
@@ -221,6 +247,8 @@ class GalileoCallback(BaseCallbackHandler):
         if not node:
             _logger.debug(f"No node exists for run_id {node_id}")
             return
+
+        node.span_params["duration_ns"] = time.perf_counter_ns() - node.span_params["start_time"]
 
         # Update node parameters
         node.span_params.update(**kwargs)
@@ -319,7 +347,7 @@ class GalileoCallback(BaseCallbackHandler):
             model=model,
             temperature=temperature,
             metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
-            start_time=time.perf_counter(),
+            start_time=time.perf_counter_ns(),
             time_to_first_token_ns=None,
         )
 
@@ -332,7 +360,7 @@ class GalileoCallback(BaseCallbackHandler):
         if "time_to_first_token_ns" not in node.span_params or node.span_params["time_to_first_token_ns"] is None:
             start_time = node.span_params.get("start_time")
             if start_time is not None:
-                node.span_params["time_to_first_token_ns"] = (time.perf_counter() - start_time) * 1e9
+                node.span_params["time_to_first_token_ns"] = time.perf_counter_ns() - start_time
 
     def on_chat_model_start(
         self,
