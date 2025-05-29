@@ -6,7 +6,6 @@ authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
 requires-python = ">=3.9,<3.14"
 dynamic = ["dependencies"]
-dependencies = []
 
 [tool.poetry.dependencies]
 python = "^3.9,<3.14"
