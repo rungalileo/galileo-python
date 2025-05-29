@@ -47,7 +47,7 @@ ruff = "^0.11.12"
 mkdocs = "^1.6.0"
 mkdocs-material = "^9.6.14"
 mkdocstrings = "^0.29"
-mkdocstrings-python = "^1.10.8"
+mkdocstrings-python = "^1.16.11"
 griffe-fieldz = "^0.2.0"
 
 
