@@ -5,6 +5,7 @@
 #     "langgraph",
 #     "langsmith",
 #     "langchain[openai]",
+#     "grandalf", # for printing graph in ascii
 # ]
 # ///
 from typing import Annotated
@@ -24,7 +25,7 @@ class State(TypedDict):
     messages: Annotated[list, add_messages]
 
 
-llm = ChatOpenAI(model="gpt-4", callbacks=[GalileoCallback()])
+llm = ChatOpenAI(model="gpt-4")
 
 
 def chatbot(state: State):
@@ -39,4 +40,6 @@ graph_builder.add_node("chatbot", chatbot)
 graph_builder.add_edge(START, "chatbot")
 graph = graph_builder.compile()
 
-graph.invoke({"messages": [{"role": "user", "content": "hi!"}]})
+graph.get_graph().print_ascii()
+
+graph.invoke({"messages": [{"role": "user", "content": "hi!"}]}, {"callbacks": [GalileoCallback()]})
