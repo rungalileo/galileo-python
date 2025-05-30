@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.experiment_dataset import ExperimentDataset
+    from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
     from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
 
 
@@ -25,6 +26,8 @@ class ExperimentResponse:
         task_type (TaskType): Valid task types for modeling.
 
             We store these as ints instead of strings because we will be looking this up in the database frequently.
+        aggregate_feedback (Union[Unset, ExperimentResponseAggregateFeedback]): Aggregate feedback information related
+            to the experiment
         aggregate_metrics (Union[Unset, ExperimentResponseAggregateMetrics]):
         created_at (Union[Unset, datetime.datetime]): Timestamp of the experiment's creation
         created_by (Union[None, Unset, str]):
@@ -39,6 +42,7 @@ class ExperimentResponse:
     id: str
     project_id: str
     task_type: TaskType
+    aggregate_feedback: Union[Unset, "ExperimentResponseAggregateFeedback"] = UNSET
     aggregate_metrics: Union[Unset, "ExperimentResponseAggregateMetrics"] = UNSET
     created_at: Union[Unset, datetime.datetime] = UNSET
     created_by: Union[None, Unset, str] = UNSET
@@ -58,6 +62,10 @@ class ExperimentResponse:
         project_id = self.project_id
 
         task_type = self.task_type.value
+
+        aggregate_feedback: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.aggregate_feedback, Unset):
+            aggregate_feedback = self.aggregate_feedback.to_dict()
 
         aggregate_metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.aggregate_metrics, Unset):
@@ -111,7 +119,15 @@ class ExperimentResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"id": id, "project_id": project_id, "task_type": task_type})
+        field_dict.update(
+            {
+                "id": id,
+                "project_id": project_id,
+                "task_type": task_type,
+            }
+        )
+        if aggregate_feedback is not UNSET:
+            field_dict["aggregate_feedback"] = aggregate_feedback
         if aggregate_metrics is not UNSET:
             field_dict["aggregate_metrics"] = aggregate_metrics
         if created_at is not UNSET:
@@ -136,6 +152,7 @@ class ExperimentResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.experiment_dataset import ExperimentDataset
+        from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
         from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
 
         d = src_dict.copy()
@@ -144,6 +161,13 @@ class ExperimentResponse:
         project_id = d.pop("project_id")
 
         task_type = TaskType(d.pop("task_type"))
+
+        _aggregate_feedback = d.pop("aggregate_feedback", UNSET)
+        aggregate_feedback: Union[Unset, ExperimentResponseAggregateFeedback]
+        if isinstance(_aggregate_feedback, Unset):
+            aggregate_feedback = UNSET
+        else:
+            aggregate_feedback = ExperimentResponseAggregateFeedback.from_dict(_aggregate_feedback)
 
         _aggregate_metrics = d.pop("aggregate_metrics", UNSET)
         aggregate_metrics: Union[Unset, ExperimentResponseAggregateMetrics]
@@ -235,6 +259,7 @@ class ExperimentResponse:
             id=id,
             project_id=project_id,
             task_type=task_type,
+            aggregate_feedback=aggregate_feedback,
             aggregate_metrics=aggregate_metrics,
             created_at=created_at,
             created_by=created_by,

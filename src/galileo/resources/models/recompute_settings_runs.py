@@ -27,7 +27,11 @@ class RecomputeSettingsRuns:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"run_ids": run_ids})
+        field_dict.update(
+            {
+                "run_ids": run_ids,
+            }
+        )
         if mode is not UNSET:
             field_dict["mode"] = mode
 
@@ -42,7 +46,10 @@ class RecomputeSettingsRuns:
         if mode != "runs" and not isinstance(mode, Unset):
             raise ValueError(f"mode must match const 'runs', got '{mode}'")
 
-        recompute_settings_runs = cls(run_ids=run_ids, mode=mode)
+        recompute_settings_runs = cls(
+            run_ids=run_ids,
+            mode=mode,
+        )
 
         recompute_settings_runs.additional_properties = d
         return recompute_settings_runs

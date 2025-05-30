@@ -40,7 +40,12 @@ class ProjectNumLogstreamsFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"operator": operator, "value": value})
+        field_dict.update(
+            {
+                "operator": operator,
+                "value": value,
+            }
+        )
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -76,7 +81,11 @@ class ProjectNumLogstreamsFilter:
         if name != "num_logstreams" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'num_logstreams', got '{name}'")
 
-        project_num_logstreams_filter = cls(operator=operator, value=value, name=name)
+        project_num_logstreams_filter = cls(
+            operator=operator,
+            value=value,
+            name=name,
+        )
 
         project_num_logstreams_filter.additional_properties = d
         return project_num_logstreams_filter

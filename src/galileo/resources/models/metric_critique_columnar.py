@@ -68,7 +68,10 @@ class MetricCritiqueColumnar:
         revised_explanation = _parse_revised_explanation(d.pop("revised_explanation"))
 
         metric_critique_columnar = cls(
-            critique_info=critique_info, id=id, is_computed=is_computed, revised_explanation=revised_explanation
+            critique_info=critique_info,
+            id=id,
+            is_computed=is_computed,
+            revised_explanation=revised_explanation,
         )
 
         metric_critique_columnar.additional_properties = d

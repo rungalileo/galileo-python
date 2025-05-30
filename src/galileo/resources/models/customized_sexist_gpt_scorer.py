@@ -32,7 +32,7 @@ class CustomizedSexistGPTScorer:
         indices (Union[None, Unset, list[int]]):
         metric_name (Union[None, Unset, str]):
         model_alias (Union[Unset, str]):  Default: 'GPT-4o mini'.
-        name (Union[Literal['output_sexist'], Unset]):  Default: 'output_sexist'.
+        name (Union[Literal['output_sexist_gpt'], Unset]):  Default: 'output_sexist_gpt'.
         num_judges (Union[Unset, int]):  Default: 3.
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
@@ -51,7 +51,7 @@ class CustomizedSexistGPTScorer:
     indices: Union[None, Unset, list[int]] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
     model_alias: Union[Unset, str] = "GPT-4o mini"
-    name: Union[Literal["output_sexist"], Unset] = "output_sexist"
+    name: Union[Literal["output_sexist_gpt"], Unset] = "output_sexist_gpt"
     num_judges: Union[Unset, int] = 3
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
@@ -341,9 +341,9 @@ class CustomizedSexistGPTScorer:
 
         model_alias = d.pop("model_alias", UNSET)
 
-        name = cast(Union[Literal["output_sexist"], Unset], d.pop("name", UNSET))
-        if name != "output_sexist" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'output_sexist', got '{name}'")
+        name = cast(Union[Literal["output_sexist_gpt"], Unset], d.pop("name", UNSET))
+        if name != "output_sexist_gpt" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'output_sexist_gpt', got '{name}'")
 
         num_judges = d.pop("num_judges", UNSET)
 

@@ -41,7 +41,12 @@ class DatasetNameFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"operator": operator, "value": value})
+        field_dict.update(
+            {
+                "operator": operator,
+                "value": value,
+            }
+        )
         if case_sensitive is not UNSET:
             field_dict["case_sensitive"] = case_sensitive
         if name is not UNSET:
@@ -73,7 +78,12 @@ class DatasetNameFilter:
         if name != "name" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'name', got '{name}'")
 
-        dataset_name_filter = cls(operator=operator, value=value, case_sensitive=case_sensitive, name=name)
+        dataset_name_filter = cls(
+            operator=operator,
+            value=value,
+            case_sensitive=case_sensitive,
+            name=name,
+        )
 
         dataset_name_filter.additional_properties = d
         return dataset_name_filter

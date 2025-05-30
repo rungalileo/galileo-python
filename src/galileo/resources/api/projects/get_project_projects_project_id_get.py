@@ -10,8 +10,13 @@ from ...models.project_db import ProjectDB
 from ...types import Response
 
 
-def _get_kwargs(project_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}"}
+def _get_kwargs(
+    project_id: str,
+) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {
+        "method": "get",
+        "url": f"/projects/{project_id}",
+    }
 
     return _kwargs
 
@@ -44,46 +49,10 @@ def _build_response(
     )
 
 
-def sync_detailed(project_id: str, *, client: AuthenticatedClient) -> Response[Union[HTTPValidationError, ProjectDB]]:
-    """Get Project
-
-    Args:
-        project_id (str):
-
-    Raises:
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
-
-    Returns:
-        Response[Union[HTTPValidationError, ProjectDB]]
-    """
-
-    kwargs = _get_kwargs(project_id=project_id)
-
-    response = client.get_httpx_client().request(**kwargs)
-
-    return _build_response(client=client, response=response)
-
-
-def sync(project_id: str, *, client: AuthenticatedClient) -> Optional[Union[HTTPValidationError, ProjectDB]]:
-    """Get Project
-
-    Args:
-        project_id (str):
-
-    Raises:
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
-
-    Returns:
-        Union[HTTPValidationError, ProjectDB]
-    """
-
-    return sync_detailed(project_id=project_id, client=client).parsed
-
-
-async def asyncio_detailed(
-    project_id: str, *, client: AuthenticatedClient
+def sync_detailed(
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
 ) -> Response[Union[HTTPValidationError, ProjectDB]]:
     """Get Project
 
@@ -98,14 +67,22 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, ProjectDB]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+    )
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(project_id: str, *, client: AuthenticatedClient) -> Optional[Union[HTTPValidationError, ProjectDB]]:
+def sync(
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Optional[Union[HTTPValidationError, ProjectDB]]:
     """Get Project
 
     Args:
@@ -119,4 +96,60 @@ async def asyncio(project_id: str, *, client: AuthenticatedClient) -> Optional[U
         Union[HTTPValidationError, ProjectDB]
     """
 
-    return (await asyncio_detailed(project_id=project_id, client=client)).parsed
+    return sync_detailed(
+        project_id=project_id,
+        client=client,
+    ).parsed
+
+
+async def asyncio_detailed(
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Response[Union[HTTPValidationError, ProjectDB]]:
+    """Get Project
+
+    Args:
+        project_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[Union[HTTPValidationError, ProjectDB]]
+    """
+
+    kwargs = _get_kwargs(
+        project_id=project_id,
+    )
+
+    response = await client.get_async_httpx_client().request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    project_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Optional[Union[HTTPValidationError, ProjectDB]]:
+    """Get Project
+
+    Args:
+        project_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Union[HTTPValidationError, ProjectDB]
+    """
+
+    return (
+        await asyncio_detailed(
+            project_id=project_id,
+            client=client,
+        )
+    ).parsed

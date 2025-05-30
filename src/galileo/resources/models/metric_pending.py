@@ -67,7 +67,10 @@ class MetricPending:
         if status_type != "pending" and not isinstance(status_type, Unset):
             raise ValueError(f"status_type must match const 'pending', got '{status_type}'")
 
-        metric_pending = cls(scorer_type=scorer_type, status_type=status_type)
+        metric_pending = cls(
+            scorer_type=scorer_type,
+            status_type=status_type,
+        )
 
         metric_pending.additional_properties = d
         return metric_pending

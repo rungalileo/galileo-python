@@ -1,5 +1,25 @@
 components:
   schemas:
+    ActionResult:
+      properties:
+        type:
+          $ref: "#/components/schemas/ActionType"
+          description: Type of action that was taken.
+        value:
+          description: Value of the action that was taken.
+          title: Value
+          type: string
+      required:
+        - type
+        - value
+      title: ActionResult
+      type: object
+    ActionType:
+      enum:
+        - OVERRIDE
+        - PASSTHROUGH
+      title: ActionType
+      type: string
     AgenticSessionSuccessScorer:
       properties:
         filters:
@@ -725,6 +745,27 @@ components:
         - custom
       title: AuthMethod
       type: string
+    BaseGeneratedScorerDB:
+      properties:
+        chain_poll_template:
+          $ref: "#/components/schemas/ChainPollTemplate"
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        instructions:
+          title: Instructions
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+        - id
+        - name
+        - instructions
+        - chain_poll_template
+      title: BaseGeneratedScorerDB
+      type: object
     BasePromptTemplateResponse:
       description: Response from API to get a prompt template version.
       properties:
@@ -774,6 +815,10 @@ components:
       type: object
     BasePromptTemplateVersion:
       properties:
+        settings:
+          additionalProperties: true
+          title: Settings
+          type: object
         template:
           anyOf:
             - minLength: 1
@@ -796,6 +841,25 @@ components:
           format: uuid4
           title: Id
           type: string
+        lines_added:
+          title: Lines Added
+          type: integer
+        lines_edited:
+          title: Lines Edited
+          type: integer
+        lines_removed:
+          title: Lines Removed
+          type: integer
+        model_changed:
+          title: Model Changed
+          type: boolean
+        settings:
+          additionalProperties: true
+          title: Settings
+          type: object
+        settings_changed:
+          title: Settings Changed
+          type: boolean
         template:
           anyOf:
             - minLength: 1
@@ -808,8 +872,28 @@ components:
       required:
         - template
         - version
+        - settings
         - id
+        - model_changed
+        - settings_changed
+        - lines_added
+        - lines_removed
+        - lines_edited
       title: BasePromptTemplateVersionResponse
+      type: object
+    BaseRegisteredScorerDB:
+      properties:
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+      required:
+        - id
+        - name
+      title: BaseRegisteredScorerDB
       type: object
     BaseScorer:
       properties:
@@ -914,6 +998,29 @@ components:
           type: array
       title: BaseScorer
       type: object
+    BaseScorerVersionDB:
+      description: Scorer version from the scorer_versions table.
+      properties:
+        generated_scorer:
+          anyOf:
+            - $ref: "#/components/schemas/BaseGeneratedScorerDB"
+            - type: "null"
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        registered_scorer:
+          anyOf:
+            - $ref: "#/components/schemas/BaseRegisteredScorerDB"
+            - type: "null"
+        version:
+          title: Version
+          type: integer
+      required:
+        - id
+        - version
+      title: BaseScorerVersionDB
+      type: object
     BaseScorerVersionResponse:
       properties:
         created_at:
@@ -982,6 +1089,17 @@ components:
       type: object
     Body_create_dataset_datasets_post:
       properties:
+        copy_from_dataset_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          title: Copy From Dataset Id
+        copy_from_dataset_version_index:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Copy From Dataset Version Index
         draft:
           default: false
           title: Draft
@@ -992,6 +1110,10 @@ components:
               type: string
             - type: "null"
           title: File
+        hidden:
+          default: false
+          title: Hidden
+          type: boolean
         name:
           anyOf:
             - type: string
@@ -1074,6 +1196,22 @@ components:
       required:
         - file
       title: Body_upload_prompt_evaluation_dataset_projects__project_id__prompt_datasets_post
+      type: object
+    BucketedMetrics:
+      additionalProperties: true
+      properties:
+        end_bucket_time:
+          format: date-time
+          title: End Bucket Time
+          type: string
+        start_bucket_time:
+          format: date-time
+          title: Start Bucket Time
+          type: string
+      required:
+        - start_bucket_time
+        - end_bucket_time
+      title: BucketedMetrics
       type: object
     ChainPollTemplate:
       description: "Template for a chainpoll metric prompt,
@@ -1251,6 +1389,7 @@ components:
         - user_metadata
         - dataset_metadata
         - dataset
+        - feedback
       title: ColumnCategory
       type: string
     ColumnInfo:
@@ -2214,10 +2353,18 @@ components:
 
         This is only used for parsing the body from the request."
       properties:
+        hidden:
+          default: false
+          title: Hidden
+          type: boolean
         name:
           minLength: 1
           title: Name
           type: string
+        settings:
+          additionalProperties: true
+          title: Settings
+          type: object
         template:
           anyOf:
             - minLength: 1
@@ -2236,6 +2383,12 @@ components:
       type: object
     CreateScorerRequest:
       properties:
+        default_version_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          title: Default Version Id
         defaults:
           anyOf:
             - $ref: "#/components/schemas/ScorerDefaults"
@@ -2244,6 +2397,10 @@ components:
           default: ""
           title: Description
           type: string
+        model_type:
+          anyOf:
+            - $ref: "#/components/schemas/ModelType"
+            - type: "null"
         name:
           title: Name
           type: string
@@ -3170,8 +3327,8 @@ components:
           title: Model Alias
           type: string
         name:
-          const: chunk_attribution_utilization
-          default: chunk_attribution_utilization
+          const: chunk_attribution_utilization_gpt
+          default: chunk_attribution_utilization_gpt
           title: Name
           type: string
         num_judges:
@@ -3295,8 +3452,8 @@ components:
           title: Model Alias
           type: string
         name:
-          const: completeness
-          default: completeness
+          const: completeness_gpt
+          default: completeness_gpt
           title: Name
           type: string
         num_judges:
@@ -3947,8 +4104,8 @@ components:
           title: Model Alias
           type: string
         name:
-          const: context_adherence
-          default: context_adherence
+          const: context_adherence_gpt
+          default: context_adherence_gpt
           title: Name
           type: string
         num_judges:
@@ -4093,8 +4250,8 @@ components:
           title: Model Alias
           type: string
         name:
-          const: input_sexist
-          default: input_sexist
+          const: input_sexist_gpt
+          default: input_sexist_gpt
           title: Name
           type: string
         num_judges:
@@ -4246,8 +4403,8 @@ components:
           title: Model Alias
           type: string
         name:
-          const: input_toxicity
-          default: input_toxicity
+          const: input_toxicity_gpt
+          default: input_toxicity_gpt
           title: Name
           type: string
         num_judges:
@@ -4591,8 +4748,8 @@ components:
           title: Model Alias
           type: string
         name:
-          const: prompt_injection
-          default: prompt_injection
+          const: prompt_injection_gpt
+          default: prompt_injection_gpt
           title: Name
           type: string
         num_judges:
@@ -4737,8 +4894,8 @@ components:
           title: Model Alias
           type: string
         name:
-          const: output_sexist
-          default: output_sexist
+          const: output_sexist_gpt
+          default: output_sexist_gpt
           title: Name
           type: string
         num_judges:
@@ -5234,8 +5391,8 @@ components:
           title: Model Alias
           type: string
         name:
-          const: output_toxicity
-          default: output_toxicity
+          const: output_toxicity_gpt
+          default: output_toxicity_gpt
           title: Name
           type: string
         num_judges:
@@ -5278,6 +5435,7 @@ components:
         - floating_point
         - boolean
         - timestamp
+        - string_list
       title: DataType
       type: string
     DataTypeOptions:
@@ -5639,6 +5797,35 @@ components:
           type: string
       title: DatasetNameSort
       type: object
+    DatasetProject:
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by_user:
+          anyOf:
+            - $ref: "#/components/schemas/UserInfo"
+            - type: "null"
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        name:
+          title: Name
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+        - id
+        - created_at
+        - updated_at
+        - name
+        - created_by_user
+      title: DatasetProject
+      type: object
     DatasetProjectLastUsedAtSort:
       properties:
         ascending:
@@ -5952,18 +6139,34 @@ components:
         - page_content
       title: Document
       type: object
+    ExecutionStatus:
+      description: Status of the execution.
+      enum:
+        - triggered
+        - failed
+        - error
+        - timeout
+        - paused
+        - not_triggered
+        - skipped
+      title: ExecutionStatus
+      type: string
     ExperimentCreateRequest:
       properties:
-        dataset_version_id:
+        dataset:
           anyOf:
-            - format: uuid4
-              type: string
+            - $ref: "#/components/schemas/ExperimentDatasetRequest"
             - type: "null"
-          title: Dataset Version Id
         name:
           minLength: 1
           title: Name
           type: string
+        playground_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          title: Playground Id
         task_type:
           anyOf:
             - const: 16
@@ -5984,12 +6187,6 @@ components:
               type: string
             - type: "null"
           title: Dataset Id
-        dataset_version_id:
-          anyOf:
-            - format: uuid4
-              type: string
-            - type: "null"
-          title: Dataset Version Id
         name:
           anyOf:
             - type: string
@@ -6002,11 +6199,30 @@ components:
           title: Version Index
       title: ExperimentDataset
       type: object
+    ExperimentDatasetRequest:
+      properties:
+        dataset_id:
+          format: uuid4
+          title: Dataset Id
+          type: string
+        version_index:
+          title: Version Index
+          type: integer
+      required:
+        - dataset_id
+        - version_index
+      title: ExperimentDatasetRequest
+      type: object
     ExperimentResponse:
       properties:
+        aggregate_feedback:
+          additionalProperties:
+            $ref: "#/components/schemas/FeedbackAggregate"
+          description: Aggregate feedback information related to the experiment
+          title: Aggregate Feedback
+          type: object
         aggregate_metrics:
           additionalProperties: true
-          default: {}
           title: Aggregate Metrics
           type: object
         created_at:
@@ -6071,12 +6287,6 @@ components:
       type: object
     ExperimentUpdateRequest:
       properties:
-        dataset_version_id:
-          anyOf:
-            - format: uuid4
-              type: string
-            - type: "null"
-          title: Dataset Version Id
         name:
           minLength: 1
           title: Name
@@ -6538,6 +6748,37 @@ components:
         - created_at
         - created_by
       title: FeedbackRatingDB
+      type: object
+    FeedbackRatingInfo:
+      properties:
+        explanation:
+          title: Explanation
+          type: string
+        feedback_type:
+          enum:
+            - like_dislike
+            - star
+            - score
+            - tags
+            - text
+          title: Feedback Type
+          type: string
+        value:
+          anyOf:
+            - type: boolean
+            - type: integer
+            - items:
+                maxLength: 255
+                minLength: 1
+                type: string
+              type: array
+            - type: string
+          title: Value
+      required:
+        - feedback_type
+        - value
+        - explanation
+      title: FeedbackRatingInfo
       type: object
     FewShotExample:
       description: Few-shot example for a chainpoll metric prompt.
@@ -7428,6 +7669,64 @@ components:
         - share
       title: IntegrationAction
       type: string
+    InvokeResponse:
+      properties:
+        action_result:
+          $ref: "#/components/schemas/ActionResult"
+        api_version:
+          default: 1.0.0
+          title: Api Version
+          type: string
+        headers:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: "null"
+          description:
+            Optional additional HTTP headers that should be included in
+            the response.
+          title: Headers
+        metadata:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: "null"
+          description:
+            Optional additional metadata. This being echoed back from the
+            request.
+          title: Metadata
+        metric_results:
+          additionalProperties:
+            $ref: "#/components/schemas/MetricComputation"
+          description: Results of the metric computation.
+          title: Metric Results
+          type: object
+        ruleset_results:
+          description: Results of the rule execution.
+          items:
+            $ref: "#/components/schemas/RulesetResult"
+          title: Ruleset Results
+          type: array
+        stage_metadata:
+          $ref: "#/components/schemas/StageMetadata"
+        status:
+          $ref: "#/components/schemas/ExecutionStatus"
+          default: skipped
+        text:
+          description: Text from the request after processing the rules.
+          title: Text
+          type: string
+        trace_metadata:
+          $ref: "#/components/schemas/TraceMetadata"
+      required:
+        - text
+        - trace_metadata
+        - stage_metadata
+        - action_result
+      title: InvokeResponse
+      type: object
     JobDB:
       properties:
         completed_at:
@@ -7618,6 +7917,32 @@ components:
           title: Sort
       title: ListDatasetParams
       type: object
+    ListDatasetProjectsResponse:
+      properties:
+        limit:
+          default: 100
+          title: Limit
+          type: integer
+        next_starting_token:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Next Starting Token
+        paginated:
+          default: false
+          title: Paginated
+          type: boolean
+        projects:
+          items:
+            $ref: "#/components/schemas/DatasetProject"
+          title: Projects
+          type: array
+        starting_token:
+          default: 0
+          title: Starting Token
+          type: integer
+      title: ListDatasetProjectsResponse
+      type: object
     ListDatasetResponse:
       properties:
         datasets:
@@ -7739,6 +8064,32 @@ components:
           title: Starting Token
           type: integer
       title: ListPromptDatasetResponse
+      type: object
+    ListScorerVersionsResponse:
+      properties:
+        limit:
+          default: 100
+          title: Limit
+          type: integer
+        next_starting_token:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Next Starting Token
+        paginated:
+          default: false
+          title: Paginated
+          type: boolean
+        starting_token:
+          default: 0
+          title: Starting Token
+          type: integer
+        versions:
+          items:
+            $ref: "#/components/schemas/BaseScorerVersionResponse"
+          title: Versions
+          type: array
+      title: ListScorerVersionsResponse
       type: object
     ListScorersRequest:
       properties:
@@ -7862,12 +8213,43 @@ components:
           format: date-time
           title: Created
           type: string
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input to the dataset associated with this trace
+          title: Dataset Input
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata from the dataset associated with this trace
+          title: Dataset Metadata
+          type: object
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output from the dataset associated with this trace
+          title: Dataset Output
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
         finish_reason:
           anyOf:
             - type: string
             - type: "null"
           description: Reason for finishing.
           title: Finish Reason
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session, trace or span
+          title: ID
         input:
           description: Input to the trace or span.
           items:
@@ -7885,7 +8267,7 @@ components:
           title: Model
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -7923,7 +8305,7 @@ components:
         type:
           const: llm
           default: llm
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         user_metadata:
@@ -7945,10 +8327,11 @@ components:
           title: Created
           type: string
         dataset_input:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Input to the dataset associated with this trace
           title: Dataset Input
-          type: string
         dataset_metadata:
           additionalProperties:
             type: string
@@ -7956,10 +8339,17 @@ components:
           title: Dataset Metadata
           type: object
         dataset_output:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Output from the dataset associated with this trace
           title: Dataset Output
-          type: string
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
         finish_reason:
           anyOf:
             - type: string
@@ -7973,7 +8363,7 @@ components:
           description: Whether or not this trace or span has child spans
           title: Has Children
         id:
-          description: Galileo ID of the trace or span
+          description: Galileo ID of the session, trace or span
           format: uuid4
           title: ID
           type: string
@@ -8030,7 +8420,7 @@ components:
           title: Model
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -8053,6 +8443,13 @@ components:
           format: uuid4
           title: Run ID
           type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
         status_code:
           anyOf:
             - type: integer
@@ -8092,7 +8489,7 @@ components:
         type:
           const: llm
           default: llm
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         updated_at:
@@ -8100,7 +8497,7 @@ components:
             - format: date-time
               type: string
             - type: "null"
-          description: Timestamp of the trace or span's last update
+          description: Timestamp of the session or trace or span's last update
           title: Last Updated
         user_metadata:
           additionalProperties:
@@ -8142,11 +8539,11 @@ components:
       examples:
         - columns:
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - trace
+                - workflow
               category: standard
               data_type: text
               description: Input to the trace or span.
@@ -8157,11 +8554,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - trace
+                - workflow
               category: standard
               data_type: text
               description: Output of the trace or span.
@@ -8172,14 +8569,15 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - session
+                - trace
+                - workflow
               category: standard
               data_type: text
-              description: Name of the trace or span.
+              description: Name of the trace, span or session.
               filterable: true
               group_label: Standard
               id: name
@@ -8187,11 +8585,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - session
+                - trace
+                - workflow
               category: standard
               data_type: timestamp
               description: Timestamp of the trace or span's creation.
@@ -8202,11 +8601,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - trace
+                - workflow
               category: standard
               data_type: text
               description: Tags associated with this trace or span.
@@ -8217,11 +8616,11 @@ components:
               multi_valued: true
               sortable: false
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - trace
+                - workflow
               category: standard
               data_type: integer
               description:
@@ -8234,14 +8633,61 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - session
+                - trace
+                - workflow
+              category: standard
+              data_type: text
+              description: A user-provided session, trace or span ID.
+              filterable: true
+              group_label: Standard
+              id: external_id
+              label: External Id
+              multi_valued: false
+              sortable: true
+            - applicable_types:
+                - retriever
+                - llm
+                - tool
+                - trace
+                - workflow
+              category: standard
+              data_type: text
+              description: Input to the dataset associated with this trace
+              filterable: true
+              group_label: Standard
+              id: dataset_input
+              label: Dataset Input
+              multi_valued: false
+              sortable: true
+            - applicable_types:
+                - retriever
+                - llm
+                - tool
+                - trace
+                - workflow
+              category: standard
+              data_type: text
+              description: Output from the dataset associated with this trace
+              filterable: true
+              group_label: Standard
+              id: dataset_output
+              label: Dataset Output
+              multi_valued: false
+              sortable: true
+            - applicable_types:
+                - retriever
+                - llm
+                - tool
+                - session
+                - trace
+                - workflow
               category: standard
               data_type: uuid
-              description: Galileo ID of the trace or span
+              description: Galileo ID of the session, trace or span
               filterable: true
               group_label: Standard
               id: id
@@ -8249,11 +8695,26 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - trace
+                - workflow
+              category: standard
+              data_type: uuid
+              description: Galileo ID of the session
+              filterable: true
+              group_label: Standard
+              id: session_id
+              label: Session ID
+              multi_valued: false
+              sortable: true
+            - applicable_types:
+                - retriever
+                - llm
+                - tool
+                - trace
+                - workflow
               category: standard
               data_type: uuid
               description: Galileo ID of the project associated with this trace or span
@@ -8264,11 +8725,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - trace
+                - workflow
               category: standard
               data_type: uuid
               description:
@@ -8281,14 +8742,15 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - session
+                - trace
+                - workflow
               category: standard
               data_type: timestamp
-              description: Timestamp of the trace or span's last update
+              description: Timestamp of the session or trace or span's last update
               filterable: true
               group_label: Standard
               id: updated_at
@@ -8296,41 +8758,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - llm
                 - retriever
-                - workflow
-                - tool
-              category: standard
-              data_type: text
-              description: Input to the dataset associated with this trace
-              filterable: true
-              group_label: Standard
-              id: dataset_input
-              label: Dataset Input
-              multi_valued: false
-              sortable: true
-            - applicable_types:
-                - trace
                 - llm
-                - retriever
-                - workflow
                 - tool
-              category: standard
-              data_type: text
-              description: Output from the dataset associated with this trace
-              filterable: true
-              group_label: Standard
-              id: dataset_output
-              label: Dataset Output
-              multi_valued: false
-              sortable: true
-            - applicable_types:
                 - trace
-                - llm
-                - retriever
                 - workflow
-                - tool
               category: standard
               data_type: boolean
               description: Whether or not this trace or span has child spans
@@ -8341,19 +8773,20 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - trace
-                - llm
                 - retriever
-                - workflow
+                - llm
                 - tool
+                - session
+                - trace
+                - workflow
               applicable_types:
-                - llm
                 - retriever
+                - llm
                 - tool
                 - workflow
               category: standard
               data_type: text
-              description: Type of the trace or span.
+              description: Type of the trace, span or session.
               filterable: true
               group_label: Standard
               id: type
@@ -8361,8 +8794,8 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
                 - retriever
+                - llm
                 - tool
                 - workflow
               category: standard
@@ -8377,8 +8810,8 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - llm
                 - retriever
+                - llm
                 - tool
                 - workflow
               category: standard
@@ -8551,14 +8984,17 @@ components:
     LogRecordsIngestRequest:
       examples:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
+          session_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: "2025-04-28T19:43:53.574491Z"
+            - created_at: "2025-05-27T19:53:27.168030Z"
+              dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ""
               output: I am!
               spans:
-                - created_at: "2025-04-28T19:43:53.574475Z"
+                - created_at: "2025-05-27T19:53:27.168009Z"
+                  dataset_metadata: {}
                   input:
                     - content: "Question: who is a smart LLM?"
                       role: user
@@ -8575,13 +9011,15 @@ components:
               user_metadata: {}
         - experiment_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: "2025-04-28T19:43:53.574692Z"
+            - created_at: "2025-05-27T19:53:27.168230Z"
+              dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ""
               output: I am!
               spans:
-                - created_at: "2025-04-28T19:43:53.574686Z"
+                - created_at: "2025-05-27T19:53:27.168224Z"
+                  dataset_metadata: {}
                   input:
                     - content: "Question: who is a smart LLM?"
                       role: user
@@ -8629,6 +9067,13 @@ components:
             ingested or return an error message if there is an ingestion failure.
           title: Reliable
           type: boolean
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Session id associated with the traces.
+          title: Session Id
         traces:
           description: List of traces to log.
           items:
@@ -8669,6 +9114,11 @@ components:
           description: total number of records (traces & spans) ingested
           title: Records Count
           type: integer
+        session_id:
+          description: Session id associated with the traces.
+          format: uuid4
+          title: Session Id
+          type: string
         traces_count:
           description: total number of traces ingested
           title: Traces Count
@@ -8676,9 +9126,105 @@ components:
       required:
         - project_id
         - project_name
+        - session_id
         - traces_count
         - records_count
       title: LogRecordsIngestResponse
+      type: object
+    LogRecordsMetricsQueryRequest:
+      examples:
+        - end_time: "2023-10-01T01:00:00Z"
+          filters:
+            - case_sensitive: true
+              name: input
+              operator: eq
+              type: text
+              value: example input
+          group_by: model
+          interval: 5
+          log_stream_id: 00000000-0000-0000-0000-000000000000
+          start_time: "2023-10-01T00:00:00Z"
+      properties:
+        end_time:
+          format: date-time
+          title: End Time
+          type: string
+        experiment_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Experiment id associated with the traces.
+          title: Experiment Id
+        filters:
+          items:
+            discriminator:
+              mapping:
+                boolean: "#/components/schemas/LogRecordsBooleanFilter"
+                date: "#/components/schemas/LogRecordsDateFilter"
+                id: "#/components/schemas/LogRecordsIDFilter"
+                number: "#/components/schemas/LogRecordsNumberFilter"
+                text: "#/components/schemas/LogRecordsTextFilter"
+              propertyName: type
+            oneOf:
+              - $ref: "#/components/schemas/LogRecordsIDFilter"
+              - $ref: "#/components/schemas/LogRecordsDateFilter"
+              - $ref: "#/components/schemas/LogRecordsNumberFilter"
+              - $ref: "#/components/schemas/LogRecordsBooleanFilter"
+              - $ref: "#/components/schemas/LogRecordsTextFilter"
+          title: Filters
+          type: array
+        group_by:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Group By
+        interval:
+          default: 5
+          title: Interval
+          type: integer
+        log_stream_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Log stream id associated with the traces.
+          title: Log Stream Id
+        start_time:
+          format: date-time
+          title: Start Time
+          type: string
+      required:
+        - start_time
+        - end_time
+      title: LogRecordsMetricsQueryRequest
+      type: object
+    LogRecordsMetricsResponse:
+      properties:
+        aggregate_metrics:
+          additionalProperties:
+            anyOf:
+              - type: number
+              - type: integer
+          title: Aggregate Metrics
+          type: object
+        bucketed_metrics:
+          additionalProperties:
+            items:
+              $ref: "#/components/schemas/BucketedMetrics"
+            type: array
+          title: Bucketed Metrics
+          type: object
+        group_by_columns:
+          items:
+            type: string
+          title: Group By Columns
+          type: array
+      required:
+        - group_by_columns
+        - aggregate_metrics
+        - bucketed_metrics
+      title: LogRecordsMetricsResponse
       type: object
     LogRecordsNumberFilter:
       properties:
@@ -8790,10 +9336,9 @@ components:
           num_rows: 2
           paginated: true
           records:
-            - created_at: "2025-04-28T19:43:53.579017Z"
-              dataset_input: ""
+            - created_at: "2025-05-27T19:53:27.173682Z"
               dataset_metadata: {}
-              dataset_output: ""
+              feedback_rating_info: {}
               id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               input: Who is a smart LLM?
               metrics:
@@ -8806,10 +9351,8 @@ components:
               trace_id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               type: trace
               user_metadata: {}
-            - created_at: "2025-04-28T19:43:53.579067Z"
-              dataset_input: ""
+            - created_at: "2025-05-27T19:53:27.173747Z"
               dataset_metadata: {}
-              dataset_output: ""
               id: 1edc2401-24b4-448c-a392-b36932293061
               input:
                 - content: Who is a smart LLM?
@@ -8861,6 +9404,7 @@ components:
                   - $ref: "#/components/schemas/LlmSpanRecord"
                   - $ref: "#/components/schemas/ToolSpanRecord"
                   - $ref: "#/components/schemas/RetrieverSpanRecord"
+              - $ref: "#/components/schemas/SessionRecord"
           title: Records
           type: array
         starting_token:
@@ -9030,6 +9574,53 @@ components:
         - value
       title: MetadataFilter
       type: object
+    MetricComputation:
+      properties:
+        error_message:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Error Message
+        execution_time:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Execution Time
+        status:
+          anyOf:
+            - $ref: "#/components/schemas/MetricComputationStatus"
+            - type: "null"
+        value:
+          anyOf:
+            - type: number
+            - type: integer
+            - type: string
+            - items:
+                anyOf:
+                  - type: number
+                  - type: integer
+                  - type: string
+                  - type: "null"
+              type: array
+            - additionalProperties:
+                anyOf:
+                  - type: number
+                  - type: integer
+                  - type: string
+                  - type: "null"
+              type: object
+            - type: "null"
+          title: Value
+      title: MetricComputation
+      type: object
+    MetricComputationStatus:
+      enum:
+        - success
+        - timeout
+        - failed
+        - error
+      title: MetricComputationStatus
+      type: string
     MetricComputing:
       properties:
         message:
@@ -9722,6 +10313,67 @@ components:
           title: Type
           type: string
       title: OutputToxicityScorer
+      type: object
+    OverrideAction:
+      properties:
+        choices:
+          description:
+            List of choices to override the response with. If there are
+            multiple choices, one will be chosen at random when applying this action.
+          items:
+            type: string
+          minItems: 1
+          title: Choices
+          type: array
+        subscriptions:
+          description:
+            List of subscriptions to send a notification to when this action
+            is applied and the ruleset status matches any of the configured statuses.
+          items:
+            $ref: "#/components/schemas/SubscriptionConfig"
+          title: Subscriptions
+          type: array
+        type:
+          const: OVERRIDE
+          default: OVERRIDE
+          title: Type
+          type: string
+      required:
+        - choices
+      title: OverrideAction
+      type: object
+    PassthroughAction:
+      properties:
+        subscriptions:
+          description:
+            List of subscriptions to send a notification to when this action
+            is applied and the ruleset status matches any of the configured statuses.
+          items:
+            $ref: "#/components/schemas/SubscriptionConfig"
+          title: Subscriptions
+          type: array
+        type:
+          const: PASSTHROUGH
+          default: PASSTHROUGH
+          title: Type
+          type: string
+      title: PassthroughAction
+      type: object
+    Payload:
+      properties:
+        input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input text to be processed.
+          title: Input
+        output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output text to be processed.
+          title: Output
+      title: Payload
       type: object
     Permission:
       properties:
@@ -10920,7 +11572,7 @@ components:
           type: boolean
         rendered_templates:
           items:
-            type: string
+            $ref: "#/components/schemas/RenderedTemplate"
           title: Rendered Templates
           type: array
         starting_token:
@@ -10931,6 +11583,115 @@ components:
         - rendered_templates
       title: RenderTemplateResponse
       type: object
+    RenderedTemplate:
+      properties:
+        result:
+          title: Result
+          type: string
+        warning:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Warning
+      required:
+        - result
+      title: RenderedTemplate
+      type: object
+    Request:
+      properties:
+        headers:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: "null"
+          description:
+            Optional additional HTTP headers that should be included in
+            the response.
+          title: Headers
+        metadata:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: "null"
+          description:
+            Optional additional metadata. This will be echoed back in the
+            response.
+          title: Metadata
+        payload:
+          $ref: "#/components/schemas/Payload"
+          description: Payload to be processed.
+        prioritized_rulesets:
+          description: Rulesets to be applied to the payload.
+          items:
+            $ref: "#/components/schemas/Ruleset"
+          title: Prioritized Rulesets
+          type: array
+        project_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Project ID.
+          title: Project Id
+        project_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Project name.
+          title: Project Name
+        stage_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Stage ID.
+          title: Stage Id
+        stage_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Stage name.
+          title: Stage Name
+        stage_version:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description:
+            Stage version to use for the request, if it's a central stage
+            with a previously registered version.
+          title: Stage Version
+        timeout:
+          default: 300.0
+          description:
+            Optional timeout for the guardrail execution in seconds. This
+            is not the timeout for the request. If not set, a default timeout of 5
+            minutes will be used.
+          title: Timeout
+          type: number
+      required:
+        - payload
+      title: Request
+      type: object
+    Response:
+      additionalProperties: true
+      properties:
+        status:
+          $ref: "#/components/schemas/ExecutionStatus"
+          default: not_triggered
+          description: Status of the request after processing the rules.
+        text:
+          description: Text from the request after processing the rules.
+          title: Text
+          type: string
+        trace_metadata:
+          $ref: "#/components/schemas/TraceMetadata"
+      required:
+        - text
+        - trace_metadata
+      title: Response
+      type: object
     RetrieverSpan:
       properties:
         created_at:
@@ -10938,6 +11699,37 @@ components:
           format: date-time
           title: Created
           type: string
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input to the dataset associated with this trace
+          title: Dataset Input
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata from the dataset associated with this trace
+          title: Dataset Metadata
+          type: object
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output from the dataset associated with this trace
+          title: Dataset Output
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session, trace or span
+          title: ID
         input:
           description: Input to the trace or span.
           title: Input
@@ -10947,7 +11739,7 @@ components:
           description: Metrics associated with this trace or span.
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -10973,7 +11765,7 @@ components:
         type:
           const: retriever
           default: retriever
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         user_metadata:
@@ -10995,10 +11787,11 @@ components:
           title: Created
           type: string
         dataset_input:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Input to the dataset associated with this trace
           title: Dataset Input
-          type: string
         dataset_metadata:
           additionalProperties:
             type: string
@@ -11006,10 +11799,17 @@ components:
           title: Dataset Metadata
           type: object
         dataset_output:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Output from the dataset associated with this trace
           title: Dataset Output
-          type: string
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
         has_children:
           anyOf:
             - type: boolean
@@ -11017,7 +11817,7 @@ components:
           description: Whether or not this trace or span has child spans
           title: Has Children
         id:
-          description: Galileo ID of the trace or span
+          description: Galileo ID of the session, trace or span
           format: uuid4
           title: ID
           type: string
@@ -11066,7 +11866,7 @@ components:
           title: Metrics Batch Id
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -11092,6 +11892,13 @@ components:
           format: uuid4
           title: Run ID
           type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
         status_code:
           anyOf:
             - type: integer
@@ -11116,7 +11923,7 @@ components:
         type:
           const: retriever
           default: retriever
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         updated_at:
@@ -11124,7 +11931,7 @@ components:
             - format: date-time
               type: string
             - type: "null"
-          description: Timestamp of the trace or span's last update
+          description: Timestamp of the session or trace or span's last update
           title: Last Updated
         user_metadata:
           additionalProperties:
@@ -11174,6 +11981,151 @@ components:
           title: Name
           type: string
       title: RougeScorer
+      type: object
+    Rule:
+      properties:
+        metric:
+          description: Name of the metric.
+          title: Metric
+          type: string
+        operator:
+          $ref: "#/components/schemas/RuleOperator"
+          description: Operator to use for comparison.
+        target_value:
+          anyOf:
+            - type: string
+            - type: number
+            - type: integer
+            - items: {}
+              type: array
+            - type: "null"
+          description: Value to compare with for this metric (right hand side).
+          title: Target Value
+      required:
+        - metric
+        - operator
+        - target_value
+      title: Rule
+      type: object
+    RuleOperator:
+      enum:
+        - gt
+        - lt
+        - gte
+        - lte
+        - eq
+        - neq
+        - contains
+        - all
+        - any
+        - empty
+        - not_empty
+      title: RuleOperator
+      type: string
+    RuleResult:
+      properties:
+        execution_time:
+          anyOf:
+            - type: number
+            - type: "null"
+          description: Execution time for the rule in seconds.
+          title: Execution Time
+        metric:
+          description: Name of the metric.
+          title: Metric
+          type: string
+        operator:
+          $ref: "#/components/schemas/RuleOperator"
+          description: Operator to use for comparison.
+        status:
+          $ref: "#/components/schemas/ExecutionStatus"
+          default: skipped
+        target_value:
+          anyOf:
+            - type: string
+            - type: number
+            - type: integer
+            - items: {}
+              type: array
+            - type: "null"
+          description: Value to compare with for this metric (right hand side).
+          title: Target Value
+        value:
+          anyOf:
+            - {}
+            - type: "null"
+          description: Result of the metric computation.
+          title: Value
+      required:
+        - metric
+        - operator
+        - target_value
+      title: RuleResult
+      type: object
+    Ruleset:
+      properties:
+        action:
+          description: Action to take if all the rules are met.
+          discriminator:
+            mapping:
+              OVERRIDE: "#/components/schemas/OverrideAction"
+              PASSTHROUGH: "#/components/schemas/PassthroughAction"
+            propertyName: type
+          oneOf:
+            - $ref: "#/components/schemas/OverrideAction"
+            - $ref: "#/components/schemas/PassthroughAction"
+          title: Action
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Description of the ruleset.
+          title: Description
+        rules:
+          description: List of rules to evaluate. Atleast 1 rule is required.
+          items:
+            $ref: "#/components/schemas/Rule"
+          minItems: 1
+          title: Rules
+          type: array
+      title: Ruleset
+      type: object
+    RulesetResult:
+      properties:
+        action:
+          description: Action to take if all the rules are met.
+          discriminator:
+            mapping:
+              OVERRIDE: "#/components/schemas/OverrideAction"
+              PASSTHROUGH: "#/components/schemas/PassthroughAction"
+            propertyName: type
+          oneOf:
+            - $ref: "#/components/schemas/OverrideAction"
+            - $ref: "#/components/schemas/PassthroughAction"
+          title: Action
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Description of the ruleset.
+          title: Description
+        rule_results:
+          description: Results of the rule execution.
+          items:
+            $ref: "#/components/schemas/RuleResult"
+          title: Rule Results
+          type: array
+        rules:
+          description: List of rules to evaluate. Atleast 1 rule is required.
+          items:
+            $ref: "#/components/schemas/Rule"
+          minItems: 1
+          title: Rules
+          type: array
+        status:
+          $ref: "#/components/schemas/ExecutionStatus"
+          default: skipped
+      title: RulesetResult
       type: object
     RunDB:
       properties:
@@ -11796,6 +12748,12 @@ components:
               type: string
             - type: "null"
           title: Created By
+        default_version_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          title: Default Version Id
         defaults:
           anyOf:
             - $ref: "#/components/schemas/ScorerDefaults"
@@ -11824,7 +12782,11 @@ components:
           type: string
         latest_version:
           anyOf:
-            - $ref: "#/components/schemas/BaseScorerVersionResponse"
+            - $ref: "#/components/schemas/BaseScorerVersionDB"
+            - type: "null"
+        model_type:
+          anyOf:
+            - $ref: "#/components/schemas/ModelType"
             - type: "null"
         name:
           title: Name
@@ -12145,6 +13107,446 @@ components:
         - sample_rate
       title: SegmentFilter
       type: object
+    SessionCreateRequest:
+      properties:
+        experiment_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Experiment id associated with the traces.
+          title: Experiment Id
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: External id of the session.
+          title: External Id
+        log_stream_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Log stream id associated with the traces.
+          title: Log Stream Id
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Name of the session.
+          title: Name
+        previous_session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Id of the previous session.
+          title: Previous Session Id
+      title: SessionCreateRequest
+      type: object
+    SessionCreateResponse:
+      properties:
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: External id of the session.
+          title: External Id
+        id:
+          description: Session id associated with the session.
+          format: uuid4
+          title: Id
+          type: string
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Name of the session.
+          title: Name
+        previous_session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Id of the previous session.
+          title: Previous Session Id
+        project_id:
+          description: Project id associated with the session.
+          format: uuid4
+          title: Project Id
+          type: string
+        project_name:
+          description: Project name associated with the session.
+          title: Project Name
+          type: string
+      required:
+        - id
+        - name
+        - project_id
+        - project_name
+      title: SessionCreateResponse
+      type: object
+    SessionRecord:
+      properties:
+        created_at:
+          description: Timestamp of the trace or span's creation.
+          format: date-time
+          title: Created
+          type: string
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input to the dataset associated with this trace
+          title: Dataset Input
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata from the dataset associated with this trace
+          title: Dataset Metadata
+          type: object
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output from the dataset associated with this trace
+          title: Dataset Output
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: "null"
+          description: Whether or not this trace or span has child spans
+          title: Has Children
+        id:
+          description: Galileo ID of the session
+          format: uuid4
+          title: ID
+          type: string
+        input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: "#/components/schemas/galileo_core__schemas__logging__llm__Message"
+              type: array
+            - type: "null"
+          description: Input to the trace or span.
+          title: Input
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                discriminator:
+                  mapping:
+                    computing: "#/components/schemas/MetricComputing"
+                    error: "#/components/schemas/MetricError"
+                    failed: "#/components/schemas/MetricFailed"
+                    not_applicable: "#/components/schemas/MetricNotApplicable"
+                    not_computed: "#/components/schemas/MetricNotComputed"
+                    pending: "#/components/schemas/MetricPending"
+                    success: "#/components/schemas/MetricSuccess"
+                  propertyName: status_type
+                oneOf:
+                  - $ref: "#/components/schemas/MetricNotComputed"
+                  - $ref: "#/components/schemas/MetricPending"
+                  - $ref: "#/components/schemas/MetricComputing"
+                  - $ref: "#/components/schemas/MetricNotApplicable"
+                  - $ref: "#/components/schemas/MetricSuccess"
+                  - $ref: "#/components/schemas/MetricError"
+                  - $ref: "#/components/schemas/MetricFailed"
+              type: object
+            - type: "null"
+          description:
+            Detailed information about the metrics associated with this
+            trace or span
+          title: Metric Info
+        metrics:
+          $ref: "#/components/schemas/Metrics"
+          description: Metrics associated with this trace or span.
+        metrics_batch_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description:
+            Galileo ID of the metrics batch associated with this trace
+            or span
+          title: Metrics Batch Id
+        name:
+          default: ""
+          description: Name of the trace, span or session.
+          title: Name
+          type: string
+        output:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/galileo_core__schemas__logging__llm__Message"
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - type: "null"
+          description: Output of the trace or span.
+          title: Output
+        previous_session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          title: Previous Session Id
+        project_id:
+          description: Galileo ID of the project associated with this trace or span
+          format: uuid4
+          title: Project ID
+          type: string
+        run_id:
+          description:
+            Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          format: uuid4
+          title: Run ID
+          type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
+        status_code:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description:
+            Status code of the trace or span. Used for logging failure
+            or error states.
+          title: Status Code
+        tags:
+          description: Tags associated with this trace or span.
+          items:
+            type: string
+          title: Tags
+          type: array
+        trace_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description:
+            Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+          title: Trace ID
+        type:
+          const: session
+          default: session
+          description: Type of the trace, span or session.
+          title: Type
+          type: string
+        updated_at:
+          anyOf:
+            - format: date-time
+              type: string
+            - type: "null"
+          description: Timestamp of the session or trace or span's last update
+          title: Last Updated
+        user_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata associated with this trace or span.
+          title: User Metadata
+          type: object
+      required:
+        - id
+        - project_id
+        - run_id
+      title: SessionRecord
+      type: object
+    SessionRecordWithChildren:
+      properties:
+        created_at:
+          description: Timestamp of the trace or span's creation.
+          format: date-time
+          title: Created
+          type: string
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input to the dataset associated with this trace
+          title: Dataset Input
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata from the dataset associated with this trace
+          title: Dataset Metadata
+          type: object
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output from the dataset associated with this trace
+          title: Dataset Output
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: "null"
+          description: Whether or not this trace or span has child spans
+          title: Has Children
+        id:
+          description: Galileo ID of the session
+          format: uuid4
+          title: ID
+          type: string
+        input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: "#/components/schemas/galileo_core__schemas__logging__llm__Message"
+              type: array
+            - type: "null"
+          description: Input to the trace or span.
+          title: Input
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                discriminator:
+                  mapping:
+                    computing: "#/components/schemas/MetricComputing"
+                    error: "#/components/schemas/MetricError"
+                    failed: "#/components/schemas/MetricFailed"
+                    not_applicable: "#/components/schemas/MetricNotApplicable"
+                    not_computed: "#/components/schemas/MetricNotComputed"
+                    pending: "#/components/schemas/MetricPending"
+                    success: "#/components/schemas/MetricSuccess"
+                  propertyName: status_type
+                oneOf:
+                  - $ref: "#/components/schemas/MetricNotComputed"
+                  - $ref: "#/components/schemas/MetricPending"
+                  - $ref: "#/components/schemas/MetricComputing"
+                  - $ref: "#/components/schemas/MetricNotApplicable"
+                  - $ref: "#/components/schemas/MetricSuccess"
+                  - $ref: "#/components/schemas/MetricError"
+                  - $ref: "#/components/schemas/MetricFailed"
+              type: object
+            - type: "null"
+          description:
+            Detailed information about the metrics associated with this
+            trace or span
+          title: Metric Info
+        metrics:
+          $ref: "#/components/schemas/Metrics"
+          description: Metrics associated with this trace or span.
+        metrics_batch_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description:
+            Galileo ID of the metrics batch associated with this trace
+            or span
+          title: Metrics Batch Id
+        name:
+          default: ""
+          description: Name of the trace, span or session.
+          title: Name
+          type: string
+        output:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/galileo_core__schemas__logging__llm__Message"
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - type: "null"
+          description: Output of the trace or span.
+          title: Output
+        previous_session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          title: Previous Session Id
+        project_id:
+          description: Galileo ID of the project associated with this trace or span
+          format: uuid4
+          title: Project ID
+          type: string
+        run_id:
+          description:
+            Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          format: uuid4
+          title: Run ID
+          type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
+        status_code:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description:
+            Status code of the trace or span. Used for logging failure
+            or error states.
+          title: Status Code
+        tags:
+          description: Tags associated with this trace or span.
+          items:
+            type: string
+          title: Tags
+          type: array
+        trace_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description:
+            Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+          title: Trace ID
+        traces:
+          items:
+            $ref: "#/components/schemas/TraceRecordWithChildren"
+          title: Traces
+          type: array
+        type:
+          const: session
+          default: session
+          description: Type of the trace, span or session.
+          title: Type
+          type: string
+        updated_at:
+          anyOf:
+            - format: date-time
+              type: string
+            - type: "null"
+          description: Timestamp of the session or trace or span's last update
+          title: Last Updated
+        user_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata associated with this trace or span.
+          title: User Metadata
+          type: object
+      required:
+        - id
+        - project_id
+        - run_id
+      title: SessionRecordWithChildren
+      type: object
     SexistTemplate:
       description: "Template for the sexism metric,
 
@@ -12217,6 +13619,38 @@ components:
           type: string
       title: SexistTemplate
       type: object
+    StageMetadata:
+      properties:
+        project_id:
+          format: uuid4
+          title: Project Id
+          type: string
+        stage_id:
+          format: uuid4
+          title: Stage Id
+          type: string
+        stage_name:
+          title: Stage Name
+          type: string
+        stage_type:
+          $ref: "#/components/schemas/StageType"
+        stage_version:
+          title: Stage Version
+          type: integer
+      required:
+        - project_id
+        - stage_id
+        - stage_name
+        - stage_version
+        - stage_type
+      title: StageMetadata
+      type: object
+    StageType:
+      enum:
+        - local
+        - central
+      title: StageType
+      type: string
     StarAggregate:
       properties:
         average:
@@ -12264,6 +13698,7 @@ components:
         - tool
         - workflow
         - trace
+        - session
       title: StepType
       type: string
     StringData:
@@ -12276,6 +13711,31 @@ components:
       required:
         - input_strings
       title: StringData
+      type: object
+    SubscriptionConfig:
+      properties:
+        statuses:
+          default:
+            - triggered
+          description:
+            List of statuses that will cause a notification to be sent
+            to the configured URL.
+          items:
+            $ref: "#/components/schemas/ExecutionStatus"
+          title: Statuses
+          type: array
+        url:
+          description:
+            URL to send the event to. This can be a webhook URL, a message
+            queue URL, an event bus or a custom endpoint that can receive an HTTP
+            POST request.
+          format: uri
+          minLength: 1
+          title: Url
+          type: string
+      required:
+        - url
+      title: SubscriptionConfig
       type: object
     TagsAggregate:
       properties:
@@ -12354,6 +13814,15 @@ components:
         - 17
       title: TaskType
       type: integer
+    TemplateStubRequest:
+      properties:
+        template:
+          title: Template
+          type: string
+      required:
+        - template
+      title: TemplateStubRequest
+      type: object
     TextRating:
       properties:
         feedback_type:
@@ -12684,6 +14153,37 @@ components:
           format: date-time
           title: Created
           type: string
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input to the dataset associated with this trace
+          title: Dataset Input
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata from the dataset associated with this trace
+          title: Dataset Metadata
+          type: object
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output from the dataset associated with this trace
+          title: Dataset Output
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session, trace or span
+          title: ID
         input:
           description: Input to the trace or span.
           title: Input
@@ -12693,7 +14193,7 @@ components:
           description: Metrics associated with this trace or span.
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -12725,7 +14225,7 @@ components:
         type:
           const: tool
           default: tool
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         user_metadata:
@@ -12746,10 +14246,11 @@ components:
           title: Created
           type: string
         dataset_input:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Input to the dataset associated with this trace
           title: Dataset Input
-          type: string
         dataset_metadata:
           additionalProperties:
             type: string
@@ -12757,10 +14258,17 @@ components:
           title: Dataset Metadata
           type: object
         dataset_output:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Output from the dataset associated with this trace
           title: Dataset Output
-          type: string
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
         has_children:
           anyOf:
             - type: boolean
@@ -12768,7 +14276,7 @@ components:
           description: Whether or not this trace or span has child spans
           title: Has Children
         id:
-          description: Galileo ID of the trace or span
+          description: Galileo ID of the session, trace or span
           format: uuid4
           title: ID
           type: string
@@ -12817,7 +14325,7 @@ components:
           title: Metrics Batch Id
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -12843,6 +14351,13 @@ components:
           format: uuid4
           title: Run ID
           type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
         status_code:
           anyOf:
             - type: integer
@@ -12873,7 +14388,7 @@ components:
         type:
           const: tool
           default: tool
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         updated_at:
@@ -12881,7 +14396,7 @@ components:
             - format: date-time
               type: string
             - type: "null"
-          description: Timestamp of the trace or span's last update
+          description: Timestamp of the session or trace or span's last update
           title: Last Updated
         user_metadata:
           additionalProperties:
@@ -12984,6 +14499,37 @@ components:
           format: date-time
           title: Created
           type: string
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input to the dataset associated with this trace
+          title: Dataset Input
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata from the dataset associated with this trace
+          title: Dataset Metadata
+          type: object
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output from the dataset associated with this trace
+          title: Dataset Output
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session, trace or span
+          title: ID
         input:
           description: Input to the trace or span.
           title: Input
@@ -12993,7 +14539,7 @@ components:
           description: Metrics associated with this trace or span.
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -13036,7 +14582,7 @@ components:
         type:
           const: trace
           default: trace
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         user_metadata:
@@ -13049,6 +14595,28 @@ components:
         - input
       title: Trace
       type: object
+    TraceMetadata:
+      properties:
+        execution_time:
+          default: -1
+          description: Execution time for the request (in seconds).
+          title: Execution Time
+          type: number
+        id:
+          description: Unique identifier for the request.
+          format: uuid4
+          title: Id
+          type: string
+        received_at:
+          description: Time the request was received by the server in nanoseconds.
+          title: Received At
+          type: integer
+        response_at:
+          description: Time the response was sent by the server in nanoseconds.
+          title: Response At
+          type: integer
+      title: TraceMetadata
+      type: object
     TraceRecord:
       properties:
         created_at:
@@ -13057,10 +14625,11 @@ components:
           title: Created
           type: string
         dataset_input:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Input to the dataset associated with this trace
           title: Dataset Input
-          type: string
         dataset_metadata:
           additionalProperties:
             type: string
@@ -13068,10 +14637,23 @@ components:
           title: Dataset Metadata
           type: object
         dataset_output:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Output from the dataset associated with this trace
           title: Dataset Output
-          type: string
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        feedback_rating_info:
+          additionalProperties:
+            $ref: "#/components/schemas/FeedbackRatingInfo"
+          description: Feedback information related to the trace
+          title: Feedback Rating Info
+          type: object
         has_children:
           anyOf:
             - type: boolean
@@ -13079,7 +14661,7 @@ components:
           description: Whether or not this trace or span has child spans
           title: Has Children
         id:
-          description: Galileo ID of the trace or span
+          description: Galileo ID of the trace
           format: uuid4
           title: ID
           type: string
@@ -13128,7 +14710,7 @@ components:
           title: Metrics Batch Id
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -13149,6 +14731,13 @@ components:
           format: uuid4
           title: Run ID
           type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
         status_code:
           anyOf:
             - type: integer
@@ -13173,7 +14762,7 @@ components:
         type:
           const: trace
           default: trace
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         updated_at:
@@ -13181,7 +14770,7 @@ components:
             - format: date-time
               type: string
             - type: "null"
-          description: Timestamp of the trace or span's last update
+          description: Timestamp of the session or trace or span's last update
           title: Last Updated
         user_metadata:
           additionalProperties:
@@ -13205,10 +14794,11 @@ components:
           title: Created
           type: string
         dataset_input:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Input to the dataset associated with this trace
           title: Dataset Input
-          type: string
         dataset_metadata:
           additionalProperties:
             type: string
@@ -13216,10 +14806,23 @@ components:
           title: Dataset Metadata
           type: object
         dataset_output:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Output from the dataset associated with this trace
           title: Dataset Output
-          type: string
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        feedback_rating_info:
+          additionalProperties:
+            $ref: "#/components/schemas/FeedbackRatingInfo"
+          description: Feedback information related to the trace
+          title: Feedback Rating Info
+          type: object
         has_children:
           anyOf:
             - type: boolean
@@ -13227,7 +14830,7 @@ components:
           description: Whether or not this trace or span has child spans
           title: Has Children
         id:
-          description: Galileo ID of the trace or span
+          description: Galileo ID of the trace
           format: uuid4
           title: ID
           type: string
@@ -13276,7 +14879,7 @@ components:
           title: Metrics Batch Id
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -13297,6 +14900,13 @@ components:
           format: uuid4
           title: Run ID
           type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
         spans:
           items:
             discriminator:
@@ -13337,7 +14947,7 @@ components:
         type:
           const: trace
           default: trace
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         updated_at:
@@ -13345,7 +14955,7 @@ components:
             - format: date-time
               type: string
             - type: "null"
-          description: Timestamp of the trace or span's last update
+          description: Timestamp of the session or trace or span's last update
           title: Last Updated
         user_metadata:
           additionalProperties:
@@ -13437,6 +15047,12 @@ components:
       type: object
     UpdateScorerRequest:
       properties:
+        default_version_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          title: Default Version Id
         defaults:
           anyOf:
             - $ref: "#/components/schemas/ScorerDefaults"
@@ -13446,6 +15062,10 @@ components:
             - type: string
             - type: "null"
           title: Description
+        model_type:
+          anyOf:
+            - $ref: "#/components/schemas/ModelType"
+            - type: "null"
         name:
           anyOf:
             - type: string
@@ -13459,6 +15079,25 @@ components:
             - type: "null"
           title: Tags
       title: UpdateScorerRequest
+      type: object
+    UpsertDatasetContentRequest:
+      properties:
+        dataset_id:
+          description: The ID of the dataset to copy content from.
+          format: uuid4
+          title: Dataset Id
+          type: string
+        version_index:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description:
+            The version index of the dataset to copy content from. If not
+            provided, the content will be copied from the latest version of the dataset.
+          title: Version Index
+      required:
+        - dataset_id
+      title: UpsertDatasetContentRequest
       type: object
     UserAction:
       enum:
@@ -13648,6 +15287,37 @@ components:
           format: date-time
           title: Created
           type: string
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input to the dataset associated with this trace
+          title: Dataset Input
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata from the dataset associated with this trace
+          title: Dataset Metadata
+          type: object
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output from the dataset associated with this trace
+          title: Dataset Output
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session, trace or span
+          title: ID
         input:
           anyOf:
             - type: string
@@ -13661,7 +15331,7 @@ components:
           description: Metrics associated with this trace or span.
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -13708,7 +15378,7 @@ components:
         type:
           const: workflow
           default: workflow
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         user_metadata:
@@ -13729,10 +15399,11 @@ components:
           title: Created
           type: string
         dataset_input:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Input to the dataset associated with this trace
           title: Dataset Input
-          type: string
         dataset_metadata:
           additionalProperties:
             type: string
@@ -13740,10 +15411,17 @@ components:
           title: Dataset Metadata
           type: object
         dataset_output:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Output from the dataset associated with this trace
           title: Dataset Output
-          type: string
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
         has_children:
           anyOf:
             - type: boolean
@@ -13751,7 +15429,7 @@ components:
           description: Whether or not this trace or span has child spans
           title: Has Children
         id:
-          description: Galileo ID of the trace or span
+          description: Galileo ID of the session, trace or span
           format: uuid4
           title: ID
           type: string
@@ -13804,7 +15482,7 @@ components:
           title: Metrics Batch Id
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -13834,6 +15512,13 @@ components:
           format: uuid4
           title: Run ID
           type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
         status_code:
           anyOf:
             - type: integer
@@ -13858,7 +15543,7 @@ components:
         type:
           const: workflow
           default: workflow
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         updated_at:
@@ -13866,7 +15551,7 @@ components:
             - format: date-time
               type: string
             - type: "null"
-          description: Timestamp of the trace or span's last update
+          description: Timestamp of the session or trace or span's last update
           title: Last Updated
         user_metadata:
           additionalProperties:
@@ -13891,10 +15576,11 @@ components:
           title: Created
           type: string
         dataset_input:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Input to the dataset associated with this trace
           title: Dataset Input
-          type: string
         dataset_metadata:
           additionalProperties:
             type: string
@@ -13902,10 +15588,17 @@ components:
           title: Dataset Metadata
           type: object
         dataset_output:
-          default: ""
+          anyOf:
+            - type: string
+            - type: "null"
           description: Output from the dataset associated with this trace
           title: Dataset Output
-          type: string
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
         has_children:
           anyOf:
             - type: boolean
@@ -13913,7 +15606,7 @@ components:
           description: Whether or not this trace or span has child spans
           title: Has Children
         id:
-          description: Galileo ID of the trace or span
+          description: Galileo ID of the session, trace or span
           format: uuid4
           title: ID
           type: string
@@ -13966,7 +15659,7 @@ components:
           title: Metrics Batch Id
         name:
           default: ""
-          description: Name of the trace or span.
+          description: Name of the trace, span or session.
           title: Name
           type: string
         output:
@@ -13996,6 +15689,13 @@ components:
           format: uuid4
           title: Run ID
           type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
         spans:
           items:
             discriminator:
@@ -14036,7 +15736,7 @@ components:
         type:
           const: workflow
           default: workflow
-          description: Type of the trace or span.
+          description: Type of the trace, span or session.
           title: Type
           type: string
         updated_at:
@@ -14044,7 +15744,7 @@ components:
             - format: date-time
               type: string
             - type: "null"
-          description: Timestamp of the trace or span's last update
+          description: Timestamp of the session or trace or span's last update
           title: Last Updated
         user_metadata:
           additionalProperties:
@@ -14373,6 +16073,13 @@ paths:
           schema:
             $ref: "#/components/schemas/DatasetFormat"
             default: csv
+        - in: query
+          name: hidden
+          required: false
+          schema:
+            default: false
+            title: Hidden
+            type: boolean
       requestBody:
         content:
           multipart/form-data:
@@ -14669,7 +16376,7 @@ paths:
         - datasets
     put:
       description: Rollback the content of a dataset to a previous version.
-      operationId: rollback_dataset_content_datasets__dataset_id__content_put
+      operationId: upsert_dataset_content_datasets__dataset_id__content_put
       parameters:
         - in: path
           name: dataset_id
@@ -14682,7 +16389,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/RollbackRequest"
+              anyOf:
+                - $ref: "#/components/schemas/RollbackRequest"
+                - $ref: "#/components/schemas/UpsertDatasetContentRequest"
+              title: Body
         required: true
       responses:
         "200":
@@ -14700,7 +16410,7 @@ paths:
         - APIKeyHeader: []
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
-      summary: Rollback Dataset Content
+      summary: Upsert Dataset Content
       tags:
         - datasets
   /datasets/{dataset_id}/content/query:
@@ -15007,6 +16717,51 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Preview Dataset
+      tags:
+        - datasets
+  /datasets/{dataset_id}/projects:
+    get:
+      operationId: list_dataset_projects_datasets__dataset_id__projects_get
+      parameters:
+        - in: path
+          name: dataset_id
+          required: true
+          schema:
+            format: uuid4
+            title: Dataset Id
+            type: string
+        - in: query
+          name: starting_token
+          required: false
+          schema:
+            default: 0
+            title: Starting Token
+            type: integer
+        - in: query
+          name: limit
+          required: false
+          schema:
+            default: 100
+            title: Limit
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListDatasetProjectsResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List Dataset Projects
       tags:
         - datasets
   /datasets/{dataset_id}/users:
@@ -15338,6 +17093,34 @@ paths:
       summary: Healthcheck
       tags:
         - health
+  /input_stub:
+    post:
+      operationId: generate_template_input_stub_input_stub_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TemplateStubRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Generate Template Input Stub
+      tags:
+        - prompts
   /jobs:
     post:
       operationId: create_job_jobs_post
@@ -16375,6 +18158,43 @@ paths:
       summary: Update Log Stream
       tags:
         - log_stream
+  /projects/{project_id}/metrics/search:
+    post:
+      operationId: query_metrics_projects__project_id__metrics_search_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogRecordsMetricsQueryRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogRecordsMetricsResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Query Metrics
+      tags:
+        - trace
   /projects/{project_id}/prompt_datasets:
     get:
       deprecated: true
@@ -16438,6 +18258,13 @@ paths:
           schema:
             $ref: "#/components/schemas/DatasetFormat"
             default: csv
+        - in: query
+          name: hidden
+          required: false
+          schema:
+            default: false
+            title: Hidden
+            type: boolean
       requestBody:
         content:
           multipart/form-data:
@@ -16576,6 +18403,13 @@ paths:
           schema:
             $ref: "#/components/schemas/DatasetFormat"
             default: csv
+        - in: query
+          name: hidden
+          required: false
+          schema:
+            default: false
+            title: Hidden
+            type: boolean
       requestBody:
         content:
           multipart/form-data:
@@ -16824,6 +18658,155 @@ paths:
       summary: Upsert Scorers Config
       tags:
         - run_scorer_settings
+  /projects/{project_id}/sessions:
+    post:
+      operationId: create_session_projects__project_id__sessions_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionCreateRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionCreateResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Session
+      tags:
+        - trace
+  /projects/{project_id}/sessions/available_columns:
+    post:
+      operationId: sessions_available_columns_projects__project_id__sessions_available_columns_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogRecordsAvailableColumnsRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogRecordsAvailableColumnsResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Sessions Available Columns
+      tags:
+        - trace
+  /projects/{project_id}/sessions/search:
+    post:
+      operationId: query_sessions_projects__project_id__sessions_search_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogRecordsQueryRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogRecordsQueryResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Query Sessions
+      tags:
+        - trace
+  /projects/{project_id}/sessions/{session_id}:
+    get:
+      operationId: get_session_projects__project_id__sessions__session_id__get
+      parameters:
+        - in: path
+          name: session_id
+          required: true
+          schema:
+            format: uuid4
+            title: Session Id
+            type: string
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionRecordWithChildren"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Session
+      tags:
+        - trace
   /projects/{project_id}/spans/available_columns:
     post:
       operationId: spans_available_columns_projects__project_id__spans_available_columns_post
@@ -17676,6 +19659,38 @@ paths:
       summary: Update User Project Collaborator
       tags:
         - projects
+  /protect/invoke:
+    post:
+      operationId: invoke_protect_invoke_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Request"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/Response"
+                  - $ref: "#/components/schemas/InvokeResponse"
+                title: Response Invoke Protect Invoke Post
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Invoke
+      tags:
+        - protect
   /render_template:
     post:
       operationId: render_template_render_template_post
@@ -18076,6 +20091,53 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Create Llm Scorer Version
+      tags:
+        - data
+        - prompts
+        - rows
+  /scorers/{scorer_id}/versions:
+    get:
+      operationId: list_all_versions_for_scorer_scorers__scorer_id__versions_get
+      parameters:
+        - in: path
+          name: scorer_id
+          required: true
+          schema:
+            format: uuid4
+            title: Scorer Id
+            type: string
+        - in: query
+          name: starting_token
+          required: false
+          schema:
+            default: 0
+            title: Starting Token
+            type: integer
+        - in: query
+          name: limit
+          required: false
+          schema:
+            default: 100
+            title: Limit
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListScorerVersionsResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List All Versions For Scorer
       tags:
         - data
         - prompts

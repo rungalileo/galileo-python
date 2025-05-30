@@ -74,7 +74,11 @@ class MetricNotComputed:
         if status_type != "not_computed" and not isinstance(status_type, Unset):
             raise ValueError(f"status_type must match const 'not_computed', got '{status_type}'")
 
-        metric_not_computed = cls(message=message, scorer_type=scorer_type, status_type=status_type)
+        metric_not_computed = cls(
+            message=message,
+            scorer_type=scorer_type,
+            status_type=status_type,
+        )
 
         metric_not_computed.additional_properties = d
         return metric_not_computed

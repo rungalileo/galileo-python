@@ -34,7 +34,7 @@ class CustomizedGroundednessGPTScorer:
         indices (Union[None, Unset, list[int]]):
         metric_name (Union[None, Unset, str]):
         model_alias (Union[Unset, str]):  Default: 'GPT-4o mini'.
-        name (Union[Literal['context_adherence'], Unset]):  Default: 'context_adherence'.
+        name (Union[Literal['context_adherence_gpt'], Unset]):  Default: 'context_adherence_gpt'.
         num_judges (Union[Unset, int]):  Default: 3.
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
@@ -53,7 +53,7 @@ class CustomizedGroundednessGPTScorer:
     indices: Union[None, Unset, list[int]] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
     model_alias: Union[Unset, str] = "GPT-4o mini"
-    name: Union[Literal["context_adherence"], Unset] = "context_adherence"
+    name: Union[Literal["context_adherence_gpt"], Unset] = "context_adherence_gpt"
     num_judges: Union[Unset, int] = 3
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
@@ -347,9 +347,9 @@ class CustomizedGroundednessGPTScorer:
 
         model_alias = d.pop("model_alias", UNSET)
 
-        name = cast(Union[Literal["context_adherence"], Unset], d.pop("name", UNSET))
-        if name != "context_adherence" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'context_adherence', got '{name}'")
+        name = cast(Union[Literal["context_adherence_gpt"], Unset], d.pop("name", UNSET))
+        if name != "context_adherence_gpt" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'context_adherence_gpt', got '{name}'")
 
         num_judges = d.pop("num_judges", UNSET)
 

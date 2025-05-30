@@ -154,7 +154,12 @@ class Model:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"alias": alias, "name": name})
+        field_dict.update(
+            {
+                "alias": alias,
+                "name": name,
+            }
+        )
         if api_version is not UNSET:
             field_dict["api_version"] = api_version
         if assistant_role is not UNSET:
