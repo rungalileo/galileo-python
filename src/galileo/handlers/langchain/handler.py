@@ -2,6 +2,7 @@ import contextvars
 import json
 import logging
 import time
+from datetime import datetime, timezone
 from typing import Any, Optional
 from uuid import UUID
 
@@ -111,6 +112,7 @@ class GalileoCallback(BaseCallbackHandler):
         name = node.span_params.get("name")
         metadata = node.span_params.get("metadata")
         tags = node.span_params.get("tags")
+        created_at = node.span_params.get("created_at")
 
         # Convert metadata to a dict[str, str]
         if metadata is not None:
@@ -125,6 +127,7 @@ class GalileoCallback(BaseCallbackHandler):
                 duration_ns=node.span_params.get("duration_ns"),
                 metadata=metadata,
                 tags=tags,
+                created_at=created_at,
             )
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
@@ -142,6 +145,7 @@ class GalileoCallback(BaseCallbackHandler):
                 num_output_tokens=node.span_params.get("num_output_tokens"),
                 total_tokens=node.span_params.get("total_tokens"),
                 time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
+                created_at=created_at,
             )
         elif node.node_type == "retriever":
             self._galileo_logger.add_retriever_span(
@@ -151,6 +155,7 @@ class GalileoCallback(BaseCallbackHandler):
                 duration_ns=node.span_params.get("duration_ns"),
                 metadata=metadata,
                 tags=tags,
+                created_at=created_at,
             )
         elif node.node_type == "tool":
             self._galileo_logger.add_tool_span(
@@ -160,6 +165,7 @@ class GalileoCallback(BaseCallbackHandler):
                 duration_ns=node.span_params.get("duration_ns"),
                 metadata=metadata,
                 tags=tags,
+                created_at=created_at,
             )
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
@@ -210,8 +216,12 @@ class GalileoCallback(BaseCallbackHandler):
         # Create new node
         node = Node(node_type=node_type, span_params=kwargs, run_id=run_id, parent_run_id=parent_run_id)
 
+        # start_time is used to calculate duration_ns
         if "start_time" not in node.span_params:
             node.span_params["start_time"] = time.perf_counter_ns()
+
+        if "created_at" not in node.span_params:
+            node.span_params["created_at"] = datetime.now(tz=timezone.utc)
 
         self._nodes[node_id] = node
 
