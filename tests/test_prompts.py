@@ -120,3 +120,36 @@ def test_list_prompts(list_prompt_templates_mock: Mock, get_projects_projects_ge
 
     list_prompt_templates_mock.sync.assert_called_once()
     get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_get_prompt_template_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock):
+    """Test get_prompt_template when template exists."""
+    list_prompt_templates_mock.sync.return_value = [prompt_template()]
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    from galileo.prompts import get_prompt_template
+
+    template = get_prompt_template(name="andrii-good-prompt", project="andrii-new-project")
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    list_prompt_templates_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_get_prompt_template_not_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock):
+    """Test get_prompt_template when template doesn't exist."""
+    list_prompt_templates_mock.sync.return_value = [prompt_template()]  # Return a different template
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    from galileo.prompts import get_prompt_template
+
+    template = get_prompt_template(name="nonexistent-template", project="andrii-new-project")
+
+    assert template is None
+    list_prompt_templates_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
