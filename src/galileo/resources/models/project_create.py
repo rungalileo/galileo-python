@@ -42,7 +42,11 @@ class ProjectCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"name": name})
+        field_dict.update(
+            {
+                "name": name,
+            }
+        )
         if create_example_templates is not UNSET:
             field_dict["create_example_templates"] = create_example_templates
         if created_by is not UNSET:
@@ -76,7 +80,10 @@ class ProjectCreate:
             type_ = ProjectType(_type_)
 
         project_create = cls(
-            name=name, create_example_templates=create_example_templates, created_by=created_by, type_=type_
+            name=name,
+            create_example_templates=create_example_templates,
+            created_by=created_by,
+            type_=type_,
         )
 
         project_create.additional_properties = d

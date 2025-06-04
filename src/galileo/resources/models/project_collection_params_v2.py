@@ -263,7 +263,10 @@ class ProjectCollectionParamsV2:
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
-        project_collection_params_v2 = cls(filters=filters, sort=sort)
+        project_collection_params_v2 = cls(
+            filters=filters,
+            sort=sort,
+        )
 
         project_collection_params_v2.additional_properties = d
         return project_collection_params_v2

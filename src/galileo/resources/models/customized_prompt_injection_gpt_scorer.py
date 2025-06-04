@@ -36,7 +36,7 @@ class CustomizedPromptInjectionGPTScorer:
         indices (Union[None, Unset, list[int]]):
         metric_name (Union[None, Unset, str]):
         model_alias (Union[Unset, str]):  Default: 'GPT-4o mini'.
-        name (Union[Literal['prompt_injection'], Unset]):  Default: 'prompt_injection'.
+        name (Union[Literal['prompt_injection_gpt'], Unset]):  Default: 'prompt_injection_gpt'.
         num_judges (Union[Unset, int]):  Default: 3.
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
@@ -56,7 +56,7 @@ class CustomizedPromptInjectionGPTScorer:
     indices: Union[None, Unset, list[int]] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
     model_alias: Union[Unset, str] = "GPT-4o mini"
-    name: Union[Literal["prompt_injection"], Unset] = "prompt_injection"
+    name: Union[Literal["prompt_injection_gpt"], Unset] = "prompt_injection_gpt"
     num_judges: Union[Unset, int] = 3
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
@@ -354,9 +354,9 @@ class CustomizedPromptInjectionGPTScorer:
 
         model_alias = d.pop("model_alias", UNSET)
 
-        name = cast(Union[Literal["prompt_injection"], Unset], d.pop("name", UNSET))
-        if name != "prompt_injection" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'prompt_injection', got '{name}'")
+        name = cast(Union[Literal["prompt_injection_gpt"], Unset], d.pop("name", UNSET))
+        if name != "prompt_injection_gpt" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'prompt_injection_gpt', got '{name}'")
 
         num_judges = d.pop("num_judges", UNSET)
 

@@ -35,7 +35,8 @@ class CustomizedChunkAttributionUtilizationGPTScorer:
         indices (Union[None, Unset, list[int]]):
         metric_name (Union[None, Unset, str]):
         model_alias (Union[Unset, str]):  Default: 'GPT-4o mini'.
-        name (Union[Literal['chunk_attribution_utilization'], Unset]):  Default: 'chunk_attribution_utilization'.
+        name (Union[Literal['chunk_attribution_utilization_gpt'], Unset]):  Default:
+            'chunk_attribution_utilization_gpt'.
         num_judges (Union[Unset, int]):  Default: 1.
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
@@ -55,7 +56,7 @@ class CustomizedChunkAttributionUtilizationGPTScorer:
     indices: Union[None, Unset, list[int]] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
     model_alias: Union[Unset, str] = "GPT-4o mini"
-    name: Union[Literal["chunk_attribution_utilization"], Unset] = "chunk_attribution_utilization"
+    name: Union[Literal["chunk_attribution_utilization_gpt"], Unset] = "chunk_attribution_utilization_gpt"
     num_judges: Union[Unset, int] = 1
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
@@ -359,9 +360,9 @@ class CustomizedChunkAttributionUtilizationGPTScorer:
 
         model_alias = d.pop("model_alias", UNSET)
 
-        name = cast(Union[Literal["chunk_attribution_utilization"], Unset], d.pop("name", UNSET))
-        if name != "chunk_attribution_utilization" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'chunk_attribution_utilization', got '{name}'")
+        name = cast(Union[Literal["chunk_attribution_utilization_gpt"], Unset], d.pop("name", UNSET))
+        if name != "chunk_attribution_utilization_gpt" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'chunk_attribution_utilization_gpt', got '{name}'")
 
         num_judges = d.pop("num_judges", UNSET)
 

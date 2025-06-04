@@ -24,7 +24,11 @@ class BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"file": file})
+        field_dict.update(
+            {
+                "file": file,
+            }
+        )
 
         return field_dict
 
@@ -35,7 +39,11 @@ class BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost:
         for prop_name, prop in self.additional_properties.items():
             field_dict[prop_name] = (None, str(prop).encode(), "text/plain")
 
-        field_dict.update({"file": file})
+        field_dict.update(
+            {
+                "file": file,
+            }
+        )
 
         return field_dict
 
@@ -44,7 +52,9 @@ class BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost:
         d = src_dict.copy()
         file = File(payload=BytesIO(d.pop("file")))
 
-        body_upload_prompt_evaluation_dataset_projects_project_id_prompt_datasets_post = cls(file=file)
+        body_upload_prompt_evaluation_dataset_projects_project_id_prompt_datasets_post = cls(
+            file=file,
+        )
 
         body_upload_prompt_evaluation_dataset_projects_project_id_prompt_datasets_post.additional_properties = d
         return body_upload_prompt_evaluation_dataset_projects_project_id_prompt_datasets_post

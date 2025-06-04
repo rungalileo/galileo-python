@@ -15,6 +15,7 @@ class LogRecordsIngestResponse:
         project_id (str): Project id associated with the traces.
         project_name (str): Project name associated with the traces.
         records_count (int): total number of records (traces & spans) ingested
+        session_id (str): Session id associated with the traces.
         traces_count (int): total number of traces ingested
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
@@ -23,6 +24,7 @@ class LogRecordsIngestResponse:
     project_id: str
     project_name: str
     records_count: int
+    session_id: str
     traces_count: int
     experiment_id: Union[None, Unset, str] = UNSET
     log_stream_id: Union[None, Unset, str] = UNSET
@@ -34,6 +36,8 @@ class LogRecordsIngestResponse:
         project_name = self.project_name
 
         records_count = self.records_count
+
+        session_id = self.session_id
 
         traces_count = self.traces_count
 
@@ -56,6 +60,7 @@ class LogRecordsIngestResponse:
                 "project_id": project_id,
                 "project_name": project_name,
                 "records_count": records_count,
+                "session_id": session_id,
                 "traces_count": traces_count,
             }
         )
@@ -74,6 +79,8 @@ class LogRecordsIngestResponse:
         project_name = d.pop("project_name")
 
         records_count = d.pop("records_count")
+
+        session_id = d.pop("session_id")
 
         traces_count = d.pop("traces_count")
 
@@ -99,6 +106,7 @@ class LogRecordsIngestResponse:
             project_id=project_id,
             project_name=project_name,
             records_count=records_count,
+            session_id=session_id,
             traces_count=traces_count,
             experiment_id=experiment_id,
             log_stream_id=log_stream_id,

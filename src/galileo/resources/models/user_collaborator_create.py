@@ -30,7 +30,11 @@ class UserCollaboratorCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"user_id": user_id})
+        field_dict.update(
+            {
+                "user_id": user_id,
+            }
+        )
         if role is not UNSET:
             field_dict["role"] = role
 
@@ -48,7 +52,10 @@ class UserCollaboratorCreate:
         else:
             role = CollaboratorRole(_role)
 
-        user_collaborator_create = cls(user_id=user_id, role=role)
+        user_collaborator_create = cls(
+            user_id=user_id,
+            role=role,
+        )
 
         user_collaborator_create.additional_properties = d
         return user_collaborator_create

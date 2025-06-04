@@ -655,7 +655,12 @@ class CreateJobRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"project_id": project_id, "run_id": run_id})
+        field_dict.update(
+            {
+                "project_id": project_id,
+                "run_id": run_id,
+            }
+        )
         if dataset_id is not UNSET:
             field_dict["dataset_id"] = dataset_id
         if dataset_version_index is not UNSET:
