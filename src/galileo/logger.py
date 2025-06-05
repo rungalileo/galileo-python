@@ -534,16 +534,17 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         agent_type: Optional[AgentType] = None,
     ) -> AgentSpan:
         """
-        TODO: need description
+        Add an agent type span to the current parent.
 
-        Args:
+        Parameters:
+        ----------
             input: str: Input to the node.
             output: Optional[str]: Output of the node. This can also be set on conclude().
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[Dict[str, str]]: Metadata associated with this span.
-            agent_type:
+            agent_type: Optional[AgentType]: Agent type of the span.
 
         Returns:
         -------
