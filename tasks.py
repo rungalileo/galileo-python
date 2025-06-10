@@ -48,7 +48,8 @@ def type_check(ctx: Context) -> None:
 
 @task
 def docs_build(ctx: Context) -> None:
-    ctx.run("poetry run mkdocs build --verbose", **COMMON_PARAMS)
+    ctx.run("pydoc-markdown", **COMMON_PARAMS)
+    ctx.run("python ./scripts/convert-md-to-mdx.py", **COMMON_PARAMS)
 
 
 @task
