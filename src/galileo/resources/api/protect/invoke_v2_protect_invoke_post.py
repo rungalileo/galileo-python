@@ -73,7 +73,7 @@ def _build_response(
 def sync_detailed(
     *, client: AuthenticatedClient, body: BaseRequest
 ) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
-    """Invoke
+    """Invoke V2
 
     Args:
         body (BaseRequest):
@@ -83,7 +83,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['InvokeResponse', 'Response']]]
+        Response[Union[HTTPValidationError, Union['InvokeResponse', 'BaseResponse']]]
     """
 
     kwargs = _get_kwargs(body=body)
@@ -96,7 +96,7 @@ def sync_detailed(
 def sync(
     *, client: AuthenticatedClient, body: BaseRequest
 ) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
-    """Invoke
+    """Invoke V2
 
     Args:
         body (BaseRequest):
@@ -106,7 +106,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['InvokeResponse', 'Response']]
+        Union[HTTPValidationError, Union['InvokeResponse', 'BaseResponse']]
     """
 
     return sync_detailed(client=client, body=body).parsed
@@ -115,7 +115,7 @@ def sync(
 async def asyncio_detailed(
     *, client: AuthenticatedClient, body: BaseRequest
 ) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
-    """Invoke
+    """Invoke V2
 
     Args:
         body (BaseRequest):
@@ -138,17 +138,17 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: AuthenticatedClient, body: BaseRequest
 ) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
-    """Invoke
+    """Invoke V2
 
     Args:
-        body (BaseRequest):
+        body (Request):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['InvokeResponse', 'Response']]
+        Union[HTTPValidationError, Union['InvokeResponse', 'BaseResponse']]
     """
 
     return (await asyncio_detailed(client=client, body=body)).parsed

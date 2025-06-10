@@ -18,11 +18,15 @@ class BasePromptTemplateVersion:
     """
     Attributes:
         template (Union[list['MessagesListItem'], str]):
+        output_type (Union[None, Unset, str]):
+        raw (Union[Unset, bool]):  Default: False.
         settings (Union[Unset, BasePromptTemplateVersionSettings]):
         version (Union[None, Unset, int]):
     """
 
     template: Union[list["MessagesListItem"], str]
+    output_type: Union[None, Unset, str] = UNSET
+    raw: Union[Unset, bool] = False
     settings: Union[Unset, "BasePromptTemplateVersionSettings"] = UNSET
     version: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -37,6 +41,14 @@ class BasePromptTemplateVersion:
 
         else:
             template = self.template
+
+        output_type: Union[None, Unset, str]
+        if isinstance(self.output_type, Unset):
+            output_type = UNSET
+        else:
+            output_type = self.output_type
+
+        raw = self.raw
 
         settings: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.settings, Unset):
@@ -55,6 +67,10 @@ class BasePromptTemplateVersion:
                 "template": template,
             }
         )
+        if output_type is not UNSET:
+            field_dict["output_type"] = output_type
+        if raw is not UNSET:
+            field_dict["raw"] = raw
         if settings is not UNSET:
             field_dict["settings"] = settings
         if version is not UNSET:
@@ -87,6 +103,17 @@ class BasePromptTemplateVersion:
 
         template = _parse_template(d.pop("template"))
 
+        def _parse_output_type(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        output_type = _parse_output_type(d.pop("output_type", UNSET))
+
+        raw = d.pop("raw", UNSET)
+
         _settings = d.pop("settings", UNSET)
         settings: Union[Unset, BasePromptTemplateVersionSettings]
         if isinstance(_settings, Unset):
@@ -105,6 +132,8 @@ class BasePromptTemplateVersion:
 
         base_prompt_template_version = cls(
             template=template,
+            output_type=output_type,
+            raw=raw,
             settings=settings,
             version=version,
         )

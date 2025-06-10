@@ -7,30 +7,19 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.get_projects_paginated_response_v2 import GetProjectsPaginatedResponseV2
 from ...models.http_validation_error import HTTPValidationError
-from ...models.project_action import ProjectAction
-from ...models.project_collection_params_v2 import ProjectCollectionParamsV2
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
+    scorer_version_id: str,
     *,
-    body: ProjectCollectionParamsV2,
-    actions: Union[Unset, list[ProjectAction]] = UNSET,
+    scorer_id: str,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> dict[str, Any]:
-    headers: dict[str, Any] = {}
-
     params: dict[str, Any] = {}
 
-    json_actions: Union[Unset, list[str]] = UNSET
-    if not isinstance(actions, Unset):
-        json_actions = []
-        for actions_item_data in actions:
-            actions_item = actions_item_data.value
-            json_actions.append(actions_item)
-
-    params["actions"] = json_actions
+    params["scorer_id"] = scorer_id
 
     params["starting_token"] = starting_token
 
@@ -39,17 +28,11 @@ def _get_kwargs(
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/v2/projects",
+        "method": "get",
+        "url": f"/scorers/versions/{scorer_version_id}/projects",
         "params": params,
     }
 
-    _body = body.to_dict()
-
-    _kwargs["json"] = _body
-    headers["Content-Type"] = "application/json"
-
-    _kwargs["headers"] = headers
     return _kwargs
 
 
@@ -82,23 +65,22 @@ def _build_response(
 
 
 def sync_detailed(
+    scorer_version_id: str,
     *,
     client: AuthenticatedClient,
-    body: ProjectCollectionParamsV2,
-    actions: Union[Unset, list[ProjectAction]] = UNSET,
+    scorer_id: str,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
-    """Get Projects V2
+    """List Projects For Scorer Version Route
 
-     Gets projects optimized for V2 with pagination and server-side run counts.
+     List all projects associated with a specific scorer version.
 
     Args:
-        actions (Union[Unset, list[ProjectAction]]): Actions to include in the 'permissions'
-            field.
+        scorer_version_id (str):
+        scorer_id (str):
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
-        body (ProjectCollectionParamsV2):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -109,8 +91,8 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        body=body,
-        actions=actions,
+        scorer_version_id=scorer_version_id,
+        scorer_id=scorer_id,
         starting_token=starting_token,
         limit=limit,
     )
@@ -123,23 +105,22 @@ def sync_detailed(
 
 
 def sync(
+    scorer_version_id: str,
     *,
     client: AuthenticatedClient,
-    body: ProjectCollectionParamsV2,
-    actions: Union[Unset, list[ProjectAction]] = UNSET,
+    scorer_id: str,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
-    """Get Projects V2
+    """List Projects For Scorer Version Route
 
-     Gets projects optimized for V2 with pagination and server-side run counts.
+     List all projects associated with a specific scorer version.
 
     Args:
-        actions (Union[Unset, list[ProjectAction]]): Actions to include in the 'permissions'
-            field.
+        scorer_version_id (str):
+        scorer_id (str):
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
-        body (ProjectCollectionParamsV2):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -150,32 +131,31 @@ def sync(
     """
 
     return sync_detailed(
+        scorer_version_id=scorer_version_id,
         client=client,
-        body=body,
-        actions=actions,
+        scorer_id=scorer_id,
         starting_token=starting_token,
         limit=limit,
     ).parsed
 
 
 async def asyncio_detailed(
+    scorer_version_id: str,
     *,
     client: AuthenticatedClient,
-    body: ProjectCollectionParamsV2,
-    actions: Union[Unset, list[ProjectAction]] = UNSET,
+    scorer_id: str,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
-    """Get Projects V2
+    """List Projects For Scorer Version Route
 
-     Gets projects optimized for V2 with pagination and server-side run counts.
+     List all projects associated with a specific scorer version.
 
     Args:
-        actions (Union[Unset, list[ProjectAction]]): Actions to include in the 'permissions'
-            field.
+        scorer_version_id (str):
+        scorer_id (str):
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
-        body (ProjectCollectionParamsV2):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -186,8 +166,8 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        body=body,
-        actions=actions,
+        scorer_version_id=scorer_version_id,
+        scorer_id=scorer_id,
         starting_token=starting_token,
         limit=limit,
     )
@@ -198,23 +178,22 @@ async def asyncio_detailed(
 
 
 async def asyncio(
+    scorer_version_id: str,
     *,
     client: AuthenticatedClient,
-    body: ProjectCollectionParamsV2,
-    actions: Union[Unset, list[ProjectAction]] = UNSET,
+    scorer_id: str,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
-    """Get Projects V2
+    """List Projects For Scorer Version Route
 
-     Gets projects optimized for V2 with pagination and server-side run counts.
+     List all projects associated with a specific scorer version.
 
     Args:
-        actions (Union[Unset, list[ProjectAction]]): Actions to include in the 'permissions'
-            field.
+        scorer_version_id (str):
+        scorer_id (str):
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
-        body (ProjectCollectionParamsV2):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -226,9 +205,9 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
+            scorer_version_id=scorer_version_id,
             client=client,
-            body=body,
-            actions=actions,
+            scorer_id=scorer_id,
             starting_token=starting_token,
             limit=limit,
         )

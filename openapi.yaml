@@ -20,6 +20,515 @@ components:
         - PASSTHROUGH
       title: ActionType
       type: string
+    AgentSpan:
+      properties:
+        agent_type:
+          $ref: "#/components/schemas/AgentType"
+          default: default
+          description: Agent type.
+        created_at:
+          description: Timestamp of the trace or span's creation.
+          format: date-time
+          title: Created
+          type: string
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input to the dataset associated with this trace
+          title: Dataset Input
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata from the dataset associated with this trace
+          title: Dataset Metadata
+          type: object
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output from the dataset associated with this trace
+          title: Dataset Output
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session, trace or span
+          title: ID
+        input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: "#/components/schemas/galileo_core__schemas__logging__llm__Message"
+              type: array
+          description: Input to the trace or span.
+          title: Input
+        metrics:
+          $ref: "#/components/schemas/Metrics"
+          description: Metrics associated with this trace or span.
+        name:
+          default: ""
+          description: Name of the trace, span or session.
+          title: Name
+          type: string
+        output:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/galileo_core__schemas__logging__llm__Message"
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - type: "null"
+          description: Output of the trace or span.
+          title: Output
+        spans:
+          description: Child spans.
+          items:
+            discriminator:
+              mapping:
+                agent: "#/components/schemas/AgentSpan"
+                llm: "#/components/schemas/LlmSpan"
+                retriever: "#/components/schemas/RetrieverSpan"
+                tool: "#/components/schemas/ToolSpan"
+                workflow: "#/components/schemas/WorkflowSpan"
+              propertyName: type
+            oneOf:
+              - $ref: "#/components/schemas/AgentSpan"
+              - $ref: "#/components/schemas/WorkflowSpan"
+              - $ref: "#/components/schemas/LlmSpan"
+              - $ref: "#/components/schemas/RetrieverSpan"
+              - $ref: "#/components/schemas/ToolSpan"
+          title: Spans
+          type: array
+        status_code:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description:
+            Status code of the trace or span. Used for logging failure
+            or error states.
+          title: Status Code
+        tags:
+          description: Tags associated with this trace or span.
+          items:
+            type: string
+          title: Tags
+          type: array
+        type:
+          const: agent
+          default: agent
+          description: Type of the trace, span or session.
+          title: Type
+          type: string
+        user_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata associated with this trace or span.
+          title: User Metadata
+          type: object
+      required:
+        - input
+      title: AgentSpan
+      type: object
+    AgentSpanRecord:
+      properties:
+        agent_type:
+          $ref: "#/components/schemas/AgentType"
+          default: default
+          description: Agent type.
+        created_at:
+          description: Timestamp of the trace or span's creation.
+          format: date-time
+          title: Created
+          type: string
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input to the dataset associated with this trace
+          title: Dataset Input
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata from the dataset associated with this trace
+          title: Dataset Metadata
+          type: object
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output from the dataset associated with this trace
+          title: Dataset Output
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: "null"
+          description: Whether or not this trace or span has child spans
+          title: Has Children
+        id:
+          description: Galileo ID of the session, trace or span
+          format: uuid4
+          title: ID
+          type: string
+        input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: "#/components/schemas/galileo_core__schemas__logging__llm__Message"
+              type: array
+          description: Input to the trace or span.
+          title: Input
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                discriminator:
+                  mapping:
+                    computing: "#/components/schemas/MetricComputing"
+                    error: "#/components/schemas/MetricError"
+                    failed: "#/components/schemas/MetricFailed"
+                    not_applicable: "#/components/schemas/MetricNotApplicable"
+                    not_computed: "#/components/schemas/MetricNotComputed"
+                    pending: "#/components/schemas/MetricPending"
+                    success: "#/components/schemas/MetricSuccess"
+                  propertyName: status_type
+                oneOf:
+                  - $ref: "#/components/schemas/MetricNotComputed"
+                  - $ref: "#/components/schemas/MetricPending"
+                  - $ref: "#/components/schemas/MetricComputing"
+                  - $ref: "#/components/schemas/MetricNotApplicable"
+                  - $ref: "#/components/schemas/MetricSuccess"
+                  - $ref: "#/components/schemas/MetricError"
+                  - $ref: "#/components/schemas/MetricFailed"
+              type: object
+            - type: "null"
+          description:
+            Detailed information about the metrics associated with this
+            trace or span
+          title: Metric Info
+        metrics:
+          $ref: "#/components/schemas/Metrics"
+          description: Metrics associated with this trace or span.
+        metrics_batch_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description:
+            Galileo ID of the metrics batch associated with this trace
+            or span
+          title: Metrics Batch Id
+        name:
+          default: ""
+          description: Name of the trace, span or session.
+          title: Name
+          type: string
+        output:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/galileo_core__schemas__logging__llm__Message"
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - type: "null"
+          description: Output of the trace or span.
+          title: Output
+        parent_id:
+          description: Galileo ID of the parent of this span
+          format: uuid4
+          title: Parent ID
+          type: string
+        project_id:
+          description: Galileo ID of the project associated with this trace or span
+          format: uuid4
+          title: Project ID
+          type: string
+        run_id:
+          description:
+            Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          format: uuid4
+          title: Run ID
+          type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
+        status_code:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description:
+            Status code of the trace or span. Used for logging failure
+            or error states.
+          title: Status Code
+        tags:
+          description: Tags associated with this trace or span.
+          items:
+            type: string
+          title: Tags
+          type: array
+        trace_id:
+          description:
+            Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+          format: uuid4
+          title: Trace ID
+          type: string
+        type:
+          const: agent
+          default: agent
+          description: Type of the trace, span or session.
+          title: Type
+          type: string
+        updated_at:
+          anyOf:
+            - format: date-time
+              type: string
+            - type: "null"
+          description: Timestamp of the session or trace or span's last update
+          title: Last Updated
+        user_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata associated with this trace or span.
+          title: User Metadata
+          type: object
+      required:
+        - input
+        - id
+        - trace_id
+        - project_id
+        - run_id
+        - parent_id
+      title: AgentSpanRecord
+      type: object
+    AgentSpanRecordWithChildren:
+      properties:
+        agent_type:
+          $ref: "#/components/schemas/AgentType"
+          default: default
+          description: Agent type.
+        created_at:
+          description: Timestamp of the trace or span's creation.
+          format: date-time
+          title: Created
+          type: string
+        dataset_input:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Input to the dataset associated with this trace
+          title: Dataset Input
+        dataset_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata from the dataset associated with this trace
+          title: Dataset Metadata
+          type: object
+        dataset_output:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Output from the dataset associated with this trace
+          title: Dataset Output
+        external_id:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: A user-provided session, trace or span ID.
+          title: External Id
+        has_children:
+          anyOf:
+            - type: boolean
+            - type: "null"
+          description: Whether or not this trace or span has child spans
+          title: Has Children
+        id:
+          description: Galileo ID of the session, trace or span
+          format: uuid4
+          title: ID
+          type: string
+        input:
+          anyOf:
+            - type: string
+            - items:
+                $ref: "#/components/schemas/galileo_core__schemas__logging__llm__Message"
+              type: array
+          description: Input to the trace or span.
+          title: Input
+        metric_info:
+          anyOf:
+            - additionalProperties:
+                discriminator:
+                  mapping:
+                    computing: "#/components/schemas/MetricComputing"
+                    error: "#/components/schemas/MetricError"
+                    failed: "#/components/schemas/MetricFailed"
+                    not_applicable: "#/components/schemas/MetricNotApplicable"
+                    not_computed: "#/components/schemas/MetricNotComputed"
+                    pending: "#/components/schemas/MetricPending"
+                    success: "#/components/schemas/MetricSuccess"
+                  propertyName: status_type
+                oneOf:
+                  - $ref: "#/components/schemas/MetricNotComputed"
+                  - $ref: "#/components/schemas/MetricPending"
+                  - $ref: "#/components/schemas/MetricComputing"
+                  - $ref: "#/components/schemas/MetricNotApplicable"
+                  - $ref: "#/components/schemas/MetricSuccess"
+                  - $ref: "#/components/schemas/MetricError"
+                  - $ref: "#/components/schemas/MetricFailed"
+              type: object
+            - type: "null"
+          description:
+            Detailed information about the metrics associated with this
+            trace or span
+          title: Metric Info
+        metrics:
+          $ref: "#/components/schemas/Metrics"
+          description: Metrics associated with this trace or span.
+        metrics_batch_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description:
+            Galileo ID of the metrics batch associated with this trace
+            or span
+          title: Metrics Batch Id
+        name:
+          default: ""
+          description: Name of the trace, span or session.
+          title: Name
+          type: string
+        output:
+          anyOf:
+            - type: string
+            - $ref: "#/components/schemas/galileo_core__schemas__logging__llm__Message"
+            - items:
+                $ref: "#/components/schemas/Document"
+              type: array
+            - type: "null"
+          description: Output of the trace or span.
+          title: Output
+        parent_id:
+          description: Galileo ID of the parent of this span
+          format: uuid4
+          title: Parent ID
+          type: string
+        project_id:
+          description: Galileo ID of the project associated with this trace or span
+          format: uuid4
+          title: Project ID
+          type: string
+        run_id:
+          description:
+            Galileo ID of the run (log stream or experiment) associated
+            with this trace or span
+          format: uuid4
+          title: Run ID
+          type: string
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Galileo ID of the session
+          title: Session ID
+        spans:
+          items:
+            discriminator:
+              mapping:
+                agent: "#/components/schemas/AgentSpanRecordWithChildren"
+                llm: "#/components/schemas/LlmSpanRecord"
+                retriever: "#/components/schemas/RetrieverSpanRecord"
+                tool: "#/components/schemas/ToolSpanRecord"
+                workflow: "#/components/schemas/WorkflowSpanRecordWithChildren"
+              propertyName: type
+            oneOf:
+              - $ref: "#/components/schemas/AgentSpanRecordWithChildren"
+              - $ref: "#/components/schemas/WorkflowSpanRecordWithChildren"
+              - $ref: "#/components/schemas/LlmSpanRecord"
+              - $ref: "#/components/schemas/ToolSpanRecord"
+              - $ref: "#/components/schemas/RetrieverSpanRecord"
+          title: Spans
+          type: array
+        status_code:
+          anyOf:
+            - type: integer
+            - type: "null"
+          description:
+            Status code of the trace or span. Used for logging failure
+            or error states.
+          title: Status Code
+        tags:
+          description: Tags associated with this trace or span.
+          items:
+            type: string
+          title: Tags
+          type: array
+        trace_id:
+          description:
+            Galileo ID of the trace containing the span (or the same value
+            as id for a trace)
+          format: uuid4
+          title: Trace ID
+          type: string
+        type:
+          const: agent
+          default: agent
+          description: Type of the trace, span or session.
+          title: Type
+          type: string
+        updated_at:
+          anyOf:
+            - format: date-time
+              type: string
+            - type: "null"
+          description: Timestamp of the session or trace or span's last update
+          title: Last Updated
+        user_metadata:
+          additionalProperties:
+            type: string
+          description: Metadata associated with this trace or span.
+          title: User Metadata
+          type: object
+      required:
+        - input
+        - id
+        - trace_id
+        - project_id
+        - run_id
+        - parent_id
+      title: AgentSpanRecordWithChildren
+      type: object
+    AgentType:
+      enum:
+        - default
+        - planner
+        - react
+        - reflection
+        - router
+        - classifier
+        - supervisor
+        - judge
+      title: AgentType
+      type: string
     AgenticSessionSuccessScorer:
       properties:
         filters:
@@ -815,6 +1324,15 @@ components:
       type: object
     BasePromptTemplateVersion:
       properties:
+        output_type:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Output Type
+        raw:
+          default: false
+          title: Raw
+          type: boolean
         settings:
           additionalProperties: true
           title: Settings
@@ -852,6 +1370,15 @@ components:
           type: integer
         model_changed:
           title: Model Changed
+          type: boolean
+        output_type:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Output Type
+        raw:
+          default: false
+          title: Raw
           type: boolean
         settings:
           additionalProperties: true
@@ -952,6 +1479,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -971,6 +1503,11 @@ components:
             - type: integer
             - type: "null"
           title: Num Judges
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -981,6 +1518,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           default: ""
           title: Scorer Name
@@ -1009,6 +1553,16 @@ components:
           format: uuid4
           title: Id
           type: string
+        model_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Model Name
+        num_judges:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Num Judges
         registered_scorer:
           anyOf:
             - $ref: "#/components/schemas/BaseRegisteredScorerDB"
@@ -1035,6 +1589,16 @@ components:
           format: uuid4
           title: Id
           type: string
+        model_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Model Name
+        num_judges:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Num Judges
         registered_scorer:
           anyOf:
             - $ref: "#/components/schemas/CreateUpdateRegisteredScorerResponse"
@@ -1196,6 +1760,26 @@ components:
       required:
         - file
       title: Body_upload_prompt_evaluation_dataset_projects__project_id__prompt_datasets_post
+      type: object
+    BucketedMetric:
+      properties:
+        average:
+          anyOf:
+            - type: number
+            - type: "null"
+          title: Average
+        buckets:
+          additionalProperties:
+            type: integer
+          title: Buckets
+          type: object
+        name:
+          title: Name
+          type: string
+      required:
+        - name
+        - buckets
+      title: BucketedMetric
       type: object
     BucketedMetrics:
       additionalProperties: true
@@ -1449,6 +2033,11 @@ components:
             - $ref: "#/components/schemas/InsightType"
             - type: "null"
           description: Insight type.
+        is_empty:
+          default: false
+          description: Indicates whether the column is empty and should be hidden.
+          title: Is Empty
+          type: boolean
         label:
           anyOf:
             - type: string
@@ -1870,6 +2459,13 @@ components:
               type: string
             - type: "null"
           title: Prompt Dataset Id
+        prompt_finetuned_scorers_configuration:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/FineTunedScorer"
+              type: array
+            - type: "null"
+          title: Prompt Finetuned Scorers Configuration
         prompt_generated_scorers_configuration:
           anyOf:
             - items:
@@ -2021,6 +2617,10 @@ components:
               type: array
             - type: "null"
           title: Tasks
+        upload_data_in_separate_task:
+          default: true
+          title: Upload Data In Separate Task
+          type: boolean
         user_id:
           anyOf:
             - format: uuid4
@@ -2167,6 +2767,13 @@ components:
               type: string
             - type: "null"
           title: Prompt Dataset Id
+        prompt_finetuned_scorers_configuration:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/FineTunedScorer"
+              type: array
+            - type: "null"
+          title: Prompt Finetuned Scorers Configuration
         prompt_generated_scorers_configuration:
           anyOf:
             - items:
@@ -2318,6 +2925,10 @@ components:
               type: array
             - type: "null"
           title: Tasks
+        upload_data_in_separate_task:
+          default: true
+          title: Upload Data In Separate Task
+          type: boolean
         user_id:
           anyOf:
             - format: uuid4
@@ -2342,6 +2953,16 @@ components:
         instructions:
           title: Instructions
           type: string
+        model_name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Model Name
+        num_judges:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Num Judges
       required:
         - instructions
         - chain_poll_template
@@ -2361,6 +2982,15 @@ components:
           minLength: 1
           title: Name
           type: string
+        output_type:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Output Type
+        raw:
+          default: false
+          title: Raw
+          type: boolean
         settings:
           additionalProperties: true
           title: Settings
@@ -2864,6 +3494,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -2882,6 +3517,11 @@ components:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -2892,6 +3532,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_agentic_session_success
           default: _customized_agentic_session_success
@@ -3193,6 +3840,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -3211,6 +3863,11 @@ components:
           default: 5
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -3221,6 +3878,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_agentic_workflow_success
           default: _customized_agentic_workflow_success
@@ -3317,6 +3981,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -3327,14 +3996,19 @@ components:
           title: Model Alias
           type: string
         name:
-          const: chunk_attribution_utilization_gpt
-          default: chunk_attribution_utilization_gpt
+          const: chunk_attribution_utilization
+          default: chunk_attribution_utilization
           title: Name
           type: string
         num_judges:
           default: 1
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -3345,6 +4019,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_chunk_attribution_utilization_gpt
           default: _customized_chunk_attribution_utilization_gpt
@@ -3442,6 +4123,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -3452,14 +4138,19 @@ components:
           title: Model Alias
           type: string
         name:
-          const: completeness_gpt
-          default: completeness_gpt
+          const: completeness
+          default: completeness
           title: Name
           type: string
         num_judges:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -3470,6 +4161,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_completeness_gpt
           default: _customized_completeness_gpt
@@ -3765,6 +4463,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -3783,6 +4486,11 @@ components:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -3793,6 +4501,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_factuality
           default: _customized_factuality
@@ -3915,6 +4630,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -3933,6 +4653,11 @@ components:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -3943,6 +4668,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_ground_truth_adherence
           default: _customized_ground_truth_adherence
@@ -4094,6 +4826,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -4104,14 +4841,19 @@ components:
           title: Model Alias
           type: string
         name:
-          const: context_adherence_gpt
-          default: context_adherence_gpt
+          const: context_adherence
+          default: context_adherence
           title: Name
           type: string
         num_judges:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -4122,6 +4864,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_groundedness
           default: _customized_groundedness
@@ -4240,6 +4989,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -4250,14 +5004,19 @@ components:
           title: Model Alias
           type: string
         name:
-          const: input_sexist_gpt
-          default: input_sexist_gpt
+          const: input_sexist
+          default: input_sexist
           title: Name
           type: string
         num_judges:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -4268,6 +5027,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_input_sexist_gpt
           default: _customized_input_sexist_gpt
@@ -4393,6 +5159,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -4403,14 +5174,19 @@ components:
           title: Model Alias
           type: string
         name:
-          const: input_toxicity_gpt
-          default: input_toxicity_gpt
+          const: input_toxicity
+          default: input_toxicity
           title: Name
           type: string
         num_judges:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -4421,6 +5197,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_input_toxicity_gpt
           default: _customized_input_toxicity_gpt
@@ -4595,6 +5378,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -4613,6 +5401,11 @@ components:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -4623,6 +5416,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_instruction_adherence
           default: _customized_instruction_adherence
@@ -4738,6 +5538,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -4748,14 +5553,19 @@ components:
           title: Model Alias
           type: string
         name:
-          const: prompt_injection_gpt
-          default: prompt_injection_gpt
+          const: prompt_injection
+          default: prompt_injection
           title: Name
           type: string
         num_judges:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -4766,6 +5576,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_prompt_injection_gpt
           default: _customized_prompt_injection_gpt
@@ -4884,6 +5701,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -4894,14 +5716,19 @@ components:
           title: Model Alias
           type: string
         name:
-          const: output_sexist_gpt
-          default: output_sexist_gpt
+          const: output_sexist
+          default: output_sexist
           title: Name
           type: string
         num_judges:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -4912,6 +5739,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_sexist_gpt
           default: _customized_sexist_gpt
@@ -5039,6 +5873,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -5057,6 +5896,11 @@ components:
           default: 1
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -5067,6 +5911,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_tool_error_rate
           default: _customized_tool_error_rate
@@ -5228,6 +6079,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -5246,6 +6102,11 @@ components:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -5256,6 +6117,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_tool_selection_quality
           default: _customized_tool_selection_quality
@@ -5381,6 +6249,11 @@ components:
               type: array
             - type: "null"
           title: Indices
+        lora_task_id:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Lora Task Id
         metric_name:
           anyOf:
             - type: string
@@ -5391,14 +6264,19 @@ components:
           title: Model Alias
           type: string
         name:
-          const: output_toxicity_gpt
-          default: output_toxicity_gpt
+          const: output_toxicity
+          default: output_toxicity
           title: Name
           type: string
         num_judges:
           default: 3
           title: Num Judges
           type: integer
+        prompt:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Prompt
         regex_field:
           default: ""
           title: Regex Field
@@ -5409,6 +6287,13 @@ components:
               type: string
             - type: "null"
           title: Registered Scorer Id
+        scoreable_node_types:
+          anyOf:
+            - items:
+                $ref: "#/components/schemas/NodeType"
+              type: array
+            - type: "null"
+          title: Scoreable Node Types
         scorer_name:
           const: _customized_toxicity_gpt
           default: _customized_toxicity_gpt
@@ -6167,6 +7052,12 @@ components:
               type: string
             - type: "null"
           title: Playground Id
+        playground_prompt_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          title: Playground Prompt Id
         task_type:
           anyOf:
             - const: 16
@@ -6212,6 +7103,47 @@ components:
         - dataset_id
         - version_index
       title: ExperimentDatasetRequest
+      type: object
+    ExperimentMetricsRequest:
+      examples:
+        - filters:
+            - case_sensitive: true
+              name: input
+              operator: eq
+              type: text
+              value: example input
+      properties:
+        filters:
+          items:
+            discriminator:
+              mapping:
+                boolean: "#/components/schemas/LogRecordsBooleanFilter"
+                date: "#/components/schemas/LogRecordsDateFilter"
+                id: "#/components/schemas/LogRecordsIDFilter"
+                number: "#/components/schemas/LogRecordsNumberFilter"
+                text: "#/components/schemas/LogRecordsTextFilter"
+              propertyName: type
+            oneOf:
+              - $ref: "#/components/schemas/LogRecordsIDFilter"
+              - $ref: "#/components/schemas/LogRecordsDateFilter"
+              - $ref: "#/components/schemas/LogRecordsNumberFilter"
+              - $ref: "#/components/schemas/LogRecordsBooleanFilter"
+              - $ref: "#/components/schemas/LogRecordsTextFilter"
+          title: Filters
+          type: array
+      title: ExperimentMetricsRequest
+      type: object
+    ExperimentMetricsResponse:
+      properties:
+        metrics:
+          description:
+            List of metrics for the experiment, including categorical and
+            quartile metrics.
+          items:
+            $ref: "#/components/schemas/BucketedMetric"
+          title: Metrics
+          type: array
+      title: ExperimentMetricsResponse
       type: object
     ExperimentResponse:
       properties:
@@ -6313,6 +7245,7 @@ components:
               filterable: true
               group_label: Standard
               id: id
+              is_empty: false
               label: ID
               multi_valued: false
               sortable: true
@@ -6323,6 +7256,7 @@ components:
               filterable: true
               group_label: Standard
               id: created_at
+              is_empty: false
               label: Created
               multi_valued: false
               sortable: true
@@ -6333,6 +7267,7 @@ components:
               filterable: true
               group_label: Standard
               id: updated_at
+              is_empty: false
               label: Last Updated
               multi_valued: false
               sortable: true
@@ -6343,6 +7278,7 @@ components:
               filterable: true
               group_label: Standard
               id: name
+              is_empty: false
               label: Name
               multi_valued: false
               sortable: true
@@ -6353,44 +7289,8 @@ components:
               filterable: true
               group_label: Standard
               id: project_id
+              is_empty: false
               label: Project ID
-              multi_valued: false
-              sortable: true
-            - applicable_types: []
-              category: standard
-              data_type: uuid
-              filterable: true
-              group_label: Standard
-              id: created_by
-              label: Created By
-              multi_valued: false
-              sortable: true
-            - allowed_values:
-                - 0
-                - 1
-                - 2
-                - 3
-                - 4
-                - 5
-                - 6
-                - 7
-                - 8
-                - 9
-                - 10
-                - 11
-                - 12
-                - 13
-                - 14
-                - 15
-                - 16
-                - 17
-              applicable_types: []
-              category: standard
-              data_type: text
-              filterable: true
-              group_label: Standard
-              id: task_type
-              label: Task Type
               multi_valued: false
               sortable: true
             - applicable_types: []
@@ -6399,6 +7299,7 @@ components:
               filterable: true
               group_label: Standard
               id: ranking_score
+              is_empty: false
               label: Ranking Score
               multi_valued: false
               sortable: true
@@ -6408,22 +7309,15 @@ components:
               filterable: true
               group_label: Standard
               id: rank
+              is_empty: false
               label: Rank
-              multi_valued: false
-              sortable: true
-            - applicable_types: []
-              category: standard
-              data_type: boolean
-              filterable: true
-              group_label: Standard
-              id: winner
-              label: Winner
               multi_valued: false
               sortable: true
             - applicable_types: []
               category: metric
               filterable: true
               id: metrics/average_cost
+              is_empty: false
               label: average_cost
               multi_valued: false
               sortable: true
@@ -6431,6 +7325,7 @@ components:
               category: metric
               filterable: true
               id: metrics/average_bleu
+              is_empty: false
               label: average_bleu
               multi_valued: false
               sortable: true
@@ -6438,6 +7333,7 @@ components:
               category: metric
               filterable: true
               id: metrics/total_responses
+              is_empty: false
               label: total_responses
               multi_valued: false
               sortable: true
@@ -6794,6 +7690,41 @@ components:
         - evaluating_response
       title: FewShotExample
       type: object
+    FineTunedScorer:
+      properties:
+        filters:
+          anyOf:
+            - items:
+                discriminator:
+                  mapping:
+                    metadata: "#/components/schemas/MetadataFilter"
+                    node_name: "#/components/schemas/NodeNameFilter"
+                  propertyName: name
+                oneOf:
+                  - $ref: "#/components/schemas/NodeNameFilter"
+                  - $ref: "#/components/schemas/MetadataFilter"
+              type: array
+            - type: "null"
+          title: Filters
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          title: Id
+        name:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Name
+      title: FineTunedScorer
+      type: object
+    FineTunedScorerAction:
+      enum:
+        - update
+        - delete
+      title: FineTunedScorerAction
+      type: string
     GeneratedScorerAction:
       enum:
         - update
@@ -8539,88 +9470,99 @@ components:
       examples:
         - columns:
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: text
               description: Input to the trace or span.
               filterable: true
               group_label: Standard
               id: input
+              is_empty: false
               label: Input
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: text
               description: Output of the trace or span.
               filterable: true
               group_label: Standard
               id: output
+              is_empty: false
               label: Output
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
+                - workflow
                 - llm
-                - tool
                 - session
                 - trace
-                - workflow
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: text
               description: Name of the trace, span or session.
               filterable: true
               group_label: Standard
               id: name
+              is_empty: false
               label: Name
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
+                - workflow
                 - llm
-                - tool
                 - session
                 - trace
-                - workflow
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: timestamp
               description: Timestamp of the trace or span's creation.
               filterable: true
               group_label: Standard
               id: created_at
+              is_empty: false
               label: Created
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: text
               description: Tags associated with this trace or span.
               filterable: false
               group_label: Standard
               id: tags
+              is_empty: false
               label: Tags
               multi_valued: true
               sortable: false
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: integer
               description:
@@ -8629,107 +9571,121 @@ components:
               filterable: true
               group_label: Standard
               id: status_code
+              is_empty: false
               label: Status Code
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
+                - workflow
                 - llm
-                - tool
                 - session
                 - trace
-                - workflow
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: text
               description: A user-provided session, trace or span ID.
               filterable: true
               group_label: Standard
               id: external_id
+              is_empty: false
               label: External Id
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: text
               description: Input to the dataset associated with this trace
               filterable: true
               group_label: Standard
               id: dataset_input
+              is_empty: false
               label: Dataset Input
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: text
               description: Output from the dataset associated with this trace
               filterable: true
               group_label: Standard
               id: dataset_output
+              is_empty: false
               label: Dataset Output
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
+                - workflow
                 - llm
-                - tool
                 - session
                 - trace
-                - workflow
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: uuid
               description: Galileo ID of the session, trace or span
               filterable: true
               group_label: Standard
               id: id
+              is_empty: false
               label: ID
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: uuid
               description: Galileo ID of the session
               filterable: true
               group_label: Standard
               id: session_id
+              is_empty: false
               label: Session ID
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: uuid
               description: Galileo ID of the project associated with this trace or span
               filterable: true
               group_label: Standard
               id: project_id
+              is_empty: false
               label: Project ID
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: uuid
               description:
@@ -8738,66 +9694,74 @@ components:
               filterable: true
               group_label: Standard
               id: run_id
+              is_empty: false
               label: Run ID
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - session
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: timestamp
               description: Timestamp of the session or trace or span's last update
               filterable: true
               group_label: Standard
               id: updated_at
+              is_empty: false
               label: Last Updated
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
-                - trace
                 - workflow
+                - llm
+                - trace
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: boolean
               description: Whether or not this trace or span has child spans
               filterable: true
               group_label: Standard
               id: has_children
+              is_empty: false
               label: Has Children
               multi_valued: false
               sortable: true
             - allowed_values:
-                - retriever
+                - workflow
                 - llm
-                - tool
                 - session
                 - trace
-                - workflow
-              applicable_types:
                 - retriever
-                - llm
+                - agent
                 - tool
+              applicable_types:
                 - workflow
+                - llm
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: text
               description: Type of the trace, span or session.
               filterable: true
               group_label: Standard
               id: type
+              is_empty: false
               label: Type
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
                 - workflow
+                - llm
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: uuid
               description:
@@ -8806,21 +9770,45 @@ components:
               filterable: true
               group_label: Standard
               id: trace_id
+              is_empty: false
               label: Trace ID
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - llm
-                - tool
                 - workflow
+                - llm
+                - retriever
+                - agent
+                - tool
               category: standard
               data_type: uuid
               description: Galileo ID of the parent of this span
               filterable: true
               group_label: Standard
               id: parent_id
+              is_empty: false
               label: Parent ID
+              multi_valued: false
+              sortable: true
+            - allowed_values:
+                - react
+                - reflection
+                - classifier
+                - default
+                - planner
+                - judge
+                - router
+                - supervisor
+              applicable_types:
+                - agent
+              category: standard
+              data_type: text
+              description: Agent type.
+              filterable: true
+              group_label: Standard
+              id: agent_type
+              is_empty: false
+              label: Agent Type
               multi_valued: false
               sortable: true
             - applicable_types:
@@ -8831,6 +9819,7 @@ components:
               filterable: true
               group_label: Standard
               id: tools
+              is_empty: false
               label: Tools
               multi_valued: false
               sortable: true
@@ -8842,6 +9831,7 @@ components:
               filterable: true
               group_label: Standard
               id: model
+              is_empty: false
               label: Model
               multi_valued: false
               sortable: true
@@ -8853,6 +9843,7 @@ components:
               filterable: true
               group_label: Standard
               id: temperature
+              is_empty: false
               label: Temperature
               multi_valued: false
               sortable: true
@@ -8864,6 +9855,7 @@ components:
               filterable: true
               group_label: Standard
               id: finish_reason
+              is_empty: false
               label: Finish Reason
               multi_valued: false
               sortable: true
@@ -8875,6 +9867,7 @@ components:
               filterable: true
               group_label: Standard
               id: tool_call_id
+              is_empty: false
               label: Tool Call Id
               multi_valued: false
               sortable: true
@@ -8888,6 +9881,7 @@ components:
               filterable: true
               group_label: Safety Metrics
               id: metrics/toxicity
+              is_empty: false
               label: Output Toxicity (SLM)
               multi_valued: false
               sortable: true
@@ -8900,6 +9894,7 @@ components:
               filterable: true
               group_label: Output Quality
               id: metrics/bleu
+              is_empty: false
               label: BLEU
               multi_valued: false
               sortable: true
@@ -8980,156 +9975,6 @@ components:
         - column_id
         - value
       title: LogRecordsIDFilter
-      type: object
-    LogRecordsIngestRequest:
-      examples:
-        - log_stream_id: 00000000-0000-0000-0000-000000000000
-          session_id: 00000000-0000-0000-0000-000000000000
-          traces:
-            - created_at: "2025-05-27T19:53:27.168030Z"
-              dataset_metadata: {}
-              input: who is a smart LLM?
-              metrics: {}
-              name: ""
-              output: I am!
-              spans:
-                - created_at: "2025-05-27T19:53:27.168009Z"
-                  dataset_metadata: {}
-                  input:
-                    - content: "Question: who is a smart LLM?"
-                      role: user
-                  metrics: {}
-                  name: ""
-                  output:
-                    content: I am!
-                    role: user
-                  tags: []
-                  type: llm
-                  user_metadata: {}
-              tags: []
-              type: trace
-              user_metadata: {}
-        - experiment_id: 00000000-0000-0000-0000-000000000000
-          traces:
-            - created_at: "2025-05-27T19:53:27.168230Z"
-              dataset_metadata: {}
-              input: who is a smart LLM?
-              metrics: {}
-              name: ""
-              output: I am!
-              spans:
-                - created_at: "2025-05-27T19:53:27.168224Z"
-                  dataset_metadata: {}
-                  input:
-                    - content: "Question: who is a smart LLM?"
-                      role: user
-                  metrics: {}
-                  name: ""
-                  output:
-                    content: I am!
-                    role: user
-                  tags: []
-                  type: llm
-                  user_metadata: {}
-              tags: []
-              type: trace
-              user_metadata: {}
-      properties:
-        client_version:
-          anyOf:
-            - type: string
-            - type: "null"
-          title: Client Version
-        experiment_id:
-          anyOf:
-            - format: uuid4
-              type: string
-            - type: "null"
-          description: Experiment id associated with the traces.
-          title: Experiment Id
-        log_stream_id:
-          anyOf:
-            - format: uuid4
-              type: string
-            - type: "null"
-          description: Log stream id associated with the traces.
-          title: Log Stream Id
-        logging_method:
-          $ref: "#/components/schemas/LoggingMethod"
-          default: api_direct
-        reliable:
-          default: false
-          description:
-            Whether or not to use reliable logging.  If set to False, the
-            method will respond immediately before verifying that the traces have
-            been successfully ingested, and no error message will be returned if ingestion
-            fails.  If set to True, the method will wait for the traces to be successfully
-            ingested or return an error message if there is an ingestion failure.
-          title: Reliable
-          type: boolean
-        session_id:
-          anyOf:
-            - format: uuid4
-              type: string
-            - type: "null"
-          description: Session id associated with the traces.
-          title: Session Id
-        traces:
-          description: List of traces to log.
-          items:
-            $ref: "#/components/schemas/Trace"
-          minItems: 1
-          title: Traces
-          type: array
-      required:
-        - traces
-      title: LogRecordsIngestRequest
-      type: object
-    LogRecordsIngestResponse:
-      properties:
-        experiment_id:
-          anyOf:
-            - format: uuid4
-              type: string
-            - type: "null"
-          description: Experiment id associated with the traces.
-          title: Experiment Id
-        log_stream_id:
-          anyOf:
-            - format: uuid4
-              type: string
-            - type: "null"
-          description: Log stream id associated with the traces.
-          title: Log Stream Id
-        project_id:
-          description: Project id associated with the traces.
-          format: uuid4
-          title: Project Id
-          type: string
-        project_name:
-          description: Project name associated with the traces.
-          title: Project Name
-          type: string
-        records_count:
-          description: total number of records (traces & spans) ingested
-          title: Records Count
-          type: integer
-        session_id:
-          description: Session id associated with the traces.
-          format: uuid4
-          title: Session Id
-          type: string
-        traces_count:
-          description: total number of traces ingested
-          title: Traces Count
-          type: integer
-      required:
-        - project_id
-        - project_name
-        - session_id
-        - traces_count
-        - records_count
-      title: LogRecordsIngestResponse
       type: object
     LogRecordsMetricsQueryRequest:
       examples:
@@ -9336,7 +10181,7 @@ components:
           num_rows: 2
           paginated: true
           records:
-            - created_at: "2025-05-27T19:53:27.173682Z"
+            - created_at: "2025-06-10T20:28:28.890317Z"
               dataset_metadata: {}
               feedback_rating_info: {}
               id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
@@ -9351,7 +10196,7 @@ components:
               trace_id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               type: trace
               user_metadata: {}
-            - created_at: "2025-05-27T19:53:27.173747Z"
+            - created_at: "2025-06-10T20:28:28.890389Z"
               dataset_metadata: {}
               id: 1edc2401-24b4-448c-a392-b36932293061
               input:
@@ -9394,12 +10239,14 @@ components:
               - $ref: "#/components/schemas/TraceRecord"
               - discriminator:
                   mapping:
+                    agent: "#/components/schemas/AgentSpanRecord"
                     llm: "#/components/schemas/LlmSpanRecord"
                     retriever: "#/components/schemas/RetrieverSpanRecord"
                     tool: "#/components/schemas/ToolSpanRecord"
                     workflow: "#/components/schemas/WorkflowSpanRecord"
                   propertyName: type
                 oneOf:
+                  - $ref: "#/components/schemas/AgentSpanRecord"
                   - $ref: "#/components/schemas/WorkflowSpanRecord"
                   - $ref: "#/components/schemas/LlmSpanRecord"
                   - $ref: "#/components/schemas/ToolSpanRecord"
@@ -9469,6 +10316,166 @@ components:
         - value
       title: LogRecordsTextFilter
       type: object
+    LogSpansIngestRequest:
+      examples:
+        - log_stream_id: 00000000-0000-0000-0000-000000000000
+          parent_id: 11000011-0000-0000-0000-110000110000
+          session_id: 00000000-0000-0000-0000-000000000000
+          spans:
+            - created_at: "2025-06-10T20:28:28.823003Z"
+              dataset_metadata: {}
+              input: who is a smart LLM?
+              metrics: {}
+              name: ""
+              output: I am!
+              spans:
+                - created_at: "2025-06-10T20:28:28.820388Z"
+                  dataset_metadata: {}
+                  id: 22222222-2222-4222-a222-222222222222
+                  input:
+                    - content: "Question: who is a smart LLM?"
+                      role: user
+                  metrics: {}
+                  name: ""
+                  output:
+                    content: I am!
+                    role: user
+                  tags: []
+                  type: llm
+                  user_metadata: {}
+              tags: []
+              type: workflow
+              user_metadata: {}
+          trace_id: 11000011-0000-0000-0000-110000110000
+      properties:
+        client_version:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Client Version
+        experiment_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Experiment id associated with the traces.
+          title: Experiment Id
+        log_stream_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Log stream id associated with the traces.
+          title: Log Stream Id
+        logging_method:
+          $ref: "#/components/schemas/LoggingMethod"
+          default: api_direct
+        parent_id:
+          description: Parent trace or span id.
+          format: uuid4
+          title: Parent Id
+          type: string
+        reliable:
+          default: false
+          description:
+            Whether or not to use reliable logging.  If set to False, the
+            method will respond immediately before verifying that the traces have
+            been successfully ingested, and no error message will be returned if ingestion
+            fails.  If set to True, the method will wait for the traces to be successfully
+            ingested or return an error message if there is an ingestion failure.
+          title: Reliable
+          type: boolean
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Session id associated with the spans.
+          title: Session Id
+        spans:
+          description: List of spans to log.
+          items:
+            discriminator:
+              mapping:
+                agent: "#/components/schemas/AgentSpan"
+                llm: "#/components/schemas/LlmSpan"
+                retriever: "#/components/schemas/RetrieverSpan"
+                tool: "#/components/schemas/ToolSpan"
+                workflow: "#/components/schemas/WorkflowSpan"
+              propertyName: type
+            oneOf:
+              - $ref: "#/components/schemas/AgentSpan"
+              - $ref: "#/components/schemas/WorkflowSpan"
+              - $ref: "#/components/schemas/LlmSpan"
+              - $ref: "#/components/schemas/RetrieverSpan"
+              - $ref: "#/components/schemas/ToolSpan"
+          minItems: 1
+          title: Spans
+          type: array
+        trace_id:
+          description: Trace id associated with the spans.
+          format: uuid4
+          title: Trace Id
+          type: string
+      required:
+        - spans
+        - trace_id
+        - parent_id
+      title: LogSpansIngestRequest
+      type: object
+    LogSpansIngestResponse:
+      properties:
+        experiment_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Experiment id associated with the traces.
+          title: Experiment Id
+        log_stream_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Log stream id associated with the traces.
+          title: Log Stream Id
+        parent_id:
+          description: Parent trace or span id.
+          format: uuid4
+          title: Parent Id
+          type: string
+        project_id:
+          description: Project id associated with the traces.
+          format: uuid4
+          title: Project Id
+          type: string
+        project_name:
+          description: Project name associated with the traces.
+          title: Project Name
+          type: string
+        records_count:
+          description: Total number of records ingested
+          title: Records Count
+          type: integer
+        session_id:
+          description: Session id associated with the traces.
+          format: uuid4
+          title: Session Id
+          type: string
+        trace_id:
+          description: Trace id associated with the spans.
+          format: uuid4
+          title: Trace Id
+          type: string
+      required:
+        - project_id
+        - project_name
+        - session_id
+        - records_count
+        - trace_id
+        - parent_id
+      title: LogSpansIngestResponse
+      type: object
     LogStreamCreateRequest:
       properties:
         name:
@@ -9523,6 +10530,157 @@ components:
       required:
         - name
       title: LogStreamUpdateRequest
+      type: object
+    LogTracesIngestRequest:
+      examples:
+        - log_stream_id: 00000000-0000-0000-0000-000000000000
+          session_id: 00000000-0000-0000-0000-000000000000
+          traces:
+            - created_at: "2025-06-10T20:28:28.818559Z"
+              dataset_metadata: {}
+              input: who is a smart LLM?
+              metrics: {}
+              name: ""
+              output: I am!
+              spans:
+                - created_at: "2025-06-10T20:28:28.818542Z"
+                  dataset_metadata: {}
+                  input:
+                    - content: "Question: who is a smart LLM?"
+                      role: user
+                  metrics: {}
+                  name: ""
+                  output:
+                    content: I am!
+                    role: user
+                  tags: []
+                  type: llm
+                  user_metadata: {}
+              tags: []
+              type: trace
+              user_metadata: {}
+        - experiment_id: 00000000-0000-0000-0000-000000000000
+          traces:
+            - created_at: "2025-06-10T20:28:28.818768Z"
+              dataset_metadata: {}
+              input: who is a smart LLM?
+              metrics: {}
+              name: ""
+              output: I am!
+              spans:
+                - created_at: "2025-06-10T20:28:28.818753Z"
+                  dataset_metadata: {}
+                  id: 11111111-1111-4111-a111-111111111111
+                  input:
+                    - content: "Question: who is a smart LLM?"
+                      role: user
+                  metrics: {}
+                  name: ""
+                  output:
+                    content: I am!
+                    role: user
+                  tags: []
+                  type: llm
+                  user_metadata: {}
+              tags: []
+              type: trace
+              user_metadata: {}
+      properties:
+        client_version:
+          anyOf:
+            - type: string
+            - type: "null"
+          title: Client Version
+        experiment_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Experiment id associated with the traces.
+          title: Experiment Id
+        log_stream_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Log stream id associated with the traces.
+          title: Log Stream Id
+        logging_method:
+          $ref: "#/components/schemas/LoggingMethod"
+          default: api_direct
+        reliable:
+          default: false
+          description:
+            Whether or not to use reliable logging.  If set to False, the
+            method will respond immediately before verifying that the traces have
+            been successfully ingested, and no error message will be returned if ingestion
+            fails.  If set to True, the method will wait for the traces to be successfully
+            ingested or return an error message if there is an ingestion failure.
+          title: Reliable
+          type: boolean
+        session_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Session id associated with the traces.
+          title: Session Id
+        traces:
+          description: List of traces to log.
+          items:
+            $ref: "#/components/schemas/Trace"
+          minItems: 1
+          title: Traces
+          type: array
+      required:
+        - traces
+      title: LogTracesIngestRequest
+      type: object
+    LogTracesIngestResponse:
+      properties:
+        experiment_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Experiment id associated with the traces.
+          title: Experiment Id
+        log_stream_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: "null"
+          description: Log stream id associated with the traces.
+          title: Log Stream Id
+        project_id:
+          description: Project id associated with the traces.
+          format: uuid4
+          title: Project Id
+          type: string
+        project_name:
+          description: Project name associated with the traces.
+          title: Project Name
+          type: string
+        records_count:
+          description: Total number of records ingested
+          title: Records Count
+          type: integer
+        session_id:
+          description: Session id associated with the traces.
+          format: uuid4
+          title: Session Id
+          type: string
+        traces_count:
+          description: total number of traces ingested
+          title: Traces Count
+          type: integer
+      required:
+        - project_id
+        - project_name
+        - session_id
+        - records_count
+        - traces_count
+      title: LogTracesIngestResponse
       type: object
     LoggingMethod:
       enum:
@@ -9982,6 +11140,14 @@ components:
         alias:
           title: Alias
           type: string
+        alternative_names:
+          description:
+            Alternative names for the model, used for matching with various
+            current, versioned or legacy names.
+          items:
+            type: string
+          title: Alternative Names
+          type: array
         api_version:
           anyOf:
             - type: string
@@ -10118,6 +11284,7 @@ components:
         - agent
         - workflow
         - trace
+        - session
       title: NodeType
       type: string
     OpenAIFunction:
@@ -10386,6 +11553,7 @@ components:
             - $ref: "#/components/schemas/RegisteredScorerAction"
             - $ref: "#/components/schemas/ApiKeyAction"
             - $ref: "#/components/schemas/GeneratedScorerAction"
+            - $ref: "#/components/schemas/FineTunedScorerAction"
             - $ref: "#/components/schemas/DatasetAction"
             - $ref: "#/components/schemas/IntegrationAction"
             - $ref: "#/components/schemas/OrganizationAction"
@@ -10469,6 +11637,55 @@ components:
           title: Sort Type
           type: string
       title: ProjectBookmarkSort
+      type: object
+    ProjectCollectionParams:
+      properties:
+        filters:
+          items:
+            discriminator:
+              mapping:
+                bookmark: "#/components/schemas/ProjectBookmarkFilter"
+                created_at: "#/components/schemas/ProjectCreatedAtFilter"
+                creator: "#/components/schemas/ProjectCreatorFilter"
+                id: "#/components/schemas/ProjectIDFilter"
+                name: "#/components/schemas/ProjectNameFilter"
+                runs: "#/components/schemas/ProjectRunsFilter"
+                type: "#/components/schemas/ProjectTypeFilter"
+                updated_at: "#/components/schemas/ProjectUpdatedAtFilter"
+              propertyName: name
+            oneOf:
+              - $ref: "#/components/schemas/ProjectIDFilter"
+              - $ref: "#/components/schemas/ProjectNameFilter"
+              - $ref: "#/components/schemas/ProjectTypeFilter"
+              - $ref: "#/components/schemas/ProjectCreatorFilter"
+              - $ref: "#/components/schemas/ProjectCreatedAtFilter"
+              - $ref: "#/components/schemas/ProjectUpdatedAtFilter"
+              - $ref: "#/components/schemas/ProjectRunsFilter"
+              - $ref: "#/components/schemas/ProjectBookmarkFilter"
+          title: Filters
+          type: array
+        sort:
+          anyOf:
+            - discriminator:
+                mapping:
+                  bookmark: "#/components/schemas/ProjectBookmarkSort"
+                  created_at: "#/components/schemas/ProjectCreatedAtSort"
+                  name: "#/components/schemas/ProjectNameSort"
+                  runs: "#/components/schemas/ProjectRunsSort"
+                  type: "#/components/schemas/ProjectTypeSort"
+                  updated_at: "#/components/schemas/ProjectUpdatedAtSort"
+                propertyName: name
+              oneOf:
+                - $ref: "#/components/schemas/ProjectNameSort"
+                - $ref: "#/components/schemas/ProjectTypeSort"
+                - $ref: "#/components/schemas/ProjectCreatedAtSort"
+                - $ref: "#/components/schemas/ProjectUpdatedAtSort"
+                - $ref: "#/components/schemas/ProjectRunsSort"
+                - $ref: "#/components/schemas/ProjectBookmarkSort"
+            - type: "null"
+          default: None
+          title: Sort
+      title: ProjectCollectionParams
       type: object
     ProjectCreate:
       properties:
@@ -10726,7 +11943,9 @@ components:
           title: Created At
           type: string
         created_by_user:
-          $ref: "#/components/schemas/UserInfo"
+          anyOf:
+            - $ref: "#/components/schemas/UserInfo"
+            - type: "null"
         id:
           format: uuid4
           title: Id
@@ -10735,13 +11954,17 @@ components:
           title: Name
           type: string
         num_experiments:
+          anyOf:
+            - type: integer
+            - type: "null"
           description: Count of runs with task_type=16
           title: Num Experiments
-          type: integer
         num_logstreams:
+          anyOf:
+            - type: integer
+            - type: "null"
           description: Count of runs with task_type=15
           title: Num Logstreams
-          type: integer
         permissions:
           default: []
           items:
@@ -10757,9 +11980,6 @@ components:
         - name
         - created_at
         - updated_at
-        - num_logstreams
-        - num_experiments
-        - created_by_user
       title: ProjectItem
       type: object
     ProjectNameFilter:
@@ -10811,110 +12031,6 @@ components:
           title: Sort Type
           type: string
       title: ProjectNameSort
-      type: object
-    ProjectNumExperimentsFilter:
-      properties:
-        name:
-          const: num_experiments
-          default: num_experiments
-          title: Name
-          type: string
-        operator:
-          enum:
-            - eq
-            - ne
-            - gt
-            - gte
-            - lt
-            - lte
-            - between
-          title: Operator
-          type: string
-        value:
-          anyOf:
-            - type: integer
-            - type: number
-            - items:
-                type: integer
-              type: array
-            - items:
-                type: number
-              type: array
-          title: Value
-      required:
-        - value
-        - operator
-      title: ProjectNumExperimentsFilter
-      type: object
-    ProjectNumExperimentsSort:
-      properties:
-        ascending:
-          default: true
-          title: Ascending
-          type: boolean
-        name:
-          const: num_experiments
-          default: num_experiments
-          title: Name
-          type: string
-        sort_type:
-          const: column
-          default: column
-          title: Sort Type
-          type: string
-      title: ProjectNumExperimentsSort
-      type: object
-    ProjectNumLogstreamsFilter:
-      properties:
-        name:
-          const: num_logstreams
-          default: num_logstreams
-          title: Name
-          type: string
-        operator:
-          enum:
-            - eq
-            - ne
-            - gt
-            - gte
-            - lt
-            - lte
-            - between
-          title: Operator
-          type: string
-        value:
-          anyOf:
-            - type: integer
-            - type: number
-            - items:
-                type: integer
-              type: array
-            - items:
-                type: number
-              type: array
-          title: Value
-      required:
-        - value
-        - operator
-      title: ProjectNumLogstreamsFilter
-      type: object
-    ProjectNumLogstreamsSort:
-      properties:
-        ascending:
-          default: true
-          title: Ascending
-          type: boolean
-        name:
-          const: num_logstreams
-          default: num_logstreams
-          title: Name
-          type: string
-        sort_type:
-          const: column
-          default: column
-          title: Sort Type
-          type: string
-      title: ProjectNumLogstreamsSort
       type: object
     ProjectRunsFilter:
       properties:
@@ -12127,6 +13243,16 @@ components:
           default: skipped
       title: RulesetResult
       type: object
+    RulesetsMixin:
+      properties:
+        prioritized_rulesets:
+          description: Rulesets to be applied to the payload.
+          items:
+            $ref: "#/components/schemas/Ruleset"
+          title: Prioritized Rulesets
+          type: array
+      title: RulesetsMixin
+      type: object
     RunDB:
       properties:
         created_at:
@@ -12566,8 +13692,25 @@ components:
             - type: integer
             - type: "null"
           title: Num Judges
+        scoreable_node_types:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          description:
+            List of node types that can be scored by this scorer. Defaults
+            to llm/chat.
+          title: Scoreable Node Types
         scorer_type:
           $ref: "#/components/schemas/ScorerTypes"
+        scorer_version:
+          anyOf:
+            - $ref: "#/components/schemas/BaseScorerVersionDB"
+            - type: "null"
+          description:
+            ScorerVersion to use for this scorer. If not provided, the
+            latest version will be used.
       required:
         - id
         - scorer_type
@@ -12641,6 +13784,16 @@ components:
             - type: integer
             - type: "null"
           title: Num Judges
+        scoreable_node_types:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: "null"
+          description:
+            List of node types that can be scored by this scorer. Defaults
+            to llm/chat.
+          title: Scoreable Node Types
       title: ScorerDefaults
       type: object
     ScorerName:
@@ -12668,6 +13821,7 @@ components:
         - _user_registered
         - _user_submitted
         - _user_generated
+        - _user_finetuned
         - _uncertainty
         - _bleu
         - _cost
@@ -12748,6 +13902,10 @@ components:
               type: string
             - type: "null"
           title: Created By
+        default_version:
+          anyOf:
+            - $ref: "#/components/schemas/BaseScorerVersionDB"
+            - type: "null"
         default_version_id:
           anyOf:
             - format: uuid4
@@ -13619,6 +14777,54 @@ components:
           type: string
       title: SexistTemplate
       type: object
+    StageDB:
+      properties:
+        created_by:
+          format: uuid4
+          title: Created By
+          type: string
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Optional human-readable description of the goals of this guardrail.
+          title: Description
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        name:
+          description: Name of the stage. Must be unique within the project.
+          title: Name
+          type: string
+        paused:
+          default: false
+          description:
+            Whether the action is enabled. If False, the action will not
+            be applied.
+          title: Paused
+          type: boolean
+        project_id:
+          description: ID of the project to which this stage belongs.
+          format: uuid4
+          title: Project Id
+          type: string
+        type:
+          $ref: "#/components/schemas/StageType"
+          default: local
+          description: Type of the stage.
+        version:
+          anyOf:
+            - type: integer
+            - type: "null"
+          title: Version
+      required:
+        - name
+        - project_id
+        - created_by
+        - id
+      title: StageDB
+      type: object
     StageMetadata:
       properties:
         project_id:
@@ -13651,6 +14857,45 @@ components:
         - central
       title: StageType
       type: string
+    StageWithRulesets:
+      properties:
+        description:
+          anyOf:
+            - type: string
+            - type: "null"
+          description: Optional human-readable description of the goals of this guardrail.
+          title: Description
+        name:
+          description: Name of the stage. Must be unique within the project.
+          title: Name
+          type: string
+        paused:
+          default: false
+          description:
+            Whether the action is enabled. If False, the action will not
+            be applied.
+          title: Paused
+          type: boolean
+        prioritized_rulesets:
+          description: Rulesets to be applied to the payload.
+          items:
+            $ref: "#/components/schemas/Ruleset"
+          title: Prioritized Rulesets
+          type: array
+        project_id:
+          description: ID of the project to which this stage belongs.
+          format: uuid4
+          title: Project Id
+          type: string
+        type:
+          $ref: "#/components/schemas/StageType"
+          default: local
+          description: Type of the stage.
+      required:
+        - name
+        - project_id
+      title: StageWithRulesets
+      type: object
     StarAggregate:
       properties:
         average:
@@ -13697,6 +14942,7 @@ components:
         - retriever
         - tool
         - workflow
+        - agent
         - trace
         - session
       title: StepType
@@ -14553,12 +15799,14 @@ components:
           items:
             discriminator:
               mapping:
+                agent: "#/components/schemas/AgentSpan"
                 llm: "#/components/schemas/LlmSpan"
                 retriever: "#/components/schemas/RetrieverSpan"
                 tool: "#/components/schemas/ToolSpan"
                 workflow: "#/components/schemas/WorkflowSpan"
               propertyName: type
             oneOf:
+              - $ref: "#/components/schemas/AgentSpan"
               - $ref: "#/components/schemas/WorkflowSpan"
               - $ref: "#/components/schemas/LlmSpan"
               - $ref: "#/components/schemas/RetrieverSpan"
@@ -14911,12 +16159,14 @@ components:
           items:
             discriminator:
               mapping:
+                agent: "#/components/schemas/AgentSpanRecordWithChildren"
                 llm: "#/components/schemas/LlmSpanRecord"
                 retriever: "#/components/schemas/RetrieverSpanRecord"
                 tool: "#/components/schemas/ToolSpanRecord"
                 workflow: "#/components/schemas/WorkflowSpanRecordWithChildren"
               propertyName: type
             oneOf:
+              - $ref: "#/components/schemas/AgentSpanRecordWithChildren"
               - $ref: "#/components/schemas/WorkflowSpanRecordWithChildren"
               - $ref: "#/components/schemas/LlmSpanRecord"
               - $ref: "#/components/schemas/ToolSpanRecord"
@@ -15349,12 +16599,14 @@ components:
           items:
             discriminator:
               mapping:
+                agent: "#/components/schemas/AgentSpan"
                 llm: "#/components/schemas/LlmSpan"
                 retriever: "#/components/schemas/RetrieverSpan"
                 tool: "#/components/schemas/ToolSpan"
                 workflow: "#/components/schemas/WorkflowSpan"
               propertyName: type
             oneOf:
+              - $ref: "#/components/schemas/AgentSpan"
               - $ref: "#/components/schemas/WorkflowSpan"
               - $ref: "#/components/schemas/LlmSpan"
               - $ref: "#/components/schemas/RetrieverSpan"
@@ -15700,12 +16952,14 @@ components:
           items:
             discriminator:
               mapping:
+                agent: "#/components/schemas/AgentSpanRecordWithChildren"
                 llm: "#/components/schemas/LlmSpanRecord"
                 retriever: "#/components/schemas/RetrieverSpanRecord"
                 tool: "#/components/schemas/ToolSpanRecord"
                 workflow: "#/components/schemas/WorkflowSpanRecordWithChildren"
               propertyName: type
             oneOf:
+              - $ref: "#/components/schemas/AgentSpanRecordWithChildren"
               - $ref: "#/components/schemas/WorkflowSpanRecordWithChildren"
               - $ref: "#/components/schemas/LlmSpanRecord"
               - $ref: "#/components/schemas/ToolSpanRecord"
@@ -15789,55 +17043,6 @@ components:
         - projects
       title: GetProjectsPaginatedResponse
       type: object
-    api__schemas__project__ProjectCollectionParams:
-      properties:
-        filters:
-          items:
-            discriminator:
-              mapping:
-                bookmark: "#/components/schemas/ProjectBookmarkFilter"
-                created_at: "#/components/schemas/ProjectCreatedAtFilter"
-                creator: "#/components/schemas/ProjectCreatorFilter"
-                id: "#/components/schemas/ProjectIDFilter"
-                name: "#/components/schemas/ProjectNameFilter"
-                runs: "#/components/schemas/ProjectRunsFilter"
-                type: "#/components/schemas/ProjectTypeFilter"
-                updated_at: "#/components/schemas/ProjectUpdatedAtFilter"
-              propertyName: name
-            oneOf:
-              - $ref: "#/components/schemas/ProjectIDFilter"
-              - $ref: "#/components/schemas/ProjectNameFilter"
-              - $ref: "#/components/schemas/ProjectTypeFilter"
-              - $ref: "#/components/schemas/ProjectCreatorFilter"
-              - $ref: "#/components/schemas/ProjectCreatedAtFilter"
-              - $ref: "#/components/schemas/ProjectUpdatedAtFilter"
-              - $ref: "#/components/schemas/ProjectRunsFilter"
-              - $ref: "#/components/schemas/ProjectBookmarkFilter"
-          title: Filters
-          type: array
-        sort:
-          anyOf:
-            - discriminator:
-                mapping:
-                  bookmark: "#/components/schemas/ProjectBookmarkSort"
-                  created_at: "#/components/schemas/ProjectCreatedAtSort"
-                  name: "#/components/schemas/ProjectNameSort"
-                  runs: "#/components/schemas/ProjectRunsSort"
-                  type: "#/components/schemas/ProjectTypeSort"
-                  updated_at: "#/components/schemas/ProjectUpdatedAtSort"
-                propertyName: name
-              oneOf:
-                - $ref: "#/components/schemas/ProjectNameSort"
-                - $ref: "#/components/schemas/ProjectTypeSort"
-                - $ref: "#/components/schemas/ProjectCreatedAtSort"
-                - $ref: "#/components/schemas/ProjectUpdatedAtSort"
-                - $ref: "#/components/schemas/ProjectRunsSort"
-                - $ref: "#/components/schemas/ProjectBookmarkSort"
-            - type: "null"
-          default: None
-          title: Sort
-      title: ProjectCollectionParams
-      type: object
     api__schemas__project_v2__GetProjectsPaginatedResponse:
       description: Response model for the V2 projects paginated endpoint.
       properties:
@@ -15871,49 +17076,6 @@ components:
         - projects
         - total_count
       title: GetProjectsPaginatedResponseV2
-      type: object
-    api__schemas__project_v2__ProjectCollectionParams:
-      properties:
-        filters:
-          items:
-            discriminator:
-              mapping:
-                created_at: "#/components/schemas/ProjectCreatedAtFilter"
-                creator: "#/components/schemas/ProjectCreatorFilter"
-                name: "#/components/schemas/ProjectNameFilter"
-                num_experiments: "#/components/schemas/ProjectNumExperimentsFilter"
-                num_logstreams: "#/components/schemas/ProjectNumLogstreamsFilter"
-                updated_at: "#/components/schemas/ProjectUpdatedAtFilter"
-              propertyName: name
-            oneOf:
-              - $ref: "#/components/schemas/ProjectNameFilter"
-              - $ref: "#/components/schemas/ProjectCreatorFilter"
-              - $ref: "#/components/schemas/ProjectCreatedAtFilter"
-              - $ref: "#/components/schemas/ProjectUpdatedAtFilter"
-              - $ref: "#/components/schemas/ProjectNumLogstreamsFilter"
-              - $ref: "#/components/schemas/ProjectNumExperimentsFilter"
-          title: Filters
-          type: array
-        sort:
-          anyOf:
-            - discriminator:
-                mapping:
-                  created_at: "#/components/schemas/ProjectCreatedAtSort"
-                  name: "#/components/schemas/ProjectNameSort"
-                  num_experiments: "#/components/schemas/ProjectNumExperimentsSort"
-                  num_logstreams: "#/components/schemas/ProjectNumLogstreamsSort"
-                  updated_at: "#/components/schemas/ProjectUpdatedAtSort"
-                propertyName: name
-              oneOf:
-                - $ref: "#/components/schemas/ProjectNameSort"
-                - $ref: "#/components/schemas/ProjectCreatedAtSort"
-                - $ref: "#/components/schemas/ProjectUpdatedAtSort"
-                - $ref: "#/components/schemas/ProjectNumLogstreamsSort"
-                - $ref: "#/components/schemas/ProjectNumExperimentsSort"
-            - type: "null"
-          default: None
-          title: Sort
-      title: ProjectCollectionParamsV2
       type: object
     galileo_core__schemas__logging__llm__Message:
       properties:
@@ -17367,7 +18529,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/api__schemas__project__ProjectCollectionParams"
+              $ref: "#/components/schemas/ProjectCollectionParams"
               default:
                 filters: []
                 sort:
@@ -17431,7 +18593,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/api__schemas__project__ProjectCollectionParams"
+              $ref: "#/components/schemas/ProjectCollectionParams"
               default:
                 filters: []
                 sort:
@@ -17671,6 +18833,44 @@ paths:
       summary: Experiments Available Columns
       tags:
         - experiment
+  /projects/{project_id}/experiments/metrics:
+    post:
+      description: Retrieve metrics for all experiments in a project.
+      operationId: get_experiments_metrics_projects__project_id__experiments_metrics_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExperimentMetricsRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExperimentMetricsResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Experiments Metrics
+      tags:
+        - experiment
   /projects/{project_id}/experiments/{experiment_id}:
     delete:
       description: Delete a specific experiment.
@@ -17788,6 +18988,51 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Update Experiment
+      tags:
+        - experiment
+  /projects/{project_id}/experiments/{experiment_id}/metrics:
+    post:
+      description: Retrieve metrics for a specific experiment.
+      operationId: get_experiment_metrics_projects__project_id__experiments__experiment_id__metrics_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: path
+          name: experiment_id
+          required: true
+          schema:
+            format: uuid4
+            title: Experiment Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExperimentMetricsRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExperimentMetricsResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Experiment Metrics
       tags:
         - experiment
   /projects/{project_id}/groups:
@@ -18807,6 +20052,43 @@ paths:
       summary: Get Session
       tags:
         - trace
+  /projects/{project_id}/spans:
+    post:
+      operationId: log_spans_projects__project_id__spans_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogSpansIngestRequest"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogSpansIngestResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Log Spans
+      tags:
+        - trace
   /projects/{project_id}/spans/available_columns:
     post:
       operationId: spans_available_columns_projects__project_id__spans_available_columns_post
@@ -18906,12 +20188,14 @@ paths:
               schema:
                 discriminator:
                   mapping:
+                    agent: "#/components/schemas/AgentSpanRecordWithChildren"
                     llm: "#/components/schemas/LlmSpanRecord"
                     retriever: "#/components/schemas/RetrieverSpanRecord"
                     tool: "#/components/schemas/ToolSpanRecord"
                     workflow: "#/components/schemas/WorkflowSpanRecordWithChildren"
                   propertyName: type
                 oneOf:
+                  - $ref: "#/components/schemas/AgentSpanRecordWithChildren"
                   - $ref: "#/components/schemas/WorkflowSpanRecordWithChildren"
                   - $ref: "#/components/schemas/LlmSpanRecord"
                   - $ref: "#/components/schemas/ToolSpanRecord"
@@ -18931,12 +20215,188 @@ paths:
       summary: Get Span
       tags:
         - trace
+  /projects/{project_id}/stages:
+    get:
+      operationId: get_stage_projects__project_id__stages_get
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: query
+          name: stage_name
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: "null"
+            title: Stage Name
+        - in: query
+          name: stage_id
+          required: false
+          schema:
+            anyOf:
+              - format: uuid4
+                type: string
+              - type: "null"
+            title: Stage Id
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StageDB"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Stage
+      tags:
+        - protect
+        - stage
+    post:
+      operationId: create_stage_v2_projects__project_id__stages_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StageWithRulesets"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StageDB"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Stage V2
+      tags:
+        - protect
+        - stage
+  /projects/{project_id}/stages/{stage_id}:
+    post:
+      operationId: update_stage_projects__project_id__stages__stage_id__post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: path
+          name: stage_id
+          required: true
+          schema:
+            format: uuid4
+            title: Stage Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RulesetsMixin"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StageDB"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Update Stage
+      tags:
+        - protect
+        - stage
+    put:
+      operationId: pause_stage_projects__project_id__stages__stage_id__put
+      parameters:
+        - in: path
+          name: stage_id
+          required: true
+          schema:
+            format: uuid4
+            title: Stage Id
+            type: string
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: query
+          name: pause
+          required: false
+          schema:
+            default: false
+            title: Pause
+            type: boolean
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StageDB"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Pause Stage
+      tags:
+        - protect
+        - stage
   /projects/{project_id}/templates:
     get:
       description:
         "Get all prompt templates for a project.\n\nParameters\n----------\n\
-        project_id : UUID4\n    Project ID.\ndb_read : Session, optional\n    Session\
-        \ object to execute DB reads, by default Depends(get_db_read).\n\nReturns\n\
+        project_id : UUID4\n    Project ID.\nctx : Context, optional\n    User context\
+        \ with database session, by default Depends(get_user_context)\n\nReturns\n\
         -------\nList[GetTemplateResponse]\n    List of prompt template responses."
       operationId: get_project_templates_projects__project_id__templates_get
       parameters:
@@ -18999,6 +20459,7 @@ paths:
               $ref: "#/components/schemas/CreatePromptTemplateWithVersionRequestBody"
               examples:
                 - name: test_template
+                  raw: false
                   template: tell me a story about {a} and {b}
         required: true
       responses:
@@ -19027,8 +20488,8 @@ paths:
         "Get a prompt template from a project.\n\nParameters\n----------\n\
         project_id : UUID4\n    Prokect ID.\ntemplate_name : str\n    Prompt template\
         \ name.\nversion : Optional[int]\n    Version number to fetch. defaults to\
-        \ selected version.\ndb_read : Session, optional\n    Session object to execute\
-        \ DB reads, by default Depends(get_db_read).\n\n\nReturns\n-------\nGetTemplateResponse\n\
+        \ selected version.\nctx : Context, optional\n    User context with database\
+        \ session, by default Depends(get_user_context).\n\n\nReturns\n-------\nGetTemplateResponse\n\
         \    Prompt template response."
       operationId: get_template_version_by_name_projects__project_id__templates_versions_get
       parameters:
@@ -19115,8 +20576,8 @@ paths:
       description:
         "Get a prompt template from a project.\n\nParameters\n----------\n\
         template_id : UUID4\n    Prompt template ID.\nproject_id : UUID4\n    Prokect\
-        \ ID.\ndb_read : Session, optional\n    Session object to execute DB reads,\
-        \ by default Depends(get_db_read).\n\nReturns\n-------\nGetTemplateResponse\n\
+        \ ID.\nctx : Context, optional\n    User context with database session, by\
+        \ default Depends(get_user_context).\n\nReturns\n-------\nGetTemplateResponse\n\
         \    Prompt template response."
       operationId: get_template_from_project_projects__project_id__templates__template_id__get
       parameters:
@@ -19186,7 +20647,8 @@ paths:
             schema:
               $ref: "#/components/schemas/BasePromptTemplateVersion"
               examples:
-                - template: tell me a story about {a} and {b}
+                - raw: false
+                  template: tell me a story about {a} and {b}
         required: true
       responses:
         "200":
@@ -19213,9 +20675,9 @@ paths:
       description:
         "Get a specific version of a prompt template.\n\nParameters\n----------\n\
         template_id : UUID4\n    Template ID.\nversion : int\n    Version number to\
-        \ fetch.\ndb_read : Session, optional\n    Database session, by default Depends(get_db_read)\n\
-        \nReturns\n-------\nBasePromptTemplateVersionResponse\n    Prompt template\
-        \ version response."
+        \ fetch.\nctx : Context, optional\n    User context with database session,\
+        \ by default Depends(get_user_context)\n\nReturns\n-------\nBasePromptTemplateVersionResponse\n\
+        \    Prompt template version response."
       operationId: get_template_version_projects__project_id__templates__template_id__versions__version__get
       parameters:
         - in: path
@@ -19316,14 +20778,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LogRecordsIngestRequest"
+              $ref: "#/components/schemas/LogTracesIngestRequest"
         required: true
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/LogRecordsIngestResponse"
+                $ref: "#/components/schemas/LogTracesIngestResponse"
           description: Successful Response
         "422":
           content:
@@ -19661,7 +21123,7 @@ paths:
         - projects
   /protect/invoke:
     post:
-      operationId: invoke_protect_invoke_post
+      operationId: invoke_v2_protect_invoke_post
       requestBody:
         content:
           application/json:
@@ -19676,7 +21138,7 @@ paths:
                 anyOf:
                   - $ref: "#/components/schemas/Response"
                   - $ref: "#/components/schemas/InvokeResponse"
-                title: Response Invoke Protect Invoke Post
+                title: Response Invoke V2 Protect Invoke Post
           description: Successful Response
         "422":
           content:
@@ -19688,7 +21150,7 @@ paths:
         - APIKeyHeader: []
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
-      summary: Invoke
+      summary: Invoke V2
       tags:
         - protect
   /render_template:
@@ -19834,6 +21296,61 @@ paths:
         - data
         - prompts
         - rows
+  /scorers/versions/{scorer_version_id}/projects:
+    get:
+      description: List all projects associated with a specific scorer version.
+      operationId: list_projects_for_scorer_version_route_scorers_versions__scorer_version_id__projects_get
+      parameters:
+        - in: path
+          name: scorer_version_id
+          required: true
+          schema:
+            format: uuid4
+            title: Scorer Version Id
+            type: string
+        - in: query
+          name: scorer_id
+          required: true
+          schema:
+            format: uuid4
+            title: Scorer Id
+            type: string
+        - in: query
+          name: starting_token
+          required: false
+          schema:
+            default: 0
+            title: Starting Token
+            type: integer
+        - in: query
+          name: limit
+          required: false
+          schema:
+            default: 100
+            title: Limit
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/api__schemas__project_v2__GetProjectsPaginatedResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List Projects For Scorer Version Route
+      tags:
+        - data
+        - prompts
+        - rows
   /scorers/{scorer_id}:
     delete:
       operationId: delete_scorer_scorers__scorer_id__delete
@@ -19933,6 +21450,54 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Update
+      tags:
+        - data
+        - prompts
+        - rows
+  /scorers/{scorer_id}/projects:
+    get:
+      description: List all projects associated with a specific scorer.
+      operationId: list_projects_for_scorer_route_scorers__scorer_id__projects_get
+      parameters:
+        - in: path
+          name: scorer_id
+          required: true
+          schema:
+            format: uuid4
+            title: Scorer Id
+            type: string
+        - in: query
+          name: starting_token
+          required: false
+          schema:
+            default: 0
+            title: Starting Token
+            type: integer
+        - in: query
+          name: limit
+          required: false
+          schema:
+            default: 100
+            title: Limit
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/api__schemas__project_v2__GetProjectsPaginatedResponse"
+          description: Successful Response
+        "422":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HTTPValidationError"
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List Projects For Scorer Route
       tags:
         - data
         - prompts
@@ -20142,62 +21707,6 @@ paths:
         - data
         - prompts
         - rows
-  /v2/projects:
-    post:
-      description:
-        Gets projects optimized for V2 with pagination and server-side
-        run counts.
-      operationId: get_projects_v2_v2_projects_post
-      parameters:
-        - description: Actions to include in the 'permissions' field.
-          in: query
-          name: actions
-          required: false
-          schema:
-            description: Actions to include in the 'permissions' field.
-            items:
-              $ref: "#/components/schemas/ProjectAction"
-            title: Actions
-            type: array
-        - in: query
-          name: starting_token
-          required: false
-          schema:
-            default: 0
-            title: Starting Token
-            type: integer
-        - in: query
-          name: limit
-          required: false
-          schema:
-            default: 100
-            title: Limit
-            type: integer
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/api__schemas__project_v2__ProjectCollectionParams"
-      responses:
-        "200":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/api__schemas__project_v2__GetProjectsPaginatedResponse"
-          description: Successful Response
-        "422":
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/HTTPValidationError"
-          description: Validation Error
-      security:
-        - APIKeyHeader: []
-        - OAuth2PasswordBearer: []
-        - HTTPBasic: []
-      summary: Get Projects V2
-      tags:
-        - projects
 servers:
   - description: Galileo Client APIs - local
     url: http://localhost:8088

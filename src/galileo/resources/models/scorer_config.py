@@ -8,6 +8,7 @@ from ..models.scorer_types import ScorerTypes
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.base_scorer_version_db import BaseScorerVersionDB
     from ..models.metadata_filter import MetadataFilter
     from ..models.node_name_filter import NodeNameFilter
 
@@ -29,6 +30,10 @@ class ScorerConfig:
             to plus
         name (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
+        scoreable_node_types (Union[None, Unset, list[str]]): List of node types that can be scored by this scorer.
+            Defaults to llm/chat.
+        scorer_version (Union['BaseScorerVersionDB', None, Unset]): ScorerVersion to use for this scorer. If not
+            provided, the latest version will be used.
     """
 
     id: str
@@ -38,9 +43,12 @@ class ScorerConfig:
     model_type: Union[ModelType, None, Unset] = UNSET
     name: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
+    scoreable_node_types: Union[None, Unset, list[str]] = UNSET
+    scorer_version: Union["BaseScorerVersionDB", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.base_scorer_version_db import BaseScorerVersionDB
         from ..models.node_name_filter import NodeNameFilter
 
         id = self.id
@@ -90,6 +98,23 @@ class ScorerConfig:
         else:
             num_judges = self.num_judges
 
+        scoreable_node_types: Union[None, Unset, list[str]]
+        if isinstance(self.scoreable_node_types, Unset):
+            scoreable_node_types = UNSET
+        elif isinstance(self.scoreable_node_types, list):
+            scoreable_node_types = self.scoreable_node_types
+
+        else:
+            scoreable_node_types = self.scoreable_node_types
+
+        scorer_version: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.scorer_version, Unset):
+            scorer_version = UNSET
+        elif isinstance(self.scorer_version, BaseScorerVersionDB):
+            scorer_version = self.scorer_version.to_dict()
+        else:
+            scorer_version = self.scorer_version
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -108,11 +133,16 @@ class ScorerConfig:
             field_dict["name"] = name
         if num_judges is not UNSET:
             field_dict["num_judges"] = num_judges
+        if scoreable_node_types is not UNSET:
+            field_dict["scoreable_node_types"] = scoreable_node_types
+        if scorer_version is not UNSET:
+            field_dict["scorer_version"] = scorer_version
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+        from ..models.base_scorer_version_db import BaseScorerVersionDB
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
@@ -203,6 +233,40 @@ class ScorerConfig:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
+        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                scoreable_node_types_type_0 = cast(list[str], data)
+
+                return scoreable_node_types_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
+
+        def _parse_scorer_version(data: object) -> Union["BaseScorerVersionDB", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                scorer_version_type_0 = BaseScorerVersionDB.from_dict(data)
+
+                return scorer_version_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["BaseScorerVersionDB", None, Unset], data)
+
+        scorer_version = _parse_scorer_version(d.pop("scorer_version", UNSET))
+
         scorer_config = cls(
             id=id,
             scorer_type=scorer_type,
@@ -211,6 +275,8 @@ class ScorerConfig:
             model_type=model_type,
             name=name,
             num_judges=num_judges,
+            scoreable_node_types=scoreable_node_types,
+            scorer_version=scorer_version,
         )
 
         scorer_config.additional_properties = d

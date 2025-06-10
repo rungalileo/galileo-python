@@ -35,6 +35,7 @@ if TYPE_CHECKING:
     from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
     from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
     from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
+    from ..models.fine_tuned_scorer import FineTunedScorer
     from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
     from ..models.input_pii_scorer import InputPIIScorer
     from ..models.input_sexist_scorer import InputSexistScorer
@@ -93,6 +94,7 @@ class CreateJobResponse:
             'CustomizedPromptInjectionGPTScorer', 'CustomizedSexistGPTScorer', 'CustomizedToolErrorRateGPTScorer',
             'CustomizedToolSelectionQualityGPTScorer', 'CustomizedToxicityGPTScorer']]]):
         prompt_dataset_id (Union[None, Unset, str]):
+        prompt_finetuned_scorers_configuration (Union[None, Unset, list['FineTunedScorer']]):
         prompt_generated_scorers_configuration (Union[None, Unset, list[str]]):
         prompt_optimization_configuration (Union['PromptOptimizationConfiguration', None, Unset]):
         prompt_registered_scorers_configuration (Union[None, Unset, list['RegisteredScorer']]):
@@ -117,6 +119,7 @@ class CreateJobResponse:
         sub_scorers (Union[Unset, list[ScorerName]]):
         task_type (Union[None, TaskType, Unset]):
         tasks (Union[None, Unset, list[str]]):
+        upload_data_in_separate_task (Union[Unset, bool]):  Default: True.
         user_id (Union[None, Unset, str]):
         xray (Union[Unset, bool]):  Default: True.
     """
@@ -162,6 +165,7 @@ class CreateJobResponse:
         ],
     ] = UNSET
     prompt_dataset_id: Union[None, Unset, str] = UNSET
+    prompt_finetuned_scorers_configuration: Union[None, Unset, list["FineTunedScorer"]] = UNSET
     prompt_generated_scorers_configuration: Union[None, Unset, list[str]] = UNSET
     prompt_optimization_configuration: Union["PromptOptimizationConfiguration", None, Unset] = UNSET
     prompt_registered_scorers_configuration: Union[None, Unset, list["RegisteredScorer"]] = UNSET
@@ -211,6 +215,7 @@ class CreateJobResponse:
     sub_scorers: Union[Unset, list[ScorerName]] = UNSET
     task_type: Union[None, TaskType, Unset] = UNSET
     tasks: Union[None, Unset, list[str]] = UNSET
+    upload_data_in_separate_task: Union[Unset, bool] = True
     user_id: Union[None, Unset, str] = UNSET
     xray: Union[Unset, bool] = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -454,6 +459,20 @@ class CreateJobResponse:
         else:
             prompt_dataset_id = self.prompt_dataset_id
 
+        prompt_finetuned_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.prompt_finetuned_scorers_configuration, Unset):
+            prompt_finetuned_scorers_configuration = UNSET
+        elif isinstance(self.prompt_finetuned_scorers_configuration, list):
+            prompt_finetuned_scorers_configuration = []
+            for prompt_finetuned_scorers_configuration_type_0_item_data in self.prompt_finetuned_scorers_configuration:
+                prompt_finetuned_scorers_configuration_type_0_item = (
+                    prompt_finetuned_scorers_configuration_type_0_item_data.to_dict()
+                )
+                prompt_finetuned_scorers_configuration.append(prompt_finetuned_scorers_configuration_type_0_item)
+
+        else:
+            prompt_finetuned_scorers_configuration = self.prompt_finetuned_scorers_configuration
+
         prompt_generated_scorers_configuration: Union[None, Unset, list[str]]
         if isinstance(self.prompt_generated_scorers_configuration, Unset):
             prompt_generated_scorers_configuration = UNSET
@@ -653,6 +672,8 @@ class CreateJobResponse:
         else:
             tasks = self.tasks
 
+        upload_data_in_separate_task = self.upload_data_in_separate_task
+
         user_id: Union[None, Unset, str]
         if isinstance(self.user_id, Unset):
             user_id = UNSET
@@ -701,6 +722,8 @@ class CreateJobResponse:
             field_dict["prompt_customized_scorers_configuration"] = prompt_customized_scorers_configuration
         if prompt_dataset_id is not UNSET:
             field_dict["prompt_dataset_id"] = prompt_dataset_id
+        if prompt_finetuned_scorers_configuration is not UNSET:
+            field_dict["prompt_finetuned_scorers_configuration"] = prompt_finetuned_scorers_configuration
         if prompt_generated_scorers_configuration is not UNSET:
             field_dict["prompt_generated_scorers_configuration"] = prompt_generated_scorers_configuration
         if prompt_optimization_configuration is not UNSET:
@@ -735,6 +758,8 @@ class CreateJobResponse:
             field_dict["task_type"] = task_type
         if tasks is not UNSET:
             field_dict["tasks"] = tasks
+        if upload_data_in_separate_task is not UNSET:
+            field_dict["upload_data_in_separate_task"] = upload_data_in_separate_task
         if user_id is not UNSET:
             field_dict["user_id"] = user_id
         if xray is not UNSET:
@@ -770,6 +795,7 @@ class CreateJobResponse:
         from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
         from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
         from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
+        from ..models.fine_tuned_scorer import FineTunedScorer
         from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
         from ..models.input_pii_scorer import InputPIIScorer
         from ..models.input_sexist_scorer import InputSexistScorer
@@ -1191,6 +1217,36 @@ class CreateJobResponse:
             return cast(Union[None, Unset, str], data)
 
         prompt_dataset_id = _parse_prompt_dataset_id(d.pop("prompt_dataset_id", UNSET))
+
+        def _parse_prompt_finetuned_scorers_configuration(data: object) -> Union[None, Unset, list["FineTunedScorer"]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                prompt_finetuned_scorers_configuration_type_0 = []
+                _prompt_finetuned_scorers_configuration_type_0 = data
+                for (
+                    prompt_finetuned_scorers_configuration_type_0_item_data
+                ) in _prompt_finetuned_scorers_configuration_type_0:
+                    prompt_finetuned_scorers_configuration_type_0_item = FineTunedScorer.from_dict(
+                        prompt_finetuned_scorers_configuration_type_0_item_data
+                    )
+
+                    prompt_finetuned_scorers_configuration_type_0.append(
+                        prompt_finetuned_scorers_configuration_type_0_item
+                    )
+
+                return prompt_finetuned_scorers_configuration_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["FineTunedScorer"]], data)
+
+        prompt_finetuned_scorers_configuration = _parse_prompt_finetuned_scorers_configuration(
+            d.pop("prompt_finetuned_scorers_configuration", UNSET)
+        )
 
         def _parse_prompt_generated_scorers_configuration(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
@@ -1772,6 +1828,8 @@ class CreateJobResponse:
 
         tasks = _parse_tasks(d.pop("tasks", UNSET))
 
+        upload_data_in_separate_task = d.pop("upload_data_in_separate_task", UNSET)
+
         def _parse_user_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -1803,6 +1861,7 @@ class CreateJobResponse:
             process_existing_inference_runs=process_existing_inference_runs,
             prompt_customized_scorers_configuration=prompt_customized_scorers_configuration,
             prompt_dataset_id=prompt_dataset_id,
+            prompt_finetuned_scorers_configuration=prompt_finetuned_scorers_configuration,
             prompt_generated_scorers_configuration=prompt_generated_scorers_configuration,
             prompt_optimization_configuration=prompt_optimization_configuration,
             prompt_registered_scorers_configuration=prompt_registered_scorers_configuration,
@@ -1820,6 +1879,7 @@ class CreateJobResponse:
             sub_scorers=sub_scorers,
             task_type=task_type,
             tasks=tasks,
+            upload_data_in_separate_task=upload_data_in_separate_task,
             user_id=user_id,
             xray=xray,
         )

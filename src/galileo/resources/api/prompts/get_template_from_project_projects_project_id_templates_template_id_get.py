@@ -66,8 +66,8 @@ def sync_detailed(
         Prompt template ID.
     project_id : UUID4
         Prokect ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context).
 
     Returns
     -------
@@ -114,8 +114,8 @@ def sync(
         Prompt template ID.
     project_id : UUID4
         Prokect ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context).
 
     Returns
     -------
@@ -157,8 +157,8 @@ async def asyncio_detailed(
         Prompt template ID.
     project_id : UUID4
         Prokect ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context).
 
     Returns
     -------
@@ -203,8 +203,8 @@ async def asyncio(
         Prompt template ID.
     project_id : UUID4
         Prokect ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context).
 
     Returns
     -------

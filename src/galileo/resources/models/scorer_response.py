@@ -27,6 +27,7 @@ class ScorerResponse:
         tags (list[str]):
         created_at (Union[None, Unset, datetime.datetime]):
         created_by (Union[None, Unset, str]):
+        default_version (Union['BaseScorerVersionDB', None, Unset]):
         default_version_id (Union[None, Unset, str]):
         defaults (Union['ScorerDefaults', None, Unset]):
         description (Union[None, Unset, str]):
@@ -44,6 +45,7 @@ class ScorerResponse:
     tags: list[str]
     created_at: Union[None, Unset, datetime.datetime] = UNSET
     created_by: Union[None, Unset, str] = UNSET
+    default_version: Union["BaseScorerVersionDB", None, Unset] = UNSET
     default_version_id: Union[None, Unset, str] = UNSET
     defaults: Union["ScorerDefaults", None, Unset] = UNSET
     description: Union[None, Unset, str] = UNSET
@@ -79,6 +81,14 @@ class ScorerResponse:
             created_by = UNSET
         else:
             created_by = self.created_by
+
+        default_version: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.default_version, Unset):
+            default_version = UNSET
+        elif isinstance(self.default_version, BaseScorerVersionDB):
+            default_version = self.default_version.to_dict()
+        else:
+            default_version = self.default_version
 
         default_version_id: Union[None, Unset, str]
         if isinstance(self.default_version_id, Unset):
@@ -144,6 +154,8 @@ class ScorerResponse:
             field_dict["created_at"] = created_at
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
+        if default_version is not UNSET:
+            field_dict["default_version"] = default_version
         if default_version_id is not UNSET:
             field_dict["default_version_id"] = default_version_id
         if defaults is not UNSET:
@@ -202,6 +214,23 @@ class ScorerResponse:
             return cast(Union[None, Unset, str], data)
 
         created_by = _parse_created_by(d.pop("created_by", UNSET))
+
+        def _parse_default_version(data: object) -> Union["BaseScorerVersionDB", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                default_version_type_0 = BaseScorerVersionDB.from_dict(data)
+
+                return default_version_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["BaseScorerVersionDB", None, Unset], data)
+
+        default_version = _parse_default_version(d.pop("default_version", UNSET))
 
         def _parse_default_version_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -300,6 +329,7 @@ class ScorerResponse:
             tags=tags,
             created_at=created_at,
             created_by=created_by,
+            default_version=default_version,
             default_version_id=default_version_id,
             defaults=defaults,
             description=description,

@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class StepType(str, Enum):
+    AGENT = "agent"
     LLM = "llm"
     RETRIEVER = "retriever"
     SESSION = "session"

@@ -5,16 +5,16 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="LogRecordsIngestResponse")
+T = TypeVar("T", bound="LogTracesIngestResponse")
 
 
 @_attrs_define
-class LogRecordsIngestResponse:
+class LogTracesIngestResponse:
     """
     Attributes:
         project_id (str): Project id associated with the traces.
         project_name (str): Project name associated with the traces.
-        records_count (int): total number of records (traces & spans) ingested
+        records_count (int): Total number of records ingested
         session_id (str): Session id associated with the traces.
         traces_count (int): total number of traces ingested
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
@@ -102,7 +102,7 @@ class LogRecordsIngestResponse:
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        log_records_ingest_response = cls(
+        log_traces_ingest_response = cls(
             project_id=project_id,
             project_name=project_name,
             records_count=records_count,
@@ -112,8 +112,8 @@ class LogRecordsIngestResponse:
             log_stream_id=log_stream_id,
         )
 
-        log_records_ingest_response.additional_properties = d
-        return log_records_ingest_response
+        log_traces_ingest_response.additional_properties = d
+        return log_traces_ingest_response
 
     @property
     def additional_keys(self) -> list[str]:

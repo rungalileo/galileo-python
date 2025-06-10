@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.node_type import NodeType
 from ..models.scorer_name import ScorerName
 from ..types import UNSET, Unset
 
@@ -30,12 +31,15 @@ class CustomizedToxicityGPTScorer:
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
         generated_scorer_id (Union[None, Unset, str]):
         indices (Union[None, Unset, list[int]]):
+        lora_task_id (Union[None, Unset, int]):
         metric_name (Union[None, Unset, str]):
         model_alias (Union[Unset, str]):  Default: 'GPT-4o mini'.
-        name (Union[Literal['output_toxicity_gpt'], Unset]):  Default: 'output_toxicity_gpt'.
+        name (Union[Literal['output_toxicity'], Unset]):  Default: 'output_toxicity'.
         num_judges (Union[Unset, int]):  Default: 3.
+        prompt (Union[None, Unset, str]):
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
+        scoreable_node_types (Union[None, Unset, list[NodeType]]):
         scorer_name (Union[Literal['_customized_toxicity_gpt'], Unset]):  Default: '_customized_toxicity_gpt'.
         scores (Union[None, Unset, list[Any]]):
         sub_scorers (Union[Unset, list[ScorerName]]):
@@ -49,12 +53,15 @@ class CustomizedToxicityGPTScorer:
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     generated_scorer_id: Union[None, Unset, str] = UNSET
     indices: Union[None, Unset, list[int]] = UNSET
+    lora_task_id: Union[None, Unset, int] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
     model_alias: Union[Unset, str] = "GPT-4o mini"
-    name: Union[Literal["output_toxicity_gpt"], Unset] = "output_toxicity_gpt"
+    name: Union[Literal["output_toxicity"], Unset] = "output_toxicity"
     num_judges: Union[Unset, int] = 3
+    prompt: Union[None, Unset, str] = UNSET
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
+    scoreable_node_types: Union[None, Unset, list[NodeType]] = UNSET
     scorer_name: Union[Literal["_customized_toxicity_gpt"], Unset] = "_customized_toxicity_gpt"
     scores: Union[None, Unset, list[Any]] = UNSET
     sub_scorers: Union[Unset, list[ScorerName]] = UNSET
@@ -127,6 +134,12 @@ class CustomizedToxicityGPTScorer:
         else:
             indices = self.indices
 
+        lora_task_id: Union[None, Unset, int]
+        if isinstance(self.lora_task_id, Unset):
+            lora_task_id = UNSET
+        else:
+            lora_task_id = self.lora_task_id
+
         metric_name: Union[None, Unset, str]
         if isinstance(self.metric_name, Unset):
             metric_name = UNSET
@@ -139,6 +152,12 @@ class CustomizedToxicityGPTScorer:
 
         num_judges = self.num_judges
 
+        prompt: Union[None, Unset, str]
+        if isinstance(self.prompt, Unset):
+            prompt = UNSET
+        else:
+            prompt = self.prompt
+
         regex_field = self.regex_field
 
         registered_scorer_id: Union[None, Unset, str]
@@ -146,6 +165,18 @@ class CustomizedToxicityGPTScorer:
             registered_scorer_id = UNSET
         else:
             registered_scorer_id = self.registered_scorer_id
+
+        scoreable_node_types: Union[None, Unset, list[str]]
+        if isinstance(self.scoreable_node_types, Unset):
+            scoreable_node_types = UNSET
+        elif isinstance(self.scoreable_node_types, list):
+            scoreable_node_types = []
+            for scoreable_node_types_type_0_item_data in self.scoreable_node_types:
+                scoreable_node_types_type_0_item = scoreable_node_types_type_0_item_data.value
+                scoreable_node_types.append(scoreable_node_types_type_0_item)
+
+        else:
+            scoreable_node_types = self.scoreable_node_types
 
         scorer_name = self.scorer_name
 
@@ -184,6 +215,8 @@ class CustomizedToxicityGPTScorer:
             field_dict["generated_scorer_id"] = generated_scorer_id
         if indices is not UNSET:
             field_dict["indices"] = indices
+        if lora_task_id is not UNSET:
+            field_dict["lora_task_id"] = lora_task_id
         if metric_name is not UNSET:
             field_dict["metric_name"] = metric_name
         if model_alias is not UNSET:
@@ -192,10 +225,14 @@ class CustomizedToxicityGPTScorer:
             field_dict["name"] = name
         if num_judges is not UNSET:
             field_dict["num_judges"] = num_judges
+        if prompt is not UNSET:
+            field_dict["prompt"] = prompt
         if regex_field is not UNSET:
             field_dict["regex_field"] = regex_field
         if registered_scorer_id is not UNSET:
             field_dict["registered_scorer_id"] = registered_scorer_id
+        if scoreable_node_types is not UNSET:
+            field_dict["scoreable_node_types"] = scoreable_node_types
         if scorer_name is not UNSET:
             field_dict["scorer_name"] = scorer_name
         if scores is not UNSET:
@@ -330,6 +367,15 @@ class CustomizedToxicityGPTScorer:
 
         indices = _parse_indices(d.pop("indices", UNSET))
 
+        def _parse_lora_task_id(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        lora_task_id = _parse_lora_task_id(d.pop("lora_task_id", UNSET))
+
         def _parse_metric_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -341,11 +387,20 @@ class CustomizedToxicityGPTScorer:
 
         model_alias = d.pop("model_alias", UNSET)
 
-        name = cast(Union[Literal["output_toxicity_gpt"], Unset], d.pop("name", UNSET))
-        if name != "output_toxicity_gpt" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'output_toxicity_gpt', got '{name}'")
+        name = cast(Union[Literal["output_toxicity"], Unset], d.pop("name", UNSET))
+        if name != "output_toxicity" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'output_toxicity', got '{name}'")
 
         num_judges = d.pop("num_judges", UNSET)
+
+        def _parse_prompt(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        prompt = _parse_prompt(d.pop("prompt", UNSET))
 
         regex_field = d.pop("regex_field", UNSET)
 
@@ -357,6 +412,28 @@ class CustomizedToxicityGPTScorer:
             return cast(Union[None, Unset, str], data)
 
         registered_scorer_id = _parse_registered_scorer_id(d.pop("registered_scorer_id", UNSET))
+
+        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[NodeType]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                scoreable_node_types_type_0 = []
+                _scoreable_node_types_type_0 = data
+                for scoreable_node_types_type_0_item_data in _scoreable_node_types_type_0:
+                    scoreable_node_types_type_0_item = NodeType(scoreable_node_types_type_0_item_data)
+
+                    scoreable_node_types_type_0.append(scoreable_node_types_type_0_item)
+
+                return scoreable_node_types_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[NodeType]], data)
+
+        scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
         scorer_name = cast(Union[Literal["_customized_toxicity_gpt"], Unset], d.pop("scorer_name", UNSET))
         if scorer_name != "_customized_toxicity_gpt" and not isinstance(scorer_name, Unset):
@@ -395,12 +472,15 @@ class CustomizedToxicityGPTScorer:
             filters=filters,
             generated_scorer_id=generated_scorer_id,
             indices=indices,
+            lora_task_id=lora_task_id,
             metric_name=metric_name,
             model_alias=model_alias,
             name=name,
             num_judges=num_judges,
+            prompt=prompt,
             regex_field=regex_field,
             registered_scorer_id=registered_scorer_id,
+            scoreable_node_types=scoreable_node_types,
             scorer_name=scorer_name,
             scores=scores,
             sub_scorers=sub_scorers,
