@@ -323,37 +323,37 @@ run_experiment(
 
 1. Setup a virtual environment:
 
-```sh
-pyenv install 3.10.13
-pyenv local 3.10.13
-```
+    ```sh
+    pyenv install 3.10.13
+    pyenv local 3.10.13
+    ```
 
-`poetry` will create a virtual environment using that Python version when it installs dependencies. You can validate that with:
+    `poetry` will create a virtual environment using that Python version when it installs dependencies. You can validate that with:
 
-> **_NOTE:_** since The `shell` command was moved to a plugin: poetry-plugin-shell
-> https://python-poetry.org/docs/cli/#shell
+    > **_NOTE:_** since The `shell` command was moved to a plugin: poetry-plugin-shell
+    > https://python-poetry.org/docs/cli/#shell
 
-The easiest way to install the shell plugin is via the self add command of Poetry:
+    The easiest way to install the shell plugin is via the self add command of Poetry:
 
-```shell
-poetry self add poetry-plugin-shell
-```
+    ```shell
+    poetry self add poetry-plugin-shell
+    ```
 
-```sh
-poetry shell
-poetry run python --version
-```
+    ```sh
+    poetry shell
+    poetry run python --version
+    ```
 
-which should print out `Python 3.10.13`.
+    which should print out `Python 3.10.13`.
 
-2. Install dependencies and setup pre-commit hooks:
+1. Install dependencies and setup pre-commit hooks:
 
-```sh
-pip3 install --upgrade invoke
-inv setup
-```
+    ```sh
+    pip3 install --upgrade invoke
+    inv setup
+    ```
 
-3. Copy .env.example to .env and populate the values.
+1. Copy .env.example to .env and populate the values.
 
 ## Auto-generating the API client
 

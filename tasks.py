@@ -47,12 +47,6 @@ def type_check(ctx: Context) -> None:
 
 
 @task
-def docs_build(ctx: Context) -> None:
-    ctx.run("pydoc-markdown", **COMMON_PARAMS)
-    ctx.run("python ./scripts/convert-md-to-mdx.py", **COMMON_PARAMS)
-
-
-@task
 def poetry_lock(ctx: Context) -> None:
     """
     Update poetry.lock file.
