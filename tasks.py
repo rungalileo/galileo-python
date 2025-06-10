@@ -47,11 +47,6 @@ def type_check(ctx: Context) -> None:
 
 
 @task
-def docs_build(ctx: Context) -> None:
-    ctx.run("poetry run mkdocs build --verbose", **COMMON_PARAMS)
-
-
-@task
 def poetry_lock(ctx: Context) -> None:
     """
     Update poetry.lock file.
