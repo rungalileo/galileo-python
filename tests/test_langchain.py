@@ -1,3 +1,4 @@
+import time
 import uuid
 from unittest.mock import MagicMock, Mock, patch
 
@@ -65,6 +66,7 @@ class TestGalileoCallback:
         assert "name" in node.span_params
         assert node.span_params["name"] == "Parent Chain"
         assert str(parent_id) in callback._nodes
+        assert "start_time" in node.span_params
 
         # Create a child node
         child_id = uuid.uuid4()
@@ -111,6 +113,7 @@ class TestGalileoCallback:
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "chain"
         assert callback._nodes[str(run_id)].span_params["input"] == '{"query": "test question"}'
+        assert callback._nodes[str(run_id)].span_params["start_time"] > 0
 
         # End chain
         callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
@@ -228,6 +231,7 @@ class TestGalileoCallback:
         assert callback._nodes[str(run_id)].span_params["num_input_tokens"] == 10
         assert callback._nodes[str(run_id)].span_params["num_output_tokens"] == 20
         assert callback._nodes[str(run_id)].span_params["total_tokens"] == 30
+        assert callback._nodes[str(run_id)].span_params["duration_ns"] > 0
 
     def test_on_chat_model_start(self, callback: GalileoCallback):
         """Test chat model start callback"""
@@ -254,6 +258,7 @@ class TestGalileoCallback:
         assert callback._nodes[str(run_id)].node_type == "chat"
         assert callback._nodes[str(run_id)].span_params["model"] == "gpt-4o"
         assert callback._nodes[str(run_id)].span_params["temperature"] == 0.7
+        assert callback._nodes[str(run_id)].span_params["start_time"] > 0
 
         # Check that message serialization worked
         input_data = callback._nodes[str(run_id)].span_params["input"]
@@ -355,6 +360,7 @@ class TestGalileoCallback:
         # End tool with a string output
         callback.on_tool_end(output="4", run_id=run_id, parent_run_id=parent_id)
 
+        assert callback._nodes[str(run_id)].span_params["duration_ns"] > 0
         assert callback._nodes[str(run_id)].span_params["output"] == "4"
 
     def test_on_tool_start_end_with_object_output(self, callback: GalileoCallback):
@@ -685,3 +691,59 @@ class TestGalileoCallback:
         assert traces[0].spans[0].spans[0].type == "retriever"
         assert traces[0].spans[0].spans[0].input == "test query"
         assert traces[0].spans[0].spans[0].output == [GalileoDocument(content="test document", metadata={})]
+
+    def test_node_created_at(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+        parent_id = uuid.uuid4()
+        llm_run_id = uuid.uuid4()
+        retriever_run_id = uuid.uuid4()
+
+        # Create parent chain
+        callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+
+        # Start retriever
+        callback.on_retriever_start(
+            serialized={}, query="AI development", run_id=retriever_run_id, parent_run_id=parent_id
+        )
+
+        # End retriever
+        document = Document(page_content="AI is advancing rapidly", metadata={"source": "textbook"})
+        callback.on_retriever_end(documents=[document], run_id=retriever_run_id, parent_run_id=parent_id)
+
+        delay_ms = 500
+
+        time.sleep(delay_ms / 1000)
+
+        callback.on_llm_start(
+            serialized={},
+            prompts=["Tell me about AI"],
+            run_id=llm_run_id,
+            parent_run_id=parent_id,
+            invocation_params={"model_name": "gpt-4", "temperature": 0.7},
+        )
+
+        # Add a token to test token timing
+        callback.on_llm_new_token("AI", run_id=llm_run_id)
+
+        # End LLM
+        llm_response = MagicMock()
+        llm_response.generations = [[MagicMock()]]
+        llm_response.llm_output = {"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}}
+
+        # Mock dict method on the generation
+        llm_response.generations[0][0].dict.return_value = {"text": "AI is a technology..."}
+
+        callback.on_llm_end(response=llm_response, run_id=llm_run_id, parent_run_id=parent_id)
+
+        # End chain
+        callback.on_chain_end(outputs='{"result": "test answer"}', run_id=parent_id)
+
+        traces = galileo_logger.traces
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        assert len(traces[0].spans[0].spans) == 2
+
+        retriever_span = traces[0].spans[0].spans[0]
+        llm_span = traces[0].spans[0].spans[1]
+
+        time_diff_ms = (llm_span.created_at - retriever_span.created_at).total_seconds() * 1000
+        assert time_diff_ms >= delay_ms
