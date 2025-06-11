@@ -59,6 +59,7 @@ class Protect(BaseClientModel, DecorateAllMethods):
         project_name: Optional[str] = None,
         stage_id: Optional[UUID4] = None,
         stage_name: Optional[str] = None,
+        # TODO missing stage_version?
         timeout: float = TIMEOUT,
         metadata: Optional[dict[str, str]] = None,
         headers: Optional[dict[str, str]] = None,
