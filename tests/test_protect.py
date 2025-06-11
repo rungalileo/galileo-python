@@ -191,7 +191,7 @@ def test_invoke_api_validation_error(mock_invoke_post_sync: Mock):
 
     mock_invoke_post_sync.reset_mock()
     mock_invoke_post_sync.return_value = validation_error
-    protect_instance = Protect()
-    class_method_result = protect_instance.invoke(payload=payload)
+
+    class_method_result = Protect().invoke(payload=payload)
     assert isinstance(class_method_result, HTTPValidationError)
     assert class_method_result.detail[0]["msg"] == "Field required"  # Corrected to use dictionary access
