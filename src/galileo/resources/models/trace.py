@@ -8,6 +8,7 @@ from dateutil.parser import isoparse
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.agent_span import AgentSpan
     from ..models.llm_span import LlmSpan
     from ..models.metrics import Metrics
     from ..models.retriever_span import RetrieverSpan
@@ -34,7 +35,8 @@ class Trace:
         metrics (Union[Unset, Metrics]):
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
-        spans (Union[Unset, list[Union['LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]]): Child spans.
+        spans (Union[Unset, list[Union['AgentSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]]): Child
+            spans.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
@@ -52,7 +54,7 @@ class Trace:
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
-    spans: Union[Unset, list[Union["LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]]] = UNSET
+    spans: Union[Unset, list[Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]]] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     type_: Union[Literal["trace"], Unset] = "trace"
@@ -60,6 +62,7 @@ class Trace:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.agent_span import AgentSpan
         from ..models.llm_span import LlmSpan
         from ..models.retriever_span import RetrieverSpan
         from ..models.workflow_span import WorkflowSpan
@@ -115,7 +118,9 @@ class Trace:
             spans = []
             for spans_item_data in self.spans:
                 spans_item: dict[str, Any]
-                if isinstance(spans_item_data, WorkflowSpan):
+                if isinstance(spans_item_data, AgentSpan):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, WorkflowSpan):
                     spans_item = spans_item_data.to_dict()
                 elif isinstance(spans_item_data, LlmSpan):
                     spans_item = spans_item_data.to_dict()
@@ -182,6 +187,7 @@ class Trace:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+        from ..models.agent_span import AgentSpan
         from ..models.llm_span import LlmSpan
         from ..models.metrics import Metrics
         from ..models.retriever_span import RetrieverSpan
@@ -265,11 +271,13 @@ class Trace:
         _spans = d.pop("spans", UNSET)
         for spans_item_data in _spans or []:
 
-            def _parse_spans_item(data: object) -> Union["LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]:
+            def _parse_spans_item(
+                data: object,
+            ) -> Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_0 = WorkflowSpan.from_dict(data)
+                    spans_item_type_0 = AgentSpan.from_dict(data)
 
                     return spans_item_type_0
                 except:  # noqa: E722
@@ -277,7 +285,7 @@ class Trace:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_1 = LlmSpan.from_dict(data)
+                    spans_item_type_1 = WorkflowSpan.from_dict(data)
 
                     return spans_item_type_1
                 except:  # noqa: E722
@@ -285,16 +293,24 @@ class Trace:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_2 = RetrieverSpan.from_dict(data)
+                    spans_item_type_2 = LlmSpan.from_dict(data)
 
                     return spans_item_type_2
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    spans_item_type_3 = RetrieverSpan.from_dict(data)
+
+                    return spans_item_type_3
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                spans_item_type_3 = ToolSpan.from_dict(data)
+                spans_item_type_4 = ToolSpan.from_dict(data)
 
-                return spans_item_type_3
+                return spans_item_type_4
 
             spans_item = _parse_spans_item(spans_item_data)
 

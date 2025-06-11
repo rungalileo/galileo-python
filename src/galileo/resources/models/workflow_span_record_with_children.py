@@ -8,6 +8,7 @@ from dateutil.parser import isoparse
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
     from ..models.document import Document
     from ..models.llm_span_record import LlmSpanRecord
     from ..models.message import Message
@@ -50,8 +51,8 @@ class WorkflowSpanRecordWithChildren:
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
         session_id (Union[None, Unset, str]): Galileo ID of the session
-        spans (Union[Unset, list[Union['LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord',
-            'WorkflowSpanRecordWithChildren']]]):
+        spans (Union[Unset, list[Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord',
+            'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]):
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
@@ -80,7 +81,16 @@ class WorkflowSpanRecordWithChildren:
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
     session_id: Union[None, Unset, str] = UNSET
     spans: Union[
-        Unset, list[Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"]]
+        Unset,
+        list[
+            Union[
+                "AgentSpanRecordWithChildren",
+                "LlmSpanRecord",
+                "RetrieverSpanRecord",
+                "ToolSpanRecord",
+                "WorkflowSpanRecordWithChildren",
+            ]
+        ],
     ] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
@@ -90,6 +100,7 @@ class WorkflowSpanRecordWithChildren:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.llm_span_record import LlmSpanRecord
         from ..models.message import Message
         from ..models.tool_span_record import ToolSpanRecord
@@ -194,7 +205,9 @@ class WorkflowSpanRecordWithChildren:
             spans = []
             for spans_item_data in self.spans:
                 spans_item: dict[str, Any]
-                if isinstance(spans_item_data, WorkflowSpanRecordWithChildren):
+                if isinstance(spans_item_data, AgentSpanRecordWithChildren):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, WorkflowSpanRecordWithChildren):
                     spans_item = spans_item_data.to_dict()
                 elif isinstance(spans_item_data, LlmSpanRecord):
                     spans_item = spans_item_data.to_dict()
@@ -282,6 +295,7 @@ class WorkflowSpanRecordWithChildren:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+        from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.document import Document
         from ..models.llm_span_record import LlmSpanRecord
         from ..models.message import Message
@@ -455,11 +469,17 @@ class WorkflowSpanRecordWithChildren:
 
             def _parse_spans_item(
                 data: object,
-            ) -> Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"]:
+            ) -> Union[
+                "AgentSpanRecordWithChildren",
+                "LlmSpanRecord",
+                "RetrieverSpanRecord",
+                "ToolSpanRecord",
+                "WorkflowSpanRecordWithChildren",
+            ]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_0 = WorkflowSpanRecordWithChildren.from_dict(data)
+                    spans_item_type_0 = AgentSpanRecordWithChildren.from_dict(data)
 
                     return spans_item_type_0
                 except:  # noqa: E722
@@ -467,7 +487,7 @@ class WorkflowSpanRecordWithChildren:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_1 = LlmSpanRecord.from_dict(data)
+                    spans_item_type_1 = WorkflowSpanRecordWithChildren.from_dict(data)
 
                     return spans_item_type_1
                 except:  # noqa: E722
@@ -475,16 +495,24 @@ class WorkflowSpanRecordWithChildren:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_2 = ToolSpanRecord.from_dict(data)
+                    spans_item_type_2 = LlmSpanRecord.from_dict(data)
 
                     return spans_item_type_2
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    spans_item_type_3 = ToolSpanRecord.from_dict(data)
+
+                    return spans_item_type_3
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                spans_item_type_3 = RetrieverSpanRecord.from_dict(data)
+                spans_item_type_4 = RetrieverSpanRecord.from_dict(data)
 
-                return spans_item_type_3
+                return spans_item_type_4
 
             spans_item = _parse_spans_item(spans_item_data)
 

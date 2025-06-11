@@ -10,7 +10,8 @@ import pytest
 from galileo.logger import GalileoLogger
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import TracesIngestRequest
-from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
+from galileo_core.schemas.logging.agent import AgentType
+from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
@@ -199,6 +200,35 @@ def test_nested_span_trace_to_galileo(
         traces=[trace],
     )
     assert payload == expected_payload
+    assert logger.traces == list()
+    assert logger._parent_stack == deque()
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
+def test_add_agent_span(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    metadata = {"key": "value"}
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    trace = logger.start_trace(
+        input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
+    )
+
+    logger.add_agent_span(input="prompt", name="test-agent-span", created_at=created_at, metadata=metadata)
+
+    logger.conclude(output="response", duration_ns=1_000_000, status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    expected_payload = TracesIngestRequest(log_stream_id=None, experiment_id=None, traces=[trace])
+    assert payload == expected_payload
+    assert isinstance(payload.traces[0].spans[0], AgentSpan)
+    assert payload.traces[0].spans[0].agent_type == AgentType.default
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 

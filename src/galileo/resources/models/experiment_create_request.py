@@ -19,12 +19,14 @@ class ExperimentCreateRequest:
         name (str):
         dataset (Union['ExperimentDatasetRequest', None, Unset]):
         playground_id (Union[None, Unset, str]):
+        playground_prompt_id (Union[None, Unset, str]):
         task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
     """
 
     name: str
     dataset: Union["ExperimentDatasetRequest", None, Unset] = UNSET
     playground_id: Union[None, Unset, str] = UNSET
+    playground_prompt_id: Union[None, Unset, str] = UNSET
     task_type: Union[Literal[16], Literal[17], Unset] = 16
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -47,6 +49,12 @@ class ExperimentCreateRequest:
         else:
             playground_id = self.playground_id
 
+        playground_prompt_id: Union[None, Unset, str]
+        if isinstance(self.playground_prompt_id, Unset):
+            playground_prompt_id = UNSET
+        else:
+            playground_prompt_id = self.playground_prompt_id
+
         task_type: Union[Literal[16], Literal[17], Unset]
         if isinstance(self.task_type, Unset):
             task_type = UNSET
@@ -64,6 +72,8 @@ class ExperimentCreateRequest:
             field_dict["dataset"] = dataset
         if playground_id is not UNSET:
             field_dict["playground_id"] = playground_id
+        if playground_prompt_id is not UNSET:
+            field_dict["playground_prompt_id"] = playground_prompt_id
         if task_type is not UNSET:
             field_dict["task_type"] = task_type
 
@@ -102,6 +112,15 @@ class ExperimentCreateRequest:
 
         playground_id = _parse_playground_id(d.pop("playground_id", UNSET))
 
+        def _parse_playground_prompt_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        playground_prompt_id = _parse_playground_prompt_id(d.pop("playground_prompt_id", UNSET))
+
         def _parse_task_type(data: object) -> Union[Literal[16], Literal[17], Unset]:
             if isinstance(data, Unset):
                 return data
@@ -120,6 +139,7 @@ class ExperimentCreateRequest:
             name=name,
             dataset=dataset,
             playground_id=playground_id,
+            playground_prompt_id=playground_prompt_id,
             task_type=task_type,
         )
 

@@ -21,11 +21,14 @@ class ScorerDefaults:
             scorer.
         model_name (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
+        scoreable_node_types (Union[None, Unset, list[str]]): List of node types that can be scored by this scorer.
+            Defaults to llm/chat.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
+    scoreable_node_types: Union[None, Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,6 +63,15 @@ class ScorerDefaults:
         else:
             num_judges = self.num_judges
 
+        scoreable_node_types: Union[None, Unset, list[str]]
+        if isinstance(self.scoreable_node_types, Unset):
+            scoreable_node_types = UNSET
+        elif isinstance(self.scoreable_node_types, list):
+            scoreable_node_types = self.scoreable_node_types
+
+        else:
+            scoreable_node_types = self.scoreable_node_types
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -69,6 +81,8 @@ class ScorerDefaults:
             field_dict["model_name"] = model_name
         if num_judges is not UNSET:
             field_dict["num_judges"] = num_judges
+        if scoreable_node_types is not UNSET:
+            field_dict["scoreable_node_types"] = scoreable_node_types
 
         return field_dict
 
@@ -135,10 +149,28 @@ class ScorerDefaults:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
+        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                scoreable_node_types_type_0 = cast(list[str], data)
+
+                return scoreable_node_types_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
+
         scorer_defaults = cls(
             filters=filters,
             model_name=model_name,
             num_judges=num_judges,
+            scoreable_node_types=scoreable_node_types,
         )
 
         scorer_defaults.additional_properties = d

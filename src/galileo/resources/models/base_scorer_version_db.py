@@ -21,12 +21,16 @@ class BaseScorerVersionDB:
         id (str):
         version (int):
         generated_scorer (Union['BaseGeneratedScorerDB', None, Unset]):
+        model_name (Union[None, Unset, str]):
+        num_judges (Union[None, Unset, int]):
         registered_scorer (Union['BaseRegisteredScorerDB', None, Unset]):
     """
 
     id: str
     version: int
     generated_scorer: Union["BaseGeneratedScorerDB", None, Unset] = UNSET
+    model_name: Union[None, Unset, str] = UNSET
+    num_judges: Union[None, Unset, int] = UNSET
     registered_scorer: Union["BaseRegisteredScorerDB", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -46,6 +50,18 @@ class BaseScorerVersionDB:
         else:
             generated_scorer = self.generated_scorer
 
+        model_name: Union[None, Unset, str]
+        if isinstance(self.model_name, Unset):
+            model_name = UNSET
+        else:
+            model_name = self.model_name
+
+        num_judges: Union[None, Unset, int]
+        if isinstance(self.num_judges, Unset):
+            num_judges = UNSET
+        else:
+            num_judges = self.num_judges
+
         registered_scorer: Union[None, Unset, dict[str, Any]]
         if isinstance(self.registered_scorer, Unset):
             registered_scorer = UNSET
@@ -64,6 +80,10 @@ class BaseScorerVersionDB:
         )
         if generated_scorer is not UNSET:
             field_dict["generated_scorer"] = generated_scorer
+        if model_name is not UNSET:
+            field_dict["model_name"] = model_name
+        if num_judges is not UNSET:
+            field_dict["num_judges"] = num_judges
         if registered_scorer is not UNSET:
             field_dict["registered_scorer"] = registered_scorer
 
@@ -96,6 +116,24 @@ class BaseScorerVersionDB:
 
         generated_scorer = _parse_generated_scorer(d.pop("generated_scorer", UNSET))
 
+        def _parse_model_name(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        model_name = _parse_model_name(d.pop("model_name", UNSET))
+
+        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
+
         def _parse_registered_scorer(data: object) -> Union["BaseRegisteredScorerDB", None, Unset]:
             if data is None:
                 return data
@@ -117,6 +155,8 @@ class BaseScorerVersionDB:
             id=id,
             version=version,
             generated_scorer=generated_scorer,
+            model_name=model_name,
+            num_judges=num_judges,
             registered_scorer=registered_scorer,
         )
 

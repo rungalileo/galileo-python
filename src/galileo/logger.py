@@ -19,7 +19,9 @@ from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
+from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.span import (
+    AgentSpan,
     LlmSpan,
     LlmSpanAllowedInputType,
     LlmSpanAllowedOutputType,
@@ -517,6 +519,46 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             created_at=created_at,
             user_metadata=metadata,
             tags=tags,
+        )
+
+    @nop_sync
+    def add_agent_span(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        agent_type: Optional[AgentType] = None,
+    ) -> AgentSpan:
+        """
+        Add an agent type span to the current parent.
+
+        Parameters:
+        ----------
+            input: str: Input to the node.
+            output: Optional[str]: Output of the node. This can also be set on conclude().
+            name: Optional[str]: Name of the span.
+            duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
+            created_at: Optional[datetime]: Timestamp of the span's creation.
+            metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            agent_type: Optional[AgentType]: Agent type of the span.
+
+        Returns:
+        -------
+            AgentSpan: The created span.
+        """
+        return super().add_agent_span(
+            input=input,
+            output=output,
+            name=name,
+            duration_ns=duration_ns,
+            created_at=created_at,
+            user_metadata=metadata,
+            tags=tags,
+            agent_type=agent_type,
         )
 
     @nop_sync

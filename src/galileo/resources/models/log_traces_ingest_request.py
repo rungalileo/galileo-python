@@ -10,11 +10,11 @@ if TYPE_CHECKING:
     from ..models.trace import Trace
 
 
-T = TypeVar("T", bound="LogRecordsIngestRequest")
+T = TypeVar("T", bound="LogTracesIngestRequest")
 
 
 @_attrs_define
-class LogRecordsIngestRequest:
+class LogTracesIngestRequest:
     """
     Attributes:
         traces (list['Trace']): List of traces to log.
@@ -153,7 +153,7 @@ class LogRecordsIngestRequest:
 
         session_id = _parse_session_id(d.pop("session_id", UNSET))
 
-        log_records_ingest_request = cls(
+        log_traces_ingest_request = cls(
             traces=traces,
             client_version=client_version,
             experiment_id=experiment_id,
@@ -163,8 +163,8 @@ class LogRecordsIngestRequest:
             session_id=session_id,
         )
 
-        log_records_ingest_request.additional_properties = d
-        return log_records_ingest_request
+        log_traces_ingest_request.additional_properties = d
+        return log_traces_ingest_request
 
     @property
     def additional_keys(self) -> list[str]:
