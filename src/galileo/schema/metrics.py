@@ -8,6 +8,9 @@ from galileo_core.schemas.logging.step import StepType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.metric import MetricValueType
 
+# ruff: noqa: F401
+from galileo_core.schemas.shared.scorers.scorer_name import PresetScorerLabel as GalileoScorers
+
 MetricType = TypeVar("MetricType", bound=MetricValueType)
 
 

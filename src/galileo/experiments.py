@@ -18,7 +18,7 @@ from galileo.resources.api.experiment import (
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
 from galileo.schema.datasets import DatasetRecord
-from galileo.schema.metrics import LocalMetricConfig
+from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
 from galileo.scorers import Scorers, ScorerSettings
 from galileo.utils.datasets import load_dataset_and_records
 
@@ -88,10 +88,14 @@ class Experiments(BaseClientModel):
 
     @staticmethod
     def create_metric_configs(
-        project_id: str, experiment_id: str, metrics: builtins.list[Union[str, LocalMetricConfig]]
+        project_id: str, experiment_id: str, metrics: builtins.list[Union[GalileoScorers, LocalMetricConfig, str]]
     ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
         scorers = []
-        scorer_names = [metric for metric in metrics if isinstance(metric, str)]
+        scorer_names = [
+            metric.value if isinstance(metric, GalileoScorers) else metric
+            for metric in metrics
+            if isinstance(metric, GalileoScorers) or isinstance(metric, str)
+        ]
         if scorer_names:
             all_scorers = Scorers().list()
             known_metrics = {metric.name: metric for metric in all_scorers}
@@ -212,7 +216,7 @@ def run_experiment(
     dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
-    metrics: Optional[list[Union[str, LocalMetricConfig]]] = None,
+    metrics: Optional[list[Union[GalileoScorers, LocalMetricConfig, str]]] = None,
     function: Optional[Callable] = None,
 ) -> Any:
     """
