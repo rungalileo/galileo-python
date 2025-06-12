@@ -441,7 +441,7 @@ class TestExperiments:
             project="awesome-new-project",
             dataset_id=dataset_id,
             prompt_template=prompt_template(),
-            metrics=[GalileoScorers.CORRECTNESS],
+            metrics=[GalileoScorers.correctness],
         )
 
         mock_get_project.assert_called_once_with(name="awesome-new-project")
