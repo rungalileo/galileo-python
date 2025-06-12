@@ -1,12 +1,13 @@
 from typing import Callable, Generic, Optional, TypeVar, Union
 
-from pydantic import BaseModel, Field, ValidationError, field_validator
+from pydantic import BaseModel, Field, ValidationError, field_validator, model_validator
 from pydantic_core.core_schema import ValidationInfo
 
 from galileo_core.schemas.logging.span import Span
 from galileo_core.schemas.logging.step import StepType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.metric import MetricValueType
+from galileo_core.schemas.shared.scorers.scorer_name import ScorerName
 
 MetricType = TypeVar("MetricType", bound=MetricValueType)
 
@@ -33,3 +34,23 @@ class LocalMetricConfig(BaseModel, Generic[MetricType]):
             if step_type not in [StepType.workflow, StepType.trace]:
                 raise ValidationError("aggregatable_types can only contain trace or workflow steps")
         return value
+
+
+class Metric(BaseModel):
+    name: Union[str] = Field(
+        description="The name of the metric you want to run a specific version of (ie: 'Sentence Density')."
+    )
+    version: int | None = Field(
+        default=None,
+        description="The version of the metric (ie: 1, 2, 3, etc.). If None is provided, the 'default' version will be used.",
+    )
+
+    @model_validator(mode="after")
+    def validate_name_and_version(self) -> "Metric":
+        preset_metric_names = [scorer.value for scorer in ScorerName]
+        if self.name in preset_metric_names:
+            if self.version is not None:
+                raise ValueError(
+                    f"Galileo metric's '{self.name}' do not support versioning at this time. Please use the default version."
+                )
+        return self

@@ -652,3 +652,58 @@ class TestExperiments:
         # Test unknown metrics
         with pytest.raises(ValueError):
             Experiments.create_metric_configs("project_id", "experiment_id", ["unknown_metric"])
+
+    @patch("galileo.experiments.Scorers")
+    @patch("galileo.experiments.ScorerSettings")
+    def test_create_scorer_configs_with_metric_objects(self, mock_scorer_settings, mock_scorers):
+        # Setup mock return values
+        mock_scorers_instance = mock_scorers.return_value
+
+        # Create mock scorer responses
+        mock_scorers = [
+            ScorerResponse.from_dict({"id": "1", "name": "metric1", "scorer_type": "preset", "tags": ["test"]}),
+            ScorerResponse.from_dict({"id": "2", "name": "metric2", "scorer_type": "preset", "tags": ["test"]}),
+            ScorerResponse.from_dict({"id": "3", "name": "versionable_metric", "scorer_type": "llm", "tags": ["test"]}),
+        ]
+
+        mock_scorers_instance.list.return_value = mock_scorers
+
+        # Mock the get_scorer_version method
+        mock_version_response = MagicMock()
+        mock_version_response.to_dict.return_value = {"id": "version1", "version": 2}
+        mock_scorers_instance.get_scorer_version.return_value = mock_version_response
+
+        from galileo.schema.metrics import Metric
+
+        # Test with Metric objects (without version)
+        metric1 = Metric(name="metric1")
+        metric2 = Metric(name="metric2")
+
+        scorers, local_scorers = Experiments.create_metric_configs("project_id", "experiment_id", [metric1, metric2])
+
+        assert len(scorers) == 2  # Should return two valid scorers
+        assert len(local_scorers) == 0  # No local scorers
+
+        # Verify get_scorer_version was not called (since no version was specified)
+        mock_scorers_instance.get_scorer_version.assert_not_called()
+
+        # Test with a Metric object with version
+        versionable_metric = Metric(name="versionable_metric", version=2)
+
+        scorers, local_scorers = Experiments.create_metric_configs("project_id", "experiment_id", [versionable_metric])
+
+        assert len(scorers) == 1  # Should return one valid scorer
+        assert len(local_scorers) == 0  # No local scorers
+
+        # Verify get_scorer_version was called with the correct parameters
+        mock_scorers_instance.get_scorer_version.assert_called_once_with(scorer_id="3", version=2)
+
+        # Test mixed input types
+        local_metric = LocalMetricConfig(name="length", scorer_fn=lambda x: len(x))
+
+        scorers, local_scorers = Experiments.create_metric_configs(
+            "project_id", "experiment_id", ["metric1", local_metric, Metric(name="metric2")]
+        )
+
+        assert len(scorers) == 2  # Should return two valid scorers
+        assert len(local_scorers) == 1  # One local scorer
