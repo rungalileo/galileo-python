@@ -102,7 +102,6 @@ class Experiments(BaseClientModel):
         for metric in metrics:
             if isinstance(metric, LocalMetricConfig):
                 local_metric_configs.append(metric)
-                continue
             else:
                 name = metric.name if isinstance(metric, Metric) else metric
                 version = metric.version if isinstance(metric, Metric) else None

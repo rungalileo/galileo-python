@@ -37,10 +37,10 @@ class LocalMetricConfig(BaseModel, Generic[MetricType]):
 
 
 class Metric(BaseModel):
-    name: Union[str] = Field(
+    name: str = Field(
         description="The name of the metric you want to run a specific version of (ie: 'Sentence Density')."
     )
-    version: Union[int, None] = Field(
+    version: Optional[int] = Field(
         default=None,
         description="The version of the metric (ie: 1, 2, 3, etc.). If None is provided, the 'default' version will be used.",
     )
