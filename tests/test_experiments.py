@@ -124,10 +124,7 @@ def mock_scorer_version_response():
     mock_response = MagicMock()
     mock_response.id = "mock_scorer_version_id"
     mock_response.version = 1
-    mock_response.to_dict.return_value = {
-        "id": "mock_scorer_version_id",
-        "version": 1,
-    }
+    mock_response.to_dict.return_value = {"id": "mock_scorer_version_id", "version": 1}
     return mock_response
 
 
