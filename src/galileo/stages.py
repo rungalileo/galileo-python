@@ -7,6 +7,7 @@ from galileo.projects import Projects
 from galileo.resources.api.protect import (
     create_stage_v2_projects_project_id_stages_post,
     get_stage_projects_project_id_stages_get,
+    pause_stage_projects_project_id_stages_stage_id_put,  # Added for pause/resume
     update_stage_projects_project_id_stages_stage_id_post,
 )
 from galileo.resources.models import RulesetsMixin, StageDB, StageWithRulesets
@@ -39,7 +40,7 @@ class StageAPIException(APIException):
 class Stages(BaseClientModel, DecorateAllMethods):
     """
     Manages collections of Stages.
-    Provides methods to create, retrieve, and update stages.
+    Provides methods to create, retrieve, update, pause, and resume stages.
     """
 
     def create(
@@ -195,6 +196,64 @@ class Stages(BaseClientModel, DecorateAllMethods):
         )
         return response
 
+    def _set_pause_state(
+        self,
+        pause_flag: bool,
+        project_id: Optional[Union[str, UUID4]] = None,
+        project_name: Optional[str] = None,
+        stage_id: Optional[Union[str, UUID4]] = None,
+        stage_name: Optional[str] = None,
+    ) -> StageDB:
+        """Internal method to set the pause state of a stage."""
+        actual_project_id_str: Optional[str] = None
+        if project_id:
+            actual_project_id_str = str(project_id)
+        elif project_name:
+            project_obj = Projects(client=self.client).get(name=project_name)
+            if not project_obj:
+                raise ValueError(f"Project with name '{project_name}' not found.")
+            actual_project_id_str = str(project_obj.id)
+        else:
+            raise ValueError("Either project_id or project_name must be provided.")
+
+        actual_stage_id_str: Optional[str] = None
+        if stage_id:
+            actual_stage_id_str = str(stage_id)
+        elif stage_name:
+            stage_to_update = self.get(project_id=actual_project_id_str, stage_name=stage_name)
+            actual_stage_id_str = str(stage_to_update.id)
+        else:
+            raise ValueError("Either stage_id or stage_name must be provided.")
+
+        response = pause_stage_projects_project_id_stages_stage_id_put.sync(
+            project_id=actual_project_id_str, stage_id=actual_stage_id_str, client=self.client, pause=pause_flag
+        )
+        return response
+
+    def pause(
+        self,
+        project_id: Optional[Union[str, UUID4]] = None,
+        project_name: Optional[str] = None,
+        stage_id: Optional[Union[str, UUID4]] = None,
+        stage_name: Optional[str] = None,
+    ) -> StageDB:
+        """Pauses a stage."""
+        return self._set_pause_state(
+            project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name, pause_flag=True
+        )
+
+    def resume(
+        self,
+        project_id: Optional[Union[str, UUID4]] = None,
+        project_name: Optional[str] = None,
+        stage_id: Optional[Union[str, UUID4]] = None,
+        stage_name: Optional[str] = None,
+    ) -> StageDB:
+        """Resumes a paused stage."""
+        return self._set_pause_state(
+            project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name, pause_flag=False
+        )
+
 
 def create_stage(
     project_id: Union[str, UUID4],
@@ -271,3 +330,45 @@ def update_stage(
         stage_name=stage_name,
         prioritized_rulesets=prioritized_rulesets,
     )
+
+
+def pause_stage(
+    project_id: Optional[Union[str, UUID4]] = None,
+    project_name: Optional[str] = None,
+    stage_id: Optional[Union[str, UUID4]] = None,
+    stage_name: Optional[str] = None,
+) -> StageDB:
+    """
+    Convenience function to pause a stage.
+
+    Args:
+        project_id: The ID of the project.
+        project_name: The name of the project.
+        stage_id: The ID of the stage to pause.
+        stage_name: The name of the stage to pause.
+
+    Returns:
+        A StageDB instance representing the stage with its updated pause state.
+    """
+    return Stages().pause(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
+
+
+def resume_stage(
+    project_id: Optional[Union[str, UUID4]] = None,
+    project_name: Optional[str] = None,
+    stage_id: Optional[Union[str, UUID4]] = None,
+    stage_name: Optional[str] = None,
+) -> StageDB:
+    """
+    Convenience function to resume a paused stage.
+
+    Args:
+        project_id: The ID of the project.
+        project_name: The name of the project.
+        stage_id: The ID of the stage to resume.
+        stage_name: The name of the stage to resume.
+
+    Returns:
+        A StageDB instance representing the stage with its updated pause state.
+    """
+    return Stages().resume(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
