@@ -31,7 +31,7 @@ from galileo.base import BaseClientModel
 from galileo.constants.protect import TIMEOUT
 
 # TODO async version? .. from galileo_protect.invocation import ainvoke
-from galileo.resources.api.protect import invoke_protect_invoke_post
+from galileo.resources.api.protect import invoke_v2_protect_invoke_post
 from galileo.resources.models.invoke_response import InvokeResponse
 from galileo.resources.models.payload import Payload
 from galileo.resources.models.request import Request
@@ -59,7 +59,7 @@ class Protect(BaseClientModel, DecorateAllMethods):
         project_name: Optional[str] = None,
         stage_id: Optional[UUID4] = None,
         stage_name: Optional[str] = None,
-        # TODO missing stage_version?
+        stage_version: Optional[int] = None,  # Added stage_version
         timeout: float = TIMEOUT,
         metadata: Optional[dict[str, str]] = None,
         headers: Optional[dict[str, str]] = None,
@@ -90,12 +90,13 @@ class Protect(BaseClientModel, DecorateAllMethods):
             project_name=project_name,
             stage_id=str(stage_id) if stage_id is not None else None,
             stage_name=stage_name,
+            stage_version=stage_version,  # Pass stage_version
             timeout=timeout,
             metadata=metadata,
             headers=headers,
         )
 
-        response: Union[Response, InvokeResponse] = invoke_protect_invoke_post.sync(client=self.client, body=body)
+        response: Union[Response, InvokeResponse] = invoke_v2_protect_invoke_post.sync(client=self.client, body=body)
         return response
 
 
@@ -106,6 +107,7 @@ def invoke(
     project_name: Optional[str] = None,
     stage_id: Optional[UUID4] = None,
     stage_name: Optional[str] = None,
+    stage_version: Optional[int] = None,  # Added stage_version
     timeout: float = TIMEOUT,
     metadata: Optional[dict[str, str]] = None,
     headers: Optional[dict[str, str]] = None,
@@ -153,6 +155,8 @@ def invoke(
         project_name=project_name,
         stage_id=stage_id,
         stage_name=stage_name,
+        stage_version=stage_version,  # Pass stage_version
+        timeout=timeout,  # Pass timeout
         metadata=metadata,
         headers=headers,
     )
