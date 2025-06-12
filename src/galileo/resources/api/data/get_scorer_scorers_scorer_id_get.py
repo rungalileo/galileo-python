@@ -10,8 +10,13 @@ from ...models.scorer_response import ScorerResponse
 from ...types import Response
 
 
-def _get_kwargs(scorer_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": f"/scorers/{scorer_id}"}
+def _get_kwargs(
+    scorer_id: str,
+) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {
+        "method": "get",
+        "url": f"/scorers/{scorer_id}",
+    }
 
     return _kwargs
 
@@ -45,7 +50,9 @@ def _build_response(
 
 
 def sync_detailed(
-    scorer_id: str, *, client: AuthenticatedClient
+    scorer_id: str,
+    *,
+    client: AuthenticatedClient,
 ) -> Response[Union[HTTPValidationError, ScorerResponse]]:
     """Get Scorer
 
@@ -60,55 +67,21 @@ def sync_detailed(
         Response[Union[HTTPValidationError, ScorerResponse]]
     """
 
-    kwargs = _get_kwargs(scorer_id=scorer_id)
+    kwargs = _get_kwargs(
+        scorer_id=scorer_id,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
-
-    return _build_response(client=client, response=response)
-
-
-def sync(scorer_id: str, *, client: AuthenticatedClient) -> Optional[Union[HTTPValidationError, ScorerResponse]]:
-    """Get Scorer
-
-    Args:
-        scorer_id (str):
-
-    Raises:
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
-
-    Returns:
-        Union[HTTPValidationError, ScorerResponse]
-    """
-
-    return sync_detailed(scorer_id=scorer_id, client=client).parsed
-
-
-async def asyncio_detailed(
-    scorer_id: str, *, client: AuthenticatedClient
-) -> Response[Union[HTTPValidationError, ScorerResponse]]:
-    """Get Scorer
-
-    Args:
-        scorer_id (str):
-
-    Raises:
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
-
-    Returns:
-        Response[Union[HTTPValidationError, ScorerResponse]]
-    """
-
-    kwargs = _get_kwargs(scorer_id=scorer_id)
-
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    scorer_id: str, *, client: AuthenticatedClient
+def sync(
+    scorer_id: str,
+    *,
+    client: AuthenticatedClient,
 ) -> Optional[Union[HTTPValidationError, ScorerResponse]]:
     """Get Scorer
 
@@ -123,4 +96,60 @@ async def asyncio(
         Union[HTTPValidationError, ScorerResponse]
     """
 
-    return (await asyncio_detailed(scorer_id=scorer_id, client=client)).parsed
+    return sync_detailed(
+        scorer_id=scorer_id,
+        client=client,
+    ).parsed
+
+
+async def asyncio_detailed(
+    scorer_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Response[Union[HTTPValidationError, ScorerResponse]]:
+    """Get Scorer
+
+    Args:
+        scorer_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[Union[HTTPValidationError, ScorerResponse]]
+    """
+
+    kwargs = _get_kwargs(
+        scorer_id=scorer_id,
+    )
+
+    response = await client.get_async_httpx_client().request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    scorer_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Optional[Union[HTTPValidationError, ScorerResponse]]:
+    """Get Scorer
+
+    Args:
+        scorer_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Union[HTTPValidationError, ScorerResponse]
+    """
+
+    return (
+        await asyncio_detailed(
+            scorer_id=scorer_id,
+            client=client,
+        )
+    ).parsed

@@ -12,7 +12,9 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
+    *,
+    project_name: Union[None, Unset, str] = UNSET,
+    type_: Union[None, ProjectType, Unset] = UNSET,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -34,7 +36,11 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {"method": "get", "url": "/projects", "params": params}
+    _kwargs: dict[str, Any] = {
+        "method": "get",
+        "url": "/projects",
+        "params": params,
+    }
 
     return _kwargs
 
@@ -98,9 +104,14 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['ProjectDB']]]
     """
 
-    kwargs = _get_kwargs(project_name=project_name, type_=type_)
+    kwargs = _get_kwargs(
+        project_name=project_name,
+        type_=type_,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
@@ -131,7 +142,11 @@ def sync(
         Union[HTTPValidationError, list['ProjectDB']]
     """
 
-    return sync_detailed(client=client, project_name=project_name, type_=type_).parsed
+    return sync_detailed(
+        client=client,
+        project_name=project_name,
+        type_=type_,
+    ).parsed
 
 
 async def asyncio_detailed(
@@ -160,7 +175,10 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['ProjectDB']]]
     """
 
-    kwargs = _get_kwargs(project_name=project_name, type_=type_)
+    kwargs = _get_kwargs(
+        project_name=project_name,
+        type_=type_,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -193,4 +211,10 @@ async def asyncio(
         Union[HTTPValidationError, list['ProjectDB']]
     """
 
-    return (await asyncio_detailed(client=client, project_name=project_name, type_=type_)).parsed
+    return (
+        await asyncio_detailed(
+            client=client,
+            project_name=project_name,
+            type_=type_,
+        )
+    ).parsed
