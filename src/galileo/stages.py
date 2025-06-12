@@ -7,8 +7,9 @@ from galileo.projects import Projects
 from galileo.resources.api.protect import (
     create_stage_v2_projects_project_id_stages_post,
     get_stage_projects_project_id_stages_get,
+    update_stage_projects_project_id_stages_stage_id_post,
 )
-from galileo.resources.models import StageDB, StageWithRulesets
+from galileo.resources.models import RulesetsMixin, StageDB, StageWithRulesets
 from galileo.resources.models.rule import Rule
 from galileo.resources.models.stage_type import StageType
 from galileo.resources.types import UNSET
@@ -38,7 +39,7 @@ class StageAPIException(APIException):
 class Stages(BaseClientModel, DecorateAllMethods):
     """
     Manages collections of Stages.
-    Provides methods to create and retrieve stages.
+    Provides methods to create, retrieve, and update stages.
     """
 
     def create(
@@ -137,6 +138,63 @@ class Stages(BaseClientModel, DecorateAllMethods):
         )
         return response
 
+    def update(
+        self,
+        project_id: Optional[Union[str, UUID4]] = None,
+        project_name: Optional[str] = None,
+        stage_id: Optional[Union[str, UUID4]] = None,
+        stage_name: Optional[str] = None,
+        prioritized_rulesets: Optional[list[Rule]] = None,
+    ) -> StageDB:
+        """
+        Updates a stage, typically its rulesets. This creates a new version of the stage.
+
+        Args:
+            project_id: The ID of the project.
+            project_name: The name of the project.
+            stage_id: The ID of the stage to update.
+            stage_name: The name of the stage to update.
+            prioritized_rulesets: The new list of prioritized rulesets for the stage.
+                                  If None, effectively clears rulesets (sends empty list).
+
+        Returns:
+            A StageDB instance representing the updated stage.
+
+        Raises:
+            StageAPIException: If the API call fails.
+            ValueError: If project/stage identifiers are insufficient or the stage is not found.
+        """
+        actual_project_id_str: Optional[str] = None
+        if project_id:
+            actual_project_id_str = str(project_id)
+        elif project_name:
+            project_obj = Projects(client=self.client).get(name=project_name)
+            if not project_obj:
+                raise ValueError(f"Project with name '{project_name}' not found.")
+            actual_project_id_str = str(project_obj.id)
+        else:
+            raise ValueError("Either project_id or project_name must be provided.")
+
+        actual_stage_id_str: Optional[str] = None
+        if stage_id:
+            actual_stage_id_str = str(stage_id)
+        elif stage_name:
+            # Use self.get() to resolve stage_name to stage_id
+            # self.get() itself requires project_id or project_name, which we've resolved to actual_project_id_str
+            stage_to_update = self.get(project_id=actual_project_id_str, stage_name=stage_name)
+            # self.get will raise ValueError if stage not found by name, or StageAPIException for API issues
+            actual_stage_id_str = str(stage_to_update.id)
+        else:
+            raise ValueError("Either stage_id or stage_name must be provided.")
+
+        rulesets_to_send = prioritized_rulesets if prioritized_rulesets is not None else []
+        payload = RulesetsMixin(prioritized_rulesets=rulesets_to_send)
+
+        response = update_stage_projects_project_id_stages_stage_id_post.sync(
+            project_id=actual_project_id_str, stage_id=actual_stage_id_str, client=self.client, body=payload
+        )
+        return response
+
 
 def create_stage(
     project_id: Union[str, UUID4],
@@ -184,3 +242,32 @@ def get_stage(
         A StageDB instance representing the fetched stage.
     """
     return Stages().get(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
+
+
+def update_stage(
+    project_id: Optional[Union[str, UUID4]] = None,
+    project_name: Optional[str] = None,
+    stage_id: Optional[Union[str, UUID4]] = None,
+    stage_name: Optional[str] = None,
+    prioritized_rulesets: Optional[list[Rule]] = None,
+) -> StageDB:
+    """
+    Convenience function to update a stage's rulesets.
+
+    Args:
+        project_id: The ID of the project.
+        project_name: The name of the project.
+        stage_id: The ID of the stage to update.
+        stage_name: The name of the stage to update.
+        prioritized_rulesets: The new list of prioritized rulesets.
+
+    Returns:
+        A StageDB instance representing the updated stage.
+    """
+    return Stages().update(
+        project_id=project_id,
+        project_name=project_name,
+        stage_id=stage_id,
+        stage_name=stage_name,
+        prioritized_rulesets=prioritized_rulesets,
+    )
