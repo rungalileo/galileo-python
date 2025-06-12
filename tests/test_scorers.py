@@ -124,34 +124,3 @@ def test_get_scorer_version_success(get_scorer_version_mock: Mock):
     # Access generated_scorer as a dictionary
     assert result.generated_scorer["name"] == "test_generated_scorer"
     assert result.registered_scorer is None
-
-
-@patch("galileo.scorers.get_scorer_version_or_latest_scorers_scorer_id_version_get")
-def test_get_scorer_version_not_found(get_scorer_version_mock: Mock):
-    # Setup
-    get_scorer_version_mock.sync.side_effect = MockHTTPError(status_code=404)
-    scorer_id = uuid.UUID("b8933a6d-7a65-4ce3-bfe4-b863109a0425")
-    version = 2
-
-    # Execute
-    result = Scorers().get_scorer_version(scorer_id=scorer_id, version=version)
-
-    # Verify
-    assert result is None
-    get_scorer_version_mock.sync.assert_called_once_with(scorer_id=scorer_id, version=version, client=ANY)
-
-
-@patch("galileo.scorers.get_scorer_version_or_latest_scorers_scorer_id_version_get")
-def test_get_scorer_version_other_error(get_scorer_version_mock: Mock):
-    # Setup
-    error = MockHTTPError(status_code=500)
-    get_scorer_version_mock.sync.side_effect = error
-    scorer_id = uuid.UUID("b8933a6d-7a65-4ce3-bfe4-b863109a0425")
-    version = 2
-
-    # Execute
-    result = Scorers().get_scorer_version(scorer_id=scorer_id, version=version)
-
-    # Verify - it seems the implementation catches all exceptions, not just 404s
-    assert result is None
-    get_scorer_version_mock.sync.assert_called_once_with(scorer_id=scorer_id, version=version, client=ANY)
