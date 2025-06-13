@@ -18,7 +18,7 @@ from galileo.resources.api.experiment import (
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
 from galileo.schema.datasets import DatasetRecord
-from galileo.schema.metrics import LocalMetricConfig, Metric
+from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.scorers import Scorers, ScorerSettings
 from galileo.utils.datasets import load_dataset_and_records
 
@@ -88,42 +88,48 @@ class Experiments(BaseClientModel):
 
     @staticmethod
     def create_metric_configs(
-        project_id: str, experiment_id: str, metrics: builtins.list[Union[str, LocalMetricConfig, Metric]]
+        project_id: str,
+        experiment_id: str,
+        metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]],
     ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
-        scorers = []
-
-        local_metric_configs: builtins.list[LocalMetricConfig] = []
-
-        all_scorers = Scorers().list()
-        known_metrics = {metric.name: metric for metric in all_scorers}
-
-        unknown_metrics = []
-
+        local_metric_configs: list[LocalMetricConfig] = []
+        scorer_name_versions: list[tuple[str, Optional[int]]] = []
         for metric in metrics:
-            if isinstance(metric, LocalMetricConfig):
+            if isinstance(metric, GalileoScorers):
+                scorer_name_versions.append((metric.value, None))
+            elif isinstance(metric, Metric):
+                scorer_name_versions.append((metric.name, metric.version))
+            elif isinstance(metric, LocalMetricConfig):
                 local_metric_configs.append(metric)
+            elif isinstance(metric, str):
+                scorer_name_versions.append((metric, None))
             else:
-                name = metric.name if isinstance(metric, Metric) else metric
-                version = metric.version if isinstance(metric, Metric) else None
+                raise ValueError(f"Unknown metric type: {type(metric)}")
 
-                if name in known_metrics:
-                    raw_metric_dict = known_metrics[name].to_dict()
+        scorers: list[ScorerConfig] = []
+        if scorer_name_versions:
+            all_scorers = Scorers().list()
+            known_metrics = {metric.name: metric for metric in all_scorers}
+            unknown_metrics = []
+            for scorer_name, scorer_version in scorer_name_versions:
+                if scorer_name in known_metrics:
+                    raw_metric_dict = known_metrics[scorer_name].to_dict()
 
                     # Set the version on the ScorerConfig if provided
-                    if version is not None:
-                        raw_version = Scorers().get_scorer_version(scorer_id=raw_metric_dict["id"], version=version)
+                    if scorer_version is not None:
+                        raw_version = Scorers().get_scorer_version(
+                            scorer_id=raw_metric_dict["id"], version=scorer_version
+                        )
                         raw_metric_dict["scorer_version"] = raw_version.to_dict()
                     scorers.append(ScorerConfig.from_dict(raw_metric_dict))
                 else:
-                    unknown_metrics.append(name)
-
-        if unknown_metrics:
-            raise ValueError(
-                "One or more non-existent metrics are specified:"
-                + ", ".join(f"'{metric}'" for metric in unknown_metrics)
-            )
-
-        ScorerSettings().create(project_id=project_id, run_id=experiment_id, scorers=scorers)
+                    unknown_metrics.append(metric)
+            if unknown_metrics:
+                raise ValueError(
+                    "One or more non-existent metrics are specified:"
+                    + ", ".join(f"'{metric}'" for metric in unknown_metrics)
+                )
+            ScorerSettings().create(project_id=project_id, run_id=experiment_id, scorers=scorers)
 
         return scorers, local_metric_configs
 
@@ -227,7 +233,7 @@ def run_experiment(
     dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
-    metrics: Optional[list[Union[str, LocalMetricConfig, Metric]]] = None,
+    metrics: Optional[list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]] = None,
     function: Optional[Callable] = None,
 ) -> Any:
     """

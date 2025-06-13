@@ -7,7 +7,7 @@ from galileo_core.schemas.logging.span import Span
 from galileo_core.schemas.logging.step import StepType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.metric import MetricValueType
-from galileo_core.schemas.shared.scorers.scorer_name import ScorerName
+from galileo_core.schemas.shared.scorers.scorer_name import ScorerName as GalileoScorers
 
 MetricType = TypeVar("MetricType", bound=MetricValueType)
 
@@ -47,7 +47,7 @@ class Metric(BaseModel):
 
     @model_validator(mode="after")
     def validate_name_and_version(self) -> "Metric":
-        preset_metric_names = [scorer.value for scorer in ScorerName]
+        preset_metric_names = [scorer.value for scorer in GalileoScorers]
         if self.name in preset_metric_names:
             if self.version is not None:
                 raise ValueError(

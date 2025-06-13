@@ -29,7 +29,7 @@ from galileo.resources.models import (
     TaskType,
 )
 from galileo.schema.datasets import DatasetRecord
-from galileo.schema.metrics import LocalMetricConfig
+from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
 from galileo.utils.datasets import load_dataset_and_records
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.shared.metric import MetricValueType
@@ -455,7 +455,7 @@ class TestExperiments:
             project="awesome-new-project",
             dataset_id=dataset_id,
             prompt_template=prompt_template(),
-            metrics=["correctness"],
+            metrics=[GalileoScorers.correctness],
         )
 
         mock_get_project.assert_called_once_with(name="awesome-new-project")
