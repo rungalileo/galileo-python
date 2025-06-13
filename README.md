@@ -155,6 +155,37 @@ logger.conclude(output="Hello, this is a test", duration_ns=1000)
 logger.flush() # This will upload the trace to Galileo
 ```
 
+#### Audio File Support
+
+Galileo SDK supports attaching audio files to traces. This is useful for tracking audio inputs and outputs in speech-based AI applications.
+
+```python
+from galileo.logger import GalileoLogger
+
+# Create a logger
+logger = GalileoLogger(project="speech-ai-project", log_stream="audio-tests")
+
+# Create a trace with audio files
+trace = logger.start_trace(
+    input="Transcribe this audio file",
+    input_audio_file_path="path/to/input.wav",  # Path to input audio file
+    output_audio_file_path="path/to/output.wav"  # Path to output audio file
+)
+
+# Add spans as needed
+logger.add_llm_span(
+    input="Transcribe this audio file",
+    output="[Transcription text]",
+    model="whisper-large-v3"
+)
+
+# Conclude and upload
+logger.conclude(output="Transcription complete")
+logger.flush()
+```
+
+For more details on audio file support, see [AUDIO_SUPPORT.md](AUDIO_SUPPORT.md).
+
 OpenAI streaming example:
 
 ```python

@@ -26,6 +26,8 @@ class TraceRecord:
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
         trace_id (str): Galileo ID of the trace containing the span (or the same value as id for a trace)
+        input_audio_file_id (Union[None, Unset, str]): ID of the input audio file
+        output_audio_file_id (Union[None, Unset, str]): ID of the output audio file
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[Unset, str]): Input to the dataset associated with this trace Default: ''.
         dataset_metadata (Union[Unset, TraceRecordDatasetMetadata]): Metadata from the dataset associated with this
@@ -51,6 +53,8 @@ class TraceRecord:
     project_id: str
     run_id: str
     trace_id: str
+    input_audio_file_id: Union[None, Unset, str] = UNSET
+    output_audio_file_id: Union[None, Unset, str] = UNSET
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[Unset, str] = ""
     dataset_metadata: Union[Unset, "TraceRecordDatasetMetadata"] = UNSET
@@ -80,6 +84,18 @@ class TraceRecord:
         run_id = self.run_id
 
         trace_id = self.trace_id
+
+        input_audio_file_id: Union[None, Unset, str]
+        if isinstance(self.input_audio_file_id, Unset):
+            input_audio_file_id = UNSET
+        else:
+            input_audio_file_id = self.input_audio_file_id
+
+        output_audio_file_id: Union[None, Unset, str]
+        if isinstance(self.output_audio_file_id, Unset):
+            output_audio_file_id = UNSET
+        else:
+            output_audio_file_id = self.output_audio_file_id
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -152,6 +168,10 @@ class TraceRecord:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"id": id, "input": input_, "project_id": project_id, "run_id": run_id, "trace_id": trace_id})
+        if input_audio_file_id is not UNSET:
+            field_dict["input_audio_file_id"] = input_audio_file_id
+        if output_audio_file_id is not UNSET:
+            field_dict["output_audio_file_id"] = output_audio_file_id
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -196,6 +216,16 @@ class TraceRecord:
         id = d.pop("id")
 
         input_ = d.pop("input")
+
+        def _parse_audio_file_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        input_audio_file_id = _parse_audio_file_id(d.pop("input_audio_file_id", UNSET))
+        output_audio_file_id = _parse_audio_file_id(d.pop("output_audio_file_id", UNSET))
 
         project_id = d.pop("project_id")
 
@@ -319,6 +349,8 @@ class TraceRecord:
             project_id=project_id,
             run_id=run_id,
             trace_id=trace_id,
+            input_audio_file_id=input_audio_file_id,
+            output_audio_file_id=output_audio_file_id,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
