@@ -9,7 +9,7 @@ dynamic = ["dependencies"]
 
 [tool.poetry.dependencies]
 python = "^3.9,<3.14"
-pydantic = "^2.11.5"
+pydantic = "^2.11.7"
 pyjwt = "^2.8.0"
 wrapt = "^1.14"
 attrs = ">=22.2.0"
