@@ -39,6 +39,7 @@ from galileo_core.schemas.logging.span import (
 from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
+from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 RetrieverSpanAllowedOutputType = Union[
     str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None
