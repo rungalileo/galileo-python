@@ -7,7 +7,7 @@ from galileo_core.schemas.logging.step import StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 
 
-class GalileoInterface(metaclass=abc.ABCMeta):
+class IGalileoLogger(metaclass=abc.ABCMeta):
     @classmethod
     def __subclasshook__(cls, subclass):
         return (

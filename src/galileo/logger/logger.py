@@ -3,7 +3,7 @@ import json
 import logging
 from datetime import datetime
 from os import getenv
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 from pydantic import ValidationError
 
@@ -41,6 +41,9 @@ RetrieverSpanAllowedOutputType = Union[
 
 class GalileoLoggerException(Exception):
     pass
+
+
+LoggerModeType = Literal["batch", "streaming"]
 
 
 class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods):
@@ -109,7 +112,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
     experiment_id: Optional[str] = None
     session_id: Optional[str] = None
     local_metrics: Optional[list[LocalMetricConfig]] = None
-    mode: Optional[str] = None
+    mode: Optional[LoggerModeType] = None
     _logger = logging.getLogger("galileo.logger")
 
     def __init__(
@@ -118,7 +121,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
-        mode: Optional[str] = "batch",
+        mode: Optional[LoggerModeType] = "batch",
     ) -> None:
         super().__init__()
         self.mode = mode

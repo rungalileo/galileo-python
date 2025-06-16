@@ -2,7 +2,7 @@ from collections import deque
 from datetime import datetime
 from typing import Optional
 
-from galileo.logger.iface import GalileoInterface
+from galileo.logger.interface import IGalileoLogger
 from galileo.logger.utils import get_last_output
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.metrics import populate_local_metrics
@@ -13,7 +13,7 @@ from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 
-class GalileoBatchLogger(TracesLogger, GalileoInterface):
+class GalileoBatchLogger(TracesLogger, IGalileoLogger):
     """
     Galileo Batch logger
     """
