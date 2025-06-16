@@ -1691,15 +1691,15 @@ files = [
 
 [[package]]
 name = "mcp"
-version = "1.7.1"
+version = "1.9.4"
 description = "Model Context Protocol SDK"
 optional = true
 python-versions = ">=3.10"
 groups = ["main"]
 markers = "python_version >= \"3.10\""
 files = [
-    {file = "mcp-1.7.1-py3-none-any.whl", hash = "sha256:f7e6108977db6d03418495426c7ace085ba2341b75197f8727f96f9cfd30057a"},
-    {file = "mcp-1.7.1.tar.gz", hash = "sha256:eb4f1f53bd717f75dda8a1416e00804b831a8f3c331e23447a03b78f04b43a6e"},
+    {file = "mcp-1.9.4-py3-none-any.whl", hash = "sha256:7fcf36b62936adb8e63f89346bccca1268eeca9bf6dfb562ee10b1dfbda9dac0"},
+    {file = "mcp-1.9.4.tar.gz", hash = "sha256:cfb0bcd1a9535b42edaef89947b9e18a8feb49362e1cc059d6e7fc636f2cb09f"},
 ]
 
 [package.dependencies]
@@ -2120,27 +2120,27 @@ voice-helpers = ["numpy (>=2.0.2)", "sounddevice (>=0.5.1)"]
 
 [[package]]
 name = "openai-agents"
-version = "0.0.12"
+version = "0.0.17"
 description = "OpenAI Agents SDK"
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "openai_agents-0.0.12-py3-none-any.whl", hash = "sha256:122d9b71b408c70ffc8cd9e78751cc765ef104938fb937484d5b163790132e31"},
-    {file = "openai_agents-0.0.12.tar.gz", hash = "sha256:5d889a5abb2e335dc21d5c11cf8b133667d919905259a35fd1405c5b6a8c484f"},
+    {file = "openai_agents-0.0.17-py3-none-any.whl", hash = "sha256:924e0be145b42fb8984e35ab9d14e4948a2251c3b122a02ca989b223e4d39c27"},
+    {file = "openai_agents-0.0.17.tar.gz", hash = "sha256:44f9c8e80b461c64cfdcf55d162ca8bb0594f4b2ada48daf1be34a8d4cd0759f"},
 ]
 
 [package.dependencies]
 griffe = ">=1.5.6,<2"
-mcp = {version = ">=1.6.0,<2", markers = "python_version >= \"3.10\""}
-openai = ">=1.66.5"
+mcp = {version = ">=1.8.0,<2", markers = "python_version >= \"3.10\""}
+openai = ">=1.81.0"
 pydantic = ">=2.10,<3"
 requests = ">=2.0,<3"
 types-requests = ">=2.0,<3"
 typing-extensions = ">=4.12.2,<5"
 
 [package.extras]
-litellm = ["litellm (>=1.65.0,<2)"]
+litellm = ["litellm (>=1.67.4.post1,<2)"]
 viz = ["graphviz (>=0.17)"]
 voice = ["numpy (>=2.2.0,<3) ; python_version >= \"3.10\"", "websockets (>=15.0,<16)"]
 
@@ -4214,4 +4214,4 @@ openai = ["openai", "openai-agents", "packaging"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "30fd12f22805c9e86eea981db60fb90e03fdb5fb6647e4a8f0fb8a1ccd17632d"
+content-hash = "621e2350b4f4fd481e4b2a5eb745b812cc7e055e8b581bc18bc3291a659346c8"
