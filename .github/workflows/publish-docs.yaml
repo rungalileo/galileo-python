@@ -24,6 +24,7 @@ jobs:
         with:
           repository: rungalileo/docs-official
           path: ./docs-official
+          token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
 
       # Install Python
       - name: Set up Python
