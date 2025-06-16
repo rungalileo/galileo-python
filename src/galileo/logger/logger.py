@@ -110,7 +110,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
     session_id: Optional[str] = None
     local_metrics: Optional[list[LocalMetricConfig]] = None
     mode: Optional[str] = None
-    _log = logging.getLogger("galileo.logger")
+    _logger = logging.getLogger("galileo.logger")
 
     def __init__(
         self,
@@ -161,7 +161,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
             if project is None:
                 raise GalileoLoggerException(f"Failed to create project {self.project_name}.")
             self.project_id = project.id
-            self._log.info(f"🚀 Creating new project... project {self.project_name} created!")
+            self._logger.info(f"🚀 Creating new project... project {self.project_name} created!")
         else:
             if project_obj.type != "gen_ai":
                 raise Exception(f"Project {self.project_name} is not a Galileo 2.0 project")
@@ -173,7 +173,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
             if log_stream_obj is None:
                 # Create log stream if it doesn't exist
                 self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
-                self._log.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
+                self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
             else:
                 self.log_stream_id = log_stream_obj.id
 
@@ -608,7 +608,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
         """
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
-        self._log.info("Attempting to flush on interpreter exit...")
+        self._logger.info("Attempting to flush on interpreter exit...")
         self.flush()
 
     @nop_sync
@@ -627,13 +627,13 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
         -------
             str: The ID of the newly created session.
         """
-        self._log.info("Starting a new session...")
+        self._logger.info("Starting a new session...")
 
         session = self._client.create_session_sync(
             SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
         )
 
-        self._log.info("Session started with ID: %s", session["id"])
+        self._logger.info("Session started with ID: %s", session["id"])
 
         self.session_id = str(session["id"])
         return self.session_id
@@ -649,12 +649,12 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
         -------
             None
         """
-        self._log.info("Setting the current session to %s", session_id)
+        self._logger.info("Setting the current session to %s", session_id)
         self.session_id = session_id
-        self._log.info("Current session set to %s", session_id)
+        self._logger.info("Current session set to %s", session_id)
 
     @nop_sync
     def clear_session(self) -> None:
-        self._log.info("Clearing the current session from the logger...")
+        self._logger.info("Clearing the current session from the logger...")
         self.session_id = None
-        self._log.info("Current session cleared.")
+        self._logger.info("Current session cleared.")
