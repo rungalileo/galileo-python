@@ -13,7 +13,7 @@ from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
-from galileo.schema.trace import SessionCreateRequest, TracesIngestRequest
+from galileo.schema.trace import SessionCreateRequest, TracesIngestRequest, Trace
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo.utils.metrics import populate_local_metrics
@@ -31,7 +31,6 @@ from galileo_core.schemas.logging.span import (
     WorkflowSpan,
 )
 from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
-from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
@@ -213,6 +212,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         dataset_output: Optional[str] = None,
         dataset_metadata: Optional[dict[str, str]] = None,
         external_id: Optional[str] = None,
+        input_audio_file_path: Optional[str] = None,
+        output_audio_file_path: Optional[str] = None,
     ) -> Trace:
         """
         Create a new trace and add it to the list of traces.
@@ -230,11 +231,29 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             duration_ns: Optional[int]: Duration of the trace in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the trace's creation.
             metadata: Optional[Dict[str, str]]: Metadata associated with this trace.
-            ground_truth: Optional[str]: Ground truth, expected output of the trace.
+            tags: Optional[list[str]]: Tags to associate with this trace.
+            dataset_input: Optional[str]: Input from the dataset associated with this trace.
+            dataset_output: Optional[str]: Output from the dataset associated with this trace.
+            dataset_metadata: Optional[Dict[str, str]]: Metadata from the dataset associated with this trace.
+            external_id: Optional[str]: External ID for this trace.
+            input_audio_file_path: Optional[str]: Path to an input audio file (.wav) to upload and associate with this trace.
+            output_audio_file_path: Optional[str]: Path to an output audio file (.wav) to upload and associate with this trace.
         Returns:
         -------
             Trace: The created trace.
         """
+        input_audio_file_id = None
+        output_audio_file_id = None
+        
+        if input_audio_file_path is not None or output_audio_file_path is not None:
+            from galileo.utils.audio_file import upload_audio_file
+            
+            if input_audio_file_path is not None:
+                input_audio_file_id = upload_audio_file(input_audio_file_path)
+                
+            if output_audio_file_path is not None:
+                output_audio_file_id = upload_audio_file(output_audio_file_path)
+        
         return super().add_trace(
             input=input,
             name=name,
@@ -246,6 +265,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             dataset_output=dataset_output,
             dataset_metadata=dataset_metadata,
             external_id=external_id,
+            input_audio_file_id=input_audio_file_id,
+            output_audio_file_id=output_audio_file_id,
         )
 
     @nop_sync
