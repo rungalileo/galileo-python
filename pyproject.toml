@@ -16,7 +16,7 @@ attrs = ">=22.2.0"
 python-dateutil = "^2.8.0"
 langchain-core = { version = "^0.3.61", optional = true }
 openai = { version = "<1.84.0", optional = true }
-openai-agents = { version = "<0.0.13", optional = true }
+openai-agents = { version = "<0.0.18", optional = true }
 
 galileo-core = "~=3.44.0"
 
