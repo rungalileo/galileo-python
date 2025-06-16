@@ -228,8 +228,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
         )
         if self.mode == "batch":
             return GalileoBatchLogger.start_trace(self, **kwargs)
-        else:
-            return GalileoStreamLogger.start_trace(self, **kwargs)
+        return GalileoStreamLogger.start_trace(self, **kwargs)
 
     @nop_sync
     def add_single_llm_span_trace(
@@ -585,8 +584,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
         """
         if self.mode == "batch":
             return GalileoBatchLogger.flush(self)
-        else:
-            return GalileoStreamLogger.flush(self)
+        return GalileoStreamLogger.flush(self)
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
