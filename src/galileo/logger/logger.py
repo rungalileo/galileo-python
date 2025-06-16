@@ -1,7 +1,6 @@
 import atexit
 import json
 import logging
-from collections import deque
 from datetime import datetime
 from os import getenv
 from typing import Optional, Union
@@ -11,12 +10,13 @@ from pydantic import ValidationError
 from galileo.api_client import GalileoApiClient
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
+from galileo.logger.batch import GalileoBatchLogger
+from galileo.logger.stream import GalileoStreamLogger
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
-from galileo.schema.trace import SessionCreateRequest, TracesIngestRequest
+from galileo.schema.trace import SessionCreateRequest
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
-from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
 from galileo_core.schemas.logging.agent import AgentType
@@ -33,7 +33,6 @@ from galileo_core.schemas.logging.span import (
 from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
-from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 RetrieverSpanAllowedOutputType = Union[
     str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None
@@ -44,12 +43,12 @@ class GalileoLoggerException(Exception):
     pass
 
 
-class GalileoLogger(TracesLogger, DecorateAllMethods):
+class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.
 
-    `logger = GalileoLogger(project="my_project", log_stream="my_log_stream")`
+    `logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="batch")`
 
     Next, we can add traces.
     Let's add a simple trace with just one span (llm call) in it,
@@ -110,8 +109,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     experiment_id: Optional[str] = None
     session_id: Optional[str] = None
     local_metrics: Optional[list[LocalMetricConfig]] = None
-
-    _logger = logging.getLogger("galileo.logger")
+    mode: Optional[str] = None
+    _log = logging.getLogger("galileo.logger")
 
     def __init__(
         self,
@@ -119,9 +118,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
+        mode: Optional[str] = "batch",
     ) -> None:
         super().__init__()
-
+        self.mode = mode
         project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
         log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
@@ -161,7 +161,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             if project is None:
                 raise GalileoLoggerException(f"Failed to create project {self.project_name}.")
             self.project_id = project.id
-            self._logger.info(f"🚀 Creating new project... project {self.project_name} created!")
+            self._log.info(f"🚀 Creating new project... project {self.project_name} created!")
         else:
             if project_obj.type != "gen_ai":
                 raise Exception(f"Project {self.project_name} is not a Galileo 2.0 project")
@@ -173,7 +173,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             if log_stream_obj is None:
                 # Create log stream if it doesn't exist
                 self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
-                self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
+                self._log.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
             else:
                 self.log_stream_id = log_stream_obj.id
 
@@ -214,39 +214,22 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         dataset_metadata: Optional[dict[str, str]] = None,
         external_id: Optional[str] = None,
     ) -> Trace:
-        """
-        Create a new trace and add it to the list of traces.
-        Simple usage:
-        ```
-        my_traces.start_trace("input")
-        my_traces.add_llm_span("input", "output", model="<my_model>")
-        my_traces.conclude("output")
-        ```
-        Parameters:
-        ----------
-            input: StepIOType: Input to the node.
-            output: Optional[str]: Output of the node.
-            name: Optional[str]: Name of the trace.
-            duration_ns: Optional[int]: Duration of the trace in nanoseconds.
-            created_at: Optional[datetime]: Timestamp of the trace's creation.
-            metadata: Optional[Dict[str, str]]: Metadata associated with this trace.
-            ground_truth: Optional[str]: Ground truth, expected output of the trace.
-        Returns:
-        -------
-            Trace: The created trace.
-        """
-        return super().add_trace(
+        kwargs = dict(
             input=input,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
-            user_metadata=metadata,
+            metadata=metadata,
             tags=tags,
             dataset_input=dataset_input,
             dataset_output=dataset_output,
             dataset_metadata=dataset_metadata,
             external_id=external_id,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.start_trace(self, **kwargs)
+        else:
+            return GalileoStreamLogger.start_trace(self, **kwargs)
 
     @nop_sync
     def add_single_llm_span_trace(
@@ -583,15 +566,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             Optional[StepWithChildSpans]: The parent of the current workflow. None if no parent exists.
         """
-        if not conclude_all:
-            return super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
-
-        # TODO: Allow the final span output to propagate to the parent spans
-        current_parent = None
-        while self.current_parent() is not None:
-            current_parent = super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
-
-        return current_parent
+        if self.mode == "batch":
+            return GalileoBatchLogger.conclude(
+                self, output=output, duration_ns=duration_ns, status_code=status_code, conclude_all=conclude_all
+            )
+        return GalileoStreamLogger.conclude(
+            self, output=output, duration_ns=duration_ns, status_code=status_code, conclude_all=conclude_all
+        )
 
     @nop_sync
     def flush(self) -> list[Trace]:
@@ -602,35 +583,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             List[Trace]: The list of uploaded traces.
         """
-        if not self.traces:
-            self._logger.info("No traces to flush.")
-            return list()
-
-        current_parent = self.current_parent()
-        if current_parent is not None:
-            self._logger.info("Concluding the active trace...")
-            last_output = GalileoLogger._get_last_output(current_parent)
-            self.conclude(output=last_output, conclude_all=True)
-
-        if self.local_metrics:
-            self._logger.info("Computing local metrics...")
-            # TODO: parallelize, possibly with ThreadPoolExecutor
-            for trace in self.traces:
-                populate_local_metrics(trace, self.local_metrics)
-
-        self._logger.info("Flushing %d traces...", len(self.traces))
-
-        traces_ingest_request = TracesIngestRequest(
-            traces=self.traces, experiment_id=self.experiment_id, session_id=self.session_id
-        )
-        self._client.ingest_traces_sync(traces_ingest_request)
-        logged_traces = self.traces
-
-        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
-
-        self.traces = list()
-        self._parent_stack = deque()
-        return logged_traces
+        if self.mode == "batch":
+            return GalileoBatchLogger.flush(self)
+        else:
+            return GalileoStreamLogger.flush(self)
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
@@ -641,33 +597,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             List[Trace]: The list of uploaded workflows.
         """
-        if not self.traces:
-            self._logger.info("No traces to flush.")
-            return list()
-
-        current_parent = self.current_parent()
-        if current_parent is not None:
-            self._logger.info("Concluding the active trace...")
-            last_output = GalileoLogger._get_last_output(current_parent)
-            self.conclude(output=last_output, conclude_all=True)
-
-        if self.local_metrics:
-            self._logger.info("Computing metrics for local scorers...")
-            # TODO: parallelize, possibly with asyncio to_thread/gather
-            for trace in self.traces:
-                populate_local_metrics(trace, self.local_metrics)
-
-        self._logger.info("Flushing %d traces...", len(self.traces))
-
-        traces_ingest_request = TracesIngestRequest(traces=self.traces, session_id=self.session_id)
-        await self._client.ingest_traces(traces_ingest_request)
-        logged_traces = self.traces
-
-        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
-
-        self.traces = list()
-        self._parent_stack = deque()
-        return logged_traces
+        if self.mode == "batch":
+            return await GalileoBatchLogger.async_flush(self)
+        return await GalileoStreamLogger.async_flush(self)
 
     @nop_sync
     def terminate(self) -> None:
@@ -676,9 +608,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
-        self._logger.info("Attempting to flush on interpreter exit...")
+        self._log.info("Attempting to flush on interpreter exit...")
         self.flush()
 
+    @nop_sync
     def start_session(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
@@ -694,17 +627,18 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             str: The ID of the newly created session.
         """
-        self._logger.info("Starting a new session...")
+        self._log.info("Starting a new session...")
 
         session = self._client.create_session_sync(
             SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
         )
 
-        self._logger.info("Session started with ID: %s", session["id"])
+        self._log.info("Session started with ID: %s", session["id"])
 
         self.session_id = str(session["id"])
         return self.session_id
 
+    @nop_sync
     def set_session(self, session_id: str) -> None:
         """
         Parameters:
@@ -715,11 +649,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             None
         """
-        self._logger.info("Setting the current session to %s", session_id)
+        self._log.info("Setting the current session to %s", session_id)
         self.session_id = session_id
-        self._logger.info("Current session set to %s", session_id)
+        self._log.info("Current session set to %s", session_id)
 
+    @nop_sync
     def clear_session(self) -> None:
-        self._logger.info("Clearing the current session from the logger...")
+        self._log.info("Clearing the current session from the logger...")
         self.session_id = None
-        self._logger.info("Current session cleared.")
+        self._log.info("Current session cleared.")
