@@ -1,5 +1,5 @@
 from galileo.logger.interface import IGalileoLogger
 
 
-class GalileoStreamLogger(IGalileoLogger):
+class GalileoStreamingLogger(IGalileoLogger):
     pass

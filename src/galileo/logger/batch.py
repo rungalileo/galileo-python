@@ -15,7 +15,12 @@ from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 class GalileoBatchLogger(TracesLogger, IGalileoLogger):
     """
-    Galileo Batch logger
+    Galileo Batch logger class implements `IGalileoLogger` interface. It's responsible for
+    split batch and streaming logic accordingly inside `GalileoLogger` class. So when you need
+    to add new method make sure you change IGalileoLogger class first and both loggers must implement
+    this logic, if logic same use directly GalileoLogger class.
+
+    Note: You should not use it directly and must use GalileoLogger instead with mode="batch"
     """
 
     def __init__(self):

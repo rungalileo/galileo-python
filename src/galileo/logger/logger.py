@@ -11,7 +11,7 @@ from galileo.api_client import GalileoApiClient
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.logger.batch import GalileoBatchLogger
-from galileo.logger.stream import GalileoStreamLogger
+from galileo.logger.streaming import GalileoStreamingLogger
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import SessionCreateRequest
@@ -46,7 +46,7 @@ class GalileoLoggerException(Exception):
 LoggerModeType = Literal["batch", "streaming"]
 
 
-class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods):
+class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMethods):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.
@@ -231,7 +231,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
         )
         if self.mode == "batch":
             return GalileoBatchLogger.start_trace(self, **kwargs)
-        return GalileoStreamLogger.start_trace(self, **kwargs)
+        return GalileoStreamingLogger.start_trace(self, **kwargs)
 
     @nop_sync
     def add_single_llm_span_trace(
@@ -572,7 +572,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
             return GalileoBatchLogger.conclude(
                 self, output=output, duration_ns=duration_ns, status_code=status_code, conclude_all=conclude_all
             )
-        return GalileoStreamLogger.conclude(
+        return GalileoStreamingLogger.conclude(
             self, output=output, duration_ns=duration_ns, status_code=status_code, conclude_all=conclude_all
         )
 
@@ -587,7 +587,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
         """
         if self.mode == "batch":
             return GalileoBatchLogger.flush(self)
-        return GalileoStreamLogger.flush(self)
+        return GalileoStreamingLogger.flush(self)
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
@@ -600,7 +600,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamLogger, DecorateAllMethods)
         """
         if self.mode == "batch":
             return await GalileoBatchLogger.async_flush(self)
-        return await GalileoStreamLogger.async_flush(self)
+        return await GalileoStreamingLogger.async_flush(self)
 
     @nop_sync
     def terminate(self) -> None:
