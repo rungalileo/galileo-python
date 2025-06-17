@@ -1,6 +1,6 @@
 import uuid
 from typing import Optional
-from unittest.mock import Mock, patch
+from unittest.mock import ANY, Mock, patch
 
 import pytest
 from pydantic import UUID4
@@ -9,7 +9,7 @@ from galileo.projects import Projects
 from galileo.resources.models import HTTPValidationError, Rule, RuleOperator, RulesetsMixin, StageDB, StageWithRulesets
 from galileo.resources.models.stage_type import StageType
 from galileo.resources.types import UNSET
-from galileo.stages import Stages, create_stage, get_stage, pause_stage, resume_stage, update_stage
+from galileo.stages import create_stage, get_stage, pause_stage, resume_stage, update_stage
 
 
 def mock_stage_db_data(
@@ -151,17 +151,15 @@ def test_create_stage_api_validation_error(mock_api_sync: Mock):
     validation_error = HTTPValidationError(detail=error_detail)
     mock_api_sync.return_value = validation_error
 
-    result_class_method = Stages().create(project_id=test_project_id, name="test")
-    assert isinstance(result_class_method, HTTPValidationError)
-    assert result_class_method.detail == error_detail
-
     # Test with top-level create_stage
-    mock_api_sync.reset_mock()
-    mock_api_sync.return_value = validation_error
-
+    # The direct test of Stages().create() is removed.
+    # The call to create_stage() below will instantiate Stages and call its create method.
     result_func = create_stage(project_id=test_project_id, name="test")
     assert isinstance(result_func, HTTPValidationError)
     assert result_func.detail == error_detail
+    # We expect the mock_api_sync to have been called once by the create_stage function.
+    # If it was reset and called again, this would fail, ensuring we're not double-calling.
+    mock_api_sync.assert_called_once()
 
 
 @pytest.mark.parametrize(
@@ -169,7 +167,7 @@ def test_create_stage_api_validation_error(mock_api_sync: Mock):
 )
 @patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
 @patch("galileo.stages.Projects")
-def test_get_stage_success(
+def test_get_stage_success(  # Renamed to test_top_level_get_stage_success if we want to be explicit, but not required by user
     mock_projects_class: Mock, mock_get_stage_api_sync: Mock, use_project_name: bool, use_stage_name: bool
 ):
     fixed_project_id = uuid.uuid4()
@@ -177,23 +175,21 @@ def test_get_stage_success(
     fixed_stage_id = uuid.uuid4()
     fixed_stage_name = "Test Stage"
 
-    # Setup mock for Projects(...).get(...)
-    # The Stages class will instantiate Projects, so we mock the class,
-    # then configure the get method on its return_value (the mock instance)
-    mock_project_instance = Mock(spec=Projects)  # This is what Projects() will return
+    # Setup mock for Projects(...).get(...) for when project_name is used
+    mock_project_instance = Mock(spec=Projects)
     mock_projects_class.return_value = mock_project_instance
 
-    mock_project_data = Mock()  # This is what Projects().get() will return
+    mock_project_data = Mock()
     mock_project_data.id = fixed_project_id
     mock_project_instance.get.return_value = mock_project_data
 
-    # Setup mock for the stage API call
+    # Setup mock for the stage API call (get_stage_projects_project_id_stages_get.sync)
     expected_stage_db = mock_stage_db_instance(
         project_id=fixed_project_id,
         name=fixed_stage_name,
-        stage_type_val=StageType.LOCAL.value,  # Example value
-        paused=False,  # Example value
-        description="Fetched stage",  # Example value
+        stage_type_val=StageType.LOCAL.value,
+        paused=False,
+        description="Fetched stage",
     )
     mock_get_stage_api_sync.return_value = expected_stage_db
 
@@ -208,63 +204,33 @@ def test_get_stage_success(
     else:
         call_kwargs["stage_id"] = fixed_stage_id
 
-    # Test with Stages().get()
-    stages_instance = Stages()  # This will use the mocked Projects class
-    result_class_method = stages_instance.get(**call_kwargs)
-
-    if use_project_name:
-        mock_project_instance.get.assert_called_once_with(name=fixed_project_name)
-        # Ensure the client from stages_instance was passed to Projects constructor
-        mock_projects_class.assert_called_with(client=stages_instance.client)
-    else:
-        mock_project_instance.get.assert_not_called()
-        # Projects class might still be instantiated if project_id is given,
-        # but its .get() method shouldn't be called for name lookup.
-        # If Stages always instantiates Projects, this check might need adjustment
-        # or we ensure Projects() is only called if project_name is present.
-        # Based on current stages.py, Projects() is only called if project_name is used.
-
-    mock_get_stage_api_sync.assert_called_once()
-    api_call_args = mock_get_stage_api_sync.call_args.kwargs
-    assert api_call_args["project_id"] == str(fixed_project_id)
-    assert api_call_args["stage_id"] == (str(fixed_stage_id) if not use_stage_name else UNSET)
-    assert api_call_args["stage_name"] == (fixed_stage_name if use_stage_name else UNSET)
-    assert api_call_args["client"] == stages_instance.client
-
-    assert isinstance(result_class_method, StageDB)
-    assert result_class_method.project_id == str(fixed_project_id)
-    assert result_class_method.name == fixed_stage_name
-
-    # Reset mocks for top-level function call
-    mock_projects_class.reset_mock()
-    mock_project_instance.reset_mock()  # Reset the instance's call counts etc.
-    mock_get_stage_api_sync.reset_mock()
-
-    # Re-configure mocks for the new Stages() instance inside get_stage()
-    mock_projects_class.return_value = mock_project_instance
-    mock_project_instance.get.return_value = mock_project_data
-    mock_get_stage_api_sync.return_value = expected_stage_db
-
     # Test with top-level get_stage()
+    # The direct test of Stages().get() is removed as per the plan.
     result_func = get_stage(**call_kwargs)
 
     if use_project_name:
         mock_project_instance.get.assert_called_once_with(name=fixed_project_name)
-        # Check that Projects was instantiated with a client by the internal Stages()
-        # This requires knowing how Stages instantiates Projects.
-        # For now, assume it passes its client.
-        # The first arg to mock_projects_class.call_args is the Stages instance client
+        # Ensure Projects class was instantiated by the get_stage function (which creates a Stages instance)
+        mock_projects_class.assert_called_once()
         assert mock_projects_class.call_args.kwargs["client"] is not None
-
     else:
         mock_project_instance.get.assert_not_called()
+        # Projects class might still be instantiated by Stages() even if project_id is given,
+        # but its .get() method for name lookup shouldn't be called.
+        # If Stages always instantiates Projects, mock_projects_class might have been called.
+        # If Stages only instantiates Projects if project_name is used, then it wouldn't be called here.
+        # Based on stages.py _get_project_id, Projects() is only called if project_name is used.
+        # So, if not use_project_name, mock_projects_class should not have been called for name lookup.
+        # However, Stages() itself is always instantiated by get_stage().
+        # The mock_projects_class.assert_called_once() above for the use_project_name case is sufficient.
 
     mock_get_stage_api_sync.assert_called_once()
     api_call_args_func = mock_get_stage_api_sync.call_args.kwargs
     assert api_call_args_func["project_id"] == str(fixed_project_id)
     assert api_call_args_func["stage_id"] == (str(fixed_stage_id) if not use_stage_name else UNSET)
     assert api_call_args_func["stage_name"] == (fixed_stage_name if use_stage_name else UNSET)
-    # Client for API call comes from the internal Stages() instance.
+    # Client for API call comes from the internal Stages() instance created by get_stage()
+    assert api_call_args_func["client"] is not None
 
     assert isinstance(result_func, StageDB)
     assert result_func.project_id == str(fixed_project_id)
@@ -275,56 +241,54 @@ def test_get_stage_success(
 @patch("galileo.stages.Projects")
 def test_get_stage_api_validation_error(mock_projects_class: Mock, mock_get_stage_api_sync: Mock):
     test_project_id = uuid.uuid4()
-    test_stage_id = uuid.uuid4()  # Used when calling with project_id
+    test_stage_id = uuid.uuid4()
 
     error_detail = [{"loc": ["query", "stage_name"], "msg": "invalid name", "type": "value_error"}]
     validation_error = HTTPValidationError(detail=error_detail)
-    mock_get_stage_api_sync.return_value = validation_error
 
-    # Configure Projects mock even if not always used, to be safe
+    # Configure Projects mock for scenarios where project_name is used
     mock_project_instance = Mock(spec=Projects)
     mock_projects_class.return_value = mock_project_instance
     mock_project_data = Mock()
-    mock_project_data.id = test_project_id  # Ensure it resolves to the test_project_id if called
+    mock_project_data.id = test_project_id
     mock_project_instance.get.return_value = mock_project_data
 
-    # Test with Stages().get() - using project_id and stage_id
-    result_class_method = Stages().get(project_id=test_project_id, stage_id=test_stage_id)
-    assert isinstance(result_class_method, HTTPValidationError)
-    assert result_class_method.detail == error_detail
-    mock_get_stage_api_sync.assert_called_once()  # Ensure API was called
+    # Scenario 1: Test with top-level get_stage() using project_id and stage_id
+    mock_get_stage_api_sync.return_value = validation_error  # API call returns error
+
+    result_func_ids = get_stage(project_id=test_project_id, stage_id=test_stage_id)
+    assert isinstance(result_func_ids, HTTPValidationError)
+    assert result_func_ids.detail == error_detail
+    mock_get_stage_api_sync.assert_called_once_with(
+        project_id=str(test_project_id), stage_id=str(test_stage_id), stage_name=UNSET, client=ANY
+    )
     mock_project_instance.get.assert_not_called()  # Project name lookup not used
 
-    # Reset and test with top-level get_stage()
-    mock_get_stage_api_sync.reset_mock()
-    mock_projects_class.reset_mock()  # Reset class mock
-    mock_project_instance.reset_mock()  # Reset instance mock
-
-    # Reconfigure mocks
-    mock_get_stage_api_sync.return_value = validation_error
-    mock_projects_class.return_value = mock_project_instance  # Re-assign mock instance
-    mock_project_instance.get.return_value = mock_project_data  # Re-assign project data
-
-    result_func = get_stage(project_id=test_project_id, stage_id=test_stage_id)
-    assert isinstance(result_func, HTTPValidationError)
-    assert result_func.detail == error_detail
-    mock_get_stage_api_sync.assert_called_once()
-    mock_project_instance.get.assert_not_called()
-
-    # Test with project_name (should still hit the API validation error)
+    # Reset mocks for the next scenario
     mock_get_stage_api_sync.reset_mock()
     mock_projects_class.reset_mock()
     mock_project_instance.reset_mock()
 
-    mock_get_stage_api_sync.return_value = validation_error
+    # Reconfigure Projects mock for the project_name scenario
     mock_projects_class.return_value = mock_project_instance
-    mock_project_instance.get.return_value = mock_project_data  # Project lookup succeeds
+    mock_project_instance.get.return_value = mock_project_data
 
-    result_func_proj_name = get_stage(project_name="Test Project", stage_name="Invalid Stage")
-    assert isinstance(result_func_proj_name, HTTPValidationError)
-    assert result_func_proj_name.detail == error_detail
-    mock_project_instance.get.assert_called_once_with(name="Test Project")  # Project lookup used
-    mock_get_stage_api_sync.assert_called_once()  # API was called
+    # Scenario 2: Test with top-level get_stage() using project_name and stage_name
+    mock_get_stage_api_sync.return_value = validation_error  # API call returns error
+
+    result_func_names = get_stage(project_name="Test Project", stage_name="Invalid Stage")
+    assert isinstance(result_func_names, HTTPValidationError)
+    assert result_func_names.detail == error_detail
+
+    # Ensure project name lookup happened
+    mock_project_instance.get.assert_called_once_with(name="Test Project")
+    # Ensure API was called with resolved project_id and provided stage_name
+    mock_get_stage_api_sync.assert_called_once_with(
+        project_id=str(test_project_id),  # Resolved from project_name
+        stage_name="Invalid Stage",
+        stage_id=UNSET,
+        client=ANY,
+    )
 
 
 @pytest.mark.parametrize(
@@ -341,7 +305,7 @@ def test_get_stage_api_validation_error(mock_projects_class: Mock, mock_get_stag
 @patch("galileo.stages.Projects")
 def test_update_stage_success(
     mock_projects_class: Mock,
-    mock_stages_get: Mock,
+    mock_stages_get: Mock,  # This mock targets Stages.get, used by update_stage internally
     mock_update_stage_api_sync: Mock,
     use_project_name: bool,
     use_stage_name: bool,
@@ -353,33 +317,31 @@ def test_update_stage_success(
 
     input_rulesets = [Rule(metric="test_metric", operator=RuleOperator.GTE, target_value=10.0)]
 
-    # Mock for Projects().get()
+    # Mock for Projects().get() - used by _get_project_id if project_name is given
     mock_project_instance = Mock(spec=Projects)
     mock_projects_class.return_value = mock_project_instance
     mock_project_data = Mock()
     mock_project_data.id = fixed_project_id
     mock_project_instance.get.return_value = mock_project_data
 
-    # Mock for Stages().get() if stage_name is used for resolution
-    # This mock is for the Stages.get method itself, not the top-level get_stage function
+    # Mock for Stages().get() - used by _get_stage_id if stage_name is given
+    # This mock is for the Stages.get method itself, which is called by the Stages instance
+    # created within the top-level update_stage function.
     mock_stage_data_for_get = mock_stage_db_instance(
         project_id=fixed_project_id, name=fixed_stage_name, stage_type_val="local", paused=False
     )
     mock_stage_data_for_get.id = fixed_stage_id  # Ensure it resolves to the correct ID
     mock_stages_get.return_value = mock_stage_data_for_get
 
-    # Mock for the update API call
+    # Mock for the actual update API call (update_stage_projects_project_id_stages_stage_id_post.sync)
     expected_updated_stage_db = mock_stage_db_instance(
         project_id=fixed_project_id,
-        name=fixed_stage_name,  # Name usually doesn't change on ruleset update
+        name=fixed_stage_name,
         stage_type_val=StageType.LOCAL.value,
         paused=False,
         description="Updated stage",
-        version=2,  # Typically, an update creates a new version
+        version=2,
     )
-    # Ensure the returned mock has the updated rulesets if the API actually returns them
-    # For now, mock_stage_db_instance doesn't include rulesets in its direct output fields
-    # but the API call payload will have them.
     mock_update_stage_api_sync.return_value = expected_updated_stage_db
 
     call_kwargs = {"prioritized_rulesets": input_rulesets}
@@ -393,61 +355,21 @@ def test_update_stage_success(
     else:
         call_kwargs["stage_id"] = fixed_stage_id
 
-    # Test with Stages().update()
-    stages_instance = Stages()
-    # Configure the mock_stages_get to be the method of *this* stages_instance
-    # This is tricky because Stages.get is a method, not a free function.
-    # Patching 'galileo.stages.Stages.get' means any Stages instance will use the mock.
-
-    result_class_method = stages_instance.update(**call_kwargs)
-
-    if use_project_name:
-        mock_project_instance.get.assert_called_once_with(name=fixed_project_name)
-        mock_projects_class.assert_called_with(client=stages_instance.client)
-    else:
-        mock_project_instance.get.assert_not_called()
-
-    if use_stage_name:
-        # Stages.get should have been called by stages_instance.update
-        mock_stages_get.assert_called_once_with(project_id=str(fixed_project_id), stage_name=fixed_stage_name)
-    else:
-        mock_stages_get.assert_not_called()
-
-    mock_update_stage_api_sync.assert_called_once()
-    api_call_args = mock_update_stage_api_sync.call_args.kwargs
-    assert api_call_args["project_id"] == str(fixed_project_id)
-    assert api_call_args["stage_id"] == str(fixed_stage_id)
-    assert isinstance(api_call_args["body"], RulesetsMixin)
-    assert api_call_args["body"].prioritized_rulesets == input_rulesets
-    assert api_call_args["client"] == stages_instance.client
-
-    assert isinstance(result_class_method, StageDB)
-    assert result_class_method.project_id == str(fixed_project_id)
-    assert result_class_method.version == 2  # Check for updated version
-
-    # Reset mocks for top-level function call
-    mock_projects_class.reset_mock()
-    mock_project_instance.reset_mock()
-    mock_stages_get.reset_mock()
-    mock_update_stage_api_sync.reset_mock()
-
-    # Re-configure mocks for the new Stages() instance inside update_stage()
-    mock_projects_class.return_value = mock_project_instance
-    mock_project_instance.get.return_value = mock_project_data
-    # mock_stages_get is already patched on the class, so new instances will use it.
-    # We need to ensure it's configured for the next call if its state matters.
-    mock_stages_get.return_value = mock_stage_data_for_get  # Re-assign for clarity
-    mock_update_stage_api_sync.return_value = expected_updated_stage_db
-
     # Test with top-level update_stage()
+    # The direct test of Stages().update() is removed.
     result_func = update_stage(**call_kwargs)
 
+    # Assertions for mocks called by the top-level update_stage path
     if use_project_name:
         mock_project_instance.get.assert_called_once_with(name=fixed_project_name)
+        # Check that Projects was instantiated by the internal Stages()
+        mock_projects_class.assert_called_once()
+        assert mock_projects_class.call_args.kwargs["client"] is not None
     else:
         mock_project_instance.get.assert_not_called()
 
     if use_stage_name:
+        # Stages.get (mock_stages_get) should have been called by the internal _get_stage_id
         mock_stages_get.assert_called_once_with(project_id=str(fixed_project_id), stage_name=fixed_stage_name)
     else:
         mock_stages_get.assert_not_called()
@@ -455,9 +377,10 @@ def test_update_stage_success(
     mock_update_stage_api_sync.assert_called_once()
     api_call_args_func = mock_update_stage_api_sync.call_args.kwargs
     assert api_call_args_func["project_id"] == str(fixed_project_id)
-    assert api_call_args_func["stage_id"] == str(fixed_stage_id)
+    assert api_call_args_func["stage_id"] == str(fixed_stage_id)  # Resolved ID
     assert isinstance(api_call_args_func["body"], RulesetsMixin)
     assert api_call_args_func["body"].prioritized_rulesets == input_rulesets
+    assert api_call_args_func["client"] is not None  # Client from internal Stages() instance
 
     assert isinstance(result_func, StageDB)
     assert result_func.version == 2
@@ -475,67 +398,66 @@ def test_update_stage_api_validation_error(
 
     error_detail = [{"loc": ["body", "prioritized_rulesets"], "msg": "invalid ruleset", "type": "value_error"}]
     validation_error = HTTPValidationError(detail=error_detail)
-    mock_update_stage_api_sync.return_value = validation_error
 
-    # Configure Projects mock
+    # Configure Projects mock for name resolution
     mock_project_instance = Mock(spec=Projects)
     mock_projects_class.return_value = mock_project_instance
     mock_project_data = Mock()
     mock_project_data.id = test_project_id
     mock_project_instance.get.return_value = mock_project_data
 
-    # Configure Stages.get mock (for stage_id resolution if stage_name were used)
+    # Configure Stages.get mock for stage name resolution
     mock_stage_data_for_get = Mock()
     mock_stage_data_for_get.id = test_stage_id
     mock_stages_get.return_value = mock_stage_data_for_get
 
-    # Test with Stages().update() using project_id and stage_id
-    result_class_method = Stages().update(
+    # Scenario 1: Test with top-level update_stage() using project_id and stage_id
+    mock_update_stage_api_sync.return_value = validation_error  # API call returns error
+
+    result_func_ids = update_stage(
         project_id=test_project_id, stage_id=test_stage_id, prioritized_rulesets=input_rulesets
     )
-    assert isinstance(result_class_method, HTTPValidationError)
-    assert result_class_method.detail == error_detail
+    assert isinstance(result_func_ids, HTTPValidationError)
+    assert result_func_ids.detail == error_detail
+
     mock_update_stage_api_sync.assert_called_once()
+    api_call_args_ids = mock_update_stage_api_sync.call_args.kwargs
+    assert api_call_args_ids["project_id"] == str(test_project_id)
+    assert api_call_args_ids["stage_id"] == str(test_stage_id)
+    assert isinstance(api_call_args_ids["body"], RulesetsMixin)
+    assert api_call_args_ids["body"].prioritized_rulesets == input_rulesets
+
     mock_project_instance.get.assert_not_called()  # project_id provided
     mock_stages_get.assert_not_called()  # stage_id provided
 
-    # Reset and test with top-level update_stage()
+    # Reset mocks for the next scenario
     mock_update_stage_api_sync.reset_mock()
     mock_projects_class.reset_mock()
     mock_project_instance.reset_mock()
     mock_stages_get.reset_mock()
 
-    mock_update_stage_api_sync.return_value = validation_error
+    # Reconfigure mocks for name resolution
     mock_projects_class.return_value = mock_project_instance
     mock_project_instance.get.return_value = mock_project_data
     mock_stages_get.return_value = mock_stage_data_for_get
+    mock_update_stage_api_sync.return_value = validation_error  # API call returns error
 
-    result_func = update_stage(project_id=test_project_id, stage_id=test_stage_id, prioritized_rulesets=input_rulesets)
-    assert isinstance(result_func, HTTPValidationError)
-    assert result_func.detail == error_detail
-    mock_update_stage_api_sync.assert_called_once()
-    mock_project_instance.get.assert_not_called()
-    mock_stages_get.assert_not_called()
-
-    # Test with project_name and stage_name
-    mock_update_stage_api_sync.reset_mock()
-    mock_projects_class.reset_mock()
-    mock_project_instance.reset_mock()
-    mock_stages_get.reset_mock()
-
-    mock_update_stage_api_sync.return_value = validation_error
-    mock_projects_class.return_value = mock_project_instance
-    mock_project_instance.get.return_value = mock_project_data  # Project lookup succeeds
-    mock_stages_get.return_value = mock_stage_data_for_get  # Stage lookup by name succeeds
-
+    # Scenario 2: Test with top-level update_stage() using project_name and stage_name
     result_func_names = update_stage(
         project_name="Test Project", stage_name="Test Stage", prioritized_rulesets=input_rulesets
     )
     assert isinstance(result_func_names, HTTPValidationError)
     assert result_func_names.detail == error_detail
+
     mock_project_instance.get.assert_called_once_with(name="Test Project")
     mock_stages_get.assert_called_once_with(project_id=str(test_project_id), stage_name="Test Stage")
+
     mock_update_stage_api_sync.assert_called_once()
+    api_call_args_names = mock_update_stage_api_sync.call_args.kwargs
+    assert api_call_args_names["project_id"] == str(test_project_id)  # Resolved from project_name
+    assert api_call_args_names["stage_id"] == str(test_stage_id)  # Resolved from stage_name
+    assert isinstance(api_call_args_names["body"], RulesetsMixin)
+    assert api_call_args_names["body"].prioritized_rulesets == input_rulesets
 
 
 # --- Tests for pause_stage and resume_stage ---
@@ -603,53 +525,18 @@ def test_set_pause_state_success(
     else:
         call_kwargs["stage_id"] = fixed_stage_id
 
-    stages_instance = Stages()
-
-    action_func_class = stages_instance.pause if pause_flag_to_set else stages_instance.resume
     action_func_top_level = pause_stage if pause_flag_to_set else resume_stage
 
-    # Test with Stages().pause() or Stages().resume()
-    result_class_method = action_func_class(**call_kwargs)
-
-    if use_project_name:
-        mock_project_instance.get.assert_called_once_with(name=fixed_project_name)
-        mock_projects_class.assert_called_with(client=stages_instance.client)
-    else:
-        mock_project_instance.get.assert_not_called()
-
-    if use_stage_name:
-        mock_stages_get.assert_called_once_with(project_id=str(fixed_project_id), stage_name=fixed_stage_name)
-    else:
-        mock_stages_get.assert_not_called()
-
-    mock_pause_api_sync.assert_called_once()
-    api_call_args = mock_pause_api_sync.call_args.kwargs
-    assert api_call_args["project_id"] == str(fixed_project_id)
-    assert api_call_args["stage_id"] == str(fixed_stage_id)
-    assert api_call_args["pause"] == pause_flag_to_set
-    assert api_call_args["client"] == stages_instance.client
-
-    assert isinstance(result_class_method, StageDB)
-    assert result_class_method.paused == pause_flag_to_set
-    assert result_class_method.name == fixed_stage_name  # Ensure other details are preserved
-
-    # Reset mocks for top-level function call
-    mock_projects_class.reset_mock()
-    mock_project_instance.reset_mock()
-    mock_stages_get.reset_mock()
-    mock_pause_api_sync.reset_mock()
-
-    # Re-configure mocks
-    mock_projects_class.return_value = mock_project_instance
-    mock_project_instance.get.return_value = mock_project_data
-    mock_stages_get.return_value = mock_stage_data_for_get
-    mock_pause_api_sync.return_value = expected_api_result_stage_db
-
     # Test with top-level pause_stage() or resume_stage()
+    # The direct test of Stages().pause/resume() is removed.
     result_func = action_func_top_level(**call_kwargs)
 
+    # Assertions for mocks called by the top-level function path
     if use_project_name:
         mock_project_instance.get.assert_called_once_with(name=fixed_project_name)
+        # Ensure Projects class was instantiated by the top-level function (which creates a Stages instance)
+        mock_projects_class.assert_called_once()
+        assert mock_projects_class.call_args.kwargs["client"] is not None
     else:
         mock_project_instance.get.assert_not_called()
 
@@ -679,9 +566,8 @@ def test_set_pause_state_api_validation_error(
 
     error_detail = [{"loc": ["query", "pause"], "msg": "value could not be parsed", "type": "type_error.bool"}]
     validation_error = HTTPValidationError(detail=error_detail)
-    mock_pause_api_sync.return_value = validation_error
 
-    # Configure mocks for project/stage resolution, even if error happens at API level
+    # Configure mocks for project/stage resolution (used by _get_project_id and _get_stage_id)
     mock_project_instance = Mock(spec=Projects)
     mock_projects_class.return_value = mock_project_instance
     mock_project_data = Mock()
@@ -692,56 +578,47 @@ def test_set_pause_state_api_validation_error(
     mock_stage_data_for_get.id = test_stage_id
     mock_stages_get.return_value = mock_stage_data_for_get
 
-    # Test with Stages().pause()
-    stages_instance_pause = Stages()
-    result_class_pause = stages_instance_pause.pause(project_id=test_project_id, stage_id=test_stage_id)
-    assert isinstance(result_class_pause, HTTPValidationError)
-    assert result_class_pause.detail == error_detail
-    # Check that the API call was attempted with pause=True
-    mock_pause_api_sync.assert_called_with(
-        project_id=str(test_project_id), stage_id=str(test_stage_id), client=stages_instance_pause.client, pause=True
-    )
-
-    # Reset API mock for resume call
-    mock_pause_api_sync.reset_mock()
-    mock_pause_api_sync.return_value = validation_error  # Re-assign error
-
-    # Test with Stages().resume()
-    stages_instance_resume = Stages()
-    result_class_resume = stages_instance_resume.resume(project_id=test_project_id, stage_id=test_stage_id)
-    assert isinstance(result_class_resume, HTTPValidationError)
-    assert result_class_resume.detail == error_detail
-    # Check that the API call was attempted with pause=False
-    mock_pause_api_sync.assert_called_with(
-        project_id=str(test_project_id), stage_id=str(test_stage_id), client=stages_instance_resume.client, pause=False
-    )
-
-    # Test with top-level pause_stage()
-    mock_pause_api_sync.reset_mock()
-    mock_projects_class.reset_mock()
-    mock_project_instance.reset_mock()
-    mock_stages_get.reset_mock()
-
-    mock_pause_api_sync.return_value = validation_error
-    mock_projects_class.return_value = mock_project_instance
-    mock_project_instance.get.return_value = mock_project_data
-    mock_stages_get.return_value = mock_stage_data_for_get
+    # Scenario 1: Test with top-level pause_stage()
+    mock_pause_api_sync.return_value = validation_error  # API call returns error
 
     result_func_pause = pause_stage(project_id=test_project_id, stage_id=test_stage_id)
     assert isinstance(result_func_pause, HTTPValidationError)
     assert result_func_pause.detail == error_detail
+    # Check that the API call was attempted with pause=True
+    mock_pause_api_sync.assert_called_once_with(
+        project_id=str(test_project_id),
+        stage_id=str(test_stage_id),
+        client=ANY,  # Client from internal Stages() instance
+        pause=True,
+    )
+    # Ensure resolution mocks were not called if IDs were provided directly
+    mock_project_instance.get.assert_not_called()
+    mock_stages_get.assert_not_called()
 
-    # Test with top-level resume_stage()
+    # Reset mocks for the next scenario
     mock_pause_api_sync.reset_mock()
     mock_projects_class.reset_mock()
     mock_project_instance.reset_mock()
     mock_stages_get.reset_mock()
 
-    mock_pause_api_sync.return_value = validation_error
+    # Reconfigure mocks for name resolution if needed, and API error
     mock_projects_class.return_value = mock_project_instance
     mock_project_instance.get.return_value = mock_project_data
     mock_stages_get.return_value = mock_stage_data_for_get
+    mock_pause_api_sync.return_value = validation_error  # API call returns error
 
+    # Scenario 2: Test with top-level resume_stage()
     result_func_resume = resume_stage(project_id=test_project_id, stage_id=test_stage_id)
     assert isinstance(result_func_resume, HTTPValidationError)
     assert result_func_resume.detail == error_detail
+    # Check that the API call was attempted with pause=False
+    mock_pause_api_sync.assert_called_once_with(
+        project_id=str(test_project_id),
+        stage_id=str(test_stage_id),
+        client=ANY,  # Client from internal Stages() instance
+        pause=False,
+    )
+    mock_project_instance.get.assert_not_called()
+    mock_stages_get.assert_not_called()
+
+    # (Optional: Add scenarios testing with project_name/stage_name if desired, similar to other error tests)
