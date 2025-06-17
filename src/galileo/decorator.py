@@ -874,7 +874,7 @@ class GalileoDecorator:
 
     def start_session(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
-    ) -> None:
+    ) -> str:
         """
         Start a session in the active context logger instance.
 
@@ -882,8 +882,11 @@ class GalileoDecorator:
             name: The name of the session. If not provided, a session name will be generated automatically.
             previous_session_id: The id of the previous session. Defaults to None.
             external_id: The external id of the session. Defaults to None.
+
+        Returns:
+            str: The id of the newly created session.
         """
-        self.get_logger_instance().start_session(
+        return self.get_logger_instance().start_session(
             name=name, previous_session_id=previous_session_id, external_id=external_id
         )
 
@@ -893,7 +896,7 @@ class GalileoDecorator:
 
     def set_session(self, session_id: str) -> None:
         """
-        Set the session in the active context logger instance.
+        Set the session in the active context logger instance. This is useful when you want to continue logging to an existing session.
 
         Args:
             session_id: The id of the session to set.
