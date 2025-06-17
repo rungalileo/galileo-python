@@ -311,6 +311,49 @@ run_experiment(
 )
 ```
 
+### Sessions
+
+Sessions allow you to group related traces together. By default, a session is created for each trace and a session name is auto-generated. If you would like to override this, you can explicitly start a session:
+
+```python
+from galileo import GalileoLogger
+
+logger = GalileoLogger(project="gen-ai-project", log_stream="my-log-stream")
+session_id =logger.start_session(session_name="my-session-name")
+
+...
+
+logger.conclude()
+logger.flush()
+```
+
+You can continue a previous session by using the same session ID that was previously generated:
+
+```python
+from galileo import GalileoLogger
+
+logger = GalileoLogger(project="gen-ai-project", log_stream="my-log-stream")
+logger.set_session(session_id="123e4567-e89b-12d3-a456-426614174000")
+
+...
+
+logger.conclude()
+logger.flush()
+```
+
+All of this can also be done using the `galileo_context` context manager:
+
+```python
+from galileo import galileo_context
+
+session_id = galileo_context.start_session(session_name="my-session-name")
+
+# OR
+
+galileo_context.set_session(session_id=session_id)
+
+```
+
 ## Local Installation
 
 ### Pre-Requisites
@@ -323,39 +366,39 @@ run_experiment(
 
 1. Setup a virtual environment:
 
-    ```sh
-    pyenv install 3.10.13
-    pyenv local 3.10.13
-    ```
+   ```sh
+   pyenv install 3.10.13
+   pyenv local 3.10.13
+   ```
 
-    `poetry` will create a virtual environment using that Python version when it installs dependencies. You can validate that with:
+   `poetry` will create a virtual environment using that Python version when it installs dependencies. You can validate that with:
 
-    > **_NOTE:_** since The `shell` command was moved to a plugin: poetry-plugin-shell
-    > https://python-poetry.org/docs/cli/#shell
+   > **_NOTE:_** since The `shell` command was moved to a plugin: poetry-plugin-shell
+   > https://python-poetry.org/docs/cli/#shell
 
-    The easiest way to install the shell plugin is via the self add command of Poetry:
+   The easiest way to install the shell plugin is via the self add command of Poetry:
 
-    ```shell
-    poetry self add poetry-plugin-shell
-    ```
+   ```shell
+   poetry self add poetry-plugin-shell
+   ```
 
-    ```sh
-    poetry shell
-    poetry run python --version
-    ```
+   ```sh
+   poetry shell
+   poetry run python --version
+   ```
 
-    which should print out `Python 3.10.13`.
+   which should print out `Python 3.10.13`.
 
 1. Install dependencies and setup pre-commit hooks:
 
-    ```sh
-    pip3 install --upgrade invoke
-    inv setup
-    ```
+   ```sh
+   pip3 install --upgrade invoke
+   inv setup
+   ```
 
 1. Copy .env.example to .env and populate the values.
 
 ## Auto-generating the API client
 
-1. Run `./scripts/import_api_client.sh` to update the openapi.yml file with the latest
+1. Run `./scripts/import-openapi-yaml.sh <HOST_URL>` to update the openapi.yml file with the latest
 2. Run `./scripts/auto-generate-api-client.sh` to generate the API client
