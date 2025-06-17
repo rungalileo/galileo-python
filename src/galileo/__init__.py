@@ -8,6 +8,7 @@ from galileo.logger import GalileoLogger
 from galileo.resources.models.execution_status import ExecutionStatus
 from galileo.resources.models.stage_type import StageType
 from galileo.schema.message import Message
+from galileo.schema.metrics import GalileoScorers
 from galileo.stages import Stages
 from galileo_core.helpers.api_key import create_api_key, delete_api_key, list_api_keys
 from galileo_core.helpers.dependencies import is_dependency_available
@@ -16,4 +17,4 @@ from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, Span, Step
 from galileo_core.schemas.logging.step import StepType
 from galileo_core.schemas.logging.trace import Trace
 
-__version__ = "1.1.0"
+__version__ = "1.3.0"
