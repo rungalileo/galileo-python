@@ -9,11 +9,11 @@ Quick start
 ```python
 from galileo.otel import enable_tracing
 
-# 1️⃣  One‑liner to bootstrap tracing
+# One‑liner to bootstrap tracing
 enable_tracing(
     api_key="<YOUR_API_KEY>",
     project_name="my‑project",
-    logstream="jit‑experiment"
+    log_stream="my_log_stream"
 )
 
 
@@ -41,6 +41,7 @@ import sys
 from typing import Optional, TextIO, Union
 from urllib.parse import urlparse
 import importlib
+from uuid import UUID
 
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
@@ -86,7 +87,8 @@ def enable_tracing(
     *,
     api_key: str | None = None,
     project_name: str | None = None,
-    logstream: str | None = None,
+    log_stream: str | None = None,
+    session_id: str | UUID | None = None,
     console_url: str = "",
     auto_instrument: bool = True,
 ) -> None:
@@ -98,8 +100,12 @@ def enable_tracing(
         Your Galileo API key. If *None*, we fall back to ``GALILEO_API_KEY``.
     project_name
         Name of the Galileo project. Falls back to ``GALILEO_PROJECT``.
-    logstream
+    log_stream
         Run / log‑stream name shown in Galileo. Falls back to ``GALILEO_LOG_STREAM``.
+    session_id
+        A unique identifier for a session. If provided, all traces will be associated
+        with this session. Can be a ``str`` or a ``uuid.UUID`` object. Falls back to
+        ``GALILEO_SESSION_ID``.
     console_url
         Full console_url. Leave as default unless you run in a self hosted environment.
     auto_instrument
@@ -111,9 +117,10 @@ def enable_tracing(
     exporter = OTLPSpanExporter(endpoint=endpoint)
 
     # Compose Galileo auth / routing headers
+    session_id = session_id or os.getenv("GALILEO_SESSION_ID")
     api_key = api_key or os.getenv("GALILEO_API_KEY")
     project_name = project_name or os.getenv("GALILEO_PROJECT")
-    logstream = logstream or os.getenv("GALILEO_LOG_STREAM")
+    log_stream = log_stream or os.getenv("GALILEO_LOG_STREAM")
 
     if not api_key:
         raise ValueError(
@@ -123,16 +130,19 @@ def enable_tracing(
         raise ValueError(
             "Galileo project name missing – provide `project_name=` or set GALILEO_PROJECT env‑var"
         )
-    if not logstream:
+    if not log_stream:
         raise ValueError(
-            "Galileo logstream name missing – provide `logstream=` or set GALILEO_LOG_STREAM env‑var"
+            "Galileo log_stream name missing – provide `log_stream=` or set GALILEO_LOG_STREAM env‑var"
         )
 
     galileo_headers = {
         "Galileo-API-Key": api_key,
         "project": project_name,
-        "logstream": logstream,
+        "logstream": log_stream,
     }
+
+    if session_id:
+        galileo_headers["session_id"] = str(session_id)
 
     # Make headers discoverable for *other* OTLP aware libs
     os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(

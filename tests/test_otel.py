@@ -51,6 +51,7 @@ def clean_environment(monkeypatch):
         "GALILEO_API_KEY",
         "GALILEO_PROJECT",
         "GALILEO_LOG_STREAM",
+        "GALILEO_SESSION_ID",
         "OTEL_EXPORTER_OTLP_TRACES_HEADERS",
     ]
     for key in keys_to_clean:
@@ -65,21 +66,33 @@ def test_enable_tracing_with_params(
     enable_tracing(
         api_key="test_key",
         project_name="test_project",
-        logstream="test_logstream",
-        console_url="https://my-custom-endpoint.com/traces"
+        log_stream="test_logstream",
+        console_url="https://my-custom-endpoint.com/traces",
+        session_id="test_session_id",
     )
 
-    mock_otel_components["exporter"].assert_called_once_with(endpoint="my-custom-endpoint.com/traces")
-    
+    mock_otel_components["exporter"].assert_called_once_with(
+        endpoint="my-custom-endpoint.com/traces"
+    )
+
     assert "OTEL_EXPORTER_OTLP_TRACES_HEADERS" in os.environ
     headers = os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"]
     assert "Galileo-API-Key=test_key" in headers
     assert "project=test_project" in headers
     assert "logstream=test_logstream" in headers
+    assert "session_id=test_session_id" in headers
 
-    mock_otel_components["processor"].assert_called_once_with(mock_otel_components["exporter"].return_value)
-    mock_otel_components["provider"].return_value.add_span_processor.assert_called_once_with(mock_otel_components["processor"].return_value)
-    mock_otel_components["set_provider"].assert_called_once_with(mock_otel_components["provider"].return_value)
+    mock_otel_components["processor"].assert_called_once_with(
+        mock_otel_components["exporter"].return_value
+    )
+    mock_otel_components[
+        "provider"
+    ].return_value.add_span_processor.assert_called_once_with(
+        mock_otel_components["processor"].return_value
+    )
+    mock_otel_components["set_provider"].assert_called_once_with(
+        mock_otel_components["provider"].return_value
+    )
 
     assert mock_safe_instrument.call_count == 7
 
@@ -92,6 +105,7 @@ def test_enable_tracing_with_env_vars(
     monkeypatch.setenv("GALILEO_API_KEY", "env_key")
     monkeypatch.setenv("GALILEO_PROJECT", "env_project")
     monkeypatch.setenv("GALILEO_LOG_STREAM", "env_logstream")
+    monkeypatch.setenv("GALILEO_SESSION_ID", "env_session_id")
     monkeypatch.delenv("OTEL_EXPORTER_OTLP_TRACES_HEADERS", raising=False)
 
     enable_tracing(console_url="https://my-custom-endpoint.com/traces")
@@ -100,24 +114,27 @@ def test_enable_tracing_with_env_vars(
     assert "Galileo-API-Key=env_key" in headers
     assert "project=env_project" in headers
     assert "logstream=env_logstream" in headers
+    assert "session_id=env_session_id" in headers
 
 
 @patch("opentelemetry.exporter.otlp.proto.http.trace_exporter.OTLPSpanExporter")
 @patch("galileo.otel._set_destination", return_value="dummy_endpoint")
-def test_enable_tracing_missing_api_key(mock_set_destination, mock_exporter, clean_environment):
+def test_enable_tracing_missing_api_key(
+    mock_set_destination, mock_exporter, clean_environment
+):
     with pytest.raises(ValueError, match="Galileo API key missing"):
-        enable_tracing(project_name="p", logstream="l")
+        enable_tracing(project_name="p", log_stream="l")
 
 
 @patch("galileo.otel._set_destination", return_value="dummy_endpoint")
 def test_enable_tracing_missing_project_name(mock_set_destination, clean_environment):
     with pytest.raises(ValueError, match="Galileo project name missing"):
-        enable_tracing(api_key="key", logstream="l")
+        enable_tracing(api_key="key", log_stream="l")
 
 
 @patch("galileo.otel._set_destination", return_value="dummy_endpoint")
-def test_enable_tracing_missing_logstream(mock_set_destination, clean_environment):
-    with pytest.raises(ValueError, match="Galileo logstream name missing"):
+def test_enable_tracing_missing_log_stream(mock_set_destination, clean_environment):
+    with pytest.raises(ValueError, match="Galileo log_stream name missing"):
         enable_tracing(api_key="key", project_name="p")
 
 
@@ -129,10 +146,26 @@ def test_enable_tracing_no_auto_instrument(
     enable_tracing(
         api_key="test_key",
         project_name="test_project",
-        logstream="test_logstream",
-        auto_instrument=False
+        log_stream="test_logstream",
+        auto_instrument=False,
     )
     mock_safe_instrument.assert_not_called()
+
+
+@patch("galileo.otel._set_destination", return_value="my-custom-endpoint.com/traces")
+@patch("galileo.otel._safe_instrument")
+def test_enable_tracing_no_session_id(
+    mock_safe_instrument, mock_set_destination, mock_otel_components, clean_environment
+):
+    enable_tracing(
+        api_key="test_key",
+        project_name="test_project",
+        log_stream="test_logstream",
+    )
+
+    assert "OTEL_EXPORTER_OTLP_TRACES_HEADERS" in os.environ
+    headers = os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"]
+    assert "session_id" not in headers
 
 
 @pytest.mark.parametrize(
