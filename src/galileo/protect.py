@@ -1,53 +1,17 @@
-# NOTE dont need
-# from galileo_protect.health import healthcheck
-# NOTE used for the api_client, shouldn't need
-# from galileo_protect.schemas.config import ProtectConfig
-
-# TODO need to support?
-# from galileo_core.helpers.dependencies import is_dependency_available
-# if is_dependency_available("langchain_core"):
-#     from galileo_protect.langchain import ProtectParser, ProtectTool
-
-# TODO support
-# from galileo_protect.project import create_project, get_project, get_projects
-# from galileo_protect.stage import (
-#     create_stage,
-#     get_stage,
-#     pause_stage,
-#     resume_stage,
-#     update_stage,
-# )
-
-import logging
 from collections.abc import Sequence
 from typing import Optional, Union
 
 from pydantic import UUID4
 
 from galileo.base import BaseClientModel
-
-# from galileo_core.constants.request_method import RequestMethod
-# from galileo_protect.constants.invoke import TIMEOUT, TIMEOUT_MARGIN (used by ainvoke)
 from galileo.constants.protect import TIMEOUT
-
-# TODO async version? .. from galileo_protect.invocation import ainvoke
 from galileo.resources.api.protect import invoke_v2_protect_invoke_post
 from galileo.resources.models.invoke_response import InvokeResponse
 from galileo.resources.models.payload import Payload
 from galileo.resources.models.request import Request
 from galileo.resources.models.response import Response
-
-# from galileo.resources.models.rule_metrics import RuleMetrics # TODO missing?
 from galileo.resources.models.ruleset import Ruleset
-
-# from galileo.resources.models.stage import Stage # TODO missing
 from galileo.utils.catch_log import DecorateAllMethods
-
-_logger = logging.getLogger(__name__)
-
-
-# class InvokeAPIException(APIException):
-#     pass
 
 
 class Protect(BaseClientModel, DecorateAllMethods):
@@ -59,13 +23,13 @@ class Protect(BaseClientModel, DecorateAllMethods):
         project_name: Optional[str] = None,
         stage_id: Optional[UUID4] = None,
         stage_name: Optional[str] = None,
-        stage_version: Optional[int] = None,  # Added stage_version
+        stage_version: Optional[int] = None,
         timeout: float = TIMEOUT,
         metadata: Optional[dict[str, str]] = None,
         headers: Optional[dict[str, str]] = None,
         # TODO only ever Response due to InvokeResponse being a superset and the way from_dict works
-        # However if we want parity with 1.0 (and maybe with swagger docs?) this should just be Response
-        # Also if we never actually return InvokeResponse here why bother with it?
+        # However if we want parity with 1.0 this should just be Response
+        # Also if we never actually return InvokeResponse here, why mention it?
     ) -> Union[Response, InvokeResponse]:
         """
         Calls invoke api.
@@ -90,7 +54,7 @@ class Protect(BaseClientModel, DecorateAllMethods):
             project_name=project_name,
             stage_id=str(stage_id) if stage_id is not None else None,
             stage_name=stage_name,
-            stage_version=stage_version,  # Pass stage_version
+            stage_version=stage_version,
             timeout=timeout,
             metadata=metadata,
             headers=headers,
@@ -107,7 +71,7 @@ def invoke(
     project_name: Optional[str] = None,
     stage_id: Optional[UUID4] = None,
     stage_name: Optional[str] = None,
-    stage_version: Optional[int] = None,  # Added stage_version
+    stage_version: Optional[int] = None,
     timeout: float = TIMEOUT,
     metadata: Optional[dict[str, str]] = None,
     headers: Optional[dict[str, str]] = None,
@@ -155,8 +119,8 @@ def invoke(
         project_name=project_name,
         stage_id=stage_id,
         stage_name=stage_name,
-        stage_version=stage_version,  # Pass stage_version
-        timeout=timeout,  # Pass timeout
+        stage_version=stage_version,
+        timeout=timeout,
         metadata=metadata,
         headers=headers,
     )

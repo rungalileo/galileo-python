@@ -2,12 +2,13 @@ from typing import Optional, Union
 
 from pydantic import UUID4
 
+from galileo.api_client import GalileoApiClient
 from galileo.base import BaseClientModel
 from galileo.projects import Projects
 from galileo.resources.api.protect import (
     create_stage_v2_projects_project_id_stages_post,
     get_stage_projects_project_id_stages_get,
-    pause_stage_projects_project_id_stages_stage_id_put,  # Added for pause/resume
+    pause_stage_projects_project_id_stages_stage_id_put,
     update_stage_projects_project_id_stages_stage_id_post,
 )
 from galileo.resources.models import RulesetsMixin, StageDB, StageWithRulesets
@@ -15,31 +16,51 @@ from galileo.resources.models.rule import Rule
 from galileo.resources.models.stage_type import StageType
 from galileo.resources.types import UNSET
 from galileo.utils.catch_log import DecorateAllMethods
-from galileo.utils.exceptions import APIException
 from galileo_core.utils.name import ts_name
 
 
-class StageAPIException(APIException):
-    """Custom exception for Stage API errors."""
+def _get_project_id(
+    project_id: Optional[Union[str, UUID4]] = None,
+    project_name: Optional[str] = None,
+    client: Optional[GalileoApiClient] = None,
+) -> Optional[str]:
+    """
+    Helper function to resolve project ID from either project_id or project_name.
+    """
+    if project_id:
+        return str(project_id)
+    elif project_name:
+        project = Projects(client=client).get(name=project_name)
+        if not project:
+            raise ValueError(f"Project with name '{project_name}' not found.")
+        return str(project.id)
+    else:
+        raise ValueError("Either project_id or project_name must be provided.")
 
-    pass
 
-
-# class Stage(BaseClientModel):
-#     """
-#     Represents a single Stage instance.
-#     Provides methods to interact with a specific stage.
-#     """
-#     _stage_db: StageDB
-#
-#     def __init__(self, stage_db: StageDB, client: Optional[GalileoApiClient] = None) -> None:
-#         super().__init__(client=client)
-#         self._stage_db = stage_db
+def _get_stage_id(
+    stage_id: Optional[Union[str, UUID4]] = None,
+    stage_name: Optional[str] = None,
+    project_id: Optional[Union[str, UUID4]] = None,
+    client: Optional[GalileoApiClient] = None,
+) -> Optional[str]:
+    """
+    Helper function to resolve stage ID from either stage_id or stage_name.
+    If stage_name is provided, it will look up the stage within the specified project.
+    """
+    if stage_id:
+        return str(stage_id)
+    elif stage_name:
+        stage = Stages(client=client).get(project_id=project_id, stage_name=stage_name)
+        if not stage:
+            raise ValueError(f"Stage with name '{stage_name}' not found.")
+        return str(stage.id)
+    else:
+        raise ValueError("Either stage_id or stage_name must be provided.")
 
 
 class Stages(BaseClientModel, DecorateAllMethods):
     """
-    Manages collections of Stages.
     Provides methods to create, retrieve, update, pause, and resume stages.
     """
 
@@ -67,7 +88,6 @@ class Stages(BaseClientModel, DecorateAllMethods):
             A Stage instance representing the newly created stage.
 
         Raises:
-            StageAPIException: If the API call fails.
             ValueError: If project_id is not provided.
         """
         if not project_id:
@@ -110,29 +130,17 @@ class Stages(BaseClientModel, DecorateAllMethods):
             A StageDB instance representing the fetched stage.
 
         Raises:
-            StageAPIException: If the API call fails.
             ValueError: If project identifiers or stage identifiers are insufficient or ambiguous.
         """
-        actual_project_id_str: Optional[str] = None
-        if project_id:
-            actual_project_id_str = str(project_id)
-        elif project_name:
-            project_obj = Projects(client=self.client).get(name=project_name)
-            if not project_obj:
-                raise ValueError(f"Project with name '{project_name}' not found.")
-            actual_project_id_str = str(project_obj.id)
-        else:
-            raise ValueError("Either project_id or project_name must be provided.")
+        actual_project_id: Optional[str] = _get_project_id(
+            project_id=project_id, project_name=project_name, client=self.client
+        )
 
         if not stage_id and not stage_name:
             raise ValueError("Either stage_id or stage_name must be provided.")
-        if stage_id and stage_name:
-            # Allowing both might be ambiguous depending on API; for now, let API handle or prefer ID
-            # Or raise ValueError("Provide either stage_id or stage_name, not both.")
-            pass  # Preferring ID if both are passed, by passing both to API client
 
         response = get_stage_projects_project_id_stages_get.sync(
-            project_id=actual_project_id_str,
+            project_id=actual_project_id,
             stage_id=str(stage_id) if stage_id else UNSET,
             stage_name=stage_name if stage_name else UNSET,
             client=self.client,
@@ -162,37 +170,21 @@ class Stages(BaseClientModel, DecorateAllMethods):
             A StageDB instance representing the updated stage.
 
         Raises:
-            StageAPIException: If the API call fails.
             ValueError: If project/stage identifiers are insufficient or the stage is not found.
         """
-        actual_project_id_str: Optional[str] = None
-        if project_id:
-            actual_project_id_str = str(project_id)
-        elif project_name:
-            project_obj = Projects(client=self.client).get(name=project_name)
-            if not project_obj:
-                raise ValueError(f"Project with name '{project_name}' not found.")
-            actual_project_id_str = str(project_obj.id)
-        else:
-            raise ValueError("Either project_id or project_name must be provided.")
+        actual_project_id: Optional[str] = _get_project_id(
+            project_id=project_id, project_name=project_name, client=self.client
+        )
 
-        actual_stage_id_str: Optional[str] = None
-        if stage_id:
-            actual_stage_id_str = str(stage_id)
-        elif stage_name:
-            # Use self.get() to resolve stage_name to stage_id
-            # self.get() itself requires project_id or project_name, which we've resolved to actual_project_id_str
-            stage_to_update = self.get(project_id=actual_project_id_str, stage_name=stage_name)
-            # self.get will raise ValueError if stage not found by name, or StageAPIException for API issues
-            actual_stage_id_str = str(stage_to_update.id)
-        else:
-            raise ValueError("Either stage_id or stage_name must be provided.")
+        actual_stage_id: Optional[str] = _get_stage_id(
+            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, client=self.client
+        )
 
-        rulesets_to_send = prioritized_rulesets if prioritized_rulesets is not None else []
-        payload = RulesetsMixin(prioritized_rulesets=rulesets_to_send)
+        rulesets = prioritized_rulesets if prioritized_rulesets is not None else []
+        payload = RulesetsMixin(prioritized_rulesets=rulesets)
 
         response = update_stage_projects_project_id_stages_stage_id_post.sync(
-            project_id=actual_project_id_str, stage_id=actual_stage_id_str, client=self.client, body=payload
+            project_id=actual_project_id, stage_id=actual_stage_id, client=self.client, body=payload
         )
         return response
 
@@ -205,28 +197,16 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
     ) -> StageDB:
         """Internal method to set the pause state of a stage."""
-        actual_project_id_str: Optional[str] = None
-        if project_id:
-            actual_project_id_str = str(project_id)
-        elif project_name:
-            project_obj = Projects(client=self.client).get(name=project_name)
-            if not project_obj:
-                raise ValueError(f"Project with name '{project_name}' not found.")
-            actual_project_id_str = str(project_obj.id)
-        else:
-            raise ValueError("Either project_id or project_name must be provided.")
+        actual_project_id: Optional[str] = _get_project_id(
+            project_id=project_id, project_name=project_name, client=self.client
+        )
 
-        actual_stage_id_str: Optional[str] = None
-        if stage_id:
-            actual_stage_id_str = str(stage_id)
-        elif stage_name:
-            stage_to_update = self.get(project_id=actual_project_id_str, stage_name=stage_name)
-            actual_stage_id_str = str(stage_to_update.id)
-        else:
-            raise ValueError("Either stage_id or stage_name must be provided.")
+        actual_stage_id: Optional[str] = _get_stage_id(
+            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, client=self.client
+        )
 
         response = pause_stage_projects_project_id_stages_stage_id_put.sync(
-            project_id=actual_project_id_str, stage_id=actual_stage_id_str, client=self.client, pause=pause_flag
+            project_id=actual_project_id, stage_id=actual_stage_id, client=self.client, pause=pause_flag
         )
         return response
 

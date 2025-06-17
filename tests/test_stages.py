@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import pytest
 from pydantic import UUID4
 
-from galileo.projects import Projects  # Added for mocking
+from galileo.projects import Projects
 from galileo.resources.models import HTTPValidationError, Rule, RuleOperator, RulesetsMixin, StageDB, StageWithRulesets
 from galileo.resources.models.stage_type import StageType
 from galileo.resources.types import UNSET
@@ -60,52 +60,49 @@ def mock_stage_db_instance(
     )
 
 
-@pytest.mark.parametrize("input_name, expected_name_in_payload_type", [(None, str), ("My Specific Stage", str)])
+@pytest.mark.parametrize("name", [None, "my stage"])
 @pytest.mark.parametrize(
-    "input_stage_type, expected_stage_type_val",
-    [(None, StageType.LOCAL.value), (StageType.CENTRAL, StageType.CENTRAL.value)],
+    "stage_type, expected_stage_type_val", [(None, StageType.LOCAL.value), (StageType.CENTRAL, StageType.CENTRAL.value)]
 )
-@pytest.mark.parametrize("input_pause", [True, False])
-@pytest.mark.parametrize(
-    "input_rulesets", [None, [Rule(metric="placeholder_metric", operator=RuleOperator.EQ, target_value="target")]]
-)
-@pytest.mark.parametrize("input_description", [None, "A test stage description"])
+@pytest.mark.parametrize("paused", [True, False])
+@pytest.mark.parametrize("rulesets", [None, [Rule(metric="metric", operator=RuleOperator.EQ, target_value="target")]])
+@pytest.mark.parametrize("description", [None, "my description"])
 @patch("galileo.stages.create_stage_v2_projects_project_id_stages_post.sync")
 @patch("galileo.stages.ts_name")
 def test_create_stage_success(
     mock_ts_name: Mock,
     mock_api_sync: Mock,
-    input_name: Optional[str],
-    expected_name_in_payload_type: type,
-    input_stage_type: Optional[StageType],
+    name: Optional[str],
+    stage_type: Optional[StageType],
     expected_stage_type_val: str,
-    input_pause: bool,
-    input_rulesets: Optional[list[Rule]],
-    input_description: Optional[str],
+    paused: bool,
+    rulesets: Optional[list[Rule]],
+    description: Optional[str],
 ):
     test_project_id = uuid.uuid4()
     default_ts_name = "stage_default_ts_name"
     mock_ts_name.return_value = default_ts_name
 
-    effective_name = input_name or default_ts_name
+    effective_name = name or default_ts_name
 
     mock_api_sync.return_value = mock_stage_db_instance(
         project_id=test_project_id,
         name=effective_name,
         stage_type_val=expected_stage_type_val,
-        paused=input_pause,
-        description=input_description,
+        paused=paused,
+        description=description,
     )
 
-    args = {"project_id": test_project_id, "pause": input_pause}
-    if input_name is not None:
-        args["name"] = input_name
-    if input_stage_type is not None:
-        args["stage_type"] = input_stage_type
-    if input_rulesets is not None:
-        args["rulesets"] = input_rulesets
-    if input_description is not None:
-        args["description"] = input_description
+    # create stage
+    args = {"project_id": test_project_id, "pause": paused}
+    if name is not None:
+        args["name"] = name
+    if stage_type is not None:
+        args["stage_type"] = stage_type
+    if rulesets is not None:
+        args["rulesets"] = rulesets
+    if description is not None:
+        args["description"] = description
 
     result = create_stage(**args)
 
@@ -113,36 +110,38 @@ def test_create_stage_success(
     call_args = mock_api_sync.call_args
     assert call_args.kwargs["project_id"] == str(test_project_id)
 
+    # assert payload
     payload_sent: StageWithRulesets = call_args.kwargs["body"]
-    assert isinstance(payload_sent.name, expected_name_in_payload_type)
-    if input_name:
-        assert payload_sent.name == input_name
+    assert isinstance(payload_sent.name, str)
+    if name:
+        assert payload_sent.name == name
     else:
-        assert payload_sent.name == default_ts_name  # Check ts_name was used
+        assert payload_sent.name == default_ts_name
         mock_ts_name.assert_called_once_with("stage")
 
     assert payload_sent.project_id == str(test_project_id)
     assert payload_sent.type_ == expected_stage_type_val
-    assert payload_sent.paused == input_pause
-    if input_description is None:
+    assert payload_sent.paused == paused
+    if description is None:
         assert payload_sent.description is UNSET
     else:
-        assert payload_sent.description == input_description
-    if input_rulesets is None:
+        assert payload_sent.description == description
+    if rulesets is None:
         assert payload_sent.prioritized_rulesets is UNSET
     else:
-        assert payload_sent.prioritized_rulesets == input_rulesets
+        assert payload_sent.prioritized_rulesets == rulesets
 
+    # assert result
     assert isinstance(result, StageDB)
     assert result.id is not None
     assert result.name == effective_name
     assert result.project_id == str(test_project_id)
     assert result.type_ == expected_stage_type_val
-    assert result.paused == input_pause
-    if input_description is None:
+    assert result.paused == paused
+    if description is None:
         assert result.description is UNSET
     else:
-        assert result.description == input_description
+        assert result.description == description
 
 
 @patch("galileo.stages.create_stage_v2_projects_project_id_stages_post.sync")
@@ -165,25 +164,13 @@ def test_create_stage_api_validation_error(mock_api_sync: Mock):
     assert result_func.detail == error_detail
 
 
-# --- Tests for get_stage ---
-
-
 @pytest.mark.parametrize(
-    "use_project_name, use_stage_name",
-    [
-        (False, False),  # project_id, stage_id
-        (False, True),  # project_id, stage_name
-        (True, False),  # project_name, stage_id
-        (True, True),  # project_name, stage_name
-    ],
+    "use_project_name, use_stage_name", [(False, False), (False, True), (True, False), (True, True)]
 )
 @patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
-@patch("galileo.stages.Projects")  # Patch the Projects class used in stages.py
+@patch("galileo.stages.Projects")
 def test_get_stage_success(
-    mock_projects_class: Mock,  # Mock for the Projects class itself
-    mock_get_stage_api_sync: Mock,  # Mock for the stage API client
-    use_project_name: bool,
-    use_stage_name: bool,
+    mock_projects_class: Mock, mock_get_stage_api_sync: Mock, use_project_name: bool, use_stage_name: bool
 ):
     fixed_project_id = uuid.uuid4()
     fixed_project_name = "Test Project"

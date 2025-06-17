@@ -1,20 +1,14 @@
 from typing import Optional
-from unittest.mock import (
-    ANY,  # For client assertion
-    Mock,
-    patch,
-)
+from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
 
 from pytest import mark
 
 from galileo.protect import Protect, invoke
 from galileo.resources.models.execution_status import ExecutionStatus
-
-# from galileo.resources.models.invoke_response import InvokeRespons
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.payload import Payload
-from galileo.resources.models.request import Request  # For constructing expected body
+from galileo.resources.models.request import Request
 from galileo.resources.models.response import Response
 
 A_PROJECT_NAME = "project_name"
@@ -89,62 +83,58 @@ def invoke_response() -> Response:
 @mark.parametrize("timeout", [5, 60])
 @mark.parametrize("metadata", [None, {"key": "value"}])
 @mark.parametrize("headers", [None, {"key": "value"}])
-@mark.parametrize("stage_version", [None, 1, 2])  # Added stage_version parametrization
+@mark.parametrize("stage_version", [None, 1, 2])
 @patch("galileo.protect.invoke_v2_protect_invoke_post.sync")
-def test_invoke_succeess(
+def test_invoke_success(
     mock_invoke_post_sync: Mock,
     include_project_id: bool,
     include_project_name: bool,
     include_stage_name: bool,
     include_stage_id: bool,
     payload: Payload,
-    # rulesets: list[Ruleset], # This is not parametrized directly, but used in invoke call
     timeout: float,
     metadata: dict,
     headers: dict,
-    stage_version: Optional[int],  # Added stage_version parameter
+    stage_version: Optional[int],
 ) -> None:
     mock_invoke_post_sync.return_value = invoke_response()
 
-    current_project_id_obj = uuid4() if include_project_id else None
-    current_project_name_str = A_PROJECT_NAME if include_project_name else None  # Added for clarity
-    current_stage_id_obj = uuid4() if include_stage_id else None
-    current_stage_name_str = A_STAGE_NAME if include_stage_name else None
+    current_project_id = uuid4() if include_project_id else None
+    current_project_name = A_PROJECT_NAME if include_project_name else None
+    current_stage_id = uuid4() if include_stage_id else None
+    current_stage_name = A_STAGE_NAME if include_stage_name else None
 
     result = invoke(
         payload=payload,
-        prioritized_rulesets=None,  # Using None for this test's focus
-        project_id=current_project_id_obj,
-        project_name=current_project_name_str,
-        stage_id=current_stage_id_obj,
-        stage_name=current_stage_name_str,
+        prioritized_rulesets=None,
+        project_id=current_project_id,
+        project_name=current_project_name,
+        stage_id=current_stage_id,
+        stage_name=current_stage_name,
         stage_version=stage_version,
         timeout=timeout,
         metadata=metadata,
         headers=headers,
     )
 
-    # Construct expected_body based on how Protect.invoke creates its Request object
-    expected_project_id_val = str(current_project_id_obj) if current_project_id_obj else None
-    expected_stage_id_val = str(current_stage_id_obj) if current_stage_id_obj else None
+    expected_project_id = str(current_project_id) if current_project_id else None
+    expected_stage_id = str(current_stage_id) if current_stage_id else None
 
     expected_body = Request(
         payload=payload,
-        prioritized_rulesets=[],  # invoke method passes `prioritized_rulesets or []`
-        project_id=expected_project_id_val,
-        project_name=current_project_name_str,  # Passed as is (can be None)
-        stage_id=expected_stage_id_val,
-        stage_name=current_stage_name_str,  # Passed as is (can be None)
-        stage_version=stage_version,  # Passed as is (can be None)
-        timeout=timeout,  # Passed as is (has a default in invoke signature)
-        metadata=metadata,  # Passed as is (can be None)
-        headers=headers,  # Passed as is (can be None)
+        prioritized_rulesets=[],
+        project_id=expected_project_id,
+        project_name=current_project_name,
+        stage_id=expected_stage_id,
+        stage_name=current_stage_name,
+        stage_version=stage_version,
+        timeout=timeout,
+        metadata=metadata,
+        headers=headers,
     )
 
     mock_invoke_post_sync.assert_called_once_with(client=ANY, body=expected_body)
 
-    # TODO fix support for InvokeResponse if we can fix the generated response type parsing while not breaking 1.0 docs functionality
-    # maybe we need a discriminator field in the response model or something?
     assert isinstance(result, Response)
 
     response_data = invoke_response_data()
@@ -167,11 +157,11 @@ def test_invoke_api_validation_error(mock_invoke_post_sync: Mock):
 
     result = invoke(payload=payload)
     assert isinstance(result, HTTPValidationError)
-    assert result.detail[0]["msg"] == "Field required"  # Corrected to use dictionary access
+    assert result.detail[0]["msg"] == "Field required"
 
     mock_invoke_post_sync.reset_mock()
     mock_invoke_post_sync.return_value = validation_error
 
     class_method_result = Protect().invoke(payload=payload)
     assert isinstance(class_method_result, HTTPValidationError)
-    assert class_method_result.detail[0]["msg"] == "Field required"  # Corrected to use dictionary access
+    assert class_method_result.detail[0]["msg"] == "Field required"
