@@ -31,7 +31,12 @@ class LogRecordsIDFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"column_id": column_id, "value": value})
+        field_dict.update(
+            {
+                "column_id": column_id,
+                "value": value,
+            }
+        )
         if type_ is not UNSET:
             field_dict["type"] = type_
 
@@ -48,7 +53,11 @@ class LogRecordsIDFilter:
         if type_ != "id" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'id', got '{type_}'")
 
-        log_records_id_filter = cls(column_id=column_id, value=value, type_=type_)
+        log_records_id_filter = cls(
+            column_id=column_id,
+            value=value,
+            type_=type_,
+        )
 
         log_records_id_filter.additional_properties = d
         return log_records_id_filter

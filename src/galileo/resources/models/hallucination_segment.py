@@ -35,7 +35,13 @@ class HallucinationSegment:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"end": end, "hallucination": hallucination, "start": start})
+        field_dict.update(
+            {
+                "end": end,
+                "hallucination": hallucination,
+                "start": start,
+            }
+        )
         if hallucination_severity is not UNSET:
             field_dict["hallucination_severity"] = hallucination_severity
 
@@ -53,7 +59,10 @@ class HallucinationSegment:
         hallucination_severity = d.pop("hallucination_severity", UNSET)
 
         hallucination_segment = cls(
-            end=end, hallucination=hallucination, start=start, hallucination_severity=hallucination_severity
+            end=end,
+            hallucination=hallucination,
+            start=start,
+            hallucination_severity=hallucination_severity,
         )
 
         hallucination_segment.additional_properties = d

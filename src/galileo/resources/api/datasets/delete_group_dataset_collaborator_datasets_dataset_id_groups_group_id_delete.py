@@ -9,8 +9,14 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(dataset_id: str, group_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/datasets/{dataset_id}/groups/{group_id}"}
+def _get_kwargs(
+    dataset_id: str,
+    group_id: str,
+) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {
+        "method": "delete",
+        "url": f"/datasets/{dataset_id}/groups/{group_id}",
+    }
 
     return _kwargs
 
@@ -43,7 +49,10 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str, group_id: str, *, client: AuthenticatedClient
+    dataset_id: str,
+    group_id: str,
+    *,
+    client: AuthenticatedClient,
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Group Dataset Collaborator
 
@@ -61,61 +70,23 @@ def sync_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, group_id=group_id)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        group_id=group_id,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
-
-    return _build_response(client=client, response=response)
-
-
-def sync(dataset_id: str, group_id: str, *, client: AuthenticatedClient) -> Optional[Union[Any, HTTPValidationError]]:
-    """Delete Group Dataset Collaborator
-
-     Remove a group's access to a dataset.
-
-    Args:
-        dataset_id (str):
-        group_id (str):
-
-    Raises:
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
-
-    Returns:
-        Union[Any, HTTPValidationError]
-    """
-
-    return sync_detailed(dataset_id=dataset_id, group_id=group_id, client=client).parsed
-
-
-async def asyncio_detailed(
-    dataset_id: str, group_id: str, *, client: AuthenticatedClient
-) -> Response[Union[Any, HTTPValidationError]]:
-    """Delete Group Dataset Collaborator
-
-     Remove a group's access to a dataset.
-
-    Args:
-        dataset_id (str):
-        group_id (str):
-
-    Raises:
-        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException: If the request takes longer than Client.timeout.
-
-    Returns:
-        Response[Union[Any, HTTPValidationError]]
-    """
-
-    kwargs = _get_kwargs(dataset_id=dataset_id, group_id=group_id)
-
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    dataset_id: str, group_id: str, *, client: AuthenticatedClient
+def sync(
+    dataset_id: str,
+    group_id: str,
+    *,
+    client: AuthenticatedClient,
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Group Dataset Collaborator
 
@@ -133,4 +104,71 @@ async def asyncio(
         Union[Any, HTTPValidationError]
     """
 
-    return (await asyncio_detailed(dataset_id=dataset_id, group_id=group_id, client=client)).parsed
+    return sync_detailed(
+        dataset_id=dataset_id,
+        group_id=group_id,
+        client=client,
+    ).parsed
+
+
+async def asyncio_detailed(
+    dataset_id: str,
+    group_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Response[Union[Any, HTTPValidationError]]:
+    """Delete Group Dataset Collaborator
+
+     Remove a group's access to a dataset.
+
+    Args:
+        dataset_id (str):
+        group_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[Union[Any, HTTPValidationError]]
+    """
+
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        group_id=group_id,
+    )
+
+    response = await client.get_async_httpx_client().request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    dataset_id: str,
+    group_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Optional[Union[Any, HTTPValidationError]]:
+    """Delete Group Dataset Collaborator
+
+     Remove a group's access to a dataset.
+
+    Args:
+        dataset_id (str):
+        group_id (str):
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Union[Any, HTTPValidationError]
+    """
+
+    return (
+        await asyncio_detailed(
+            dataset_id=dataset_id,
+            group_id=group_id,
+            client=client,
+        )
+    ).parsed

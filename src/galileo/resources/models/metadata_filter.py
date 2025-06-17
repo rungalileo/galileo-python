@@ -46,7 +46,13 @@ class MetadataFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"key": key, "operator": operator, "value": value})
+        field_dict.update(
+            {
+                "key": key,
+                "operator": operator,
+                "value": value,
+            }
+        )
         if filter_type is not UNSET:
             field_dict["filter_type"] = filter_type
         if name is not UNSET:
@@ -82,7 +88,13 @@ class MetadataFilter:
         if name != "metadata" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'metadata', got '{name}'")
 
-        metadata_filter = cls(key=key, operator=operator, value=value, filter_type=filter_type, name=name)
+        metadata_filter = cls(
+            key=key,
+            operator=operator,
+            value=value,
+            filter_type=filter_type,
+            name=name,
+        )
 
         metadata_filter.additional_properties = d
         return metadata_filter

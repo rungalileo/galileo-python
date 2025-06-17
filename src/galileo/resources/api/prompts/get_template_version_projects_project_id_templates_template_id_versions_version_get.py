@@ -10,7 +10,11 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(project_id: str, template_id: str, version: int) -> dict[str, Any]:
+def _get_kwargs(
+    project_id: str,
+    template_id: str,
+    version: int,
+) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": "get",
         "url": f"/projects/{project_id}/templates/{template_id}/versions/{version}",
@@ -48,7 +52,11 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, template_id: str, version: int, *, client: AuthenticatedClient
+    project_id: str,
+    template_id: str,
+    version: int,
+    *,
+    client: AuthenticatedClient,
 ) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     """Get Template Version
 
@@ -60,8 +68,8 @@ def sync_detailed(
         Template ID.
     version : int
         Version number to fetch.
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context)
 
     Returns
     -------
@@ -81,15 +89,25 @@ def sync_detailed(
         Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        template_id=template_id,
+        version=version,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, template_id: str, version: int, *, client: AuthenticatedClient
+    project_id: str,
+    template_id: str,
+    version: int,
+    *,
+    client: AuthenticatedClient,
 ) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     """Get Template Version
 
@@ -101,8 +119,8 @@ def sync(
         Template ID.
     version : int
         Version number to fetch.
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context)
 
     Returns
     -------
@@ -122,11 +140,20 @@ def sync(
         Union[BasePromptTemplateVersionResponse, HTTPValidationError]
     """
 
-    return sync_detailed(project_id=project_id, template_id=template_id, version=version, client=client).parsed
+    return sync_detailed(
+        project_id=project_id,
+        template_id=template_id,
+        version=version,
+        client=client,
+    ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, template_id: str, version: int, *, client: AuthenticatedClient
+    project_id: str,
+    template_id: str,
+    version: int,
+    *,
+    client: AuthenticatedClient,
 ) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     """Get Template Version
 
@@ -138,8 +165,8 @@ async def asyncio_detailed(
         Template ID.
     version : int
         Version number to fetch.
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context)
 
     Returns
     -------
@@ -159,7 +186,11 @@ async def asyncio_detailed(
         Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        template_id=template_id,
+        version=version,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -167,7 +198,11 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, template_id: str, version: int, *, client: AuthenticatedClient
+    project_id: str,
+    template_id: str,
+    version: int,
+    *,
+    client: AuthenticatedClient,
 ) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     """Get Template Version
 
@@ -179,8 +214,8 @@ async def asyncio(
         Template ID.
     version : int
         Version number to fetch.
-    db_read : Session, optional
-        Database session, by default Depends(get_db_read)
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context)
 
     Returns
     -------
@@ -201,5 +236,10 @@ async def asyncio(
     """
 
     return (
-        await asyncio_detailed(project_id=project_id, template_id=template_id, version=version, client=client)
+        await asyncio_detailed(
+            project_id=project_id,
+            template_id=template_id,
+            version=version,
+            client=client,
+        )
     ).parsed
