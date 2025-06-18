@@ -20,6 +20,7 @@ from galileo.resources.models import (
     BasePromptTemplateResponse,
     BasePromptTemplateVersionResponse,
     CreatePromptTemplateWithVersionRequestBody,
+    HTTPValidationError,
     ListPromptTemplateParams,
     ListPromptTemplateResponse,
     ProjectDB,
@@ -361,6 +362,41 @@ def test_create_global_prompt_template(create_global_prompt_template_mock: Mock)
     )
 
 
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_global_prompt_template_error_scenarios(create_global_prompt_template_mock: Mock):
+    """Test create_global_prompt_template with realistic error scenarios."""
+
+    # Test 422 Unprocessable Entity for missing fields, invalid data types, etc.
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b'{"detail":[{"loc":["body","name"],"msg":"field required","type":"value_error.missing"}]}',
+        status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+        headers={},
+        parsed=HTTPValidationError(),
+    )
+
+    with pytest.raises(PromptTemplateAPIException) as exc_info:
+        create_global_prompt_template(
+            name="test-template", template=[Message(role=MessageRole.system, content="test content")]
+        )
+    assert "field required" in str(exc_info.value)
+
+    # Test 500 Internal Server Error
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b'{"detail":"Internal server error"}',
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        headers={},
+        parsed=None,
+    )
+
+    with pytest.raises(PromptTemplateAPIException) as exc_info:
+        create_global_prompt_template(
+            name="test-template", template=[Message(role=MessageRole.system, content="test content")]
+        )
+    assert "Internal server error" in str(exc_info.value)
+
+    assert create_global_prompt_template_mock.sync_detailed.call_count == 2
+
+
 @patch("galileo.prompts.get_global_template_templates_template_id_get")
 def test_get_global_prompt_template_by_id(get_global_template_mock: Mock):
     get_global_template_mock.sync.return_value = global_prompt_template()
@@ -470,6 +506,18 @@ def test_list_global_prompt_templates_with_filter(query_templates_mock: Mock):
         limit=50,
         starting_token=0,
     )
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@pytest.mark.parametrize("response_value", [HTTPValidationError(), None])
+def test_list_global_prompt_templates_with_error_responses(query_templates_mock: Mock, response_value):
+    """Test list_global_prompt_templates when API returns HTTPValidationError or None."""
+    query_templates_mock.sync.return_value = response_value
+
+    templates = list_global_prompt_templates()
+
+    assert len(templates) == 0
+    query_templates_mock.sync.assert_called_once()
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")
