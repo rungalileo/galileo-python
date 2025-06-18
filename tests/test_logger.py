@@ -869,6 +869,28 @@ def test_session_create(mock_core_api_client: Mock, mock_projects_client: Mock, 
 @patch("galileo.logger.LogStreams")
 @patch("galileo.logger.Projects")
 @patch("galileo.logger.GalileoCoreApiClient")
+def test_session_create_empty_values(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    session_id = logger.start_session()
+
+    payload = mock_core_api_instance.create_session_sync.call_args[0][0]
+
+    assert payload.name is None
+    assert payload.previous_session_id is None
+    assert payload.external_id is None
+
+    assert logger.session_id == session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+
+
+@patch("galileo.logger.LogStreams")
+@patch("galileo.logger.Projects")
+@patch("galileo.logger.GalileoCoreApiClient")
 def test_session_clear(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
     setup_mock_core_api_client(mock_core_api_client)
     setup_mock_projects_client(mock_projects_client)
