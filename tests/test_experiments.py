@@ -27,6 +27,7 @@ from galileo.resources.models import (
     ScorerResponse,
     ScorerTypes,
     TaskType,
+    UserInfo,
 )
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
@@ -73,6 +74,11 @@ def prompt_template():
             max_version="test",
             template="test",
             all_available_versions=[str(UUID(int=3))],
+            created_at=datetime.now(),
+            creator=UserInfo(
+                id="01ce18ac-3960-46e1-bb79-0e4965069add", email="test@galileo.ai", first_name="Test", last_name="User"
+            ),
+            updated_at=datetime.now(),
         )
     )
 
