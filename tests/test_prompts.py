@@ -7,14 +7,14 @@ import pytest
 from galileo import Message, MessageRole
 from galileo.prompts import (
     PromptTemplateAPIException,
+    create_global_prompt_template,
     create_prompt_template,
-    create_template,
-    delete_template,
+    delete_global_prompt_template,
+    get_global_prompt_template,
+    get_global_prompt_template_version,
     get_prompt_template,
-    get_template,
-    get_template_version,
+    list_global_prompt_templates,
     list_prompt_templates,
-    list_templates,
 )
 from galileo.resources.models import (
     BasePromptTemplateResponse,
@@ -344,7 +344,7 @@ def test_create_global_prompt_template(create_global_prompt_template_mock: Mock)
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=global_prompt_template()
     )
 
-    template = create_template(
+    template = create_global_prompt_template(
         name="global-helpful-assistant",
         template=[Message(role=MessageRole.system, content="you are a global helpful assistant")],
     )
@@ -365,7 +365,7 @@ def test_create_global_prompt_template(create_global_prompt_template_mock: Mock)
 def test_get_global_prompt_template_by_id(get_global_template_mock: Mock):
     get_global_template_mock.sync.return_value = global_prompt_template()
 
-    template = get_template(template_id="global-template-id-123")
+    template = get_global_prompt_template(template_id="global-template-id-123")
 
     assert template is not None
     assert template.name == "global-helpful-assistant"
@@ -377,7 +377,7 @@ def test_get_global_prompt_template_by_id(get_global_template_mock: Mock):
 def test_get_global_prompt_template_by_name(query_templates_mock: Mock):
     query_templates_mock.sync.return_value = global_templates_list_response()
 
-    template = get_template(name="global-helpful-assistant")
+    template = get_global_prompt_template(name="global-helpful-assistant")
 
     assert template is not None
     assert template.name == "global-helpful-assistant"
@@ -389,7 +389,7 @@ def test_get_global_prompt_template_by_name(query_templates_mock: Mock):
 def test_get_global_prompt_template_by_id_not_found(get_global_template_mock: Mock):
     get_global_template_mock.sync.return_value = None
 
-    template = get_template(template_id="nonexistent-id")
+    template = get_global_prompt_template(template_id="nonexistent-id")
 
     assert template is None
     get_global_template_mock.sync.assert_called_once()
@@ -399,7 +399,7 @@ def test_get_global_prompt_template_by_id_not_found(get_global_template_mock: Mo
 def test_get_global_prompt_template_by_name_not_found(query_templates_mock: Mock):
     query_templates_mock.sync.return_value = empty_templates_list_response()
 
-    template = get_template(name="nonexistent-template")
+    template = get_global_prompt_template(name="nonexistent-template")
 
     assert template is None
     query_templates_mock.sync.assert_called_once()
@@ -407,11 +407,11 @@ def test_get_global_prompt_template_by_name_not_found(query_templates_mock: Mock
 
 def test_get_global_prompt_template_validation_errors():
     with pytest.raises(ValueError) as exc_info:
-        get_template()
+        get_global_prompt_template()
     assert str(exc_info.value) == "Exactly one of 'template_id' or 'name' must be provided"
 
     with pytest.raises(ValueError) as exc_info:
-        get_template(template_id="id", name="name")
+        get_global_prompt_template(template_id="id", name="name")
     assert str(exc_info.value) == "Exactly one of 'template_id' or 'name' must be provided"
 
 
@@ -419,7 +419,7 @@ def test_get_global_prompt_template_validation_errors():
 def test_get_global_prompt_template_version(get_global_template_version_mock: Mock):
     get_global_template_version_mock.sync.return_value = global_prompt_template_version()
 
-    version = get_template_version(template_id="global-template-id-123", version=0)
+    version = get_global_prompt_template_version(template_id="global-template-id-123", version=0)
 
     assert version is not None
     assert version.id == "global-version-id-123"
@@ -434,7 +434,7 @@ def test_get_global_prompt_template_version(get_global_template_version_mock: Mo
 def test_get_global_prompt_template_version_not_found(get_global_template_version_mock: Mock):
     get_global_template_version_mock.sync.return_value = None
 
-    version = get_template_version(template_id="global-template-id-123", version=99)
+    version = get_global_prompt_template_version(template_id="global-template-id-123", version=99)
 
     assert version is None
     get_global_template_version_mock.sync.assert_called_once()
@@ -444,7 +444,7 @@ def test_get_global_prompt_template_version_not_found(get_global_template_versio
 def test_list_global_prompt_templates(query_templates_mock: Mock):
     query_templates_mock.sync.return_value = global_templates_list_response()
 
-    templates = list_templates()
+    templates = list_global_prompt_templates()
 
     assert len(templates) == 1
     assert templates[0].name == "global-helpful-assistant"
@@ -456,7 +456,7 @@ def test_list_global_prompt_templates(query_templates_mock: Mock):
 def test_list_global_prompt_templates_with_filter(query_templates_mock: Mock):
     query_templates_mock.sync.return_value = global_templates_list_response()
 
-    templates = list_templates(name_filter="global-helpful", limit=50)
+    templates = list_global_prompt_templates(name_filter="global-helpful", limit=50)
 
     assert len(templates) == 1
     assert templates[0].name == "global-helpful-assistant"
@@ -476,7 +476,7 @@ def test_list_global_prompt_templates_with_filter(query_templates_mock: Mock):
 def test_list_global_prompt_templates_empty(query_templates_mock: Mock):
     query_templates_mock.sync.return_value = empty_templates_list_response()
 
-    templates = list_templates()
+    templates = list_global_prompt_templates()
 
     assert len(templates) == 0
     query_templates_mock.sync.assert_called_once()
@@ -486,7 +486,7 @@ def test_list_global_prompt_templates_empty(query_templates_mock: Mock):
 def test_delete_global_prompt_template_by_id(delete_global_template_mock: Mock):
     delete_global_template_mock.sync.return_value = None
 
-    delete_template(template_id="global-template-id-123")
+    delete_global_prompt_template(template_id="global-template-id-123")
 
     delete_global_template_mock.sync.assert_called_once_with(client=ANY, template_id="global-template-id-123")
 
@@ -497,7 +497,7 @@ def test_delete_global_prompt_template_by_name(delete_global_template_mock: Mock
     query_templates_mock.sync.return_value = global_templates_list_response()
     delete_global_template_mock.sync.return_value = None
 
-    delete_template(name="global-helpful-assistant")
+    delete_global_prompt_template(name="global-helpful-assistant")
 
     query_templates_mock.sync.assert_called_once()
     delete_global_template_mock.sync.assert_called_once_with(client=ANY, template_id="global-template-id-123")
@@ -508,7 +508,7 @@ def test_delete_global_prompt_template_by_name_not_found(query_templates_mock: M
     query_templates_mock.sync.return_value = empty_templates_list_response()
 
     with pytest.raises(ValueError) as exc_info:
-        delete_template(name="nonexistent-template")
+        delete_global_prompt_template(name="nonexistent-template")
 
     assert "Global template 'nonexistent-template' not found" in str(exc_info.value)
     query_templates_mock.sync.assert_called_once()
@@ -517,13 +517,13 @@ def test_delete_global_prompt_template_by_name_not_found(query_templates_mock: M
 def test_delete_global_prompt_template_validation_errors():
     """Test all validation error scenarios for delete_global_prompt_template."""
     with pytest.raises(ValueError) as exc_info:
-        delete_template()
+        delete_global_prompt_template()
     assert str(exc_info.value) == "Exactly one of 'template_id' or 'name' must be provided"
 
     with pytest.raises(ValueError) as exc_info:
-        delete_template(template_id="id", name="name")
+        delete_global_prompt_template(template_id="id", name="name")
     assert str(exc_info.value) == "Exactly one of 'template_id' or 'name' must be provided"
 
     with pytest.raises(ValueError) as exc_info:
-        delete_template(template_id=None, name=None)
+        delete_global_prompt_template(template_id=None, name=None)
     assert str(exc_info.value) == "Exactly one of 'template_id' or 'name' must be provided"

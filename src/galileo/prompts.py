@@ -230,7 +230,7 @@ class GlobalPromptTemplates(BaseClientModel):
 
         return PromptTemplateVersion(prompt_template_version=template_version)
 
-    def create(self, name: str, template: Union[builtins.list[Message], str]) -> Optional[PromptTemplate]:
+    def create(self, name: str, template: Union[builtins.list[Message], str]) -> PromptTemplate:
         body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
 
         _logger.debug(f"Creating global template: {body}")
@@ -265,36 +265,141 @@ def list_prompt_templates(project: str) -> list[PromptTemplate]:
 
 
 @overload
-def get_template(*, template_id: str) -> Optional[PromptTemplate]: ...
+def get_global_prompt_template(*, template_id: str) -> Optional[PromptTemplate]: ...
 
 
 @overload
-def get_template(*, name: str) -> Optional[PromptTemplate]: ...
+def get_global_prompt_template(*, name: str) -> Optional[PromptTemplate]: ...
 
 
-def get_template(*, template_id: Optional[str] = None, name: Optional[str] = None) -> Optional[PromptTemplate]:
+def get_global_prompt_template(
+    *, template_id: Optional[str] = None, name: Optional[str] = None
+) -> Optional[PromptTemplate]:
+    """
+    Get a global prompt template by ID or name.
+
+    Parameters
+    ----------
+    template_id : str
+        The unique identifier of the template to retrieve. Defaults to None.
+    name : str
+        The name of the template to retrieve. Defaults to None.
+
+    Returns
+    -------
+    Optional[PromptTemplate]
+        The prompt template if found, None otherwise.
+
+    Raises
+    ------
+    ValueError
+        If neither or both template_id and name are provided.
+    """
     return GlobalPromptTemplates().get(template_id=template_id, name=name)  # type: ignore[call-overload]
 
 
 @overload
-def delete_template(*, template_id: str) -> None: ...
+def delete_global_prompt_template(*, template_id: str) -> None: ...
 
 
 @overload
-def delete_template(*, name: str) -> None: ...
+def delete_global_prompt_template(*, name: str) -> None: ...
 
 
-def delete_template(*, template_id: Optional[str] = None, name: Optional[str] = None) -> None:
+def delete_global_prompt_template(*, template_id: Optional[str] = None, name: Optional[str] = None) -> None:
+    """
+    Delete a global prompt template by ID or name.
+
+    Parameters
+    ----------
+    template_id : str
+        The unique identifier of the template to delete. Defaults to None.
+    name : str
+        The name of the template to delete. Defaults to None.
+
+    Returns
+    -------
+    None
+
+    Raises
+    ------
+    ValueError
+        If neither or both template_id and name are provided, or if the template is not found.
+    """
     return GlobalPromptTemplates().delete(template_id=template_id, name=name)  # type: ignore[call-overload]
 
 
-def create_template(name: str, template: Union[list[Message], str]) -> Optional[PromptTemplate]:
+def create_global_prompt_template(name: str, template: Union[list[Message], str]) -> PromptTemplate:
+    """
+    Create a new global prompt template.
+
+    Parameters
+    ----------
+    name : str
+        The name for the new template.
+    template : Union[list[Message], str]
+        The template content. Can be either a list of Message objects or a JSON string
+        representing the message structure.
+
+    Returns
+    -------
+    PromptTemplate
+        The created prompt template.
+
+    Raises
+    ------
+    PromptTemplateAPIException
+        If the API request fails or returns an error.
+    """
     return GlobalPromptTemplates().create(name=name, template=template)
 
 
-def get_template_version(template_id: str, version: int) -> Optional[PromptTemplateVersion]:
+def get_global_prompt_template_version(template_id: str, version: int) -> Optional[PromptTemplateVersion]:
+    """
+    Get a specific version of a global prompt template.
+
+    Parameters
+    ----------
+    template_id : str
+        The unique identifier of the template.
+    version : int
+        The version number to retrieve.
+
+    Returns
+    -------
+    Optional[PromptTemplateVersion]
+        The template version if found, None otherwise.
+    """
     return GlobalPromptTemplates().get_version(template_id=template_id, version=version)
 
 
-def list_templates(name_filter: Optional[str] = None, limit: Union[Unset, int] = 100) -> list[PromptTemplate]:
+def list_global_prompt_templates(
+    name_filter: Optional[str] = None, limit: Union[Unset, int] = 100
+) -> list[PromptTemplate]:
+    """
+    List global prompt templates with optional filtering.
+
+    Parameters
+    ----------
+    name_filter : Optional[str], optional
+        Filter templates by name containing this string. Defaults to None (no filtering).
+    limit : Union[Unset, int], optional
+        Maximum number of templates to return. Defaults to 100.
+
+    Returns
+    -------
+    list[PromptTemplate]
+        List of prompt templates matching the criteria.
+
+    Examples
+    --------
+    >>> # List all global templates
+    >>> templates = list_global_prompt_templates()
+
+    >>> # List templates with names containing "assistant"
+    >>> templates = list_global_prompt_templates(name_filter="assistant")
+
+    >>> # List first 10 templates
+    >>> templates = list_global_prompt_templates(limit=10)
+    """
     return GlobalPromptTemplates().list(name_filter=name_filter, limit=limit)
