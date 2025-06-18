@@ -6,9 +6,9 @@ from openai.types import CompletionUsage
 from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 
-from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict, Rule
-from galileo.resources.models.rule_operator import RuleOperator
-from galileo.resources.models.ruleset import Ruleset
+from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
 
 
 @pytest.fixture(autouse=True)
@@ -86,22 +86,22 @@ def local_dataset():
 @pytest.fixture(
     params=[
         # Single ruleset with a single rule.
-        [Ruleset(rules=[Rule(metric="toxicity", operator=RuleOperator.GT, target_value=0.5)])],
+        [Ruleset(rules=[Rule(metric="toxicity", operator=RuleOperator.gt, target_value=0.5)])],
         # Single ruleset with multiple rules.
         [
             Ruleset(
                 rules=[
-                    Rule(metric="toxicity", operator=RuleOperator.GT, target_value=0.5),
-                    Rule(metric="tone", operator=RuleOperator.LT, target_value=0.8),
+                    Rule(metric="toxicity", operator=RuleOperator.gt, target_value=0.5),
+                    Rule(metric="tone", operator=RuleOperator.lt, target_value=0.8),
                 ]
             )
         ],
         # Single ruleset with an unknown metric.
-        [Ruleset(rules=[Rule(metric="unknown", operator=RuleOperator.GT, target_value=0.5)])],
+        [Ruleset(rules=[Rule(metric="unknown", operator=RuleOperator.gt, target_value=0.5)])],
         # Multiple rulesets with a single rule each.
         [
-            Ruleset(rules=[Rule(metric="toxicity", operator=RuleOperator.GT, target_value=0.5)]),
-            Ruleset(rules=[Rule(metric="toxicity", operator=RuleOperator.LT, target_value=0.8)]),
+            Ruleset(rules=[Rule(metric="toxicity", operator=RuleOperator.gt, target_value=0.5)]),
+            Ruleset(rules=[Rule(metric="toxicity", operator=RuleOperator.lt, target_value=0.8)]),
         ],
     ]
 )
