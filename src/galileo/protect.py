@@ -6,12 +6,12 @@ from pydantic import UUID4
 from galileo.base import BaseClientModel
 from galileo.constants.protect import TIMEOUT
 from galileo.resources.api.protect import invoke_v2_protect_invoke_post
-from galileo.resources.models.invoke_response import InvokeResponse
-from galileo.resources.models.payload import Payload
-from galileo.resources.models.request import Request
-from galileo.resources.models.response import Response
-from galileo.resources.models.ruleset import Ruleset
+from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo_core.schemas.protect.payload import Payload
+from galileo_core.schemas.protect.request import Request
+from galileo_core.schemas.protect.response import Response
+from galileo_core.schemas.protect.ruleset import Ruleset
 
 
 class Protect(BaseClientModel, DecorateAllMethods):
@@ -27,16 +27,13 @@ class Protect(BaseClientModel, DecorateAllMethods):
         timeout: float = TIMEOUT,
         metadata: Optional[dict[str, str]] = None,
         headers: Optional[dict[str, str]] = None,
-        # TODO only ever Response due to InvokeResponse being a superset and the way from_dict works
-        # However if we want parity with 1.0 this should just be Response
-        # Also if we never actually return InvokeResponse here, why mention it?
-    ) -> Union[Response, InvokeResponse]:
+    ) -> Optional[Union[Response, HTTPValidationError]]:
         """
         Calls invoke api.
 
         Returns
         -------
-        InvokeResponse
+        Response
             Various data from api
 
         Raises
@@ -60,7 +57,9 @@ class Protect(BaseClientModel, DecorateAllMethods):
             headers=headers,
         )
 
-        response: Union[Response, InvokeResponse] = invoke_v2_protect_invoke_post.sync(client=self.client, body=body)
+        response: Optional[Union[Response, HTTPValidationError]] = invoke_v2_protect_invoke_post.sync(
+            client=self.client, body=body
+        )
         return response
 
 
@@ -75,7 +74,7 @@ def invoke(
     timeout: float = TIMEOUT,
     metadata: Optional[dict[str, str]] = None,
     headers: Optional[dict[str, str]] = None,
-) -> Union[Response, InvokeResponse]:
+) -> Optional[Union[Response, HTTPValidationError]]:
     """
     Invoke Protect with the given payload.
 
@@ -109,7 +108,7 @@ def invoke(
 
     Returns
     -------
-    Union[Response, InvokeResponse]
+    Response
         Response from the Protect API.
     """
     return Protect().invoke(

@@ -5,11 +5,11 @@ from uuid import uuid4
 from pytest import mark
 
 from galileo.protect import Protect, invoke
-from galileo.resources.models.execution_status import ExecutionStatus
 from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.models.payload import Payload
-from galileo.resources.models.request import Request
-from galileo.resources.models.response import Response
+from galileo_core.schemas.protect.execution_status import ExecutionStatus
+from galileo_core.schemas.protect.payload import Payload
+from galileo_core.schemas.protect.request import Request
+from galileo_core.schemas.protect.response import Response
 
 A_PROJECT_NAME = "project_name"
 A_STAGE_NAME = "stage_name"
@@ -22,12 +22,12 @@ def invoke_response_data() -> dict:
         "stage_metadata": {"stage_id": "stage-uuid-example", "stage_name": "test-stage-example"},
         "text": "Original text from payload",
         "trace_metadata": {
-            "id": "trace-uuid-example",
+            "id": "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
             "received_at": 1234567890,
             "response_at": 1234567990,
             "execution_time": 100.0,
         },
-        "status": ExecutionStatus.NOT_TRIGGERED,
+        "status": ExecutionStatus.not_triggered,
         "metric_results": {"sentiment_score": 0.95, "toxicity_level": 0.1},
         "ruleset_results": [
             {
@@ -40,11 +40,11 @@ def invoke_response_data() -> dict:
                         "rule_name": "check-sentiment",
                         "action_result": {"action": "PASSTHROUGH"},
                         "metric_results": {"sentiment_score": 0.95},
-                        "status": ExecutionStatus.NOT_TRIGGERED,
+                        "status": ExecutionStatus.not_triggered,
                         "conditions_results": [],
                     }
                 ],
-                "status": ExecutionStatus.NOT_TRIGGERED,
+                "status": ExecutionStatus.not_triggered,
             }
         ],
         "api_version": "1.0.0",
@@ -54,7 +54,7 @@ def invoke_response_data() -> dict:
 
 
 def invoke_response() -> Response:
-    return Response.from_dict(invoke_response_data())
+    return Response.model_validate(invoke_response_data())
 
 
 @mark.parametrize(
@@ -75,9 +75,9 @@ def invoke_response() -> Response:
 @mark.parametrize(
     "payload",
     [
-        Payload(input_=A_PROTECT_INPUT),
+        Payload(input=A_PROTECT_INPUT),
         Payload(output=A_PROTECT_INPUT),
-        Payload(input_=A_PROTECT_INPUT, output=A_PROTECT_INPUT),
+        Payload(input=A_PROTECT_INPUT, output=A_PROTECT_INPUT),
     ],
 )
 @mark.parametrize("timeout", [5, 60])
@@ -140,11 +140,11 @@ def test_invoke_success(
     response_data = invoke_response_data()
     assert result.text == response_data["text"]
     assert result.status == response_data["status"]
-    assert result.trace_metadata.id == response_data["trace_metadata"]["id"]
+    assert str(result.trace_metadata.id) == response_data["trace_metadata"]["id"]
 
     for key in ["action_result", "stage_metadata", "metric_results", "ruleset_results", "api_version"]:
-        assert key in result.additional_properties
-        assert result.additional_properties[key] == response_data[key]
+        assert key in result.model_extra
+        assert result.model_extra[key] == response_data[key]
 
 
 @patch("galileo.protect.invoke_v2_protect_invoke_post.sync")
@@ -153,15 +153,15 @@ def test_invoke_api_validation_error(mock_invoke_post_sync: Mock):
     validation_error = HTTPValidationError(detail=[error_detail_item])
     mock_invoke_post_sync.return_value = validation_error
 
-    payload = Payload(input_="Test input")
+    payload = Payload(input="Test input")
 
-    result = invoke(payload=payload)
+    result = invoke(payload=payload, stage_id=uuid4())
     assert isinstance(result, HTTPValidationError)
     assert result.detail[0]["msg"] == "Field required"
 
     mock_invoke_post_sync.reset_mock()
     mock_invoke_post_sync.return_value = validation_error
 
-    class_method_result = Protect().invoke(payload=payload)
+    class_method_result = Protect().invoke(payload=payload, stage_id=uuid4())
     assert isinstance(class_method_result, HTTPValidationError)
     assert class_method_result.detail[0]["msg"] == "Field required"
