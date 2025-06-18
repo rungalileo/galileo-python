@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -175,13 +176,13 @@ class PromptRunSettings:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.model import Model
         from ..models.open_ai_tool_choice import OpenAIToolChoice
         from ..models.prompt_run_settings_response_format_type_0 import PromptRunSettingsResponseFormatType0
         from ..models.prompt_run_settings_tools_type_0_item import PromptRunSettingsToolsType0Item
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_deployment_name(data: object) -> Union[None, Unset, str]:
             if data is None:

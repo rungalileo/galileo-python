@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -76,7 +77,7 @@ class ListScorersRequest:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
         from ..models.scorer_creator_filter import ScorerCreatorFilter
         from ..models.scorer_name_filter import ScorerNameFilter
@@ -84,7 +85,7 @@ class ListScorersRequest:
         from ..models.scorer_type_filter import ScorerTypeFilter
         from ..models.scorer_updated_at_filter import ScorerUpdatedAtFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         filters = []
         _filters = d.pop("filters", UNSET)
         for filters_item_data in _filters or []:

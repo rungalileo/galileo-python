@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -98,10 +99,10 @@ class DatasetVersionDB:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.user_info import UserInfo
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         column_names = cast(list[str], d.pop("column_names"))
 
         columns_added = d.pop("columns_added")

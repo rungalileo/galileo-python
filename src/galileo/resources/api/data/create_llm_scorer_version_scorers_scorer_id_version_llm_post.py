@@ -16,9 +16,8 @@ def _get_kwargs(scorer_id: str, *, body: CreateLLMScorerVersionRequest) -> dict[
 
     _kwargs: dict[str, Any] = {"method": "post", "url": f"/scorers/{scorer_id}/version/llm"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers

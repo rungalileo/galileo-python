@@ -7,6 +7,7 @@ class NodeType(str, Enum):
     CHAT = "chat"
     LLM = "llm"
     RETRIEVER = "retriever"
+    SESSION = "session"
     TOOL = "tool"
     TRACE = "trace"
     WORKFLOW = "workflow"
