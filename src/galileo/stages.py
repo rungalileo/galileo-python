@@ -11,11 +11,11 @@ from galileo.resources.api.protect import (
     pause_stage_projects_project_id_stages_stage_id_put,
     update_stage_projects_project_id_stages_stage_id_post,
 )
-from galileo.resources.models import RulesetsMixin, StageDB, StageWithRulesets
-from galileo.resources.models.rule import Rule
-from galileo.resources.models.stage_type import StageType
 from galileo.resources.types import UNSET
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo_core.schemas.protect.rule import Rule
+from galileo_core.schemas.protect.ruleset import Ruleset, RulesetsMixin
+from galileo_core.schemas.protect.stage import StageDB, StageType, StageWithRulesets
 from galileo_core.utils.name import ts_name
 
 
@@ -68,7 +68,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         self,
         project_id: Union[str, UUID4],
         name: Optional[str] = None,
-        stage_type: StageType = StageType.LOCAL,
+        stage_type: StageType = StageType.local,
         pause: bool = False,
         rulesets: Optional[list[Rule]] = None,
         description: Optional[str] = None,
@@ -97,10 +97,10 @@ class Stages(BaseClientModel, DecorateAllMethods):
         payload = StageWithRulesets(
             name=actual_name,
             project_id=str(project_id),
-            type_=stage_type,
+            type=stage_type,
             paused=pause,
-            description=description if description is not None else UNSET,
-            prioritized_rulesets=rulesets if rulesets is not None else UNSET,
+            description=description,
+            prioritized_rulesets=[Ruleset(rules=rulesets)] if rulesets else [],
         )
 
         response = create_stage_v2_projects_project_id_stages_post.sync(
@@ -180,7 +180,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
             stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, client=self.client
         )
 
-        rulesets = prioritized_rulesets if prioritized_rulesets is not None else []
+        rulesets = [Ruleset(rules=prioritized_rulesets)] if prioritized_rulesets else []
         payload = RulesetsMixin(prioritized_rulesets=rulesets)
 
         response = update_stage_projects_project_id_stages_stage_id_post.sync(
@@ -238,7 +238,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
 def create_stage(
     project_id: Union[str, UUID4],
     name: Optional[str] = None,
-    stage_type: StageType = StageType.LOCAL,
+    stage_type: StageType = StageType.local,
     pause: bool = False,
     rulesets: Optional[list[Rule]] = None,
     description: Optional[str] = None,

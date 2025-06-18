@@ -4,9 +4,10 @@ from unittest.mock import ANY, Mock, patch
 import pytest
 from pydantic import UUID4
 
-from galileo.resources.models import HTTPValidationError, Rule, RuleOperator, StageDB
-from galileo.resources.models.stage_type import StageType
+from galileo.resources.models import HTTPValidationError
 from galileo.stages import create_stage, get_stage, pause_stage, resume_stage, update_stage
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.stage import StageDB, StageType
 
 FIXED_PROJECT_ID = uuid.uuid4()
 FIXED_STAGE_ID = uuid.uuid4()
@@ -19,7 +20,7 @@ def _stage_db_factory(
     name: str = "fixture-stage",
     paused: bool = False,
     version: int = 1,
-    stage_type: StageType = StageType.LOCAL,
+    stage_type: StageType = StageType.local,
 ) -> StageDB:
     """Generate a StageDB instance with minimal required fields."""
     data = {
@@ -29,9 +30,9 @@ def _stage_db_factory(
         "type": stage_type.value,
         "paused": paused,
         "version": version,
-        "created_by": "test_user",
+        "created_by": str(uuid.uuid4()),
     }
-    return StageDB.from_dict(data)
+    return StageDB.model_validate(data)
 
 
 @pytest.fixture(autouse=True)
@@ -52,7 +53,7 @@ def test_create_stage_happy_path(mock_ts_name: Mock, mock_api: Mock):
 
     mock_api.assert_called_once_with(project_id=str(FIXED_PROJECT_ID), body=ANY, client=ANY)
     assert isinstance(stage, StageDB)
-    assert stage.project_id == str(FIXED_PROJECT_ID)
+    assert stage.project_id == FIXED_PROJECT_ID
 
 
 @patch("galileo.stages.create_stage_v2_projects_project_id_stages_post.sync")
@@ -69,15 +70,15 @@ def test_create_stage_validation_error(mock_api: Mock):
 @patch("galileo.stages.ts_name", return_value="ts_auto")
 def test_create_stage_generates_name_and_type(mock_ts_name: Mock, mock_api: Mock):
     """No name provided → ts_name used; stage_type override respected."""
-    mock_api.return_value = _stage_db_factory(name="ts_auto", stage_type=StageType.CENTRAL, paused=True)
+    mock_api.return_value = _stage_db_factory(name="ts_auto", stage_type=StageType.central, paused=True)
 
-    stage = create_stage(project_id=FIXED_PROJECT_ID, stage_type=StageType.CENTRAL, pause=True)
+    stage = create_stage(project_id=FIXED_PROJECT_ID, stage_type=StageType.central, pause=True)
 
     mock_ts_name.assert_called_once_with("stage")
     body = mock_api.call_args.kwargs["body"]
     assert body.name == "ts_auto"
-    assert body.type_ == StageType.CENTRAL.value
-    assert stage.type_ == StageType.CENTRAL.value
+    assert body.type == StageType.central
+    assert stage.type == StageType.central.value
     assert stage.paused is True
 
 
@@ -119,11 +120,12 @@ def test_update_stage_rulesets(mock_get: Mock, mock_api: Mock):
     mock_get.return_value = _stage_db_factory(stage_id=FIXED_STAGE_ID)
     mock_api.return_value = _stage_db_factory(stage_id=FIXED_STAGE_ID, version=2)
 
-    rulesets = [Rule(metric="m", operator=RuleOperator.EQ, target_value="v")]
+    rulesets = [Rule(metric="m", operator=RuleOperator.eq, target_value="v")]
     stage = update_stage(project_id=FIXED_PROJECT_ID, stage_id=FIXED_STAGE_ID, prioritized_rulesets=rulesets)
 
     api_body = mock_api.call_args.kwargs["body"]
-    assert api_body.prioritized_rulesets == rulesets
+    assert len(api_body.rulesets) == 1
+    assert api_body.rulesets[0].rules == rulesets
     assert stage.version == 2
 
 
