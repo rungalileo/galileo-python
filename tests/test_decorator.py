@@ -14,9 +14,9 @@ def reset_context():
     galileo_context.reset()
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_context_reset(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -47,9 +47,9 @@ def test_decorator_context_reset(
     assert galileo_context.get_current_log_stream() is None
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_context_init(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -68,9 +68,9 @@ def test_decorator_context_init(
     assert galileo_context.get_current_log_stream() is None
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_context_flush(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -98,9 +98,9 @@ def test_decorator_context_flush(
     assert galileo_context.get_current_span_stack() == []
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_context_flush_specific_project_and_log_stream(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -147,9 +147,9 @@ def test_decorator_context_flush_specific_project_and_log_stream(
     assert galileo_context.get_current_trace() is None
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_context_flush_all(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -194,9 +194,9 @@ def test_decorator_context_flush_all(
     assert galileo_context.get_current_span_stack() == []
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_llm_span(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -221,9 +221,9 @@ def test_decorator_llm_span(
     assert payload.traces[0].spans[0].output == Message(content="response", role=MessageRole.assistant)
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_workflow_span_output_int(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -248,9 +248,9 @@ def test_decorator_workflow_span_output_int(
     assert payload.traces[0].spans[0].output == "3"
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_workflow_span_io_object(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -283,9 +283,9 @@ def test_decorator_workflow_span_io_object(
     assert payload.traces[0].spans[0].output == '{"content": "response", "metadata": {"arg1": "val1", "arg2": "val2"}}'
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_tool_span_io_object(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -318,9 +318,9 @@ def test_decorator_tool_span_io_object(
     assert payload.traces[0].spans[0].output == '{"content": "response", "metadata": {"arg1": "val1", "arg2": "val2"}}'
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_nested_span(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -353,9 +353,9 @@ def test_decorator_nested_span(
     assert payload.traces[0].spans[0].spans[0].output == Message(content="response", role=MessageRole.assistant)
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_multiple_nested_spans(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -391,9 +391,9 @@ def test_decorator_multiple_nested_spans(
     assert payload.traces[0].spans[0].spans[0].output == Message(content="response", role=MessageRole.assistant)
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_retriever_span_str(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -415,9 +415,9 @@ def test_decorator_retriever_span_str(
     assert payload.traces[0].spans[0].output == [Document(content="response1", metadata=None)]
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_retriever_span_list_str(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -442,9 +442,9 @@ def test_decorator_retriever_span_list_str(
     ]
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_retriever_span_list_dict(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -469,9 +469,9 @@ def test_decorator_retriever_span_list_dict(
     ]
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_retriever_span_list_document(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -496,9 +496,9 @@ def test_decorator_retriever_span_list_document(
     ]
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_we_should_create_trace_but_reraise_exception(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -521,9 +521,9 @@ def test_decorator_we_should_create_trace_but_reraise_exception(
     assert len(payload.traces[0].spans) == 1
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_start_session(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -550,9 +550,9 @@ def test_decorator_start_session(
     assert payload.session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_start_session_empty_values(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -577,9 +577,9 @@ def test_decorator_start_session_empty_values(
     assert payload.session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_clear_session(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -608,9 +608,9 @@ def test_decorator_clear_session(
     assert payload.session_id is None
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_set_session(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -635,9 +635,9 @@ def test_decorator_set_session(
     assert payload.session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_decorator_with_active_trace(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:

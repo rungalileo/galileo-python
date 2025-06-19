@@ -271,9 +271,9 @@ class TestExperiments:
             prompt_settings=ANY,
         )
 
-    @patch("galileo.logger.LogStreams")
-    @patch("galileo.logger.Projects")
-    @patch("galileo.logger.GalileoCoreApiClient")
+    @patch("galileo.logger.logger.LogStreams")
+    @patch("galileo.logger.logger.Projects")
+    @patch("galileo.logger.logger.GalileoCoreApiClient")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
@@ -522,9 +522,9 @@ class TestExperiments:
         )
 
     @travel(datetime(2012, 1, 1), tick=False)
-    @patch("galileo.logger.LogStreams")
-    @patch("galileo.logger.Projects")
-    @patch("galileo.logger.GalileoCoreApiClient")
+    @patch("galileo.logger.logger.LogStreams")
+    @patch("galileo.logger.logger.Projects")
+    @patch("galileo.logger.logger.GalileoCoreApiClient")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -612,7 +612,7 @@ class TestExperiments:
             == "A dataset record, id, or name of a dataset must be provided when a prompt_template is used"
         )
 
-    @patch("galileo.logger.Projects")
+    @patch("galileo.logger.logger.Projects")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
