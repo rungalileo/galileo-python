@@ -654,7 +654,7 @@ description = "Backport of PEP 654 (exception groups)"
 optional = false
 python-versions = ">=3.7"
 groups = ["main", "dev", "test"]
-markers = "python_version <= \"3.10\" or platform_python_implementation == \"PyPy\" and python_version < \"3.11\""
+markers = "python_version < \"3.11\""
 files = [
     {file = "exceptiongroup-1.2.2-py3-none-any.whl", hash = "sha256:3111b9d131c238bec2f8f516e123e14ba243563fb135d3fe885990585aa7795b"},
     {file = "exceptiongroup-1.2.2.tar.gz", hash = "sha256:47c2edf7c6738fafb49fd34290706d1a1a2f4d1c6df275526b62cbb4aa5393cc"},
@@ -1217,19 +1217,19 @@ files = [
 
 [[package]]
 name = "langchain-core"
-version = "0.3.61"
+version = "0.3.65"
 description = "Building applications with LLMs through composability"
 optional = false
 python-versions = ">=3.9"
 groups = ["main", "test"]
 files = [
-    {file = "langchain_core-0.3.61-py3-none-any.whl", hash = "sha256:62cddbda7fb6085b6096bb4f3ad69642ebb0585bde7b210edc61dd0af33f2ea4"},
-    {file = "langchain_core-0.3.61.tar.gz", hash = "sha256:67ba08d4cf58616050047ef3a07887a72607fea9b6b4522dff9e7579a1adbe75"},
+    {file = "langchain_core-0.3.65-py3-none-any.whl", hash = "sha256:80e8faf6e9f331f8ef728f3fe793549f1d3fb244fcf9e1bdcecab6a6f4669394"},
+    {file = "langchain_core-0.3.65.tar.gz", hash = "sha256:54b5e0c8d9bb405415c3211da508ef9cfe0acbe5b490d1b4a15664408ee82d9b"},
 ]
 
 [package.dependencies]
 jsonpatch = ">=1.33,<2.0"
-langsmith = ">=0.1.126,<0.4"
+langsmith = ">=0.3.45,<0.4"
 packaging = ">=23.2,<25"
 pydantic = ">=2.7.4"
 PyYAML = ">=5.3"
@@ -1238,14 +1238,14 @@ typing-extensions = ">=4.7"
 
 [[package]]
 name = "langsmith"
-version = "0.3.42"
+version = "0.3.45"
 description = "Client library to connect to the LangSmith LLM Tracing and Evaluation Platform."
 optional = false
 python-versions = ">=3.9"
 groups = ["main", "test"]
 files = [
-    {file = "langsmith-0.3.42-py3-none-any.whl", hash = "sha256:18114327f3364385dae4026ebfd57d1c1cb46d8f80931098f0f10abe533475ff"},
-    {file = "langsmith-0.3.42.tar.gz", hash = "sha256:2b5cbc450ab808b992362aac6943bb1d285579aa68a3a8be901d30a393458f25"},
+    {file = "langsmith-0.3.45-py3-none-any.whl", hash = "sha256:5b55f0518601fa65f3bb6b1a3100379a96aa7b3ed5e9380581615ba9c65ed8ed"},
+    {file = "langsmith-0.3.45.tar.gz", hash = "sha256:1df3c6820c73ed210b2c7bc5cdb7bfa19ddc9126cd03fdf0da54e2e171e6094d"},
 ]
 
 [package.dependencies]
@@ -3457,7 +3457,7 @@ files = [
     {file = "tomli-2.2.1-py3-none-any.whl", hash = "sha256:cb55c73c5f4408779d0cf3eef9f762b9c9f147a77de7b258bef0a5628adc85cc"},
     {file = "tomli-2.2.1.tar.gz", hash = "sha256:cd45e1dc79c835ce60f7404ec8119f2eb06d38b1deba146f07ced3bbc44505ff"},
 ]
-markers = {dev = "python_version <= \"3.10\" or platform_python_implementation == \"PyPy\" and python_version < \"3.11\"", test = "python_full_version <= \"3.11.0a6\""}
+markers = {dev = "python_version < \"3.11\"", test = "python_full_version <= \"3.11.0a6\""}
 
 [[package]]
 name = "tomlkit"
@@ -3500,7 +3500,7 @@ description = "Typing stubs for requests"
 optional = true
 python-versions = ">=3.7"
 groups = ["main"]
-markers = "python_version < \"3.10\" or platform_python_implementation == \"PyPy\""
+markers = "platform_python_implementation == \"PyPy\" or python_version < \"3.10\""
 files = [
     {file = "types-requests-2.31.0.6.tar.gz", hash = "sha256:cd74ce3b53c461f1228a9b783929ac73a666658f223e28ed29753771477b3bd0"},
     {file = "types_requests-2.31.0.6-py3-none-any.whl", hash = "sha256:a2db9cb228a81da8348b49ad6db3f5519452dd20a9c1e1a868c83c5fe88fd1a9"},
@@ -3532,7 +3532,7 @@ description = "Typing stubs for urllib3"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "python_version < \"3.10\" or platform_python_implementation == \"PyPy\""
+markers = "platform_python_implementation == \"PyPy\" or python_version < \"3.10\""
 files = [
     {file = "types-urllib3-1.26.25.14.tar.gz", hash = "sha256:229b7f577c951b8c1b92c1bc2b2fdb0b49847bd2af6d1cc2a2e3dd340f3bda8f"},
     {file = "types_urllib3-1.26.25.14-py3-none-any.whl", hash = "sha256:9683bbb7fb72e32bfe9d2be6e04875fbe1b3eeec3cbb4ea231435aa7fd6b4f0e"},
@@ -3631,7 +3631,7 @@ description = "HTTP library with thread-safe connection pooling, file post, and 
 optional = false
 python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 groups = ["main", "dev", "docs", "test"]
-markers = "python_version < \"3.10\" or platform_python_implementation == \"PyPy\""
+markers = "platform_python_implementation == \"PyPy\" or python_version < \"3.10\""
 files = [
     {file = "urllib3-1.26.20-py2.py3-none-any.whl", hash = "sha256:0ed14ccfbf1c30a9072c7ca157e4319b70d65f623e91e7b32fadb2853431016e"},
     {file = "urllib3-1.26.20.tar.gz", hash = "sha256:40c2dc0c681e47eb8f90e7e27bf6ff7df2e677421fd46756da1161c39ca70d32"},
@@ -4214,4 +4214,4 @@ openai = ["openai", "openai-agents", "packaging"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "5b3e27fe16447dc07ad84454f1620d36be5787f95eefab218df48bb13da8f37e"
+content-hash = "e14e8bc98765761997654eee303bcdf779c19eb050a75431bc4f8f9cd8c631bb"
