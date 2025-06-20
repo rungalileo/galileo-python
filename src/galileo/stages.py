@@ -11,6 +11,9 @@ from galileo.resources.api.protect import (
     pause_stage_projects_project_id_stages_stage_id_put,
     update_stage_projects_project_id_stages_stage_id_post,
 )
+from galileo.resources.models.rulesets_mixin import RulesetsMixin as APIRulesetsMixin
+from galileo.resources.models.stage_db import StageDB as APIStageDB
+from galileo.resources.models.stage_with_rulesets import StageWithRulesets as APIStageWithRulesets
 from galileo.resources.types import UNSET
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo_core.schemas.protect.rule import Rule
@@ -94,7 +97,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
             raise ValueError("project_id must be provided for creating a stage.")
         actual_name = name or ts_name("stage")
 
-        payload = StageWithRulesets(
+        request = StageWithRulesets(
             name=actual_name,
             project_id=str(project_id),
             type=stage_type,
@@ -103,9 +106,14 @@ class Stages(BaseClientModel, DecorateAllMethods):
             prioritized_rulesets=[Ruleset(rules=rulesets)] if rulesets else [],
         )
 
+        body = APIStageWithRulesets.from_dict(request.model_dump())
+
         response = create_stage_v2_projects_project_id_stages_post.sync(
-            project_id=str(project_id), client=self.client, body=payload
+            project_id=str(project_id), client=self.client, body=body
         )
+
+        if isinstance(response, APIStageDB):
+            return StageDB.model_validate(response.to_dict())
         return response
 
     def get(
@@ -145,6 +153,8 @@ class Stages(BaseClientModel, DecorateAllMethods):
             stage_name=stage_name if stage_name else UNSET,
             client=self.client,
         )
+        if isinstance(response, APIStageDB):
+            return StageDB.model_validate(response.to_dict())
         return response
 
     def update(
@@ -181,11 +191,14 @@ class Stages(BaseClientModel, DecorateAllMethods):
         )
 
         rulesets = [Ruleset(rules=prioritized_rulesets)] if prioritized_rulesets else []
-        payload = RulesetsMixin(prioritized_rulesets=rulesets)
+        request = RulesetsMixin(prioritized_rulesets=rulesets)
+        body = APIRulesetsMixin.from_dict(request.model_dump(by_alias=True))
 
         response = update_stage_projects_project_id_stages_stage_id_post.sync(
-            project_id=actual_project_id, stage_id=actual_stage_id, client=self.client, body=payload
+            project_id=actual_project_id, stage_id=actual_stage_id, client=self.client, body=body
         )
+        if isinstance(response, APIStageDB):
+            return StageDB.model_validate(response.to_dict())
         return response
 
     def _set_pause_state(
@@ -208,6 +221,8 @@ class Stages(BaseClientModel, DecorateAllMethods):
         response = pause_stage_projects_project_id_stages_stage_id_put.sync(
             project_id=actual_project_id, stage_id=actual_stage_id, client=self.client, pause=pause_flag
         )
+        if isinstance(response, APIStageDB):
+            return StageDB.model_validate(response.to_dict())
         return response
 
     def pause(
