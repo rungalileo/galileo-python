@@ -18,9 +18,7 @@ def _get_kwargs(scorer_id: str, *, body: BodyCreateCodeScorerVersionScorersScore
 
     _kwargs: dict[str, Any] = {"method": "post", "url": f"/scorers/{scorer_id}/version/code"}
 
-    _body = body.to_multipart()
-
-    _kwargs["files"] = _body
+    _kwargs["files"] = body.to_multipart()
 
     _kwargs["headers"] = headers
     return _kwargs

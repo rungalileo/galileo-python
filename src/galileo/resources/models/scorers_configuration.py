@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -16,6 +17,8 @@ class ScorersConfiguration:
     fastest first, and the slowest last.
 
         Attributes:
+            action_advancement_luna (Union[Unset, bool]):  Default: False.
+            action_completion_luna (Union[Unset, bool]):  Default: False.
             adherence_nli (Union[Unset, bool]):  Default: False.
             agentic_session_success (Union[Unset, bool]):  Default: False.
             agentic_workflow_success (Union[Unset, bool]):  Default: False.
@@ -47,12 +50,16 @@ class ScorersConfiguration:
             sexist_gpt (Union[Unset, bool]):  Default: False.
             tone (Union[Unset, bool]):  Default: False.
             tool_error_rate (Union[Unset, bool]):  Default: False.
+            tool_error_rate_luna (Union[Unset, bool]):  Default: False.
             tool_selection_quality (Union[Unset, bool]):  Default: False.
+            tool_selection_quality_luna (Union[Unset, bool]):  Default: False.
             toxicity (Union[Unset, bool]):  Default: False.
             toxicity_gpt (Union[Unset, bool]):  Default: False.
             uncertainty (Union[Unset, bool]):  Default: False.
     """
 
+    action_advancement_luna: Union[Unset, bool] = False
+    action_completion_luna: Union[Unset, bool] = False
     adherence_nli: Union[Unset, bool] = False
     agentic_session_success: Union[Unset, bool] = False
     agentic_workflow_success: Union[Unset, bool] = False
@@ -84,13 +91,19 @@ class ScorersConfiguration:
     sexist_gpt: Union[Unset, bool] = False
     tone: Union[Unset, bool] = False
     tool_error_rate: Union[Unset, bool] = False
+    tool_error_rate_luna: Union[Unset, bool] = False
     tool_selection_quality: Union[Unset, bool] = False
+    tool_selection_quality_luna: Union[Unset, bool] = False
     toxicity: Union[Unset, bool] = False
     toxicity_gpt: Union[Unset, bool] = False
     uncertainty: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        action_advancement_luna = self.action_advancement_luna
+
+        action_completion_luna = self.action_completion_luna
+
         adherence_nli = self.adherence_nli
 
         agentic_session_success = self.agentic_session_success
@@ -153,7 +166,11 @@ class ScorersConfiguration:
 
         tool_error_rate = self.tool_error_rate
 
+        tool_error_rate_luna = self.tool_error_rate_luna
+
         tool_selection_quality = self.tool_selection_quality
+
+        tool_selection_quality_luna = self.tool_selection_quality_luna
 
         toxicity = self.toxicity
 
@@ -164,6 +181,10 @@ class ScorersConfiguration:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if action_advancement_luna is not UNSET:
+            field_dict["action_advancement_luna"] = action_advancement_luna
+        if action_completion_luna is not UNSET:
+            field_dict["action_completion_luna"] = action_completion_luna
         if adherence_nli is not UNSET:
             field_dict["adherence_nli"] = adherence_nli
         if agentic_session_success is not UNSET:
@@ -226,8 +247,12 @@ class ScorersConfiguration:
             field_dict["tone"] = tone
         if tool_error_rate is not UNSET:
             field_dict["tool_error_rate"] = tool_error_rate
+        if tool_error_rate_luna is not UNSET:
+            field_dict["tool_error_rate_luna"] = tool_error_rate_luna
         if tool_selection_quality is not UNSET:
             field_dict["tool_selection_quality"] = tool_selection_quality
+        if tool_selection_quality_luna is not UNSET:
+            field_dict["tool_selection_quality_luna"] = tool_selection_quality_luna
         if toxicity is not UNSET:
             field_dict["toxicity"] = toxicity
         if toxicity_gpt is not UNSET:
@@ -238,8 +263,12 @@ class ScorersConfiguration:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
+        action_advancement_luna = d.pop("action_advancement_luna", UNSET)
+
+        action_completion_luna = d.pop("action_completion_luna", UNSET)
+
         adherence_nli = d.pop("adherence_nli", UNSET)
 
         agentic_session_success = d.pop("agentic_session_success", UNSET)
@@ -302,7 +331,11 @@ class ScorersConfiguration:
 
         tool_error_rate = d.pop("tool_error_rate", UNSET)
 
+        tool_error_rate_luna = d.pop("tool_error_rate_luna", UNSET)
+
         tool_selection_quality = d.pop("tool_selection_quality", UNSET)
+
+        tool_selection_quality_luna = d.pop("tool_selection_quality_luna", UNSET)
 
         toxicity = d.pop("toxicity", UNSET)
 
@@ -311,6 +344,8 @@ class ScorersConfiguration:
         uncertainty = d.pop("uncertainty", UNSET)
 
         scorers_configuration = cls(
+            action_advancement_luna=action_advancement_luna,
+            action_completion_luna=action_completion_luna,
             adherence_nli=adherence_nli,
             agentic_session_success=agentic_session_success,
             agentic_workflow_success=agentic_workflow_success,
@@ -342,7 +377,9 @@ class ScorersConfiguration:
             sexist_gpt=sexist_gpt,
             tone=tone,
             tool_error_rate=tool_error_rate,
+            tool_error_rate_luna=tool_error_rate_luna,
             tool_selection_quality=tool_selection_quality,
+            tool_selection_quality_luna=tool_selection_quality_luna,
             toxicity=toxicity,
             toxicity_gpt=toxicity_gpt,
             uncertainty=uncertainty,

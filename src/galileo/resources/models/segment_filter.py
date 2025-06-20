@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -57,11 +58,11 @@ class SegmentFilter:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         sample_rate = d.pop("sample_rate")
 
         def _parse_filter_(data: object) -> Union["MetadataFilter", "NodeNameFilter", None, Unset]:

@@ -17,9 +17,7 @@ def _get_kwargs(project_id: str, *, body: BodyUploadFileProjectsProjectIdUploadF
 
     _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/upload_file"}
 
-    _body = body.to_multipart()
-
-    _kwargs["files"] = _body
+    _kwargs["files"] = body.to_multipart()
 
     _kwargs["headers"] = headers
     return _kwargs

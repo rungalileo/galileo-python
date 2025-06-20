@@ -16,9 +16,8 @@ def _get_kwargs(*, body: CreateJobRequest) -> dict[str, Any]:
 
     _kwargs: dict[str, Any] = {"method": "post", "url": "/jobs"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers

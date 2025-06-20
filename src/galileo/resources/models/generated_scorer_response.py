@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -88,11 +89,11 @@ class GeneratedScorerResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.chain_poll_template import ChainPollTemplate
         from ..models.generated_scorer_configuration import GeneratedScorerConfiguration
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         chain_poll_template = ChainPollTemplate.from_dict(d.pop("chain_poll_template"))
 
         created_at = isoparse(d.pop("created_at"))
