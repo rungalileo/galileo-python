@@ -6,6 +6,8 @@ from pytest import mark
 
 from galileo.protect import Protect, invoke
 from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.request import Request as APIRequest
+from galileo.resources.models.response import Response as APIResponse
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.request import Request
@@ -53,8 +55,8 @@ def invoke_response_data() -> dict:
     }
 
 
-def invoke_response() -> Response:
-    return Response.model_validate(invoke_response_data())
+def invoke_response() -> APIResponse:
+    return APIResponse.from_dict(invoke_response_data())
 
 
 @mark.parametrize(
@@ -120,7 +122,7 @@ def test_invoke_success(
     expected_project_id = str(current_project_id) if current_project_id else None
     expected_stage_id = str(current_stage_id) if current_stage_id else None
 
-    expected_body = Request(
+    body = Request(
         payload=payload,
         prioritized_rulesets=[],
         project_id=expected_project_id,
@@ -132,6 +134,8 @@ def test_invoke_success(
         metadata=metadata,
         headers=headers,
     )
+
+    expected_body = APIRequest.from_dict(body.model_dump())
 
     mock_invoke_post_sync.assert_called_once_with(client=ANY, body=expected_body)
 
