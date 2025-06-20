@@ -9,13 +9,14 @@ from galileo.resources.api.protect import invoke_v2_protect_invoke_post
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.request import Request as APIRequest
 from galileo.resources.models.response import Response as APIResponse
+from galileo.utils.catch_log import DecorateAllMethods
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.request import Request
 from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
 
 
-class Protect(BaseClientModel):  # , DecorateAllMethods): # Temporarily to see errors
+class Protect(BaseClientModel, DecorateAllMethods):
     def invoke(
         self,
         payload: Payload,
