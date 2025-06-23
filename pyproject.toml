@@ -39,7 +39,7 @@ time-machine = "^2.16.0"  # freezegun causes problems with pydantic model valida
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.0.1"
-mypy = "^1.16.0"
+mypy = "^1.16.1"
 openai = "^1.83.0"
 codeflash = ">=0.12.3"
 ruff = "^0.12.0"
