@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 from uuid import UUID
 
@@ -292,7 +293,11 @@ class MetricSuccess:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"value": value})
+        field_dict.update(
+            {
+                "value": value,
+            }
+        )
         if cost is not UNSET:
             field_dict["cost"] = cost
         if critique is not UNSET:
@@ -315,7 +320,7 @@ class MetricSuccess:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document import Document
         from ..models.feedback_aggregate import FeedbackAggregate
         from ..models.feedback_rating_db import FeedbackRatingDB
@@ -323,7 +328,7 @@ class MetricSuccess:
         from ..models.metric_critique_columnar import MetricCritiqueColumnar
         from ..models.segment import Segment
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_value(
             data: object,

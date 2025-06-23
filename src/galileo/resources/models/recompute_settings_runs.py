@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -27,22 +28,29 @@ class RecomputeSettingsRuns:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"run_ids": run_ids})
+        field_dict.update(
+            {
+                "run_ids": run_ids,
+            }
+        )
         if mode is not UNSET:
             field_dict["mode"] = mode
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         run_ids = cast(list[str], d.pop("run_ids"))
 
         mode = cast(Union[Literal["runs"], Unset], d.pop("mode", UNSET))
         if mode != "runs" and not isinstance(mode, Unset):
             raise ValueError(f"mode must match const 'runs', got '{mode}'")
 
-        recompute_settings_runs = cls(run_ids=run_ids, mode=mode)
+        recompute_settings_runs = cls(
+            run_ids=run_ids,
+            mode=mode,
+        )
 
         recompute_settings_runs.additional_properties = d
         return recompute_settings_runs

@@ -11,14 +11,21 @@ from ...models.run_scorer_settings_response import RunScorerSettingsResponse
 from ...types import Response
 
 
-def _get_kwargs(project_id: str, run_id: str, *, body: RunScorerSettingsPatchRequest) -> dict[str, Any]:
+def _get_kwargs(
+    project_id: str,
+    run_id: str,
+    *,
+    body: RunScorerSettingsPatchRequest,
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/projects/{project_id}/runs/{run_id}/scorer-settings"}
+    _kwargs: dict[str, Any] = {
+        "method": "patch",
+        "url": f"/projects/{project_id}/runs/{run_id}/scorer-settings",
+    }
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
@@ -54,7 +61,11 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, run_id: str, *, client: AuthenticatedClient, body: RunScorerSettingsPatchRequest
+    project_id: str,
+    run_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: RunScorerSettingsPatchRequest,
 ) -> Response[Union[HTTPValidationError, RunScorerSettingsResponse]]:
     """Upsert Scorers Config
 
@@ -71,15 +82,25 @@ def sync_detailed(
         Response[Union[HTTPValidationError, RunScorerSettingsResponse]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        run_id=run_id,
+        body=body,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, run_id: str, *, client: AuthenticatedClient, body: RunScorerSettingsPatchRequest
+    project_id: str,
+    run_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: RunScorerSettingsPatchRequest,
 ) -> Optional[Union[HTTPValidationError, RunScorerSettingsResponse]]:
     """Upsert Scorers Config
 
@@ -96,11 +117,20 @@ def sync(
         Union[HTTPValidationError, RunScorerSettingsResponse]
     """
 
-    return sync_detailed(project_id=project_id, run_id=run_id, client=client, body=body).parsed
+    return sync_detailed(
+        project_id=project_id,
+        run_id=run_id,
+        client=client,
+        body=body,
+    ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, run_id: str, *, client: AuthenticatedClient, body: RunScorerSettingsPatchRequest
+    project_id: str,
+    run_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: RunScorerSettingsPatchRequest,
 ) -> Response[Union[HTTPValidationError, RunScorerSettingsResponse]]:
     """Upsert Scorers Config
 
@@ -117,7 +147,11 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, RunScorerSettingsResponse]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, body=body)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        run_id=run_id,
+        body=body,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -125,7 +159,11 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, run_id: str, *, client: AuthenticatedClient, body: RunScorerSettingsPatchRequest
+    project_id: str,
+    run_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: RunScorerSettingsPatchRequest,
 ) -> Optional[Union[HTTPValidationError, RunScorerSettingsResponse]]:
     """Upsert Scorers Config
 
@@ -142,4 +180,11 @@ async def asyncio(
         Union[HTTPValidationError, RunScorerSettingsResponse]
     """
 
-    return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client, body=body)).parsed
+    return (
+        await asyncio_detailed(
+            project_id=project_id,
+            run_id=run_id,
+            client=client,
+            body=body,
+        )
+    ).parsed

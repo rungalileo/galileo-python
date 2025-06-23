@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -22,6 +23,8 @@ class Model:
     Attributes:
         alias (str):
         name (str):
+        alternative_names (Union[Unset, list[str]]): Alternative names for the model, used for matching with various
+            current, versioned or legacy names.
         api_version (Union[None, Unset, str]):
         assistant_role (Union[None, Unset, str]):
         cost_by (Union[Unset, ModelCostBy]):
@@ -46,6 +49,7 @@ class Model:
 
     alias: str
     name: str
+    alternative_names: Union[Unset, list[str]] = UNSET
     api_version: Union[None, Unset, str] = UNSET
     assistant_role: Union[None, Unset, str] = UNSET
     cost_by: Union[Unset, ModelCostBy] = UNSET
@@ -73,6 +77,10 @@ class Model:
         alias = self.alias
 
         name = self.name
+
+        alternative_names: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.alternative_names, Unset):
+            alternative_names = self.alternative_names
 
         api_version: Union[None, Unset, str]
         if isinstance(self.api_version, Unset):
@@ -154,7 +162,14 @@ class Model:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"alias": alias, "name": name})
+        field_dict.update(
+            {
+                "alias": alias,
+                "name": name,
+            }
+        )
+        if alternative_names is not UNSET:
+            field_dict["alternative_names"] = alternative_names
         if api_version is not UNSET:
             field_dict["api_version"] = api_version
         if assistant_role is not UNSET:
@@ -195,15 +210,17 @@ class Model:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.input_map import InputMap
         from ..models.output_map import OutputMap
         from ..models.run_params_map import RunParamsMap
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         alias = d.pop("alias")
 
         name = d.pop("name")
+
+        alternative_names = cast(list[str], d.pop("alternative_names", UNSET))
 
         def _parse_api_version(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -331,6 +348,7 @@ class Model:
         model = cls(
             alias=alias,
             name=name,
+            alternative_names=alternative_names,
             api_version=api_version,
             assistant_role=assistant_role,
             cost_by=cost_by,

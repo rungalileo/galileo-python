@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -44,15 +45,21 @@ class LogRecordsNumberFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"column_id": column_id, "operator": operator, "value": value})
+        field_dict.update(
+            {
+                "column_id": column_id,
+                "operator": operator,
+                "value": value,
+            }
+        )
         if type_ is not UNSET:
             field_dict["type"] = type_
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         column_id = d.pop("column_id")
 
         operator = LogRecordsNumberFilterOperator(d.pop("operator"))
@@ -82,7 +89,12 @@ class LogRecordsNumberFilter:
         if type_ != "number" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'number', got '{type_}'")
 
-        log_records_number_filter = cls(column_id=column_id, operator=operator, value=value, type_=type_)
+        log_records_number_filter = cls(
+            column_id=column_id,
+            operator=operator,
+            value=value,
+            type_=type_,
+        )
 
         log_records_number_filter.additional_properties = d
         return log_records_number_filter

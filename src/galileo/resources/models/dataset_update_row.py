@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -47,7 +48,11 @@ class DatasetUpdateRow:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"values": values})
+        field_dict.update(
+            {
+                "values": values,
+            }
+        )
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
         if index is not UNSET:
@@ -58,10 +63,10 @@ class DatasetUpdateRow:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_update_row_values import DatasetUpdateRowValues
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         values = DatasetUpdateRowValues.from_dict(d.pop("values"))
 
         edit_type = cast(Union[Literal["update_row"], Unset], d.pop("edit_type", UNSET))
@@ -86,7 +91,12 @@ class DatasetUpdateRow:
 
         row_id = _parse_row_id(d.pop("row_id", UNSET))
 
-        dataset_update_row = cls(values=values, edit_type=edit_type, index=index, row_id=row_id)
+        dataset_update_row = cls(
+            values=values,
+            edit_type=edit_type,
+            index=index,
+            row_id=row_id,
+        )
 
         dataset_update_row.additional_properties = d
         return dataset_update_row

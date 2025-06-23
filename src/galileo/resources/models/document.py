@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -30,17 +31,22 @@ class Document:
             metadata = self.metadata.to_dict()
 
         field_dict: dict[str, Any] = {}
-        field_dict.update({"page_content": page_content})
+
+        field_dict.update(
+            {
+                "page_content": page_content,
+            }
+        )
         if metadata is not UNSET:
             field_dict["metadata"] = metadata
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document_metadata import DocumentMetadata
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         page_content = d.pop("page_content")
 
         _metadata = d.pop("metadata", UNSET)
@@ -50,6 +56,9 @@ class Document:
         else:
             metadata = DocumentMetadata.from_dict(_metadata)
 
-        document = cls(page_content=page_content, metadata=metadata)
+        document = cls(
+            page_content=page_content,
+            metadata=metadata,
+        )
 
         return document

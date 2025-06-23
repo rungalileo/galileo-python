@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -49,18 +50,23 @@ class RunScorerSettingsResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"run_id": run_id, "scorers": scorers})
+        field_dict.update(
+            {
+                "run_id": run_id,
+                "scorers": scorers,
+            }
+        )
         if segment_filters is not UNSET:
             field_dict["segment_filters"] = segment_filters
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.scorer_config import ScorerConfig
         from ..models.segment_filter import SegmentFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         run_id = d.pop("run_id")
 
         scorers = []
@@ -92,7 +98,11 @@ class RunScorerSettingsResponse:
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 
-        run_scorer_settings_response = cls(run_id=run_id, scorers=scorers, segment_filters=segment_filters)
+        run_scorer_settings_response = cls(
+            run_id=run_id,
+            scorers=scorers,
+            segment_filters=segment_filters,
+        )
 
         run_scorer_settings_response.additional_properties = d
         return run_scorer_settings_response

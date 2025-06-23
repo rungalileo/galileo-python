@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -53,8 +54,8 @@ class MetricFailed:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
 
         def _parse_message(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -86,7 +87,11 @@ class MetricFailed:
         if status_type != "failed" and not isinstance(status_type, Unset):
             raise ValueError(f"status_type must match const 'failed', got '{status_type}'")
 
-        metric_failed = cls(message=message, scorer_type=scorer_type, status_type=status_type)
+        metric_failed = cls(
+            message=message,
+            scorer_type=scorer_type,
+            status_type=status_type,
+        )
 
         metric_failed.additional_properties = d
         return metric_failed

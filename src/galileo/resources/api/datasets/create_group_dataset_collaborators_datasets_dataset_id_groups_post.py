@@ -11,17 +11,23 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(dataset_id: str, *, body: list["GroupCollaboratorCreate"]) -> dict[str, Any]:
+def _get_kwargs(
+    dataset_id: str,
+    *,
+    body: list["GroupCollaboratorCreate"],
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/datasets/{dataset_id}/groups"}
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": f"/datasets/{dataset_id}/groups",
+    }
 
-    _body = []
+    _kwargs["json"] = []
     for body_item_data in body:
         body_item = body_item_data.to_dict()
-        _body.append(body_item)
+        _kwargs["json"].append(body_item)
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
@@ -62,7 +68,10 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str, *, client: AuthenticatedClient, body: list["GroupCollaboratorCreate"]
+    dataset_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: list["GroupCollaboratorCreate"],
 ) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
     """Create Group Dataset Collaborators
 
@@ -80,15 +89,23 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['GroupCollaborator']]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        body=body,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    dataset_id: str, *, client: AuthenticatedClient, body: list["GroupCollaboratorCreate"]
+    dataset_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: list["GroupCollaboratorCreate"],
 ) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
     """Create Group Dataset Collaborators
 
@@ -106,11 +123,18 @@ def sync(
         Union[HTTPValidationError, list['GroupCollaborator']]
     """
 
-    return sync_detailed(dataset_id=dataset_id, client=client, body=body).parsed
+    return sync_detailed(
+        dataset_id=dataset_id,
+        client=client,
+        body=body,
+    ).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str, *, client: AuthenticatedClient, body: list["GroupCollaboratorCreate"]
+    dataset_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: list["GroupCollaboratorCreate"],
 ) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
     """Create Group Dataset Collaborators
 
@@ -128,7 +152,10 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['GroupCollaborator']]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        body=body,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -136,7 +163,10 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str, *, client: AuthenticatedClient, body: list["GroupCollaboratorCreate"]
+    dataset_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: list["GroupCollaboratorCreate"],
 ) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
     """Create Group Dataset Collaborators
 
@@ -154,4 +184,10 @@ async def asyncio(
         Union[HTTPValidationError, list['GroupCollaborator']]
     """
 
-    return (await asyncio_detailed(dataset_id=dataset_id, client=client, body=body)).parsed
+    return (
+        await asyncio_detailed(
+            dataset_id=dataset_id,
+            client=client,
+            body=body,
+        )
+    ).parsed

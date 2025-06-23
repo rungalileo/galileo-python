@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -39,10 +40,10 @@ class ExperimentsAvailableColumnsResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.column_info import ColumnInfo
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         columns = []
         _columns = d.pop("columns", UNSET)
         for columns_item_data in _columns or []:
@@ -50,7 +51,9 @@ class ExperimentsAvailableColumnsResponse:
 
             columns.append(columns_item)
 
-        experiments_available_columns_response = cls(columns=columns)
+        experiments_available_columns_response = cls(
+            columns=columns,
+        )
 
         experiments_available_columns_response.additional_properties = d
         return experiments_available_columns_response

@@ -11,14 +11,19 @@ from ...models.project_create_response import ProjectCreateResponse
 from ...types import Response
 
 
-def _get_kwargs(*, body: ProjectCreate) -> dict[str, Any]:
+def _get_kwargs(
+    *,
+    body: ProjectCreate,
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": "/projects"}
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": "/projects",
+    }
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
@@ -54,7 +59,9 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: AuthenticatedClient, body: ProjectCreate
+    *,
+    client: AuthenticatedClient,
+    body: ProjectCreate,
 ) -> Response[Union[HTTPValidationError, ProjectCreateResponse]]:
     """Create Project
 
@@ -71,15 +78,21 @@ def sync_detailed(
         Response[Union[HTTPValidationError, ProjectCreateResponse]]
     """
 
-    kwargs = _get_kwargs(body=body)
+    kwargs = _get_kwargs(
+        body=body,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *, client: AuthenticatedClient, body: ProjectCreate
+    *,
+    client: AuthenticatedClient,
+    body: ProjectCreate,
 ) -> Optional[Union[HTTPValidationError, ProjectCreateResponse]]:
     """Create Project
 
@@ -96,11 +109,16 @@ def sync(
         Union[HTTPValidationError, ProjectCreateResponse]
     """
 
-    return sync_detailed(client=client, body=body).parsed
+    return sync_detailed(
+        client=client,
+        body=body,
+    ).parsed
 
 
 async def asyncio_detailed(
-    *, client: AuthenticatedClient, body: ProjectCreate
+    *,
+    client: AuthenticatedClient,
+    body: ProjectCreate,
 ) -> Response[Union[HTTPValidationError, ProjectCreateResponse]]:
     """Create Project
 
@@ -117,7 +135,9 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, ProjectCreateResponse]]
     """
 
-    kwargs = _get_kwargs(body=body)
+    kwargs = _get_kwargs(
+        body=body,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -125,7 +145,9 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *, client: AuthenticatedClient, body: ProjectCreate
+    *,
+    client: AuthenticatedClient,
+    body: ProjectCreate,
 ) -> Optional[Union[HTTPValidationError, ProjectCreateResponse]]:
     """Create Project
 
@@ -142,4 +164,9 @@ async def asyncio(
         Union[HTTPValidationError, ProjectCreateResponse]
     """
 
-    return (await asyncio_detailed(client=client, body=body)).parsed
+    return (
+        await asyncio_detailed(
+            client=client,
+            body=body,
+        )
+    ).parsed

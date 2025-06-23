@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -35,7 +36,11 @@ class DatasetLastEditedByUserAtSort:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"value": value})
+        field_dict.update(
+            {
+                "value": value,
+            }
+        )
         if ascending is not UNSET:
             field_dict["ascending"] = ascending
         if name is not UNSET:
@@ -46,8 +51,8 @@ class DatasetLastEditedByUserAtSort:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         value = d.pop("value")
 
         ascending = d.pop("ascending", UNSET)
@@ -60,7 +65,12 @@ class DatasetLastEditedByUserAtSort:
         if sort_type != "custom_uuid" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'custom_uuid', got '{sort_type}'")
 
-        dataset_last_edited_by_user_at_sort = cls(value=value, ascending=ascending, name=name, sort_type=sort_type)
+        dataset_last_edited_by_user_at_sort = cls(
+            value=value,
+            ascending=ascending,
+            name=name,
+            sort_type=sort_type,
+        )
 
         dataset_last_edited_by_user_at_sort.additional_properties = d
         return dataset_last_edited_by_user_at_sort

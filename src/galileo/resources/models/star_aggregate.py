@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -39,17 +40,23 @@ class StarAggregate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"average": average, "counts": counts, "unrated_count": unrated_count})
+        field_dict.update(
+            {
+                "average": average,
+                "counts": counts,
+                "unrated_count": unrated_count,
+            }
+        )
         if feedback_type is not UNSET:
             field_dict["feedback_type"] = feedback_type
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.star_aggregate_counts import StarAggregateCounts
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         average = d.pop("average")
 
         counts = StarAggregateCounts.from_dict(d.pop("counts"))
@@ -60,7 +67,12 @@ class StarAggregate:
         if feedback_type != "star" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'star', got '{feedback_type}'")
 
-        star_aggregate = cls(average=average, counts=counts, unrated_count=unrated_count, feedback_type=feedback_type)
+        star_aggregate = cls(
+            average=average,
+            counts=counts,
+            unrated_count=unrated_count,
+            feedback_type=feedback_type,
+        )
 
         star_aggregate.additional_properties = d
         return star_aggregate

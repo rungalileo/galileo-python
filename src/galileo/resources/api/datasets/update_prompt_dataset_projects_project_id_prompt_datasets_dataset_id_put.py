@@ -22,6 +22,7 @@ def _get_kwargs(
     file_name: Union[None, Unset, str] = UNSET,
     num_rows: Union[None, Unset, int] = UNSET,
     format_: Union[Unset, DatasetFormat] = UNSET,
+    hidden: Union[Unset, bool] = False,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -47,6 +48,8 @@ def _get_kwargs(
 
     params["format"] = json_format_
 
+    params["hidden"] = hidden
+
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
@@ -55,9 +58,7 @@ def _get_kwargs(
         "params": params,
     }
 
-    _body = body.to_multipart()
-
-    _kwargs["files"] = _body
+    _kwargs["files"] = body.to_multipart()
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -100,6 +101,7 @@ def sync_detailed(
     file_name: Union[None, Unset, str] = UNSET,
     num_rows: Union[None, Unset, int] = UNSET,
     format_: Union[Unset, DatasetFormat] = UNSET,
+    hidden: Union[Unset, bool] = False,
 ) -> Response[Union[HTTPValidationError, PromptDatasetDB]]:
     """Update Prompt Dataset
 
@@ -109,6 +111,7 @@ def sync_detailed(
         file_name (Union[None, Unset, str]):
         num_rows (Union[None, Unset, int]):
         format_ (Union[Unset, DatasetFormat]):
+        hidden (Union[Unset, bool]):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut):
 
     Raises:
@@ -120,10 +123,18 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        project_id=project_id, dataset_id=dataset_id, body=body, file_name=file_name, num_rows=num_rows, format_=format_
+        project_id=project_id,
+        dataset_id=dataset_id,
+        body=body,
+        file_name=file_name,
+        num_rows=num_rows,
+        format_=format_,
+        hidden=hidden,
     )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
@@ -137,6 +148,7 @@ def sync(
     file_name: Union[None, Unset, str] = UNSET,
     num_rows: Union[None, Unset, int] = UNSET,
     format_: Union[Unset, DatasetFormat] = UNSET,
+    hidden: Union[Unset, bool] = False,
 ) -> Optional[Union[HTTPValidationError, PromptDatasetDB]]:
     """Update Prompt Dataset
 
@@ -146,6 +158,7 @@ def sync(
         file_name (Union[None, Unset, str]):
         num_rows (Union[None, Unset, int]):
         format_ (Union[Unset, DatasetFormat]):
+        hidden (Union[Unset, bool]):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut):
 
     Raises:
@@ -164,6 +177,7 @@ def sync(
         file_name=file_name,
         num_rows=num_rows,
         format_=format_,
+        hidden=hidden,
     ).parsed
 
 
@@ -176,6 +190,7 @@ async def asyncio_detailed(
     file_name: Union[None, Unset, str] = UNSET,
     num_rows: Union[None, Unset, int] = UNSET,
     format_: Union[Unset, DatasetFormat] = UNSET,
+    hidden: Union[Unset, bool] = False,
 ) -> Response[Union[HTTPValidationError, PromptDatasetDB]]:
     """Update Prompt Dataset
 
@@ -185,6 +200,7 @@ async def asyncio_detailed(
         file_name (Union[None, Unset, str]):
         num_rows (Union[None, Unset, int]):
         format_ (Union[Unset, DatasetFormat]):
+        hidden (Union[Unset, bool]):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut):
 
     Raises:
@@ -196,7 +212,13 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        project_id=project_id, dataset_id=dataset_id, body=body, file_name=file_name, num_rows=num_rows, format_=format_
+        project_id=project_id,
+        dataset_id=dataset_id,
+        body=body,
+        file_name=file_name,
+        num_rows=num_rows,
+        format_=format_,
+        hidden=hidden,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)
@@ -213,6 +235,7 @@ async def asyncio(
     file_name: Union[None, Unset, str] = UNSET,
     num_rows: Union[None, Unset, int] = UNSET,
     format_: Union[Unset, DatasetFormat] = UNSET,
+    hidden: Union[Unset, bool] = False,
 ) -> Optional[Union[HTTPValidationError, PromptDatasetDB]]:
     """Update Prompt Dataset
 
@@ -222,6 +245,7 @@ async def asyncio(
         file_name (Union[None, Unset, str]):
         num_rows (Union[None, Unset, int]):
         format_ (Union[Unset, DatasetFormat]):
+        hidden (Union[Unset, bool]):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut):
 
     Raises:
@@ -241,5 +265,6 @@ async def asyncio(
             file_name=file_name,
             num_rows=num_rows,
             format_=format_,
+            hidden=hidden,
         )
     ).parsed

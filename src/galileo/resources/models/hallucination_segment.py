@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -35,15 +36,21 @@ class HallucinationSegment:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"end": end, "hallucination": hallucination, "start": start})
+        field_dict.update(
+            {
+                "end": end,
+                "hallucination": hallucination,
+                "start": start,
+            }
+        )
         if hallucination_severity is not UNSET:
             field_dict["hallucination_severity"] = hallucination_severity
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         end = d.pop("end")
 
         hallucination = d.pop("hallucination")
@@ -53,7 +60,10 @@ class HallucinationSegment:
         hallucination_severity = d.pop("hallucination_severity", UNSET)
 
         hallucination_segment = cls(
-            end=end, hallucination=hallucination, start=start, hallucination_severity=hallucination_severity
+            end=end,
+            hallucination=hallucination,
+            start=start,
+            hallucination_severity=hallucination_severity,
         )
 
         hallucination_segment.additional_properties = d

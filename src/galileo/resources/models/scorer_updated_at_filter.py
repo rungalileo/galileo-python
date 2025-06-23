@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -34,15 +35,20 @@ class ScorerUpdatedAtFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"operator": operator, "value": value})
+        field_dict.update(
+            {
+                "operator": operator,
+                "value": value,
+            }
+        )
         if name is not UNSET:
             field_dict["name"] = name
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         operator = ScorerUpdatedAtFilterOperator(d.pop("operator"))
 
         value = isoparse(d.pop("value"))
@@ -51,7 +57,11 @@ class ScorerUpdatedAtFilter:
         if name != "updated_at" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'updated_at', got '{name}'")
 
-        scorer_updated_at_filter = cls(operator=operator, value=value, name=name)
+        scorer_updated_at_filter = cls(
+            operator=operator,
+            value=value,
+            name=name,
+        )
 
         scorer_updated_at_filter.additional_properties = d
         return scorer_updated_at_filter

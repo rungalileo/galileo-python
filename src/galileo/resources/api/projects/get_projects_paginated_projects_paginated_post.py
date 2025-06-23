@@ -38,11 +38,14 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": "/projects/paginated", "params": params}
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": "/projects/paginated",
+        "params": params,
+    }
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
@@ -106,9 +109,16 @@ def sync_detailed(
         Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(body=body, actions=actions, starting_token=starting_token, limit=limit)
+    kwargs = _get_kwargs(
+        body=body,
+        actions=actions,
+        starting_token=starting_token,
+        limit=limit,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
@@ -142,7 +152,13 @@ def sync(
         Union[GetProjectsPaginatedResponse, HTTPValidationError]
     """
 
-    return sync_detailed(client=client, body=body, actions=actions, starting_token=starting_token, limit=limit).parsed
+    return sync_detailed(
+        client=client,
+        body=body,
+        actions=actions,
+        starting_token=starting_token,
+        limit=limit,
+    ).parsed
 
 
 async def asyncio_detailed(
@@ -174,7 +190,12 @@ async def asyncio_detailed(
         Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(body=body, actions=actions, starting_token=starting_token, limit=limit)
+    kwargs = _get_kwargs(
+        body=body,
+        actions=actions,
+        starting_token=starting_token,
+        limit=limit,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -211,5 +232,11 @@ async def asyncio(
     """
 
     return (
-        await asyncio_detailed(client=client, body=body, actions=actions, starting_token=starting_token, limit=limit)
+        await asyncio_detailed(
+            client=client,
+            body=body,
+            actions=actions,
+            starting_token=starting_token,
+            limit=limit,
+        )
     ).parsed

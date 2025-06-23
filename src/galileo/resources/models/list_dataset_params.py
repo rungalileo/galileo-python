@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -101,7 +102,7 @@ class ListDatasetParams:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_created_at_sort import DatasetCreatedAtSort
         from ..models.dataset_draft_filter import DatasetDraftFilter
         from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
@@ -113,7 +114,7 @@ class ListDatasetParams:
         from ..models.dataset_updated_at_sort import DatasetUpdatedAtSort
         from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         filters = []
         _filters = d.pop("filters", UNSET)
         for filters_item_data in _filters or []:
@@ -237,7 +238,10 @@ class ListDatasetParams:
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
-        list_dataset_params = cls(filters=filters, sort=sort)
+        list_dataset_params = cls(
+            filters=filters,
+            sort=sort,
+        )
 
         list_dataset_params.additional_properties = d
         return list_dataset_params

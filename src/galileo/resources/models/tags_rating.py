@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -27,22 +28,29 @@ class TagsRating:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"value": value})
+        field_dict.update(
+            {
+                "value": value,
+            }
+        )
         if feedback_type is not UNSET:
             field_dict["feedback_type"] = feedback_type
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         value = cast(list[str], d.pop("value"))
 
         feedback_type = cast(Union[Literal["tags"], Unset], d.pop("feedback_type", UNSET))
         if feedback_type != "tags" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'tags', got '{feedback_type}'")
 
-        tags_rating = cls(value=value, feedback_type=feedback_type)
+        tags_rating = cls(
+            value=value,
+            feedback_type=feedback_type,
+        )
 
         tags_rating.additional_properties = d
         return tags_rating

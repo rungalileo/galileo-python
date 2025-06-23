@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -35,17 +36,22 @@ class TagsAggregate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"counts": counts, "unrated_count": unrated_count})
+        field_dict.update(
+            {
+                "counts": counts,
+                "unrated_count": unrated_count,
+            }
+        )
         if feedback_type is not UNSET:
             field_dict["feedback_type"] = feedback_type
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.tags_aggregate_counts import TagsAggregateCounts
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         counts = TagsAggregateCounts.from_dict(d.pop("counts"))
 
         unrated_count = d.pop("unrated_count")
@@ -54,7 +60,11 @@ class TagsAggregate:
         if feedback_type != "tags" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'tags', got '{feedback_type}'")
 
-        tags_aggregate = cls(counts=counts, unrated_count=unrated_count, feedback_type=feedback_type)
+        tags_aggregate = cls(
+            counts=counts,
+            unrated_count=unrated_count,
+            feedback_type=feedback_type,
+        )
 
         tags_aggregate.additional_properties = d
         return tags_aggregate

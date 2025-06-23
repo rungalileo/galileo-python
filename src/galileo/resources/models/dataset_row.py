@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -53,17 +54,23 @@ class DatasetRow:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {"index": index, "metadata": metadata, "row_id": row_id, "values": values, "values_dict": values_dict}
+            {
+                "index": index,
+                "metadata": metadata,
+                "row_id": row_id,
+                "values": values,
+                "values_dict": values_dict,
+            }
         )
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_row_metadata import DatasetRowMetadata
         from ..models.dataset_row_values_dict import DatasetRowValuesDict
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         index = d.pop("index")
 
         def _parse_metadata(data: object) -> Union["DatasetRowMetadata", None]:
@@ -98,7 +105,13 @@ class DatasetRow:
 
         values_dict = DatasetRowValuesDict.from_dict(d.pop("values_dict"))
 
-        dataset_row = cls(index=index, metadata=metadata, row_id=row_id, values=values, values_dict=values_dict)
+        dataset_row = cls(
+            index=index,
+            metadata=metadata,
+            row_id=row_id,
+            values=values,
+            values_dict=values_dict,
+        )
 
         dataset_row.additional_properties = d
         return dataset_row

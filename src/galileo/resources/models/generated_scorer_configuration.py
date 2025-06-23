@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -36,13 +37,16 @@ class GeneratedScorerConfiguration:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         model_alias = d.pop("model_alias", UNSET)
 
         num_judges = d.pop("num_judges", UNSET)
 
-        generated_scorer_configuration = cls(model_alias=model_alias, num_judges=num_judges)
+        generated_scorer_configuration = cls(
+            model_alias=model_alias,
+            num_judges=num_judges,
+        )
 
         generated_scorer_configuration.additional_properties = d
         return generated_scorer_configuration

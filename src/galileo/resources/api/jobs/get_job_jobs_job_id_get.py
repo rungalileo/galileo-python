@@ -10,8 +10,13 @@ from ...models.job_db import JobDB
 from ...types import Response
 
 
-def _get_kwargs(job_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": f"/jobs/{job_id}"}
+def _get_kwargs(
+    job_id: str,
+) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {
+        "method": "get",
+        "url": f"/jobs/{job_id}",
+    }
 
     return _kwargs
 
@@ -44,7 +49,11 @@ def _build_response(
     )
 
 
-def sync_detailed(job_id: str, *, client: AuthenticatedClient) -> Response[Union[HTTPValidationError, JobDB]]:
+def sync_detailed(
+    job_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Response[Union[HTTPValidationError, JobDB]]:
     """Get Job
 
      Get a job by id.
@@ -60,14 +69,22 @@ def sync_detailed(job_id: str, *, client: AuthenticatedClient) -> Response[Union
         Response[Union[HTTPValidationError, JobDB]]
     """
 
-    kwargs = _get_kwargs(job_id=job_id)
+    kwargs = _get_kwargs(
+        job_id=job_id,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
-def sync(job_id: str, *, client: AuthenticatedClient) -> Optional[Union[HTTPValidationError, JobDB]]:
+def sync(
+    job_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Optional[Union[HTTPValidationError, JobDB]]:
     """Get Job
 
      Get a job by id.
@@ -83,10 +100,17 @@ def sync(job_id: str, *, client: AuthenticatedClient) -> Optional[Union[HTTPVali
         Union[HTTPValidationError, JobDB]
     """
 
-    return sync_detailed(job_id=job_id, client=client).parsed
+    return sync_detailed(
+        job_id=job_id,
+        client=client,
+    ).parsed
 
 
-async def asyncio_detailed(job_id: str, *, client: AuthenticatedClient) -> Response[Union[HTTPValidationError, JobDB]]:
+async def asyncio_detailed(
+    job_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Response[Union[HTTPValidationError, JobDB]]:
     """Get Job
 
      Get a job by id.
@@ -102,14 +126,20 @@ async def asyncio_detailed(job_id: str, *, client: AuthenticatedClient) -> Respo
         Response[Union[HTTPValidationError, JobDB]]
     """
 
-    kwargs = _get_kwargs(job_id=job_id)
+    kwargs = _get_kwargs(
+        job_id=job_id,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(job_id: str, *, client: AuthenticatedClient) -> Optional[Union[HTTPValidationError, JobDB]]:
+async def asyncio(
+    job_id: str,
+    *,
+    client: AuthenticatedClient,
+) -> Optional[Union[HTTPValidationError, JobDB]]:
     """Get Job
 
      Get a job by id.
@@ -125,4 +155,9 @@ async def asyncio(job_id: str, *, client: AuthenticatedClient) -> Optional[Union
         Union[HTTPValidationError, JobDB]
     """
 
-    return (await asyncio_detailed(job_id=job_id, client=client)).parsed
+    return (
+        await asyncio_detailed(
+            job_id=job_id,
+            client=client,
+        )
+    ).parsed

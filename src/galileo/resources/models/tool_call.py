@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -29,20 +30,28 @@ class ToolCall:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"function": function, "id": id})
+        field_dict.update(
+            {
+                "function": function,
+                "id": id,
+            }
+        )
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.tool_call_function import ToolCallFunction
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         function = ToolCallFunction.from_dict(d.pop("function"))
 
         id = d.pop("id")
 
-        tool_call = cls(function=function, id=id)
+        tool_call = cls(
+            function=function,
+            id=id,
+        )
 
         tool_call.additional_properties = d
         return tool_call

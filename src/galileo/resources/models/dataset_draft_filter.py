@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -32,15 +33,20 @@ class DatasetDraftFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"operator": operator, "value": value})
+        field_dict.update(
+            {
+                "operator": operator,
+                "value": value,
+            }
+        )
         if name is not UNSET:
             field_dict["name"] = name
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         operator = DatasetDraftFilterOperator(d.pop("operator"))
 
         value = d.pop("value")
@@ -49,7 +55,11 @@ class DatasetDraftFilter:
         if name != "draft" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'draft', got '{name}'")
 
-        dataset_draft_filter = cls(operator=operator, value=value, name=name)
+        dataset_draft_filter = cls(
+            operator=operator,
+            value=value,
+            name=name,
+        )
 
         dataset_draft_filter.additional_properties = d
         return dataset_draft_filter

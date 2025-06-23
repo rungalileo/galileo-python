@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -40,17 +41,21 @@ class UpdateDatasetContentRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"edits": edits})
+        field_dict.update(
+            {
+                "edits": edits,
+            }
+        )
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_append_row import DatasetAppendRow
         from ..models.dataset_delete_row import DatasetDeleteRow
         from ..models.dataset_update_row import DatasetUpdateRow
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         edits = []
         _edits = d.pop("edits")
         for edits_item_data in _edits:
@@ -82,7 +87,9 @@ class UpdateDatasetContentRequest:
 
             edits.append(edits_item)
 
-        update_dataset_content_request = cls(edits=edits)
+        update_dataset_content_request = cls(
+            edits=edits,
+        )
 
         update_dataset_content_request.additional_properties = d
         return update_dataset_content_request

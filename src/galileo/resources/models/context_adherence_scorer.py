@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -88,11 +89,11 @@ class ContextAdherenceScorer:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -162,7 +163,11 @@ class ContextAdherenceScorer:
             type_ = ContextAdherenceScorerType(_type_)
 
         context_adherence_scorer = cls(
-            filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_
+            filters=filters,
+            model_name=model_name,
+            name=name,
+            num_judges=num_judges,
+            type_=type_,
         )
 
         context_adherence_scorer.additional_properties = d

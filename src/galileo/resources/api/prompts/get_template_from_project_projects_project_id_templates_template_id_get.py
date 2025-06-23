@@ -10,8 +10,14 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(project_id: str, template_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/templates/{template_id}"}
+def _get_kwargs(
+    project_id: str,
+    template_id: str,
+) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {
+        "method": "get",
+        "url": f"/projects/{project_id}/templates/{template_id}",
+    }
 
     return _kwargs
 
@@ -45,7 +51,10 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, template_id: str, *, client: AuthenticatedClient
+    project_id: str,
+    template_id: str,
+    *,
+    client: AuthenticatedClient,
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Get Template From Project
 
@@ -56,9 +65,9 @@ def sync_detailed(
     template_id : UUID4
         Prompt template ID.
     project_id : UUID4
-        Prokect ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+        Project ID.
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context).
 
     Returns
     -------
@@ -77,15 +86,23 @@ def sync_detailed(
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, template_id=template_id)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        template_id=template_id,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, template_id: str, *, client: AuthenticatedClient
+    project_id: str,
+    template_id: str,
+    *,
+    client: AuthenticatedClient,
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Get Template From Project
 
@@ -96,9 +113,9 @@ def sync(
     template_id : UUID4
         Prompt template ID.
     project_id : UUID4
-        Prokect ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+        Project ID.
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context).
 
     Returns
     -------
@@ -117,11 +134,18 @@ def sync(
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
 
-    return sync_detailed(project_id=project_id, template_id=template_id, client=client).parsed
+    return sync_detailed(
+        project_id=project_id,
+        template_id=template_id,
+        client=client,
+    ).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, template_id: str, *, client: AuthenticatedClient
+    project_id: str,
+    template_id: str,
+    *,
+    client: AuthenticatedClient,
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Get Template From Project
 
@@ -132,9 +156,9 @@ async def asyncio_detailed(
     template_id : UUID4
         Prompt template ID.
     project_id : UUID4
-        Prokect ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+        Project ID.
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context).
 
     Returns
     -------
@@ -153,7 +177,10 @@ async def asyncio_detailed(
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, template_id=template_id)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        template_id=template_id,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -161,7 +188,10 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str, template_id: str, *, client: AuthenticatedClient
+    project_id: str,
+    template_id: str,
+    *,
+    client: AuthenticatedClient,
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Get Template From Project
 
@@ -172,9 +202,9 @@ async def asyncio(
     template_id : UUID4
         Prompt template ID.
     project_id : UUID4
-        Prokect ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+        Project ID.
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context).
 
     Returns
     -------
@@ -193,4 +223,10 @@ async def asyncio(
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
 
-    return (await asyncio_detailed(project_id=project_id, template_id=template_id, client=client)).parsed
+    return (
+        await asyncio_detailed(
+            project_id=project_id,
+            template_id=template_id,
+            client=client,
+        )
+    ).parsed

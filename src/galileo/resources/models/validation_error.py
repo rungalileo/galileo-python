@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -33,13 +34,19 @@ class ValidationError:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"loc": loc, "msg": msg, "type": type_})
+        field_dict.update(
+            {
+                "loc": loc,
+                "msg": msg,
+                "type": type_,
+            }
+        )
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         loc = []
         _loc = d.pop("loc")
         for loc_item_data in _loc:
@@ -55,7 +62,11 @@ class ValidationError:
 
         type_ = d.pop("type")
 
-        validation_error = cls(loc=loc, msg=msg, type_=type_)
+        validation_error = cls(
+            loc=loc,
+            msg=msg,
+            type_=type_,
+        )
 
         validation_error.additional_properties = d
         return validation_error

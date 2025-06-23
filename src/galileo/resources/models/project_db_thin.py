@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -82,7 +83,13 @@ class ProjectDBThin:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {"created_at": created_at, "created_by": created_by, "id": id, "runs": runs, "updated_at": updated_at}
+            {
+                "created_at": created_at,
+                "created_by": created_by,
+                "id": id,
+                "runs": runs,
+                "updated_at": updated_at,
+            }
         )
         if bookmark is not UNSET:
             field_dict["bookmark"] = bookmark
@@ -96,11 +103,11 @@ class ProjectDBThin:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.permission import Permission
         from ..models.run_db_thin import RunDBThin
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         created_at = isoparse(d.pop("created_at"))
 
         created_by = d.pop("created_by")

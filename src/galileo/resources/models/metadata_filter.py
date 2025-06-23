@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -46,7 +47,13 @@ class MetadataFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"key": key, "operator": operator, "value": value})
+        field_dict.update(
+            {
+                "key": key,
+                "operator": operator,
+                "value": value,
+            }
+        )
         if filter_type is not UNSET:
             field_dict["filter_type"] = filter_type
         if name is not UNSET:
@@ -55,8 +62,8 @@ class MetadataFilter:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         key = d.pop("key")
 
         operator = MetadataFilterOperator(d.pop("operator"))
@@ -82,7 +89,13 @@ class MetadataFilter:
         if name != "metadata" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'metadata', got '{name}'")
 
-        metadata_filter = cls(key=key, operator=operator, value=value, filter_type=filter_type, name=name)
+        metadata_filter = cls(
+            key=key,
+            operator=operator,
+            value=value,
+            filter_type=filter_type,
+            name=name,
+        )
 
         metadata_filter.additional_properties = d
         return metadata_filter
