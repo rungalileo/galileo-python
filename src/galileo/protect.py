@@ -7,6 +7,8 @@ from galileo.base import BaseClientModel
 from galileo.constants.protect import TIMEOUT
 from galileo.resources.api.protect import invoke_v2_protect_invoke_post
 from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.request import Request as APIRequest
+from galileo.resources.models.response import Response as APIResponse
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.request import Request
@@ -44,7 +46,7 @@ class Protect(BaseClientModel, DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        body = Request(
+        request = Request(
             payload=payload,
             prioritized_rulesets=prioritized_rulesets or [],
             project_id=str(project_id) if project_id is not None else None,
@@ -56,10 +58,14 @@ class Protect(BaseClientModel, DecorateAllMethods):
             metadata=metadata,
             headers=headers,
         )
+        body = APIRequest.from_dict(request.model_dump())
 
-        response: Optional[Union[Response, HTTPValidationError]] = invoke_v2_protect_invoke_post.sync(
+        response: Optional[Union[APIResponse, HTTPValidationError]] = invoke_v2_protect_invoke_post.sync(
             client=self.client, body=body
         )
+
+        if isinstance(response, APIResponse):
+            return Response.model_validate(response.to_dict())
         return response
 
 
