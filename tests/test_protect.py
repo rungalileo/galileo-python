@@ -4,12 +4,14 @@ from uuid import uuid4
 
 from pytest import mark
 
+from galileo.handlers.langchain.tool import ProtectTool
 from galileo.protect import Protect, invoke
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.request import Request
 from galileo_core.schemas.protect.response import Response
+from galileo_core.schemas.protect.ruleset import Ruleset
 
 A_PROJECT_NAME = "project_name"
 A_STAGE_NAME = "stage_name"
@@ -85,66 +87,109 @@ def invoke_response() -> Response:
 @mark.parametrize("headers", [None, {"key": "value"}])
 @mark.parametrize("stage_version", [None, 1, 2])
 @patch("galileo.protect.invoke_v2_protect_invoke_post.sync")
-def test_invoke_success(
-    mock_invoke_post_sync: Mock,
-    include_project_id: bool,
-    include_project_name: bool,
-    include_stage_name: bool,
-    include_stage_id: bool,
-    payload: Payload,
-    timeout: float,
-    metadata: dict,
-    headers: dict,
-    stage_version: Optional[int],
-) -> None:
-    mock_invoke_post_sync.return_value = invoke_response()
+class TestInvoke:
+    def test_invoke_success(
+        self,
+        mock_invoke_post_sync: Mock,
+        include_project_id: bool,
+        include_project_name: bool,
+        include_stage_name: bool,
+        include_stage_id: bool,
+        payload: Payload,
+        timeout: float,
+        metadata: dict,
+        headers: dict,
+        stage_version: Optional[int],
+    ) -> None:
+        mock_invoke_post_sync.return_value = invoke_response()
 
-    current_project_id = uuid4() if include_project_id else None
-    current_project_name = A_PROJECT_NAME if include_project_name else None
-    current_stage_id = uuid4() if include_stage_id else None
-    current_stage_name = A_STAGE_NAME if include_stage_name else None
+        current_project_id = uuid4() if include_project_id else None
+        current_project_name = A_PROJECT_NAME if include_project_name else None
+        current_stage_id = uuid4() if include_stage_id else None
+        current_stage_name = A_STAGE_NAME if include_stage_name else None
 
-    result = invoke(
-        payload=payload,
-        prioritized_rulesets=None,
-        project_id=current_project_id,
-        project_name=current_project_name,
-        stage_id=current_stage_id,
-        stage_name=current_stage_name,
-        stage_version=stage_version,
-        timeout=timeout,
-        metadata=metadata,
-        headers=headers,
-    )
+        result = invoke(
+            payload=payload,
+            prioritized_rulesets=None,
+            project_id=current_project_id,
+            project_name=current_project_name,
+            stage_id=current_stage_id,
+            stage_name=current_stage_name,
+            stage_version=stage_version,
+            timeout=timeout,
+            metadata=metadata,
+            headers=headers,
+        )
 
-    expected_project_id = str(current_project_id) if current_project_id else None
-    expected_stage_id = str(current_stage_id) if current_stage_id else None
+        expected_project_id = str(current_project_id) if current_project_id else None
+        expected_stage_id = str(current_stage_id) if current_stage_id else None
 
-    expected_body = Request(
-        payload=payload,
-        prioritized_rulesets=[],
-        project_id=expected_project_id,
-        project_name=current_project_name,
-        stage_id=expected_stage_id,
-        stage_name=current_stage_name,
-        stage_version=stage_version,
-        timeout=timeout,
-        metadata=metadata,
-        headers=headers,
-    )
+        expected_body = Request(
+            payload=payload,
+            prioritized_rulesets=[],
+            project_id=expected_project_id,
+            project_name=current_project_name,
+            stage_id=expected_stage_id,
+            stage_name=current_stage_name,
+            stage_version=stage_version,
+            timeout=timeout,
+            metadata=metadata,
+            headers=headers,
+        )
 
-    mock_invoke_post_sync.assert_called_once_with(client=ANY, body=expected_body)
+        mock_invoke_post_sync.assert_called_once_with(client=ANY, body=expected_body)
 
-    assert isinstance(result, Response)
+        assert isinstance(result, Response)
 
-    response_data = invoke_response_data()
-    assert result.text == response_data["text"]
-    assert result.status == response_data["status"]
-    assert str(result.trace_metadata.id) == response_data["trace_metadata"]["id"]
+        response_data = invoke_response_data()
+        assert result.text == response_data["text"]
+        assert result.status == response_data["status"]
+        assert str(result.trace_metadata.id) == response_data["trace_metadata"]["id"]
 
-    for key in ["action_result", "stage_metadata", "metric_results", "ruleset_results", "api_version"]:
-        assert key in result.model_extra
-        assert result.model_extra[key] == response_data[key]
+        for key in ["action_result", "stage_metadata", "metric_results", "ruleset_results", "api_version"]:
+            assert key in result.model_extra
+            assert result.model_extra[key] == response_data[key]
+
+    def test_langchain_tool(
+        self,
+        mock_invoke_post_sync: Mock,
+        include_project_id: bool,
+        include_project_name: bool,
+        include_stage_name: bool,
+        include_stage_id: bool,
+        payload: Payload,
+        rulesets: list[Ruleset],
+        timeout: float,
+        metadata: dict,
+        headers: dict,
+        stage_version: Optional[int],
+    ) -> None:
+        mock_invoke_post_sync.return_value = invoke_response()
+
+        current_project_id = uuid4() if include_project_id else None
+        current_project_name = A_PROJECT_NAME if include_project_name else None
+        current_stage_id = uuid4() if include_stage_id else None
+        current_stage_name = A_STAGE_NAME if include_stage_name else None
+
+        tool = ProtectTool(
+            prioritized_rulesets=rulesets,
+            project_id=current_project_id,
+            project_name=current_project_name,
+            stage_id=current_stage_id,
+            stage_name=current_stage_name,
+            timeout=timeout,
+            stage_version=stage_version,
+            # Metadata and headers are not used by the tool since they conflict with the
+            # langchain_core tool interface.
+            # metadata=metadata,
+            # headers=headers,
+        )
+        response_json = tool.run(payload.model_dump())
+        assert isinstance(response_json, str)
+        response = Response.model_validate_json(response_json)
+        assert response.text is not None
+        assert response.status == ExecutionStatus.not_triggered
+        mock_invoke_post_sync.assert_called_once()
 
 
 @patch("galileo.protect.invoke_v2_protect_invoke_post.sync")
