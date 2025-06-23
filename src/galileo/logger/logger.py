@@ -254,6 +254,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         dataset_input: Optional[str] = None,
         dataset_output: Optional[str] = None,
         dataset_metadata: Optional[dict[str, str]] = None,
+        span_step_number: Optional[int] = None,
     ) -> Trace:
         """
         Create a new trace with a single span and add it to the list of traces.
@@ -275,6 +276,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             ground_truth: Optional[str]: Ground truth, expected output of the workflow.
             status_code: Optional[int]: Status code of the node execution.
             time_to_first_token_ns: Optional[int]: Time until the first token was returned.
+            span_step_number: Optional[int]: Step number of the span.
         Returns:
         -------
             Trace: The created trace.
@@ -298,6 +300,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             dataset_input=dataset_input,
             dataset_output=dataset_output,
             dataset_metadata=dataset_metadata,
+            span_step_number=span_step_number,
         )
 
     @nop_sync
@@ -318,6 +321,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         temperature: Optional[float] = None,
         status_code: Optional[int] = None,
         time_to_first_token_ns: Optional[int] = None,
+        step_number: Optional[int] = None,
     ) -> LlmSpan:
         """
         Add a new llm span to the current parent.
@@ -338,6 +342,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             temperature: Optional[float]: Temperature used for generation.
             status_code: Optional[int]: Status code of the node execution.
             time_to_first_token_ns: Optional[int]: Time until the first token was returned.
+            step_number: Optional[int]: Step number of the span.
         Returns:
         -------
             LlmSpan: The created span.
@@ -358,6 +363,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             temperature=temperature,
             status_code=status_code,
             time_to_first_token_ns=time_to_first_token_ns,
+            step_number=step_number,
         )
 
     @nop_sync
@@ -371,6 +377,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
         status_code: Optional[int] = None,
+        step_number: Optional[int] = None,
     ) -> RetrieverSpan:
         """
         Add a new retriever span to the current parent.
@@ -385,6 +392,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[Dict[str, str]]: Metadata associated with this span.
             status_code: Optional[int]: Status code of the node execution.
+            step_number: Optional[int]: Step number of the span.
         Returns:
         -------
             RetrieverSpan: The created span.
@@ -425,6 +433,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             user_metadata=metadata,
             tags=tags,
             status_code=status_code,
+            step_number=step_number,
         )
 
     @nop_sync
@@ -439,6 +448,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         tags: Optional[list[str]] = None,
         status_code: Optional[int] = None,
         tool_call_id: Optional[str] = None,
+        step_number: Optional[int] = None,
     ) -> ToolSpan:
         """
         Add a new tool span to the current parent.
@@ -452,6 +462,8 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             created_at: Optional[datetime]: Timestamp of the span's creation.
             user_metadata: Optional[Dict[str, str]]: Metadata associated with this span.
             status_code: Optional[int]: Status code of the node execution.
+            tool_call_id: Optional[str]: Tool call ID.
+            step_number: Optional[int]: Step number of the span.
         Returns:
         -------
             ToolSpan: The created span.
@@ -466,6 +478,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             tags=tags,
             status_code=status_code,
             tool_call_id=tool_call_id,
+            step_number=step_number,
         )
 
     @nop_sync
@@ -478,6 +491,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         created_at: Optional[datetime] = None,
         metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
+        step_number: Optional[int] = None,
     ) -> WorkflowSpan:
         """
         Add a workflow span to the current parent. This is useful when you want to create a nested workflow span
@@ -492,6 +506,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            step_number: Optional[int]: Step number of the span.
         Returns:
         -------
             WorkflowSpan: The created span.
@@ -504,6 +519,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             created_at=created_at,
             user_metadata=metadata,
             tags=tags,
+            step_number=step_number,
         )
 
     @nop_sync
@@ -517,6 +533,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
         agent_type: Optional[AgentType] = None,
+        step_number: Optional[int] = None,
     ) -> AgentSpan:
         """
         Add an agent type span to the current parent.
@@ -530,6 +547,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[Dict[str, str]]: Metadata associated with this span.
             agent_type: Optional[AgentType]: Agent type of the span.
+            step_number: Optional[int]: Step number of the span.
 
         Returns:
         -------
@@ -544,6 +562,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             user_metadata=metadata,
             tags=tags,
             agent_type=agent_type,
+            step_number=step_number,
         )
 
     @nop_sync
