@@ -382,13 +382,13 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "codeflash"
-version = "0.12.4"
+version = "0.14.5"
 description = "Client for codeflash.ai - automatic code performance optimization, powered by AI"
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "codeflash-0.12.4.tar.gz", hash = "sha256:83d1af21a49479c3eb4baacb3c6e1bf7f34f7f262f2d97dee6e2f5bc40b01394"},
+    {file = "codeflash-0.14.5.tar.gz", hash = "sha256:de34590d80fd8ae76ba6cad3cd65de66ff768731ef06a0d1d69e87a0f1ba3c70"},
 ]
 
 [package.dependencies]
@@ -403,7 +403,7 @@ isort = ">=5.11.0"
 jedi = ">=0.19.1"
 junitparser = ">=3.1.0"
 libcst = ">=1.0.1"
-line_profiler = ">=4.2.0"
+line-profiler = ">=4.2.0"
 lxml = ">=5.3.0"
 parameterized = ">=0.9.0"
 platformdirs = ">=4.3.7"
@@ -1212,6 +1212,7 @@ python-versions = "*"
 groups = ["dev"]
 files = [
     {file = "junitparser-3.2.0-py2.py3-none-any.whl", hash = "sha256:e14fdc0a999edfc15889b637390e8ef6ca09a49532416d3bd562857d42d4b96d"},
+    {file = "junitparser-3.2.0-py3-none-any.whl", hash = "sha256:0342becf5f912da22c7889283ed95b8d30023d3e4c7237c17bdab41c13c39946"},
     {file = "junitparser-3.2.0.tar.gz", hash = "sha256:b05e89c27e7b74b3c563a078d6e055d95cf397444f8f689b0ca616ebda0b3c65"},
 ]
 
