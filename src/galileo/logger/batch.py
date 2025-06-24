@@ -2,12 +2,18 @@ from collections import deque
 from datetime import datetime
 from typing import Optional
 
+from pydantic import UUID4
+
 from galileo.logger.interface import IGalileoLogger
 from galileo.logger.utils import get_last_output
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.metrics import populate_local_metrics
-from galileo.utils.nop_logger import nop_sync
-from galileo_core.schemas.logging.span import StepWithChildSpans
+from galileo_core.schemas.logging.span import (
+    LlmSpan,
+    LlmSpanAllowedInputType,
+    LlmSpanAllowedOutputType,
+    StepWithChildSpans,
+)
 from galileo_core.schemas.logging.step import StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.traces_logger import TracesLogger
@@ -26,7 +32,6 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
     def __init__(self):
         super().__init__()
 
-    @nop_sync
     def start_trace(
         self,
         input: StepAllowedInputType,
@@ -51,6 +56,43 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
             dataset_output=dataset_output,
             dataset_metadata=dataset_metadata,
             external_id=external_id,
+        )
+
+    def add_llm_span(
+        self,
+        input: LlmSpanAllowedInputType,
+        output: LlmSpanAllowedOutputType,
+        model: Optional[str],
+        tools: Optional[list[dict]] = None,
+        name: Optional[str] = None,
+        created_at: Optional[datetime] = None,
+        duration_ns: Optional[int] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        num_input_tokens: Optional[int] = None,
+        num_output_tokens: Optional[int] = None,
+        total_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        status_code: Optional[int] = None,
+        time_to_first_token_ns: Optional[int] = None,
+        id: Optional[UUID4] = None,
+    ) -> LlmSpan:
+        return super().add_llm_span(
+            input=input,
+            output=output,
+            model=model,
+            tools=tools,
+            name=name,
+            created_at=created_at,
+            duration_ns=duration_ns,
+            user_metadata=user_metadata,
+            tags=tags,
+            num_input_tokens=num_input_tokens,
+            num_output_tokens=num_output_tokens,
+            total_tokens=total_tokens,
+            temperature=temperature,
+            status_code=status_code,
+            time_to_first_token_ns=time_to_first_token_ns,
         )
 
     def conclude(

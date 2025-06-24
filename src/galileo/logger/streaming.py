@@ -1,5 +1,142 @@
+from datetime import datetime
+from typing import Optional
+
+from pydantic import UUID4
+
 from galileo.logger.interface import IGalileoLogger
+from galileo.schema.trace import SpansIngestRequest, TracesIngestRequest
+from galileo_core.schemas.logging.span import LlmMetrics, LlmSpan, LlmSpanAllowedInputType, LlmSpanAllowedOutputType
+from galileo_core.schemas.logging.step import Metrics, StepAllowedInputType
+from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 
-class GalileoStreamingLogger(IGalileoLogger):
-    pass
+class GalileoStreamingLogger(TracesLogger, IGalileoLogger):
+    """
+    Galileo Streaming logger class implements `IGalileoLogger` interface.
+
+    Note: You should not instantiate this class directly but use GalileoLogger instead with mode="streaming".
+    """
+
+    def start_trace(
+        self,
+        input: StepAllowedInputType,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        dataset_input: Optional[str] = None,
+        dataset_output: Optional[str] = None,
+        dataset_metadata: Optional[dict[str, str]] = None,
+        external_id: Optional[str] = None,
+    ) -> Trace:
+        """
+        In Streaming mode, this will the following endpoint with a single trace:
+        POST /projects/{project_id}/traces
+
+        Args:
+            input:
+            name:
+            duration_ns:
+            created_at:
+            metadata:
+            tags:
+            dataset_input:
+            dataset_output:
+            dataset_metadata:
+            external_id:
+
+        Returns:
+            Trace
+        """
+        trace = Trace(
+            input=input,
+            name=name,
+            created_at=created_at,
+            user_metadata=metadata,
+            tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            dataset_input=dataset_input,
+            dataset_output=dataset_output,
+            dataset_metadata=dataset_metadata if dataset_metadata is not None else {},
+            external_id=external_id,
+            id=id,
+        )
+        traces_ingest_request = TracesIngestRequest(
+            traces=[trace], experiment_id=self.experiment_id, session_id=self.session_id
+        )
+        self._client.ingest_traces_sync(traces_ingest_request)
+
+        self._logger.info("Successfully flushed trace %s.", len(trace.id))
+
+        return trace
+
+    def add_llm_span(
+        self,
+        trace_id: UUID4,
+        input: LlmSpanAllowedInputType,
+        output: LlmSpanAllowedOutputType,
+        model: Optional[str],
+        tools: Optional[list[dict]] = None,
+        name: Optional[str] = None,
+        created_at: Optional[datetime] = None,
+        duration_ns: Optional[int] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        num_input_tokens: Optional[int] = None,
+        num_output_tokens: Optional[int] = None,
+        total_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        status_code: Optional[int] = None,
+        time_to_first_token_ns: Optional[int] = None,
+        id: Optional[UUID4] = None,
+    ) -> LlmSpan:
+        """
+        In Streaming mode, this will the following endpoint with a single span:
+        POST /projects/{project_id}/spans
+
+        Args:
+            input:
+            output:
+            model:
+            tools:
+            name:
+            created_at:
+            duration_ns:
+            user_metadata:
+            tags:
+            num_input_tokens:
+            num_output_tokens:
+            total_tokens:
+            temperature:
+            status_code:
+            time_to_first_token_ns:
+            id:
+
+        Returns:
+            LlmSpan
+        """
+        span = LlmSpan(
+            input=input,
+            output=output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            metrics=LlmMetrics(
+                duration_ns=duration_ns,
+                num_input_tokens=num_input_tokens,
+                num_output_tokens=num_output_tokens,
+                num_total_tokens=total_tokens,
+                time_to_first_token_ns=time_to_first_token_ns,
+            ),
+            tools=tools,
+            model=model,
+            temperature=temperature,
+            status_code=status_code,
+            id=id,
+        )
+        span_ingest_request = SpansIngestRequest(trace_id=self.trace_id, spans=[span])
+        self._client.ingest_spans_sync(span_ingest_request)
+        return span
