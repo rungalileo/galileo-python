@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -54,11 +55,11 @@ class QueryDatasetParams:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_content_filter import DatasetContentFilter
         from ..models.dataset_content_sort_clause import DatasetContentSortClause
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         filters = []
         _filters = d.pop("filters", UNSET)
         for filters_item_data in _filters or []:

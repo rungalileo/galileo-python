@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -64,10 +65,10 @@ class GroupCollaborator:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.permission import Permission
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         created_at = isoparse(d.pop("created_at"))
 
         group_id = d.pop("group_id")
