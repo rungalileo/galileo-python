@@ -77,7 +77,8 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
         time_to_first_token_ns: Optional[int] = None,
         id: Optional[UUID4] = None,
     ) -> LlmSpan:
-        return super().add_llm_span(
+        result = TracesLogger.add_llm_span(
+            self,
             input=input,
             output=output,
             model=model,
@@ -94,6 +95,7 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
             status_code=status_code,
             time_to_first_token_ns=time_to_first_token_ns,
         )
+        return result
 
     def conclude(
         self,

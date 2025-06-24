@@ -40,7 +40,6 @@ from galileo_core.schemas.logging.span import (
 from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
-from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 
 class GalileoLoggerException(Exception):
@@ -50,7 +49,10 @@ class GalileoLoggerException(Exception):
 LoggerModeType = Literal["batch", "streaming"]
 
 
-class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMethods):
+class Logger(GalileoBatchLogger, GalileoStreamingLogger): ...
+
+
+class GalileoLogger(Logger, DecorateAllMethods):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.
