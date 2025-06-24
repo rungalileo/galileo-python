@@ -3,7 +3,7 @@ import pytest
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, SpanExporter
-from galileo.constants import DEFAULT_API_URL, FALLBACK_API_URL
+from galileo.constants import DEFAULT_API_URL, DEFAULT_APP_URL
 from galileo.otel import _set_destination, enable_tracing, _safe_instrument
 import os
 import logging
@@ -174,8 +174,8 @@ def test_enable_tracing_no_session_id(
         ("https://console.customer.com/env/prod", None, "console.customer.com/env/prod"),
         ("https://api.customer.com/otel/traces", None, "api.customer.com/otel/traces"),
         ("", DEFAULT_API_URL, "api.arize.com/otel/traces"),
-        ("", FALLBACK_API_URL, "app.dev.galileo.ai/api/galileo/otel/traces"),
-        (FALLBACK_API_URL, None, "app.dev.galileo.ai/"), # Because url.path is '/'
+        ("", DEFAULT_APP_URL, "app.dev.galileo.ai/api/galileo/otel/traces"),
+        (DEFAULT_APP_URL, None, "app.dev.galileo.ai/"), # Because url.path is '/'
         ("https://console.arize.com/", None, "console.arize.com/"), # Because url.path is '/'
         ("https://console.arize.com", None, "api.arize.com/otel/traces"),
     ]

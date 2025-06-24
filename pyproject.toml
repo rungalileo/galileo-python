@@ -36,14 +36,6 @@ pytest-sugar = "^1.0.0"
 vcrpy = "^7.0.0"
 time-machine = "^2.16.0"  # freezegun causes problems with pydantic model validations
 
-# opentelemetry
-opentelemetry-api = "^1.34.1"
-opentelemetry-sdk = "^1.30.0"
-opentelemetry-exporter-otlp = "^1.30.0"
-openinference-instrumentation-openai = "^0.1.30"
-openinference-instrumentation-litellm = "^0.1.22"
-openinference-instrumentation-langchain = "^0.1.43"
-
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.0.1"
@@ -162,6 +154,14 @@ formatter-cmds = ["ruff check --exit-zero --fix $file", "ruff format $file"]
 langchain = ["langchain-core"]
 openai = ["openai", "packaging (>=24.2,<25.0)", "openai-agents"]
 all = ["langchain-core", "openai"]
+otel = [
+    "opentelemetry-api>=1.34.1,<2.0.0",
+    "opentelemetry-sdk>=1.30.0,<2.0.0",
+    "opentelemetry-exporter-otlp>=1.30.0,<2.0.0",
+    "openinference-instrumentation-openai>=0.1.30,<0.2.0",
+    "openinference-instrumentation-litellm>=0.1.22,<0.2.0",
+    "openinference-instrumentation-langchain>=0.1.43,<0.2.0",
+]
 
 
 [build-system]

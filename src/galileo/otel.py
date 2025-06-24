@@ -50,7 +50,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
 
 from galileo.api_client import GalileoApiClient
-from galileo.constants import DEFAULT_API_URL, FALLBACK_API_URL
+from galileo.constants import DEFAULT_API_URL, DEFAULT_APP_URL
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ def _set_destination(console_url: str) -> str:
     url = urlparse(destination)
 
     # This logic is derived from the unit tests.
-    if destination == FALLBACK_API_URL:  # "https://app.galileo.ai/"
+    if destination == DEFAULT_APP_URL:  # "https://app.galileo.ai/"
         if console_url:  # Passed as parameter
             return "app.dev.galileo.ai/"
         else:  # from get_console_url
