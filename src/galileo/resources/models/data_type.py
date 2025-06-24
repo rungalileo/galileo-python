@@ -5,6 +5,7 @@ class DataType(str, Enum):
     BOOLEAN = "boolean"
     FLOATING_POINT = "floating_point"
     INTEGER = "integer"
+    STRING_LIST = "string_list"
     TEXT = "text"
     TIMESTAMP = "timestamp"
     UUID = "uuid"

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -33,6 +34,7 @@ class ColumnInfo:
         filterable (Union[Unset, bool]): Whether the column is filterable.
         group_label (Union[None, Unset, str]): Display label of the column group.
         insight_type (Union[InsightType, None, Unset]): Insight type.
+        is_empty (Union[Unset, bool]): Indicates whether the column is empty and should be hidden. Default: False.
         label (Union[None, Unset, str]): Display label of the column in the UI.
         multi_valued (Union[Unset, bool]): Whether the column is multi-valued. Default: False.
         scorer_config (Union['ScorerConfig', None, Unset]): For metric columns only: Scorer config that produced the
@@ -53,6 +55,7 @@ class ColumnInfo:
     filterable: Union[Unset, bool] = UNSET
     group_label: Union[None, Unset, str] = UNSET
     insight_type: Union[InsightType, None, Unset] = UNSET
+    is_empty: Union[Unset, bool] = False
     label: Union[None, Unset, str] = UNSET
     multi_valued: Union[Unset, bool] = False
     scorer_config: Union["ScorerConfig", None, Unset] = UNSET
@@ -123,6 +126,8 @@ class ColumnInfo:
         else:
             insight_type = self.insight_type
 
+        is_empty = self.is_empty
+
         label: Union[None, Unset, str]
         if isinstance(self.label, Unset):
             label = UNSET
@@ -174,6 +179,8 @@ class ColumnInfo:
             field_dict["group_label"] = group_label
         if insight_type is not UNSET:
             field_dict["insight_type"] = insight_type
+        if is_empty is not UNSET:
+            field_dict["is_empty"] = is_empty
         if label is not UNSET:
             field_dict["label"] = label
         if multi_valued is not UNSET:
@@ -190,11 +197,11 @@ class ColumnInfo:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metric_threshold import MetricThreshold
         from ..models.scorer_config import ScorerConfig
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         category = ColumnCategory(d.pop("category"))
 
         id = d.pop("id")
@@ -294,6 +301,8 @@ class ColumnInfo:
 
         insight_type = _parse_insight_type(d.pop("insight_type", UNSET))
 
+        is_empty = d.pop("is_empty", UNSET)
+
         def _parse_label(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -361,6 +370,7 @@ class ColumnInfo:
             filterable=filterable,
             group_label=group_label,
             insight_type=insight_type,
+            is_empty=is_empty,
             label=label,
             multi_valued=multi_valued,
             scorer_config=scorer_config,

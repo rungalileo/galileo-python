@@ -16,12 +16,11 @@ def _get_kwargs(dataset_id: str, *, body: list["UserCollaboratorCreate"]) -> dic
 
     _kwargs: dict[str, Any] = {"method": "post", "url": f"/datasets/{dataset_id}/users"}
 
-    _body = []
+    _kwargs["json"] = []
     for body_item_data in body:
         body_item = body_item_data.to_dict()
-        _body.append(body_item)
+        _kwargs["json"].append(body_item)
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers

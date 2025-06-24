@@ -46,6 +46,9 @@ class PromptTemplate(BasePromptTemplateResponse):
                 template=prompt_template.template,
                 total_versions=prompt_template.total_versions,
                 all_versions=prompt_template.all_versions,
+                created_at=prompt_template.created_at,
+                creator=prompt_template.creator,
+                updated_at=prompt_template.updated_at,
             )
             self.additional_properties = prompt_template.additional_properties.copy()
             return

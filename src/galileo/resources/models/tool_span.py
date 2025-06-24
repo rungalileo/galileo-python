@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -9,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.metrics import Metrics
+    from ..models.tool_span_dataset_metadata import ToolSpanDatasetMetadata
     from ..models.tool_span_user_metadata import ToolSpanUserMetadata
 
 
@@ -21,23 +23,35 @@ class ToolSpan:
     Attributes:
         input_ (str): Input to the trace or span.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
+        dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
+        dataset_metadata (Union[Unset, ToolSpanDatasetMetadata]): Metadata from the dataset associated with this trace
+        dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
+        external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
+        id (Union[None, Unset, str]): Galileo ID of the session, trace or span
         metrics (Union[Unset, Metrics]):
-        name (Union[Unset, str]): Name of the trace or span. Default: ''.
+        name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
+        step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
         tool_call_id (Union[None, Unset, str]): ID of the tool call.
-        type_ (Union[Literal['tool'], Unset]): Type of the trace or span. Default: 'tool'.
+        type_ (Union[Literal['tool'], Unset]): Type of the trace, span or session. Default: 'tool'.
         user_metadata (Union[Unset, ToolSpanUserMetadata]): Metadata associated with this trace or span.
     """
 
     input_: str
     created_at: Union[Unset, datetime.datetime] = UNSET
+    dataset_input: Union[None, Unset, str] = UNSET
+    dataset_metadata: Union[Unset, "ToolSpanDatasetMetadata"] = UNSET
+    dataset_output: Union[None, Unset, str] = UNSET
+    external_id: Union[None, Unset, str] = UNSET
+    id: Union[None, Unset, str] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
+    step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     tool_call_id: Union[None, Unset, str] = UNSET
     type_: Union[Literal["tool"], Unset] = "tool"
@@ -50,6 +64,34 @@ class ToolSpan:
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
             created_at = self.created_at.isoformat()
+
+        dataset_input: Union[None, Unset, str]
+        if isinstance(self.dataset_input, Unset):
+            dataset_input = UNSET
+        else:
+            dataset_input = self.dataset_input
+
+        dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.dataset_metadata, Unset):
+            dataset_metadata = self.dataset_metadata.to_dict()
+
+        dataset_output: Union[None, Unset, str]
+        if isinstance(self.dataset_output, Unset):
+            dataset_output = UNSET
+        else:
+            dataset_output = self.dataset_output
+
+        external_id: Union[None, Unset, str]
+        if isinstance(self.external_id, Unset):
+            external_id = UNSET
+        else:
+            external_id = self.external_id
+
+        id: Union[None, Unset, str]
+        if isinstance(self.id, Unset):
+            id = UNSET
+        else:
+            id = self.id
 
         metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metrics, Unset):
@@ -68,6 +110,12 @@ class ToolSpan:
             status_code = UNSET
         else:
             status_code = self.status_code
+
+        step_number: Union[None, Unset, int]
+        if isinstance(self.step_number, Unset):
+            step_number = UNSET
+        else:
+            step_number = self.step_number
 
         tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
@@ -90,6 +138,16 @@ class ToolSpan:
         field_dict.update({"input": input_})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
+        if dataset_input is not UNSET:
+            field_dict["dataset_input"] = dataset_input
+        if dataset_metadata is not UNSET:
+            field_dict["dataset_metadata"] = dataset_metadata
+        if dataset_output is not UNSET:
+            field_dict["dataset_output"] = dataset_output
+        if external_id is not UNSET:
+            field_dict["external_id"] = external_id
+        if id is not UNSET:
+            field_dict["id"] = id
         if metrics is not UNSET:
             field_dict["metrics"] = metrics
         if name is not UNSET:
@@ -98,6 +156,8 @@ class ToolSpan:
             field_dict["output"] = output
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
+        if step_number is not UNSET:
+            field_dict["step_number"] = step_number
         if tags is not UNSET:
             field_dict["tags"] = tags
         if tool_call_id is not UNSET:
@@ -110,11 +170,12 @@ class ToolSpan:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metrics import Metrics
+        from ..models.tool_span_dataset_metadata import ToolSpanDatasetMetadata
         from ..models.tool_span_user_metadata import ToolSpanUserMetadata
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         input_ = d.pop("input")
 
         _created_at = d.pop("created_at", UNSET)
@@ -123,6 +184,49 @@ class ToolSpan:
             created_at = UNSET
         else:
             created_at = isoparse(_created_at)
+
+        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
+
+        _dataset_metadata = d.pop("dataset_metadata", UNSET)
+        dataset_metadata: Union[Unset, ToolSpanDatasetMetadata]
+        if isinstance(_dataset_metadata, Unset):
+            dataset_metadata = UNSET
+        else:
+            dataset_metadata = ToolSpanDatasetMetadata.from_dict(_dataset_metadata)
+
+        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
+
+        def _parse_external_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        external_id = _parse_external_id(d.pop("external_id", UNSET))
+
+        def _parse_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        id = _parse_id(d.pop("id", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Union[Unset, Metrics]
@@ -151,6 +255,15 @@ class ToolSpan:
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
+        def _parse_step_number(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        step_number = _parse_step_number(d.pop("step_number", UNSET))
+
         tags = cast(list[str], d.pop("tags", UNSET))
 
         def _parse_tool_call_id(data: object) -> Union[None, Unset, str]:
@@ -176,10 +289,16 @@ class ToolSpan:
         tool_span = cls(
             input_=input_,
             created_at=created_at,
+            dataset_input=dataset_input,
+            dataset_metadata=dataset_metadata,
+            dataset_output=dataset_output,
+            external_id=external_id,
+            id=id,
             metrics=metrics,
             name=name,
             output=output,
             status_code=status_code,
+            step_number=step_number,
             tags=tags,
             tool_call_id=tool_call_id,
             type_=type_,

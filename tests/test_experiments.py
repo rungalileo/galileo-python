@@ -18,6 +18,7 @@ from galileo.projects import Project
 from galileo.prompts import PromptTemplate
 from galileo.resources.models import (
     BasePromptTemplateResponse,
+    BasePromptTemplateVersionResponse,
     DatasetContent,
     ExperimentResponse,
     ProjectCreateResponse,
@@ -64,15 +65,30 @@ def experiment_response():
 def prompt_template():
     return PromptTemplate(
         prompt_template=BasePromptTemplateResponse(
+            all_available_versions=[1, 2, 3],
+            created_at=datetime.now(),
+            creator=None,
             id=str(UUID(int=0)),
+            max_version=3,
             name="awesome-new-prompt",
-            selected_version="",
-            total_versions=1,
+            selected_version=BasePromptTemplateVersionResponse(
+                created_at=datetime.now(),
+                id=str(UUID(int=3)),
+                lines_added=0,
+                lines_edited=0,
+                lines_removed=0,
+                model_changed=False,
+                settings={},
+                settings_changed=False,
+                template="test",
+                updated_at=datetime.now(),
+                version=1,
+            ),
             selected_version_id=str(UUID(int=3)),
-            all_versions=[str(UUID(int=3))],
-            max_version="test",
             template="test",
-            all_available_versions=[str(UUID(int=3))],
+            total_versions=3,
+            updated_at=datetime.now(),
+            all_versions=[str(UUID(int=3))],
         )
     )
 

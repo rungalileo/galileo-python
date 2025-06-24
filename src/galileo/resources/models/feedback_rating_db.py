@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -72,14 +73,14 @@ class FeedbackRatingDB:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.like_dislike_rating import LikeDislikeRating
         from ..models.score_rating import ScoreRating
         from ..models.star_rating import StarRating
         from ..models.tags_rating import TagsRating
         from ..models.text_rating import TextRating
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         created_at = isoparse(d.pop("created_at"))
 
         def _parse_created_by(data: object) -> Union[None, str]:
