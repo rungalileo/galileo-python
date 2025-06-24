@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -8,11 +9,13 @@ from dateutil.parser import isoparse
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
     from ..models.llm_span_record import LlmSpanRecord
     from ..models.metrics import Metrics
     from ..models.retriever_span_record import RetrieverSpanRecord
     from ..models.tool_span_record import ToolSpanRecord
     from ..models.trace_record_with_children_dataset_metadata import TraceRecordWithChildrenDatasetMetadata
+    from ..models.trace_record_with_children_feedback_rating_info import TraceRecordWithChildrenFeedbackRatingInfo
     from ..models.trace_record_with_children_metric_info_type_0 import TraceRecordWithChildrenMetricInfoType0
     from ..models.trace_record_with_children_user_metadata import TraceRecordWithChildrenUserMetadata
     from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
@@ -25,30 +28,36 @@ T = TypeVar("T", bound="TraceRecordWithChildren")
 class TraceRecordWithChildren:
     """
     Attributes:
-        id (str): Galileo ID of the trace or span
+        id (str): Galileo ID of the trace
         input_ (str): Input to the trace or span.
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
+        session_id (str): Galileo ID of the session
         trace_id (str): Galileo ID of the trace containing the span (or the same value as id for a trace)
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
-        dataset_input (Union[Unset, str]): Input to the dataset associated with this trace Default: ''.
+        dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, TraceRecordWithChildrenDatasetMetadata]): Metadata from the dataset associated
             with this trace
-        dataset_output (Union[Unset, str]): Output from the dataset associated with this trace Default: ''.
+        dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
+        external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
+        feedback_rating_info (Union[Unset, TraceRecordWithChildrenFeedbackRatingInfo]): Feedback information related to
+            the trace
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
+        is_complete (Union[Unset, bool]): Whether the trace is complete or not Default: True.
         metric_info (Union['TraceRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information about the
             metrics associated with this trace or span
         metrics (Union[Unset, Metrics]):
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
-        name (Union[Unset, str]): Name of the trace or span. Default: ''.
+        name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
-        spans (Union[Unset, list[Union['LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord',
-            'WorkflowSpanRecordWithChildren']]]):
+        session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
+        spans (Union[Unset, list[Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord',
+            'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]):
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
-        type_ (Union[Literal['trace'], Unset]): Type of the trace or span. Default: 'trace'.
-        updated_at (Union[None, Unset, datetime.datetime]): Timestamp of the trace or span's last update
+        type_ (Union[Literal['trace'], Unset]): Type of the trace, span or session. Default: 'trace'.
+        updated_at (Union[None, Unset, datetime.datetime]): Timestamp of the session or trace or span's last update
         user_metadata (Union[Unset, TraceRecordWithChildrenUserMetadata]): Metadata associated with this trace or span.
     """
 
@@ -56,19 +65,33 @@ class TraceRecordWithChildren:
     input_: str
     project_id: str
     run_id: str
+    session_id: str
     trace_id: str
     created_at: Union[Unset, datetime.datetime] = UNSET
-    dataset_input: Union[Unset, str] = ""
+    dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "TraceRecordWithChildrenDatasetMetadata"] = UNSET
-    dataset_output: Union[Unset, str] = ""
+    dataset_output: Union[None, Unset, str] = UNSET
+    external_id: Union[None, Unset, str] = UNSET
+    feedback_rating_info: Union[Unset, "TraceRecordWithChildrenFeedbackRatingInfo"] = UNSET
     has_children: Union[None, Unset, bool] = UNSET
+    is_complete: Union[Unset, bool] = True
     metric_info: Union["TraceRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
     metrics_batch_id: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
+    session_batch_id: Union[None, Unset, str] = UNSET
     spans: Union[
-        Unset, list[Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"]]
+        Unset,
+        list[
+            Union[
+                "AgentSpanRecordWithChildren",
+                "LlmSpanRecord",
+                "RetrieverSpanRecord",
+                "ToolSpanRecord",
+                "WorkflowSpanRecordWithChildren",
+            ]
+        ],
     ] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
@@ -78,6 +101,7 @@ class TraceRecordWithChildren:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.llm_span_record import LlmSpanRecord
         from ..models.tool_span_record import ToolSpanRecord
         from ..models.trace_record_with_children_metric_info_type_0 import TraceRecordWithChildrenMetricInfoType0
@@ -91,25 +115,47 @@ class TraceRecordWithChildren:
 
         run_id = self.run_id
 
+        session_id = self.session_id
+
         trace_id = self.trace_id
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
             created_at = self.created_at.isoformat()
 
-        dataset_input = self.dataset_input
+        dataset_input: Union[None, Unset, str]
+        if isinstance(self.dataset_input, Unset):
+            dataset_input = UNSET
+        else:
+            dataset_input = self.dataset_input
 
         dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
-        dataset_output = self.dataset_output
+        dataset_output: Union[None, Unset, str]
+        if isinstance(self.dataset_output, Unset):
+            dataset_output = UNSET
+        else:
+            dataset_output = self.dataset_output
+
+        external_id: Union[None, Unset, str]
+        if isinstance(self.external_id, Unset):
+            external_id = UNSET
+        else:
+            external_id = self.external_id
+
+        feedback_rating_info: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.feedback_rating_info, Unset):
+            feedback_rating_info = self.feedback_rating_info.to_dict()
 
         has_children: Union[None, Unset, bool]
         if isinstance(self.has_children, Unset):
             has_children = UNSET
         else:
             has_children = self.has_children
+
+        is_complete = self.is_complete
 
         metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
@@ -137,12 +183,20 @@ class TraceRecordWithChildren:
         else:
             output = self.output
 
+        session_batch_id: Union[None, Unset, str]
+        if isinstance(self.session_batch_id, Unset):
+            session_batch_id = UNSET
+        else:
+            session_batch_id = self.session_batch_id
+
         spans: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.spans, Unset):
             spans = []
             for spans_item_data in self.spans:
                 spans_item: dict[str, Any]
-                if isinstance(spans_item_data, WorkflowSpanRecordWithChildren):
+                if isinstance(spans_item_data, AgentSpanRecordWithChildren):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, WorkflowSpanRecordWithChildren):
                     spans_item = spans_item_data.to_dict()
                 elif isinstance(spans_item_data, LlmSpanRecord):
                     spans_item = spans_item_data.to_dict()
@@ -179,7 +233,16 @@ class TraceRecordWithChildren:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"id": id, "input": input_, "project_id": project_id, "run_id": run_id, "trace_id": trace_id})
+        field_dict.update(
+            {
+                "id": id,
+                "input": input_,
+                "project_id": project_id,
+                "run_id": run_id,
+                "session_id": session_id,
+                "trace_id": trace_id,
+            }
+        )
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -188,8 +251,14 @@ class TraceRecordWithChildren:
             field_dict["dataset_metadata"] = dataset_metadata
         if dataset_output is not UNSET:
             field_dict["dataset_output"] = dataset_output
+        if external_id is not UNSET:
+            field_dict["external_id"] = external_id
+        if feedback_rating_info is not UNSET:
+            field_dict["feedback_rating_info"] = feedback_rating_info
         if has_children is not UNSET:
             field_dict["has_children"] = has_children
+        if is_complete is not UNSET:
+            field_dict["is_complete"] = is_complete
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
         if metrics is not UNSET:
@@ -200,6 +269,8 @@ class TraceRecordWithChildren:
             field_dict["name"] = name
         if output is not UNSET:
             field_dict["output"] = output
+        if session_batch_id is not UNSET:
+            field_dict["session_batch_id"] = session_batch_id
         if spans is not UNSET:
             field_dict["spans"] = spans
         if status_code is not UNSET:
@@ -216,17 +287,19 @@ class TraceRecordWithChildren:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.llm_span_record import LlmSpanRecord
         from ..models.metrics import Metrics
         from ..models.retriever_span_record import RetrieverSpanRecord
         from ..models.tool_span_record import ToolSpanRecord
         from ..models.trace_record_with_children_dataset_metadata import TraceRecordWithChildrenDatasetMetadata
+        from ..models.trace_record_with_children_feedback_rating_info import TraceRecordWithChildrenFeedbackRatingInfo
         from ..models.trace_record_with_children_metric_info_type_0 import TraceRecordWithChildrenMetricInfoType0
         from ..models.trace_record_with_children_user_metadata import TraceRecordWithChildrenUserMetadata
         from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         id = d.pop("id")
 
         input_ = d.pop("input")
@@ -234,6 +307,8 @@ class TraceRecordWithChildren:
         project_id = d.pop("project_id")
 
         run_id = d.pop("run_id")
+
+        session_id = d.pop("session_id")
 
         trace_id = d.pop("trace_id")
 
@@ -244,7 +319,14 @@ class TraceRecordWithChildren:
         else:
             created_at = isoparse(_created_at)
 
-        dataset_input = d.pop("dataset_input", UNSET)
+        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
 
         _dataset_metadata = d.pop("dataset_metadata", UNSET)
         dataset_metadata: Union[Unset, TraceRecordWithChildrenDatasetMetadata]
@@ -253,7 +335,30 @@ class TraceRecordWithChildren:
         else:
             dataset_metadata = TraceRecordWithChildrenDatasetMetadata.from_dict(_dataset_metadata)
 
-        dataset_output = d.pop("dataset_output", UNSET)
+        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
+
+        def _parse_external_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        external_id = _parse_external_id(d.pop("external_id", UNSET))
+
+        _feedback_rating_info = d.pop("feedback_rating_info", UNSET)
+        feedback_rating_info: Union[Unset, TraceRecordWithChildrenFeedbackRatingInfo]
+        if isinstance(_feedback_rating_info, Unset):
+            feedback_rating_info = UNSET
+        else:
+            feedback_rating_info = TraceRecordWithChildrenFeedbackRatingInfo.from_dict(_feedback_rating_info)
 
         def _parse_has_children(data: object) -> Union[None, Unset, bool]:
             if data is None:
@@ -263,6 +368,8 @@ class TraceRecordWithChildren:
             return cast(Union[None, Unset, bool], data)
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
+
+        is_complete = d.pop("is_complete", UNSET)
 
         def _parse_metric_info(data: object) -> Union["TraceRecordWithChildrenMetricInfoType0", None, Unset]:
             if data is None:
@@ -308,17 +415,32 @@ class TraceRecordWithChildren:
 
         output = _parse_output(d.pop("output", UNSET))
 
+        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
+
         spans = []
         _spans = d.pop("spans", UNSET)
         for spans_item_data in _spans or []:
 
             def _parse_spans_item(
                 data: object,
-            ) -> Union["LlmSpanRecord", "RetrieverSpanRecord", "ToolSpanRecord", "WorkflowSpanRecordWithChildren"]:
+            ) -> Union[
+                "AgentSpanRecordWithChildren",
+                "LlmSpanRecord",
+                "RetrieverSpanRecord",
+                "ToolSpanRecord",
+                "WorkflowSpanRecordWithChildren",
+            ]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_0 = WorkflowSpanRecordWithChildren.from_dict(data)
+                    spans_item_type_0 = AgentSpanRecordWithChildren.from_dict(data)
 
                     return spans_item_type_0
                 except:  # noqa: E722
@@ -326,7 +448,7 @@ class TraceRecordWithChildren:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_1 = LlmSpanRecord.from_dict(data)
+                    spans_item_type_1 = WorkflowSpanRecordWithChildren.from_dict(data)
 
                     return spans_item_type_1
                 except:  # noqa: E722
@@ -334,16 +456,24 @@ class TraceRecordWithChildren:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_2 = ToolSpanRecord.from_dict(data)
+                    spans_item_type_2 = LlmSpanRecord.from_dict(data)
 
                     return spans_item_type_2
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    spans_item_type_3 = ToolSpanRecord.from_dict(data)
+
+                    return spans_item_type_3
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                spans_item_type_3 = RetrieverSpanRecord.from_dict(data)
+                spans_item_type_4 = RetrieverSpanRecord.from_dict(data)
 
-                return spans_item_type_3
+                return spans_item_type_4
 
             spans_item = _parse_spans_item(spans_item_data)
 
@@ -393,17 +523,22 @@ class TraceRecordWithChildren:
             input_=input_,
             project_id=project_id,
             run_id=run_id,
+            session_id=session_id,
             trace_id=trace_id,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
             dataset_output=dataset_output,
+            external_id=external_id,
+            feedback_rating_info=feedback_rating_info,
             has_children=has_children,
+            is_complete=is_complete,
             metric_info=metric_info,
             metrics=metrics,
             metrics_batch_id=metrics_batch_id,
             name=name,
             output=output,
+            session_batch_id=session_batch_id,
             spans=spans,
             status_code=status_code,
             tags=tags,

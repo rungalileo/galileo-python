@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -42,10 +43,10 @@ class ListDatasetVersionParams:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_version_index_sort import DatasetVersionIndexSort
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_sort(data: object) -> Union["DatasetVersionIndexSort", None, Unset]:
             if data is None:

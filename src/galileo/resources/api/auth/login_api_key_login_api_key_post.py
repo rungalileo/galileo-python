@@ -16,9 +16,8 @@ def _get_kwargs(*, body: ApiKeyLoginRequest) -> dict[str, Any]:
 
     _kwargs: dict[str, Any] = {"method": "post", "url": "/login/api_key"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers

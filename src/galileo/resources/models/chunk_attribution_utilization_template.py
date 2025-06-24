@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -92,10 +93,10 @@ class ChunkAttributionUtilizationTemplate:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.few_shot_example import FewShotExample
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         explanation_field_name = d.pop("explanation_field_name", UNSET)
 
         def _parse_metric_description(data: object) -> Union[None, Unset, str]:
