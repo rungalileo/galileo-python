@@ -22,11 +22,7 @@ class LogStreamCreateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
 
         return field_dict
 
@@ -35,9 +31,7 @@ class LogStreamCreateRequest:
         d = dict(src_dict)
         name = d.pop("name")
 
-        log_stream_create_request = cls(
-            name=name,
-        )
+        log_stream_create_request = cls(name=name)
 
         log_stream_create_request.additional_properties = d
         return log_stream_create_request

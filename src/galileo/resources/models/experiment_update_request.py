@@ -32,11 +32,7 @@ class ExperimentUpdateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
         if task_type is not UNSET:
             field_dict["task_type"] = task_type
 
@@ -61,10 +57,7 @@ class ExperimentUpdateRequest:
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
-        experiment_update_request = cls(
-            name=name,
-            task_type=task_type,
-        )
+        experiment_update_request = cls(name=name, task_type=task_type)
 
         experiment_update_request.additional_properties = d
         return experiment_update_request

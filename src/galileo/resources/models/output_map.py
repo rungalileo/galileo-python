@@ -56,11 +56,7 @@ class OutputMap:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "response": response,
-            }
-        )
+        field_dict.update({"response": response})
         if completion_reason is not UNSET:
             field_dict["completion_reason"] = completion_reason
         if input_token_count is not UNSET:

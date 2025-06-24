@@ -39,12 +39,7 @@ class Response:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "text": text,
-                "trace_metadata": trace_metadata,
-            }
-        )
+        field_dict.update({"text": text, "trace_metadata": trace_metadata})
         if status is not UNSET:
             field_dict["status"] = status
 
@@ -66,11 +61,7 @@ class Response:
         else:
             status = ExecutionStatus(_status)
 
-        response = cls(
-            text=text,
-            trace_metadata=trace_metadata,
-            status=status,
-        )
+        response = cls(text=text, trace_metadata=trace_metadata, status=status)
 
         response.additional_properties = d
         return response

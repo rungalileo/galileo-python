@@ -145,11 +145,7 @@ class RulesetResult:
             status = ExecutionStatus(_status)
 
         ruleset_result = cls(
-            action=action,
-            description=description,
-            rule_results=rule_results,
-            rules=rules,
-            status=status,
+            action=action, description=description, rule_results=rule_results, rules=rules, status=status
         )
 
         ruleset_result.additional_properties = d

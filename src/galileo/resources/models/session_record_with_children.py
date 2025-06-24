@@ -225,14 +225,7 @@ class SessionRecordWithChildren:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "project_id": project_id,
-                "run_id": run_id,
-                "session_id": session_id,
-            }
-        )
+        field_dict.update({"id": id, "project_id": project_id, "run_id": run_id, "session_id": session_id})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:

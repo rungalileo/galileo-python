@@ -10,11 +10,7 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    template_id: str,
-    version: int,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, template_id: str, version: int) -> dict[str, Any]:
     _kwargs: dict[str, Any] = {
         "method": "put",
         "url": f"/projects/{project_id}/templates/{template_id}/versions/{version}",
@@ -52,11 +48,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    template_id: str,
-    version: int,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, template_id: str, version: int, *, client: AuthenticatedClient
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Set Selected Template Version
 
@@ -73,25 +65,15 @@ def sync_detailed(
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        template_id=template_id,
-        version=version,
-    )
+    kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    template_id: str,
-    version: int,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, template_id: str, version: int, *, client: AuthenticatedClient
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Set Selected Template Version
 
@@ -108,20 +90,11 @@ def sync(
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        template_id=template_id,
-        version=version,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, template_id=template_id, version=version, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    template_id: str,
-    version: int,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, template_id: str, version: int, *, client: AuthenticatedClient
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Set Selected Template Version
 
@@ -138,11 +111,7 @@ async def asyncio_detailed(
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        template_id=template_id,
-        version=version,
-    )
+    kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -150,11 +119,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    template_id: str,
-    version: int,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, template_id: str, version: int, *, client: AuthenticatedClient
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Set Selected Template Version
 
@@ -172,10 +137,5 @@ async def asyncio(
     """
 
     return (
-        await asyncio_detailed(
-            project_id=project_id,
-            template_id=template_id,
-            version=version,
-            client=client,
-        )
+        await asyncio_detailed(project_id=project_id, template_id=template_id, version=version, client=client)
     ).parsed

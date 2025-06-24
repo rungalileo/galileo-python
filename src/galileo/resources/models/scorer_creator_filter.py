@@ -28,11 +28,7 @@ class ScorerCreatorFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "value": value,
-            }
-        )
+        field_dict.update({"value": value})
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -47,10 +43,7 @@ class ScorerCreatorFilter:
         if name != "creator" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'creator', got '{name}'")
 
-        scorer_creator_filter = cls(
-            value=value,
-            name=name,
-        )
+        scorer_creator_filter = cls(value=value, name=name)
 
         scorer_creator_filter.additional_properties = d
         return scorer_creator_filter

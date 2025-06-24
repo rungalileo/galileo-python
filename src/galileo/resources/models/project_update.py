@@ -96,11 +96,7 @@ class ProjectUpdate:
 
         type_ = _parse_type_(d.pop("type", UNSET))
 
-        project_update = cls(
-            created_by=created_by,
-            name=name,
-            type_=type_,
-        )
+        project_update = cls(created_by=created_by, name=name, type_=type_)
 
         project_update.additional_properties = d
         return project_update

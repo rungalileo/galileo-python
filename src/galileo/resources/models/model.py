@@ -162,12 +162,7 @@ class Model:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "alias": alias,
-                "name": name,
-            }
-        )
+        field_dict.update({"alias": alias, "name": name})
         if alternative_names is not UNSET:
             field_dict["alternative_names"] = alternative_names
         if api_version is not UNSET:

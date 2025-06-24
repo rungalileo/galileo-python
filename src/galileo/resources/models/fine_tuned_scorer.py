@@ -135,11 +135,7 @@ class FineTunedScorer:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        fine_tuned_scorer = cls(
-            filters=filters,
-            id=id,
-            name=name,
-        )
+        fine_tuned_scorer = cls(filters=filters, id=id, name=name)
 
         fine_tuned_scorer.additional_properties = d
         return fine_tuned_scorer

@@ -10,13 +10,8 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    template_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "delete",
-        "url": f"/templates/{template_id}",
-    }
+def _get_kwargs(template_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/templates/{template_id}"}
 
     return _kwargs
 
@@ -50,9 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    template_id: str,
-    *,
-    client: AuthenticatedClient,
+    template_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Global Template
 
@@ -81,21 +74,15 @@ def sync_detailed(
         Response[Union[DeletePromptResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        template_id=template_id,
-    )
+    kwargs = _get_kwargs(template_id=template_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    template_id: str,
-    *,
-    client: AuthenticatedClient,
+    template_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Global Template
 
@@ -124,16 +111,11 @@ def sync(
         Union[DeletePromptResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        template_id=template_id,
-        client=client,
-    ).parsed
+    return sync_detailed(template_id=template_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    template_id: str,
-    *,
-    client: AuthenticatedClient,
+    template_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Global Template
 
@@ -162,9 +144,7 @@ async def asyncio_detailed(
         Response[Union[DeletePromptResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        template_id=template_id,
-    )
+    kwargs = _get_kwargs(template_id=template_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -172,9 +152,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    template_id: str,
-    *,
-    client: AuthenticatedClient,
+    template_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[DeletePromptResponse, HTTPValidationError]]:
     """Delete Global Template
 
@@ -203,9 +181,4 @@ async def asyncio(
         Union[DeletePromptResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            template_id=template_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(template_id=template_id, client=client)).parsed

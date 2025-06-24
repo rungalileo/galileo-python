@@ -22,11 +22,7 @@ class StringData:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "input_strings": input_strings,
-            }
-        )
+        field_dict.update({"input_strings": input_strings})
 
         return field_dict
 
@@ -35,9 +31,7 @@ class StringData:
         d = dict(src_dict)
         input_strings = cast(list[str], d.pop("input_strings"))
 
-        string_data = cls(
-            input_strings=input_strings,
-        )
+        string_data = cls(input_strings=input_strings)
 
         string_data.additional_properties = d
         return string_data

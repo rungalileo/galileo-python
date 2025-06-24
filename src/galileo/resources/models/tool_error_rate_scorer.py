@@ -137,12 +137,7 @@ class ToolErrorRateScorer:
         if type_ != "plus" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'plus', got '{type_}'")
 
-        tool_error_rate_scorer = cls(
-            filters=filters,
-            model_name=model_name,
-            name=name,
-            type_=type_,
-        )
+        tool_error_rate_scorer = cls(filters=filters, model_name=model_name, name=name, type_=type_)
 
         tool_error_rate_scorer.additional_properties = d
         return tool_error_rate_scorer

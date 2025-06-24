@@ -182,11 +182,7 @@ class AgentSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "input": input_,
-            }
-        )
+        field_dict.update({"input": input_})
         if agent_type is not UNSET:
             field_dict["agent_type"] = agent_type
         if created_at is not UNSET:

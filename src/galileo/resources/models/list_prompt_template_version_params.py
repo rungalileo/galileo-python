@@ -115,9 +115,7 @@ class ListPromptTemplateVersionParams:
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
-        list_prompt_template_version_params = cls(
-            sort=sort,
-        )
+        list_prompt_template_version_params = cls(sort=sort)
 
         list_prompt_template_version_params.additional_properties = d
         return list_prompt_template_version_params

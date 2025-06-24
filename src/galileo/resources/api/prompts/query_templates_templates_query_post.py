@@ -12,10 +12,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *,
-    body: ListPromptTemplateParams,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    *, body: ListPromptTemplateParams, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -27,11 +24,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/templates/query",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/templates/query", "params": params}
 
     _kwargs["json"] = body.to_dict()
 
@@ -107,15 +100,9 @@ def sync_detailed(
         Response[Union[HTTPValidationError, ListPromptTemplateResponse]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -158,12 +145,7 @@ def sync(
         Union[HTTPValidationError, ListPromptTemplateResponse]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-        starting_token=starting_token,
-        limit=limit,
-    ).parsed
+    return sync_detailed(client=client, body=body, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
@@ -204,11 +186,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, ListPromptTemplateResponse]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -253,11 +231,4 @@ async def asyncio(
         Union[HTTPValidationError, ListPromptTemplateResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-            starting_token=starting_token,
-            limit=limit,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body, starting_token=starting_token, limit=limit)).parsed

@@ -48,11 +48,7 @@ class DatasetUpdateRow:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "values": values,
-            }
-        )
+        field_dict.update({"values": values})
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
         if index is not UNSET:
@@ -91,12 +87,7 @@ class DatasetUpdateRow:
 
         row_id = _parse_row_id(d.pop("row_id", UNSET))
 
-        dataset_update_row = cls(
-            values=values,
-            edit_type=edit_type,
-            index=index,
-            row_id=row_id,
-        )
+        dataset_update_row = cls(values=values, edit_type=edit_type, index=index, row_id=row_id)
 
         dataset_update_row.additional_properties = d
         return dataset_update_row

@@ -64,14 +64,7 @@ class StageDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_by": created_by,
-                "id": id,
-                "name": name,
-                "project_id": project_id,
-            }
-        )
+        field_dict.update({"created_by": created_by, "id": id, "name": name, "project_id": project_id})
         if description is not UNSET:
             field_dict["description"] = description
         if paused is not UNSET:

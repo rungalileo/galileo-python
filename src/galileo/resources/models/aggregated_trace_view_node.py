@@ -85,12 +85,7 @@ class AggregatedTraceViewNode:
         type_ = StepType(d.pop("type"))
 
         aggregated_trace_view_node = cls(
-            has_children=has_children,
-            id=id,
-            name=name,
-            occurrences=occurrences,
-            parent_id=parent_id,
-            type_=type_,
+            has_children=has_children, id=id, name=name, occurrences=occurrences, parent_id=parent_id, type_=type_
         )
 
         aggregated_trace_view_node.additional_properties = d

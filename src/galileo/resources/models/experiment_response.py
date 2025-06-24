@@ -120,13 +120,7 @@ class ExperimentResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "project_id": project_id,
-                "task_type": task_type,
-            }
-        )
+        field_dict.update({"id": id, "project_id": project_id, "task_type": task_type})
         if aggregate_feedback is not UNSET:
             field_dict["aggregate_feedback"] = aggregate_feedback
         if aggregate_metrics is not UNSET:

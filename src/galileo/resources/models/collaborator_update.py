@@ -24,11 +24,7 @@ class CollaboratorUpdate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "role": role,
-            }
-        )
+        field_dict.update({"role": role})
 
         return field_dict
 
@@ -37,9 +33,7 @@ class CollaboratorUpdate:
         d = dict(src_dict)
         role = CollaboratorRole(d.pop("role"))
 
-        collaborator_update = cls(
-            role=role,
-        )
+        collaborator_update = cls(role=role)
 
         collaborator_update.additional_properties = d
         return collaborator_update

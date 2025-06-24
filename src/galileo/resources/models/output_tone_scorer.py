@@ -108,10 +108,7 @@ class OutputToneScorer:
         if name != "output_tone" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'output_tone', got '{name}'")
 
-        output_tone_scorer = cls(
-            filters=filters,
-            name=name,
-        )
+        output_tone_scorer = cls(filters=filters, name=name)
 
         output_tone_scorer.additional_properties = d
         return output_tone_scorer

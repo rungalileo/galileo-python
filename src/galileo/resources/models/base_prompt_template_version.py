@@ -63,11 +63,7 @@ class BasePromptTemplateVersion:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "template": template,
-            }
-        )
+        field_dict.update({"template": template})
         if output_type is not UNSET:
             field_dict["output_type"] = output_type
         if raw is not UNSET:
@@ -132,11 +128,7 @@ class BasePromptTemplateVersion:
         version = _parse_version(d.pop("version", UNSET))
 
         base_prompt_template_version = cls(
-            template=template,
-            output_type=output_type,
-            raw=raw,
-            settings=settings,
-            version=version,
+            template=template, output_type=output_type, raw=raw, settings=settings, version=version
         )
 
         base_prompt_template_version.additional_properties = d

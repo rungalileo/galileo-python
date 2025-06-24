@@ -45,13 +45,7 @@ class LogRecordsNumberFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_id": column_id,
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"column_id": column_id, "operator": operator, "value": value})
         if type_ is not UNSET:
             field_dict["type"] = type_
 
@@ -89,12 +83,7 @@ class LogRecordsNumberFilter:
         if type_ != "number" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'number', got '{type_}'")
 
-        log_records_number_filter = cls(
-            column_id=column_id,
-            operator=operator,
-            value=value,
-            type_=type_,
-        )
+        log_records_number_filter = cls(column_id=column_id, operator=operator, value=value, type_=type_)
 
         log_records_number_filter.additional_properties = d
         return log_records_number_filter

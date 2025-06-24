@@ -28,11 +28,7 @@ class PromptTemplateUsedInProjectFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "value": value,
-            }
-        )
+        field_dict.update({"value": value})
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -47,10 +43,7 @@ class PromptTemplateUsedInProjectFilter:
         if name != "used_in_project" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'used_in_project', got '{name}'")
 
-        prompt_template_used_in_project_filter = cls(
-            value=value,
-            name=name,
-        )
+        prompt_template_used_in_project_filter = cls(value=value, name=name)
 
         prompt_template_used_in_project_filter.additional_properties = d
         return prompt_template_used_in_project_filter

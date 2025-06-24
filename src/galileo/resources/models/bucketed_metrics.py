@@ -28,12 +28,7 @@ class BucketedMetrics:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "end_bucket_time": end_bucket_time,
-                "start_bucket_time": start_bucket_time,
-            }
-        )
+        field_dict.update({"end_bucket_time": end_bucket_time, "start_bucket_time": start_bucket_time})
 
         return field_dict
 
@@ -44,10 +39,7 @@ class BucketedMetrics:
 
         start_bucket_time = isoparse(d.pop("start_bucket_time"))
 
-        bucketed_metrics = cls(
-            end_bucket_time=end_bucket_time,
-            start_bucket_time=start_bucket_time,
-        )
+        bucketed_metrics = cls(end_bucket_time=end_bucket_time, start_bucket_time=start_bucket_time)
 
         bucketed_metrics.additional_properties = d
         return bucketed_metrics

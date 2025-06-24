@@ -75,11 +75,7 @@ class MetricNotApplicable:
         if status_type != "not_applicable" and not isinstance(status_type, Unset):
             raise ValueError(f"status_type must match const 'not_applicable', got '{status_type}'")
 
-        metric_not_applicable = cls(
-            message=message,
-            scorer_type=scorer_type,
-            status_type=status_type,
-        )
+        metric_not_applicable = cls(message=message, scorer_type=scorer_type, status_type=status_type)
 
         metric_not_applicable.additional_properties = d
         return metric_not_applicable

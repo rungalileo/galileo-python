@@ -10,16 +10,10 @@ from ...models.template_stub_request import TemplateStubRequest
 from ...types import Response
 
 
-def _get_kwargs(
-    *,
-    body: TemplateStubRequest,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: TemplateStubRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/input_stub",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/input_stub"}
 
     _kwargs["json"] = body.to_dict()
 
@@ -57,9 +51,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: TemplateStubRequest,
+    *, client: AuthenticatedClient, body: TemplateStubRequest
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Generate Template Input Stub
 
@@ -74,22 +66,14 @@ def sync_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *,
-    client: AuthenticatedClient,
-    body: TemplateStubRequest,
-) -> Optional[Union[Any, HTTPValidationError]]:
+def sync(*, client: AuthenticatedClient, body: TemplateStubRequest) -> Optional[Union[Any, HTTPValidationError]]:
     """Generate Template Input Stub
 
     Args:
@@ -103,16 +87,11 @@ def sync(
         Union[Any, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: TemplateStubRequest,
+    *, client: AuthenticatedClient, body: TemplateStubRequest
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Generate Template Input Stub
 
@@ -127,9 +106,7 @@ async def asyncio_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -137,9 +114,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    body: TemplateStubRequest,
+    *, client: AuthenticatedClient, body: TemplateStubRequest
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Generate Template Input Stub
 
@@ -154,9 +129,4 @@ async def asyncio(
         Union[Any, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body)).parsed

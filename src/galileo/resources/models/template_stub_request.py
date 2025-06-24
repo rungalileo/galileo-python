@@ -22,11 +22,7 @@ class TemplateStubRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "template": template,
-            }
-        )
+        field_dict.update({"template": template})
 
         return field_dict
 
@@ -35,9 +31,7 @@ class TemplateStubRequest:
         d = dict(src_dict)
         template = d.pop("template")
 
-        template_stub_request = cls(
-            template=template,
-        )
+        template_stub_request = cls(template=template)
 
         template_stub_request.additional_properties = d
         return template_stub_request

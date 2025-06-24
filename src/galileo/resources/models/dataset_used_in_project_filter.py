@@ -28,11 +28,7 @@ class DatasetUsedInProjectFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "value": value,
-            }
-        )
+        field_dict.update({"value": value})
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -47,10 +43,7 @@ class DatasetUsedInProjectFilter:
         if name != "used_in_project" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'used_in_project', got '{name}'")
 
-        dataset_used_in_project_filter = cls(
-            value=value,
-            name=name,
-        )
+        dataset_used_in_project_filter = cls(value=value, name=name)
 
         dataset_used_in_project_filter.additional_properties = d
         return dataset_used_in_project_filter

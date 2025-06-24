@@ -10,13 +10,8 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(
-    dataset_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/datasets/{dataset_id}",
-    }
+def _get_kwargs(dataset_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/datasets/{dataset_id}"}
 
     return _kwargs
 
@@ -49,11 +44,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Response[Union[DatasetDB, HTTPValidationError]]:
+def sync_detailed(dataset_id: str, *, client: AuthenticatedClient) -> Response[Union[DatasetDB, HTTPValidationError]]:
     """Get Dataset
 
     Args:
@@ -67,22 +58,14 @@ def sync_detailed(
         Response[Union[DatasetDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        dataset_id=dataset_id,
-    )
+    kwargs = _get_kwargs(dataset_id=dataset_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Union[DatasetDB, HTTPValidationError]]:
+def sync(dataset_id: str, *, client: AuthenticatedClient) -> Optional[Union[DatasetDB, HTTPValidationError]]:
     """Get Dataset
 
     Args:
@@ -96,16 +79,11 @@ def sync(
         Union[DatasetDB, HTTPValidationError]
     """
 
-    return sync_detailed(
-        dataset_id=dataset_id,
-        client=client,
-    ).parsed
+    return sync_detailed(dataset_id=dataset_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
+    dataset_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[DatasetDB, HTTPValidationError]]:
     """Get Dataset
 
@@ -120,20 +98,14 @@ async def asyncio_detailed(
         Response[Union[DatasetDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        dataset_id=dataset_id,
-    )
+    kwargs = _get_kwargs(dataset_id=dataset_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Union[DatasetDB, HTTPValidationError]]:
+async def asyncio(dataset_id: str, *, client: AuthenticatedClient) -> Optional[Union[DatasetDB, HTTPValidationError]]:
     """Get Dataset
 
     Args:
@@ -147,9 +119,4 @@ async def asyncio(
         Union[DatasetDB, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            dataset_id=dataset_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(dataset_id=dataset_id, client=client)).parsed
