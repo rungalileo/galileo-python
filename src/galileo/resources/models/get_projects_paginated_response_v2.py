@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -68,10 +69,10 @@ class GetProjectsPaginatedResponseV2:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.project_item import ProjectItem
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         projects = []
         _projects = d.pop("projects")
         for projects_item_data in _projects:

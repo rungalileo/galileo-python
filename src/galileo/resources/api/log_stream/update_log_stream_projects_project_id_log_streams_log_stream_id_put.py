@@ -16,9 +16,8 @@ def _get_kwargs(project_id: str, log_stream_id: str, *, body: LogStreamUpdateReq
 
     _kwargs: dict[str, Any] = {"method": "put", "url": f"/projects/{project_id}/log_streams/{log_stream_id}"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers

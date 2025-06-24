@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -86,13 +87,13 @@ class MetricCritiqueJobConfiguration:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.recompute_settings_log_stream import RecomputeSettingsLogStream
         from ..models.recompute_settings_observe import RecomputeSettingsObserve
         from ..models.recompute_settings_project import RecomputeSettingsProject
         from ..models.recompute_settings_runs import RecomputeSettingsRuns
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         critique_ids = cast(list[str], d.pop("critique_ids"))
 
         metric_name = d.pop("metric_name")
