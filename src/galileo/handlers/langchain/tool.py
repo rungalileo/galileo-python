@@ -5,7 +5,7 @@ from langchain_core.runnables.base import Runnable
 from langchain_core.tools import BaseTool
 from pydantic import UUID4, BaseModel, ConfigDict, Field
 
-from galileo.constants.protect import TIMEOUT
+from galileo.constants.protect import TIMEOUT_SECS
 from galileo.protect import invoke
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload as CorePayload
@@ -35,7 +35,7 @@ class ProtectTool(BaseTool):
     stage_name: Optional[str] = None
     stage_id: Optional[UUID4] = None
     stage_version: Optional[int] = None
-    timeout: float = TIMEOUT
+    timeout: float = TIMEOUT_SECS
 
     def _run(self, input: Optional[str] = None, output: Optional[str] = None) -> str:
         """

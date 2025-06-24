@@ -4,7 +4,7 @@ from typing import Optional, Union
 from pydantic import UUID4
 
 from galileo.base import BaseClientModel
-from galileo.constants.protect import TIMEOUT
+from galileo.constants.protect import TIMEOUT_SECS
 from galileo.resources.api.protect import invoke_v2_protect_invoke_post
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.request import Request as APIRequest
@@ -26,7 +26,7 @@ class Protect(BaseClientModel, DecorateAllMethods):
         stage_id: Optional[UUID4] = None,
         stage_name: Optional[str] = None,
         stage_version: Optional[int] = None,
-        timeout: float = TIMEOUT,
+        timeout: float = TIMEOUT_SECS,
         metadata: Optional[dict[str, str]] = None,
         headers: Optional[dict[str, str]] = None,
     ) -> Optional[Union[Response, HTTPValidationError]]:
@@ -79,7 +79,7 @@ def invoke(
     stage_id: Optional[UUID4] = None,
     stage_name: Optional[str] = None,
     stage_version: Optional[int] = None,
-    timeout: float = TIMEOUT,
+    timeout: float = TIMEOUT_SECS,
     metadata: Optional[dict[str, str]] = None,
     headers: Optional[dict[str, str]] = None,
 ) -> Optional[Union[Response, HTTPValidationError]]:
