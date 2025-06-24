@@ -12,9 +12,9 @@ def reset_context():
     galileo_context.reset()
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_nested_context_restoration(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
@@ -65,9 +65,9 @@ def test_nested_context_restoration(
     assert _experiment_id_context.get() is None
 
 
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_context_update_with_defaults(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:

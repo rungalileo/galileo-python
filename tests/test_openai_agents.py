@@ -15,7 +15,7 @@ from pydantic import BaseModel
 from pytest import MonkeyPatch, mark
 
 from galileo.handlers.openai_agents import GalileoTracingProcessor
-from galileo.logger import GalileoLogger
+from galileo.logger.logger import GalileoLogger
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
@@ -65,9 +65,9 @@ os.environ["OPENAI_API_KEY"] = "sk-test"
     decode_compressed_response=True,
     record_mode=vcr.mode.NEW_EPISODES,
 )
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 async def test_complex_agent(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: MonkeyPatch
 ) -> None:
@@ -102,9 +102,9 @@ async def test_complex_agent(
     decode_compressed_response=True,
     record_mode=vcr.mode.NEW_EPISODES,
 )
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 async def test_simple_agent(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: MonkeyPatch
 ) -> None:

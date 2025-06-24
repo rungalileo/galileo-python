@@ -10,16 +10,16 @@ from pytest import mark
 
 from galileo import Message, MessageRole
 from galileo.handlers.langchain import GalileoAsyncCallback
-from galileo.logger import GalileoLogger
+from galileo.logger.logger import GalileoLogger
 from galileo_core.schemas.shared.document import Document as GalileoDocument
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
 class TestGalileoAsyncCallback:
     @pytest.fixture
-    @patch("galileo.logger.LogStreams")
-    @patch("galileo.logger.Projects")
-    @patch("galileo.logger.GalileoCoreApiClient")
+    @patch("galileo.logger.logger.LogStreams")
+    @patch("galileo.logger.logger.Projects")
+    @patch("galileo.logger.logger.GalileoCoreApiClient")
     def galileo_logger(self, mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock):
         """Creates a mock Galileo logger for testing"""
         setup_mock_core_api_client(mock_core_api_client)
@@ -134,6 +134,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].type == "workflow"
         assert traces[0].spans[0].input == '{"query": "test question"}'
         assert traces[0].spans[0].output == '{"result": "test answer"}'
+        assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
     async def test_on_chain_start_end_with_input_update(
@@ -161,6 +162,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].type == "workflow"
         assert traces[0].spans[0].input == '{"query": "test question"}'
         assert traces[0].spans[0].output == '{"result": "test answer"}'
+        assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
     async def test_on_agent_chain(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
@@ -184,6 +186,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].type == "workflow"
         assert traces[0].spans[0].input == '{"input": "test input"}'
         assert traces[0].spans[0].output == '{"return_values": {"output": "test result"}, "log": "log message"}'
+        assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
     async def test_on_llm_start_end(self, callback: GalileoAsyncCallback):
@@ -337,6 +340,7 @@ class TestGalileoAsyncCallback:
                 },
             }
         ]
+        assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
     async def test_on_tool_start_end_with_string_output(self, callback: GalileoAsyncCallback):
@@ -564,11 +568,13 @@ class TestGalileoAsyncCallback:
             traces[0].spans[0].output
             == '{"result": "Recent AI research has focused on LLMs which have seen significant progress..."}'
         )
+        assert traces[0].spans[0].step_number is None
         assert traces[0].spans[0].spans[0].type == "retriever"
         assert traces[0].spans[0].spans[0].input == "latest AI research"
         assert traces[0].spans[0].spans[0].output == [
             GalileoDocument(content="Recent advances in large language models...", metadata={"source": "paper"})
         ]
+        assert traces[0].spans[0].spans[0].step_number is None
         assert traces[0].spans[0].spans[1].type == "llm"
         assert traces[0].spans[0].spans[1].input == [
             Message(
@@ -582,10 +588,12 @@ class TestGalileoAsyncCallback:
             tool_calls=None,
         )
         assert traces[0].spans[0].spans[1].user_metadata == {"extras": "{'source': 'paper'}"}
+        assert traces[0].spans[0].spans[1].step_number is None
         assert traces[0].spans[0].spans[2].type == "tool"
         assert traces[0].spans[0].spans[2].input == "verify(LLMs have seen significant progress)"
         assert traces[0].spans[0].spans[2].output == "Verification complete: accurate statement"
         assert traces[0].spans[0].spans[2].user_metadata == {"key": "value", "extras": "{'tools': 'tool1'}"}
+        assert traces[0].spans[0].spans[2].step_number is None
 
     @mark.asyncio
     async def test_missing_parent_node(self, callback: GalileoAsyncCallback):
@@ -668,6 +676,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].spans[0].type == "retriever"
         assert traces[0].spans[0].spans[0].input == "test query"
         assert traces[0].spans[0].spans[0].output == [GalileoDocument(content="test document", metadata={})]
+        assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
     async def test_node_created_at(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
@@ -725,3 +734,98 @@ class TestGalileoAsyncCallback:
 
         time_diff_ms = (llm_span.created_at - retriever_span.created_at).total_seconds() * 1000
         assert time_diff_ms >= delay_ms
+
+    @pytest.mark.parametrize(
+        "node_type, start_fn, end_fn, input_args, output_args, expected_type",
+        [
+            (
+                "tool",
+                "on_tool_start",
+                "on_tool_end",
+                {"serialized": {"name": "calculator"}, "input_str": "2+2"},
+                {"output": "4"},
+                "tool",
+            ),
+            (
+                "llm",
+                "on_llm_start",
+                "on_llm_end",
+                {"serialized": {}, "prompts": ["Tell me about AI"], "invocation_params": {"model_name": "gpt-4"}},
+                {"response": MagicMock()},
+                "llm",
+            ),
+            (
+                "retriever",
+                "on_retriever_start",
+                "on_retriever_end",
+                {"serialized": {}, "query": "AI development"},
+                {"documents": [Document(page_content="AI", metadata={})]},
+                "retriever",
+            ),
+            (
+                "chain",
+                "on_chain_start",
+                "on_chain_end",
+                {"serialized": {"name": "TestChain"}, "inputs": {"query": "test"}},
+                {"outputs": {"result": "answer"}},
+                "workflow",
+            ),
+            (
+                "agent",
+                "on_chain_start",
+                "on_chain_end",
+                {"serialized": {"name": "Agent"}, "inputs": {"query": "test"}},
+                {"outputs": {"result": "answer"}},
+                "workflow",
+            ),
+        ],
+    )
+    @mark.asyncio
+    async def test_step_number_propagation(
+        self,
+        callback: GalileoAsyncCallback,
+        galileo_logger: GalileoLogger,
+        node_type,
+        start_fn,
+        end_fn,
+        input_args,
+        output_args,
+        expected_type,
+    ):
+        """Test that step_number is set correctly for all node types when metadata contains langgraph_step"""
+        parent_id = uuid.uuid4()
+        run_id = uuid.uuid4()
+        step_number = 42
+
+        # Create parent chain for non-root nodes
+        if node_type not in ("chain", "agent"):
+            await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+            parent_arg = {"parent_run_id": parent_id}
+        else:
+            parent_arg = {}
+
+        input_args.update({"run_id": run_id, **parent_arg, "metadata": {"langgraph_step": str(step_number)}})
+
+        # Call start
+        await getattr(callback, start_fn)(**input_args)
+
+        # Prepare and call end
+        output_args.update({"run_id": run_id, **parent_arg})
+        await getattr(callback, end_fn)(**output_args)
+
+        # End chain to trigger commit for non-root nodes
+        if node_type not in ("chain", "agent"):
+            await callback.on_chain_end(outputs={"result": "test answer"}, run_id=parent_id)
+            traces = galileo_logger.traces
+            assert len(traces) == 1
+            assert len(traces[0].spans) == 1
+            child_span = traces[0].spans[0].spans[0]
+            assert child_span.type == expected_type
+            assert child_span.step_number == step_number
+        else:
+            traces = galileo_logger.traces
+            assert len(traces) == 1
+            assert len(traces[0].spans) == 1
+            root_span = traces[0].spans[0]
+            assert root_span.type == expected_type
+            assert root_span.step_number == step_number

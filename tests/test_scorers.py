@@ -1,4 +1,7 @@
+import uuid
 from unittest.mock import ANY, Mock, patch
+
+from src.galileo.resources.models.base_scorer_version_response import BaseScorerVersionResponse
 
 from galileo.resources.models import (
     ListScorersRequest,
@@ -67,3 +70,57 @@ def test_list_all_scorers_preset_filter(list_scorers_mock: Mock):
             filters=[ScorerTypeFilter(operator=ScorerTypeFilterOperator.EQ, value=ScorerTypes.LLM)]
         ),
     )
+
+
+def create_mock_version_response():
+    return BaseScorerVersionResponse.from_dict(
+        {
+            "id": "b8933a6d-7a65-4ce3-bfe4-b863109a0425",
+            "version": 2,
+            "model_name": "GPT-4o",
+            "num_judges": 3,
+            "created_at": "2025-03-28T18:54:02.848267+00:00",
+            "updated_at": "2025-03-28T18:54:02.848269+00:00",
+            "generated_scorer": {
+                "id": "c7933a6d-7a65-4ce3-bfe4-b863109a0499",
+                "name": "test_generated_scorer",
+                "instructions": "Evaluate the response quality",
+                "chain_poll_template": {
+                    "name": "quality_check",
+                    "prompt": "Rate the quality on a scale of 1-10",
+                    "template_type": "standard",
+                },
+            },
+            "registered_scorer": None,
+        }
+    )
+
+
+class MockHTTPError(Exception):
+    def __init__(self, status_code):
+        self.status_code = status_code
+        super().__init__(f"HTTP Error: {status_code}")
+
+
+@patch("galileo.scorers.get_scorer_version_or_latest_scorers_scorer_id_version_get")
+def test_get_scorer_version_success(get_scorer_version_mock: Mock):
+    # Setup
+    mock_response = create_mock_version_response()
+    get_scorer_version_mock.sync.return_value = mock_response
+    scorer_id = uuid.UUID("b8933a6d-7a65-4ce3-bfe4-b863109a0425")
+    version = 2
+
+    # Execute
+    result = Scorers().get_scorer_version(scorer_id=scorer_id, version=version)
+
+    # Verify
+    assert result == mock_response
+    get_scorer_version_mock.sync.assert_called_once_with(scorer_id=scorer_id, version=version, client=ANY)
+    assert result.id == "b8933a6d-7a65-4ce3-bfe4-b863109a0425"
+    assert result.version == 2
+    # Access properties from additional_properties instead
+    assert result.model_name == "GPT-4o"
+    assert result.num_judges == 3
+    # Access generated_scorer as a dictionary
+    assert result.generated_scorer["name"] == "test_generated_scorer"
+    assert result.registered_scorer is None
