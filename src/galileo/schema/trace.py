@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import UUID4, BaseModel, Field
 
+from galileo_core.schemas.logging.span import Span
 from galileo_core.schemas.logging.trace import Trace
 
 
@@ -14,6 +15,13 @@ class BaseLogStreamOrExperimentModel(BaseModel):
 class TracesIngestRequest(BaseLogStreamOrExperimentModel):
     traces: list[Trace] = Field(..., description="List of traces to log.", min_length=1)
     session_id: Optional[UUID4] = Field(default=None, description="Session id associated with the traces.")
+
+
+class SpansIngestRequest(BaseModel):
+    log_stream_id: Optional[UUID4] = Field(default=None, description="Log stream id associated with the traces.")
+    trace_id: UUID4 = Field(default=None, description="Trace id associated with the traces.")
+    parent_id: Optional[UUID4] = Field(default=None, description="Parent id associated with the traces.")
+    spans: list[Span] = Field(..., description="List of spans to log.", min_length=1)
 
 
 class TracesIngestResponse(BaseLogStreamOrExperimentModel):

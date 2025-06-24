@@ -8,7 +8,7 @@ from httpx import Client, Timeout
 
 from galileo.api_client import GalileoApiClient
 from galileo.constants.routes import Routes
-from galileo.schema.trace import LogRecordsSearchRequest, SessionCreateRequest, TracesIngestRequest
+from galileo.schema.trace import SessionCreateRequest, TracesIngestRequest
 from galileo.utils.request import HttpHeaders, make_request
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient as CoreApiClient
@@ -147,6 +147,13 @@ class GalileoCoreApiClient:
 
         return self._make_request(
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
+        )
+
+    def ingest_spans_sync(self, spans_ingest_request: SpansIngestRequest) -> dict[str, str]:
+        json = spans_ingest_request.model_dump(mode="json")
+
+        return self._make_request(
+            RequestMethod.POST, endpoint=Routes.spans.format(project_id=self.project_id), json=json
         )
 
     def create_session_sync(self, session_create_request: SessionCreateRequest) -> dict[str, str]:

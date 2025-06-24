@@ -12,6 +12,7 @@ from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.logger.batch import GalileoBatchLogger
 from galileo.logger.streaming import GalileoStreamingLogger
+from galileo.logger.utils import RetrieverSpanAllowedOutputType
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import (
@@ -40,10 +41,6 @@ from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
-
-RetrieverSpanAllowedOutputType = Union[
-    str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None
-]
 
 
 class GalileoLoggerException(Exception):
@@ -354,7 +351,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         -------
             LlmSpan: The created span.
         """
-        return super().add_llm_span(
+        kwargs = dict(
             input=input,
             output=output,
             model=model,
@@ -372,6 +369,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             time_to_first_token_ns=time_to_first_token_ns,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.add_llm_span(self, **kwargs)
+        return GalileoStreamingLogger.add_llm_span(self, **kwargs)
 
     @nop_sync
     def add_retriever_span(
