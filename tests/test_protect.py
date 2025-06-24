@@ -89,7 +89,7 @@ def invoke_response() -> APIResponse:
 @mark.parametrize("metadata", [None, {"key": "value"}])
 @mark.parametrize("headers", [None, {"key": "value"}])
 @mark.parametrize("stage_version", [None, 1, 2])
-@patch("galileo.protect.invoke_v2_protect_invoke_post.sync")
+@patch("galileo.protect.invoke_protect_invoke_post.sync")
 class TestInvoke:
     def test_invoke_success(
         self,
@@ -199,7 +199,7 @@ class TestInvoke:
         mock_invoke_post_sync.assert_called_once()
 
 
-@patch("galileo.protect.invoke_v2_protect_invoke_post.sync")
+@patch("galileo.protect.invoke_protect_invoke_post.sync")
 def test_invoke_with_rulesets(mock_invoke_post_sync: Mock):
     mock_invoke_post_sync.return_value = invoke_response()
 
@@ -223,7 +223,7 @@ def test_invoke_with_rulesets(mock_invoke_post_sync: Mock):
     assert "rulesets" not in body.additional_properties
 
 
-@patch("galileo.protect.invoke_v2_protect_invoke_post.sync")
+@patch("galileo.protect.invoke_protect_invoke_post.sync")
 def test_invoke_api_validation_error(mock_invoke_post_sync: Mock):
     error_detail_item = {"loc": ["body", "payload", "input"], "msg": "Field required", "type": "missing"}
     validation_error = HTTPValidationError(detail=[error_detail_item])

@@ -5,7 +5,7 @@ from pydantic import UUID4
 
 from galileo.base import BaseClientModel
 from galileo.constants.protect import TIMEOUT_SECS
-from galileo.resources.api.protect import invoke_v2_protect_invoke_post
+from galileo.resources.api.protect import invoke_protect_invoke_post
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.request import Request as APIRequest
 from galileo.resources.models.response import Response as APIResponse
@@ -46,7 +46,7 @@ class Protect(BaseClientModel, DecorateAllMethods):
         request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
         body = APIRequest.from_dict(request_dict)
 
-        response: Optional[Union[APIResponse, HTTPValidationError]] = invoke_v2_protect_invoke_post.sync(
+        response: Optional[Union[APIResponse, HTTPValidationError]] = invoke_protect_invoke_post.sync(
             client=self.client, body=body
         )
 

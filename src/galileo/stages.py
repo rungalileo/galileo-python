@@ -6,7 +6,7 @@ from galileo.api_client import GalileoApiClient
 from galileo.base import BaseClientModel
 from galileo.projects import Projects
 from galileo.resources.api.protect import (
-    create_stage_v2_projects_project_id_stages_post,
+    create_stage_projects_project_id_stages_post,
     get_stage_projects_project_id_stages_get,
     pause_stage_projects_project_id_stages_stage_id_put,
     update_stage_projects_project_id_stages_stage_id_post,
@@ -89,7 +89,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
         body = APIStageWithRulesets.from_dict(request_dict)
 
-        response = create_stage_v2_projects_project_id_stages_post.sync(
+        response = create_stage_projects_project_id_stages_post.sync(
             project_id=str(project_id), client=self.client, body=body
         )
 

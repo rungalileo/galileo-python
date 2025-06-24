@@ -64,7 +64,7 @@ def _patch_common_modules():
         yield
 
 
-@patch("galileo.stages.create_stage_v2_projects_project_id_stages_post.sync")
+@patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 @patch("galileo.stages.ts_name", return_value="auto-name")
 def test_create_stage_happy_path(mock_ts_name: Mock, mock_api: Mock):
     """Smoke‑test: minimal args produce StageDB and correct API call."""
@@ -77,7 +77,7 @@ def test_create_stage_happy_path(mock_ts_name: Mock, mock_api: Mock):
     assert stage.project_id == FIXED_PROJECT_ID
 
 
-@patch("galileo.stages.create_stage_v2_projects_project_id_stages_post.sync")
+@patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 def test_create_stage_validation_error(mock_api: Mock):
     """create_stage returns HTTPValidationError untouched."""
     err = HTTPValidationError(detail=[{"msg": "bad", "loc": ["body"], "type": "value_error"}])
@@ -87,7 +87,7 @@ def test_create_stage_validation_error(mock_api: Mock):
     assert res is err
 
 
-@patch("galileo.stages.create_stage_v2_projects_project_id_stages_post.sync")
+@patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 @patch("galileo.stages.ts_name", return_value="ts_auto")
 def test_create_stage_generates_name_and_type(mock_ts_name: Mock, mock_api: Mock):
     """No name provided → ts_name used; stage_type override respected."""
@@ -103,7 +103,7 @@ def test_create_stage_generates_name_and_type(mock_ts_name: Mock, mock_api: Mock
     assert stage.paused is True
 
 
-@patch("galileo.stages.create_stage_v2_projects_project_id_stages_post.sync")
+@patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 def test_create_central_stage_with_rulesets(mock_api: Mock):
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
     stage_name = "test-central-stage-with-rules"
