@@ -58,7 +58,9 @@ class Protect(BaseClientModel, DecorateAllMethods):
             metadata=metadata,
             headers=headers,
         )
-        body = APIRequest.from_dict(request.model_dump())
+        request_dict = request.model_dump()
+        request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
+        body = APIRequest.from_dict(request_dict)
 
         response: Optional[Union[APIResponse, HTTPValidationError]] = invoke_v2_protect_invoke_post.sync(
             client=self.client, body=body

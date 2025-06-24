@@ -106,7 +106,9 @@ class Stages(BaseClientModel, DecorateAllMethods):
             prioritized_rulesets=[Ruleset(rules=rulesets)] if rulesets else [],
         )
 
-        body = APIStageWithRulesets.from_dict(request.model_dump())
+        request_dict = request.model_dump()
+        request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
+        body = APIStageWithRulesets.from_dict(request_dict)
 
         response = create_stage_v2_projects_project_id_stages_post.sync(
             project_id=str(project_id), client=self.client, body=body
@@ -192,7 +194,9 @@ class Stages(BaseClientModel, DecorateAllMethods):
 
         rulesets = [Ruleset(rules=prioritized_rulesets)] if prioritized_rulesets else []
         request = RulesetsMixin(prioritized_rulesets=rulesets)
-        body = APIRulesetsMixin.from_dict(request.model_dump(by_alias=True))
+        request_dict = request.model_dump()
+        request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
+        body = APIRulesetsMixin.from_dict(request_dict)
 
         response = update_stage_projects_project_id_stages_stage_id_post.sync(
             project_id=actual_project_id, stage_id=actual_stage_id, client=self.client, body=body

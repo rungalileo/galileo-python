@@ -13,6 +13,7 @@ from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.request import Request
 from galileo_core.schemas.protect.response import Response
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
 from galileo_core.schemas.protect.ruleset import Ruleset
 
 A_PROJECT_NAME = "project_name"
@@ -194,6 +195,30 @@ class TestInvoke:
         assert response.text is not None
         assert response.status == ExecutionStatus.not_triggered
         mock_invoke_post_sync.assert_called_once()
+
+
+@patch("galileo.protect.invoke_v2_protect_invoke_post.sync")
+def test_invoke_with_rulesets(mock_invoke_post_sync: Mock):
+    mock_invoke_post_sync.return_value = invoke_response()
+
+    rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+    rulesets = [Ruleset(rules=rules)]
+
+    invoke(payload=Payload(input="test input"), prioritized_rulesets=rulesets, stage_id=uuid4())
+
+    mock_invoke_post_sync.assert_called_once()
+    api_call_args = mock_invoke_post_sync.call_args.kwargs
+    body = api_call_args["body"]
+
+    assert len(body.prioritized_rulesets) == 1
+    api_ruleset = body.prioritized_rulesets[0]
+
+    for i, api_rule in enumerate(api_ruleset.rules):
+        expected_rule = rules[i]
+        assert api_rule.metric == expected_rule.metric
+        assert api_rule.operator.lower() == expected_rule.operator.value.lower()
+        assert api_rule.target_value == expected_rule.target_value
+    assert "rulesets" not in body.additional_properties
 
 
 @patch("galileo.protect.invoke_v2_protect_invoke_post.sync")
