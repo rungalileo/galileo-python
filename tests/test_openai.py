@@ -18,9 +18,9 @@ def openai_incorrect_api_key_error():
 
 
 @patch("openai.resources.chat.Completions.create")
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_basic_openai_call(
     mock_core_api_client: Mock,
     mock_projects_client: Mock,
@@ -78,9 +78,9 @@ def test_basic_openai_call(
 
 
 @patch("openai.resources.chat.Completions.create")
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_streamed_openai_call(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
 ):
@@ -123,9 +123,9 @@ def test_streamed_openai_call(
 
 
 @patch("openai.resources.chat.Completions.create")
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_openai_api_calls_as_parent_span(
     mock_core_api_client: Mock,
     mock_projects_client: Mock,
@@ -176,9 +176,9 @@ def test_openai_api_calls_as_parent_span(
     "openai.resources.chat.Completions.create",
     side_effect=openai.OpenAIError("The api_key client option must be set either"),
 )
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_openai_error_trace(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
 ):
@@ -208,9 +208,9 @@ def test_openai_error_trace(
 
 
 @patch("openai.resources.chat.Completions.create")
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_openai_error_trace_(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
 ):
@@ -250,9 +250,9 @@ def test_openai_error_trace_(
     "openai.resources.chat.Completions.create",
     side_effect=openai.OpenAIError("The api_key client option must be set either"),
 )
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_client_fails_because_openai_error_trace_no_exp(
     mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
 ):
@@ -286,9 +286,9 @@ def test_client_fails_because_openai_error_trace_no_exp(
 
 
 @patch("openai.resources.chat.Completions.create")
-@patch("galileo.logger.LogStreams", side_effect=Exception("error"))
-@patch("galileo.logger.Projects", side_effect=Exception("error"))
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams", side_effect=Exception("error"))
+@patch("galileo.logger.logger.Projects", side_effect=Exception("error"))
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_galileo_api_client_transport_error_not_blocking_user_code(
     mock_core_api_client: Mock,
     mock_projects_client: Mock,
@@ -324,9 +324,9 @@ def test_galileo_api_client_transport_error_not_blocking_user_code(
 
 
 @patch("openai.resources.chat.Completions.create")
-@patch("galileo.logger.LogStreams")
-@patch("galileo.logger.Projects")
-@patch("galileo.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
 def test_openai_calls_in_active_trace(
     mock_core_api_client: Mock,
     mock_projects_client: Mock,
