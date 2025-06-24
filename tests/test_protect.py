@@ -140,7 +140,9 @@ class TestInvoke:
             headers=headers,
         )
 
-        expected_body = APIRequest.from_dict(body.model_dump())
+        body_dict = body.model_dump()
+        body_dict["prioritized_rulesets"] = body_dict.pop("rulesets", [])
+        expected_body = APIRequest.from_dict(body_dict)
 
         mock_invoke_post_sync.assert_called_once_with(client=ANY, body=expected_body)
 
