@@ -18,7 +18,7 @@ from galileo.resources.api.experiment import (
 )
 from galileo.resources.models import ExperimentResponse, HTTPValidationError, PromptRunSettings, ScorerConfig, TaskType
 from galileo.schema.datasets import DatasetRecord
-from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
+from galileo.schema.metrics import LocalMetricConfig
 from galileo.scorers import Scorers, ScorerSettings
 from galileo.utils.datasets import load_dataset_and_records
 
@@ -88,40 +88,17 @@ class Experiments(BaseClientModel):
 
     @staticmethod
     def create_metric_configs(
-        project_id: str,
-        experiment_id: str,
-        metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]],
+        project_id: str, experiment_id: str, metrics: builtins.list[Union[str, LocalMetricConfig]]
     ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
-        local_metric_configs: list[LocalMetricConfig] = []
-        scorer_name_versions: list[tuple[str, Optional[int]]] = []
-        for metric in metrics:
-            if isinstance(metric, GalileoScorers):
-                scorer_name_versions.append((metric.value, None))
-            elif isinstance(metric, Metric):
-                scorer_name_versions.append((metric.name, metric.version))
-            elif isinstance(metric, LocalMetricConfig):
-                local_metric_configs.append(metric)
-            elif isinstance(metric, str):
-                scorer_name_versions.append((metric, None))
-            else:
-                raise ValueError(f"Unknown metric type: {type(metric)}")
-
-        scorers: list[ScorerConfig] = []
-        if scorer_name_versions:
+        scorers = []
+        scorer_names = [metric for metric in metrics if isinstance(metric, str)]
+        if scorer_names:
             all_scorers = Scorers().list()
             known_metrics = {metric.name: metric for metric in all_scorers}
             unknown_metrics = []
-            for scorer_name, scorer_version in scorer_name_versions:
-                if scorer_name in known_metrics:
-                    raw_metric_dict = known_metrics[scorer_name].to_dict()
-
-                    # Set the version on the ScorerConfig if provided
-                    if scorer_version is not None:
-                        raw_version = Scorers().get_scorer_version(
-                            scorer_id=raw_metric_dict["id"], version=scorer_version
-                        )
-                        raw_metric_dict["scorer_version"] = raw_version.to_dict()
-                    scorers.append(ScorerConfig.from_dict(raw_metric_dict))
+            for metric in scorer_names:
+                if metric in known_metrics:
+                    scorers.append(ScorerConfig.from_dict(known_metrics[metric].to_dict()))
                 else:
                     unknown_metrics.append(metric)
             if unknown_metrics:
@@ -130,6 +107,8 @@ class Experiments(BaseClientModel):
                     + ", ".join(f"'{metric}'" for metric in unknown_metrics)
                 )
             ScorerSettings().create(project_id=project_id, run_id=experiment_id, scorers=scorers)
+
+        local_metric_configs = [metric for metric in metrics if isinstance(metric, LocalMetricConfig)]
 
         return scorers, local_metric_configs
 
@@ -233,7 +212,7 @@ def run_experiment(
     dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
-    metrics: Optional[list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]] = None,
+    metrics: Optional[list[Union[str, LocalMetricConfig]]] = None,
     function: Optional[Callable] = None,
 ) -> Any:
     """

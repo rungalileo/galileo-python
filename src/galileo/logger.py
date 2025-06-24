@@ -680,14 +680,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self.flush()
 
     def start_session(
-        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+        self, name: str, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
         """
         Start a new session.
 
         Parameters:
         ----------
-            name: Optional[str]: Name of the session. If not provided, a session name will be generated automatically.
+            name: str: Name of the session.
             previous_session_id: Optional[str]: ID of the previous session.
             external_id: Optional[str]: External ID of the session.
         Returns:

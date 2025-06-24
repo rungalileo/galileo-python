@@ -178,6 +178,3 @@ node_modules/
 
 .python-version
 .vscode/
-
-# PyDoc generated docs
-.generated_docs/

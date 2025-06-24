@@ -1,11 +1,7 @@
 from typing import Optional, Union
-from uuid import UUID
 
 from galileo.base import BaseClientModel
-from galileo.resources.api.data import (
-    get_scorer_version_or_latest_scorers_scorer_id_version_get,
-    list_scorers_with_filters_scorers_list_post,
-)
+from galileo.resources.api.data import list_scorers_with_filters_scorers_list_post
 from galileo.resources.api.run_scorer_settings import (
     upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_post,
 )
@@ -18,7 +14,6 @@ from galileo.resources.models import (
     ScorerTypeFilterOperator,
     ScorerTypes,
 )
-from galileo.resources.models.base_scorer_version_response import BaseScorerVersionResponse
 from galileo.resources.models.run_scorer_settings_patch_request import RunScorerSettingsPatchRequest
 from galileo.resources.models.run_scorer_settings_response import RunScorerSettingsResponse
 from galileo.resources.types import Unset
@@ -37,21 +32,6 @@ class Scorers(BaseClientModel):
         )
         result = list_scorers_with_filters_scorers_list_post.sync(client=self.client, body=body)
         return result.scorers
-
-    def get_scorer_version(self, scorer_id: UUID, version: int) -> Union[Unset, BaseScorerVersionResponse]:
-        """
-        Args:
-            name: str
-                Name of the scorer
-            version: int
-                Version of the scorer.
-        Returns:
-            Scorer response if found, otherwise None
-        """
-        result = get_scorer_version_or_latest_scorers_scorer_id_version_get.sync(
-            scorer_id=scorer_id, version=version, client=self.client
-        )
-        return result
 
 
 class ScorerSettings(BaseClientModel):

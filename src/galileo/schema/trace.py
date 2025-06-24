@@ -23,14 +23,14 @@ class TracesIngestResponse(BaseLogStreamOrExperimentModel):
 
 
 class SessionCreateRequest(BaseLogStreamOrExperimentModel):
-    name: Optional[str] = Field(default=None, description="Name of the session.")
+    name: str = Field(..., description="Name of the session.")
     previous_session_id: Optional[UUID4] = Field(default=None, description="Previous session id.")
     external_id: Optional[str] = Field(default=None, description="External id of the session.")
 
 
 class SessionCreateResponse(BaseLogStreamOrExperimentModel):
     id: UUID4 = Field(description="Id of the session.")
-    name: Optional[str] = Field(default=None, description="Name of the session.")
+    name: str = Field(description="Name of the session.")
     previous_session_id: Optional[UUID4] = Field(default=None, description="Previous session id.")
     external_id: Optional[str] = Field(default=None, description="External id of the session.")
     project_id: UUID4 = Field(description="Project id associated with the session.")
