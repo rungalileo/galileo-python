@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -30,19 +31,15 @@ class UserCollaboratorCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "user_id": user_id,
-            }
-        )
+        field_dict.update({"user_id": user_id})
         if role is not UNSET:
             field_dict["role"] = role
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         user_id = d.pop("user_id")
 
         _role = d.pop("role", UNSET)
@@ -52,10 +49,7 @@ class UserCollaboratorCreate:
         else:
             role = CollaboratorRole(_role)
 
-        user_collaborator_create = cls(
-            user_id=user_id,
-            role=role,
-        )
+        user_collaborator_create = cls(user_id=user_id, role=role)
 
         user_collaborator_create.additional_properties = d
         return user_collaborator_create

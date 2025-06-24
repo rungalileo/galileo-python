@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -21,22 +22,16 @@ class TemplateStubRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "template": template,
-            }
-        )
+        field_dict.update({"template": template})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         template = d.pop("template")
 
-        template_stub_request = cls(
-            template=template,
-        )
+        template_stub_request = cls(template=template)
 
         template_stub_request.additional_properties = d
         return template_stub_request

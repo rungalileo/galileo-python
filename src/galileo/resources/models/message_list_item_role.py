@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class MessagesListItemRole(str, Enum):
+class MessageListItemRole(str, Enum):
     AGENT = "agent"
     ASSISTANT = "assistant"
     FUNCTION = "function"

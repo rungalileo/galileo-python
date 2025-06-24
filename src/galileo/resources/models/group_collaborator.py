@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -56,13 +57,7 @@ class GroupCollaborator:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "created_at": created_at,
-                "group_id": group_id,
-                "group_name": group_name,
-                "id": id,
-                "role": role,
-            }
+            {"created_at": created_at, "group_id": group_id, "group_name": group_name, "id": id, "role": role}
         )
         if permissions is not UNSET:
             field_dict["permissions"] = permissions
@@ -70,10 +65,10 @@ class GroupCollaborator:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.permission import Permission
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         created_at = isoparse(d.pop("created_at"))
 
         group_id = d.pop("group_id")
@@ -92,12 +87,7 @@ class GroupCollaborator:
             permissions.append(permissions_item)
 
         group_collaborator = cls(
-            created_at=created_at,
-            group_id=group_id,
-            group_name=group_name,
-            id=id,
-            role=role,
-            permissions=permissions,
+            created_at=created_at, group_id=group_id, group_name=group_name, id=id, role=role, permissions=permissions
         )
 
         group_collaborator.additional_properties = d

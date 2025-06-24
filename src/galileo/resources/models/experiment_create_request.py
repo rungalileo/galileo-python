@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -63,11 +64,7 @@ class ExperimentCreateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
         if dataset is not UNSET:
             field_dict["dataset"] = dataset
         if playground_id is not UNSET:
@@ -80,10 +77,10 @@ class ExperimentCreateRequest:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.experiment_dataset_request import ExperimentDatasetRequest
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         name = d.pop("name")
 
         def _parse_dataset(data: object) -> Union["ExperimentDatasetRequest", None, Unset]:

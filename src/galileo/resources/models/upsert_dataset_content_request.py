@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -32,19 +33,15 @@ class UpsertDatasetContentRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "dataset_id": dataset_id,
-            }
-        )
+        field_dict.update({"dataset_id": dataset_id})
         if version_index is not UNSET:
             field_dict["version_index"] = version_index
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         dataset_id = d.pop("dataset_id")
 
         def _parse_version_index(data: object) -> Union[None, Unset, int]:
@@ -56,10 +53,7 @@ class UpsertDatasetContentRequest:
 
         version_index = _parse_version_index(d.pop("version_index", UNSET))
 
-        upsert_dataset_content_request = cls(
-            dataset_id=dataset_id,
-            version_index=version_index,
-        )
+        upsert_dataset_content_request = cls(dataset_id=dataset_id, version_index=version_index)
 
         upsert_dataset_content_request.additional_properties = d
         return upsert_dataset_content_request

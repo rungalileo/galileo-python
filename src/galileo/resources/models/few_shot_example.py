@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -36,15 +37,14 @@ class FewShotExample:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         evaluating_response = d.pop("evaluating_response")
 
         generation_prompt_and_response = d.pop("generation_prompt_and_response")
 
         few_shot_example = cls(
-            evaluating_response=evaluating_response,
-            generation_prompt_and_response=generation_prompt_and_response,
+            evaluating_response=evaluating_response, generation_prompt_and_response=generation_prompt_and_response
         )
 
         few_shot_example.additional_properties = d

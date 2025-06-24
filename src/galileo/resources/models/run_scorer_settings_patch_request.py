@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -56,11 +57,7 @@ class RunScorerSettingsPatchRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "run_id": run_id,
-            }
-        )
+        field_dict.update({"run_id": run_id})
         if scorers is not UNSET:
             field_dict["scorers"] = scorers
         if segment_filters is not UNSET:
@@ -69,11 +66,11 @@ class RunScorerSettingsPatchRequest:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.scorer_config import ScorerConfig
         from ..models.segment_filter import SegmentFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         run_id = d.pop("run_id")
 
         def _parse_scorers(data: object) -> Union[None, Unset, list["ScorerConfig"]]:
@@ -120,11 +117,7 @@ class RunScorerSettingsPatchRequest:
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 
-        run_scorer_settings_patch_request = cls(
-            run_id=run_id,
-            scorers=scorers,
-            segment_filters=segment_filters,
-        )
+        run_scorer_settings_patch_request = cls(run_id=run_id, scorers=scorers, segment_filters=segment_filters)
 
         run_scorer_settings_patch_request.additional_properties = d
         return run_scorer_settings_patch_request

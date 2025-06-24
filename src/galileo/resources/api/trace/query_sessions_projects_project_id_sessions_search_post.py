@@ -11,21 +11,13 @@ from ...models.log_records_query_response import LogRecordsQueryResponse
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    *,
-    body: LogRecordsQueryRequest,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, *, body: LogRecordsQueryRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/sessions/search",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/sessions/search"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
@@ -61,10 +53,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: LogRecordsQueryRequest,
+    project_id: str, *, client: AuthenticatedClient, body: LogRecordsQueryRequest
 ) -> Response[Union[HTTPValidationError, LogRecordsQueryResponse]]:
     """Query Sessions
 
@@ -80,23 +69,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, LogRecordsQueryResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: LogRecordsQueryRequest,
+    project_id: str, *, client: AuthenticatedClient, body: LogRecordsQueryRequest
 ) -> Optional[Union[HTTPValidationError, LogRecordsQueryResponse]]:
     """Query Sessions
 
@@ -112,18 +93,11 @@ def sync(
         Union[HTTPValidationError, LogRecordsQueryResponse]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: LogRecordsQueryRequest,
+    project_id: str, *, client: AuthenticatedClient, body: LogRecordsQueryRequest
 ) -> Response[Union[HTTPValidationError, LogRecordsQueryResponse]]:
     """Query Sessions
 
@@ -139,10 +113,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, LogRecordsQueryResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -150,10 +121,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: LogRecordsQueryRequest,
+    project_id: str, *, client: AuthenticatedClient, body: LogRecordsQueryRequest
 ) -> Optional[Union[HTTPValidationError, LogRecordsQueryResponse]]:
     """Query Sessions
 
@@ -169,10 +137,4 @@ async def asyncio(
         Union[HTTPValidationError, LogRecordsQueryResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

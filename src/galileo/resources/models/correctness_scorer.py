@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -85,11 +86,11 @@ class CorrectnessScorer:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -155,13 +156,7 @@ class CorrectnessScorer:
         if type_ != "plus" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'plus', got '{type_}'")
 
-        correctness_scorer = cls(
-            filters=filters,
-            model_name=model_name,
-            name=name,
-            num_judges=num_judges,
-            type_=type_,
-        )
+        correctness_scorer = cls(filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_)
 
         correctness_scorer.additional_properties = d
         return correctness_scorer

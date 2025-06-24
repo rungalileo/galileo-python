@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -39,11 +40,7 @@ class DatasetAppendRow:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "values": values,
-            }
-        )
+        field_dict.update({"values": values})
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
         if row_id is not UNSET:
@@ -52,10 +49,10 @@ class DatasetAppendRow:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_append_row_values import DatasetAppendRowValues
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         values = DatasetAppendRowValues.from_dict(d.pop("values"))
 
         edit_type = cast(Union[Literal["append_row"], Unset], d.pop("edit_type", UNSET))
@@ -71,11 +68,7 @@ class DatasetAppendRow:
 
         row_id = _parse_row_id(d.pop("row_id", UNSET))
 
-        dataset_append_row = cls(
-            values=values,
-            edit_type=edit_type,
-            row_id=row_id,
-        )
+        dataset_append_row = cls(values=values, edit_type=edit_type, row_id=row_id)
 
         dataset_append_row.additional_properties = d
         return dataset_append_row

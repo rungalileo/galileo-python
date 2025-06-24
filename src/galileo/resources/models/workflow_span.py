@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -41,6 +42,7 @@ class WorkflowSpan:
             spans.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
+        step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
         type_ (Union[Literal['workflow'], Unset]): Type of the trace, span or session. Default: 'workflow'.
         user_metadata (Union[Unset, WorkflowSpanUserMetadata]): Metadata associated with this trace or span.
@@ -58,6 +60,7 @@ class WorkflowSpan:
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
     spans: Union[Unset, list[Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]]] = UNSET
     status_code: Union[None, Unset, int] = UNSET
+    step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     type_: Union[Literal["workflow"], Unset] = "workflow"
     user_metadata: Union[Unset, "WorkflowSpanUserMetadata"] = UNSET
@@ -155,6 +158,12 @@ class WorkflowSpan:
         else:
             status_code = self.status_code
 
+        step_number: Union[None, Unset, int]
+        if isinstance(self.step_number, Unset):
+            step_number = UNSET
+        else:
+            step_number = self.step_number
+
         tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
@@ -167,11 +176,7 @@ class WorkflowSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "input": input_,
-            }
-        )
+        field_dict.update({"input": input_})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -194,6 +199,8 @@ class WorkflowSpan:
             field_dict["spans"] = spans
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
+        if step_number is not UNSET:
+            field_dict["step_number"] = step_number
         if tags is not UNSET:
             field_dict["tags"] = tags
         if type_ is not UNSET:
@@ -204,7 +211,7 @@ class WorkflowSpan:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agent_span import AgentSpan
         from ..models.document import Document
         from ..models.llm_span import LlmSpan
@@ -215,7 +222,7 @@ class WorkflowSpan:
         from ..models.workflow_span_dataset_metadata import WorkflowSpanDatasetMetadata
         from ..models.workflow_span_user_metadata import WorkflowSpanUserMetadata
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_input_(data: object) -> Union[list["Message"], str]:
             try:
@@ -382,6 +389,15 @@ class WorkflowSpan:
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
+        def _parse_step_number(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        step_number = _parse_step_number(d.pop("step_number", UNSET))
+
         tags = cast(list[str], d.pop("tags", UNSET))
 
         type_ = cast(Union[Literal["workflow"], Unset], d.pop("type", UNSET))
@@ -408,6 +424,7 @@ class WorkflowSpan:
             output=output,
             spans=spans,
             status_code=status_code,
+            step_number=step_number,
             tags=tags,
             type_=type_,
             user_metadata=user_metadata,

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -44,12 +45,7 @@ class UserInfo:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "email": email,
-                "id": id,
-            }
-        )
+        field_dict.update({"email": email, "id": id})
         if first_name is not UNSET:
             field_dict["first_name"] = first_name
         if last_name is not UNSET:
@@ -58,8 +54,8 @@ class UserInfo:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         email = d.pop("email")
 
         id = d.pop("id")
@@ -82,12 +78,7 @@ class UserInfo:
 
         last_name = _parse_last_name(d.pop("last_name", UNSET))
 
-        user_info = cls(
-            email=email,
-            id=id,
-            first_name=first_name,
-            last_name=last_name,
-        )
+        user_info = cls(email=email, id=id, first_name=first_name, last_name=last_name)
 
         user_info.additional_properties = d
         return user_info

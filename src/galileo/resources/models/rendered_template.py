@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -31,19 +32,15 @@ class RenderedTemplate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "result": result,
-            }
-        )
+        field_dict.update({"result": result})
         if warning is not UNSET:
             field_dict["warning"] = warning
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         result = d.pop("result")
 
         def _parse_warning(data: object) -> Union[None, Unset, str]:
@@ -55,10 +52,7 @@ class RenderedTemplate:
 
         warning = _parse_warning(d.pop("warning", UNSET))
 
-        rendered_template = cls(
-            result=result,
-            warning=warning,
-        )
+        rendered_template = cls(result=result, warning=warning)
 
         rendered_template.additional_properties = d
         return rendered_template

@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -60,13 +61,7 @@ class ProjectUpdateResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_at": created_at,
-                "id": id,
-                "updated_at": updated_at,
-            }
-        )
+        field_dict.update({"created_at": created_at, "id": id, "updated_at": updated_at})
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
         if name is not UNSET:
@@ -77,8 +72,8 @@ class ProjectUpdateResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         created_at = isoparse(d.pop("created_at"))
 
         id = d.pop("id")
@@ -121,12 +116,7 @@ class ProjectUpdateResponse:
         type_ = _parse_type_(d.pop("type", UNSET))
 
         project_update_response = cls(
-            created_at=created_at,
-            id=id,
-            updated_at=updated_at,
-            created_by=created_by,
-            name=name,
-            type_=type_,
+            created_at=created_at, id=id, updated_at=updated_at, created_by=created_by, name=name, type_=type_
         )
 
         project_update_response.additional_properties = d

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -39,21 +40,16 @@ class BaseGeneratedScorerDB:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "chain_poll_template": chain_poll_template,
-                "id": id,
-                "instructions": instructions,
-                "name": name,
-            }
+            {"chain_poll_template": chain_poll_template, "id": id, "instructions": instructions, "name": name}
         )
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.chain_poll_template import ChainPollTemplate
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         chain_poll_template = ChainPollTemplate.from_dict(d.pop("chain_poll_template"))
 
         id = d.pop("id")
@@ -63,10 +59,7 @@ class BaseGeneratedScorerDB:
         name = d.pop("name")
 
         base_generated_scorer_db = cls(
-            chain_poll_template=chain_poll_template,
-            id=id,
-            instructions=instructions,
-            name=name,
+            chain_poll_template=chain_poll_template, id=id, instructions=instructions, name=name
         )
 
         base_generated_scorer_db.additional_properties = d

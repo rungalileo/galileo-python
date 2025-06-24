@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -25,26 +26,18 @@ class ExperimentDatasetRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "dataset_id": dataset_id,
-                "version_index": version_index,
-            }
-        )
+        field_dict.update({"dataset_id": dataset_id, "version_index": version_index})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         dataset_id = d.pop("dataset_id")
 
         version_index = d.pop("version_index")
 
-        experiment_dataset_request = cls(
-            dataset_id=dataset_id,
-            version_index=version_index,
-        )
+        experiment_dataset_request = cls(dataset_id=dataset_id, version_index=version_index)
 
         experiment_dataset_request.additional_properties = d
         return experiment_dataset_request

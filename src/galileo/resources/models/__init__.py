@@ -18,6 +18,10 @@ from .agentic_session_success_scorer import AgenticSessionSuccessScorer
 from .agentic_session_success_template import AgenticSessionSuccessTemplate
 from .agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
 from .agentic_workflow_success_template import AgenticWorkflowSuccessTemplate
+from .aggregated_trace_view_edge import AggregatedTraceViewEdge
+from .aggregated_trace_view_node import AggregatedTraceViewNode
+from .aggregated_trace_view_request import AggregatedTraceViewRequest
+from .aggregated_trace_view_response import AggregatedTraceViewResponse
 from .api_key_action import ApiKeyAction
 from .api_key_login_request import ApiKeyLoginRequest
 from .auth_method import AuthMethod
@@ -239,6 +243,10 @@ from .list_dataset_version_params import ListDatasetVersionParams
 from .list_dataset_version_response import ListDatasetVersionResponse
 from .list_group_collaborators_response import ListGroupCollaboratorsResponse
 from .list_prompt_dataset_response import ListPromptDatasetResponse
+from .list_prompt_template_params import ListPromptTemplateParams
+from .list_prompt_template_response import ListPromptTemplateResponse
+from .list_prompt_template_version_params import ListPromptTemplateVersionParams
+from .list_prompt_template_version_response import ListPromptTemplateVersionResponse
 from .list_scorer_versions_response import ListScorerVersionsResponse
 from .list_scorers_request import ListScorersRequest
 from .list_scorers_response import ListScorersResponse
@@ -271,18 +279,22 @@ from .log_records_query_response import LogRecordsQueryResponse
 from .log_records_sort_clause import LogRecordsSortClause
 from .log_records_text_filter import LogRecordsTextFilter
 from .log_records_text_filter_operator import LogRecordsTextFilterOperator
+from .log_span_update_request import LogSpanUpdateRequest
+from .log_span_update_response import LogSpanUpdateResponse
 from .log_spans_ingest_request import LogSpansIngestRequest
 from .log_spans_ingest_response import LogSpansIngestResponse
 from .log_stream_create_request import LogStreamCreateRequest
 from .log_stream_response import LogStreamResponse
 from .log_stream_update_request import LogStreamUpdateRequest
+from .log_trace_update_request import LogTraceUpdateRequest
+from .log_trace_update_response import LogTraceUpdateResponse
 from .log_traces_ingest_request import LogTracesIngestRequest
 from .log_traces_ingest_response import LogTracesIngestResponse
 from .logging_method import LoggingMethod
 from .message import Message
+from .message_list_item_role import MessageListItemRole
 from .message_role import MessageRole
 from .messages_list_item import MessagesListItem
-from .messages_list_item_role import MessagesListItemRole
 from .metadata_filter import MetadataFilter
 from .metadata_filter_operator import MetadataFilterOperator
 from .metric_computation import MetricComputation
@@ -360,6 +372,16 @@ from .prompt_perplexity_scorer import PromptPerplexityScorer
 from .prompt_run_settings import PromptRunSettings
 from .prompt_run_settings_response_format_type_0 import PromptRunSettingsResponseFormatType0
 from .prompt_run_settings_tools_type_0_item import PromptRunSettingsToolsType0Item
+from .prompt_template_created_at_sort import PromptTemplateCreatedAtSort
+from .prompt_template_created_by_filter import PromptTemplateCreatedByFilter
+from .prompt_template_name_filter import PromptTemplateNameFilter
+from .prompt_template_name_filter_operator import PromptTemplateNameFilterOperator
+from .prompt_template_name_sort import PromptTemplateNameSort
+from .prompt_template_updated_at_sort import PromptTemplateUpdatedAtSort
+from .prompt_template_used_in_project_filter import PromptTemplateUsedInProjectFilter
+from .prompt_template_version_created_at_sort import PromptTemplateVersionCreatedAtSort
+from .prompt_template_version_number_sort import PromptTemplateVersionNumberSort
+from .prompt_template_version_updated_at_sort import PromptTemplateVersionUpdatedAtSort
 from .query_dataset_params import QueryDatasetParams
 from .recompute_settings_log_stream import RecomputeSettingsLogStream
 from .recompute_settings_observe import RecomputeSettingsObserve
@@ -402,6 +424,7 @@ from .scorer_created_at_filter import ScorerCreatedAtFilter
 from .scorer_created_at_filter_operator import ScorerCreatedAtFilterOperator
 from .scorer_creator_filter import ScorerCreatorFilter
 from .scorer_defaults import ScorerDefaults
+from .scorer_input_type import ScorerInputType
 from .scorer_name import ScorerName
 from .scorer_name_filter import ScorerNameFilter
 from .scorer_name_filter_operator import ScorerNameFilterOperator
@@ -518,6 +541,10 @@ __all__ = (
     "AgentSpanRecordWithChildrenUserMetadata",
     "AgentSpanUserMetadata",
     "AgentType",
+    "AggregatedTraceViewEdge",
+    "AggregatedTraceViewNode",
+    "AggregatedTraceViewRequest",
+    "AggregatedTraceViewResponse",
     "ApiKeyAction",
     "ApiKeyLoginRequest",
     "AuthMethod",
@@ -713,6 +740,10 @@ __all__ = (
     "ListDatasetVersionResponse",
     "ListGroupCollaboratorsResponse",
     "ListPromptDatasetResponse",
+    "ListPromptTemplateParams",
+    "ListPromptTemplateResponse",
+    "ListPromptTemplateVersionParams",
+    "ListPromptTemplateVersionResponse",
     "ListScorersRequest",
     "ListScorersResponse",
     "ListScorerVersionsResponse",
@@ -748,15 +779,19 @@ __all__ = (
     "LogRecordsTextFilterOperator",
     "LogSpansIngestRequest",
     "LogSpansIngestResponse",
+    "LogSpanUpdateRequest",
+    "LogSpanUpdateResponse",
     "LogStreamCreateRequest",
     "LogStreamResponse",
     "LogStreamUpdateRequest",
     "LogTracesIngestRequest",
     "LogTracesIngestResponse",
+    "LogTraceUpdateRequest",
+    "LogTraceUpdateResponse",
     "Message",
+    "MessageListItemRole",
     "MessageRole",
     "MessagesListItem",
-    "MessagesListItemRole",
     "MetadataFilter",
     "MetadataFilterOperator",
     "MetricComputation",
@@ -834,6 +869,16 @@ __all__ = (
     "PromptRunSettings",
     "PromptRunSettingsResponseFormatType0",
     "PromptRunSettingsToolsType0Item",
+    "PromptTemplateCreatedAtSort",
+    "PromptTemplateCreatedByFilter",
+    "PromptTemplateNameFilter",
+    "PromptTemplateNameFilterOperator",
+    "PromptTemplateNameSort",
+    "PromptTemplateUpdatedAtSort",
+    "PromptTemplateUsedInProjectFilter",
+    "PromptTemplateVersionCreatedAtSort",
+    "PromptTemplateVersionNumberSort",
+    "PromptTemplateVersionUpdatedAtSort",
     "QueryDatasetParams",
     "RecomputeSettingsLogStream",
     "RecomputeSettingsObserve",
@@ -876,6 +921,7 @@ __all__ = (
     "ScorerCreatedAtFilterOperator",
     "ScorerCreatorFilter",
     "ScorerDefaults",
+    "ScorerInputType",
     "ScorerName",
     "ScorerNameFilter",
     "ScorerNameFilterOperator",

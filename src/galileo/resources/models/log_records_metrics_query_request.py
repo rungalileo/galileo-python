@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -102,12 +103,7 @@ class LogRecordsMetricsQueryRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "end_time": end_time,
-                "start_time": start_time,
-            }
-        )
+        field_dict.update({"end_time": end_time, "start_time": start_time})
         if experiment_id is not UNSET:
             field_dict["experiment_id"] = experiment_id
         if filters is not UNSET:
@@ -122,14 +118,14 @@ class LogRecordsMetricsQueryRequest:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_text_filter import LogRecordsTextFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         end_time = isoparse(d.pop("end_time"))
 
         start_time = isoparse(d.pop("start_time"))

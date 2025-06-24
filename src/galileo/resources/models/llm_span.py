@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -36,6 +37,7 @@ class LlmSpan:
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
+        step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
         temperature (Union[None, Unset, float]): Temperature used for generation.
         tools (Union[None, Unset, list['LlmSpanToolsType0Item']]): List of available tools passed to the LLM on
@@ -57,6 +59,7 @@ class LlmSpan:
     model: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
     status_code: Union[None, Unset, int] = UNSET
+    step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     temperature: Union[None, Unset, float] = UNSET
     tools: Union[None, Unset, list["LlmSpanToolsType0Item"]] = UNSET
@@ -128,6 +131,12 @@ class LlmSpan:
         else:
             status_code = self.status_code
 
+        step_number: Union[None, Unset, int]
+        if isinstance(self.step_number, Unset):
+            step_number = UNSET
+        else:
+            step_number = self.step_number
+
         tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
@@ -158,12 +167,7 @@ class LlmSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "input": input_,
-                "output": output,
-            }
-        )
+        field_dict.update({"input": input_, "output": output})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -186,6 +190,8 @@ class LlmSpan:
             field_dict["name"] = name
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
+        if step_number is not UNSET:
+            field_dict["step_number"] = step_number
         if tags is not UNSET:
             field_dict["tags"] = tags
         if temperature is not UNSET:
@@ -200,14 +206,14 @@ class LlmSpan:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.llm_metrics import LlmMetrics
         from ..models.llm_span_dataset_metadata import LlmSpanDatasetMetadata
         from ..models.llm_span_tools_type_0_item import LlmSpanToolsType0Item
         from ..models.llm_span_user_metadata import LlmSpanUserMetadata
         from ..models.message import Message
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         input_ = []
         _input_ = d.pop("input")
         for input_item_data in _input_:
@@ -303,6 +309,15 @@ class LlmSpan:
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
+        def _parse_step_number(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        step_number = _parse_step_number(d.pop("step_number", UNSET))
+
         tags = cast(list[str], d.pop("tags", UNSET))
 
         def _parse_temperature(data: object) -> Union[None, Unset, float]:
@@ -361,6 +376,7 @@ class LlmSpan:
             model=model,
             name=name,
             status_code=status_code,
+            step_number=step_number,
             tags=tags,
             temperature=temperature,
             tools=tools,

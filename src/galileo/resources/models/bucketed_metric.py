@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -39,22 +40,17 @@ class BucketedMetric:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "buckets": buckets,
-                "name": name,
-            }
-        )
+        field_dict.update({"buckets": buckets, "name": name})
         if average is not UNSET:
             field_dict["average"] = average
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.bucketed_metric_buckets import BucketedMetricBuckets
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         buckets = BucketedMetricBuckets.from_dict(d.pop("buckets"))
 
         name = d.pop("name")
@@ -68,11 +64,7 @@ class BucketedMetric:
 
         average = _parse_average(d.pop("average", UNSET))
 
-        bucketed_metric = cls(
-            buckets=buckets,
-            name=name,
-            average=average,
-        )
+        bucketed_metric = cls(buckets=buckets, name=name, average=average)
 
         bucketed_metric.additional_properties = d
         return bucketed_metric

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -52,14 +53,7 @@ class SessionCreateResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "name": name,
-                "project_id": project_id,
-                "project_name": project_name,
-            }
-        )
+        field_dict.update({"id": id, "name": name, "project_id": project_id, "project_name": project_name})
         if external_id is not UNSET:
             field_dict["external_id"] = external_id
         if previous_session_id is not UNSET:
@@ -68,8 +62,8 @@ class SessionCreateResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         id = d.pop("id")
 
         def _parse_name(data: object) -> Union[None, str]:

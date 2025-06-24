@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -40,10 +41,10 @@ class ExperimentMetricsResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.bucketed_metric import BucketedMetric
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         metrics = []
         _metrics = d.pop("metrics", UNSET)
         for metrics_item_data in _metrics or []:
@@ -51,9 +52,7 @@ class ExperimentMetricsResponse:
 
             metrics.append(metrics_item)
 
-        experiment_metrics_response = cls(
-            metrics=metrics,
-        )
+        experiment_metrics_response = cls(metrics=metrics)
 
         experiment_metrics_response.additional_properties = d
         return experiment_metrics_response

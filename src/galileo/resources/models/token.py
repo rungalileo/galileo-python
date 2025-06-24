@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -27,27 +28,20 @@ class Token:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "access_token": access_token,
-            }
-        )
+        field_dict.update({"access_token": access_token})
         if token_type is not UNSET:
             field_dict["token_type"] = token_type
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         access_token = d.pop("access_token")
 
         token_type = d.pop("token_type", UNSET)
 
-        token = cls(
-            access_token=access_token,
-            token_type=token_type,
-        )
+        token = cls(access_token=access_token, token_type=token_type)
 
         token.additional_properties = d
         return token

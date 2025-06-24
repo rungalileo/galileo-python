@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -31,29 +32,22 @@ class OpenAIToolChoice:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "function": function,
-            }
-        )
+        field_dict.update({"function": function})
         if type_ is not UNSET:
             field_dict["type"] = type_
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.open_ai_function import OpenAIFunction
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         function = OpenAIFunction.from_dict(d.pop("function"))
 
         type_ = d.pop("type", UNSET)
 
-        open_ai_tool_choice = cls(
-            function=function,
-            type_=type_,
-        )
+        open_ai_tool_choice = cls(function=function, type_=type_)
 
         open_ai_tool_choice.additional_properties = d
         return open_ai_tool_choice

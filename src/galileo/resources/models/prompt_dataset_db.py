@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -59,12 +60,7 @@ class PromptDatasetDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "dataset_id": dataset_id,
-                "id": id,
-            }
-        )
+        field_dict.update({"dataset_id": dataset_id, "id": id})
         if file_name is not UNSET:
             field_dict["file_name"] = file_name
         if message is not UNSET:
@@ -77,8 +73,8 @@ class PromptDatasetDB:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         dataset_id = d.pop("dataset_id")
 
         id = d.pop("id")
@@ -120,12 +116,7 @@ class PromptDatasetDB:
         rows = _parse_rows(d.pop("rows", UNSET))
 
         prompt_dataset_db = cls(
-            dataset_id=dataset_id,
-            id=id,
-            file_name=file_name,
-            message=message,
-            num_rows=num_rows,
-            rows=rows,
+            dataset_id=dataset_id, id=id, file_name=file_name, message=message, num_rows=num_rows, rows=rows
         )
 
         prompt_dataset_db.additional_properties = d

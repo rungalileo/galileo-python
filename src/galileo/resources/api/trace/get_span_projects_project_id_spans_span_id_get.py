@@ -14,14 +14,8 @@ from ...models.workflow_span_record_with_children import WorkflowSpanRecordWithC
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    span_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/projects/{project_id}/spans/{span_id}",
-    }
+def _get_kwargs(project_id: str, span_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/spans/{span_id}"}
 
     return _kwargs
 
@@ -125,10 +119,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    span_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, span_id: str, *, client: AuthenticatedClient
 ) -> Response[
     Union[
         HTTPValidationError,
@@ -155,23 +146,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        span_id=span_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    span_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, span_id: str, *, client: AuthenticatedClient
 ) -> Optional[
     Union[
         HTTPValidationError,
@@ -198,18 +181,11 @@ def sync(
         Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        span_id=span_id,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, span_id=span_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    span_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, span_id: str, *, client: AuthenticatedClient
 ) -> Response[
     Union[
         HTTPValidationError,
@@ -236,10 +212,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        span_id=span_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -247,10 +220,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    span_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, span_id: str, *, client: AuthenticatedClient
 ) -> Optional[
     Union[
         HTTPValidationError,
@@ -277,10 +247,4 @@ async def asyncio(
         Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            span_id=span_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, span_id=span_id, client=client)).parsed

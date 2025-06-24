@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -64,11 +65,7 @@ class ChainPollTemplate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "template": template,
-            }
-        )
+        field_dict.update({"template": template})
         if explanation_field_name is not UNSET:
             field_dict["explanation_field_name"] = explanation_field_name
         if metric_description is not UNSET:
@@ -83,10 +80,10 @@ class ChainPollTemplate:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.few_shot_example import FewShotExample
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         template = d.pop("template")
 
         explanation_field_name = d.pop("explanation_field_name", UNSET)

@@ -11,21 +11,13 @@ from ...models.log_spans_ingest_response import LogSpansIngestResponse
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    *,
-    body: LogSpansIngestRequest,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, *, body: LogSpansIngestRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/spans",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/spans"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
@@ -61,16 +53,13 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: LogSpansIngestRequest,
+    project_id: str, *, client: AuthenticatedClient, body: LogSpansIngestRequest
 ) -> Response[Union[HTTPValidationError, LogSpansIngestResponse]]:
     """Log Spans
 
     Args:
         project_id (str):
-        body (LogSpansIngestRequest):
+        body (LogSpansIngestRequest): Request model for ingesting spans.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -80,29 +69,21 @@ def sync_detailed(
         Response[Union[HTTPValidationError, LogSpansIngestResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: LogSpansIngestRequest,
+    project_id: str, *, client: AuthenticatedClient, body: LogSpansIngestRequest
 ) -> Optional[Union[HTTPValidationError, LogSpansIngestResponse]]:
     """Log Spans
 
     Args:
         project_id (str):
-        body (LogSpansIngestRequest):
+        body (LogSpansIngestRequest): Request model for ingesting spans.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -112,24 +93,17 @@ def sync(
         Union[HTTPValidationError, LogSpansIngestResponse]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: LogSpansIngestRequest,
+    project_id: str, *, client: AuthenticatedClient, body: LogSpansIngestRequest
 ) -> Response[Union[HTTPValidationError, LogSpansIngestResponse]]:
     """Log Spans
 
     Args:
         project_id (str):
-        body (LogSpansIngestRequest):
+        body (LogSpansIngestRequest): Request model for ingesting spans.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -139,10 +113,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, LogSpansIngestResponse]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -150,16 +121,13 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: LogSpansIngestRequest,
+    project_id: str, *, client: AuthenticatedClient, body: LogSpansIngestRequest
 ) -> Optional[Union[HTTPValidationError, LogSpansIngestResponse]]:
     """Log Spans
 
     Args:
         project_id (str):
-        body (LogSpansIngestRequest):
+        body (LogSpansIngestRequest): Request model for ingesting spans.
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -169,10 +137,4 @@ async def asyncio(
         Union[HTTPValidationError, LogSpansIngestResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

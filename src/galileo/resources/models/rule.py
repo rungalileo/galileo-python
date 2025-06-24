@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -36,19 +37,13 @@ class Rule:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "metric": metric,
-                "operator": operator,
-                "target_value": target_value,
-            }
-        )
+        field_dict.update({"metric": metric, "operator": operator, "target_value": target_value})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         metric = d.pop("metric")
 
         operator = RuleOperator(d.pop("operator"))
@@ -68,11 +63,7 @@ class Rule:
 
         target_value = _parse_target_value(d.pop("target_value"))
 
-        rule = cls(
-            metric=metric,
-            operator=operator,
-            target_value=target_value,
-        )
+        rule = cls(metric=metric, operator=operator, target_value=target_value)
 
         rule.additional_properties = d
         return rule

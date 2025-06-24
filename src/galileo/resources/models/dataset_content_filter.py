@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -34,20 +35,15 @@ class DatasetContentFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_name": column_name,
-                "value": value,
-            }
-        )
+        field_dict.update({"column_name": column_name, "value": value})
         if operator is not UNSET:
             field_dict["operator"] = operator
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         column_name = d.pop("column_name")
 
         value = d.pop("value")
@@ -59,11 +55,7 @@ class DatasetContentFilter:
         else:
             operator = DatasetContentFilterOperator(_operator)
 
-        dataset_content_filter = cls(
-            column_name=column_name,
-            value=value,
-            operator=operator,
-        )
+        dataset_content_filter = cls(column_name=column_name, value=value, operator=operator)
 
         dataset_content_filter.additional_properties = d
         return dataset_content_filter

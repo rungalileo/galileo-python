@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -50,11 +51,7 @@ class RenderTemplateResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "rendered_templates": rendered_templates,
-            }
-        )
+        field_dict.update({"rendered_templates": rendered_templates})
         if limit is not UNSET:
             field_dict["limit"] = limit
         if next_starting_token is not UNSET:
@@ -67,10 +64,10 @@ class RenderTemplateResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.rendered_template import RenderedTemplate
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         rendered_templates = []
         _rendered_templates = d.pop("rendered_templates")
         for rendered_templates_item_data in _rendered_templates:

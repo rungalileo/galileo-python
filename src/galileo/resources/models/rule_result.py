@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -60,13 +61,7 @@ class RuleResult:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "metric": metric,
-                "operator": operator,
-                "target_value": target_value,
-            }
-        )
+        field_dict.update({"metric": metric, "operator": operator, "target_value": target_value})
         if execution_time is not UNSET:
             field_dict["execution_time"] = execution_time
         if status is not UNSET:
@@ -77,8 +72,8 @@ class RuleResult:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         metric = d.pop("metric")
 
         operator = RuleOperator(d.pop("operator"))

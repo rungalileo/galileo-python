@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -15,11 +16,13 @@ T = TypeVar("T", bound="LogTracesIngestRequest")
 
 @_attrs_define
 class LogTracesIngestRequest:
-    """
+    """Request model for ingesting traces.
+
     Attributes:
         traces (list['Trace']): List of traces to log.
         client_version (Union[None, Unset, str]):
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
+        is_complete (Union[Unset, bool]): Whether or not the records in this request are complete. Default: True.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         logging_method (Union[Unset, LoggingMethod]):
         reliable (Union[Unset, bool]): Whether or not to use reliable logging.  If set to False, the method will respond
@@ -32,6 +35,7 @@ class LogTracesIngestRequest:
     traces: list["Trace"]
     client_version: Union[None, Unset, str] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
+    is_complete: Union[Unset, bool] = True
     log_stream_id: Union[None, Unset, str] = UNSET
     logging_method: Union[Unset, LoggingMethod] = UNSET
     reliable: Union[Unset, bool] = False
@@ -56,6 +60,8 @@ class LogTracesIngestRequest:
         else:
             experiment_id = self.experiment_id
 
+        is_complete = self.is_complete
+
         log_stream_id: Union[None, Unset, str]
         if isinstance(self.log_stream_id, Unset):
             log_stream_id = UNSET
@@ -76,15 +82,13 @@ class LogTracesIngestRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "traces": traces,
-            }
-        )
+        field_dict.update({"traces": traces})
         if client_version is not UNSET:
             field_dict["client_version"] = client_version
         if experiment_id is not UNSET:
             field_dict["experiment_id"] = experiment_id
+        if is_complete is not UNSET:
+            field_dict["is_complete"] = is_complete
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
         if logging_method is not UNSET:
@@ -97,10 +101,10 @@ class LogTracesIngestRequest:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.trace import Trace
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         traces = []
         _traces = d.pop("traces")
         for traces_item_data in _traces:
@@ -125,6 +129,8 @@ class LogTracesIngestRequest:
             return cast(Union[None, Unset, str], data)
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
+
+        is_complete = d.pop("is_complete", UNSET)
 
         def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -157,6 +163,7 @@ class LogTracesIngestRequest:
             traces=traces,
             client_version=client_version,
             experiment_id=experiment_id,
+            is_complete=is_complete,
             log_stream_id=log_stream_id,
             logging_method=logging_method,
             reliable=reliable,

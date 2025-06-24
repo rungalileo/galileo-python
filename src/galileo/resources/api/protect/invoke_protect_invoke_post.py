@@ -17,9 +17,8 @@ def _get_kwargs(*, body: BaseRequest) -> dict[str, Any]:
 
     _kwargs: dict[str, Any] = {"method": "post", "url": "/protect/invoke"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
@@ -73,17 +72,17 @@ def _build_response(
 def sync_detailed(
     *, client: AuthenticatedClient, body: BaseRequest
 ) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
-    """Invoke V2
+    """Invoke
 
     Args:
-        body (BaseRequest):
+        body (Request):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['InvokeResponse', 'BaseResponse']]]
+        Response[Union[HTTPValidationError, Union['InvokeResponse', 'Response']]]
     """
 
     kwargs = _get_kwargs(body=body)
@@ -96,17 +95,17 @@ def sync_detailed(
 def sync(
     *, client: AuthenticatedClient, body: BaseRequest
 ) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
-    """Invoke V2
+    """Invoke
 
     Args:
-        body (BaseRequest):
+        body (Request):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['InvokeResponse', 'BaseResponse']]
+        Union[HTTPValidationError, Union['InvokeResponse', 'Response']]
     """
 
     return sync_detailed(client=client, body=body).parsed
@@ -115,10 +114,10 @@ def sync(
 async def asyncio_detailed(
     *, client: AuthenticatedClient, body: BaseRequest
 ) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
-    """Invoke V2
+    """Invoke
 
     Args:
-        body (BaseRequest):
+        body (Request):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -138,7 +137,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: AuthenticatedClient, body: BaseRequest
 ) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
-    """Invoke V2
+    """Invoke
 
     Args:
         body (Request):
@@ -148,7 +147,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['InvokeResponse', 'BaseResponse']]
+        Union[HTTPValidationError, Union['InvokeResponse', 'Response']]
     """
 
     return (await asyncio_detailed(client=client, body=body)).parsed

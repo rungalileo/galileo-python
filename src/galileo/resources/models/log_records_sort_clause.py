@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -31,11 +32,7 @@ class LogRecordsSortClause:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_id": column_id,
-            }
-        )
+        field_dict.update({"column_id": column_id})
         if ascending is not UNSET:
             field_dict["ascending"] = ascending
         if sort_type is not UNSET:
@@ -44,8 +41,8 @@ class LogRecordsSortClause:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         column_id = d.pop("column_id")
 
         ascending = d.pop("ascending", UNSET)
@@ -54,11 +51,7 @@ class LogRecordsSortClause:
         if sort_type != "column" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'column', got '{sort_type}'")
 
-        log_records_sort_clause = cls(
-            column_id=column_id,
-            ascending=ascending,
-            sort_type=sort_type,
-        )
+        log_records_sort_clause = cls(column_id=column_id, ascending=ascending, sort_type=sort_type)
 
         log_records_sort_clause.additional_properties = d
         return log_records_sort_clause

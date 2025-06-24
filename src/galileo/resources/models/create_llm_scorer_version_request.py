@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -48,12 +49,7 @@ class CreateLLMScorerVersionRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "chain_poll_template": chain_poll_template,
-                "instructions": instructions,
-            }
-        )
+        field_dict.update({"chain_poll_template": chain_poll_template, "instructions": instructions})
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if num_judges is not UNSET:
@@ -62,10 +58,10 @@ class CreateLLMScorerVersionRequest:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.chain_poll_template import ChainPollTemplate
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         chain_poll_template = ChainPollTemplate.from_dict(d.pop("chain_poll_template"))
 
         instructions = d.pop("instructions")

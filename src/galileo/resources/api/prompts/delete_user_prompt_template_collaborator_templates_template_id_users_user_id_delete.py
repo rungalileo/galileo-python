@@ -6,38 +6,20 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.stage_db import StageDB
-from ...models.stage_with_rulesets import StageWithRulesets
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    *,
-    body: StageWithRulesets,
-) -> dict[str, Any]:
-    headers: dict[str, Any] = {}
+def _get_kwargs(template_id: str, user_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/templates/{template_id}/users/{user_id}"}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/stages",
-    }
-
-    _body = body.to_dict()
-
-    _kwargs["json"] = _body
-    headers["Content-Type"] = "application/json"
-
-    _kwargs["headers"] = headers
     return _kwargs
 
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, StageDB]]:
+) -> Optional[Union[Any, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = StageDB.from_dict(response.json())
-
+        response_200 = response.json()
         return response_200
     if response.status_code == 422:
         response_422 = HTTPValidationError.from_dict(response.json())
@@ -51,7 +33,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, StageDB]]:
+) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -61,88 +43,71 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: StageWithRulesets,
-) -> Response[Union[HTTPValidationError, StageDB]]:
-    """Create Stage V2
+    template_id: str, user_id: str, *, client: AuthenticatedClient
+) -> Response[Union[Any, HTTPValidationError]]:
+    """Delete User Prompt Template Collaborator
+
+     Remove a user's access to a prompt template.
 
     Args:
-        project_id (str):
-        body (StageWithRulesets):
+        template_id (str):
+        user_id (str):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, StageDB]]
+        Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(template_id=template_id, user_id=user_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: StageWithRulesets,
-) -> Optional[Union[HTTPValidationError, StageDB]]:
-    """Create Stage V2
+def sync(template_id: str, user_id: str, *, client: AuthenticatedClient) -> Optional[Union[Any, HTTPValidationError]]:
+    """Delete User Prompt Template Collaborator
+
+     Remove a user's access to a prompt template.
 
     Args:
-        project_id (str):
-        body (StageWithRulesets):
+        template_id (str):
+        user_id (str):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, StageDB]
+        Union[Any, HTTPValidationError]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(template_id=template_id, user_id=user_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: StageWithRulesets,
-) -> Response[Union[HTTPValidationError, StageDB]]:
-    """Create Stage V2
+    template_id: str, user_id: str, *, client: AuthenticatedClient
+) -> Response[Union[Any, HTTPValidationError]]:
+    """Delete User Prompt Template Collaborator
+
+     Remove a user's access to a prompt template.
 
     Args:
-        project_id (str):
-        body (StageWithRulesets):
+        template_id (str):
+        user_id (str):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, StageDB]]
+        Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(template_id=template_id, user_id=user_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -150,29 +115,22 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: StageWithRulesets,
-) -> Optional[Union[HTTPValidationError, StageDB]]:
-    """Create Stage V2
+    template_id: str, user_id: str, *, client: AuthenticatedClient
+) -> Optional[Union[Any, HTTPValidationError]]:
+    """Delete User Prompt Template Collaborator
+
+     Remove a user's access to a prompt template.
 
     Args:
-        project_id (str):
-        body (StageWithRulesets):
+        template_id (str):
+        user_id (str):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, StageDB]
+        Union[Any, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(template_id=template_id, user_id=user_id, client=client)).parsed

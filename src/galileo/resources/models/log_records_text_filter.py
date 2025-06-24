@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -45,13 +46,7 @@ class LogRecordsTextFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_id": column_id,
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"column_id": column_id, "operator": operator, "value": value})
         if case_sensitive is not UNSET:
             field_dict["case_sensitive"] = case_sensitive
         if type_ is not UNSET:
@@ -60,8 +55,8 @@ class LogRecordsTextFilter:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         column_id = d.pop("column_id")
 
         operator = LogRecordsTextFilterOperator(d.pop("operator"))
@@ -86,11 +81,7 @@ class LogRecordsTextFilter:
             raise ValueError(f"type must match const 'text', got '{type_}'")
 
         log_records_text_filter = cls(
-            column_id=column_id,
-            operator=operator,
-            value=value,
-            case_sensitive=case_sensitive,
-            type_=type_,
+            column_id=column_id, operator=operator, value=value, case_sensitive=case_sensitive, type_=type_
         )
 
         log_records_text_filter.additional_properties = d

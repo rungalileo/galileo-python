@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -84,10 +85,10 @@ class MetricComputation:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metric_computation_value_type_4 import MetricComputationValueType4
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_error_message(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -165,12 +166,7 @@ class MetricComputation:
 
         value = _parse_value(d.pop("value", UNSET))
 
-        metric_computation = cls(
-            error_message=error_message,
-            execution_time=execution_time,
-            status=status,
-            value=value,
-        )
+        metric_computation = cls(error_message=error_message, execution_time=execution_time, status=status, value=value)
 
         metric_computation.additional_properties = d
         return metric_computation

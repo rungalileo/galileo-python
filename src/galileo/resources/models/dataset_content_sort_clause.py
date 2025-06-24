@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -27,27 +28,20 @@ class DatasetContentSortClause:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_name": column_name,
-            }
-        )
+        field_dict.update({"column_name": column_name})
         if ascending is not UNSET:
             field_dict["ascending"] = ascending
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         column_name = d.pop("column_name")
 
         ascending = d.pop("ascending", UNSET)
 
-        dataset_content_sort_clause = cls(
-            column_name=column_name,
-            ascending=ascending,
-        )
+        dataset_content_sort_clause = cls(column_name=column_name, ascending=ascending)
 
         dataset_content_sort_clause.additional_properties = d
         return dataset_content_sort_clause

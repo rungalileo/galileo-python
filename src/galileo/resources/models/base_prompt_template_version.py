@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -62,11 +63,7 @@ class BasePromptTemplateVersion:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "template": template,
-            }
-        )
+        field_dict.update({"template": template})
         if output_type is not UNSET:
             field_dict["output_type"] = output_type
         if raw is not UNSET:
@@ -79,11 +76,11 @@ class BasePromptTemplateVersion:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.base_prompt_template_version_settings import BasePromptTemplateVersionSettings
         from ..models.messages_list_item import MessagesListItem
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_template(data: object) -> Union[list["MessagesListItem"], str]:
             try:
@@ -131,11 +128,7 @@ class BasePromptTemplateVersion:
         version = _parse_version(d.pop("version", UNSET))
 
         base_prompt_template_version = cls(
-            template=template,
-            output_type=output_type,
-            raw=raw,
-            settings=settings,
-            version=version,
+            template=template, output_type=output_type, raw=raw, settings=settings, version=version
         )
 
         base_prompt_template_version.additional_properties = d

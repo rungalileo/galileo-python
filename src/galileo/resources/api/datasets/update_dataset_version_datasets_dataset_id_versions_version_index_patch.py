@@ -11,22 +11,13 @@ from ...models.update_dataset_version_request import UpdateDatasetVersionRequest
 from ...types import Response
 
 
-def _get_kwargs(
-    dataset_id: str,
-    version_index: int,
-    *,
-    body: UpdateDatasetVersionRequest,
-) -> dict[str, Any]:
+def _get_kwargs(dataset_id: str, version_index: int, *, body: UpdateDatasetVersionRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "patch",
-        "url": f"/datasets/{dataset_id}/versions/{version_index}",
-    }
+    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/datasets/{dataset_id}/versions/{version_index}"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
@@ -62,11 +53,7 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str,
-    version_index: int,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateDatasetVersionRequest,
+    dataset_id: str, version_index: int, *, client: AuthenticatedClient, body: UpdateDatasetVersionRequest
 ) -> Response[Union[DatasetVersionDB, HTTPValidationError]]:
     """Update Dataset Version
 
@@ -83,25 +70,15 @@ def sync_detailed(
         Response[Union[DatasetVersionDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        dataset_id=dataset_id,
-        version_index=version_index,
-        body=body,
-    )
+    kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    dataset_id: str,
-    version_index: int,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateDatasetVersionRequest,
+    dataset_id: str, version_index: int, *, client: AuthenticatedClient, body: UpdateDatasetVersionRequest
 ) -> Optional[Union[DatasetVersionDB, HTTPValidationError]]:
     """Update Dataset Version
 
@@ -118,20 +95,11 @@ def sync(
         Union[DatasetVersionDB, HTTPValidationError]
     """
 
-    return sync_detailed(
-        dataset_id=dataset_id,
-        version_index=version_index,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(dataset_id=dataset_id, version_index=version_index, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str,
-    version_index: int,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateDatasetVersionRequest,
+    dataset_id: str, version_index: int, *, client: AuthenticatedClient, body: UpdateDatasetVersionRequest
 ) -> Response[Union[DatasetVersionDB, HTTPValidationError]]:
     """Update Dataset Version
 
@@ -148,11 +116,7 @@ async def asyncio_detailed(
         Response[Union[DatasetVersionDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        dataset_id=dataset_id,
-        version_index=version_index,
-        body=body,
-    )
+    kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -160,11 +124,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str,
-    version_index: int,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateDatasetVersionRequest,
+    dataset_id: str, version_index: int, *, client: AuthenticatedClient, body: UpdateDatasetVersionRequest
 ) -> Optional[Union[DatasetVersionDB, HTTPValidationError]]:
     """Update Dataset Version
 
@@ -181,11 +141,4 @@ async def asyncio(
         Union[DatasetVersionDB, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            dataset_id=dataset_id,
-            version_index=version_index,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(dataset_id=dataset_id, version_index=version_index, client=client, body=body)).parsed

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -40,21 +41,15 @@ class Segment:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "end": end,
-                "start": start,
-                "value": value,
-            }
-        )
+        field_dict.update({"end": end, "start": start, "value": value})
         if prob is not UNSET:
             field_dict["prob"] = prob
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         end = d.pop("end")
 
         start = d.pop("start")
@@ -73,12 +68,7 @@ class Segment:
 
         prob = _parse_prob(d.pop("prob", UNSET))
 
-        segment = cls(
-            end=end,
-            start=start,
-            value=value,
-            prob=prob,
-        )
+        segment = cls(end=end, start=start, value=value, prob=prob)
 
         segment.additional_properties = d
         return segment

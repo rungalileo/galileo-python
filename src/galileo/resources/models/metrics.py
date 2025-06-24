@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -35,8 +36,8 @@ class Metrics:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
 
         def _parse_duration_ns(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -47,9 +48,7 @@ class Metrics:
 
         duration_ns = _parse_duration_ns(d.pop("duration_ns", UNSET))
 
-        metrics = cls(
-            duration_ns=duration_ns,
-        )
+        metrics = cls(duration_ns=duration_ns)
 
         metrics.additional_properties = d
         return metrics

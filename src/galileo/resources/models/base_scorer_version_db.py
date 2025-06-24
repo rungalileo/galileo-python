@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -72,12 +73,7 @@ class BaseScorerVersionDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "version": version,
-            }
-        )
+        field_dict.update({"id": id, "version": version})
         if generated_scorer is not UNSET:
             field_dict["generated_scorer"] = generated_scorer
         if model_name is not UNSET:
@@ -90,11 +86,11 @@ class BaseScorerVersionDB:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.base_generated_scorer_db import BaseGeneratedScorerDB
         from ..models.base_registered_scorer_db import BaseRegisteredScorerDB
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         id = d.pop("id")
 
         version = d.pop("version")

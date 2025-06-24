@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -36,19 +37,13 @@ class FeedbackRatingInfo:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "explanation": explanation,
-                "feedback_type": feedback_type,
-                "value": value,
-            }
-        )
+        field_dict.update({"explanation": explanation, "feedback_type": feedback_type, "value": value})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         explanation = d.pop("explanation")
 
         feedback_type = FeedbackRatingInfoFeedbackType(d.pop("feedback_type"))
@@ -66,11 +61,7 @@ class FeedbackRatingInfo:
 
         value = _parse_value(d.pop("value"))
 
-        feedback_rating_info = cls(
-            explanation=explanation,
-            feedback_type=feedback_type,
-            value=value,
-        )
+        feedback_rating_info = cls(explanation=explanation, feedback_type=feedback_type, value=value)
 
         feedback_rating_info.additional_properties = d
         return feedback_rating_info

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -42,8 +43,8 @@ class ProjectUpdatedAtSort:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         ascending = d.pop("ascending", UNSET)
 
         name = cast(Union[Literal["updated_at"], Unset], d.pop("name", UNSET))
@@ -54,11 +55,7 @@ class ProjectUpdatedAtSort:
         if sort_type != "column" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'column', got '{sort_type}'")
 
-        project_updated_at_sort = cls(
-            ascending=ascending,
-            name=name,
-            sort_type=sort_type,
-        )
+        project_updated_at_sort = cls(ascending=ascending, name=name, sort_type=sort_type)
 
         project_updated_at_sort.additional_properties = d
         return project_updated_at_sort

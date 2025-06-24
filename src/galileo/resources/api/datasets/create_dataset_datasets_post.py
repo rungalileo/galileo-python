@@ -32,15 +32,9 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/datasets",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/datasets", "params": params}
 
-    _body = body.to_multipart()
-
-    _kwargs["files"] = _body
+    _kwargs["files"] = body.to_multipart()
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -98,15 +92,9 @@ def sync_detailed(
         Response[Union[DatasetDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        format_=format_,
-        hidden=hidden,
-    )
+    kwargs = _get_kwargs(body=body, format_=format_, hidden=hidden)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -135,12 +123,7 @@ def sync(
         Union[DatasetDB, HTTPValidationError]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-        format_=format_,
-        hidden=hidden,
-    ).parsed
+    return sync_detailed(client=client, body=body, format_=format_, hidden=hidden).parsed
 
 
 async def asyncio_detailed(
@@ -167,11 +150,7 @@ async def asyncio_detailed(
         Response[Union[DatasetDB, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        format_=format_,
-        hidden=hidden,
-    )
+    kwargs = _get_kwargs(body=body, format_=format_, hidden=hidden)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -202,11 +181,4 @@ async def asyncio(
         Union[DatasetDB, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-            format_=format_,
-            hidden=hidden,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body, format_=format_, hidden=hidden)).parsed

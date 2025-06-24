@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -21,22 +22,16 @@ class ProjectDeleteResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "message": message,
-            }
-        )
+        field_dict.update({"message": message})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         message = d.pop("message")
 
-        project_delete_response = cls(
-            message=message,
-        )
+        project_delete_response = cls(message=message)
 
         project_delete_response.additional_properties = d
         return project_delete_response

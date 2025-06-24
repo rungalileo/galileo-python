@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from attrs import define as _attrs_define
@@ -45,11 +46,11 @@ class LogRecordsMetricsResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.log_records_metrics_response_aggregate_metrics import LogRecordsMetricsResponseAggregateMetrics
         from ..models.log_records_metrics_response_bucketed_metrics import LogRecordsMetricsResponseBucketedMetrics
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         aggregate_metrics = LogRecordsMetricsResponseAggregateMetrics.from_dict(d.pop("aggregate_metrics"))
 
         bucketed_metrics = LogRecordsMetricsResponseBucketedMetrics.from_dict(d.pop("bucketed_metrics"))
@@ -57,9 +58,7 @@ class LogRecordsMetricsResponse:
         group_by_columns = cast(list[str], d.pop("group_by_columns"))
 
         log_records_metrics_response = cls(
-            aggregate_metrics=aggregate_metrics,
-            bucketed_metrics=bucketed_metrics,
-            group_by_columns=group_by_columns,
+            aggregate_metrics=aggregate_metrics, bucketed_metrics=bucketed_metrics, group_by_columns=group_by_columns
         )
 
         log_records_metrics_response.additional_properties = d

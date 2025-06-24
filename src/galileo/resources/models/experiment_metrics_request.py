@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -71,14 +72,14 @@ class ExperimentMetricsRequest:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_text_filter import LogRecordsTextFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         filters = []
         _filters = d.pop("filters", UNSET)
         for filters_item_data in _filters or []:
@@ -134,9 +135,7 @@ class ExperimentMetricsRequest:
 
             filters.append(filters_item)
 
-        experiment_metrics_request = cls(
-            filters=filters,
-        )
+        experiment_metrics_request = cls(filters=filters)
 
         experiment_metrics_request.additional_properties = d
         return experiment_metrics_request

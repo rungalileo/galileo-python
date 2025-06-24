@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -27,6 +28,7 @@ class SessionRecordWithChildren:
         id (str): Galileo ID of the session
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
+        session_id (str): Galileo ID of the session
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, SessionRecordWithChildrenDatasetMetadata]): Metadata from the dataset associated
@@ -34,7 +36,7 @@ class SessionRecordWithChildren:
         dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
-        input_ (Union[None, Unset, list['Message'], str]): Input to the trace or span.
+        input_ (Union[Unset, list['Message'], str]):  Default: ''.
         metric_info (Union['SessionRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information about the
             metrics associated with this trace or span
         metrics (Union[Unset, Metrics]):
@@ -42,7 +44,7 @@ class SessionRecordWithChildren:
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
         previous_session_id (Union[None, Unset, str]):
-        session_id (Union[None, Unset, str]): Galileo ID of the session
+        session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
@@ -58,20 +60,21 @@ class SessionRecordWithChildren:
     id: str
     project_id: str
     run_id: str
+    session_id: str
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "SessionRecordWithChildrenDatasetMetadata"] = UNSET
     dataset_output: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
     has_children: Union[None, Unset, bool] = UNSET
-    input_: Union[None, Unset, list["Message"], str] = UNSET
+    input_: Union[Unset, list["Message"], str] = ""
     metric_info: Union["SessionRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
     metrics_batch_id: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
     previous_session_id: Union[None, Unset, str] = UNSET
-    session_id: Union[None, Unset, str] = UNSET
+    session_batch_id: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     trace_id: Union[None, Unset, str] = UNSET
@@ -90,6 +93,8 @@ class SessionRecordWithChildren:
         project_id = self.project_id
 
         run_id = self.run_id
+
+        session_id = self.session_id
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -123,7 +128,7 @@ class SessionRecordWithChildren:
         else:
             has_children = self.has_children
 
-        input_: Union[None, Unset, list[dict[str, Any]], str]
+        input_: Union[Unset, list[dict[str, Any]], str]
         if isinstance(self.input_, Unset):
             input_ = UNSET
         elif isinstance(self.input_, list):
@@ -175,11 +180,11 @@ class SessionRecordWithChildren:
         else:
             previous_session_id = self.previous_session_id
 
-        session_id: Union[None, Unset, str]
-        if isinstance(self.session_id, Unset):
-            session_id = UNSET
+        session_batch_id: Union[None, Unset, str]
+        if isinstance(self.session_batch_id, Unset):
+            session_batch_id = UNSET
         else:
-            session_id = self.session_id
+            session_batch_id = self.session_batch_id
 
         status_code: Union[None, Unset, int]
         if isinstance(self.status_code, Unset):
@@ -220,13 +225,7 @@ class SessionRecordWithChildren:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "project_id": project_id,
-                "run_id": run_id,
-            }
-        )
+        field_dict.update({"id": id, "project_id": project_id, "run_id": run_id, "session_id": session_id})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -253,8 +252,8 @@ class SessionRecordWithChildren:
             field_dict["output"] = output
         if previous_session_id is not UNSET:
             field_dict["previous_session_id"] = previous_session_id
-        if session_id is not UNSET:
-            field_dict["session_id"] = session_id
+        if session_batch_id is not UNSET:
+            field_dict["session_batch_id"] = session_batch_id
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
         if tags is not UNSET:
@@ -273,7 +272,7 @@ class SessionRecordWithChildren:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document import Document
         from ..models.message import Message
         from ..models.metrics import Metrics
@@ -282,12 +281,14 @@ class SessionRecordWithChildren:
         from ..models.session_record_with_children_user_metadata import SessionRecordWithChildrenUserMetadata
         from ..models.trace_record_with_children import TraceRecordWithChildren
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         id = d.pop("id")
 
         project_id = d.pop("project_id")
 
         run_id = d.pop("run_id")
+
+        session_id = d.pop("session_id")
 
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
@@ -339,9 +340,7 @@ class SessionRecordWithChildren:
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
 
-        def _parse_input_(data: object) -> Union[None, Unset, list["Message"], str]:
-            if data is None:
-                return data
+        def _parse_input_(data: object) -> Union[Unset, list["Message"], str]:
             if isinstance(data, Unset):
                 return data
             try:
@@ -357,7 +356,7 @@ class SessionRecordWithChildren:
                 return input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list["Message"], str], data)
+            return cast(Union[Unset, list["Message"], str], data)
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
@@ -435,14 +434,14 @@ class SessionRecordWithChildren:
 
         previous_session_id = _parse_previous_session_id(d.pop("previous_session_id", UNSET))
 
-        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        session_id = _parse_session_id(d.pop("session_id", UNSET))
+        session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
         def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -503,6 +502,7 @@ class SessionRecordWithChildren:
             id=id,
             project_id=project_id,
             run_id=run_id,
+            session_id=session_id,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
@@ -516,7 +516,7 @@ class SessionRecordWithChildren:
             name=name,
             output=output,
             previous_session_id=previous_session_id,
-            session_id=session_id,
+            session_batch_id=session_batch_id,
             status_code=status_code,
             tags=tags,
             trace_id=trace_id,

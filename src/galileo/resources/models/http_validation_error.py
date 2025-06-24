@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -39,10 +40,10 @@ class HTTPValidationError:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.validation_error import ValidationError
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         detail = []
         _detail = d.pop("detail", UNSET)
         for detail_item_data in _detail or []:
@@ -50,9 +51,7 @@ class HTTPValidationError:
 
             detail.append(detail_item)
 
-        http_validation_error = cls(
-            detail=detail,
-        )
+        http_validation_error = cls(detail=detail)
 
         http_validation_error.additional_properties = d
         return http_validation_error

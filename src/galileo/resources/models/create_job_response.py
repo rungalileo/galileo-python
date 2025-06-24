@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from io import BytesIO
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
@@ -6,7 +7,7 @@ from attrs import field as _attrs_field
 
 from ..models.scorer_name import ScorerName
 from ..models.task_type import TaskType
-from ..types import UNSET, File, FileJsonType, Unset
+from ..types import UNSET, File, FileTypes, Unset
 
 if TYPE_CHECKING:
     from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
@@ -536,7 +537,7 @@ class CreateJobResponse:
         else:
             prompt_template_version_id = self.prompt_template_version_id
 
-        protect_scorer_payload: Union[FileJsonType, None, Unset]
+        protect_scorer_payload: Union[None, Unset, FileTypes]
         if isinstance(self.protect_scorer_payload, Unset):
             protect_scorer_payload = UNSET
         elif isinstance(self.protect_scorer_payload, File):
@@ -684,14 +685,7 @@ class CreateJobResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "link": link,
-                "message": message,
-                "project_id": project_id,
-                "run_id": run_id,
-            }
-        )
+        field_dict.update({"link": link, "message": message, "project_id": project_id, "run_id": run_id})
         if dataset_id is not UNSET:
             field_dict["dataset_id"] = dataset_id
         if dataset_version_index is not UNSET:
@@ -768,7 +762,7 @@ class CreateJobResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
         from ..models.agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
         from ..models.base_scorer import BaseScorer
@@ -821,7 +815,7 @@ class CreateJobResponse:
         from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
         from ..models.uncertainty_scorer import UncertaintyScorer
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         link = d.pop("link")
 
         message = d.pop("message")

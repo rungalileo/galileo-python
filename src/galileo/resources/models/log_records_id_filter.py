@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -31,20 +32,15 @@ class LogRecordsIDFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_id": column_id,
-                "value": value,
-            }
-        )
+        field_dict.update({"column_id": column_id, "value": value})
         if type_ is not UNSET:
             field_dict["type"] = type_
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         column_id = d.pop("column_id")
 
         value = d.pop("value")
@@ -53,11 +49,7 @@ class LogRecordsIDFilter:
         if type_ != "id" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'id', got '{type_}'")
 
-        log_records_id_filter = cls(
-            column_id=column_id,
-            value=value,
-            type_=type_,
-        )
+        log_records_id_filter = cls(column_id=column_id, value=value, type_=type_)
 
         log_records_id_filter.additional_properties = d
         return log_records_id_filter

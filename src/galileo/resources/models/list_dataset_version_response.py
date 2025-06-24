@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -50,11 +51,7 @@ class ListDatasetVersionResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "versions": versions,
-            }
-        )
+        field_dict.update({"versions": versions})
         if limit is not UNSET:
             field_dict["limit"] = limit
         if next_starting_token is not UNSET:
@@ -67,10 +64,10 @@ class ListDatasetVersionResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_version_db import DatasetVersionDB
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         versions = []
         _versions = d.pop("versions")
         for versions_item_data in _versions:

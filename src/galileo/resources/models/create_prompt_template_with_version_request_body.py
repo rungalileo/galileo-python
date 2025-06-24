@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -75,12 +76,7 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-                "template": template,
-            }
-        )
+        field_dict.update({"name": name, "template": template})
         if hidden is not UNSET:
             field_dict["hidden"] = hidden
         if output_type is not UNSET:
@@ -95,13 +91,13 @@ class CreatePromptTemplateWithVersionRequestBody:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.create_prompt_template_with_version_request_body_settings import (
             CreatePromptTemplateWithVersionRequestBodySettings,
         )
         from ..models.messages_list_item import MessagesListItem
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         name = d.pop("name")
 
         def _parse_template(data: object) -> Union[list["MessagesListItem"], str]:

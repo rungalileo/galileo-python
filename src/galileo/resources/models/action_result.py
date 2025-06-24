@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -27,26 +28,18 @@ class ActionResult:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "type": type_,
-                "value": value,
-            }
-        )
+        field_dict.update({"type": type_, "value": value})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         type_ = ActionType(d.pop("type"))
 
         value = d.pop("value")
 
-        action_result = cls(
-            type_=type_,
-            value=value,
-        )
+        action_result = cls(type_=type_, value=value)
 
         action_result.additional_properties = d
         return action_result

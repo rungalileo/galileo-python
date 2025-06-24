@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -54,12 +55,7 @@ class Message:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "content": content,
-                "role": role,
-            }
-        )
+        field_dict.update({"content": content, "role": role})
         if tool_call_id is not UNSET:
             field_dict["tool_call_id"] = tool_call_id
         if tool_calls is not UNSET:
@@ -68,10 +64,10 @@ class Message:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.tool_call import ToolCall
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         content = d.pop("content")
 
         role = MessageRole(d.pop("role"))
@@ -107,12 +103,7 @@ class Message:
 
         tool_calls = _parse_tool_calls(d.pop("tool_calls", UNSET))
 
-        message = cls(
-            content=content,
-            role=role,
-            tool_call_id=tool_call_id,
-            tool_calls=tool_calls,
-        )
+        message = cls(content=content, role=role, tool_call_id=tool_call_id, tool_calls=tool_calls)
 
         message.additional_properties = d
         return message

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -29,30 +30,20 @@ class HealthcheckResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "api_version": api_version,
-                "message": message,
-                "version": version,
-            }
-        )
+        field_dict.update({"api_version": api_version, "message": message, "version": version})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         api_version = d.pop("api_version")
 
         message = d.pop("message")
 
         version = d.pop("version")
 
-        healthcheck_response = cls(
-            api_version=api_version,
-            message=message,
-            version=version,
-        )
+        healthcheck_response = cls(api_version=api_version, message=message, version=version)
 
         healthcheck_response.additional_properties = d
         return healthcheck_response

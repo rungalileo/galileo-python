@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -27,27 +28,20 @@ class ColumnMappingConfig:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "columns": columns,
-            }
-        )
+        field_dict.update({"columns": columns})
         if flatten is not UNSET:
             field_dict["flatten"] = flatten
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         columns = cast(list[str], d.pop("columns"))
 
         flatten = d.pop("flatten", UNSET)
 
-        column_mapping_config = cls(
-            columns=columns,
-            flatten=flatten,
-        )
+        column_mapping_config = cls(columns=columns, flatten=flatten)
 
         column_mapping_config.additional_properties = d
         return column_mapping_config

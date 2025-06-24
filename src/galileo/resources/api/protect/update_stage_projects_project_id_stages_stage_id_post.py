@@ -11,22 +11,13 @@ from ...models.stage_db import StageDB
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    stage_id: str,
-    *,
-    body: RulesetsMixin,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, stage_id: str, *, body: RulesetsMixin) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": f"/projects/{project_id}/stages/{stage_id}",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/stages/{stage_id}"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
@@ -62,11 +53,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    stage_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: RulesetsMixin,
+    project_id: str, stage_id: str, *, client: AuthenticatedClient, body: RulesetsMixin
 ) -> Response[Union[HTTPValidationError, StageDB]]:
     """Update Stage
 
@@ -83,25 +70,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, StageDB]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        stage_id=stage_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, stage_id=stage_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    stage_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: RulesetsMixin,
+    project_id: str, stage_id: str, *, client: AuthenticatedClient, body: RulesetsMixin
 ) -> Optional[Union[HTTPValidationError, StageDB]]:
     """Update Stage
 
@@ -118,20 +95,11 @@ def sync(
         Union[HTTPValidationError, StageDB]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        stage_id=stage_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(project_id=project_id, stage_id=stage_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    stage_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: RulesetsMixin,
+    project_id: str, stage_id: str, *, client: AuthenticatedClient, body: RulesetsMixin
 ) -> Response[Union[HTTPValidationError, StageDB]]:
     """Update Stage
 
@@ -148,11 +116,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, StageDB]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        stage_id=stage_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(project_id=project_id, stage_id=stage_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -160,11 +124,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    stage_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: RulesetsMixin,
+    project_id: str, stage_id: str, *, client: AuthenticatedClient, body: RulesetsMixin
 ) -> Optional[Union[HTTPValidationError, StageDB]]:
     """Update Stage
 
@@ -181,11 +141,4 @@ async def asyncio(
         Union[HTTPValidationError, StageDB]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            stage_id=stage_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, stage_id=stage_id, client=client, body=body)).parsed

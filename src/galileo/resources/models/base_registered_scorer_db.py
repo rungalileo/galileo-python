@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -25,26 +26,18 @@ class BaseRegisteredScorerDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "name": name,
-            }
-        )
+        field_dict.update({"id": id, "name": name})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         id = d.pop("id")
 
         name = d.pop("name")
 
-        base_registered_scorer_db = cls(
-            id=id,
-            name=name,
-        )
+        base_registered_scorer_db = cls(id=id, name=name)
 
         base_registered_scorer_db.additional_properties = d
         return base_registered_scorer_db

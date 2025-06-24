@@ -10,12 +10,7 @@ from ...models.job_db import JobDB
 from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs(
-    project_id: str,
-    run_id: str,
-    *,
-    status: Union[None, Unset, str] = UNSET,
-) -> dict[str, Any]:
+def _get_kwargs(project_id: str, run_id: str, *, status: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
     json_status: Union[None, Unset, str]
@@ -27,11 +22,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/projects/{project_id}/runs/{run_id}/jobs",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/runs/{run_id}/jobs", "params": params}
 
     return _kwargs
 
@@ -70,11 +61,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    status: Union[None, Unset, str] = UNSET,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, status: Union[None, Unset, str] = UNSET
 ) -> Response[Union[HTTPValidationError, list["JobDB"]]]:
     """Get Jobs For Project Run
 
@@ -95,25 +82,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, list['JobDB']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        status=status,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, status=status)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    status: Union[None, Unset, str] = UNSET,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, status: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["JobDB"]]]:
     """Get Jobs For Project Run
 
@@ -134,20 +111,11 @@ def sync(
         Union[HTTPValidationError, list['JobDB']]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        run_id=run_id,
-        client=client,
-        status=status,
-    ).parsed
+    return sync_detailed(project_id=project_id, run_id=run_id, client=client, status=status).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    status: Union[None, Unset, str] = UNSET,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, status: Union[None, Unset, str] = UNSET
 ) -> Response[Union[HTTPValidationError, list["JobDB"]]]:
     """Get Jobs For Project Run
 
@@ -168,11 +136,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, list['JobDB']]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        run_id=run_id,
-        status=status,
-    )
+    kwargs = _get_kwargs(project_id=project_id, run_id=run_id, status=status)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -180,11 +144,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    run_id: str,
-    *,
-    client: AuthenticatedClient,
-    status: Union[None, Unset, str] = UNSET,
+    project_id: str, run_id: str, *, client: AuthenticatedClient, status: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["JobDB"]]]:
     """Get Jobs For Project Run
 
@@ -205,11 +165,4 @@ async def asyncio(
         Union[HTTPValidationError, list['JobDB']]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            run_id=run_id,
-            client=client,
-            status=status,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client, status=status)).parsed

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -19,7 +20,8 @@ T = TypeVar("T", bound="LogSpansIngestRequest")
 
 @_attrs_define
 class LogSpansIngestRequest:
-    """
+    """Request model for ingesting spans.
+
     Attributes:
         parent_id (str): Parent trace or span id.
         spans (list[Union['AgentSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]): List of spans to log.
@@ -32,7 +34,6 @@ class LogSpansIngestRequest:
             immediately before verifying that the traces have been successfully ingested, and no error message will be
             returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
             return an error message if there is an ingestion failure. Default: False.
-        session_id (Union[None, Unset, str]): Session id associated with the spans.
     """
 
     parent_id: str
@@ -43,7 +44,6 @@ class LogSpansIngestRequest:
     log_stream_id: Union[None, Unset, str] = UNSET
     logging_method: Union[Unset, LoggingMethod] = UNSET
     reliable: Union[Unset, bool] = False
-    session_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -96,21 +96,9 @@ class LogSpansIngestRequest:
 
         reliable = self.reliable
 
-        session_id: Union[None, Unset, str]
-        if isinstance(self.session_id, Unset):
-            session_id = UNSET
-        else:
-            session_id = self.session_id
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "parent_id": parent_id,
-                "spans": spans,
-                "trace_id": trace_id,
-            }
-        )
+        field_dict.update({"parent_id": parent_id, "spans": spans, "trace_id": trace_id})
         if client_version is not UNSET:
             field_dict["client_version"] = client_version
         if experiment_id is not UNSET:
@@ -121,20 +109,18 @@ class LogSpansIngestRequest:
             field_dict["logging_method"] = logging_method
         if reliable is not UNSET:
             field_dict["reliable"] = reliable
-        if session_id is not UNSET:
-            field_dict["session_id"] = session_id
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agent_span import AgentSpan
         from ..models.llm_span import LlmSpan
         from ..models.retriever_span import RetrieverSpan
         from ..models.tool_span import ToolSpan
         from ..models.workflow_span import WorkflowSpan
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         parent_id = d.pop("parent_id")
 
         spans = []
@@ -224,15 +210,6 @@ class LogSpansIngestRequest:
 
         reliable = d.pop("reliable", UNSET)
 
-        def _parse_session_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        session_id = _parse_session_id(d.pop("session_id", UNSET))
-
         log_spans_ingest_request = cls(
             parent_id=parent_id,
             spans=spans,
@@ -242,7 +219,6 @@ class LogSpansIngestRequest:
             log_stream_id=log_stream_id,
             logging_method=logging_method,
             reliable=reliable,
-            session_id=session_id,
         )
 
         log_spans_ingest_request.additional_properties = d

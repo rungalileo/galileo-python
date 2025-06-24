@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -26,6 +27,7 @@ class ToolSpanRecord:
         parent_id (str): Galileo ID of the parent of this span
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
+        session_id (str): Galileo ID of the session
         trace_id (str): Galileo ID of the trace containing the span (or the same value as id for a trace)
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
@@ -34,15 +36,17 @@ class ToolSpanRecord:
         dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
+        is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
         metric_info (Union['ToolSpanRecordMetricInfoType0', None, Unset]): Detailed information about the metrics
             associated with this trace or span
         metrics (Union[Unset, Metrics]):
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
-        session_id (Union[None, Unset, str]): Galileo ID of the session
+        session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
+        step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
         tool_call_id (Union[None, Unset, str]): ID of the tool call.
         type_ (Union[Literal['tool'], Unset]): Type of the trace, span or session. Default: 'tool'.
@@ -55,6 +59,7 @@ class ToolSpanRecord:
     parent_id: str
     project_id: str
     run_id: str
+    session_id: str
     trace_id: str
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
@@ -62,13 +67,15 @@ class ToolSpanRecord:
     dataset_output: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
     has_children: Union[None, Unset, bool] = UNSET
+    is_complete: Union[Unset, bool] = True
     metric_info: Union["ToolSpanRecordMetricInfoType0", None, Unset] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
     metrics_batch_id: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
-    session_id: Union[None, Unset, str] = UNSET
+    session_batch_id: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
+    step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     tool_call_id: Union[None, Unset, str] = UNSET
     type_: Union[Literal["tool"], Unset] = "tool"
@@ -88,6 +95,8 @@ class ToolSpanRecord:
         project_id = self.project_id
 
         run_id = self.run_id
+
+        session_id = self.session_id
 
         trace_id = self.trace_id
 
@@ -123,6 +132,8 @@ class ToolSpanRecord:
         else:
             has_children = self.has_children
 
+        is_complete = self.is_complete
+
         metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
@@ -149,17 +160,23 @@ class ToolSpanRecord:
         else:
             output = self.output
 
-        session_id: Union[None, Unset, str]
-        if isinstance(self.session_id, Unset):
-            session_id = UNSET
+        session_batch_id: Union[None, Unset, str]
+        if isinstance(self.session_batch_id, Unset):
+            session_batch_id = UNSET
         else:
-            session_id = self.session_id
+            session_batch_id = self.session_batch_id
 
         status_code: Union[None, Unset, int]
         if isinstance(self.status_code, Unset):
             status_code = UNSET
         else:
             status_code = self.status_code
+
+        step_number: Union[None, Unset, int]
+        if isinstance(self.step_number, Unset):
+            step_number = UNSET
+        else:
+            step_number = self.step_number
 
         tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
@@ -194,6 +211,7 @@ class ToolSpanRecord:
                 "parent_id": parent_id,
                 "project_id": project_id,
                 "run_id": run_id,
+                "session_id": session_id,
                 "trace_id": trace_id,
             }
         )
@@ -209,6 +227,8 @@ class ToolSpanRecord:
             field_dict["external_id"] = external_id
         if has_children is not UNSET:
             field_dict["has_children"] = has_children
+        if is_complete is not UNSET:
+            field_dict["is_complete"] = is_complete
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
         if metrics is not UNSET:
@@ -219,10 +239,12 @@ class ToolSpanRecord:
             field_dict["name"] = name
         if output is not UNSET:
             field_dict["output"] = output
-        if session_id is not UNSET:
-            field_dict["session_id"] = session_id
+        if session_batch_id is not UNSET:
+            field_dict["session_batch_id"] = session_batch_id
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
+        if step_number is not UNSET:
+            field_dict["step_number"] = step_number
         if tags is not UNSET:
             field_dict["tags"] = tags
         if tool_call_id is not UNSET:
@@ -237,13 +259,13 @@ class ToolSpanRecord:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metrics import Metrics
         from ..models.tool_span_record_dataset_metadata import ToolSpanRecordDatasetMetadata
         from ..models.tool_span_record_metric_info_type_0 import ToolSpanRecordMetricInfoType0
         from ..models.tool_span_record_user_metadata import ToolSpanRecordUserMetadata
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         id = d.pop("id")
 
         input_ = d.pop("input")
@@ -253,6 +275,8 @@ class ToolSpanRecord:
         project_id = d.pop("project_id")
 
         run_id = d.pop("run_id")
+
+        session_id = d.pop("session_id")
 
         trace_id = d.pop("trace_id")
 
@@ -306,6 +330,8 @@ class ToolSpanRecord:
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
 
+        is_complete = d.pop("is_complete", UNSET)
+
         def _parse_metric_info(data: object) -> Union["ToolSpanRecordMetricInfoType0", None, Unset]:
             if data is None:
                 return data
@@ -350,14 +376,14 @@ class ToolSpanRecord:
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        session_id = _parse_session_id(d.pop("session_id", UNSET))
+        session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
         def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -367,6 +393,15 @@ class ToolSpanRecord:
             return cast(Union[None, Unset, int], data)
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
+
+        def _parse_step_number(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        step_number = _parse_step_number(d.pop("step_number", UNSET))
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
@@ -413,6 +448,7 @@ class ToolSpanRecord:
             parent_id=parent_id,
             project_id=project_id,
             run_id=run_id,
+            session_id=session_id,
             trace_id=trace_id,
             created_at=created_at,
             dataset_input=dataset_input,
@@ -420,13 +456,15 @@ class ToolSpanRecord:
             dataset_output=dataset_output,
             external_id=external_id,
             has_children=has_children,
+            is_complete=is_complete,
             metric_info=metric_info,
             metrics=metrics,
             metrics_batch_id=metrics_batch_id,
             name=name,
             output=output,
-            session_id=session_id,
+            session_batch_id=session_batch_id,
             status_code=status_code,
+            step_number=step_number,
             tags=tags,
             tool_call_id=tool_call_id,
             type_=type_,

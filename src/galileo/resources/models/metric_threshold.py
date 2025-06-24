@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -53,8 +54,8 @@ class MetricThreshold:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         buckets = []
         _buckets = d.pop("buckets", UNSET)
         for buckets_item_data in _buckets or []:
@@ -70,11 +71,7 @@ class MetricThreshold:
 
         inverted = d.pop("inverted", UNSET)
 
-        metric_threshold = cls(
-            buckets=buckets,
-            display_value_levels=display_value_levels,
-            inverted=inverted,
-        )
+        metric_threshold = cls(buckets=buckets, display_value_levels=display_value_levels, inverted=inverted)
 
         metric_threshold.additional_properties = d
         return metric_threshold

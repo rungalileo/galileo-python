@@ -1,9 +1,11 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.model_type import ModelType
+from ..models.scorer_input_type import ScorerInputType
 from ..models.scorer_types import ScorerTypes
 from ..types import UNSET, Unset
 
@@ -25,6 +27,8 @@ class ScorerConfig:
         scorer_type (ScorerTypes):
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
+        input_type (Union[None, ScorerInputType, Unset]): Type of input that this scorer accepts. Defaults to
+            ScorerInputType.basic. Default: ScorerInputType.BASIC.
         model_name (Union[None, Unset, str]):
         model_type (Union[ModelType, None, Unset]): Type of model to use for this scorer. slm maps to luna, and llm maps
             to plus
@@ -39,6 +43,7 @@ class ScorerConfig:
     id: str
     scorer_type: ScorerTypes
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
+    input_type: Union[None, ScorerInputType, Unset] = ScorerInputType.BASIC
     model_name: Union[None, Unset, str] = UNSET
     model_type: Union[ModelType, None, Unset] = UNSET
     name: Union[None, Unset, str] = UNSET
@@ -71,6 +76,14 @@ class ScorerConfig:
 
         else:
             filters = self.filters
+
+        input_type: Union[None, Unset, str]
+        if isinstance(self.input_type, Unset):
+            input_type = UNSET
+        elif isinstance(self.input_type, ScorerInputType):
+            input_type = self.input_type.value
+        else:
+            input_type = self.input_type
 
         model_name: Union[None, Unset, str]
         if isinstance(self.model_name, Unset):
@@ -117,14 +130,11 @@ class ScorerConfig:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "scorer_type": scorer_type,
-            }
-        )
+        field_dict.update({"id": id, "scorer_type": scorer_type})
         if filters is not UNSET:
             field_dict["filters"] = filters
+        if input_type is not UNSET:
+            field_dict["input_type"] = input_type
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if model_type is not UNSET:
@@ -141,12 +151,12 @@ class ScorerConfig:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.base_scorer_version_db import BaseScorerVersionDB
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         id = d.pop("id")
 
         scorer_type = ScorerTypes(d.pop("scorer_type"))
@@ -188,6 +198,23 @@ class ScorerConfig:
             return cast(Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]], data)
 
         filters = _parse_filters(d.pop("filters", UNSET))
+
+        def _parse_input_type(data: object) -> Union[None, ScorerInputType, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                input_type_type_0 = ScorerInputType(data)
+
+                return input_type_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, ScorerInputType, Unset], data)
+
+        input_type = _parse_input_type(d.pop("input_type", UNSET))
 
         def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -271,6 +298,7 @@ class ScorerConfig:
             id=id,
             scorer_type=scorer_type,
             filters=filters,
+            input_type=input_type,
             model_name=model_name,
             model_type=model_type,
             name=name,

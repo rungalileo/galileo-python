@@ -10,14 +10,8 @@ from ...models.session_record_with_children import SessionRecordWithChildren
 from ...types import Response
 
 
-def _get_kwargs(
-    project_id: str,
-    session_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/projects/{project_id}/sessions/{session_id}",
-    }
+def _get_kwargs(project_id: str, session_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/sessions/{session_id}"}
 
     return _kwargs
 
@@ -51,10 +45,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str,
-    session_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, session_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, SessionRecordWithChildren]]:
     """Get Session
 
@@ -70,23 +61,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, SessionRecordWithChildren]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        session_id=session_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, session_id=session_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str,
-    session_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, session_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, SessionRecordWithChildren]]:
     """Get Session
 
@@ -102,18 +85,11 @@ def sync(
         Union[HTTPValidationError, SessionRecordWithChildren]
     """
 
-    return sync_detailed(
-        project_id=project_id,
-        session_id=session_id,
-        client=client,
-    ).parsed
+    return sync_detailed(project_id=project_id, session_id=session_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str,
-    session_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, session_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, SessionRecordWithChildren]]:
     """Get Session
 
@@ -129,10 +105,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, SessionRecordWithChildren]]
     """
 
-    kwargs = _get_kwargs(
-        project_id=project_id,
-        session_id=session_id,
-    )
+    kwargs = _get_kwargs(project_id=project_id, session_id=session_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -140,10 +113,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    project_id: str,
-    session_id: str,
-    *,
-    client: AuthenticatedClient,
+    project_id: str, session_id: str, *, client: AuthenticatedClient
 ) -> Optional[Union[HTTPValidationError, SessionRecordWithChildren]]:
     """Get Session
 
@@ -159,10 +129,4 @@ async def asyncio(
         Union[HTTPValidationError, SessionRecordWithChildren]
     """
 
-    return (
-        await asyncio_detailed(
-            project_id=project_id,
-            session_id=session_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(project_id=project_id, session_id=session_id, client=client)).parsed

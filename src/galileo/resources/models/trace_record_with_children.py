@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -31,6 +32,7 @@ class TraceRecordWithChildren:
         input_ (str): Input to the trace or span.
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
+        session_id (str): Galileo ID of the session
         trace_id (str): Galileo ID of the trace containing the span (or the same value as id for a trace)
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
@@ -41,13 +43,14 @@ class TraceRecordWithChildren:
         feedback_rating_info (Union[Unset, TraceRecordWithChildrenFeedbackRatingInfo]): Feedback information related to
             the trace
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
+        is_complete (Union[Unset, bool]): Whether the trace is complete or not Default: True.
         metric_info (Union['TraceRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information about the
             metrics associated with this trace or span
         metrics (Union[Unset, Metrics]):
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
-        session_id (Union[None, Unset, str]): Galileo ID of the session
+        session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         spans (Union[Unset, list[Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord',
             'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]):
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
@@ -62,6 +65,7 @@ class TraceRecordWithChildren:
     input_: str
     project_id: str
     run_id: str
+    session_id: str
     trace_id: str
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
@@ -70,12 +74,13 @@ class TraceRecordWithChildren:
     external_id: Union[None, Unset, str] = UNSET
     feedback_rating_info: Union[Unset, "TraceRecordWithChildrenFeedbackRatingInfo"] = UNSET
     has_children: Union[None, Unset, bool] = UNSET
+    is_complete: Union[Unset, bool] = True
     metric_info: Union["TraceRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
     metrics_batch_id: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
-    session_id: Union[None, Unset, str] = UNSET
+    session_batch_id: Union[None, Unset, str] = UNSET
     spans: Union[
         Unset,
         list[
@@ -109,6 +114,8 @@ class TraceRecordWithChildren:
         project_id = self.project_id
 
         run_id = self.run_id
+
+        session_id = self.session_id
 
         trace_id = self.trace_id
 
@@ -148,6 +155,8 @@ class TraceRecordWithChildren:
         else:
             has_children = self.has_children
 
+        is_complete = self.is_complete
+
         metric_info: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_info, Unset):
             metric_info = UNSET
@@ -174,11 +183,11 @@ class TraceRecordWithChildren:
         else:
             output = self.output
 
-        session_id: Union[None, Unset, str]
-        if isinstance(self.session_id, Unset):
-            session_id = UNSET
+        session_batch_id: Union[None, Unset, str]
+        if isinstance(self.session_batch_id, Unset):
+            session_batch_id = UNSET
         else:
-            session_id = self.session_id
+            session_batch_id = self.session_batch_id
 
         spans: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.spans, Unset):
@@ -230,6 +239,7 @@ class TraceRecordWithChildren:
                 "input": input_,
                 "project_id": project_id,
                 "run_id": run_id,
+                "session_id": session_id,
                 "trace_id": trace_id,
             }
         )
@@ -247,6 +257,8 @@ class TraceRecordWithChildren:
             field_dict["feedback_rating_info"] = feedback_rating_info
         if has_children is not UNSET:
             field_dict["has_children"] = has_children
+        if is_complete is not UNSET:
+            field_dict["is_complete"] = is_complete
         if metric_info is not UNSET:
             field_dict["metric_info"] = metric_info
         if metrics is not UNSET:
@@ -257,8 +269,8 @@ class TraceRecordWithChildren:
             field_dict["name"] = name
         if output is not UNSET:
             field_dict["output"] = output
-        if session_id is not UNSET:
-            field_dict["session_id"] = session_id
+        if session_batch_id is not UNSET:
+            field_dict["session_batch_id"] = session_batch_id
         if spans is not UNSET:
             field_dict["spans"] = spans
         if status_code is not UNSET:
@@ -275,7 +287,7 @@ class TraceRecordWithChildren:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.llm_span_record import LlmSpanRecord
         from ..models.metrics import Metrics
@@ -287,7 +299,7 @@ class TraceRecordWithChildren:
         from ..models.trace_record_with_children_user_metadata import TraceRecordWithChildrenUserMetadata
         from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         id = d.pop("id")
 
         input_ = d.pop("input")
@@ -295,6 +307,8 @@ class TraceRecordWithChildren:
         project_id = d.pop("project_id")
 
         run_id = d.pop("run_id")
+
+        session_id = d.pop("session_id")
 
         trace_id = d.pop("trace_id")
 
@@ -355,6 +369,8 @@ class TraceRecordWithChildren:
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
 
+        is_complete = d.pop("is_complete", UNSET)
+
         def _parse_metric_info(data: object) -> Union["TraceRecordWithChildrenMetricInfoType0", None, Unset]:
             if data is None:
                 return data
@@ -399,14 +415,14 @@ class TraceRecordWithChildren:
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        session_id = _parse_session_id(d.pop("session_id", UNSET))
+        session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
         spans = []
         _spans = d.pop("spans", UNSET)
@@ -507,6 +523,7 @@ class TraceRecordWithChildren:
             input_=input_,
             project_id=project_id,
             run_id=run_id,
+            session_id=session_id,
             trace_id=trace_id,
             created_at=created_at,
             dataset_input=dataset_input,
@@ -515,12 +532,13 @@ class TraceRecordWithChildren:
             external_id=external_id,
             feedback_rating_info=feedback_rating_info,
             has_children=has_children,
+            is_complete=is_complete,
             metric_info=metric_info,
             metrics=metrics,
             metrics_batch_id=metrics_batch_id,
             name=name,
             output=output,
-            session_id=session_id,
+            session_batch_id=session_batch_id,
             spans=spans,
             status_code=status_code,
             tags=tags,

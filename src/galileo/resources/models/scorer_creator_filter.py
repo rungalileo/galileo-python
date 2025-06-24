@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -27,29 +28,22 @@ class ScorerCreatorFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "value": value,
-            }
-        )
+        field_dict.update({"value": value})
         if name is not UNSET:
             field_dict["name"] = name
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         value = d.pop("value")
 
         name = cast(Union[Literal["creator"], Unset], d.pop("name", UNSET))
         if name != "creator" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'creator', got '{name}'")
 
-        scorer_creator_filter = cls(
-            value=value,
-            name=name,
-        )
+        scorer_creator_filter = cls(value=value, name=name)
 
         scorer_creator_filter.additional_properties = d
         return scorer_creator_filter

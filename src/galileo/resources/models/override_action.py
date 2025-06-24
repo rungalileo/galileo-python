@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -42,11 +43,7 @@ class OverrideAction:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "choices": choices,
-            }
-        )
+        field_dict.update({"choices": choices})
         if subscriptions is not UNSET:
             field_dict["subscriptions"] = subscriptions
         if type_ is not UNSET:
@@ -55,10 +52,10 @@ class OverrideAction:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.subscription_config import SubscriptionConfig
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         choices = cast(list[str], d.pop("choices"))
 
         subscriptions = []
@@ -72,11 +69,7 @@ class OverrideAction:
         if type_ != "OVERRIDE" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'OVERRIDE', got '{type_}'")
 
-        override_action = cls(
-            choices=choices,
-            subscriptions=subscriptions,
-            type_=type_,
-        )
+        override_action = cls(choices=choices, subscriptions=subscriptions, type_=type_)
 
         override_action.additional_properties = d
         return override_action

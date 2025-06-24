@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -46,10 +47,10 @@ class PassthroughAction:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.subscription_config import SubscriptionConfig
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         subscriptions = []
         _subscriptions = d.pop("subscriptions", UNSET)
         for subscriptions_item_data in _subscriptions or []:
@@ -61,10 +62,7 @@ class PassthroughAction:
         if type_ != "PASSTHROUGH" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'PASSTHROUGH', got '{type_}'")
 
-        passthrough_action = cls(
-            subscriptions=subscriptions,
-            type_=type_,
-        )
+        passthrough_action = cls(subscriptions=subscriptions, type_=type_)
 
         passthrough_action.additional_properties = d
         return passthrough_action

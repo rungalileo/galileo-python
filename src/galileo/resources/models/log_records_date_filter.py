@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -38,21 +39,15 @@ class LogRecordsDateFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "column_id": column_id,
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"column_id": column_id, "operator": operator, "value": value})
         if type_ is not UNSET:
             field_dict["type"] = type_
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         column_id = d.pop("column_id")
 
         operator = LogRecordsDateFilterOperator(d.pop("operator"))
@@ -63,12 +58,7 @@ class LogRecordsDateFilter:
         if type_ != "date" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'date', got '{type_}'")
 
-        log_records_date_filter = cls(
-            column_id=column_id,
-            operator=operator,
-            value=value,
-            type_=type_,
-        )
+        log_records_date_filter = cls(column_id=column_id, operator=operator, value=value, type_=type_)
 
         log_records_date_filter.additional_properties = d
         return log_records_date_filter

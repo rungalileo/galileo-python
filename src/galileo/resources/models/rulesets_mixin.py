@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -39,10 +40,10 @@ class RulesetsMixin:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.ruleset import Ruleset
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         prioritized_rulesets = []
         _prioritized_rulesets = d.pop("prioritized_rulesets", UNSET)
         for prioritized_rulesets_item_data in _prioritized_rulesets or []:
@@ -50,9 +51,7 @@ class RulesetsMixin:
 
             prioritized_rulesets.append(prioritized_rulesets_item)
 
-        rulesets_mixin = cls(
-            prioritized_rulesets=prioritized_rulesets,
-        )
+        rulesets_mixin = cls(prioritized_rulesets=prioritized_rulesets)
 
         rulesets_mixin.additional_properties = d
         return rulesets_mixin

@@ -1,7 +1,10 @@
+import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+from dateutil.parser import isoparse
 
 from ..types import UNSET, Unset
 
@@ -18,6 +21,7 @@ class BasePromptTemplateVersionResponse:
     """Base response from API for a prompt template version.
 
     Attributes:
+        created_at (datetime.datetime):
         id (str):
         lines_added (int):
         lines_edited (int):
@@ -26,11 +30,13 @@ class BasePromptTemplateVersionResponse:
         settings (BasePromptTemplateVersionResponseSettings):
         settings_changed (bool):
         template (Union[list['MessagesListItem'], str]):
+        updated_at (datetime.datetime):
         version (int):
         output_type (Union[None, Unset, str]):
         raw (Union[Unset, bool]):  Default: False.
     """
 
+    created_at: datetime.datetime
     id: str
     lines_added: int
     lines_edited: int
@@ -39,12 +45,15 @@ class BasePromptTemplateVersionResponse:
     settings: "BasePromptTemplateVersionResponseSettings"
     settings_changed: bool
     template: Union[list["MessagesListItem"], str]
+    updated_at: datetime.datetime
     version: int
     output_type: Union[None, Unset, str] = UNSET
     raw: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        created_at = self.created_at.isoformat()
+
         id = self.id
 
         lines_added = self.lines_added
@@ -69,6 +78,8 @@ class BasePromptTemplateVersionResponse:
         else:
             template = self.template
 
+        updated_at = self.updated_at.isoformat()
+
         version = self.version
 
         output_type: Union[None, Unset, str]
@@ -83,6 +94,7 @@ class BasePromptTemplateVersionResponse:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "created_at": created_at,
                 "id": id,
                 "lines_added": lines_added,
                 "lines_edited": lines_edited,
@@ -91,6 +103,7 @@ class BasePromptTemplateVersionResponse:
                 "settings": settings,
                 "settings_changed": settings_changed,
                 "template": template,
+                "updated_at": updated_at,
                 "version": version,
             }
         )
@@ -102,11 +115,13 @@ class BasePromptTemplateVersionResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.base_prompt_template_version_response_settings import BasePromptTemplateVersionResponseSettings
         from ..models.messages_list_item import MessagesListItem
 
-        d = src_dict.copy()
+        d = dict(src_dict)
+        created_at = isoparse(d.pop("created_at"))
+
         id = d.pop("id")
 
         lines_added = d.pop("lines_added")
@@ -139,6 +154,8 @@ class BasePromptTemplateVersionResponse:
 
         template = _parse_template(d.pop("template"))
 
+        updated_at = isoparse(d.pop("updated_at"))
+
         version = d.pop("version")
 
         def _parse_output_type(data: object) -> Union[None, Unset, str]:
@@ -153,6 +170,7 @@ class BasePromptTemplateVersionResponse:
         raw = d.pop("raw", UNSET)
 
         base_prompt_template_version_response = cls(
+            created_at=created_at,
             id=id,
             lines_added=lines_added,
             lines_edited=lines_edited,
@@ -161,6 +179,7 @@ class BasePromptTemplateVersionResponse:
             settings=settings,
             settings_changed=settings_changed,
             template=template,
+            updated_at=updated_at,
             version=version,
             output_type=output_type,
             raw=raw,

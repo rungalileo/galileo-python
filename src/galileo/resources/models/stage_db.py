@@ -1,8 +1,10 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.stage_type import StageType
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="StageDB")
@@ -19,7 +21,7 @@ class StageDB:
         description (Union[None, Unset, str]): Optional human-readable description of the goals of this guardrail.
         paused (Union[Unset, bool]): Whether the action is enabled. If False, the action will not be applied. Default:
             False.
-        type_ (Union[Unset, Any]): Type of the stage. Default: 'local'.
+        type_ (Union[Unset, StageType]):
         version (Union[None, Unset, int]):
     """
 
@@ -29,7 +31,7 @@ class StageDB:
     project_id: str
     description: Union[None, Unset, str] = UNSET
     paused: Union[Unset, bool] = False
-    type_: Union[Unset, Any] = "local"
+    type_: Union[Unset, StageType] = UNSET
     version: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -50,7 +52,9 @@ class StageDB:
 
         paused = self.paused
 
-        type_ = self.type_
+        type_: Union[Unset, str] = UNSET
+        if not isinstance(self.type_, Unset):
+            type_ = self.type_.value
 
         version: Union[None, Unset, int]
         if isinstance(self.version, Unset):
@@ -60,14 +64,7 @@ class StageDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_by": created_by,
-                "id": id,
-                "name": name,
-                "project_id": project_id,
-            }
-        )
+        field_dict.update({"created_by": created_by, "id": id, "name": name, "project_id": project_id})
         if description is not UNSET:
             field_dict["description"] = description
         if paused is not UNSET:
@@ -80,8 +77,8 @@ class StageDB:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         created_by = d.pop("created_by")
 
         id = d.pop("id")
@@ -101,7 +98,12 @@ class StageDB:
 
         paused = d.pop("paused", UNSET)
 
-        type_ = d.pop("type", UNSET)
+        _type_ = d.pop("type", UNSET)
+        type_: Union[Unset, StageType]
+        if isinstance(_type_, Unset):
+            type_ = UNSET
+        else:
+            type_ = StageType(_type_)
 
         def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:

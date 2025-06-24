@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -72,11 +73,11 @@ class RegisteredScorer:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -134,11 +135,7 @@ class RegisteredScorer:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        registered_scorer = cls(
-            filters=filters,
-            id=id,
-            name=name,
-        )
+        registered_scorer = cls(filters=filters, id=id, name=name)
 
         registered_scorer.additional_properties = d
         return registered_scorer

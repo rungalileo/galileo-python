@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -260,14 +261,14 @@ class BaseScorer:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.base_scorer_aggregates_type_0 import BaseScorerAggregatesType0
         from ..models.base_scorer_extra_type_0 import BaseScorerExtraType0
         from ..models.chain_poll_template import ChainPollTemplate
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_aggregate_keys(data: object) -> Union[None, Unset, list[str]]:
             if data is None:

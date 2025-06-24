@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -110,11 +111,7 @@ class Request:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "payload": payload,
-            }
-        )
+        field_dict.update({"payload": payload})
         if headers is not UNSET:
             field_dict["headers"] = headers
         if metadata is not UNSET:
@@ -137,13 +134,13 @@ class Request:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.payload import Payload
         from ..models.request_headers_type_0 import RequestHeadersType0
         from ..models.request_metadata_type_0 import RequestMetadataType0
         from ..models.ruleset import Ruleset
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         payload = Payload.from_dict(d.pop("payload"))
 
         def _parse_headers(data: object) -> Union["RequestHeadersType0", None, Unset]:

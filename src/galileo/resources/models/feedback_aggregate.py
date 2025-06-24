@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -40,22 +41,18 @@ class FeedbackAggregate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "aggregate": aggregate,
-            }
-        )
+        field_dict.update({"aggregate": aggregate})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.like_dislike_aggregate import LikeDislikeAggregate
         from ..models.score_aggregate import ScoreAggregate
         from ..models.star_aggregate import StarAggregate
         from ..models.tags_aggregate import TagsAggregate
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_aggregate(
             data: object,
@@ -92,9 +89,7 @@ class FeedbackAggregate:
 
         aggregate = _parse_aggregate(d.pop("aggregate"))
 
-        feedback_aggregate = cls(
-            aggregate=aggregate,
-        )
+        feedback_aggregate = cls(aggregate=aggregate)
 
         feedback_aggregate.additional_properties = d
         return feedback_aggregate

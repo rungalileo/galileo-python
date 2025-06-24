@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -24,10 +25,10 @@ class ExperimentResponseAggregateFeedback:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.feedback_aggregate import FeedbackAggregate
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         experiment_response_aggregate_feedback = cls()
 
         additional_properties = {}

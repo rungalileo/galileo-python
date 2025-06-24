@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -48,11 +49,7 @@ class SegmentFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "sample_rate": sample_rate,
-            }
-        )
+        field_dict.update({"sample_rate": sample_rate})
         if filter_ is not UNSET:
             field_dict["filter"] = filter_
         if llm_scorers is not UNSET:
@@ -61,11 +58,11 @@ class SegmentFilter:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         sample_rate = d.pop("sample_rate")
 
         def _parse_filter_(data: object) -> Union["MetadataFilter", "NodeNameFilter", None, Unset]:
@@ -95,11 +92,7 @@ class SegmentFilter:
 
         llm_scorers = d.pop("llm_scorers", UNSET)
 
-        segment_filter = cls(
-            sample_rate=sample_rate,
-            filter_=filter_,
-            llm_scorers=llm_scorers,
-        )
+        segment_filter = cls(sample_rate=sample_rate, filter_=filter_, llm_scorers=llm_scorers)
 
         segment_filter.additional_properties = d
         return segment_filter

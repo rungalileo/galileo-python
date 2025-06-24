@@ -1,9 +1,11 @@
+from collections.abc import Mapping
 from io import BytesIO
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from .. import types
 from ..types import File
 
 T = TypeVar("T", bound="BodyUploadFileProjectsProjectIdUploadFilePost")
@@ -28,44 +30,30 @@ class BodyUploadFileProjectsProjectIdUploadFilePost:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "file": file,
-                "upload_metadata": upload_metadata,
-            }
-        )
+        field_dict.update({"file": file, "upload_metadata": upload_metadata})
 
         return field_dict
 
-    def to_multipart(self) -> dict[str, Any]:
-        file = self.file.to_tuple()
+    def to_multipart(self) -> types.RequestFiles:
+        files: types.RequestFiles = []
 
-        upload_metadata = (None, str(self.upload_metadata).encode(), "text/plain")
+        files.append(("file", self.file.to_tuple()))
 
-        field_dict: dict[str, Any] = {}
+        files.append(("upload_metadata", (None, str(self.upload_metadata).encode(), "text/plain")))
+
         for prop_name, prop in self.additional_properties.items():
-            field_dict[prop_name] = (None, str(prop).encode(), "text/plain")
+            files.append((prop_name, (None, str(prop).encode(), "text/plain")))
 
-        field_dict.update(
-            {
-                "file": file,
-                "upload_metadata": upload_metadata,
-            }
-        )
-
-        return field_dict
+        return files
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         file = File(payload=BytesIO(d.pop("file")))
 
         upload_metadata = d.pop("upload_metadata")
 
-        body_upload_file_projects_project_id_upload_file_post = cls(
-            file=file,
-            upload_metadata=upload_metadata,
-        )
+        body_upload_file_projects_project_id_upload_file_post = cls(file=file, upload_metadata=upload_metadata)
 
         body_upload_file_projects_project_id_upload_file_post.additional_properties = d
         return body_upload_file_projects_project_id_upload_file_post

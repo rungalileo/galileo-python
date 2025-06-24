@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -119,13 +120,7 @@ class ExperimentResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "project_id": project_id,
-                "task_type": task_type,
-            }
-        )
+        field_dict.update({"id": id, "project_id": project_id, "task_type": task_type})
         if aggregate_feedback is not UNSET:
             field_dict["aggregate_feedback"] = aggregate_feedback
         if aggregate_metrics is not UNSET:
@@ -150,12 +145,12 @@ class ExperimentResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.experiment_dataset import ExperimentDataset
         from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
         from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         id = d.pop("id")
 
         project_id = d.pop("project_id")

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -31,19 +32,15 @@ class ExperimentUpdateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
         if task_type is not UNSET:
             field_dict["task_type"] = task_type
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         name = d.pop("name")
 
         def _parse_task_type(data: object) -> Union[Literal[16], Literal[17], Unset]:
@@ -60,10 +57,7 @@ class ExperimentUpdateRequest:
 
         task_type = _parse_task_type(d.pop("task_type", UNSET))
 
-        experiment_update_request = cls(
-            name=name,
-            task_type=task_type,
-        )
+        experiment_update_request = cls(name=name, task_type=task_type)
 
         experiment_update_request.additional_properties = d
         return experiment_update_request

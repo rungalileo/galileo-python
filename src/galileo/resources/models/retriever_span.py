@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -34,6 +35,7 @@ class RetrieverSpan:
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
+        step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
         type_ (Union[Literal['retriever'], Unset]): Type of the trace, span or session. Default: 'retriever'.
         user_metadata (Union[Unset, RetrieverSpanUserMetadata]): Metadata associated with this trace or span.
@@ -50,6 +52,7 @@ class RetrieverSpan:
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
     status_code: Union[None, Unset, int] = UNSET
+    step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     type_: Union[Literal["retriever"], Unset] = "retriever"
     user_metadata: Union[Unset, "RetrieverSpanUserMetadata"] = UNSET
@@ -107,6 +110,12 @@ class RetrieverSpan:
         else:
             status_code = self.status_code
 
+        step_number: Union[None, Unset, int]
+        if isinstance(self.step_number, Unset):
+            step_number = UNSET
+        else:
+            step_number = self.step_number
+
         tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
@@ -119,12 +128,7 @@ class RetrieverSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "input": input_,
-                "output": output,
-            }
-        )
+        field_dict.update({"input": input_, "output": output})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -143,6 +147,8 @@ class RetrieverSpan:
             field_dict["name"] = name
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
+        if step_number is not UNSET:
+            field_dict["step_number"] = step_number
         if tags is not UNSET:
             field_dict["tags"] = tags
         if type_ is not UNSET:
@@ -153,13 +159,13 @@ class RetrieverSpan:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document import Document
         from ..models.metrics import Metrics
         from ..models.retriever_span_dataset_metadata import RetrieverSpanDatasetMetadata
         from ..models.retriever_span_user_metadata import RetrieverSpanUserMetadata
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         input_ = d.pop("input")
 
         output = []
@@ -237,6 +243,15 @@ class RetrieverSpan:
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
+        def _parse_step_number(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        step_number = _parse_step_number(d.pop("step_number", UNSET))
+
         tags = cast(list[str], d.pop("tags", UNSET))
 
         type_ = cast(Union[Literal["retriever"], Unset], d.pop("type", UNSET))
@@ -262,6 +277,7 @@ class RetrieverSpan:
             metrics=metrics,
             name=name,
             status_code=status_code,
+            step_number=step_number,
             tags=tags,
             type_=type_,
             user_metadata=user_metadata,

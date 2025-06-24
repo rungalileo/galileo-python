@@ -1,8 +1,10 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.execution_status import ExecutionStatus
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -18,12 +20,12 @@ class Response:
     Attributes:
         text (str): Text from the request after processing the rules.
         trace_metadata (TraceMetadata):
-        status (Union[Unset, Any]): Status of the request after processing the rules. Default: 'not_triggered'.
+        status (Union[Unset, ExecutionStatus]): Status of the execution.
     """
 
     text: str
     trace_metadata: "TraceMetadata"
-    status: Union[Unset, Any] = "not_triggered"
+    status: Union[Unset, ExecutionStatus] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -31,37 +33,35 @@ class Response:
 
         trace_metadata = self.trace_metadata.to_dict()
 
-        status = self.status
+        status: Union[Unset, str] = UNSET
+        if not isinstance(self.status, Unset):
+            status = self.status.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "text": text,
-                "trace_metadata": trace_metadata,
-            }
-        )
+        field_dict.update({"text": text, "trace_metadata": trace_metadata})
         if status is not UNSET:
             field_dict["status"] = status
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.trace_metadata import TraceMetadata
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         text = d.pop("text")
 
         trace_metadata = TraceMetadata.from_dict(d.pop("trace_metadata"))
 
-        status = d.pop("status", UNSET)
+        _status = d.pop("status", UNSET)
+        status: Union[Unset, ExecutionStatus]
+        if isinstance(_status, Unset):
+            status = UNSET
+        else:
+            status = ExecutionStatus(_status)
 
-        response = cls(
-            text=text,
-            trace_metadata=trace_metadata,
-            status=status,
-        )
+        response = cls(text=text, trace_metadata=trace_metadata, status=status)
 
         response.additional_properties = d
         return response

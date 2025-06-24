@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -30,18 +31,14 @@ class MetricCritiqueContent:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "critique": critique,
-                "intended_value": intended_value,
-                "original_explanation": original_explanation,
-            }
+            {"critique": critique, "intended_value": intended_value, "original_explanation": original_explanation}
         )
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         critique = d.pop("critique")
 
         intended_value = d.pop("intended_value")
@@ -49,9 +46,7 @@ class MetricCritiqueContent:
         original_explanation = d.pop("original_explanation")
 
         metric_critique_content = cls(
-            critique=critique,
-            intended_value=intended_value,
-            original_explanation=original_explanation,
+            critique=critique, intended_value=intended_value, original_explanation=original_explanation
         )
 
         metric_critique_content.additional_properties = d

@@ -1,10 +1,12 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..models.agent_type import AgentType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -27,7 +29,7 @@ class AgentSpan:
     """
     Attributes:
         input_ (Union[list['Message'], str]): Input to the trace or span.
-        agent_type (Union[Unset, Any]): Agent type. Default: 'default'.
+        agent_type (Union[Unset, AgentType]):
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, AgentSpanDatasetMetadata]): Metadata from the dataset associated with this trace
@@ -41,13 +43,14 @@ class AgentSpan:
             spans.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
+        step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
         type_ (Union[Literal['agent'], Unset]): Type of the trace, span or session. Default: 'agent'.
         user_metadata (Union[Unset, AgentSpanUserMetadata]): Metadata associated with this trace or span.
     """
 
     input_: Union[list["Message"], str]
-    agent_type: Union[Unset, Any] = "default"
+    agent_type: Union[Unset, AgentType] = UNSET
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "AgentSpanDatasetMetadata"] = UNSET
@@ -59,6 +62,7 @@ class AgentSpan:
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
     spans: Union[Unset, list[Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]]] = UNSET
     status_code: Union[None, Unset, int] = UNSET
+    step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     type_: Union[Literal["agent"], Unset] = "agent"
     user_metadata: Union[Unset, "AgentSpanUserMetadata"] = UNSET
@@ -80,7 +84,9 @@ class AgentSpan:
         else:
             input_ = self.input_
 
-        agent_type = self.agent_type
+        agent_type: Union[Unset, str] = UNSET
+        if not isinstance(self.agent_type, Unset):
+            agent_type = self.agent_type.value
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -158,6 +164,12 @@ class AgentSpan:
         else:
             status_code = self.status_code
 
+        step_number: Union[None, Unset, int]
+        if isinstance(self.step_number, Unset):
+            step_number = UNSET
+        else:
+            step_number = self.step_number
+
         tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
@@ -170,11 +182,7 @@ class AgentSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "input": input_,
-            }
-        )
+        field_dict.update({"input": input_})
         if agent_type is not UNSET:
             field_dict["agent_type"] = agent_type
         if created_at is not UNSET:
@@ -199,6 +207,8 @@ class AgentSpan:
             field_dict["spans"] = spans
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
+        if step_number is not UNSET:
+            field_dict["step_number"] = step_number
         if tags is not UNSET:
             field_dict["tags"] = tags
         if type_ is not UNSET:
@@ -209,7 +219,7 @@ class AgentSpan:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agent_span_dataset_metadata import AgentSpanDatasetMetadata
         from ..models.agent_span_user_metadata import AgentSpanUserMetadata
         from ..models.document import Document
@@ -220,7 +230,7 @@ class AgentSpan:
         from ..models.tool_span import ToolSpan
         from ..models.workflow_span import WorkflowSpan
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_input_(data: object) -> Union[list["Message"], str]:
             try:
@@ -240,7 +250,12 @@ class AgentSpan:
 
         input_ = _parse_input_(d.pop("input"))
 
-        agent_type = d.pop("agent_type", UNSET)
+        _agent_type = d.pop("agent_type", UNSET)
+        agent_type: Union[Unset, AgentType]
+        if isinstance(_agent_type, Unset):
+            agent_type = UNSET
+        else:
+            agent_type = AgentType(_agent_type)
 
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
@@ -389,6 +404,15 @@ class AgentSpan:
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
+        def _parse_step_number(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        step_number = _parse_step_number(d.pop("step_number", UNSET))
+
         tags = cast(list[str], d.pop("tags", UNSET))
 
         type_ = cast(Union[Literal["agent"], Unset], d.pop("type", UNSET))
@@ -416,6 +440,7 @@ class AgentSpan:
             output=output,
             spans=spans,
             status_code=status_code,
+            step_number=step_number,
             tags=tags,
             type_=type_,
             user_metadata=user_metadata,

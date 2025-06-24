@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -36,21 +37,16 @@ class RenderTemplateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "data": data,
-                "template": template,
-            }
-        )
+        field_dict.update({"data": data, "template": template})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_data import DatasetData
         from ..models.string_data import StringData
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_data(data: object) -> Union["DatasetData", "StringData"]:
             try:
@@ -71,10 +67,7 @@ class RenderTemplateRequest:
 
         template = d.pop("template")
 
-        render_template_request = cls(
-            data=data,
-            template=template,
-        )
+        render_template_request = cls(data=data, template=template)
 
         render_template_request.additional_properties = d
         return render_template_request

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -73,12 +74,7 @@ class CreateScorerRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-                "scorer_type": scorer_type,
-            }
-        )
+        field_dict.update({"name": name, "scorer_type": scorer_type})
         if default_version_id is not UNSET:
             field_dict["default_version_id"] = default_version_id
         if defaults is not UNSET:
@@ -93,10 +89,10 @@ class CreateScorerRequest:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.scorer_defaults import ScorerDefaults
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         name = d.pop("name")
 
         scorer_type = ScorerTypes(d.pop("scorer_type"))

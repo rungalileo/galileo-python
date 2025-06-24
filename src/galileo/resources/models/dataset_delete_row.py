@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -50,8 +51,8 @@ class DatasetDeleteRow:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         edit_type = cast(Union[Literal["delete_row"], Unset], d.pop("edit_type", UNSET))
         if edit_type != "delete_row" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'delete_row', got '{edit_type}'")
@@ -74,11 +75,7 @@ class DatasetDeleteRow:
 
         row_id = _parse_row_id(d.pop("row_id", UNSET))
 
-        dataset_delete_row = cls(
-            edit_type=edit_type,
-            index=index,
-            row_id=row_id,
-        )
+        dataset_delete_row = cls(edit_type=edit_type, index=index, row_id=row_id)
 
         dataset_delete_row.additional_properties = d
         return dataset_delete_row

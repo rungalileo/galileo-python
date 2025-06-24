@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -161,12 +162,7 @@ class Model:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "alias": alias,
-                "name": name,
-            }
-        )
+        field_dict.update({"alias": alias, "name": name})
         if alternative_names is not UNSET:
             field_dict["alternative_names"] = alternative_names
         if api_version is not UNSET:
@@ -209,12 +205,12 @@ class Model:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.input_map import InputMap
         from ..models.output_map import OutputMap
         from ..models.run_params_map import RunParamsMap
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         alias = d.pop("alias")
 
         name = d.pop("name")

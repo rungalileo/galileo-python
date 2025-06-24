@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -65,12 +66,12 @@ class Ruleset:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.override_action import OverrideAction
         from ..models.passthrough_action import PassthroughAction
         from ..models.rule import Rule
 
-        d = src_dict.copy()
+        d = dict(src_dict)
 
         def _parse_action(data: object) -> Union["OverrideAction", "PassthroughAction", Unset]:
             if isinstance(data, Unset):
@@ -107,11 +108,7 @@ class Ruleset:
 
             rules.append(rules_item)
 
-        ruleset = cls(
-            action=action,
-            description=description,
-            rules=rules,
-        )
+        ruleset = cls(action=action, description=description, rules=rules)
 
         ruleset.additional_properties = d
         return ruleset

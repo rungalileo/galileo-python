@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -243,14 +244,14 @@ class CustomizedSexistGPTScorer:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.customized_sexist_gpt_scorer_aggregates_type_0 import CustomizedSexistGPTScorerAggregatesType0
         from ..models.customized_sexist_gpt_scorer_extra_type_0 import CustomizedSexistGPTScorerExtraType0
         from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
         from ..models.sexist_template import SexistTemplate
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         aggregate_keys = cast(list[str], d.pop("aggregate_keys", UNSET))
 
         def _parse_aggregates(data: object) -> Union["CustomizedSexistGPTScorerAggregatesType0", None, Unset]:

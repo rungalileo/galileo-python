@@ -1,8 +1,10 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.stage_type import StageType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -22,7 +24,7 @@ class StageWithRulesets:
         paused (Union[Unset, bool]): Whether the action is enabled. If False, the action will not be applied. Default:
             False.
         prioritized_rulesets (Union[Unset, list['Ruleset']]): Rulesets to be applied to the payload.
-        type_ (Union[Unset, Any]): Type of the stage. Default: 'local'.
+        type_ (Union[Unset, StageType]):
     """
 
     name: str
@@ -30,7 +32,7 @@ class StageWithRulesets:
     description: Union[None, Unset, str] = UNSET
     paused: Union[Unset, bool] = False
     prioritized_rulesets: Union[Unset, list["Ruleset"]] = UNSET
-    type_: Union[Unset, Any] = "local"
+    type_: Union[Unset, StageType] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -53,16 +55,13 @@ class StageWithRulesets:
                 prioritized_rulesets_item = prioritized_rulesets_item_data.to_dict()
                 prioritized_rulesets.append(prioritized_rulesets_item)
 
-        type_ = self.type_
+        type_: Union[Unset, str] = UNSET
+        if not isinstance(self.type_, Unset):
+            type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-                "project_id": project_id,
-            }
-        )
+        field_dict.update({"name": name, "project_id": project_id})
         if description is not UNSET:
             field_dict["description"] = description
         if paused is not UNSET:
@@ -75,10 +74,10 @@ class StageWithRulesets:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.ruleset import Ruleset
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         name = d.pop("name")
 
         project_id = d.pop("project_id")
@@ -101,7 +100,12 @@ class StageWithRulesets:
 
             prioritized_rulesets.append(prioritized_rulesets_item)
 
-        type_ = d.pop("type", UNSET)
+        _type_ = d.pop("type", UNSET)
+        type_: Union[Unset, StageType]
+        if isinstance(_type_, Unset):
+            type_ = UNSET
+        else:
+            type_ = StageType(_type_)
 
         stage_with_rulesets = cls(
             name=name,

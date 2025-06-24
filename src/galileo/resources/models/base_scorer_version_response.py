@@ -1,4 +1,5 @@
 import datetime
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -81,14 +82,7 @@ class BaseScorerVersionResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_at": created_at,
-                "id": id,
-                "updated_at": updated_at,
-                "version": version,
-            }
-        )
+        field_dict.update({"created_at": created_at, "id": id, "updated_at": updated_at, "version": version})
         if generated_scorer is not UNSET:
             field_dict["generated_scorer"] = generated_scorer
         if model_name is not UNSET:
@@ -101,11 +95,11 @@ class BaseScorerVersionResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
         from ..models.generated_scorer_response import GeneratedScorerResponse
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         created_at = isoparse(d.pop("created_at"))
 
         id = d.pop("id")

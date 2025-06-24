@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
@@ -25,26 +26,18 @@ class ToolCallFunction:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "arguments": arguments,
-                "name": name,
-            }
-        )
+        field_dict.update({"arguments": arguments, "name": name})
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         arguments = d.pop("arguments")
 
         name = d.pop("name")
 
-        tool_call_function = cls(
-            arguments=arguments,
-            name=name,
-        )
+        tool_call_function = cls(arguments=arguments, name=name)
 
         tool_call_function.additional_properties = d
         return tool_call_function
