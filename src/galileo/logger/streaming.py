@@ -74,7 +74,6 @@ class GalileoStreamingLogger(TracesLogger, IGalileoLogger):
 
     def add_llm_span(
         self,
-        trace_id: UUID4,
         input: LlmSpanAllowedInputType,
         output: LlmSpanAllowedOutputType,
         model: Optional[str],
@@ -140,3 +139,7 @@ class GalileoStreamingLogger(TracesLogger, IGalileoLogger):
         span_ingest_request = SpansIngestRequest(trace_id=self.trace_id, spans=[span])
         self._client.ingest_spans_sync(span_ingest_request)
         return span
+
+    def flush(self) -> list[Trace]: ...
+
+    async def async_flush(self) -> list[Trace]: ...
