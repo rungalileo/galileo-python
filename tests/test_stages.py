@@ -103,6 +103,34 @@ def test_create_stage_generates_name_and_type(mock_ts_name: Mock, mock_api: Mock
     assert stage.paused is True
 
 
+@patch("galileo.stages.create_stage_v2_projects_project_id_stages_post.sync")
+def test_create_central_stage_with_rulesets(mock_api: Mock):
+    rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+    stage_name = "test-central-stage-with-rules"
+    mock_api.return_value = _api_stage_db_factory(name=stage_name, stage_type=StageType.central)
+
+    stage_response = create_stage(
+        project_id=FIXED_PROJECT_ID, name=stage_name, rulesets=rules, stage_type=StageType.central
+    )
+
+    mock_api.assert_called_once()
+    api_call_args = mock_api.call_args.kwargs
+    body = api_call_args["body"]
+
+    assert stage_response.type == StageType.central
+    assert body.name == stage_name
+    assert body.type_ == StageType.central.value
+
+    assert len(body.prioritized_rulesets) == 1
+    api_ruleset = body.prioritized_rulesets[0]
+    for i, api_rule in enumerate(api_ruleset.rules):
+        rule = rules[i]
+        assert api_rule.metric == rule.metric
+        assert api_rule.operator.lower() == rule.operator.value.lower()
+        assert api_rule.target_value == rule.target_value
+    assert "rulesets" not in body.additional_properties
+
+
 @patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
 def test_get_stage_by_id(mock_api: Mock):
     mock_api.return_value = _api_stage_db_factory(stage_id=FIXED_STAGE_ID)
