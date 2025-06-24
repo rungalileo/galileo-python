@@ -30,22 +30,6 @@ class Protect(BaseClientModel, DecorateAllMethods):
         metadata: Optional[dict[str, str]] = None,
         headers: Optional[dict[str, str]] = None,
     ) -> Optional[Union[Response, HTTPValidationError]]:
-        """
-        Calls invoke api.
-
-        Returns
-        -------
-        Response
-            Various data from api
-
-        Raises
-        ------
-        errors.UnexpectedStatus
-            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException
-            If the request takes longer than Client.timeout.
-
-        """
         request = Request(
             payload=payload,
             prioritized_rulesets=prioritized_rulesets or [],
@@ -83,8 +67,7 @@ def invoke(
     metadata: Optional[dict[str, str]] = None,
     headers: Optional[dict[str, str]] = None,
 ) -> Optional[Union[Response, HTTPValidationError]]:
-    """
-    Invoke Protect with the given payload.
+    """Invoke Protect with the given payload.
 
     If using the local stage, the prioritized rulesets should be provided to ensure the
     correct rulesets are used for processing. If using a central stage, the rulesets
@@ -92,32 +75,22 @@ def invoke(
 
     Project ID and stage name, or stage ID should be provided for all invocations.
 
-    Parameters
-    ----------
-    payload : Payload
-        Payload to be processed.
-    prioritized_rulesets : Optional[Sequence[Ruleset]], optional
-        Prioritized rulesets to be used for processing. These should only be provided if
-        using a local stage, by default None, i.e. empty list.
-    project_id : Optional[UUID4], optional
-        Project ID to be used for processing, by default None.
-    project_name : Optional[str], optional
-        Project name to be used for processing, by default None.
-    stage_id : Optional[UUID4], optional
-        Stage ID to be used for processing, by default None.
-    stage_name : Optional[str], optional
-        Stage name to be used for processing, by default None.
-    timeout : float, optional
-        Timeout for the request, by default 10 seconds.
-    metadata : Optional[Dict[str, str]], optional
-        Metadata to be added when responding, by default None.
-    headers : Optional[Dict[str, str]], optional
-        Headers to be added to the response, by default None.
+    Args:
+        payload: Payload to be processed.
+        prioritized_rulesets: Prioritized rulesets to be used for processing.
+            These should only be provided if using a local stage. Defaults to an
+            empty list if None.
+        project_id: ID of the project.
+        project_name: Name of the project.
+        stage_id: ID of the stage.
+        stage_name: Name of the stage.
+        stage_version: Version of the stage.
+        timeout: Timeout for the request in seconds. Defaults to TIMEOUT_SECS.
+        metadata: Metadata to be added when responding.
+        headers: Headers to be added to the response.
 
-    Returns
-    -------
-    Response
-        Response from the Protect API.
+    Returns:
+        Protect invoke results.
     """
     return Protect().invoke(
         payload=payload,

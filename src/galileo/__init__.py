@@ -6,7 +6,6 @@
 from galileo.decorator import GalileoDecorator, galileo_context, log
 from galileo.logger import GalileoLogger
 from galileo.schema.message import Message
-from galileo.stages import Stages
 from galileo_core.helpers.api_key import create_api_key, delete_api_key, list_api_keys
 from galileo_core.helpers.dependencies import is_dependency_available
 from galileo_core.schemas.logging.llm import MessageRole, ToolCall, ToolCallFunction

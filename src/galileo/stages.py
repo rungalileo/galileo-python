@@ -28,7 +28,7 @@ def _get_project_id(
     client: Optional[GalileoApiClient] = None,
 ) -> Optional[str]:
     """
-    Helper function to resolve project ID from either project_id or project_name.
+    Resolves project ID from either project_id or project_name.
     """
     if project_id:
         return str(project_id)
@@ -48,7 +48,7 @@ def _get_stage_id(
     client: Optional[GalileoApiClient] = None,
 ) -> Optional[str]:
     """
-    Helper function to resolve stage ID from either stage_id or stage_name.
+    Resolves stage ID from either stage_id or stage_name.
     If stage_name is provided, it will look up the stage within the specified project.
     """
     if stage_id:
@@ -63,10 +63,6 @@ def _get_stage_id(
 
 
 class Stages(BaseClientModel, DecorateAllMethods):
-    """
-    Provides methods to create, retrieve, update, pause, and resume stages.
-    """
-
     def create(
         self,
         project_id: Union[str, UUID4],
@@ -76,23 +72,6 @@ class Stages(BaseClientModel, DecorateAllMethods):
         rulesets: Optional[list[Rule]] = None,
         description: Optional[str] = None,
     ) -> StageDB:
-        """
-        Creates a new stage.
-
-        Args:
-            project_id: The ID of the project.
-            name: Name of the stage. Defaults to a timestamped name if None.
-            stage_type: Type of the stage. Defaults to StageType.local.
-            pause: Whether the stage should be created in a paused state. Defaults to False.
-            rulesets: Optional list of rules for the stage.
-            description: Optional description for the stage.
-
-        Returns:
-            A Stage instance representing the newly created stage.
-
-        Raises:
-            ValueError: If project_id is not provided.
-        """
         if not project_id:
             raise ValueError("project_id must be provided for creating a stage.")
         actual_name = name or ts_name("stage")
@@ -125,23 +104,6 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        """
-        Retrieves a specific stage by its ID or name, within a given project.
-
-        Args:
-            project_id: The ID of the project.
-            project_name: The name of the project. If project_id is not provided,
-                          this will be used to look up the project.
-            stage_id: The ID of the stage to retrieve.
-            stage_name: The name of the stage to retrieve. If stage_id is not provided,
-                        this will be used (in conjunction with project_id/project_name).
-
-        Returns:
-            A StageDB instance representing the fetched stage.
-
-        Raises:
-            ValueError: If project identifiers or stage identifiers are insufficient or ambiguous.
-        """
         actual_project_id: Optional[str] = _get_project_id(
             project_id=project_id, project_name=project_name, client=self.client
         )
@@ -167,23 +129,6 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
         prioritized_rulesets: Optional[list[Rule]] = None,
     ) -> StageDB:
-        """
-        Updates a stage, typically its rulesets. This creates a new version of the stage.
-
-        Args:
-            project_id: The ID of the project.
-            project_name: The name of the project.
-            stage_id: The ID of the stage to update.
-            stage_name: The name of the stage to update.
-            prioritized_rulesets: The new list of prioritized rulesets for the stage.
-                                  If None, effectively clears rulesets (sends empty list).
-
-        Returns:
-            A StageDB instance representing the updated stage.
-
-        Raises:
-            ValueError: If project/stage identifiers are insufficient or the stage is not found.
-        """
         actual_project_id: Optional[str] = _get_project_id(
             project_id=project_id, project_name=project_name, client=self.client
         )
@@ -213,7 +158,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        """Internal method to set the pause state of a stage."""
+        """Sets the pause state of a stage."""
         actual_project_id: Optional[str] = _get_project_id(
             project_id=project_id, project_name=project_name, client=self.client
         )
@@ -236,7 +181,6 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        """Pauses a stage."""
         return self._set_pause_state(
             project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name, pause_flag=True
         )
@@ -248,7 +192,6 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        """Resumes a paused stage."""
         return self._set_pause_state(
             project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name, pause_flag=False
         )
@@ -261,20 +204,19 @@ def create_stage(
     pause: bool = False,
     rulesets: Optional[list[Rule]] = None,
     description: Optional[str] = None,
-) -> StageDB:
-    """
-    Convenience function to create a new stage.
+) -> Optional[StageDB]:
+    """Creates a new stage.
 
     Args:
         project_id: The ID of the project.
-        name: Name of the stage. Defaults to a timestamped name if None.
-        stage_type: Type of the stage. Defaults to StageType.local.
-        pause: Whether the stage should be created in a paused state. Defaults to False.
-        rulesets: Optional list of rules for the stage.
-        description: Optional description for the stage.
+        name: Name of the stage. Defaults to a generated name.
+        stage_type: Type of the stage.
+        pause: Whether the stage should be created in a paused state.
+        rulesets: List of rules for the stage.
+        description: Description for the stage.
 
     Returns:
-        A Stage instance representing the newly created stage.
+        The newly created Stage.
     """
     return Stages().create(
         project_id=project_id, name=name, stage_type=stage_type, pause=pause, rulesets=rulesets, description=description
@@ -286,18 +228,19 @@ def get_stage(
     project_name: Optional[str] = None,
     stage_id: Optional[Union[str, UUID4]] = None,
     stage_name: Optional[str] = None,
-) -> StageDB:
-    """
-    Convenience function to retrieve a specific stage by its ID or name.
+) -> Optional[StageDB]:
+    """Retrieves a stage by its ID or name, within a given project.
 
     Args:
-        project_id: The ID of the project.
-        project_name: The name of the project.
-        stage_id: The ID of the stage.
-        stage_name: The name of the stage.
+        project_id: ID of the project.
+        project_name: Name of the project. If `project_id` is not provided,
+                      this will be used to look up the project.
+        stage_id: ID of the stage to retrieve.
+        stage_name: Name of the stage to retrieve. If `stage_id` is not provided,
+                    this will be used (in conjunction with project ID/name).
 
     Returns:
-        A StageDB instance representing the fetched stage.
+        The fetched Stage.
     """
     return Stages().get(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
 
@@ -308,19 +251,21 @@ def update_stage(
     stage_id: Optional[Union[str, UUID4]] = None,
     stage_name: Optional[str] = None,
     prioritized_rulesets: Optional[list[Rule]] = None,
-) -> StageDB:
-    """
-    Convenience function to update a stage's rulesets.
+) -> Optional[StageDB]:
+    """Updates a stage's rulesets, creating a new version.
 
     Args:
-        project_id: The ID of the project.
-        project_name: The name of the project.
-        stage_id: The ID of the stage to update.
-        stage_name: The name of the stage to update.
-        prioritized_rulesets: The new list of prioritized rulesets.
+        project_id: ID of the project.
+        project_name: Name of the project. If `project_id` is not provided,
+                      this will be used to look up the project.
+        stage_id: ID of the stage to update.
+        stage_name: Name of the stage to update. If `stage_id` is not provided,
+                    this will be used (in conjunction with project ID/name).
+        prioritized_rulesets: New list of prioritized rulesets for the stage.
+                              If `None`, effectively clears existing rulesets.
 
     Returns:
-        A StageDB instance representing the updated stage.
+        The updated Stage.
     """
     return Stages().update(
         project_id=project_id,
@@ -336,18 +281,21 @@ def pause_stage(
     project_name: Optional[str] = None,
     stage_id: Optional[Union[str, UUID4]] = None,
     stage_name: Optional[str] = None,
-) -> StageDB:
-    """
-    Convenience function to pause a stage.
+) -> Optional[StageDB]:
+    """Pauses the specified stage.
+
+    Pauses a stage using either its ID or name within the context of a project.
 
     Args:
-        project_id: The ID of the project.
-        project_name: The name of the project.
-        stage_id: The ID of the stage to pause.
-        stage_name: The name of the stage to pause.
+        project_id: ID of the project containing the stage.
+        project_name: Name of the project containing the stage.
+                      (Used if `project_id` is not provided).
+        stage_id: ID of the stage to pause.
+        stage_name: Name of the stage to pause.
+                    (Used if `stage_id` is not provided).
 
     Returns:
-        A StageDB instance representing the stage with its updated pause state.
+        The Stage with its updated pause state.
     """
     return Stages().pause(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
 
@@ -357,17 +305,20 @@ def resume_stage(
     project_name: Optional[str] = None,
     stage_id: Optional[Union[str, UUID4]] = None,
     stage_name: Optional[str] = None,
-) -> StageDB:
-    """
-    Convenience function to resume a paused stage.
+) -> Optional[StageDB]:
+    """Resumes a previously paused stage.
+
+    Resumes a stage using either its ID or name within the context of a project.
 
     Args:
-        project_id: The ID of the project.
-        project_name: The name of the project.
-        stage_id: The ID of the stage to resume.
-        stage_name: The name of the stage to resume.
+        project_id: ID of the project containing the stage.
+        project_name: Name of the project containing the stage.
+                      (Used if `project_id` is not provided).
+        stage_id: ID of the stage to resume.
+        stage_name: Name of the stage to resume.
+                    (Used if `stage_id` is not provided).
 
     Returns:
-        A StageDB instance representing the stage with its updated pause state.
+        The Stage with its updated pause state.
     """
     return Stages().resume(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
