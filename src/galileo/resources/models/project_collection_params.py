@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -130,7 +131,7 @@ class ProjectCollectionParams:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.project_bookmark_filter import ProjectBookmarkFilter
         from ..models.project_bookmark_sort import ProjectBookmarkSort
         from ..models.project_created_at_filter import ProjectCreatedAtFilter
@@ -146,7 +147,7 @@ class ProjectCollectionParams:
         from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
         from ..models.project_updated_at_sort import ProjectUpdatedAtSort
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         filters = []
         _filters = d.pop("filters", UNSET)
         for filters_item_data in _filters or []:

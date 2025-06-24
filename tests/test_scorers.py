@@ -119,8 +119,8 @@ def test_get_scorer_version_success(get_scorer_version_mock: Mock):
     assert result.id == "b8933a6d-7a65-4ce3-bfe4-b863109a0425"
     assert result.version == 2
     # Access properties from additional_properties instead
-    assert result.additional_properties["model_name"] == "GPT-4o"
-    assert result.additional_properties["num_judges"] == 3
+    assert result.model_name == "GPT-4o"
+    assert result.num_judges == 3
     # Access generated_scorer as a dictionary
     assert result.generated_scorer["name"] == "test_generated_scorer"
     assert result.registered_scorer is None

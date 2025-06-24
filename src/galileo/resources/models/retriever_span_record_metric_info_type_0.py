@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
@@ -61,7 +62,7 @@ class RetrieverSpanRecordMetricInfoType0:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metric_computing import MetricComputing
         from ..models.metric_error import MetricError
         from ..models.metric_failed import MetricFailed
@@ -70,7 +71,7 @@ class RetrieverSpanRecordMetricInfoType0:
         from ..models.metric_pending import MetricPending
         from ..models.metric_success import MetricSuccess
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         retriever_span_record_metric_info_type_0 = cls()
 
         additional_properties = {}

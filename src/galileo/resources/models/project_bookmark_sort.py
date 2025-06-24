@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -42,8 +43,8 @@ class ProjectBookmarkSort:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         ascending = d.pop("ascending", UNSET)
 
         name = cast(Union[Literal["bookmark"], Unset], d.pop("name", UNSET))

@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -13,13 +14,11 @@ class ExperimentDataset:
     """
     Attributes:
         dataset_id (Union[None, Unset, str]):
-        dataset_version_id (Union[None, Unset, str]):
         name (Union[None, Unset, str]):
         version_index (Union[None, Unset, int]):
     """
 
     dataset_id: Union[None, Unset, str] = UNSET
-    dataset_version_id: Union[None, Unset, str] = UNSET
     name: Union[None, Unset, str] = UNSET
     version_index: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -30,12 +29,6 @@ class ExperimentDataset:
             dataset_id = UNSET
         else:
             dataset_id = self.dataset_id
-
-        dataset_version_id: Union[None, Unset, str]
-        if isinstance(self.dataset_version_id, Unset):
-            dataset_version_id = UNSET
-        else:
-            dataset_version_id = self.dataset_version_id
 
         name: Union[None, Unset, str]
         if isinstance(self.name, Unset):
@@ -54,8 +47,6 @@ class ExperimentDataset:
         field_dict.update({})
         if dataset_id is not UNSET:
             field_dict["dataset_id"] = dataset_id
-        if dataset_version_id is not UNSET:
-            field_dict["dataset_version_id"] = dataset_version_id
         if name is not UNSET:
             field_dict["name"] = name
         if version_index is not UNSET:
@@ -64,8 +55,8 @@ class ExperimentDataset:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
 
         def _parse_dataset_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -75,15 +66,6 @@ class ExperimentDataset:
             return cast(Union[None, Unset, str], data)
 
         dataset_id = _parse_dataset_id(d.pop("dataset_id", UNSET))
-
-        def _parse_dataset_version_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        dataset_version_id = _parse_dataset_version_id(d.pop("dataset_version_id", UNSET))
 
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -103,9 +85,7 @@ class ExperimentDataset:
 
         version_index = _parse_version_index(d.pop("version_index", UNSET))
 
-        experiment_dataset = cls(
-            dataset_id=dataset_id, dataset_version_id=dataset_version_id, name=name, version_index=version_index
-        )
+        experiment_dataset = cls(dataset_id=dataset_id, name=name, version_index=version_index)
 
         experiment_dataset.additional_properties = d
         return experiment_dataset

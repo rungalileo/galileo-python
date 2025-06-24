@@ -16,9 +16,8 @@ def _get_kwargs(project_id: str, group_id: str, *, body: CollaboratorUpdate) -> 
 
     _kwargs: dict[str, Any] = {"method": "patch", "url": f"/projects/{project_id}/groups/{group_id}"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
