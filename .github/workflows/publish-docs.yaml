@@ -54,6 +54,7 @@ jobs:
         run: |
           rm -rf ./docs-official/sdk-api/python/reference
           rm ./galileo-python/.generated_docs/reference/sidebar.json
+          rm ./galileo-python/.generated_docs/reference/**/__init__.md
           cp -r ./galileo-python/.generated_docs/reference ./docs-official/sdk-api/python/
 
       # Commit the changes to the branch, and push
