@@ -42,7 +42,7 @@ class Protect(BaseClientModel, DecorateAllMethods):
             metadata=metadata,
             headers=headers,
         )
-        request_dict = request.model_dump()
+        request_dict = request.model_dump(mode="json")
         request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
         body = APIRequest.from_dict(request_dict)
 

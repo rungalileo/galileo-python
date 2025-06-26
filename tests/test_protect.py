@@ -6,9 +6,11 @@ from pytest import mark
 
 from galileo.handlers.langchain.tool import ProtectTool
 from galileo.protect import Protect, invoke
+from galileo.resources.models.execution_status import ExecutionStatus as APIExecutionStatus
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.request import Request as APIRequest
 from galileo.resources.models.response import Response as APIResponse
+from galileo.resources.models.validation_error import ValidationError
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.request import Request
@@ -32,7 +34,7 @@ def invoke_response_data() -> dict:
             "response_at": 1234567990,
             "execution_time": 100.0,
         },
-        "status": ExecutionStatus.not_triggered,
+        "status": ExecutionStatus.not_triggered.upper(),
         "metric_results": {"sentiment_score": 0.95, "toxicity_level": 0.1},
         "ruleset_results": [
             {
@@ -45,11 +47,11 @@ def invoke_response_data() -> dict:
                         "rule_name": "check-sentiment",
                         "action_result": {"action": "PASSTHROUGH"},
                         "metric_results": {"sentiment_score": 0.95},
-                        "status": ExecutionStatus.not_triggered,
+                        "status": ExecutionStatus.not_triggered.upper(),
                         "conditions_results": [],
                     }
                 ],
-                "status": ExecutionStatus.not_triggered,
+                "status": ExecutionStatus.not_triggered.upper(),
             }
         ],
         "api_version": "1.0.0",
@@ -140,7 +142,7 @@ class TestInvoke:
             headers=headers,
         )
 
-        body_dict = body.model_dump()
+        body_dict = body.model_dump(mode="json")
         body_dict["prioritized_rulesets"] = body_dict.pop("rulesets", [])
         expected_body = APIRequest.from_dict(body_dict)
 
@@ -150,7 +152,7 @@ class TestInvoke:
 
         response_data = invoke_response_data()
         assert result.text == response_data["text"]
-        assert result.status == response_data["status"]
+        assert result.status == response_data["status"].lower()
         assert str(result.trace_metadata.id) == response_data["trace_metadata"]["id"]
 
         for key in ["action_result", "stage_metadata", "metric_results", "ruleset_results", "api_version"]:
@@ -241,3 +243,43 @@ def test_invoke_api_validation_error(mock_invoke_post_sync: Mock):
     class_method_result = Protect().invoke(payload=payload, stage_id=uuid4())
     assert isinstance(class_method_result, HTTPValidationError)
     assert class_method_result.detail[0]["msg"] == "Field required"
+
+
+@mark.parametrize(
+    "status, expected",
+    [
+        ("not_triggered", "not_triggered"),
+        ("NOT_TRIGGERED", "not_triggered"),
+        ("Not_Triggered", "not_triggered"),
+        ("NoT_TRiGgErEd", "not_triggered"),
+        ("triggered", "triggered"),
+        ("TRIGGERED", "triggered"),
+    ],
+)
+def test_execution_status_case_insensitive(status: str, expected: str):
+    """
+    Tests that APIExecutionStatus can be initialized
+    with strings of various casings.
+    """
+    parsed_status = APIExecutionStatus(status)
+    assert parsed_status.value == expected
+
+
+def test_string_http_validation_error():
+    """
+    Tests that HTTPValidationError correctly parses a 'detail' field
+    that is a simple string.
+    """
+    error_message = "A simple error message from API."
+    error_dict = {"detail": error_message}
+
+    validation_error = HTTPValidationError.from_dict(error_dict)
+
+    assert isinstance(validation_error, HTTPValidationError)
+    assert len(validation_error.detail) == 1
+    detail_item = validation_error.detail[0]
+
+    assert isinstance(detail_item, ValidationError)
+    assert detail_item.loc == ["api"]
+    assert detail_item.msg == error_message
+    assert detail_item.type_ == "string"

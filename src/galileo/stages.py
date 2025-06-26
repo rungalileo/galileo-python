@@ -85,7 +85,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
             prioritized_rulesets=[Ruleset(rules=rulesets)] if rulesets else [],
         )
 
-        request_dict = request.model_dump()
+        request_dict = request.model_dump(mode="json")
         request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
         body = APIStageWithRulesets.from_dict(request_dict)
 
