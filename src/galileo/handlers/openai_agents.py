@@ -4,8 +4,7 @@ from typing import Any, Optional
 
 from agents import Span, Trace, TracingProcessor
 
-from galileo import galileo_context
-from galileo.logger import GalileoLogger
+from galileo import GalileoLogger, galileo_context
 from galileo.schema.handlers import Node
 from galileo.utils import _get_timestamp
 from galileo.utils.catch_log import DecorateAllMethods

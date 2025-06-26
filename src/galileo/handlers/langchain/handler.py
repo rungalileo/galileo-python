@@ -118,6 +118,14 @@ class GalileoCallback(BaseCallbackHandler):
         if metadata is not None:
             metadata = convert_to_string_dict(metadata)
 
+        step_number = metadata.get("langgraph_step") if metadata else None
+        if step_number is not None:
+            try:
+                step_number = int(step_number)
+            except Exception as e:
+                _logger.warning(f"Invalid step number: {step_number}, exception raised {e}")
+                step_number = None
+
         # Log the current node based on its type
         if node.node_type in ("agent", "chain"):
             self._galileo_logger.add_workflow_span(
@@ -128,6 +136,7 @@ class GalileoCallback(BaseCallbackHandler):
                 metadata=metadata,
                 tags=tags,
                 created_at=created_at,
+                step_number=step_number,
             )
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
@@ -146,6 +155,7 @@ class GalileoCallback(BaseCallbackHandler):
                 total_tokens=node.span_params.get("total_tokens"),
                 time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
                 created_at=created_at,
+                step_number=step_number,
             )
         elif node.node_type == "retriever":
             self._galileo_logger.add_retriever_span(
@@ -156,6 +166,7 @@ class GalileoCallback(BaseCallbackHandler):
                 metadata=metadata,
                 tags=tags,
                 created_at=created_at,
+                step_number=step_number,
             )
         elif node.node_type == "tool":
             self._galileo_logger.add_tool_span(
@@ -166,6 +177,7 @@ class GalileoCallback(BaseCallbackHandler):
                 metadata=metadata,
                 tags=tags,
                 created_at=created_at,
+                step_number=step_number,
             )
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
@@ -475,12 +487,22 @@ class GalileoCallback(BaseCallbackHandler):
         *,
         run_id: UUID,
         parent_run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a retriever node starts."""
         node_type = "retriever"
         node_name = self._get_node_name(node_type, serialized)
-        self._start_node(node_type, parent_run_id, run_id, name=node_name, input=serialize_to_str(query))
+        self._start_node(
+            node_type,
+            parent_run_id,
+            run_id,
+            name=node_name,
+            input=serialize_to_str(query),
+            tags=tags,
+            metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
+        )
 
     def on_retriever_end(
         self, documents: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
