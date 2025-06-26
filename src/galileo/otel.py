@@ -38,6 +38,7 @@ from __future__ import annotations
 import importlib
 import logging
 import os
+import urllib.parse
 from uuid import UUID
 
 from opentelemetry import trace
@@ -46,7 +47,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 from galileo.api_client import GalileoApiClient
-from galileo.constants import DEFAULT_APP_URL
+from galileo.constants import DEFAULT_API_URL, DEFAULT_APP_URL
 
 logger = logging.getLogger(__name__)
 
@@ -56,16 +57,15 @@ def _set_destination(console_url: str) -> str:
     Parse the console_url and return the destination for the OpenTelemetry traces.
     """
     destination = console_url or GalileoApiClient.get_console_url()
-    # If the destination is the default app url, return the app url with the api path
-    if destination == DEFAULT_APP_URL:  # "https://app.galileo.ai/"
-        return "https://app.galileo.ai/api/galileo/otel/traces"
-    else:
-        destination = destination.replace("console.", "api.")
+    destination = destination.replace("console.", "api.")
+    parsed_url = urllib.parse.urlparse(destination)
+    if parsed_url.netloc in [
+        urllib.parse.urlparse(DEFAULT_APP_URL).netloc,
+        urllib.parse.urlparse(DEFAULT_API_URL).netloc,
+    ]:
+        return f"{DEFAULT_APP_URL}api/galileo/otel/traces"
 
-    if destination[-1] == "/":
-        destination = destination[:-1]
-
-    return destination + "/otel/traces"
+    return f"{parsed_url.scheme}://{parsed_url.netloc}/otel/traces"
 
 
 def enable_tracing(

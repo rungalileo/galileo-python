@@ -154,22 +154,17 @@ def test_enable_tracing_no_session_id(
 
 
 @pytest.mark.parametrize(
-    "console_url, get_console_url_return, expected_endpoint",
+    "console_url, expected_endpoint",
     [
-        ("https://console.customer.com/env/prod", None, "console.customer.com/env/prod"),
-        ("https://api.customer.com/otel/traces", None, "api.customer.com/otel/traces"),
-        ("", DEFAULT_API_URL, "api.arize.com/otel/traces"),
-        ("", DEFAULT_APP_URL, "app.dev.galileo.ai/api/galileo/otel/traces"),
-        (DEFAULT_APP_URL, None, "app.dev.galileo.ai/"),  # Because url.path is '/'
-        ("https://console.arize.com/", None, "console.arize.com/"),  # Because url.path is '/'
-        ("https://console.arize.com", None, "api.arize.com/otel/traces"),
+        ("https://console.customer.com/env/prod", "https://api.customer.com/otel/traces"),
+        ("https://api.customer.com/otel/traces", "https://api.customer.com/otel/traces"),
+        ("", "http://localtest:8088/otel/traces"),
+        (DEFAULT_APP_URL, "https://app.galileo.ai/api/galileo/otel/traces"),
+        (DEFAULT_API_URL, "https://app.galileo.ai/api/galileo/otel/traces"),
+        ("https://console.example.com/", "https://api.example.com/otel/traces"),
     ],
 )
-@patch("galileo.api_client.GalileoApiClient.get_console_url")
-def test_set_destination(mock_get_console_url, console_url, get_console_url_return, expected_endpoint):
-    if get_console_url_return:
-        mock_get_console_url.return_value = get_console_url_return
-
+def test_set_destination(console_url, expected_endpoint):
     assert _set_destination(console_url) == expected_endpoint
 
 
