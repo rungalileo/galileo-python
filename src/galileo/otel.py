@@ -35,53 +35,38 @@ workflows.
 
 from __future__ import annotations
 
+import importlib
 import logging
 import os
-import sys
-from typing import Optional, TextIO, Union
-from urllib.parse import urlparse
-import importlib
 from uuid import UUID
 
 from opentelemetry import trace
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import BatchSpanProcessor, ConsoleSpanExporter
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
 
 from galileo.api_client import GalileoApiClient
-from galileo.constants import DEFAULT_API_URL, DEFAULT_APP_URL
+from galileo.constants import DEFAULT_APP_URL
 
 logger = logging.getLogger(__name__)
 
+
 def _set_destination(console_url: str) -> str:
+    """
+    Parse the console_url and return the destination for the OpenTelemetry traces.
+    """
     destination = console_url or GalileoApiClient.get_console_url()
-    url = urlparse(destination)
-
-    # This logic is derived from the unit tests.
+    # If the destination is the default app url, return the app url with the api path
     if destination == DEFAULT_APP_URL:  # "https://app.galileo.ai/"
-        if console_url:  # Passed as parameter
-            return "app.dev.galileo.ai/"
-        else:  # from get_console_url
-            return "app.dev.galileo.ai/api/galileo/otel/traces"
+        return "https://app.galileo.ai/api/galileo/otel/traces"
+    else:
+        destination = destination.replace("console.", "api.")
 
-    if destination == DEFAULT_API_URL:  # "https://api.galileo.ai/"
-        # This test case is very weird, but we implement to pass the test
-        return "api.arize.com/otel/traces"
+    if destination[-1] == "/":
+        destination = destination[:-1]
 
-    if url.netloc == "console.arize.com":
-        if url.path == "/":
-            return "console.arize.com/"
-        else:
-            return "api.arize.com/otel/traces"
+    return destination + "/otel/traces"
 
-    if url.path and url.path != "/":
-        return url.netloc + url.path
-
-    if url.path == "/":
-        return url.netloc + url.path
-
-    return url.netloc.replace("console.", "api.") + "/otel/traces"
 
 def enable_tracing(
     *,
@@ -123,31 +108,19 @@ def enable_tracing(
     log_stream = log_stream or os.getenv("GALILEO_LOG_STREAM")
 
     if not api_key:
-        raise ValueError(
-            "Galileo API key missing – provide `api_key=` or set GALILEO_API_KEY env‑var"
-        )
+        raise ValueError("Galileo API key missing – provide `api_key=` or set GALILEO_API_KEY env‑var")
     if not project_name:
-        raise ValueError(
-            "Galileo project name missing – provide `project_name=` or set GALILEO_PROJECT env‑var"
-        )
+        raise ValueError("Galileo project name missing – provide `project_name=` or set GALILEO_PROJECT env‑var")
     if not log_stream:
-        raise ValueError(
-            "Galileo log_stream name missing – provide `log_stream=` or set GALILEO_LOG_STREAM env‑var"
-        )
+        raise ValueError("Galileo log_stream name missing – provide `log_stream=` or set GALILEO_LOG_STREAM env‑var")
 
-    galileo_headers = {
-        "Galileo-API-Key": api_key,
-        "project": project_name,
-        "logstream": log_stream,
-    }
+    galileo_headers = {"Galileo-API-Key": api_key, "project": project_name, "logstream": log_stream}
 
     if session_id:
         galileo_headers["session_id"] = str(session_id)
 
     # Make headers discoverable for *other* OTLP aware libs
-    os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(
-        f"{k}={v}" for k, v in galileo_headers.items()
-    )
+    os.environ["OTEL_EXPORTER_OTLP_TRACES_HEADERS"] = ",".join(f"{k}={v}" for k, v in galileo_headers.items())
 
     # Spin up a TracerProvider with **Batch** processor
     provider = TracerProvider()
@@ -164,9 +137,7 @@ def enable_tracing(
         _safe_instrument("openinference.instrumentation.vertexai", "VertexAIInstrumentor")
         _safe_instrument("openinference.instrumentation.llama_index", "LlamaIndexInstrumentor")
 
-
     logger.info("Galileo tracing enabled – exporting to %s", endpoint)
-
 
 
 def _safe_instrument(module_path: str, class_name: str) -> None:
@@ -182,4 +153,3 @@ def _safe_instrument(module_path: str, class_name: str) -> None:
         logger.debug("%s not installed – skipping instrumentation", module_path)
     except Exception as exc:  # pylint: disable=broad-except
         logger.warning("Failed to auto-instrument %s: %s", module_path, exc)
-
