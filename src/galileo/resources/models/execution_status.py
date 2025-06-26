@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 
 
 class ExecutionStatus(str, Enum):
@@ -14,10 +15,9 @@ class ExecutionStatus(str, Enum):
         return str(self.value)
 
     @classmethod
-    def _missing_(cls, value):
+    def _missing_(cls, value: object) -> Optional["ExecutionStatus"]:
         if isinstance(value, str):
-            lower_value = value.lower()
             for member in cls:
-                if member.value == lower_value:
+                if member.value == value.lower():
                     return member
         return None

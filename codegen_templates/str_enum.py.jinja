@@ -1,0 +1,22 @@
+from enum import Enum
+{% if enum.class_info.name == "ExecutionStatus" %}
+from typing import Optional
+{% endif %}
+
+class {{ enum.class_info.name }}(str, Enum):
+    {% for key, value in enum.values|dictsort(true) %}
+    {{ key }} = "{{ value }}"
+    {% endfor %}
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+    {% if enum.class_info.name == "ExecutionStatus" %}
+    @classmethod
+    def _missing_(cls, value: object) -> Optional["{{ enum.class_info.name }}"]:
+        if isinstance(value, str):
+            for member in cls:
+                if member.value == value.lower():
+                    return member
+        return None
+    {% endif %}
