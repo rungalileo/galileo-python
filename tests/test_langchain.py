@@ -160,7 +160,7 @@ class TestGalileoCallback:
         assert len(traces) == 1
         assert len(traces[0].spans) == 1
         assert traces[0].spans[0].name == "Agent"
-        assert traces[0].spans[0].type == "workflow"
+        assert traces[0].spans[0].type == "agent"
         assert (
             traces[0].spans[0].input
             == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?"}]}'
@@ -186,7 +186,7 @@ class TestGalileoCallback:
         assert len(traces) == 1
         assert len(traces[0].spans) == 1
         assert traces[0].spans[0].name == "Agent"
-        assert traces[0].spans[0].type == "workflow"
+        assert traces[0].spans[0].type == "agent"
         assert traces[0].spans[0].input == '{"input": "test input"}'
         assert traces[0].spans[0].output == '{"return_values": {"output": "test result"}, "log": "log message"}'
         assert traces[0].spans[0].step_number is None
@@ -799,7 +799,7 @@ class TestGalileoCallback:
                 "on_chain_end",
                 {"serialized": {"name": "Agent"}, "inputs": {"query": "test"}},
                 {"outputs": {"result": "answer"}},
-                "workflow",
+                "agent",
             ),
         ],
     )
