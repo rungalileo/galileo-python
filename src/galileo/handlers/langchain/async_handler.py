@@ -1,10 +1,12 @@
 import json
 import logging
 import time
+from datetime import datetime, timezone
 from typing import Any, Optional
 from uuid import UUID
 
 from galileo import galileo_context
+from galileo.handlers.langchain.handler import GalileoCallback
 from galileo.logger import GalileoLogger
 from galileo.schema.handlers import LANGCHAIN_NODE_TYPE, Node
 from galileo.utils.serialization import EventSerializer, convert_to_string_dict, serialize_to_str
@@ -108,14 +110,32 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         name = node.span_params.get("name")
         metadata = node.span_params.get("metadata")
         tags = node.span_params.get("tags")
+        created_at = node.span_params.get("created_at")
 
         # Convert metadata to a dict[str, str]
         if metadata is not None:
             metadata = convert_to_string_dict(metadata)
 
+        step_number = metadata.get("langgraph_step") if metadata else None
+        if step_number is not None:
+            try:
+                step_number = int(step_number)
+            except Exception as e:
+                _logger.warning(f"Invalid step number: {step_number}, exception raised {e}")
+                step_number = None
+
         # Log the current node based on its type
         if node.node_type in ("agent", "chain"):
-            self._galileo_logger.add_workflow_span(input=input_, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_workflow_span(
+                input=input_,
+                output=output,
+                name=name,
+                duration_ns=node.span_params.get("duration_ns"),
+                metadata=metadata,
+                tags=tags,
+                created_at=created_at,
+                step_number=step_number,
+            )
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
             self._galileo_logger.add_llm_span(
@@ -125,19 +145,38 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
                 temperature=node.span_params.get("temperature"),
                 tools=node.span_params.get("tools"),
                 name=name,
+                duration_ns=node.span_params.get("duration_ns"),
                 metadata=metadata,
                 tags=tags,
                 num_input_tokens=node.span_params.get("num_input_tokens"),
                 num_output_tokens=node.span_params.get("num_output_tokens"),
                 total_tokens=node.span_params.get("total_tokens"),
                 time_to_first_token_ns=node.span_params.get("time_to_first_token_ns"),
+                created_at=created_at,
+                step_number=step_number,
             )
         elif node.node_type == "retriever":
             self._galileo_logger.add_retriever_span(
-                input=input_, output=output, name=name, metadata=metadata, tags=tags
+                input=input_,
+                output=output,
+                name=name,
+                duration_ns=node.span_params.get("duration_ns"),
+                metadata=metadata,
+                tags=tags,
+                created_at=created_at,
+                step_number=step_number,
             )
         elif node.node_type == "tool":
-            self._galileo_logger.add_tool_span(input=input_, output=output, name=name, metadata=metadata, tags=tags)
+            self._galileo_logger.add_tool_span(
+                input=input_,
+                output=output,
+                name=name,
+                duration_ns=node.span_params.get("duration_ns"),
+                metadata=metadata,
+                tags=tags,
+                created_at=created_at,
+                step_number=step_number,
+            )
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
 
@@ -186,6 +225,14 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
 
         # Create new node
         node = Node(node_type=node_type, span_params=kwargs, run_id=run_id, parent_run_id=parent_run_id)
+
+        # start_time is used to calculate duration_ns
+        if "start_time" not in node.span_params:
+            node.span_params["start_time"] = time.perf_counter_ns()
+
+        if "created_at" not in node.span_params:
+            node.span_params["created_at"] = datetime.now(tz=timezone.utc)
+
         self._nodes[node_id] = node
 
         # Set as root node if needed
@@ -221,6 +268,8 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             _logger.debug(f"No node exists for run_id {node_id}")
             return
 
+        node.span_params["duration_ns"] = time.perf_counter_ns() - node.span_params["start_time"]
+
         # Update node parameters
         node.span_params.update(**kwargs)
 
@@ -241,10 +290,10 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
     ) -> Any:
         """Langchain callback when a chain starts."""
         node_type = "chain"
-        node_name = serialized.get("name", None) or kwargs.get("name", "Chain")
+        node_name = GalileoCallback._get_node_name(node_type, serialized)
 
-        # If the `name` is `LangGraph` or `agent`, set the node type to `agent`.
-        if node_name in ["LangGraph", "agent"]:
+        # If the `name` is `LangGraph` or `Agent`, set the node type to `agent`.
+        if node_name in ["LangGraph", "Agent"]:
             node_type = "agent"
             node_name = "Agent"
 
@@ -285,21 +334,23 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
 
         Note: This callback is only used for non-chat models.
         """
+        node_type = "llm"
+        node_name = GalileoCallback._get_node_name(node_type, serialized)
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model_name", "")
         temperature = invocation_params.get("temperature", 0.0)
 
         await self._start_node(
-            "llm",
+            node_type,
             parent_run_id,
             run_id,
-            name="LLM",
+            name=node_name,
             input=[{"content": p, "role": "user"} for p in prompts],
             tags=tags,
             model=model,
             temperature=temperature,
             metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
-            start_time=time.perf_counter(),
+            start_time=time.perf_counter_ns(),
             time_to_first_token_ns=None,
         )
 
@@ -312,7 +363,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         if "time_to_first_token_ns" not in node.span_params or node.span_params["time_to_first_token_ns"] is None:
             start_time = node.span_params.get("start_time")
             if start_time is not None:
-                node.span_params["time_to_first_token_ns"] = (time.perf_counter() - start_time) * 1e9
+                node.span_params["time_to_first_token_ns"] = time.perf_counter_ns() - start_time
 
     async def on_chat_model_start(
         self,
@@ -326,6 +377,8 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a chat model starts."""
+        node_type = "chat"
+        node_name = GalileoCallback._get_node_name(node_type, serialized)
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model", invocation_params.get("_type", "undefined-type"))
         temperature = invocation_params.get("temperature", 0.0)
@@ -340,10 +393,10 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             serialized_messages = str(messages)
 
         await self._start_node(
-            "chat",
+            node_type,
             parent_run_id,
             run_id,
-            name="Chat Model",
+            name=node_name,
             input=serialized_messages,
             tools=json.loads(json.dumps(tools, cls=EventSerializer)) if tools else None,
             tags=tags,
@@ -386,11 +439,13 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a tool node starts."""
+        node_type = "tool"
+        node_name = GalileoCallback._get_node_name(node_type, serialized)
         await self._start_node(
-            "tool",
+            node_type,
             parent_run_id,
             run_id,
-            name="Tool",
+            name=node_name,
             input=input_str,
             tags=tags,
             metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
@@ -415,10 +470,22 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         *,
         run_id: UUID,
         parent_run_id: Optional[UUID] = None,
+        tags: Optional[list[str]] = None,
+        metadata: Optional[dict[str, Any]] = None,
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a retriever node starts."""
-        await self._start_node("retriever", parent_run_id, run_id, name="Retriever", input=serialize_to_str(query))
+        node_type = "retriever"
+        node_name = GalileoCallback._get_node_name(node_type, serialized)
+        await self._start_node(
+            node_type,
+            parent_run_id,
+            run_id,
+            name=node_name,
+            input=serialize_to_str(query),
+            tags=tags,
+            metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
+        )
 
     async def on_retriever_end(
         self, documents: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any

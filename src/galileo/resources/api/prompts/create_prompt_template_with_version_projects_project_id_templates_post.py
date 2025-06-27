@@ -16,9 +16,8 @@ def _get_kwargs(project_id: str, *, body: CreatePromptTemplateWithVersionRequest
 
     _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/templates"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers

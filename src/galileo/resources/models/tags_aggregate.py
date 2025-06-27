@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -42,10 +43,10 @@ class TagsAggregate:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.tags_aggregate_counts import TagsAggregateCounts
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         counts = TagsAggregateCounts.from_dict(d.pop("counts"))
 
         unrated_count = d.pop("unrated_count")

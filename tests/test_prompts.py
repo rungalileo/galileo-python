@@ -1,3 +1,4 @@
+import datetime
 import json
 from http import HTTPStatus
 from unittest.mock import Mock, patch
@@ -39,6 +40,7 @@ def projects_response():
 
 
 def prompt_template():
+    date_str = datetime.datetime.now().isoformat()
     return BasePromptTemplateResponse.from_dict(
         {
             "all_available_versions": [0],
@@ -49,6 +51,14 @@ def prompt_template():
                 "id": "03487fd7-1032-4317-ac43-a68401c07ee9",
                 "template": '[{"content":"you are a helpful assistant","role":"system"},{"content":"why is sky blue?","role":"user"}]',
                 "version": 0,
+                "created_at": date_str,
+                "lines_added": 2,
+                "lines_edited": 0,
+                "lines_removed": 0,
+                "model_changed": False,
+                "settings": {},
+                "settings_changed": False,
+                "updated_at": date_str,
             },
             "selected_version_id": "03487fd7-1032-4317-ac43-a68401c07ee9",
             "template": '[{"content":"you are a helpful assistant","role":"system"},{"content":"why is sky blue?","role":"user"}]',
@@ -58,8 +68,24 @@ def prompt_template():
                     "id": "03487fd7-1032-4317-ac43-a68401c07ee9",
                     "template": '[{"content":"you are a helpful assistant","role":"system"},{"content":"why is sky blue?","role":"user"}]',
                     "version": 0,
+                    "created_at": date_str,
+                    "lines_added": 2,
+                    "lines_edited": 0,
+                    "lines_removed": 0,
+                    "model_changed": False,
+                    "settings": {},
+                    "settings_changed": False,
+                    "updated_at": date_str,
                 }
             ],
+            "created_at": date_str,
+            "updated_at": date_str,
+            "creator": {
+                "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                "first_name": "Andrii",
+                "last_name": "Soldatenko",
+                "email": "andriisoldatenko@galileo.ai",
+            },
         }
     )
 
@@ -118,5 +144,38 @@ def test_list_prompts(list_prompt_templates_mock: Mock, get_projects_projects_ge
     assert len(templates) == 1
     assert templates[0].name == "andrii-good-prompt"
 
+    list_prompt_templates_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_get_prompt_template_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock):
+    """Test get_prompt_template when template exists."""
+    list_prompt_templates_mock.sync.return_value = [prompt_template()]
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    from galileo.prompts import get_prompt_template
+
+    template = get_prompt_template(name="andrii-good-prompt", project="andrii-new-project")
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    list_prompt_templates_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_get_prompt_template_not_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock):
+    """Test get_prompt_template when template doesn't exist."""
+    list_prompt_templates_mock.sync.return_value = [prompt_template()]  # Return a different template
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    from galileo.prompts import get_prompt_template
+
+    template = get_prompt_template(name="nonexistent-template", project="andrii-new-project")
+
+    assert template is None
     list_prompt_templates_mock.sync.assert_called_once()
     get_projects_projects_get_mock.sync_detailed.assert_called_once()

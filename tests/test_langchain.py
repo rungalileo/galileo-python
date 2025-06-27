@@ -1,3 +1,4 @@
+import time
 import uuid
 from unittest.mock import MagicMock, Mock, patch
 
@@ -9,16 +10,16 @@ from langchain_core.messages import AIMessage, HumanMessage
 from galileo import Message, MessageRole
 from galileo.handlers.langchain import GalileoCallback
 from galileo.handlers.langchain.handler import _root_node
-from galileo.logger import GalileoLogger
+from galileo.logger.logger import GalileoLogger
 from galileo_core.schemas.shared.document import Document as GalileoDocument
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
 
 class TestGalileoCallback:
     @pytest.fixture
-    @patch("galileo.logger.LogStreams")
-    @patch("galileo.logger.Projects")
-    @patch("galileo.logger.GalileoCoreApiClient")
+    @patch("galileo.logger.logger.LogStreams")
+    @patch("galileo.logger.logger.Projects")
+    @patch("galileo.logger.logger.GalileoCoreApiClient")
     def galileo_logger(self, mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock):
         """Creates a mock Galileo logger for testing"""
         setup_mock_core_api_client(mock_core_api_client)
@@ -65,6 +66,7 @@ class TestGalileoCallback:
         assert "name" in node.span_params
         assert node.span_params["name"] == "Parent Chain"
         assert str(parent_id) in callback._nodes
+        assert "start_time" in node.span_params
 
         # Create a child node
         child_id = uuid.uuid4()
@@ -111,12 +113,10 @@ class TestGalileoCallback:
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "chain"
         assert callback._nodes[str(run_id)].span_params["input"] == '{"query": "test question"}'
+        assert callback._nodes[str(run_id)].span_params["start_time"] > 0
 
         # End chain
         callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
-
-        # Verify chain was properly ended
-        # assert callback._nodes.get(str(run_id)).span_params["output"] == '{"result": "test answer"}'
 
         traces = galileo_logger.traces
         assert len(traces) == 1
@@ -125,18 +125,55 @@ class TestGalileoCallback:
         assert traces[0].spans[0].type == "workflow"
         assert traces[0].spans[0].input == '{"query": "test question"}'
         assert traces[0].spans[0].output == '{"result": "test answer"}'
+        assert traces[0].spans[0].step_number is None
+
+    def test_on_chain_start_with_kwargs_serialised_none(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+        run_id = uuid.uuid4()
+
+        # Start chain
+        callback.on_chain_start(
+            serialized=None,
+            inputs={
+                "messages": [
+                    HumanMessage(
+                        content="What does Lilian Weng say about the types of agent memory?",
+                        additional_kwargs={},
+                        response_metadata={},
+                    )
+                ]
+            },
+            run_id=run_id,
+            name="LangGraph",
+        )
+
+        assert str(run_id) in callback._nodes
+        assert callback._nodes[str(run_id)].node_type == "agent"
+        assert (
+            callback._nodes[str(run_id)].span_params["input"]
+            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?"}]}'
+        )
+
+        # End chain
+        callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
+
+        traces = galileo_logger.traces
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        assert traces[0].spans[0].name == "Agent"
+        assert traces[0].spans[0].type == "workflow"
+        assert (
+            traces[0].spans[0].input
+            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?"}]}'
+        )
+        assert traces[0].spans[0].output == '{"result": "test answer"}'
+        assert traces[0].spans[0].step_number is None
 
     def test_on_agent_chain(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
         """Test agent chain handling"""
         run_id = uuid.uuid4()
 
         # Start agent chain
-        callback.on_chain_start(
-            serialized={"name": "agent"},
-            inputs={"input": "test input"},
-            run_id=run_id,
-            name="agent",  # This should trigger agent type
-        )
+        callback.on_chain_start(serialized={"name": "Agent"}, inputs={"input": "test input"}, run_id=run_id)
 
         assert callback._nodes[str(run_id)].node_type == "agent"
 
@@ -152,6 +189,7 @@ class TestGalileoCallback:
         assert traces[0].spans[0].type == "workflow"
         assert traces[0].spans[0].input == '{"input": "test input"}'
         assert traces[0].spans[0].output == '{"return_values": {"output": "test result"}, "log": "log message"}'
+        assert traces[0].spans[0].step_number is None
 
     def test_on_llm_start_end(self, callback: GalileoCallback):
         """Test LLM start and end callbacks"""
@@ -193,6 +231,7 @@ class TestGalileoCallback:
         assert callback._nodes[str(run_id)].span_params["num_input_tokens"] == 10
         assert callback._nodes[str(run_id)].span_params["num_output_tokens"] == 20
         assert callback._nodes[str(run_id)].span_params["total_tokens"] == 30
+        assert callback._nodes[str(run_id)].span_params["duration_ns"] > 0
 
     def test_on_chat_model_start(self, callback: GalileoCallback):
         """Test chat model start callback"""
@@ -219,6 +258,7 @@ class TestGalileoCallback:
         assert callback._nodes[str(run_id)].node_type == "chat"
         assert callback._nodes[str(run_id)].span_params["model"] == "gpt-4o"
         assert callback._nodes[str(run_id)].span_params["temperature"] == 0.7
+        assert callback._nodes[str(run_id)].span_params["start_time"] > 0
 
         # Check that message serialization worked
         input_data = callback._nodes[str(run_id)].span_params["input"]
@@ -287,7 +327,7 @@ class TestGalileoCallback:
         traces = galileo_logger.traces
         assert len(traces) == 1
         assert len(traces[0].spans) == 1
-        assert traces[0].spans[0].name == "Chat Model"
+        assert traces[0].spans[0].name == "Chat"
         assert traces[0].spans[0].type == "llm"
         assert traces[0].spans[0].tools == [
             {
@@ -299,6 +339,7 @@ class TestGalileoCallback:
                 },
             }
         ]
+        assert traces[0].spans[0].step_number is None
 
     def test_on_tool_start_end_with_string_output(self, callback: GalileoCallback):
         """Test tool start and end callbacks"""
@@ -316,10 +357,12 @@ class TestGalileoCallback:
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "tool"
         assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
+        assert callback._nodes[str(run_id)].span_params.get("step_number") is None
 
         # End tool with a string output
         callback.on_tool_end(output="4", run_id=run_id, parent_run_id=parent_id)
 
+        assert callback._nodes[str(run_id)].span_params["duration_ns"] > 0
         assert callback._nodes[str(run_id)].span_params["output"] == "4"
 
     def test_on_tool_start_end_with_object_output(self, callback: GalileoCallback):
@@ -519,11 +562,16 @@ class TestGalileoCallback:
             traces[0].spans[0].output
             == '{"result": "Recent AI research has focused on LLMs which have seen significant progress..."}'
         )
+        assert traces[0].spans[0].step_number is None
+
         assert traces[0].spans[0].spans[0].type == "retriever"
         assert traces[0].spans[0].spans[0].input == "latest AI research"
         assert traces[0].spans[0].spans[0].output == [
             GalileoDocument(content="Recent advances in large language models...", metadata={"source": "paper"})
         ]
+        assert traces[0].spans[0].spans[0].step_number is None
+        assert traces[0].spans[0].spans[0].step_number is None
+
         assert traces[0].spans[0].spans[1].type == "llm"
         assert traces[0].spans[0].spans[1].input == [
             Message(
@@ -537,10 +585,13 @@ class TestGalileoCallback:
             tool_calls=None,
         )
         assert traces[0].spans[0].spans[1].user_metadata == {"extras": "{'source': 'paper'}"}
+        assert traces[0].spans[0].spans[1].step_number is None
+
         assert traces[0].spans[0].spans[2].type == "tool"
         assert traces[0].spans[0].spans[2].input == "verify(LLMs have seen significant progress)"
         assert traces[0].spans[0].spans[2].output == "Verification complete: accurate statement"
         assert traces[0].spans[0].spans[2].user_metadata == {"key": "value", "extras": "{'tools': 'tool1'}"}
+        assert traces[0].spans[0].spans[2].step_number is None
 
     def test_missing_parent_node(self, callback: GalileoCallback):
         """Test handling of missing parent nodes"""
@@ -584,3 +635,219 @@ class TestGalileoCallback:
         # Node should still exist and output should be a string
         assert str(retriever_id) in callback._nodes
         assert isinstance(callback._nodes[str(retriever_id)].span_params["output"], str)
+
+    def test_get_node_name(self, callback: GalileoCallback):
+        """Test the _get_node_name method to ensure it correctly extracts names from serialized data"""
+        # Case 1: Serialized has a name key
+        serialized = {"name": "CustomNodeName", "other_key": "value"}
+        result = callback._get_node_name("chain", serialized)
+        assert result == "CustomNodeName"
+
+        # Case 2: Serialized has no name key but has an id key with a list value
+        serialized = {"id": ["module", "class", "method_name"], "other_key": "value"}
+        result = callback._get_node_name("llm", serialized)
+        assert result == "method_name"
+
+        # Case 3: Serialized has both name and id, name should be used first
+        serialized = {"name": "NamedNode", "id": ["module", "class", "method_name"], "other_key": "value"}
+        result = callback._get_node_name("tool", serialized)
+        assert result == "NamedNode"
+
+        # Case 4: Serialized has neither name nor id keys
+        serialized = {"other_key": "value"}
+        result = callback._get_node_name("retriever", serialized)
+        assert result == "Retriever"  # Should capitalize the node_type
+
+        # Case 5: Serialized is None
+        result = callback._get_node_name("agent", None)
+        assert result == "Agent"  # Should capitalize the node_type
+
+        # Case 6: Exception occurs (providing a non-dictionary serialized)
+        result = callback._get_node_name("chain", "not_a_dict")
+        assert result == "Chain"  # Should capitalize the node_type
+
+    def test_callback_with_active_trace(self, galileo_logger: GalileoLogger):
+        """Test that the callback properly handles an active trace."""
+        run_id = uuid.uuid4()
+
+        galileo_logger.start_trace(input="test input")
+
+        # Pass the active logger to the callback
+        callback = GalileoCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
+
+        # Start a chain (creates a workflow span)
+        callback._start_node("chain", None, run_id, name="Test Chain", input='{"query": "test"}')
+
+        # Add a retriever span
+        retriever_id = uuid.uuid4()
+        callback.on_retriever_start(serialized={}, query="test query", run_id=retriever_id, parent_run_id=run_id)
+        callback.on_retriever_end(
+            documents=[Document(page_content="test document")], run_id=retriever_id, parent_run_id=run_id
+        )
+
+        # End the chain (ends the workflow span)
+        callback._end_node(run_id, output='{"result": "test result"}')
+
+        galileo_logger.conclude(output="test output", status_code=200)
+
+        traces = galileo_logger.traces
+
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        assert traces[0].spans[0].type == "workflow"
+        assert traces[0].spans[0].input == '{"query": "test"}'
+        assert traces[0].spans[0].output == '{"result": "test result"}'
+        assert traces[0].spans[0].spans[0].name == "Retriever"
+        assert traces[0].spans[0].spans[0].type == "retriever"
+        assert traces[0].spans[0].spans[0].input == "test query"
+        assert traces[0].spans[0].spans[0].output == [GalileoDocument(content="test document", metadata={})]
+
+    def test_node_created_at(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+        parent_id = uuid.uuid4()
+        llm_run_id = uuid.uuid4()
+        retriever_run_id = uuid.uuid4()
+
+        # Create parent chain
+        callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+
+        # Start retriever
+        callback.on_retriever_start(
+            serialized={}, query="AI development", run_id=retriever_run_id, parent_run_id=parent_id
+        )
+
+        # End retriever
+        document = Document(page_content="AI is advancing rapidly", metadata={"source": "textbook"})
+        callback.on_retriever_end(documents=[document], run_id=retriever_run_id, parent_run_id=parent_id)
+
+        delay_ms = 500
+
+        time.sleep(delay_ms / 1000)
+
+        callback.on_llm_start(
+            serialized={},
+            prompts=["Tell me about AI"],
+            run_id=llm_run_id,
+            parent_run_id=parent_id,
+            invocation_params={"model_name": "gpt-4", "temperature": 0.7},
+        )
+
+        # Add a token to test token timing
+        callback.on_llm_new_token("AI", run_id=llm_run_id)
+
+        # End LLM
+        llm_response = MagicMock()
+        llm_response.generations = [[MagicMock()]]
+        llm_response.llm_output = {"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}}
+
+        # Mock dict method on the generation
+        llm_response.generations[0][0].dict.return_value = {"text": "AI is a technology..."}
+
+        callback.on_llm_end(response=llm_response, run_id=llm_run_id, parent_run_id=parent_id)
+
+        # End chain
+        callback.on_chain_end(outputs='{"result": "test answer"}', run_id=parent_id)
+
+        traces = galileo_logger.traces
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        assert len(traces[0].spans[0].spans) == 2
+
+        retriever_span = traces[0].spans[0].spans[0]
+        llm_span = traces[0].spans[0].spans[1]
+
+        time_diff_ms = (llm_span.created_at - retriever_span.created_at).total_seconds() * 1000
+        assert time_diff_ms >= delay_ms
+
+    @pytest.mark.parametrize(
+        "node_type, start_fn, end_fn, input_args, output_args, expected_type",
+        [
+            (
+                "tool",
+                "on_tool_start",
+                "on_tool_end",
+                {"serialized": {"name": "calculator"}, "input_str": "2+2"},
+                {"output": "4"},
+                "tool",
+            ),
+            (
+                "llm",
+                "on_llm_start",
+                "on_llm_end",
+                {"serialized": {}, "prompts": ["Tell me about AI"], "invocation_params": {"model_name": "gpt-4"}},
+                {"response": MagicMock()},
+                "llm",
+            ),
+            (
+                "retriever",
+                "on_retriever_start",
+                "on_retriever_end",
+                {"serialized": {}, "query": "AI development"},
+                {"documents": [Document(page_content="AI", metadata={})]},
+                "retriever",
+            ),
+            (
+                "chain",
+                "on_chain_start",
+                "on_chain_end",
+                {"serialized": {"name": "TestChain"}, "inputs": {"query": "test"}},
+                {"outputs": {"result": "answer"}},
+                "workflow",
+            ),
+            (
+                "agent",
+                "on_chain_start",
+                "on_chain_end",
+                {"serialized": {"name": "Agent"}, "inputs": {"query": "test"}},
+                {"outputs": {"result": "answer"}},
+                "workflow",
+            ),
+        ],
+    )
+    def test_step_number_propagation(
+        self,
+        callback: GalileoCallback,
+        galileo_logger: GalileoLogger,
+        node_type,
+        start_fn,
+        end_fn,
+        input_args,
+        output_args,
+        expected_type,
+    ):
+        """Test that step_number is set correctly for all node types when metadata contains langgraph_step"""
+        parent_id = uuid.uuid4()
+        run_id = uuid.uuid4()
+        step_number = 42
+
+        # Create parent chain for non-root nodes
+        if node_type not in ("chain", "agent"):
+            callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+            parent_arg = {"parent_run_id": parent_id}
+        else:
+            parent_arg = {}
+
+        input_args.update({"run_id": run_id, **parent_arg, "metadata": {"langgraph_step": str(step_number)}})
+
+        # Call start
+        getattr(callback, start_fn)(**input_args)
+
+        # Prepare and call end
+        output_args.update({"run_id": run_id, **parent_arg})
+        getattr(callback, end_fn)(**output_args)
+
+        # End chain to trigger commit for non-root nodes
+        if node_type not in ("chain", "agent"):
+            callback.on_chain_end(outputs={"result": "test answer"}, run_id=parent_id)
+            traces = galileo_logger.traces
+            assert len(traces) == 1
+            assert len(traces[0].spans) == 1
+            child_span = traces[0].spans[0].spans[0]
+            assert child_span.type == expected_type
+            assert child_span.step_number == step_number
+        else:
+            traces = galileo_logger.traces
+            assert len(traces) == 1
+            assert len(traces[0].spans) == 1
+            root_span = traces[0].spans[0]
+            assert root_span.type == expected_type
+            assert root_span.step_number == step_number

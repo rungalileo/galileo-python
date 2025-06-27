@@ -16,9 +16,8 @@ def _get_kwargs(dataset_id: str, *, body: UpdateDatasetRequest) -> dict[str, Any
 
     _kwargs: dict[str, Any] = {"method": "patch", "url": f"/datasets/{dataset_id}"}
 
-    _body = body.to_dict()
+    _kwargs["json"] = body.to_dict()
 
-    _kwargs["json"] = _body
     headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers

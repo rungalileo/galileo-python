@@ -1,9 +1,10 @@
+from collections.abc import Mapping
 from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.messages_list_item_role import MessagesListItemRole
+from ..models.message_list_item_role import MessageListItemRole
 
 T = TypeVar("T", bound="MessagesListItem")
 
@@ -13,18 +14,18 @@ class MessagesListItem:
     """
     Attributes:
         content (str):
-        role (Union[MessagesListItemRole, str]):
+        role (Union[MessageListItemRole, str]):
     """
 
     content: str
-    role: Union[MessagesListItemRole, str]
+    role: Union[MessageListItemRole, str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         content = self.content
 
         role: str
-        if isinstance(self.role, MessagesListItemRole):
+        if isinstance(self.role, MessageListItemRole):
             role = self.role.value
         else:
             role = self.role
@@ -36,20 +37,20 @@ class MessagesListItem:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
-        d = src_dict.copy()
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        d = dict(src_dict)
         content = d.pop("content")
 
-        def _parse_role(data: object) -> Union[MessagesListItemRole, str]:
+        def _parse_role(data: object) -> Union[MessageListItemRole, str]:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                role_type_1 = MessagesListItemRole(data)
+                role_type_1 = MessageListItemRole(data)
 
                 return role_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[MessagesListItemRole, str], data)
+            return cast(Union[MessageListItemRole, str], data)
 
         role = _parse_role(d.pop("role"))
 

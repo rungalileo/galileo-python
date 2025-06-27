@@ -60,8 +60,8 @@ def sync_detailed(
     ----------
     project_id : UUID4
         Project ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context)
 
     Returns
     -------
@@ -97,8 +97,8 @@ def sync(
     ----------
     project_id : UUID4
         Project ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context)
 
     Returns
     -------
@@ -130,8 +130,8 @@ async def asyncio_detailed(
     ----------
     project_id : UUID4
         Project ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context)
 
     Returns
     -------
@@ -167,8 +167,8 @@ async def asyncio(
     ----------
     project_id : UUID4
         Project ID.
-    db_read : Session, optional
-        Session object to execute DB reads, by default Depends(get_db_read).
+    ctx : Context, optional
+        User context with database session, by default Depends(get_user_context)
 
     Returns
     -------

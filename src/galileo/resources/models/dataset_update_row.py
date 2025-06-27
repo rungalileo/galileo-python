@@ -1,3 +1,4 @@
+from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
@@ -58,10 +59,10 @@ class DatasetUpdateRow:
         return field_dict
 
     @classmethod
-    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_update_row_values import DatasetUpdateRowValues
 
-        d = src_dict.copy()
+        d = dict(src_dict)
         values = DatasetUpdateRowValues.from_dict(d.pop("values"))
 
         edit_type = cast(Union[Literal["update_row"], Unset], d.pop("edit_type", UNSET))

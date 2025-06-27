@@ -46,6 +46,9 @@ class PromptTemplate(BasePromptTemplateResponse):
                 template=prompt_template.template,
                 total_versions=prompt_template.total_versions,
                 all_versions=prompt_template.all_versions,
+                created_at=prompt_template.created_at,
+                creator=prompt_template.creator,
+                updated_at=prompt_template.updated_at,
             )
             self.additional_properties = prompt_template.additional_properties.copy()
             return
@@ -122,7 +125,8 @@ def get_prompt_template(project: str, name: str) -> Optional[PromptTemplate]:
         if prompt_template.name == name:
             _logger.info(f"Get template {prompt_template}")
             return prompt_template
-    raise ValueError(f"Prompt {name} does not exist")
+    _logger.warning(f"Template {name} not found in project {project}")
+    return None
 
 
 def list_prompt_templates(project: str) -> list[PromptTemplate]:
