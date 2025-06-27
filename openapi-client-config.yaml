@@ -1,2 +1,3 @@
 post_hooks:
   - "rm ./galileo/resources/README.md"
+  - "python ./scripts/patch_http_validation_error.py ./src/galileo/resources/models/http_validation_error.py"

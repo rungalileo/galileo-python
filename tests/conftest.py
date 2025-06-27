@@ -7,6 +7,8 @@ from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 
 from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict
+from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
 
 
 @pytest.fixture(autouse=True)
@@ -79,3 +81,29 @@ def local_dataset():
         {"input": "Which continent is Spain in?", "output": "Europe"},
         {"input": "Which continent is Japan in?", "output": "Asia"},
     ]
+
+
+@pytest.fixture(
+    params=[
+        # Single ruleset with a single rule.
+        [Ruleset(rules=[Rule(metric="toxicity", operator=RuleOperator.gt, target_value=0.5)])],
+        # Single ruleset with multiple rules.
+        [
+            Ruleset(
+                rules=[
+                    Rule(metric="toxicity", operator=RuleOperator.gt, target_value=0.5),
+                    Rule(metric="tone", operator=RuleOperator.lt, target_value=0.8),
+                ]
+            )
+        ],
+        # Single ruleset with an unknown metric.
+        [Ruleset(rules=[Rule(metric="unknown", operator=RuleOperator.gt, target_value=0.5)])],
+        # Multiple rulesets with a single rule each.
+        [
+            Ruleset(rules=[Rule(metric="toxicity", operator=RuleOperator.gt, target_value=0.5)]),
+            Ruleset(rules=[Rule(metric="toxicity", operator=RuleOperator.lt, target_value=0.8)]),
+        ],
+    ]
+)
+def rulesets(request: pytest.FixtureRequest) -> list[Ruleset]:
+    return request.param
