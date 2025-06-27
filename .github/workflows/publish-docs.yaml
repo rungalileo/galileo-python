@@ -65,8 +65,8 @@ jobs:
           git config --global user.email "info@galileo.com"
           git config --global user.name "Galileo"
           git add .
-          git commit -m "Updating docs from ${GITHUB_REF_NAME}"
-          git push -u origin feat/update-docs-${GITHUB_REF_NAME}
+          git commit -m "Updating docs from ${GITHUB_REF_NAME}-${{ github.run_id }}"
+          git push -u origin feat/update-docs-${GITHUB_REF_NAME}-${{ github.run_id }}
 
       # Create a PR against the docs repo with the new changes
       - name: Create PR
