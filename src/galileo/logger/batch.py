@@ -2,14 +2,26 @@ from collections import deque
 from datetime import datetime
 from typing import Optional
 
+from pydantic import UUID4
+
 from galileo.logger.interface import IGalileoLogger
 from galileo.logger.utils import get_last_output
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.metrics import populate_local_metrics
-from galileo.utils.nop_logger import nop_sync
-from galileo_core.schemas.logging.span import StepWithChildSpans
+from galileo_core.schemas.logging.agent import AgentType
+from galileo_core.schemas.logging.span import (
+    AgentSpan,
+    LlmSpan,
+    LlmSpanAllowedInputType,
+    LlmSpanAllowedOutputType,
+    RetrieverSpan,
+    StepWithChildSpans,
+    ToolSpan,
+    WorkflowSpan,
+)
 from galileo_core.schemas.logging.step import StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 
@@ -26,7 +38,6 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
     def __init__(self):
         super().__init__()
 
-    @nop_sync
     def start_trace(
         self,
         input: StepAllowedInputType,
@@ -51,6 +62,67 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
             dataset_output=dataset_output,
             dataset_metadata=dataset_metadata,
             external_id=external_id,
+        )
+
+    def add_llm_span(
+        self,
+        input: LlmSpanAllowedInputType,
+        output: LlmSpanAllowedOutputType,
+        model: Optional[str],
+        tools: Optional[list[dict]] = None,
+        name: Optional[str] = None,
+        created_at: Optional[datetime] = None,
+        duration_ns: Optional[int] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        num_input_tokens: Optional[int] = None,
+        num_output_tokens: Optional[int] = None,
+        total_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        status_code: Optional[int] = None,
+        time_to_first_token_ns: Optional[int] = None,
+        id: Optional[UUID4] = None,
+        step_number: Optional[int] = None,
+    ) -> LlmSpan:
+        return super().add_llm_span(
+            input=input,
+            output=output,
+            model=model,
+            tools=tools,
+            name=name,
+            created_at=created_at,
+            duration_ns=duration_ns,
+            user_metadata=user_metadata,
+            tags=tags,
+            num_input_tokens=num_input_tokens,
+            num_output_tokens=num_output_tokens,
+            total_tokens=total_tokens,
+            temperature=temperature,
+            status_code=status_code,
+            time_to_first_token_ns=time_to_first_token_ns,
+            step_number=step_number,
+        )
+
+    def add_workflow_span(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        step_number: Optional[int] = None,
+    ) -> WorkflowSpan:
+        return super().add_workflow_span(
+            input=input,
+            output=output,
+            name=name,
+            duration_ns=duration_ns,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            step_number=step_number,
         )
 
     def conclude(
@@ -136,3 +208,77 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
         self.traces = list()
         self._parent_stack = deque()
         return logged_traces
+
+    def add_agent_span(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        agent_type: Optional[AgentType] = None,
+        step_number: Optional[int] = None,
+    ) -> AgentSpan:
+        return super().add_agent_span(
+            input=input,
+            output=output,
+            name=name,
+            duration_ns=duration_ns,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            agent_type=agent_type,
+            step_number=step_number,
+        )
+
+    def add_retriever_span(
+        self,
+        input: str,
+        documents: list[Document],
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        status_code: Optional[int] = None,
+        step_number: Optional[int] = None,
+    ) -> RetrieverSpan:
+        return super().add_retriever_span(
+            input=input,
+            documents=documents,
+            name=name,
+            duration_ns=duration_ns,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            status_code=status_code,
+            step_number=step_number,
+        )
+
+    def add_tool_span(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        status_code: Optional[int] = None,
+        tool_call_id: Optional[str] = None,
+        step_number: Optional[int] = None,
+    ) -> ToolSpan:
+        return super().add_tool_span(
+            input=input,
+            output=output,
+            name=name,
+            duration_ns=duration_ns,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            status_code=status_code,
+            tool_call_id=tool_call_id,
+            step_number=step_number,
+        )

@@ -12,6 +12,7 @@ from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.logger.batch import GalileoBatchLogger
 from galileo.logger.streaming import GalileoStreamingLogger
+from galileo.logger.utils import RetrieverSpanAllowedOutputType
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import SessionCreateRequest
@@ -33,10 +34,6 @@ from galileo_core.schemas.logging.span import (
 from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
-
-RetrieverSpanAllowedOutputType = Union[
-    str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None
-]
 
 
 class GalileoLoggerException(Exception):
@@ -347,7 +344,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         -------
             LlmSpan: The created span.
         """
-        return super().add_llm_span(
+        kwargs = dict(
             input=input,
             output=output,
             model=model,
@@ -365,6 +362,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             time_to_first_token_ns=time_to_first_token_ns,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.add_llm_span(self, **kwargs)
+        return GalileoStreamingLogger.add_llm_span(self, **kwargs)
 
     @nop_sync
     def add_retriever_span(
@@ -424,7 +424,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         else:
             documents = [Document(content="", metadata={})]
 
-        return super().add_retriever_span(
+        kwargs = dict(
             input=input,
             documents=documents,
             name=name,
@@ -435,6 +435,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             status_code=status_code,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.add_retriever_span(self, **kwargs)
+        return GalileoStreamingLogger.add_retriever_span(self, **kwargs)
 
     @nop_sync
     def add_tool_span(
@@ -468,7 +471,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         -------
             ToolSpan: The created span.
         """
-        return super().add_tool_span(
+        kwargs = dict(
             input=input,
             output=output,
             name=name,
@@ -480,6 +483,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             tool_call_id=tool_call_id,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.add_tool_span(self, **kwargs)
+        return GalileoStreamingLogger.add_tool_span(self, **kwargs)
 
     @nop_sync
     def add_workflow_span(
@@ -511,7 +517,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         -------
             WorkflowSpan: The created span.
         """
-        return super().add_workflow_span(
+        kwargs = dict(
             input=input,
             output=output,
             name=name,
@@ -521,6 +527,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             tags=tags,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.add_workflow_span(self, **kwargs)
+        return GalileoStreamingLogger.add_workflow_span(self, **kwargs)
 
     @nop_sync
     def add_agent_span(
@@ -553,7 +562,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         -------
             AgentSpan: The created span.
         """
-        return super().add_agent_span(
+        kwargs = dict(
             input=input,
             output=output,
             name=name,
@@ -564,6 +573,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             agent_type=agent_type,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.add_agent_span(self, **kwargs)
+        return GalileoStreamingLogger.add_agent_span(self, **kwargs)
 
     @nop_sync
     def conclude(
