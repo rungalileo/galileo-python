@@ -53,6 +53,7 @@ class IGalileoLogger(abc.ABC):
         temperature: Optional[float] = None,
         status_code: Optional[int] = None,
         time_to_first_token_ns: Optional[int] = None,
+        step_number: Optional[int] = None,
     ) -> LlmSpan:
         raise NotImplementedError
 
@@ -93,8 +94,9 @@ class IGalileoLogger(abc.ABC):
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
-        metadata: Optional[dict[str, str]] = None,
+        user_metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
+        step_number: Optional[int] = None,
     ) -> WorkflowSpan:
         raise NotImplementedError
 
