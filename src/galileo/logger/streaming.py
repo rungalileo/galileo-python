@@ -5,13 +5,23 @@ from pydantic import UUID4
 
 from galileo.logger.interface import IGalileoLogger
 from galileo.schema.trace import SpansIngestRequest, TracesIngestRequest
-from galileo_core.schemas.logging.span import LlmMetrics, LlmSpan, LlmSpanAllowedInputType, LlmSpanAllowedOutputType
+from galileo_core.schemas.logging.agent import AgentType
+from galileo_core.schemas.logging.span import (
+    AgentSpan,
+    LlmMetrics,
+    LlmSpan,
+    LlmSpanAllowedInputType,
+    LlmSpanAllowedOutputType,
+    StepWithChildSpans,
+    ToolSpan,
+    WorkflowSpan,
+)
 from galileo_core.schemas.logging.step import Metrics, StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
-from galileo_core.schemas.shared.traces_logger import TracesLogger
+from galileo_core.schemas.shared.document import Document
 
 
-class GalileoStreamingLogger(TracesLogger, IGalileoLogger):
+class GalileoStreamingLogger(IGalileoLogger):
     """
     Galileo Streaming logger class implements `IGalileoLogger` interface.
 
@@ -139,6 +149,69 @@ class GalileoStreamingLogger(TracesLogger, IGalileoLogger):
         span_ingest_request = SpansIngestRequest(trace_id=self.trace_id, spans=[span])
         self._client.ingest_spans_sync(span_ingest_request)
         return span
+
+    def add_agent_span(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        agent_type: Optional[AgentType] = None,
+        step_number: Optional[int] = None,
+    ) -> AgentSpan:
+        pass
+
+    def add_retriever_span(
+        self,
+        input: str,
+        documents: list[Document],
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        status_code: Optional[int] = None,
+        step_number: Optional[int] = None,
+    ): ...
+
+    def add_tool_span(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        status_code: Optional[int] = None,
+        tool_call_id: Optional[str] = None,
+        step_number: Optional[int] = None,
+    ) -> ToolSpan:
+        pass
+
+    def add_workflow_span(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        step_number: Optional[int] = None,
+    ) -> WorkflowSpan: ...
+
+    def conclude(
+        self,
+        output: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        status_code: Optional[int] = None,
+        conclude_all: bool = False,
+    ) -> Optional[StepWithChildSpans]:
+        pass
 
     def flush(self) -> list[Trace]: ...
 

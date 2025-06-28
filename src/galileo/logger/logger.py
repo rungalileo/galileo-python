@@ -49,10 +49,7 @@ class GalileoLoggerException(Exception):
 LoggerModeType = Literal["batch", "streaming"]
 
 
-class Logger(GalileoBatchLogger, GalileoStreamingLogger): ...
-
-
-class GalileoLogger(Logger, DecorateAllMethods):
+class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMethods):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.
@@ -433,7 +430,7 @@ class GalileoLogger(Logger, DecorateAllMethods):
         else:
             documents = [Document(content="", metadata={})]
 
-        return super().add_retriever_span(
+        kwargs = dict(
             input=input,
             documents=documents,
             name=name,
@@ -444,6 +441,9 @@ class GalileoLogger(Logger, DecorateAllMethods):
             status_code=status_code,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.add_retriever_span(self, **kwargs)
+        return GalileoStreamingLogger.add_retriever_span(self, **kwargs)
 
     @nop_sync
     def add_tool_span(
@@ -477,7 +477,7 @@ class GalileoLogger(Logger, DecorateAllMethods):
         -------
             ToolSpan: The created span.
         """
-        return super().add_tool_span(
+        kwargs = dict(
             input=input,
             output=output,
             name=name,
@@ -489,6 +489,9 @@ class GalileoLogger(Logger, DecorateAllMethods):
             tool_call_id=tool_call_id,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.add_tool_span(self, **kwargs)
+        return GalileoStreamingLogger.add_tool_span(self, **kwargs)
 
     @nop_sync
     def add_workflow_span(
@@ -520,7 +523,7 @@ class GalileoLogger(Logger, DecorateAllMethods):
         -------
             WorkflowSpan: The created span.
         """
-        return super().add_workflow_span(
+        kwargs = dict(
             input=input,
             output=output,
             name=name,
@@ -530,6 +533,9 @@ class GalileoLogger(Logger, DecorateAllMethods):
             tags=tags,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.add_workflow_span(self, **kwargs)
+        return GalileoStreamingLogger.add_workflow_span(self, **kwargs)
 
     @nop_sync
     def add_agent_span(
@@ -562,7 +568,7 @@ class GalileoLogger(Logger, DecorateAllMethods):
         -------
             AgentSpan: The created span.
         """
-        return super().add_agent_span(
+        kwargs = dict(
             input=input,
             output=output,
             name=name,
@@ -573,6 +579,9 @@ class GalileoLogger(Logger, DecorateAllMethods):
             agent_type=agent_type,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return GalileoBatchLogger.add_agent_span(self, **kwargs)
+        return GalileoStreamingLogger.add_agent_span(self, **kwargs)
 
     @nop_sync
     def conclude(
