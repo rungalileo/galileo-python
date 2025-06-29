@@ -958,3 +958,75 @@ def test_set_session_id(mock_core_api_client: Mock, mock_projects_client: Mock, 
     # Check that the session ID is set correctly in the payload
     payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     assert payload.session_id == UUID(session_id)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_start_session_with_external_id(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    session_id = logger.start_session(
+        name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test-external-id"
+    )
+    mock_core_api_instance.get_sessions_sync.assert_called_once()
+    mock_core_api_instance.create_session_sync.assert_called_once()
+    assert session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+    assert logger.session_id == session_id
+
+    mock_core_api_instance.get_sessions_sync = Mock(
+        return_value={
+            "starting_token": 0,
+            "limit": 100,
+            "paginated": False,
+            "records": [
+                {
+                    "type": "session",
+                    "input": "Say this is a test",
+                    "output": "Hello, this is a test",
+                    "name": "",
+                    "created_at": "2025-06-27T21:30:31.632441Z",
+                    "user_metadata": {},
+                    "tags": [],
+                    "status_code": 0,
+                    "metrics": {},
+                    "external_id": "",
+                    "dataset_input": "",
+                    "dataset_output": "",
+                    "dataset_metadata": {},
+                    "id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"),
+                    "session_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"),
+                    "project_id": UUID("109f2985-0a29-44c5-ae53-f9e7f210bb8f"),
+                    "run_id": UUID("42ecfe5f-1a2e-413d-8fd3-1c488f5f99c9"),
+                    "updated_at": "2025-06-27T21:31:12.409631Z",
+                    "has_children": False,
+                    "metric_info": {},
+                }
+            ],
+            "num_records": 1,
+        }
+    )
+    mock_core_api_instance.create_session_sync.reset_mock()
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    session_id = logger.start_session(external_id="test-external-id")
+    mock_core_api_instance.get_sessions_sync.assert_called_once()
+    mock_core_api_instance.create_session_sync.assert_not_called()
+    assert session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
+    assert logger.session_id == session_id
+
+    # Log a trace
+    logger.start_trace(input="input", name="test-trace", created_at=datetime.datetime.now())
+    logger.add_llm_span(input="input", output="output")
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    # Check that the session ID is set correctly in the payload
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    assert payload.session_id == session_id
