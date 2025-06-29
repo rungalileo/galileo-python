@@ -14,7 +14,13 @@ from galileo.logger.batch import GalileoBatchLogger
 from galileo.logger.streaming import GalileoStreamingLogger
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
-from galileo.schema.trace import SessionCreateRequest
+from galileo.schema.trace import (
+    LogRecordsSearchFilter,
+    LogRecordsSearchFilterOperator,
+    LogRecordsSearchFilterType,
+    LogRecordsSearchRequest,
+    SessionCreateRequest,
+)
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo.utils.nop_logger import nop_async, nop_sync
@@ -636,17 +642,41 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
         """
-        Start a new session.
+        Start a new session or use an existing session if an external ID is provided.
 
         Parameters:
         ----------
             name: Optional[str]: Name of the session. If not provided, a session name will be generated automatically.
             previous_session_id: Optional[str]: ID of the previous session.
-            external_id: Optional[str]: External ID of the session.
+            external_id: Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
         Returns:
         -------
             str: The ID of the newly created session.
         """
+        if external_id and external_id.strip() != "":
+            self._logger.info(f"Searching for session with external ID: {external_id} ...")
+            try:
+                sessions = self._client.get_sessions_sync(
+                    LogRecordsSearchRequest(
+                        filters=[
+                            LogRecordsSearchFilter(
+                                type=LogRecordsSearchFilterType.text,
+                                column_id="external_id",
+                                value=external_id,
+                                operator=LogRecordsSearchFilterOperator.eq,
+                            )
+                        ]
+                    )
+                )
+
+                if sessions and len(sessions["records"]) > 0:
+                    session_id = sessions["records"][0]["id"]
+                    self._logger.info(f"Session {session_id} with external ID {external_id} already exists; using it.")
+                    self.session_id = session_id
+                    return session_id
+            except Exception:
+                self._logger.error("Failed to search for session with external ID %s", external_id, exc_info=True)
+
         self._logger.info("Starting a new session...")
 
         session = self._client.create_session_sync(
@@ -661,6 +691,8 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
     @nop_sync
     def set_session(self, session_id: str) -> None:
         """
+        Set the session ID for the logger.
+
         Parameters:
         ----------
             session_id: str: ID of the session to set.

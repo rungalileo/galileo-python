@@ -102,4 +102,8 @@ def setup_mock_core_api_client(mock_core_api_client: Mock):
             "log_stream_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"),
         }
     )
+    mock_instance.get_sessions_sync = Mock(
+        return_value={"starting_token": 0, "limit": 100, "paginated": False, "records": [], "num_records": 0}
+    )
+
     return mock_instance

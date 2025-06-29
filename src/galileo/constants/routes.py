@@ -22,3 +22,4 @@ class Routes(str, Enum):
     span = "/v2/projects/{project_id}/spans/{span_id}"
 
     sessions = "/v2/projects/{project_id}/sessions"
+    sessions_search = "/v2/projects/{project_id}/sessions/search"
