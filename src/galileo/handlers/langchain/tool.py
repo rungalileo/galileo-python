@@ -4,6 +4,7 @@ from typing import Optional
 from langchain_core.runnables.base import Runnable
 from langchain_core.tools import BaseTool
 from pydantic import UUID4, BaseModel, ConfigDict, Field
+from pydantic.v1 import BaseModel as BaseModelV1
 
 from galileo.constants.protect import TIMEOUT_SECS
 from galileo.protect import invoke
@@ -13,7 +14,7 @@ from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
 
 
-class ProtectToolInputSchema(BaseModel):
+class ProtectToolInputSchema(BaseModelV1):
     input: Optional[str] = None
     output: Optional[str] = None
 
@@ -24,10 +25,10 @@ class ProtectTool(BaseTool):
         "Protect your LLM applications from harmful content using Galileo Protect. "
         "This tool is a wrapper around Galileo's Protect API, can be used to scan text "
         "for harmful content, and can be used to trigger actions based on the results."
-        "The tool can be used synchronously or asynchronously, on the input text or output text,"
-        "and can be configured with a set of rulesets to evaluate on."
+        "The tool can be used on the input text or output text, and can be configured "
+        "with a set of rulesets to evaluate on."
     )
-    args_schema: type[BaseModel] = ProtectToolInputSchema
+    args_schema: type[BaseModelV1] = ProtectToolInputSchema
 
     prioritized_rulesets: Optional[Sequence[Ruleset]] = None
     project_id: Optional[UUID4] = None
