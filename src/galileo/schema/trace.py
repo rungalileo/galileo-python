@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import Optional
 
 from pydantic import UUID4, BaseModel, Field
@@ -36,3 +37,35 @@ class SessionCreateResponse(BaseLogStreamOrExperimentModel):
     project_id: UUID4 = Field(description="Project id associated with the session.")
     project_name: str = Field(description="Project name associated with the session.")
     log_stream_id: Optional[UUID4] = Field(default=None, description="Log stream id associated with the session.")
+
+
+class LogRecordsSearchFilterOperator(str, Enum):
+    eq = "eq"
+    ne = "ne"
+    contains = "contains"
+    one_of = "one_of"
+    not_in = "not_in"
+    gt = "gt"
+    gte = "gte"
+    lt = "lt"
+    lte = "lte"
+    between = "between"
+
+
+class LogRecordsSearchFilterType(str, Enum):
+    id = "id"
+    date = "date"
+    number = "number"
+    boolean = "boolean"
+    text = "text"
+
+
+class LogRecordsSearchFilter(BaseModel):
+    type: LogRecordsSearchFilterType = Field(description="Type of the log records filter.")
+    name: str = Field(description="ID of the column to filter.", alias="column_id")
+    value: str = Field(description="Value to filter by.")
+    operator: LogRecordsSearchFilterOperator = Field(description="Operator to apply to the filter.")
+
+
+class LogRecordsSearchRequest(BaseLogStreamOrExperimentModel):
+    filters: Optional[list[LogRecordsSearchFilter]] = Field(default=None, description="Filters to apply to the search.")
