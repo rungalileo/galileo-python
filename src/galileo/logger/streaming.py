@@ -1,3 +1,5 @@
+import logging
+import uuid
 from datetime import datetime
 from typing import Optional
 
@@ -20,6 +22,8 @@ from galileo_core.schemas.logging.step import Metrics, StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 
+_logger = logging.getLogger(__name__)
+
 
 class GalileoStreamingLogger(IGalileoLogger):
     """
@@ -27,6 +31,9 @@ class GalileoStreamingLogger(IGalileoLogger):
 
     Note: You should not instantiate this class directly but use GalileoLogger instead with mode="streaming".
     """
+
+    # def __init__(self):
+    #     super().__init__()
 
     def start_trace(
         self,
@@ -71,14 +78,15 @@ class GalileoStreamingLogger(IGalileoLogger):
             dataset_output=dataset_output,
             dataset_metadata=dataset_metadata if dataset_metadata is not None else {},
             external_id=external_id,
-            id=id,
+            id=str(uuid.uuid4()),
         )
         traces_ingest_request = TracesIngestRequest(
             traces=[trace], experiment_id=self.experiment_id, session_id=self.session_id
         )
+        # TODO: use non-blockign wrapper
         self._client.ingest_traces_sync(traces_ingest_request)
 
-        self._logger.info("Successfully flushed trace %s.", len(trace.id))
+        _logger.info("Successfully flushed trace %s.", trace.id)
 
         return trace
 
@@ -100,6 +108,7 @@ class GalileoStreamingLogger(IGalileoLogger):
         status_code: Optional[int] = None,
         time_to_first_token_ns: Optional[int] = None,
         id: Optional[UUID4] = None,
+        step_number: Optional[int] = None,
     ) -> LlmSpan:
         """
         In Streaming mode, this will the following endpoint with a single span:
@@ -211,7 +220,22 @@ class GalileoStreamingLogger(IGalileoLogger):
         status_code: Optional[int] = None,
         conclude_all: bool = False,
     ) -> Optional[StepWithChildSpans]:
-        pass
+        """
+        In Streaming mode, this will do the following:
+        If the current parent is a Workflow span, this will call the following endpoint:
+            PATCH /projects/{project_id}/spans/{span_id}
+        If the current parent is a Trace, this will call the following endpoint:
+            PATCH /projects/{project_id}/traces/{trace_id}
+        Args:
+            output:
+            duration_ns:
+            status_code:
+            conclude_all:
+
+        Returns:
+        """
+        if self.current_parent():
+            ...
 
     def flush(self) -> list[Trace]: ...
 

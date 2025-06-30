@@ -8,24 +8,18 @@ from galileo.logger.interface import IGalileoLogger
 from galileo.logger.utils import get_last_output
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.metrics import populate_local_metrics
-from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.span import (
-    AgentSpan,
     LlmSpan,
     LlmSpanAllowedInputType,
     LlmSpanAllowedOutputType,
-    RetrieverSpan,
     StepWithChildSpans,
-    ToolSpan,
     WorkflowSpan,
 )
 from galileo_core.schemas.logging.step import StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
-from galileo_core.schemas.shared.document import Document
-from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 
-class GalileoBatchLogger(TracesLogger, IGalileoLogger):
+class GalileoBatchLogger(IGalileoLogger):
     """
     Galileo Batch logger class implements `IGalileoLogger` interface. It's responsible for
     split batch and streaming logic accordingly inside `GalileoLogger` class. So when you need
@@ -34,9 +28,6 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
 
     Note: You should not use it directly and must use GalileoLogger instead with mode="batch"
     """
-
-    def __init__(self):
-        super().__init__()
 
     def start_trace(
         self,
@@ -208,77 +199,3 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
         self.traces = list()
         self._parent_stack = deque()
         return logged_traces
-
-    def add_agent_span(
-        self,
-        input: str,
-        output: Optional[str] = None,
-        name: Optional[str] = None,
-        duration_ns: Optional[int] = None,
-        created_at: Optional[datetime] = None,
-        user_metadata: Optional[dict[str, str]] = None,
-        tags: Optional[list[str]] = None,
-        agent_type: Optional[AgentType] = None,
-        step_number: Optional[int] = None,
-    ) -> AgentSpan:
-        return super().add_agent_span(
-            input=input,
-            output=output,
-            name=name,
-            duration_ns=duration_ns,
-            created_at=created_at,
-            user_metadata=user_metadata,
-            tags=tags,
-            agent_type=agent_type,
-            step_number=step_number,
-        )
-
-    def add_retriever_span(
-        self,
-        input: str,
-        documents: list[Document],
-        name: Optional[str] = None,
-        duration_ns: Optional[int] = None,
-        created_at: Optional[datetime] = None,
-        user_metadata: Optional[dict[str, str]] = None,
-        tags: Optional[list[str]] = None,
-        status_code: Optional[int] = None,
-        step_number: Optional[int] = None,
-    ) -> RetrieverSpan:
-        return super().add_retriever_span(
-            input=input,
-            documents=documents,
-            name=name,
-            duration_ns=duration_ns,
-            created_at=created_at,
-            user_metadata=user_metadata,
-            tags=tags,
-            status_code=status_code,
-            step_number=step_number,
-        )
-
-    def add_tool_span(
-        self,
-        input: str,
-        output: Optional[str] = None,
-        name: Optional[str] = None,
-        duration_ns: Optional[int] = None,
-        created_at: Optional[datetime] = None,
-        user_metadata: Optional[dict[str, str]] = None,
-        tags: Optional[list[str]] = None,
-        status_code: Optional[int] = None,
-        tool_call_id: Optional[str] = None,
-        step_number: Optional[int] = None,
-    ) -> ToolSpan:
-        return super().add_tool_span(
-            input=input,
-            output=output,
-            name=name,
-            duration_ns=duration_ns,
-            created_at=created_at,
-            user_metadata=user_metadata,
-            tags=tags,
-            status_code=status_code,
-            tool_call_id=tool_call_id,
-            step_number=step_number,
-        )
