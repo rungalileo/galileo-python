@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field, ValidationError, field_validator, model_v
 from pydantic_core.core_schema import ValidationInfo
 
 from galileo_core.schemas.logging.span import Span
-from galileo_core.schemas.logging.step import StepType
+from galileo_core.schemas.logging.step import STEP_TYPES_WITH_CHILD_SPANS, StepType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.metric import MetricValueType
 from galileo_core.schemas.shared.scorers.scorer_name import ScorerName as GalileoScorers
@@ -31,7 +31,7 @@ class LocalMetricConfig(BaseModel, Generic[MetricType]):
         ):
             raise ValidationError("aggregatable_types cannot contain any types in scorable_types")
         for step_type in value:
-            if step_type not in [StepType.workflow, StepType.trace]:
+            if step_type not in STEP_TYPES_WITH_CHILD_SPANS:
                 raise ValidationError("aggregatable_types can only contain trace or workflow steps")
         return value
 
