@@ -104,7 +104,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         node : Node
             The node to log.
         """
-        is_workflow_span = False
+        is_span_with_children = False
         input_ = node.span_params.get("input", "")
         output = node.span_params.get("output", "")
         name = node.span_params.get("name")
@@ -125,7 +125,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
                 step_number = None
 
         # Log the current node based on its type
-        if node.node_type in ("agent", "chain"):
+        if node.node_type == "chain":
             self._galileo_logger.add_workflow_span(
                 input=input_,
                 output=output,
@@ -136,7 +136,19 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
                 created_at=created_at,
                 step_number=step_number,
             )
-            is_workflow_span = True
+            is_span_with_children = True
+        elif node.node_type == "agent":
+            self._galileo_logger.add_agent_span(
+                input=input_,
+                output=output,
+                name=name,
+                duration_ns=node.span_params.get("duration_ns"),
+                metadata=metadata,
+                tags=tags,
+                created_at=created_at,
+                step_number=step_number,
+            )
+            is_span_with_children = True
         elif node.node_type in ("llm", "chat"):
             self._galileo_logger.add_llm_span(
                 input=input_,
@@ -190,8 +202,8 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             else:
                 _logger.warning(f"Child node {child_id} not found")
 
-        # Conclude workflow span. Use the last child's output if necessary
-        if is_workflow_span:
+        # Conclude parent span. Use the last child's output if necessary
+        if is_span_with_children:
             output = output or (last_child.span_params.get("output", "") if last_child else "")
             self._galileo_logger.conclude(output=serialize_to_str(output))
 
