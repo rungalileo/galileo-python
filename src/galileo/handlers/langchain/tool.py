@@ -28,6 +28,7 @@ class ProtectTool(BaseTool):
         "The tool can be used on the input text or output text, and can be configured "
         "with a set of rulesets to evaluate on."
     )
+    # langchain requires pydantic v1
     args_schema: type[BaseModelV1] = ProtectToolInputSchema
 
     prioritized_rulesets: Optional[Sequence[Ruleset]] = None
