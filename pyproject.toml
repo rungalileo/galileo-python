@@ -15,7 +15,7 @@ wrapt = "^1.14"
 attrs = ">=22.2.0"
 python-dateutil = "^2.8.0"
 langchain-core = { version = "^0.3.61", optional = true }
-openai = { version = "<1.84.0", optional = true }
+openai = { version = "<1.94.0", optional = true }
 openai-agents = { version = "<0.0.18", optional = true }
 
 galileo-core = "~=3.52.0"
@@ -40,9 +40,9 @@ time-machine = "^2.16.0"  # freezegun causes problems with pydantic model valida
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.0.1"
 mypy = "^1.16.0"
-openai = "^1.83.0"
+openai = "^1.93.0"
 codeflash = ">=0.12.3"
-ruff = "^0.11.13"
+ruff = "^0.12.1"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
