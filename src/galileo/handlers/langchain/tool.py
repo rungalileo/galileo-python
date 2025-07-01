@@ -7,7 +7,7 @@ from pydantic import UUID4, BaseModel, ConfigDict, Field
 from pydantic.v1 import BaseModel as BaseModelV1
 
 from galileo.constants.protect import TIMEOUT_SECS
-from galileo.protect import invoke
+from galileo.protect import ainvoke, invoke
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload as CorePayload
 from galileo_core.schemas.protect.response import Response
@@ -47,6 +47,26 @@ class ProtectTool(BaseTool):
         """
         api_payload = CorePayload(input=input, output=output)
         api_response = invoke(
+            payload=api_payload,
+            prioritized_rulesets=self.prioritized_rulesets,
+            project_name=self.project_name,
+            project_id=self.project_id,
+            stage_name=self.stage_name,
+            stage_id=self.stage_id,
+            stage_version=self.stage_version,
+            timeout=self.timeout,
+        )
+        return api_response.model_dump_json()
+
+    async def _arun(self, input: Optional[str] = None, output: Optional[str] = None) -> str:
+        """
+        Apply the tool asynchronously.
+
+        We serialize the response to JSON because that's what `langchain_core` expects
+        for tools.
+        """
+        api_payload = CorePayload(input=input, output=output)
+        api_response = await ainvoke(
             payload=api_payload,
             prioritized_rulesets=self.prioritized_rulesets,
             project_name=self.project_name,

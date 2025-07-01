@@ -1,11 +1,11 @@
 from typing import Optional
-from unittest.mock import ANY, Mock, patch
+from unittest.mock import ANY, AsyncMock, Mock, patch
 from uuid import uuid4
 
 from pytest import mark
 
 from galileo.handlers.langchain.tool import ProtectTool
-from galileo.protect import Protect, invoke
+from galileo.protect import Protect, ainvoke, invoke
 from galileo.resources.models.execution_status import ExecutionStatus as APIExecutionStatus
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.request import Request as APIRequest
@@ -91,11 +91,12 @@ def invoke_response() -> APIResponse:
 @mark.parametrize("metadata", [None, {"key": "value"}])
 @mark.parametrize("headers", [None, {"key": "value"}])
 @mark.parametrize("stage_version", [None, 1, 2])
-@patch("galileo.protect.invoke_protect_invoke_post.sync")
-class TestInvoke:
-    def test_invoke_success(
+@patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
+class TestAInvoke:
+    @mark.asyncio
+    async def test_ainvoke_success(
         self,
-        mock_invoke_post_sync: Mock,
+        mock_invoke_post_async: AsyncMock,
         include_project_id: bool,
         include_project_name: bool,
         include_stage_name: bool,
@@ -106,14 +107,14 @@ class TestInvoke:
         headers: dict,
         stage_version: Optional[int],
     ) -> None:
-        mock_invoke_post_sync.return_value = invoke_response()
+        mock_invoke_post_async.return_value = invoke_response()
 
         current_project_id = uuid4() if include_project_id else None
         current_project_name = A_PROJECT_NAME if include_project_name else None
         current_stage_id = uuid4() if include_stage_id else None
         current_stage_name = A_STAGE_NAME if include_stage_name else None
 
-        result = invoke(
+        result = await ainvoke(
             payload=payload,
             prioritized_rulesets=None,
             project_id=current_project_id,
@@ -146,7 +147,7 @@ class TestInvoke:
         body_dict["prioritized_rulesets"] = body_dict.pop("rulesets", [])
         expected_body = APIRequest.from_dict(body_dict)
 
-        mock_invoke_post_sync.assert_called_once_with(client=ANY, body=expected_body)
+        mock_invoke_post_async.assert_called_once_with(client=ANY, body=expected_body)
 
         assert isinstance(result, Response)
 
@@ -159,9 +160,86 @@ class TestInvoke:
             assert key in result.model_extra
             assert result.model_extra[key] == response_data[key]
 
-    def test_langchain_tool(
+
+@mark.parametrize(
+    ["include_project_id", "include_project_name", "include_stage_name", "include_stage_id"],
+    [
+        (True, True, True, True),
+        (True, False, True, True),
+        (False, True, True, True),
+        (False, False, True, True),
+        (True, True, False, True),
+        (True, False, False, True),
+        (True, True, True, False),
+        (True, False, True, False),
+        (False, True, False, True),
+        (False, False, False, True),
+    ],
+)
+@mark.parametrize(
+    "payload",
+    [
+        Payload(input=A_PROTECT_INPUT),
+        Payload(output=A_PROTECT_INPUT),
+        Payload(input=A_PROTECT_INPUT, output=A_PROTECT_INPUT),
+    ],
+)
+@mark.parametrize("timeout", [5, 60])
+@mark.parametrize("metadata", [None, {"key": "value"}])
+@mark.parametrize("headers", [None, {"key": "value"}])
+@mark.parametrize("stage_version", [None, 1, 2])
+class TestInvoke:
+    @patch("galileo.protect.ainvoke")
+    def test_invoke_success(
         self,
-        mock_invoke_post_sync: Mock,
+        mock_ainvoke: Mock,
+        include_project_id: bool,
+        include_project_name: bool,
+        include_stage_name: bool,
+        include_stage_id: bool,
+        payload: Payload,
+        timeout: float,
+        metadata: dict,
+        headers: dict,
+        stage_version: Optional[int],
+    ) -> None:
+        with patch("galileo.protect.async_run") as mock_async_run:
+            project_id = uuid4() if include_project_id else None
+            project_name = A_PROJECT_NAME if include_project_name else None
+            stage_id = uuid4() if include_stage_id else None
+            stage_name = A_STAGE_NAME if include_stage_name else None
+
+            invoke(
+                payload=payload,
+                prioritized_rulesets=None,
+                project_id=project_id,
+                project_name=project_name,
+                stage_id=stage_id,
+                stage_name=stage_name,
+                stage_version=stage_version,
+                timeout=timeout,
+                metadata=metadata,
+                headers=headers,
+            )
+            mock_async_run.assert_called_once()
+            mock_ainvoke.assert_called_once_with(
+                payload=payload,
+                prioritized_rulesets=None,
+                project_id=project_id,
+                project_name=project_name,
+                stage_id=stage_id,
+                stage_name=stage_name,
+                stage_version=stage_version,
+                timeout=timeout,
+                metadata=metadata,
+                headers=headers,
+            )
+
+    @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
+    @mark.asyncio
+    async def test_langchain_tool(
+        self,
+        mock_invoke_post_async: AsyncMock,
         include_project_id: bool,
         include_project_name: bool,
         include_stage_name: bool,
@@ -173,7 +251,7 @@ class TestInvoke:
         headers: dict,
         stage_version: Optional[int],
     ) -> None:
-        mock_invoke_post_sync.return_value = invoke_response()
+        mock_invoke_post_async.return_value = invoke_response()
 
         current_project_id = uuid4() if include_project_id else None
         current_project_name = A_PROJECT_NAME if include_project_name else None
@@ -198,20 +276,28 @@ class TestInvoke:
         response = Response.model_validate_json(response_json)
         assert response.text is not None
         assert response.status == ExecutionStatus.not_triggered
-        mock_invoke_post_sync.assert_called_once()
+        assert mock_invoke_post_async.call_count == 1
+
+        response_json = await tool.arun(payload.model_dump())
+        assert isinstance(response_json, str)
+        response = Response.model_validate_json(response_json)
+        assert response.text is not None
+        assert response.status == ExecutionStatus.not_triggered
+        assert mock_invoke_post_async.call_count == 2
 
 
-@patch("galileo.protect.invoke_protect_invoke_post.sync")
-def test_invoke_with_rulesets(mock_invoke_post_sync: Mock):
-    mock_invoke_post_sync.return_value = invoke_response()
+@patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
+@mark.asyncio
+async def test_invoke_with_rulesets(mock_invoke_post_async: Mock):
+    mock_invoke_post_async.return_value = invoke_response()
 
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
     rulesets = [Ruleset(rules=rules)]
 
-    invoke(payload=Payload(input="test input"), prioritized_rulesets=rulesets, stage_id=uuid4())
+    await ainvoke(payload=Payload(input="test input"), prioritized_rulesets=rulesets, stage_id=uuid4())
 
-    mock_invoke_post_sync.assert_called_once()
-    api_call_args = mock_invoke_post_sync.call_args.kwargs
+    mock_invoke_post_async.assert_called_once()
+    api_call_args = mock_invoke_post_async.call_args.kwargs
     body = api_call_args["body"]
 
     assert len(body.prioritized_rulesets) == 1
@@ -225,22 +311,23 @@ def test_invoke_with_rulesets(mock_invoke_post_sync: Mock):
     assert "rulesets" not in body.additional_properties
 
 
-@patch("galileo.protect.invoke_protect_invoke_post.sync")
-def test_invoke_api_validation_error(mock_invoke_post_sync: Mock):
+@patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
+@mark.asyncio
+async def test_invoke_api_validation_error(mock_invoke_post_async: Mock):
     error_detail_item = {"loc": ["body", "payload", "input"], "msg": "Field required", "type": "missing"}
     validation_error = HTTPValidationError(detail=[error_detail_item])
-    mock_invoke_post_sync.return_value = validation_error
+    mock_invoke_post_async.return_value = validation_error
 
     payload = Payload(input="Test input")
 
-    result = invoke(payload=payload, stage_id=uuid4())
+    result = await ainvoke(payload=payload, stage_id=uuid4())
     assert isinstance(result, HTTPValidationError)
     assert result.detail[0]["msg"] == "Field required"
 
-    mock_invoke_post_sync.reset_mock()
-    mock_invoke_post_sync.return_value = validation_error
+    mock_invoke_post_async.reset_mock()
+    mock_invoke_post_async.return_value = validation_error
 
-    class_method_result = Protect().invoke(payload=payload, stage_id=uuid4())
+    class_method_result = await Protect().ainvoke(payload=payload, stage_id=uuid4())
     assert isinstance(class_method_result, HTTPValidationError)
     assert class_method_result.detail[0]["msg"] == "Field required"
 
