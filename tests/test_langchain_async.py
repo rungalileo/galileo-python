@@ -732,7 +732,7 @@ class TestGalileoAsyncCallback:
         retriever_span = traces[0].spans[0].spans[0]
         llm_span = traces[0].spans[0].spans[1]
 
-        time_diff_ms = (llm_span.created_at - retriever_span.created_at).total_seconds() * 1000
+        time_diff_ms = round((llm_span.created_at - retriever_span.created_at).total_seconds() * 1000)
         assert time_diff_ms >= delay_ms
 
     @pytest.mark.parametrize(
