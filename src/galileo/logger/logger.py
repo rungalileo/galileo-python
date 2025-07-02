@@ -621,6 +621,41 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             return super().add_tool_span(**kwargs)
         return self.add_tool_span_streaming(**kwargs)
 
+    def add_tool_span_streaming(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        status_code: Optional[int] = None,
+        tool_call_id: Optional[str] = None,
+        step_number: Optional[int] = None,
+    ) -> ToolSpan:
+        span = ToolSpan(
+            input=input,
+            output=output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            status_code=status_code,
+            tool_call_id=tool_call_id,
+            metrics=Metrics(duration_ns=duration_ns),
+            id=id,
+            step_number=step_number,
+        )
+
+        spans_ingest_request = SpansIngestRequest(
+            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
+        )
+
+        self._pool.submit(lambda: self._client.ingest_spans(spans_ingest_request), wait_for_result=False)
+
+        return span
+
     @nop_sync
     def add_workflow_span(
         self,
