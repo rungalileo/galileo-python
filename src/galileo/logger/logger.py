@@ -1,6 +1,8 @@
 import atexit
 import json
 import logging
+import uuid
+from collections import deque
 from datetime import datetime
 from os import getenv
 from typing import Literal, Optional, Union
@@ -15,6 +17,7 @@ from galileo.logger.streaming import GalileoStreamingLogger
 from galileo.logger.utils import RetrieverSpanAllowedOutputType
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
+from galileo.schema.trace import SessionCreateRequest, SpansIngestRequest, TracesIngestRequest
 from galileo.schema.trace import SessionCreateRequest
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
@@ -23,6 +26,7 @@ from galileo.utils.serialization import serialize_to_str
 from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.span import (
     AgentSpan,
+    LlmMetrics,
     LlmSpan,
     LlmSpanAllowedInputType,
     LlmSpanAllowedOutputType,
@@ -237,7 +241,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
-        metadata: Optional[dict[str, str]] = None,
+        user_metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
         dataset_input: Optional[str] = None,
         dataset_output: Optional[str] = None,
@@ -248,23 +252,26 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             input=input,
             name=name,
             created_at=created_at,
-            user_metadata=metadata,
+            user_metadata=user_metadata,
             tags=tags,
             metrics=Metrics(duration_ns=duration_ns),
             dataset_input=dataset_input,
             dataset_output=dataset_output,
             dataset_metadata=dataset_metadata if dataset_metadata is not None else {},
             external_id=external_id,
-            id=str(uuid.uuid4()),
+            id=uuid.uuid4(),
+            is_complete=False,
         )
         traces_ingest_request = TracesIngestRequest(
-            traces=[trace], experiment_id=self.experiment_id, session_id=self.session_id
+            traces=[trace], experiment_id=self.experiment_id, session_id=self.session_id, is_complete=False
         )
         # TODO: use non-blockign wrapper
         self._client.ingest_traces_sync(traces_ingest_request)
 
         self._logger.info("Successfully flushed trace %s.", trace.id)
 
+        self.traces.append(trace)
+        self._parent_stack.append(trace)
         return trace
 
     @nop_sync
@@ -403,6 +410,54 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             return super().add_llm_span(**kwargs)
         return self.add_llm_span_streaming(**kwargs)
 
+    def add_llm_span_streaming(
+        self,
+        input: LlmSpanAllowedInputType,
+        output: LlmSpanAllowedOutputType,
+        model: Optional[str],
+        tools: Optional[list[dict]] = None,
+        name: Optional[str] = None,
+        created_at: Optional[datetime] = None,
+        duration_ns: Optional[int] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        num_input_tokens: Optional[int] = None,
+        num_output_tokens: Optional[int] = None,
+        total_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        status_code: Optional[int] = None,
+        time_to_first_token_ns: Optional[int] = None,
+        step_number: Optional[int] = None,
+    ) -> LlmSpan:
+        span = LlmSpan(
+            input=input,
+            output=output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            metrics=LlmMetrics(
+                duration_ns=duration_ns,
+                num_input_tokens=num_input_tokens,
+                num_output_tokens=num_output_tokens,
+                num_total_tokens=total_tokens,
+                time_to_first_token_ns=time_to_first_token_ns,
+            ),
+            tools=tools,
+            model=model,
+            temperature=temperature,
+            status_code=status_code,
+            step_number=step_number,
+        )
+
+        spans_ingest_request = SpansIngestRequest(
+            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
+        )
+
+        self._client.ingest_spans_sync(spans_ingest_request=spans_ingest_request)
+
+        return span
+
     @nop_sync
     def add_retriever_span(
         self,
@@ -473,8 +528,41 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             step_number=step_number,
         )
         if self.mode == "batch":
-            return GalileoBatchLogger.add_retriever_span(self, **kwargs)
-        return GalileoStreamingLogger.add_retriever_span(self, **kwargs)
+            return super().add_retriever_span(**kwargs)
+        return self.add_retriever_span_streaming(**kwargs)
+
+    def add_retriever_span_streaming(
+        self,
+        input: str,
+        documents: list[Document],
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        status_code: Optional[int] = None,
+        step_number: Optional[int] = None,
+    ):
+        span = RetrieverSpan(
+            input=input,
+            output=documents,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            status_code=status_code,
+            metrics=Metrics(duration_ns=duration_ns),
+            id=uuid.uuid4(),
+            step_number=step_number,
+        )
+
+        spans_ingest_request = SpansIngestRequest(
+            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
+        )
+
+        self._client.ingest_spans_sync(spans_ingest_request=spans_ingest_request)
+
+        return span
 
     @nop_sync
     def add_tool_span(
@@ -521,8 +609,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             step_number=step_number,
         )
         if self.mode == "batch":
-            return GalileoBatchLogger.add_tool_span(self, **kwargs)
-        return GalileoStreamingLogger.add_tool_span(self, **kwargs)
+            return super().add_tool_span(**kwargs)
+        return self.add_tool_span_streamming(**kwargs)
 
     @nop_sync
     def add_workflow_span(
@@ -661,7 +749,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         if self.mode == "batch":
             return self.flush_batch()
-        return self.flush_streamming(self)
+        return self.flush_streamming()
 
     def flush_batch(self):
         if not self.traces:
@@ -693,6 +781,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self.traces = list()
         self._parent_stack = deque()
         return logged_traces
+
+    def flush_streamming(self): ...
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
