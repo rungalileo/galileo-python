@@ -1,6 +1,5 @@
 from typing import Optional, Union
 
-from galileo.resources.models import Document
 from galileo.utils.nop_logger import nop_sync
 from galileo.utils.serialization import serialize_to_str
 from galileo_core.schemas.logging.span import StepWithChildSpans
@@ -20,8 +19,3 @@ def get_last_output(node: Union[BaseStep, None]) -> Optional[str]:
     elif isinstance(node, StepWithChildSpans) and len(node.spans):
         return get_last_output(node.spans[-1])
     return None
-
-
-RetrieverSpanAllowedOutputType = Union[
-    str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None
-]

@@ -1,8 +1,9 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import UUID4, BaseModel, Field
 
+from galileo.resources.models import Document
 from galileo_core.schemas.logging.span import Span
 from galileo_core.schemas.logging.trace import Trace
 
@@ -78,3 +79,8 @@ class LogRecordsSearchFilter(BaseModel):
 
 class LogRecordsSearchRequest(BaseLogStreamOrExperimentModel):
     filters: Optional[list[LogRecordsSearchFilter]] = Field(default=None, description="Filters to apply to the search.")
+
+
+RetrieverSpanAllowedOutputType = Union[
+    str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None
+]

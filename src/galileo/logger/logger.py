@@ -12,15 +12,18 @@ from pydantic import ValidationError
 from galileo.api_client import GalileoApiClient
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
-from galileo.logger.batch import GalileoBatchLogger
-from galileo.logger.streaming import GalileoStreamingLogger
-from galileo.logger.utils import RetrieverSpanAllowedOutputType
+from galileo.logger.utils import get_last_output
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
-from galileo.schema.trace import SessionCreateRequest, SpansIngestRequest, TracesIngestRequest
-from galileo.schema.trace import SessionCreateRequest
+from galileo.schema.trace import (
+    RetrieverSpanAllowedOutputType,
+    SessionCreateRequest,
+    SpansIngestRequest,
+    TracesIngestRequest,
+)
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
+from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
 from galileo_core.helpers.event_loop_thread_pool import EventLoopThreadPool
