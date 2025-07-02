@@ -7,6 +7,7 @@ from datetime import datetime
 from os import getenv
 from typing import Literal, Optional, Union
 
+import backoff
 from pydantic import ValidationError
 
 from galileo.api_client import GalileoApiClient
@@ -161,7 +162,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self.local_metrics = local_metrics
 
         self._init_project()
-        self._pool = EventLoopThreadPool(name="MyThreadPool", num_threads=4)
+        if self.mode == "streaming":
+            self._max_retries = 3
+            self._pool = EventLoopThreadPool(num_threads=4)
 
     @nop_sync
     def _init_project(self) -> None:
@@ -276,7 +279,21 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             traces=[trace], experiment_id=self.experiment_id, session_id=self.session_id, is_complete=False
         )
 
-        self._pool.submit(lambda: self._client.ingest_traces(traces_ingest_request), wait_for_result=False)
+        @backoff.on_exception(backoff.expo, Exception, max_tries=self._max_retries, logger=None)
+        async def ingest_traces_with_backoff(request):
+            try:
+                await self._client.ingest_traces(request)
+            except Exception as e:
+                # TODO: figure out when we want retry and when we don't
+                # if (
+                #         isinstance(e, APIError)
+                #         and 400 <= int(e.status) < 500
+                #         and int(e.status) != 429  # retry if rate-limited
+                # ):
+                #     return
+                raise e
+
+        self._pool.submit(lambda: ingest_traces_with_backoff(traces_ingest_request), wait_for_result=False)
         self._logger.info("ingested trace %s.", trace.id)
 
         self.traces.append(trace)
@@ -889,7 +906,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._parent_stack = deque()
         return logged_traces
 
-    def flush_streaming(self): ...
+    def flush_streaming(self):
+        """
+        There is no flush implementation because we ingest data immediately.
+        """
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
