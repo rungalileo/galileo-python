@@ -16,6 +16,10 @@ from galileo.logger.utils import get_last_output
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import (
+    LogRecordsSearchFilter,
+    LogRecordsSearchFilterOperator,
+    LogRecordsSearchFilterType,
+    LogRecordsSearchRequest,
     RetrieverSpanAllowedOutputType,
     SessionCreateRequest,
     SpansIngestRequest,
