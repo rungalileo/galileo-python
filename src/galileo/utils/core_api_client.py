@@ -8,7 +8,7 @@ from httpx import Client, Timeout
 
 from galileo.api_client import GalileoApiClient
 from galileo.constants.routes import Routes
-from galileo.schema.trace import SessionCreateRequest, TracesIngestRequest
+from galileo.schema.trace import LogRecordsSearchRequest, SessionCreateRequest, SpansIngestRequest, TracesIngestRequest
 from galileo.utils.request import HttpHeaders, make_request
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient as CoreApiClient
