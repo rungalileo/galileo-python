@@ -610,7 +610,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         if self.mode == "batch":
             return super().add_tool_span(**kwargs)
-        return self.add_tool_span_streamming(**kwargs)
+        return self.add_tool_span_streaming(**kwargs)
 
     @nop_sync
     def add_workflow_span(
@@ -654,7 +654,38 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         if self.mode == "batch":
             return super().add_workflow_span(**kwargs)
-        return self.add_workflow_span_streamming(**kwargs)
+        return self.add_workflow_span_streaming(**kwargs)
+
+    def add_workflow_span_streaming(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        step_number: Optional[int] = None,
+    ):
+        span = WorkflowSpan(
+            input=input,
+            output=output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            id=id,
+            step_number=step_number,
+        )
+
+        spans_ingest_request = SpansIngestRequest(
+            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
+        )
+
+        self._client.ingest_spans_sync(spans_ingest_request=spans_ingest_request)
+
+        return span
 
     @nop_sync
     def add_agent_span(
@@ -700,7 +731,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         if self.mode == "batch":
             return super().add_agent_span(**kwargs)
-        return self.add_agent_span_streamming(self, **kwargs)
+        return self.add_agent_span_streaming(self, **kwargs)
 
     @nop_sync
     def conclude(
@@ -736,7 +767,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
             return current_parent
 
-        return self.conclude_streamming(**kwargs)
+        return self.conclude_streaming(**kwargs)
 
     @nop_sync
     def flush(self) -> list[Trace]:
@@ -749,7 +780,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         if self.mode == "batch":
             return self.flush_batch()
-        return self.flush_streamming()
+        return self.flush_streaming()
 
     def flush_batch(self):
         if not self.traces:
@@ -782,7 +813,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._parent_stack = deque()
         return logged_traces
 
-    def flush_streamming(self): ...
+    def flush_streaming(self): ...
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
@@ -795,7 +826,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         if self.mode == "batch":
             return await self.async_flush_batch()
-        return await self.async_flush_streamming()
+        return await self.async_flush_streaming()
 
     async def async_flush_batch(self) -> list[Trace]:
         if not self.traces:
