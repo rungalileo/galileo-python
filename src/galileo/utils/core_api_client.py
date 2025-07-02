@@ -149,6 +149,13 @@ class GalileoCoreApiClient:
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
         )
 
+    async def ingest_spans(self, spans_ingest_request: SpansIngestRequest) -> dict[str, str]:
+        json = spans_ingest_request.model_dump(mode="json")
+
+        return await self._make_async_request(
+            RequestMethod.POST, endpoint=Routes.spans.format(project_id=self.project_id), json=json
+        )
+
     def ingest_spans_sync(self, spans_ingest_request: SpansIngestRequest) -> dict[str, str]:
         json = spans_ingest_request.model_dump(mode="json")
 

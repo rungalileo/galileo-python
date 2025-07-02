@@ -23,6 +23,7 @@ from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
+from galileo_core.helpers.event_loop_thread_pool import EventLoopThreadPool
 from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.span import (
     AgentSpan,
@@ -116,6 +117,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     local_metrics: Optional[list[LocalMetricConfig]] = None
     mode: Optional[LoggerModeType] = None
     _logger = logging.getLogger("galileo.logger")
+    _pool: EventLoopThreadPool
 
     def __init__(
         self,
@@ -152,6 +154,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self.local_metrics = local_metrics
 
         self._init_project()
+        self._pool = EventLoopThreadPool(name="MyThreadPool", num_threads=4)
 
     @nop_sync
     def _init_project(self) -> None:
@@ -265,10 +268,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         traces_ingest_request = TracesIngestRequest(
             traces=[trace], experiment_id=self.experiment_id, session_id=self.session_id, is_complete=False
         )
-        # TODO: use non-blockign wrapper
-        self._client.ingest_traces_sync(traces_ingest_request)
 
-        self._logger.info("Successfully flushed trace %s.", trace.id)
+        self._pool.submit(lambda: self._client.ingest_traces(traces_ingest_request), wait_for_result=False)
+        self._logger.info("ingested trace %s.", trace.id)
 
         self.traces.append(trace)
         self._parent_stack.append(trace)
@@ -454,7 +456,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
         )
 
-        self._client.ingest_spans_sync(spans_ingest_request=spans_ingest_request)
+        self._pool.submit(lambda: self._client.ingest_spans(spans_ingest_request), wait_for_result=False)
 
         return span
 
@@ -560,7 +562,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
         )
 
-        self._client.ingest_spans_sync(spans_ingest_request=spans_ingest_request)
+        self._pool.submit(lambda: self._client.ingest_spans(spans_ingest_request), wait_for_result=False)
 
         return span
 
@@ -683,7 +685,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
         )
 
-        self._client.ingest_spans_sync(spans_ingest_request=spans_ingest_request)
+        self._pool.submit(lambda: self._client.ingest_spans(spans_ingest_request), wait_for_result=False)
 
         return span
 
@@ -731,7 +733,39 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         if self.mode == "batch":
             return super().add_agent_span(**kwargs)
-        return self.add_agent_span_streaming(self, **kwargs)
+        return self.add_agent_span_streaming(**kwargs)
+
+    def add_agent_span_streaming(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        agent_type: Optional[AgentType] = None,
+        step_number: Optional[int] = None,
+    ):
+        span = AgentSpan(
+            input=input,
+            output=output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            agent_type=agent_type,
+            step_number=step_number,
+        )
+
+        spans_ingest_request = SpansIngestRequest(
+            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
+        )
+
+        self._pool.submit(lambda: self._client.ingest_spans(spans_ingest_request), wait_for_result=False)
+
+        return span
 
     @nop_sync
     def conclude(
