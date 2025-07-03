@@ -124,7 +124,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
     def __init__(
         self,
         project: Optional[str] = None,
+        project_id: Optional[str] = None,
         log_stream: Optional[str] = None,
+        log_stream_id: Optional[str] = None,
         experiment_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
         mode: Optional[LoggerModeType] = "batch",
@@ -134,28 +136,37 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
         log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
-        self.project_name = project or project_name_from_env
+        project_id_from_env = getenv("GALILEO_PROJECT_ID")
+        log_stream_id_from_env = getenv("GALILEO_LOG_STREAM_ID")
 
-        if not self.project_name:
+        self.project_name = project or project_name_from_env
+        self.project_id = project_id or project_id_from_env
+
+        if self.project_name is None and self.project_id is None:
             raise GalileoLoggerException(
-                "User must provide project_name to GalileoLogger, or set it as an environment variable."
+                "User must provide project_name or project_id to GalileoLogger, or set it as an environment variable."
             )
 
-        if log_stream and experiment_id:
-            raise GalileoLoggerException("User must provide either experiment_id or log_stream, not both.")
+        if (log_stream or log_stream_id) and experiment_id:
+            raise GalileoLoggerException("User cannot specify both a log stream and an experiment.")
 
         if experiment_id:
             self.experiment_id = experiment_id
         else:
             self.log_stream_name = log_stream or log_stream_name_from_env
+            self.log_stream_id = log_stream_id or log_stream_id_from_env
 
-            if self.log_stream_name is None:
-                raise GalileoLoggerException("log_stream is required to initialize GalileoLogger.")
+            if self.log_stream_name is None and self.log_stream_id is None:
+                raise GalileoLoggerException("log_stream or log_stream_id is required to initialize GalileoLogger.")
 
         if local_metrics:
             self.local_metrics = local_metrics
 
-        self._init_project()
+        if not (self.project_id and (self.log_stream_id or self.experiment_id)):
+            self._init_project()
+
+        # cleans up when the python interpreter closes
+        atexit.register(self.terminate)
 
     @nop_sync
     def _init_project(self) -> None:
@@ -190,9 +201,6 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
 
         elif self.experiment_id is not None:
             self._client = GalileoCoreApiClient(project_id=self.project_id, experiment_id=self.experiment_id)
-
-        # cleans up when the python interpreter closes
-        atexit.register(self.terminate)
 
     @staticmethod
     @nop_sync
