@@ -1,8 +1,10 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import UUID4, BaseModel, Field
 
+from galileo.resources.models import Document
+from galileo_core.schemas.logging.span import Span
 from galileo_core.schemas.logging.trace import Trace
 
 
@@ -14,6 +16,14 @@ class BaseLogStreamOrExperimentModel(BaseModel):
 class TracesIngestRequest(BaseLogStreamOrExperimentModel):
     traces: list[Trace] = Field(..., description="List of traces to log.", min_length=1)
     session_id: Optional[UUID4] = Field(default=None, description="Session id associated with the traces.")
+    is_complete: Optional[bool] = Field(default=True, description="Is complete.")
+
+
+class SpansIngestRequest(BaseModel):
+    log_stream_id: Optional[UUID4] = Field(default=None, description="Log stream id associated with the traces.")
+    trace_id: UUID4 = Field(default=None, description="Trace id associated with the traces.")
+    parent_id: Optional[UUID4] = Field(default=None, description="Parent id associated with the traces.")
+    spans: list[Span] = Field(..., description="List of spans to log.", min_length=1)
 
 
 class TracesIngestResponse(BaseLogStreamOrExperimentModel):
@@ -69,3 +79,8 @@ class LogRecordsSearchFilter(BaseModel):
 
 class LogRecordsSearchRequest(BaseLogStreamOrExperimentModel):
     filters: Optional[list[LogRecordsSearchFilter]] = Field(default=None, description="Filters to apply to the search.")
+
+
+RetrieverSpanAllowedOutputType = Union[
+    str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None
+]

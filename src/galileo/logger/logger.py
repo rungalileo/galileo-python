@@ -1,17 +1,19 @@
 import atexit
 import json
 import logging
+import uuid
+from collections import deque
 from datetime import datetime
 from os import getenv
 from typing import Literal, Optional, Union
 
+import backoff
 from pydantic import ValidationError
 
 from galileo.api_client import GalileoApiClient
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
-from galileo.logger.batch import GalileoBatchLogger
-from galileo.logger.streaming import GalileoStreamingLogger
+from galileo.logger.utils import get_last_output
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import (
@@ -19,15 +21,21 @@ from galileo.schema.trace import (
     LogRecordsSearchFilterOperator,
     LogRecordsSearchFilterType,
     LogRecordsSearchRequest,
+    RetrieverSpanAllowedOutputType,
     SessionCreateRequest,
+    SpansIngestRequest,
+    TracesIngestRequest,
 )
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
+from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
+from galileo_core.helpers.event_loop_thread_pool import EventLoopThreadPool
 from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.span import (
     AgentSpan,
+    LlmMetrics,
     LlmSpan,
     LlmSpanAllowedInputType,
     LlmSpanAllowedOutputType,
@@ -36,13 +44,10 @@ from galileo_core.schemas.logging.span import (
     ToolSpan,
     WorkflowSpan,
 )
-from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
+from galileo_core.schemas.logging.step import BaseStep, Metrics, StepAllowedInputType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
-
-RetrieverSpanAllowedOutputType = Union[
-    str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None
-]
+from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 
 class GalileoLoggerException(Exception):
@@ -52,7 +57,7 @@ class GalileoLoggerException(Exception):
 LoggerModeType = Literal["batch", "streaming"]
 
 
-class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMethods):
+class GalileoLogger(TracesLogger, DecorateAllMethods):
     """
     This class can be used to upload traces to Galileo.
     First initialize a new GalileoLogger object with an existing project and log stream.
@@ -93,7 +98,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
     trace = logger.start_trace(input="Who's a good bot?")
     logger.add_retriever_span(
         input="Who's a good bot?",
-        documents=["Research shows that I am a good bot."],
+        output="Research shows that I am a good bot.",
         duration_ns=1000
     )
     logger.add_llm_span(
@@ -120,6 +125,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
     local_metrics: Optional[list[LocalMetricConfig]] = None
     mode: Optional[LoggerModeType] = None
     _logger = logging.getLogger("galileo.logger")
+    _pool: EventLoopThreadPool
 
     def __init__(
         self,
@@ -156,6 +162,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             self.local_metrics = local_metrics
 
         self._init_project()
+        if self.mode == "streaming":
+            self._max_retries = 3
+            self._pool = EventLoopThreadPool(num_threads=4)
 
     @nop_sync
     def _init_project(self) -> None:
@@ -228,7 +237,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
-            metadata=metadata,
+            user_metadata=metadata,
             tags=tags,
             dataset_input=dataset_input,
             dataset_output=dataset_output,
@@ -236,8 +245,60 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             external_id=external_id,
         )
         if self.mode == "batch":
-            return GalileoBatchLogger.start_trace(self, **kwargs)
-        return GalileoStreamingLogger.start_trace(self, **kwargs)
+            return self.add_trace(**kwargs)
+        return self.start_trace_streaming(**kwargs)
+
+    def start_trace_streaming(
+        self,
+        input: StepAllowedInputType,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        dataset_input: Optional[str] = None,
+        dataset_output: Optional[str] = None,
+        dataset_metadata: Optional[dict[str, str]] = None,
+        external_id: Optional[str] = None,
+    ):
+        trace = Trace(
+            input=input,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            dataset_input=dataset_input,
+            dataset_output=dataset_output,
+            dataset_metadata=dataset_metadata if dataset_metadata is not None else {},
+            external_id=external_id,
+            id=uuid.uuid4(),
+            is_complete=False,
+        )
+        traces_ingest_request = TracesIngestRequest(
+            traces=[trace], experiment_id=self.experiment_id, session_id=self.session_id, is_complete=False
+        )
+
+        @backoff.on_exception(backoff.expo, Exception, max_tries=self._max_retries, logger=None)
+        async def ingest_traces_with_backoff(request):
+            try:
+                await self._client.ingest_traces(request)
+            except Exception as e:
+                # TODO: figure out when we want retry and when we don't
+                # if (
+                #         isinstance(e, APIError)
+                #         and 400 <= int(e.status) < 500
+                #         and int(e.status) != 429  # retry if rate-limited
+                # ):
+                #     return
+                raise e
+
+        self._pool.submit(lambda: ingest_traces_with_backoff(traces_ingest_request), wait_for_result=False)
+        self._logger.info("ingested trace %s.", trace.id)
+
+        self.traces.append(trace)
+        self._parent_stack.append(trace)
+        return trace
 
     @nop_sync
     def add_single_llm_span_trace(
@@ -353,7 +414,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         -------
             LlmSpan: The created span.
         """
-        return super().add_llm_span(
+        kwargs = dict(
             input=input,
             output=output,
             model=model,
@@ -371,6 +432,57 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             time_to_first_token_ns=time_to_first_token_ns,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return super().add_llm_span(**kwargs)
+        return self.add_llm_span_streaming(**kwargs)
+
+    def add_llm_span_streaming(
+        self,
+        input: LlmSpanAllowedInputType,
+        output: LlmSpanAllowedOutputType,
+        model: Optional[str],
+        tools: Optional[list[dict]] = None,
+        name: Optional[str] = None,
+        created_at: Optional[datetime] = None,
+        duration_ns: Optional[int] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        num_input_tokens: Optional[int] = None,
+        num_output_tokens: Optional[int] = None,
+        total_tokens: Optional[int] = None,
+        temperature: Optional[float] = None,
+        status_code: Optional[int] = None,
+        time_to_first_token_ns: Optional[int] = None,
+        step_number: Optional[int] = None,
+    ) -> LlmSpan:
+        span = LlmSpan(
+            input=input,
+            output=output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            metrics=LlmMetrics(
+                duration_ns=duration_ns,
+                num_input_tokens=num_input_tokens,
+                num_output_tokens=num_output_tokens,
+                num_total_tokens=total_tokens,
+                time_to_first_token_ns=time_to_first_token_ns,
+            ),
+            tools=tools,
+            model=model,
+            temperature=temperature,
+            status_code=status_code,
+            step_number=step_number,
+        )
+
+        spans_ingest_request = SpansIngestRequest(
+            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
+        )
+
+        self._pool.submit(lambda: self._client.ingest_spans(spans_ingest_request), wait_for_result=False)
+
+        return span
 
     @nop_sync
     def add_retriever_span(
@@ -430,7 +542,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         else:
             documents = [Document(content="", metadata={})]
 
-        return super().add_retriever_span(
+        kwargs = dict(
             input=input,
             documents=documents,
             name=name,
@@ -441,6 +553,42 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             status_code=status_code,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return super().add_retriever_span(**kwargs)
+        return self.add_retriever_span_streaming(**kwargs)
+
+    def add_retriever_span_streaming(
+        self,
+        input: str,
+        documents: list[Document],
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        status_code: Optional[int] = None,
+        step_number: Optional[int] = None,
+    ):
+        span = RetrieverSpan(
+            input=input,
+            output=documents,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            status_code=status_code,
+            metrics=Metrics(duration_ns=duration_ns),
+            id=uuid.uuid4(),
+            step_number=step_number,
+        )
+
+        spans_ingest_request = SpansIngestRequest(
+            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
+        )
+
+        self._pool.submit(lambda: self._client.ingest_spans(spans_ingest_request), wait_for_result=False)
+
+        return span
 
     @nop_sync
     def add_tool_span(
@@ -474,7 +622,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         -------
             ToolSpan: The created span.
         """
-        return super().add_tool_span(
+        kwargs = dict(
             input=input,
             output=output,
             name=name,
@@ -486,6 +634,44 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             tool_call_id=tool_call_id,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return super().add_tool_span(**kwargs)
+        return self.add_tool_span_streaming(**kwargs)
+
+    def add_tool_span_streaming(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        status_code: Optional[int] = None,
+        tool_call_id: Optional[str] = None,
+        step_number: Optional[int] = None,
+    ) -> ToolSpan:
+        span = ToolSpan(
+            input=input,
+            output=output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            status_code=status_code,
+            tool_call_id=tool_call_id,
+            metrics=Metrics(duration_ns=duration_ns),
+            id=id,
+            step_number=step_number,
+        )
+
+        spans_ingest_request = SpansIngestRequest(
+            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
+        )
+
+        self._pool.submit(lambda: self._client.ingest_spans(spans_ingest_request), wait_for_result=False)
+
+        return span
 
     @nop_sync
     def add_workflow_span(
@@ -517,7 +703,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         -------
             WorkflowSpan: The created span.
         """
-        return super().add_workflow_span(
+        kwargs = dict(
             input=input,
             output=output,
             name=name,
@@ -527,6 +713,40 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             tags=tags,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return super().add_workflow_span(**kwargs)
+        return self.add_workflow_span_streaming(**kwargs)
+
+    def add_workflow_span_streaming(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        step_number: Optional[int] = None,
+    ):
+        span = WorkflowSpan(
+            input=input,
+            output=output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            id=id,
+            step_number=step_number,
+        )
+
+        spans_ingest_request = SpansIngestRequest(
+            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
+        )
+
+        self._pool.submit(lambda: self._client.ingest_spans(spans_ingest_request), wait_for_result=False)
+
+        return span
 
     @nop_sync
     def add_agent_span(
@@ -559,7 +779,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         -------
             AgentSpan: The created span.
         """
-        return super().add_agent_span(
+        kwargs = dict(
             input=input,
             output=output,
             name=name,
@@ -570,6 +790,41 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             agent_type=agent_type,
             step_number=step_number,
         )
+        if self.mode == "batch":
+            return super().add_agent_span(**kwargs)
+        return self.add_agent_span_streaming(**kwargs)
+
+    def add_agent_span_streaming(
+        self,
+        input: str,
+        output: Optional[str] = None,
+        name: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        created_at: Optional[datetime] = None,
+        user_metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        agent_type: Optional[AgentType] = None,
+        step_number: Optional[int] = None,
+    ):
+        span = AgentSpan(
+            input=input,
+            output=output,
+            name=name,
+            created_at=created_at,
+            user_metadata=user_metadata,
+            tags=tags,
+            metrics=Metrics(duration_ns=duration_ns),
+            agent_type=agent_type,
+            step_number=step_number,
+        )
+
+        spans_ingest_request = SpansIngestRequest(
+            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=self.traces[0].id
+        )
+
+        self._pool.submit(lambda: self._client.ingest_spans(spans_ingest_request), wait_for_result=False)
+
+        return span
 
     @nop_sync
     def conclude(
@@ -593,13 +848,19 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         -------
             Optional[StepWithChildSpans]: The parent of the current workflow. None if no parent exists.
         """
+        kwargs = dict(output=output, duration_ns=duration_ns, status_code=status_code, conclude_all=conclude_all)
         if self.mode == "batch":
-            return GalileoBatchLogger.conclude(
-                self, output=output, duration_ns=duration_ns, status_code=status_code, conclude_all=conclude_all
-            )
-        return GalileoStreamingLogger.conclude(
-            self, output=output, duration_ns=duration_ns, status_code=status_code, conclude_all=conclude_all
-        )
+            if not conclude_all:
+                return super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
+
+            # TODO: Allow the final span output to propagate to the parent spans
+            current_parent = None
+            while self.current_parent() is not None:
+                current_parent = super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
+
+            return current_parent
+
+        return self.conclude_streaming(**kwargs)
 
     @nop_sync
     def flush(self) -> list[Trace]:
@@ -611,8 +872,44 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             List[Trace]: The list of uploaded traces.
         """
         if self.mode == "batch":
-            return GalileoBatchLogger.flush(self)
-        return GalileoStreamingLogger.flush(self)
+            return self.flush_batch()
+        return self.flush_streaming()
+
+    def flush_batch(self):
+        if not self.traces:
+            self._logger.info("No traces to flush.")
+            return list()
+
+        current_parent = self.current_parent()
+        if current_parent is not None:
+            self._logger.info("Concluding the active trace...")
+            last_output = get_last_output(current_parent)
+            self.conclude(output=last_output, conclude_all=True)
+
+        if self.local_metrics:
+            self._logger.info("Computing local metrics...")
+            # TODO: parallelize, possibly with ThreadPoolExecutor
+            for trace in self.traces:
+                populate_local_metrics(trace, self.local_metrics)
+
+        self._logger.info("Flushing %d traces...", len(self.traces))
+
+        traces_ingest_request = TracesIngestRequest(
+            traces=self.traces, experiment_id=self.experiment_id, session_id=self.session_id
+        )
+        self._client.ingest_traces_sync(traces_ingest_request)
+        logged_traces = self.traces
+
+        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
+
+        self.traces = list()
+        self._parent_stack = deque()
+        return logged_traces
+
+    def flush_streaming(self):
+        """
+        There is no flush implementation because we ingest data immediately.
+        """
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
@@ -624,8 +921,37 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             List[Trace]: The list of uploaded workflows.
         """
         if self.mode == "batch":
-            return await GalileoBatchLogger.async_flush(self)
-        return await GalileoStreamingLogger.async_flush(self)
+            return await self.async_flush_batch()
+        return await self.async_flush_streaming()
+
+    async def async_flush_batch(self) -> list[Trace]:
+        if not self.traces:
+            self._logger.info("No traces to flush.")
+            return list()
+
+        current_parent = self.current_parent()
+        if current_parent is not None:
+            self._logger.info("Concluding the active trace...")
+            last_output = get_last_output(current_parent)
+            self.conclude(output=last_output, conclude_all=True)
+
+        if self.local_metrics:
+            self._logger.info("Computing metrics for local scorers...")
+            # TODO: parallelize, possibly with asyncio to_thread/gather
+            for trace in self.traces:
+                populate_local_metrics(trace, self.local_metrics)
+
+        self._logger.info("Flushing %d traces...", len(self.traces))
+
+        traces_ingest_request = TracesIngestRequest(traces=self.traces, session_id=self.session_id)
+        await self._client.ingest_traces(traces_ingest_request)
+        logged_traces = self.traces
+
+        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
+
+        self.traces = list()
+        self._parent_stack = deque()
+        return logged_traces
 
     @nop_sync
     def terminate(self) -> None:
