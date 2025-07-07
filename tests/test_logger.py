@@ -28,7 +28,7 @@ LOGGER = logging.getLogger(__name__)
 def test_galileo_logger_exceptions() -> None:
     with pytest.raises(Exception) as exc_info:
         GalileoLogger(project="my_project", log_stream="my_log_stream", experiment_id="my_experiment_id")
-    assert str(exc_info.value) == "User must provide either experiment_id or log_stream, not both."
+    assert str(exc_info.value) == "User cannot specify both a log stream and an experiment."
 
 
 @patch("galileo.logger.logger.GalileoCoreApiClient")
