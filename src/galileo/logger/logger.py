@@ -7,7 +7,6 @@ from typing import Literal, Optional, Union
 
 from pydantic import ValidationError
 
-from galileo.api_client import GalileoApiClient
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.logger.batch import GalileoBatchLogger
@@ -162,18 +161,26 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         if local_metrics:
             self.local_metrics = local_metrics
 
-        if not (self.project_id and (self.log_stream_id or self.experiment_id)):
+        if not self.project_id:
             self._init_project()
+
+        if not (self.log_stream_id or self.experiment_id):
+            self._init_log_stream()
+
+        if self.log_stream_id:
+            self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
+        elif self.experiment_id:
+            self._client = GalileoCoreApiClient(project_id=self.project_id, experiment_id=self.experiment_id)
 
         # cleans up when the python interpreter closes
         atexit.register(self.terminate)
 
     @nop_sync
     def _init_project(self) -> None:
-        # Get project and log stream IDs
-        api_client = GalileoApiClient()
-        projects_client = Projects(client=api_client)
-
+        """
+        Initializes the project ID
+        """
+        projects_client = Projects()
         project_obj = projects_client.get(name=self.project_name)
         if project_obj is None:
             # Create project if it doesn't exist
@@ -187,20 +194,19 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
                 raise Exception(f"Project {self.project_name} is not a Galileo 2.0 project")
             self.project_id = project_obj.id
 
-        if self.log_stream_name is not None:
-            log_streams_client = LogStreams(client=api_client)
-            log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
-            if log_stream_obj is None:
-                # Create log stream if it doesn't exist
-                self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
-                self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
-            else:
-                self.log_stream_id = log_stream_obj.id
-
-            self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
-
-        elif self.experiment_id is not None:
-            self._client = GalileoCoreApiClient(project_id=self.project_id, experiment_id=self.experiment_id)
+    @nop_sync
+    def _init_log_stream(self) -> None:
+        """
+        Initializes the log stream ID
+        """
+        log_streams_client = LogStreams()
+        log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
+        if log_stream_obj is None:
+            # Create log stream if it doesn't exist
+            self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
+            self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
+        else:
+            self.log_stream_id = log_stream_obj.id
 
     @staticmethod
     @nop_sync

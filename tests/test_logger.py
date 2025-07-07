@@ -1030,3 +1030,37 @@ def test_start_session_with_external_id(
     # Check that the session ID is set correctly in the payload
     payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     assert payload.session_id == session_id
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_logger_init_with_project_id_and_log_stream_id(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_projects_client = setup_mock_projects_client(mock_projects_client)
+    mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
+
+    GalileoLogger(
+        project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a", log_stream_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"
+    )
+
+    mock_projects_client.get.assert_not_called()
+    mock_logstreams_client.get.assert_not_called()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_logger_init_with_project_id_and_log_stream_name(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_projects_client = setup_mock_projects_client(mock_projects_client)
+    mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
+
+    GalileoLogger(project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a", log_stream="my_log_stream")
+
+    mock_projects_client.get.assert_not_called()
+    mock_logstreams_client.get.assert_called_once()
