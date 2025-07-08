@@ -3,8 +3,6 @@ import random
 from time import sleep
 from typing import Optional
 
-from promptquality.constants.job import JobStatus
-from promptquality.constants.run import RunDefaults
 from pydantic import UUID4
 from tqdm.auto import tqdm
 
@@ -15,6 +13,8 @@ from galileo.resources.api.jobs import (
 )
 from galileo.resources.models import JobDB
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo_core.constants.job import JobStatus
+from galileo_core.constants.run import RunDefaults
 
 _logger = logging.getLogger(__name__)
 
@@ -22,14 +22,18 @@ _logger = logging.getLogger(__name__)
 class Jobs(BaseClientModel, DecorateAllMethods):
     def get(self, job_id: UUID4) -> JobDB:
         response = get_job_jobs_job_id_get.sync(client=self.client, job_id=str(job_id))
-        return JobDB.model_validate(response.to_dict())
+        if not isinstance(response, JobDB):
+            raise ValueError(f"Failed to get job status for job {job_id}. Response: {response}")
+        return response
 
     def get_scorer_jobs(self, project_id: UUID4, run_id: UUID4) -> list[JobDB]:
         response = get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync(
             client=self.client, project_id=str(project_id), run_id=str(run_id)
         )
-        all_jobs = [JobDB.model_validate(job.to_dict()) for job in response]
-        return [job for job in all_jobs if job.job_name == RunDefaults.prompt_scorer_job_name]
+        if not isinstance(response, list):
+            _logger.warning(f"Failed to get scorer jobs for project {project_id}, run {run_id}. Response: {response}")
+            return []
+        return [job for job in response if job.job_name == RunDefaults.prompt_scorer_job_name]
 
 
 def scorer_jobs_status(project_id: Optional[UUID4] = None, run_id: Optional[UUID4] = None) -> None:
