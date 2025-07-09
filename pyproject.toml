@@ -46,7 +46,7 @@ ruff = "^0.12.2"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
-mkdocs-material = "^9.6.14"
+mkdocs-material = "^9.6.15"
 mkdocstrings = "^0.29"
 mkdocstrings-python = "^1.16.12"
 griffe-fieldz = "^0.2.0"
