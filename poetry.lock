@@ -399,13 +399,13 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "codeflash"
-version = "0.14.6"
+version = "0.15.2"
 description = "Client for codeflash.ai - automatic code performance optimization, powered by AI"
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "codeflash-0.14.6.tar.gz", hash = "sha256:2ebbf1570a7d326adcf74723baba5a8fa70c204a497ff6b33e2e4da11337b998"},
+    {file = "codeflash-0.15.2.tar.gz", hash = "sha256:bb4d9907d15b1b7b9ecd0edf754e72a69eba75166915e4a1d63acfa92072c092"},
 ]
 
 [package.dependencies]
@@ -426,6 +426,7 @@ parameterized = ">=0.9.0"
 platformdirs = ">=4.3.7"
 posthog = ">=3.0.0"
 pydantic = ">=1.10.1"
+pygls = ">=1.3.1"
 pytest = ">=7.0.0,<8.3.4 || >8.3.4"
 pytest-timeout = ">=2.1.0"
 rich = ">=13.8.1"
