@@ -529,7 +529,7 @@ class TestGalileoCallback:
         llm_response = MagicMock()
         llm_response.generations = [[MagicMock()]]
         llm_response.llm_output = {"token_usage": {"total_tokens": 100}}
-        llm_response.generations[0][0].dict.return_value = {"text": "LLMs have seen significant progress..."}
+        llm_response.generations[0][0].model_dump.return_value = {"text": "LLMs have seen significant progress..."}
 
         callback.on_llm_end(response=llm_response, run_id=llm_id, parent_run_id=chain_id)
 
