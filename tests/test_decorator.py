@@ -4,7 +4,7 @@ from uuid import UUID
 import pytest
 
 from galileo import Message, MessageRole, galileo_context, log
-from galileo_core.schemas.logging.span import LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
+from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
 from galileo_core.schemas.shared.document import Document
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
@@ -316,6 +316,98 @@ def test_decorator_tool_span_io_object(
         == '{"system": {"content": "system prompt", "role": "system"}, "user": {"content": "query", "role": "user"}}'
     )
     assert payload.traces[0].spans[0].output == '{"content": "response", "metadata": {"arg1": "val1", "arg2": "val2"}}'
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_decorator_agent_span(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="agent")
+    def my_function(arg1: str, arg2: str):
+        return f"{arg1} {arg2}"
+
+    my_function("arg1", "arg2")
+    galileo_context.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+    assert isinstance(payload.traces[0].spans[0], AgentSpan)
+    assert payload.traces[0].input == '{"arg1": "arg1", "arg2": "arg2"}'
+    assert payload.traces[0].spans[0].input == '{"arg1": "arg1", "arg2": "arg2"}'
+    assert payload.traces[0].spans[0].output == "arg1 arg2"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_decorator_agent_span_with_agent_type(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="agent", params={"agent_type": "planner"})
+    def my_function(arg1: str, arg2: str):
+        return f"{arg1} {arg2}"
+
+    my_function("arg1", "arg2")
+    galileo_context.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+    assert isinstance(payload.traces[0].spans[0], AgentSpan)
+    assert payload.traces[0].input == '{"arg1": "arg1", "arg2": "arg2"}'
+    assert payload.traces[0].spans[0].input == '{"arg1": "arg1", "arg2": "arg2"}'
+    assert payload.traces[0].spans[0].output == "arg1 arg2"
+    assert payload.traces[0].spans[0].agent_type == "planner"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_decorator_agent_span_with_nested_span(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="tool")
+    def my_tool_function(arg1: str):
+        return f"{arg1}"
+
+    @log(span_type="agent", params={"agent_type": "planner"})
+    def my_function(arg1: str, arg2: str):
+        return my_tool_function(arg1)
+
+    my_function("arg1", "arg2")
+    galileo_context.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+    assert isinstance(payload.traces[0].spans[0], AgentSpan)
+    assert isinstance(payload.traces[0].spans[0].spans[0], ToolSpan)
+    assert payload.traces[0].input == '{"arg1": "arg1", "arg2": "arg2"}'
+    assert payload.traces[0].spans[0].input == '{"arg1": "arg1", "arg2": "arg2"}'
+    assert payload.traces[0].spans[0].output == "arg1"
+    assert payload.traces[0].spans[0].agent_type == "planner"
+    assert len(payload.traces[0].spans[0].spans) == 1
+    assert isinstance(payload.traces[0].spans[0].spans[0], ToolSpan)
+    assert payload.traces[0].spans[0].spans[0].input == '{"arg1": "arg1"}'
+    assert payload.traces[0].spans[0].spans[0].output == "arg1"
 
 
 @patch("galileo.logger.logger.LogStreams")
