@@ -279,9 +279,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         if self.mode == "batch":
             return self.add_trace(**kwargs)
-        return self.start_trace_streaming(**kwargs)
+        return self._start_trace_streaming(**kwargs)
 
-    def start_trace_streaming(
+    def _start_trace_streaming(
         self,
         input: StepAllowedInputType,
         name: Optional[str] = None,
@@ -467,9 +467,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         if self.mode == "batch":
             return super().add_llm_span(**kwargs)
-        return self.add_llm_span_streaming(**kwargs)
+        return self._add_llm_span_streaming(**kwargs)
 
-    def add_llm_span_streaming(
+    def _add_llm_span_streaming(
         self,
         input: LlmSpanAllowedInputType,
         output: LlmSpanAllowedOutputType,
@@ -588,9 +588,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         if self.mode == "batch":
             return super().add_retriever_span(**kwargs)
-        return self.add_retriever_span_streaming(**kwargs)
+        return self._add_retriever_span_streaming(**kwargs)
 
-    def add_retriever_span_streaming(
+    def _add_retriever_span_streaming(
         self,
         input: str,
         documents: list[Document],
@@ -669,9 +669,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         if self.mode == "batch":
             return super().add_tool_span(**kwargs)
-        return self.add_tool_span_streaming(**kwargs)
+        return self._add_tool_span_streaming(**kwargs)
 
-    def add_tool_span_streaming(
+    def _add_tool_span_streaming(
         self,
         input: str,
         output: Optional[str] = None,
@@ -748,9 +748,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         if self.mode == "batch":
             return super().add_workflow_span(**kwargs)
-        return self.add_workflow_span_streaming(**kwargs)
+        return self._add_workflow_span_streaming(**kwargs)
 
-    def add_workflow_span_streaming(
+    def _add_workflow_span_streaming(
         self,
         input: str,
         output: Optional[str] = None,
@@ -825,9 +825,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         if self.mode == "batch":
             return super().add_agent_span(**kwargs)
-        return self.add_agent_span_streaming(**kwargs)
+        return self._add_agent_span_streaming(**kwargs)
 
-    def add_agent_span_streaming(
+    def _add_agent_span_streaming(
         self,
         input: str,
         output: Optional[str] = None,
@@ -905,10 +905,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             List[Trace]: The list of uploaded traces.
         """
         if self.mode == "batch":
-            return self.flush_batch()
-        return self.flush_streaming()
+            return self._flush_batch()
+        else:
+            self._logger.warning("Flushing in streaming mode is not supported.")
+            return list()
 
-    def flush_batch(self):
+    def _flush_batch(self):
         if not self.traces:
             self._logger.info("No traces to flush.")
             return list()
@@ -939,11 +941,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._parent_stack = deque()
         return logged_traces
 
-    def flush_streaming(self):
-        """
-        There is no flush implementation because we ingest data immediately.
-        """
-
     @nop_async
     async def async_flush(self) -> list[Trace]:
         """
@@ -954,10 +951,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             List[Trace]: The list of uploaded workflows.
         """
         if self.mode == "batch":
-            return await self.async_flush_batch()
-        return await self.async_flush_streaming()
+            return await self._async_flush_batch()
+        else:
+            self._logger.warning("Flushing in streaming mode is not supported.")
+            return list()
 
-    async def async_flush_batch(self) -> list[Trace]:
+    async def _async_flush_batch(self) -> list[Trace]:
         if not self.traces:
             self._logger.info("No traces to flush.")
             return list()
