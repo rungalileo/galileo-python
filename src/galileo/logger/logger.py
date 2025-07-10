@@ -223,6 +223,24 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         dataset_metadata: Optional[dict[str, str]] = None,
         external_id: Optional[str] = None,
     ) -> Trace:
+        """
+        Create a new trace and add it to the list of traces.
+        Once this trace is complete, you can close it out by calling conclude()
+
+        Parameters:
+        ----------
+        input: StepAllowedInputType: Input to the node.
+        name: Optional[str]: Name of the trace.
+        duration_ns: Optional[int]: Duration of the trace in nanoseconds.
+        created_at: Optional[datetime]: Timestamp of the trace's creation.
+        metadata: Optional[Dict[str, str]]: Metadata associated with this trace.
+        tags: Optional[list[str]]: Tags associated with this trace.
+        external_id: Optional[str]: External ID for this trace to connect to external systems.
+
+        Returns:
+        -------
+            Trace: The created trace.
+        """
         kwargs = dict(
             input=input,
             name=name,
