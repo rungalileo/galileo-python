@@ -258,6 +258,8 @@ class GalileoCallback(BaseCallbackHandler):
         if parent_run_id:
             parent = self._nodes.get(parent_node_id)
             if parent:
+                if node.node_type == "agent":
+                    node.span_params["name"] = parent.span_params["name"] + ":" + node.span_params["name"]
                 parent.children.append(node_id)
             else:
                 _logger.debug(f"Parent node {parent_node_id} not found for {node_id}")
@@ -323,6 +325,10 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a chain starts."""
+        # If the node is tagged with `hidden`, don't log it.
+        if tags and "langsmith:hidden" in tags:
+            return
+
         node_type = "chain"
         node_name = self._get_node_name(node_type, serialized) if serialized else kwargs.get("name", "Chain")
 
@@ -332,10 +338,6 @@ class GalileoCallback(BaseCallbackHandler):
             node_name = "Agent"
 
         kwargs["name"] = node_name
-
-        # If the node is tagged with `hidden`, don't log it.
-        if tags and "langsmith:hidden" in tags:
-            return
 
         self._start_node(node_type, parent_run_id, run_id, input=serialize_to_str(inputs), tags=tags, **kwargs)
 
@@ -417,7 +419,7 @@ class GalileoCallback(BaseCallbackHandler):
 
         # Serialize messages safely
         try:
-            flattened_messages = [message.dict() for batch in messages for message in batch]
+            flattened_messages = [message.model_dump() for batch in messages for message in batch]
             serialized_messages = json.loads(json.dumps(flattened_messages, cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize chat messages: {e}")
@@ -444,7 +446,7 @@ class GalileoCallback(BaseCallbackHandler):
         token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
 
         try:
-            flattened_messages = [message.dict() for batch in response.generations for message in batch]
+            flattened_messages = [message.model_dump() for batch in response.generations for message in batch]
             output = json.loads(json.dumps(flattened_messages[0], cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize LLM output: {e}")

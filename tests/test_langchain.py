@@ -529,7 +529,7 @@ class TestGalileoCallback:
         llm_response = MagicMock()
         llm_response.generations = [[MagicMock()]]
         llm_response.llm_output = {"token_usage": {"total_tokens": 100}}
-        llm_response.generations[0][0].dict.return_value = {"text": "LLMs have seen significant progress..."}
+        llm_response.generations[0][0].model_dump.return_value = {"text": "LLMs have seen significant progress..."}
 
         callback.on_llm_end(response=llm_response, run_id=llm_id, parent_run_id=chain_id)
 
@@ -851,3 +851,33 @@ class TestGalileoCallback:
             root_span = traces[0].spans[0]
             assert root_span.type == expected_type
             assert root_span.step_number == step_number
+
+    def test_on_nested_agent_chains(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+        """Test nested agent chain handling and name change"""
+        outer_run_id = uuid.uuid4()
+        inner_run_id = uuid.uuid4()
+
+        # Start outer agent chain, then inner agent chain
+        callback.on_chain_start(serialized={"name": "OuterChain"}, inputs={"input": "outer input"}, run_id=outer_run_id)
+        callback.on_chain_start(
+            serialized={"name": "LangGraph"},
+            inputs={"input": "inner input"},
+            run_id=inner_run_id,
+            parent_run_id=outer_run_id,
+        )
+
+        # End inner agent chain, then outer agent chain
+        inner_finish = AgentFinish(return_values={"output": "inner result"}, log="inner log")
+        callback.on_agent_finish(finish=inner_finish, run_id=inner_run_id)
+        callback.on_chain_end(outputs={"output": "outer result"}, run_id=outer_run_id)
+
+        traces = galileo_logger.traces
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        outer_span = traces[0].spans[0]
+        assert outer_span.type == "workflow"
+        assert outer_span.name == "OuterChain"
+        assert len(outer_span.spans) == 1
+        inner_span = outer_span.spans[0]
+        assert inner_span.type == "agent"
+        assert inner_span.name == "OuterChain:Agent"

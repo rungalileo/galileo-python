@@ -10,7 +10,6 @@ from typing import Literal, Optional, Union
 import backoff
 from pydantic import ValidationError
 
-from galileo.api_client import GalileoApiClient
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.logger.utils import get_last_output
@@ -130,7 +129,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     def __init__(
         self,
         project: Optional[str] = None,
+        project_id: Optional[str] = None,
         log_stream: Optional[str] = None,
+        log_stream_id: Optional[str] = None,
         experiment_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
         mode: Optional[LoggerModeType] = "batch",
@@ -140,38 +141,56 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
         log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
-        self.project_name = project or project_name_from_env
+        project_id_from_env = getenv("GALILEO_PROJECT_ID")
+        log_stream_id_from_env = getenv("GALILEO_LOG_STREAM_ID")
 
-        if not self.project_name:
+        self.project_name = project or project_name_from_env
+        self.project_id = project_id or project_id_from_env
+
+        if self.project_name is None and self.project_id is None:
             raise GalileoLoggerException(
-                "User must provide project_name to GalileoLogger, or set it as an environment variable."
+                "User must provide project_name or project_id to GalileoLogger, or set it as an environment variable."
             )
 
-        if log_stream and experiment_id:
-            raise GalileoLoggerException("User must provide either experiment_id or log_stream, not both.")
+        if (log_stream or log_stream_id) and experiment_id:
+            raise GalileoLoggerException("User cannot specify both a log stream and an experiment.")
 
         if experiment_id:
             self.experiment_id = experiment_id
         else:
             self.log_stream_name = log_stream or log_stream_name_from_env
+            self.log_stream_id = log_stream_id or log_stream_id_from_env
 
-            if self.log_stream_name is None:
-                raise GalileoLoggerException("log_stream is required to initialize GalileoLogger.")
+            if self.log_stream_name is None and self.log_stream_id is None:
+                raise GalileoLoggerException("log_stream or log_stream_id is required to initialize GalileoLogger.")
 
         if local_metrics:
             self.local_metrics = local_metrics
 
-        self._init_project()
         if self.mode == "streaming":
             self._max_retries = 3
             self._pool = EventLoopThreadPool(num_threads=4)
 
+        if not self.project_id:
+            self._init_project()
+
+        if not (self.log_stream_id or self.experiment_id):
+            self._init_log_stream()
+
+        if self.log_stream_id:
+            self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
+        elif self.experiment_id:
+            self._client = GalileoCoreApiClient(project_id=self.project_id, experiment_id=self.experiment_id)
+
+        # cleans up when the python interpreter closes
+        atexit.register(self.terminate)
+
     @nop_sync
     def _init_project(self) -> None:
-        # Get project and log stream IDs
-        api_client = GalileoApiClient()
-        projects_client = Projects(client=api_client)
-
+        """
+        Initializes the project ID
+        """
+        projects_client = Projects()
         project_obj = projects_client.get(name=self.project_name)
         if project_obj is None:
             # Create project if it doesn't exist
@@ -185,23 +204,19 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 raise Exception(f"Project {self.project_name} is not a Galileo 2.0 project")
             self.project_id = project_obj.id
 
-        if self.log_stream_name is not None:
-            log_streams_client = LogStreams(client=api_client)
-            log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
-            if log_stream_obj is None:
-                # Create log stream if it doesn't exist
-                self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
-                self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
-            else:
-                self.log_stream_id = log_stream_obj.id
-
-            self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
-
-        elif self.experiment_id is not None:
-            self._client = GalileoCoreApiClient(project_id=self.project_id, experiment_id=self.experiment_id)
-
-        # cleans up when the python interpreter closes
-        atexit.register(self.terminate)
+    @nop_sync
+    def _init_log_stream(self) -> None:
+        """
+        Initializes the log stream ID
+        """
+        log_streams_client = LogStreams()
+        log_stream_obj = log_streams_client.get(name=self.log_stream_name, project_id=self.project_id)
+        if log_stream_obj is None:
+            # Create log stream if it doesn't exist
+            self.log_stream_id = log_streams_client.create(name=self.log_stream_name, project_id=self.project_id).id
+            self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
+        else:
+            self.log_stream_id = log_stream_obj.id
 
     @staticmethod
     @nop_sync
@@ -232,6 +247,24 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         dataset_metadata: Optional[dict[str, str]] = None,
         external_id: Optional[str] = None,
     ) -> Trace:
+        """
+        Create a new trace and add it to the list of traces.
+        Once this trace is complete, you can close it out by calling conclude()
+
+        Parameters:
+        ----------
+        input: StepAllowedInputType: Input to the node.
+        name: Optional[str]: Name of the trace.
+        duration_ns: Optional[int]: Duration of the trace in nanoseconds.
+        created_at: Optional[datetime]: Timestamp of the trace's creation.
+        metadata: Optional[Dict[str, str]]: Metadata associated with this trace.
+        tags: Optional[list[str]]: Tags associated with this trace.
+        external_id: Optional[str]: External ID for this trace to connect to external systems.
+
+        Returns:
+        -------
+            Trace: The created trace.
+        """
         kwargs = dict(
             input=input,
             name=name,
