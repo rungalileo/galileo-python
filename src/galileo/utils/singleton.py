@@ -60,21 +60,20 @@ class GalileoLoggerSingleton:
         Returns:
             Tuple[str, str, str, str]: A tuple key (project, log_stream, experiment_id, mode) used for caching.
         """
-        _logger.debug("current thread is %s", threading.current_thread().name)
-
         # GalileoLoggerSingleton must NOT be shared across different threads
         current_thread_name = threading.current_thread().name
-        key = (current_thread_name, mode)
-
+        _logger.debug("current thread is %s", current_thread_name)
         if project is None:
             project = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
         if log_stream is None:
             log_stream = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
         if experiment_id is not None:
-            return key + (project, experiment_id)
+            # Return key composed of thread name, mode, project, experiment_id
+            return (current_thread_name, mode, project, experiment_id)
 
-        return key + (project, log_stream)
+        # Return key composed of thread name, mode, project, log_stream
+        return (current_thread_name, mode, project, log_stream)
 
     def get(
         self,
