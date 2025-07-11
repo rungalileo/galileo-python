@@ -1,7 +1,8 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, TypeVar, Union
 
 import httpx
+from dateutil.parser import isoparse
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
@@ -34,16 +35,13 @@ def _get_kwargs(
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
-    if response.status_code == 200:
-        response_200 = BaseScorerVersionResponse.from_dict(response.json())
-
-        return response_200
-    if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-        return response_422
-    if client.raise_on_unexpected_status:
-        raise errors.UnexpectedStatus(response.status_code, response.content)
+    sc = response.status_code
+    if sc == 200:
+        return BaseScorerVersionResponse.from_dict(response.json())
+    elif sc == 422:
+        return HTTPValidationError.from_dict(response.json())
+    elif client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatus(sc, response.content)
     else:
         return None
 
@@ -183,3 +181,5 @@ async def asyncio(
             body=body,
         )
     ).parsed
+
+T = TypeVar("T", bound="BaseScorerVersionResponse")
