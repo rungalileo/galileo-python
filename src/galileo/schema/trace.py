@@ -5,7 +5,15 @@ from pydantic import UUID4, BaseModel, Field
 
 from galileo.resources.models import Document
 from galileo_core.schemas.logging.span import Span
+from galileo_core.schemas.logging.step import StepAllowedInputType, StepAllowedOutputType
 from galileo_core.schemas.logging.trace import Trace
+
+
+class LoggingMethod(str, Enum):
+    playground = "playground"
+    python_client = "python_client"
+    typescript_client = "typescript_client"
+    api_direct = "api_direct"
 
 
 class BaseLogStreamOrExperimentModel(BaseModel):
@@ -13,24 +21,76 @@ class BaseLogStreamOrExperimentModel(BaseModel):
     experiment_id: Optional[UUID4] = Field(default=None, description="Experiment id associated with the traces.")
 
 
-class TracesIngestRequest(BaseLogStreamOrExperimentModel):
+class LogRecordsIngestRequest(BaseLogStreamOrExperimentModel):
+    logging_method: LoggingMethod = Field(default=LoggingMethod.api_direct)
+    client_version: str | None = Field(default=None)
+    reliable: bool = Field(
+        default=False,
+        description="Whether or not to use reliable logging.  If set to False, the method will respond immediately before verifying that the traces have been successfully ingested, and no error message will be returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or return an error message if there is an ingestion failure.",
+    )
+
+
+class TracesIngestRequest(LogRecordsIngestRequest):
     traces: list[Trace] = Field(..., description="List of traces to log.", min_length=1)
     session_id: Optional[UUID4] = Field(default=None, description="Session id associated with the traces.")
     is_complete: Optional[bool] = Field(default=True, description="Is complete.")
 
 
-class SpansIngestRequest(BaseModel):
-    log_stream_id: Optional[UUID4] = Field(default=None, description="Log stream id associated with the traces.")
-    trace_id: UUID4 = Field(default=None, description="Trace id associated with the traces.")
-    parent_id: Optional[UUID4] = Field(default=None, description="Parent id associated with the traces.")
+class SpansIngestRequest(LogRecordsIngestRequest):
     spans: list[Span] = Field(..., description="List of spans to log.", min_length=1)
+    trace_id: UUID4 = Field(description="Trace id associated with the spans.")
+    parent_id: UUID4 = Field(description="Parent trace or span id.")
 
 
-class TracesIngestResponse(BaseLogStreamOrExperimentModel):
+class LogRecordsIngestResponse(BaseLogStreamOrExperimentModel):
     project_id: UUID4 = Field(description="Project id associated with the traces.")
     project_name: str = Field(description="Project name associated with the traces.")
+    session_id: UUID4 = Field(description="Session id associated with the traces.")
+    records_count: int = Field(description="Total number of records ingested")
+
+
+class TracesIngestResponse(LogRecordsIngestResponse):
     traces_count: int = Field(description="total number of traces ingested")
-    records_count: int = Field(description="total number of records (traces & spans) ingested")
+
+
+class LogTraceUpdateResponse(LogRecordsIngestResponse):
+    trace_id: UUID4 = Field(description="Trace id associated with the updated trace.")
+
+
+class LogSpansIngestResponse(LogRecordsIngestResponse):
+    trace_id: UUID4 = Field(description="Trace id associated with the spans.")
+    parent_id: UUID4 = Field(description="Parent trace or span id.")
+
+
+class LogSpanUpdateResponse(LogRecordsIngestResponse):
+    span_id: UUID4 = Field(description="Span id associated with the updated span.")
+
+
+class TraceUpdateRequest(LogRecordsIngestRequest):
+    trace_id: UUID4 = Field(..., description="Trace id to update.")
+    input: str | None = Field(default=None, description="Input of the trace. Overwrites previous value if present.")
+    output: str | None = Field(default=None, description="Output of the trace. Overwrites previous value if present.")
+    status_code: int | None = Field(
+        default=None, description="Status code of the trace. Overwrites previous value if present."
+    )
+    tags: list[str] | None = Field(default=None, description="Tags to add to the trace.")
+    is_complete: bool | None = Field(
+        default=False, description="Whether or not the records in this request are complete."
+    )
+
+
+class SpanUpdateRequest(LogRecordsIngestRequest):
+    span_id: UUID4 = Field(..., description="Span id to update.")
+    input: StepAllowedInputType | None = Field(
+        default=None, description="Input of the span. Overwrites previous value if present."
+    )
+    output: StepAllowedOutputType | None = Field(
+        default=None, description="Output of the span. Overwrites previous value if present."
+    )
+    tags: list[str] | None = Field(default=None, description="Tags to add to the span.")
+    status_code: int | None = Field(
+        default=None, description="Status code of the span. Overwrites previous value if present."
+    )
 
 
 class SessionCreateRequest(BaseLogStreamOrExperimentModel):
