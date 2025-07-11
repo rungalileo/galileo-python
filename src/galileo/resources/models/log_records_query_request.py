@@ -29,6 +29,7 @@ class LogRecordsQueryRequest:
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         sort (Union[Unset, LogRecordsSortClause]):
         starting_token (Union[Unset, int]):  Default: 0.
+        truncate_fields (Union[Unset, bool]):  Default: False.
     """
 
     experiment_id: Union[None, Unset, str] = UNSET
@@ -48,6 +49,7 @@ class LogRecordsQueryRequest:
     log_stream_id: Union[None, Unset, str] = UNSET
     sort: Union[Unset, "LogRecordsSortClause"] = UNSET
     starting_token: Union[Unset, int] = 0
+    truncate_fields: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -94,6 +96,8 @@ class LogRecordsQueryRequest:
 
         starting_token = self.starting_token
 
+        truncate_fields = self.truncate_fields
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -109,6 +113,8 @@ class LogRecordsQueryRequest:
             field_dict["sort"] = sort
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if truncate_fields is not UNSET:
+            field_dict["truncate_fields"] = truncate_fields
 
         return field_dict
 
@@ -207,6 +213,8 @@ class LogRecordsQueryRequest:
 
         starting_token = d.pop("starting_token", UNSET)
 
+        truncate_fields = d.pop("truncate_fields", UNSET)
+
         log_records_query_request = cls(
             experiment_id=experiment_id,
             filters=filters,
@@ -214,6 +222,7 @@ class LogRecordsQueryRequest:
             log_stream_id=log_stream_id,
             sort=sort,
             starting_token=starting_token,
+            truncate_fields=truncate_fields,
         )
 
         log_records_query_request.additional_properties = d

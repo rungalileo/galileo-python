@@ -31,11 +31,15 @@ class ToolSpan:
         metrics (Union[Unset, Metrics]):
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
+        parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
+        session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
         tool_call_id (Union[None, Unset, str]): ID of the tool call.
+        trace_id (Union[None, Unset, str]): Galileo ID of the trace containing the span (or the same value as id for a
+            trace)
         type_ (Union[Literal['tool'], Unset]): Type of the trace, span or session. Default: 'tool'.
         user_metadata (Union[Unset, ToolSpanUserMetadata]): Metadata associated with this trace or span.
     """
@@ -50,10 +54,13 @@ class ToolSpan:
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
+    parent_id: Union[None, Unset, str] = UNSET
+    session_id: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     tool_call_id: Union[None, Unset, str] = UNSET
+    trace_id: Union[None, Unset, str] = UNSET
     type_: Union[Literal["tool"], Unset] = "tool"
     user_metadata: Union[Unset, "ToolSpanUserMetadata"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -105,6 +112,18 @@ class ToolSpan:
         else:
             output = self.output
 
+        parent_id: Union[None, Unset, str]
+        if isinstance(self.parent_id, Unset):
+            parent_id = UNSET
+        else:
+            parent_id = self.parent_id
+
+        session_id: Union[None, Unset, str]
+        if isinstance(self.session_id, Unset):
+            session_id = UNSET
+        else:
+            session_id = self.session_id
+
         status_code: Union[None, Unset, int]
         if isinstance(self.status_code, Unset):
             status_code = UNSET
@@ -126,6 +145,12 @@ class ToolSpan:
             tool_call_id = UNSET
         else:
             tool_call_id = self.tool_call_id
+
+        trace_id: Union[None, Unset, str]
+        if isinstance(self.trace_id, Unset):
+            trace_id = UNSET
+        else:
+            trace_id = self.trace_id
 
         type_ = self.type_
 
@@ -154,6 +179,10 @@ class ToolSpan:
             field_dict["name"] = name
         if output is not UNSET:
             field_dict["output"] = output
+        if parent_id is not UNSET:
+            field_dict["parent_id"] = parent_id
+        if session_id is not UNSET:
+            field_dict["session_id"] = session_id
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
         if step_number is not UNSET:
@@ -162,6 +191,8 @@ class ToolSpan:
             field_dict["tags"] = tags
         if tool_call_id is not UNSET:
             field_dict["tool_call_id"] = tool_call_id
+        if trace_id is not UNSET:
+            field_dict["trace_id"] = trace_id
         if type_ is not UNSET:
             field_dict["type"] = type_
         if user_metadata is not UNSET:
@@ -246,6 +277,24 @@ class ToolSpan:
 
         output = _parse_output(d.pop("output", UNSET))
 
+        def _parse_parent_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
+
+        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_id = _parse_session_id(d.pop("session_id", UNSET))
+
         def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
@@ -275,6 +324,15 @@ class ToolSpan:
 
         tool_call_id = _parse_tool_call_id(d.pop("tool_call_id", UNSET))
 
+        def _parse_trace_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
+
         type_ = cast(Union[Literal["tool"], Unset], d.pop("type", UNSET))
         if type_ != "tool" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'tool', got '{type_}'")
@@ -297,10 +355,13 @@ class ToolSpan:
             metrics=metrics,
             name=name,
             output=output,
+            parent_id=parent_id,
+            session_id=session_id,
             status_code=status_code,
             step_number=step_number,
             tags=tags,
             tool_call_id=tool_call_id,
+            trace_id=trace_id,
             type_=type_,
             user_metadata=user_metadata,
         )
