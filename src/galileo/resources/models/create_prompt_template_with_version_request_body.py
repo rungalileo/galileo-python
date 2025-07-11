@@ -74,12 +74,7 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-                "template": template,
-            }
-        )
+        field_dict.update({"name": name, "template": template})
         if hidden is not UNSET:
             field_dict["hidden"] = hidden
         if output_type is not UNSET:

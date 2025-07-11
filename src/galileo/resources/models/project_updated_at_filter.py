@@ -35,12 +35,7 @@ class ProjectUpdatedAtFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "operator": operator,
-                "value": value,
-            }
-        )
+        field_dict.update({"operator": operator, "value": value})
         if name is not UNSET:
             field_dict["name"] = name
 
@@ -57,11 +52,7 @@ class ProjectUpdatedAtFilter:
         if name != "updated_at" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'updated_at', got '{name}'")
 
-        project_updated_at_filter = cls(
-            operator=operator,
-            value=value,
-            name=name,
-        )
+        project_updated_at_filter = cls(operator=operator, value=value, name=name)
 
         project_updated_at_filter.additional_properties = d
         return project_updated_at_filter

@@ -22,11 +22,7 @@ class ProjectDeleteResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "message": message,
-            }
-        )
+        field_dict.update({"message": message})
 
         return field_dict
 
@@ -35,9 +31,7 @@ class ProjectDeleteResponse:
         d = dict(src_dict)
         message = d.pop("message")
 
-        project_delete_response = cls(
-            message=message,
-        )
+        project_delete_response = cls(message=message)
 
         project_delete_response.additional_properties = d
         return project_delete_response

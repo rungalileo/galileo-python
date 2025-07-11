@@ -32,11 +32,7 @@ class InputMap:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "prompt": prompt,
-            }
-        )
+        field_dict.update({"prompt": prompt})
         if prefix is not UNSET:
             field_dict["prefix"] = prefix
         if suffix is not UNSET:
@@ -53,11 +49,7 @@ class InputMap:
 
         suffix = d.pop("suffix", UNSET)
 
-        input_map = cls(
-            prompt=prompt,
-            prefix=prefix,
-            suffix=suffix,
-        )
+        input_map = cls(prompt=prompt, prefix=prefix, suffix=suffix)
 
         input_map.additional_properties = d
         return input_map

@@ -132,9 +132,7 @@ def sync_detailed(
         hidden=hidden,
     )
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 

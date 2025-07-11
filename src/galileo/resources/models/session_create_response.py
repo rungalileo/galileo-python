@@ -53,14 +53,7 @@ class SessionCreateResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "name": name,
-                "project_id": project_id,
-                "project_name": project_name,
-            }
-        )
+        field_dict.update({"id": id, "name": name, "project_id": project_id, "project_name": project_name})
         if external_id is not UNSET:
             field_dict["external_id"] = external_id
         if previous_session_id is not UNSET:

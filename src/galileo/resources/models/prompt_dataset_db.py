@@ -60,12 +60,7 @@ class PromptDatasetDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "dataset_id": dataset_id,
-                "id": id,
-            }
-        )
+        field_dict.update({"dataset_id": dataset_id, "id": id})
         if file_name is not UNSET:
             field_dict["file_name"] = file_name
         if message is not UNSET:
@@ -121,12 +116,7 @@ class PromptDatasetDB:
         rows = _parse_rows(d.pop("rows", UNSET))
 
         prompt_dataset_db = cls(
-            dataset_id=dataset_id,
-            id=id,
-            file_name=file_name,
-            message=message,
-            num_rows=num_rows,
-            rows=rows,
+            dataset_id=dataset_id, id=id, file_name=file_name, message=message, num_rows=num_rows, rows=rows
         )
 
         prompt_dataset_db.additional_properties = d

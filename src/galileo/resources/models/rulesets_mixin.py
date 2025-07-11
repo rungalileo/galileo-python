@@ -51,9 +51,7 @@ class RulesetsMixin:
 
             prioritized_rulesets.append(prioritized_rulesets_item)
 
-        rulesets_mixin = cls(
-            prioritized_rulesets=prioritized_rulesets,
-        )
+        rulesets_mixin = cls(prioritized_rulesets=prioritized_rulesets)
 
         rulesets_mixin.additional_properties = d
         return rulesets_mixin

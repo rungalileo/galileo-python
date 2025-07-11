@@ -47,9 +47,7 @@ class UpdatePromptTemplateRequest:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        update_prompt_template_request = cls(
-            name=name,
-        )
+        update_prompt_template_request = cls(name=name)
 
         update_prompt_template_request.additional_properties = d
         return update_prompt_template_request

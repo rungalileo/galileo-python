@@ -64,11 +64,7 @@ class ExperimentCreateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-            }
-        )
+        field_dict.update({"name": name})
         if dataset is not UNSET:
             field_dict["dataset"] = dataset
         if playground_id is not UNSET:

@@ -11,10 +11,7 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    template_id: str,
-    *,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
+    template_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -24,11 +21,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/templates/{template_id}/users",
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/templates/{template_id}/users", "params": params}
 
     return _kwargs
 
@@ -85,15 +78,9 @@ def sync_detailed(
         Response[Union[HTTPValidationError, ListUserCollaboratorsResponse]]
     """
 
-    kwargs = _get_kwargs(
-        template_id=template_id,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(template_id=template_id, starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -122,12 +109,7 @@ def sync(
         Union[HTTPValidationError, ListUserCollaboratorsResponse]
     """
 
-    return sync_detailed(
-        template_id=template_id,
-        client=client,
-        starting_token=starting_token,
-        limit=limit,
-    ).parsed
+    return sync_detailed(template_id=template_id, client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
@@ -154,11 +136,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, ListUserCollaboratorsResponse]]
     """
 
-    kwargs = _get_kwargs(
-        template_id=template_id,
-        starting_token=starting_token,
-        limit=limit,
-    )
+    kwargs = _get_kwargs(template_id=template_id, starting_token=starting_token, limit=limit)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -190,10 +168,5 @@ async def asyncio(
     """
 
     return (
-        await asyncio_detailed(
-            template_id=template_id,
-            client=client,
-            starting_token=starting_token,
-            limit=limit,
-        )
+        await asyncio_detailed(template_id=template_id, client=client, starting_token=starting_token, limit=limit)
     ).parsed

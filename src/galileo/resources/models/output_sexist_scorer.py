@@ -163,11 +163,7 @@ class OutputSexistScorer:
             type_ = OutputSexistScorerType(_type_)
 
         output_sexist_scorer = cls(
-            filters=filters,
-            model_name=model_name,
-            name=name,
-            num_judges=num_judges,
-            type_=type_,
+            filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_
         )
 
         output_sexist_scorer.additional_properties = d

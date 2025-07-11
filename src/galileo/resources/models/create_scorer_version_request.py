@@ -66,10 +66,7 @@ class CreateScorerVersionRequest:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        create_scorer_version_request = cls(
-            model_name=model_name,
-            num_judges=num_judges,
-        )
+        create_scorer_version_request = cls(model_name=model_name, num_judges=num_judges)
 
         create_scorer_version_request.additional_properties = d
         return create_scorer_version_request

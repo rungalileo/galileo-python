@@ -163,11 +163,7 @@ class ToolSelectionQualityScorer:
             type_ = ToolSelectionQualityScorerType(_type_)
 
         tool_selection_quality_scorer = cls(
-            filters=filters,
-            model_name=model_name,
-            name=name,
-            num_judges=num_judges,
-            type_=type_,
+            filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_
         )
 
         tool_selection_quality_scorer.additional_properties = d

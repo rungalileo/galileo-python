@@ -32,11 +32,7 @@ class DatasetData:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "dataset_id": dataset_id,
-            }
-        )
+        field_dict.update({"dataset_id": dataset_id})
         if dataset_version_index is not UNSET:
             field_dict["dataset_version_index"] = dataset_version_index
 
@@ -56,10 +52,7 @@ class DatasetData:
 
         dataset_version_index = _parse_dataset_version_index(d.pop("dataset_version_index", UNSET))
 
-        dataset_data = cls(
-            dataset_id=dataset_id,
-            dataset_version_index=dataset_version_index,
-        )
+        dataset_data = cls(dataset_id=dataset_id, dataset_version_index=dataset_version_index)
 
         dataset_data.additional_properties = d
         return dataset_data

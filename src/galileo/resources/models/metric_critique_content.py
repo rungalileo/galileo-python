@@ -31,11 +31,7 @@ class MetricCritiqueContent:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "critique": critique,
-                "intended_value": intended_value,
-                "original_explanation": original_explanation,
-            }
+            {"critique": critique, "intended_value": intended_value, "original_explanation": original_explanation}
         )
 
         return field_dict
@@ -50,9 +46,7 @@ class MetricCritiqueContent:
         original_explanation = d.pop("original_explanation")
 
         metric_critique_content = cls(
-            critique=critique,
-            intended_value=intended_value,
-            original_explanation=original_explanation,
+            critique=critique, intended_value=intended_value, original_explanation=original_explanation
         )
 
         metric_critique_content.additional_properties = d

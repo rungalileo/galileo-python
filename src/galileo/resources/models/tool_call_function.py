@@ -26,12 +26,7 @@ class ToolCallFunction:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "arguments": arguments,
-                "name": name,
-            }
-        )
+        field_dict.update({"arguments": arguments, "name": name})
 
         return field_dict
 
@@ -42,10 +37,7 @@ class ToolCallFunction:
 
         name = d.pop("name")
 
-        tool_call_function = cls(
-            arguments=arguments,
-            name=name,
-        )
+        tool_call_function = cls(arguments=arguments, name=name)
 
         tool_call_function.additional_properties = d
         return tool_call_function

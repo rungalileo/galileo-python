@@ -11,17 +11,10 @@ from ...models.update_prompt_template_request import UpdatePromptTemplateRequest
 from ...types import Response
 
 
-def _get_kwargs(
-    template_id: str,
-    *,
-    body: UpdatePromptTemplateRequest,
-) -> dict[str, Any]:
+def _get_kwargs(template_id: str, *, body: UpdatePromptTemplateRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "patch",
-        "url": f"/templates/{template_id}",
-    }
+    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/templates/{template_id}"}
 
     _kwargs["json"] = body.to_dict()
 
@@ -60,10 +53,7 @@ def _build_response(
 
 
 def sync_detailed(
-    template_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdatePromptTemplateRequest,
+    template_id: str, *, client: AuthenticatedClient, body: UpdatePromptTemplateRequest
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Update Global Template
 
@@ -97,23 +87,15 @@ def sync_detailed(
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        template_id=template_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(template_id=template_id, body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    template_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdatePromptTemplateRequest,
+    template_id: str, *, client: AuthenticatedClient, body: UpdatePromptTemplateRequest
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Update Global Template
 
@@ -147,18 +129,11 @@ def sync(
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
 
-    return sync_detailed(
-        template_id=template_id,
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(template_id=template_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    template_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdatePromptTemplateRequest,
+    template_id: str, *, client: AuthenticatedClient, body: UpdatePromptTemplateRequest
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Update Global Template
 
@@ -192,10 +167,7 @@ async def asyncio_detailed(
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(
-        template_id=template_id,
-        body=body,
-    )
+    kwargs = _get_kwargs(template_id=template_id, body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -203,10 +175,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    template_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdatePromptTemplateRequest,
+    template_id: str, *, client: AuthenticatedClient, body: UpdatePromptTemplateRequest
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Update Global Template
 
@@ -240,10 +209,4 @@ async def asyncio(
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
 
-    return (
-        await asyncio_detailed(
-            template_id=template_id,
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(template_id=template_id, client=client, body=body)).parsed

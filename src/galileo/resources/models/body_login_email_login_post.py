@@ -56,12 +56,7 @@ class BodyLoginEmailLoginPost:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "password": password,
-                "username": username,
-            }
-        )
+        field_dict.update({"password": password, "username": username})
         if client_id is not UNSET:
             field_dict["client_id"] = client_id
         if client_secret is not UNSET:

@@ -22,11 +22,7 @@ class ApiKeyLoginRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "api_key": api_key,
-            }
-        )
+        field_dict.update({"api_key": api_key})
 
         return field_dict
 
@@ -35,9 +31,7 @@ class ApiKeyLoginRequest:
         d = dict(src_dict)
         api_key = d.pop("api_key")
 
-        api_key_login_request = cls(
-            api_key=api_key,
-        )
+        api_key_login_request = cls(api_key=api_key)
 
         api_key_login_request.additional_properties = d
         return api_key_login_request

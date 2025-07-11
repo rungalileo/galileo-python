@@ -52,9 +52,7 @@ class ExperimentMetricsResponse:
 
             metrics.append(metrics_item)
 
-        experiment_metrics_response = cls(
-            metrics=metrics,
-        )
+        experiment_metrics_response = cls(metrics=metrics)
 
         experiment_metrics_response.additional_properties = d
         return experiment_metrics_response

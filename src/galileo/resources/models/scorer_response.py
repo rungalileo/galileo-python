@@ -143,14 +143,7 @@ class ScorerResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "id": id,
-                "name": name,
-                "scorer_type": scorer_type,
-                "tags": tags,
-            }
-        )
+        field_dict.update({"id": id, "name": name, "scorer_type": scorer_type, "tags": tags})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if created_by is not UNSET:

@@ -28,11 +28,7 @@ class DatasetDeleteRow:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "row_id": row_id,
-            }
-        )
+        field_dict.update({"row_id": row_id})
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
 
@@ -47,10 +43,7 @@ class DatasetDeleteRow:
         if edit_type != "delete_row" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'delete_row', got '{edit_type}'")
 
-        dataset_delete_row = cls(
-            row_id=row_id,
-            edit_type=edit_type,
-        )
+        dataset_delete_row = cls(row_id=row_id, edit_type=edit_type)
 
         dataset_delete_row.additional_properties = d
         return dataset_delete_row

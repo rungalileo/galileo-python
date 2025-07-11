@@ -11,16 +11,10 @@ from ...models.synthetic_dataset_extension_response import SyntheticDatasetExten
 from ...types import Response
 
 
-def _get_kwargs(
-    *,
-    body: SyntheticDatasetExtensionRequest,
-) -> dict[str, Any]:
+def _get_kwargs(*, body: SyntheticDatasetExtensionRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/datasets/extend",
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/datasets/extend"}
 
     _kwargs["json"] = body.to_dict()
 
@@ -59,9 +53,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: SyntheticDatasetExtensionRequest,
+    *, client: AuthenticatedClient, body: SyntheticDatasetExtensionRequest
 ) -> Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
     """Extend Dataset Content
 
@@ -78,21 +70,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *,
-    client: AuthenticatedClient,
-    body: SyntheticDatasetExtensionRequest,
+    *, client: AuthenticatedClient, body: SyntheticDatasetExtensionRequest
 ) -> Optional[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
     """Extend Dataset Content
 
@@ -109,16 +95,11 @@ def sync(
         Union[HTTPValidationError, SyntheticDatasetExtensionResponse]
     """
 
-    return sync_detailed(
-        client=client,
-        body=body,
-    ).parsed
+    return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    *,
-    client: AuthenticatedClient,
-    body: SyntheticDatasetExtensionRequest,
+    *, client: AuthenticatedClient, body: SyntheticDatasetExtensionRequest
 ) -> Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
     """Extend Dataset Content
 
@@ -135,9 +116,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-    )
+    kwargs = _get_kwargs(body=body)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -145,9 +124,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    *,
-    client: AuthenticatedClient,
-    body: SyntheticDatasetExtensionRequest,
+    *, client: AuthenticatedClient, body: SyntheticDatasetExtensionRequest
 ) -> Optional[Union[HTTPValidationError, SyntheticDatasetExtensionResponse]]:
     """Extend Dataset Content
 
@@ -164,9 +141,4 @@ async def asyncio(
         Union[HTTPValidationError, SyntheticDatasetExtensionResponse]
     """
 
-    return (
-        await asyncio_detailed(
-            client=client,
-            body=body,
-        )
-    ).parsed
+    return (await asyncio_detailed(client=client, body=body)).parsed

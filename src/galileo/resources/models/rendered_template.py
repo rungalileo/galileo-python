@@ -32,11 +32,7 @@ class RenderedTemplate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "result": result,
-            }
-        )
+        field_dict.update({"result": result})
         if warning is not UNSET:
             field_dict["warning"] = warning
 
@@ -56,10 +52,7 @@ class RenderedTemplate:
 
         warning = _parse_warning(d.pop("warning", UNSET))
 
-        rendered_template = cls(
-            result=result,
-            warning=warning,
-        )
+        rendered_template = cls(result=result, warning=warning)
 
         rendered_template.additional_properties = d
         return rendered_template

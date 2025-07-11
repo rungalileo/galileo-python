@@ -103,12 +103,7 @@ class LogRecordsMetricsQueryRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "end_time": end_time,
-                "start_time": start_time,
-            }
-        )
+        field_dict.update({"end_time": end_time, "start_time": start_time})
         if experiment_id is not UNSET:
             field_dict["experiment_id"] = experiment_id
         if filters is not UNSET:

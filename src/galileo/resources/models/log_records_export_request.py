@@ -112,11 +112,7 @@ class LogRecordsExportRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "root_type": root_type,
-            }
-        )
+        field_dict.update({"root_type": root_type})
         if column_ids is not UNSET:
             field_dict["column_ids"] = column_ids
         if experiment_id is not UNSET:

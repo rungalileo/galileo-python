@@ -85,11 +85,7 @@ class JobProgress:
 
         steps_total = _parse_steps_total(d.pop("steps_total", UNSET))
 
-        job_progress = cls(
-            progress_message=progress_message,
-            steps_completed=steps_completed,
-            steps_total=steps_total,
-        )
+        job_progress = cls(progress_message=progress_message, steps_completed=steps_completed, steps_total=steps_total)
 
         job_progress.additional_properties = d
         return job_progress

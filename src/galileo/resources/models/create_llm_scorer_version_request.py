@@ -49,12 +49,7 @@ class CreateLLMScorerVersionRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "chain_poll_template": chain_poll_template,
-                "instructions": instructions,
-            }
-        )
+        field_dict.update({"chain_poll_template": chain_poll_template, "instructions": instructions})
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if num_judges is not UNSET:

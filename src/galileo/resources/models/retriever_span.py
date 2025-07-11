@@ -153,12 +153,7 @@ class RetrieverSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "input": input_,
-                "output": output,
-            }
-        )
+        field_dict.update({"input": input_, "output": output})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:

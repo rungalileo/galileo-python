@@ -31,11 +31,7 @@ class GroupCollaboratorCreate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "group_id": group_id,
-            }
-        )
+        field_dict.update({"group_id": group_id})
         if role is not UNSET:
             field_dict["role"] = role
 
@@ -53,10 +49,7 @@ class GroupCollaboratorCreate:
         else:
             role = CollaboratorRole(_role)
 
-        group_collaborator_create = cls(
-            group_id=group_id,
-            role=role,
-        )
+        group_collaborator_create = cls(group_id=group_id, role=role)
 
         group_collaborator_create.additional_properties = d
         return group_collaborator_create

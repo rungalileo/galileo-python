@@ -51,13 +51,7 @@ class LogStreamResponse:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "created_at": created_at,
-                "id": id,
-                "name": name,
-                "project_id": project_id,
-                "updated_at": updated_at,
-            }
+            {"created_at": created_at, "id": id, "name": name, "project_id": project_id, "updated_at": updated_at}
         )
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
@@ -87,12 +81,7 @@ class LogStreamResponse:
         created_by = _parse_created_by(d.pop("created_by", UNSET))
 
         log_stream_response = cls(
-            created_at=created_at,
-            id=id,
-            name=name,
-            project_id=project_id,
-            updated_at=updated_at,
-            created_by=created_by,
+            created_at=created_at, id=id, name=name, project_id=project_id, updated_at=updated_at, created_by=created_by
         )
 
         log_stream_response.additional_properties = d

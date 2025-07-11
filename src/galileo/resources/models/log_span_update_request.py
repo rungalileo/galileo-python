@@ -120,11 +120,7 @@ class LogSpanUpdateRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "span_id": span_id,
-            }
-        )
+        field_dict.update({"span_id": span_id})
         if client_version is not UNSET:
             field_dict["client_version"] = client_version
         if experiment_id is not UNSET:

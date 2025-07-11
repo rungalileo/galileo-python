@@ -85,11 +85,7 @@ class ExperimentDataset:
 
         version_index = _parse_version_index(d.pop("version_index", UNSET))
 
-        experiment_dataset = cls(
-            dataset_id=dataset_id,
-            name=name,
-            version_index=version_index,
-        )
+        experiment_dataset = cls(dataset_id=dataset_id, name=name, version_index=version_index)
 
         experiment_dataset.additional_properties = d
         return experiment_dataset

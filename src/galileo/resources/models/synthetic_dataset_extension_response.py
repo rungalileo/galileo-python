@@ -23,11 +23,7 @@ class SyntheticDatasetExtensionResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "dataset_id": dataset_id,
-            }
-        )
+        field_dict.update({"dataset_id": dataset_id})
 
         return field_dict
 
@@ -36,9 +32,7 @@ class SyntheticDatasetExtensionResponse:
         d = dict(src_dict)
         dataset_id = d.pop("dataset_id")
 
-        synthetic_dataset_extension_response = cls(
-            dataset_id=dataset_id,
-        )
+        synthetic_dataset_extension_response = cls(dataset_id=dataset_id)
 
         synthetic_dataset_extension_response.additional_properties = d
         return synthetic_dataset_extension_response

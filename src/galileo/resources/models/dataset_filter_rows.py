@@ -29,11 +29,7 @@ class DatasetFilterRows:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "row_ids": row_ids,
-            }
-        )
+        field_dict.update({"row_ids": row_ids})
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
 
@@ -48,10 +44,7 @@ class DatasetFilterRows:
         if edit_type != "filter_rows" and not isinstance(edit_type, Unset):
             raise ValueError(f"edit_type must match const 'filter_rows', got '{edit_type}'")
 
-        dataset_filter_rows = cls(
-            row_ids=row_ids,
-            edit_type=edit_type,
-        )
+        dataset_filter_rows = cls(row_ids=row_ids, edit_type=edit_type)
 
         dataset_filter_rows.additional_properties = d
         return dataset_filter_rows

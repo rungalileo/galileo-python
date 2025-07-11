@@ -51,9 +51,7 @@ class LogRecordsAvailableColumnsResponse:
 
             columns.append(columns_item)
 
-        log_records_available_columns_response = cls(
-            columns=columns,
-        )
+        log_records_available_columns_response = cls(columns=columns)
 
         log_records_available_columns_response.additional_properties = d
         return log_records_available_columns_response

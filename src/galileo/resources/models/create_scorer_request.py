@@ -74,12 +74,7 @@ class CreateScorerRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "name": name,
-                "scorer_type": scorer_type,
-            }
-        )
+        field_dict.update({"name": name, "scorer_type": scorer_type})
         if default_version_id is not UNSET:
             field_dict["default_version_id"] = default_version_id
         if defaults is not UNSET:

@@ -66,10 +66,7 @@ class Payload:
 
         output = _parse_output(d.pop("output", UNSET))
 
-        payload = cls(
-            input_=input_,
-            output=output,
-        )
+        payload = cls(input_=input_, output=output)
 
         payload.additional_properties = d
         return payload

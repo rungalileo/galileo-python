@@ -32,11 +32,7 @@ class OpenAIToolChoice:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "function": function,
-            }
-        )
+        field_dict.update({"function": function})
         if type_ is not UNSET:
             field_dict["type"] = type_
 
@@ -51,10 +47,7 @@ class OpenAIToolChoice:
 
         type_ = d.pop("type", UNSET)
 
-        open_ai_tool_choice = cls(
-            function=function,
-            type_=type_,
-        )
+        open_ai_tool_choice = cls(function=function, type_=type_)
 
         open_ai_tool_choice.additional_properties = d
         return open_ai_tool_choice

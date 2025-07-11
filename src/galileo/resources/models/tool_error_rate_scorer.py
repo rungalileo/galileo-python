@@ -143,12 +143,7 @@ class ToolErrorRateScorer:
         else:
             type_ = ToolErrorRateScorerType(_type_)
 
-        tool_error_rate_scorer = cls(
-            filters=filters,
-            model_name=model_name,
-            name=name,
-            type_=type_,
-        )
+        tool_error_rate_scorer = cls(filters=filters, model_name=model_name, name=name, type_=type_)
 
         tool_error_rate_scorer.additional_properties = d
         return tool_error_rate_scorer

@@ -156,13 +156,7 @@ class CorrectnessScorer:
         if type_ != "plus" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'plus', got '{type_}'")
 
-        correctness_scorer = cls(
-            filters=filters,
-            model_name=model_name,
-            name=name,
-            num_judges=num_judges,
-            type_=type_,
-        )
+        correctness_scorer = cls(filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_)
 
         correctness_scorer.additional_properties = d
         return correctness_scorer

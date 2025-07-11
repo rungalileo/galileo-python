@@ -47,9 +47,7 @@ class UpdateDatasetVersionRequest:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        update_dataset_version_request = cls(
-            name=name,
-        )
+        update_dataset_version_request = cls(name=name)
 
         update_dataset_version_request.additional_properties = d
         return update_dataset_version_request

@@ -10,13 +10,8 @@ from ...models.job_progress import JobProgress
 from ...types import Response
 
 
-def _get_kwargs(
-    dataset_id: str,
-) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/datasets/extend/{dataset_id}",
-    }
+def _get_kwargs(dataset_id: str) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/datasets/extend/{dataset_id}"}
 
     return _kwargs
 
@@ -49,11 +44,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Response[Union[HTTPValidationError, JobProgress]]:
+def sync_detailed(dataset_id: str, *, client: AuthenticatedClient) -> Response[Union[HTTPValidationError, JobProgress]]:
     """Get Dataset Synthetic Extend Status
 
     Args:
@@ -67,22 +58,14 @@ def sync_detailed(
         Response[Union[HTTPValidationError, JobProgress]]
     """
 
-    kwargs = _get_kwargs(
-        dataset_id=dataset_id,
-    )
+    kwargs = _get_kwargs(dataset_id=dataset_id)
 
-    response = client.get_httpx_client().request(
-        **kwargs,
-    )
+    response = client.get_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Union[HTTPValidationError, JobProgress]]:
+def sync(dataset_id: str, *, client: AuthenticatedClient) -> Optional[Union[HTTPValidationError, JobProgress]]:
     """Get Dataset Synthetic Extend Status
 
     Args:
@@ -96,16 +79,11 @@ def sync(
         Union[HTTPValidationError, JobProgress]
     """
 
-    return sync_detailed(
-        dataset_id=dataset_id,
-        client=client,
-    ).parsed
+    return sync_detailed(dataset_id=dataset_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
+    dataset_id: str, *, client: AuthenticatedClient
 ) -> Response[Union[HTTPValidationError, JobProgress]]:
     """Get Dataset Synthetic Extend Status
 
@@ -120,20 +98,14 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, JobProgress]]
     """
 
-    kwargs = _get_kwargs(
-        dataset_id=dataset_id,
-    )
+    kwargs = _get_kwargs(dataset_id=dataset_id)
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
-) -> Optional[Union[HTTPValidationError, JobProgress]]:
+async def asyncio(dataset_id: str, *, client: AuthenticatedClient) -> Optional[Union[HTTPValidationError, JobProgress]]:
     """Get Dataset Synthetic Extend Status
 
     Args:
@@ -147,9 +119,4 @@ async def asyncio(
         Union[HTTPValidationError, JobProgress]
     """
 
-    return (
-        await asyncio_detailed(
-            dataset_id=dataset_id,
-            client=client,
-        )
-    ).parsed
+    return (await asyncio_detailed(dataset_id=dataset_id, client=client)).parsed

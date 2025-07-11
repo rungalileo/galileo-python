@@ -98,13 +98,7 @@ class LogSpansIngestRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "parent_id": parent_id,
-                "spans": spans,
-                "trace_id": trace_id,
-            }
-        )
+        field_dict.update({"parent_id": parent_id, "spans": spans, "trace_id": trace_id})
         if client_version is not UNSET:
             field_dict["client_version"] = client_version
         if experiment_id is not UNSET:
