@@ -33,5 +33,5 @@ class Jobs(BaseClientModel):
         _logger.info(f"create job: {create_params}")
         result = create_job_jobs_post.sync_detailed(client=self.client, body=CreateJobRequest(**create_params))
         if not result.parsed or not isinstance(result.parsed, CreateJobResponse):
-            _logger.error(f"create job failed: {result.content}")
+            raise ValueError(f"create job failed: {result.content}")
         return result.parsed
