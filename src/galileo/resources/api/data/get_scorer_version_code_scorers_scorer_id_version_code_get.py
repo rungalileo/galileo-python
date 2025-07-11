@@ -14,16 +14,10 @@ def _get_kwargs(
     *,
     version: Union[None, Unset, int] = UNSET,
 ) -> dict[str, Any]:
+    # Only insert "version" if it's not UNSET and not None
     params: dict[str, Any] = {}
-
-    json_version: Union[None, Unset, int]
-    if isinstance(version, Unset):
-        json_version = UNSET
-    else:
-        json_version = version
-    params["version"] = json_version
-
-    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+    if not isinstance(version, Unset) and version is not None:
+        params["version"] = version
 
     _kwargs: dict[str, Any] = {
         "method": "get",
