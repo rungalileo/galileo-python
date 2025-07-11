@@ -22,7 +22,11 @@ class DeleteScorerResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"message": message})
+        field_dict.update(
+            {
+                "message": message,
+            }
+        )
 
         return field_dict
 
@@ -31,7 +35,9 @@ class DeleteScorerResponse:
         d = dict(src_dict)
         message = d.pop("message")
 
-        delete_scorer_response = cls(message=message)
+        delete_scorer_response = cls(
+            message=message,
+        )
 
         delete_scorer_response.additional_properties = d
         return delete_scorer_response

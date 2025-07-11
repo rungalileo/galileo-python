@@ -55,7 +55,11 @@ class DatasetCreatedAtSort:
         if sort_type != "column" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'column', got '{sort_type}'")
 
-        dataset_created_at_sort = cls(ascending=ascending, name=name, sort_type=sort_type)
+        dataset_created_at_sort = cls(
+            ascending=ascending,
+            name=name,
+            sort_type=sort_type,
+        )
 
         dataset_created_at_sort.additional_properties = d
         return dataset_created_at_sort

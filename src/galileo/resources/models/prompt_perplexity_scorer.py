@@ -108,7 +108,10 @@ class PromptPerplexityScorer:
         if name != "prompt_perplexity" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'prompt_perplexity', got '{name}'")
 
-        prompt_perplexity_scorer = cls(filters=filters, name=name)
+        prompt_perplexity_scorer = cls(
+            filters=filters,
+            name=name,
+        )
 
         prompt_perplexity_scorer.additional_properties = d
         return prompt_perplexity_scorer

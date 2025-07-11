@@ -7,8 +7,8 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.base_prompt_template_version_settings import BasePromptTemplateVersionSettings
     from ..models.messages_list_item import MessagesListItem
+    from ..models.prompt_run_settings import PromptRunSettings
 
 
 T = TypeVar("T", bound="BasePromptTemplateVersion")
@@ -21,14 +21,14 @@ class BasePromptTemplateVersion:
         template (Union[list['MessagesListItem'], str]):
         output_type (Union[None, Unset, str]):
         raw (Union[Unset, bool]):  Default: False.
-        settings (Union[Unset, BasePromptTemplateVersionSettings]):
+        settings (Union[Unset, PromptRunSettings]): Prompt run settings.
         version (Union[None, Unset, int]):
     """
 
     template: Union[list["MessagesListItem"], str]
     output_type: Union[None, Unset, str] = UNSET
     raw: Union[Unset, bool] = False
-    settings: Union[Unset, "BasePromptTemplateVersionSettings"] = UNSET
+    settings: Union[Unset, "PromptRunSettings"] = UNSET
     version: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -63,7 +63,11 @@ class BasePromptTemplateVersion:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"template": template})
+        field_dict.update(
+            {
+                "template": template,
+            }
+        )
         if output_type is not UNSET:
             field_dict["output_type"] = output_type
         if raw is not UNSET:
@@ -77,8 +81,8 @@ class BasePromptTemplateVersion:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.base_prompt_template_version_settings import BasePromptTemplateVersionSettings
         from ..models.messages_list_item import MessagesListItem
+        from ..models.prompt_run_settings import PromptRunSettings
 
         d = dict(src_dict)
 
@@ -112,11 +116,11 @@ class BasePromptTemplateVersion:
         raw = d.pop("raw", UNSET)
 
         _settings = d.pop("settings", UNSET)
-        settings: Union[Unset, BasePromptTemplateVersionSettings]
+        settings: Union[Unset, PromptRunSettings]
         if isinstance(_settings, Unset):
             settings = UNSET
         else:
-            settings = BasePromptTemplateVersionSettings.from_dict(_settings)
+            settings = PromptRunSettings.from_dict(_settings)
 
         def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -128,7 +132,11 @@ class BasePromptTemplateVersion:
         version = _parse_version(d.pop("version", UNSET))
 
         base_prompt_template_version = cls(
-            template=template, output_type=output_type, raw=raw, settings=settings, version=version
+            template=template,
+            output_type=output_type,
+            raw=raw,
+            settings=settings,
+            version=version,
         )
 
         base_prompt_template_version.additional_properties = d

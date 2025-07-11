@@ -65,7 +65,9 @@ class ListDatasetVersionParams:
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
-        list_dataset_version_params = cls(sort=sort)
+        list_dataset_version_params = cls(
+            sort=sort,
+        )
 
         list_dataset_version_params.additional_properties = d
         return list_dataset_version_params

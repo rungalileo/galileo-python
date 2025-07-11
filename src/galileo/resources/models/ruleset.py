@@ -108,7 +108,11 @@ class Ruleset:
 
             rules.append(rules_item)
 
-        ruleset = cls(action=action, description=description, rules=rules)
+        ruleset = cls(
+            action=action,
+            description=description,
+            rules=rules,
+        )
 
         ruleset.additional_properties = d
         return ruleset

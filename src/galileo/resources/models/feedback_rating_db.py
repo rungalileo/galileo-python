@@ -66,7 +66,13 @@ class FeedbackRatingDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"created_at": created_at, "created_by": created_by, "rating": rating})
+        field_dict.update(
+            {
+                "created_at": created_at,
+                "created_by": created_by,
+                "rating": rating,
+            }
+        )
         if explanation is not UNSET:
             field_dict["explanation"] = explanation
 
@@ -142,7 +148,12 @@ class FeedbackRatingDB:
 
         explanation = _parse_explanation(d.pop("explanation", UNSET))
 
-        feedback_rating_db = cls(created_at=created_at, created_by=created_by, rating=rating, explanation=explanation)
+        feedback_rating_db = cls(
+            created_at=created_at,
+            created_by=created_by,
+            rating=rating,
+            explanation=explanation,
+        )
 
         feedback_rating_db.additional_properties = d
         return feedback_rating_db

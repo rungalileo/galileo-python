@@ -22,7 +22,11 @@ class OpenAIFunction:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"name": name})
+        field_dict.update(
+            {
+                "name": name,
+            }
+        )
 
         return field_dict
 
@@ -31,7 +35,9 @@ class OpenAIFunction:
         d = dict(src_dict)
         name = d.pop("name")
 
-        open_ai_function = cls(name=name)
+        open_ai_function = cls(
+            name=name,
+        )
 
         open_ai_function.additional_properties = d
         return open_ai_function

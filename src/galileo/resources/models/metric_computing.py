@@ -75,7 +75,11 @@ class MetricComputing:
         if status_type != "computing" and not isinstance(status_type, Unset):
             raise ValueError(f"status_type must match const 'computing', got '{status_type}'")
 
-        metric_computing = cls(message=message, scorer_type=scorer_type, status_type=status_type)
+        metric_computing = cls(
+            message=message,
+            scorer_type=scorer_type,
+            status_type=status_type,
+        )
 
         metric_computing.additional_properties = d
         return metric_computing

@@ -82,7 +82,11 @@ class LogTracesIngestRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"traces": traces})
+        field_dict.update(
+            {
+                "traces": traces,
+            }
+        )
         if client_version is not UNSET:
             field_dict["client_version"] = client_version
         if experiment_id is not UNSET:

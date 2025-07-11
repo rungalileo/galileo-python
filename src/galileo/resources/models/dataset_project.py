@@ -91,7 +91,11 @@ class DatasetProject:
         updated_at = isoparse(d.pop("updated_at"))
 
         dataset_project = cls(
-            created_at=created_at, created_by_user=created_by_user, id=id, name=name, updated_at=updated_at
+            created_at=created_at,
+            created_by_user=created_by_user,
+            id=id,
+            name=name,
+            updated_at=updated_at,
         )
 
         dataset_project.additional_properties = d

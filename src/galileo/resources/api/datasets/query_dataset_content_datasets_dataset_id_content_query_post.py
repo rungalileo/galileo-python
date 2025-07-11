@@ -12,7 +12,11 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    dataset_id: str, *, body: QueryDatasetParams, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    dataset_id: str,
+    *,
+    body: QueryDatasetParams,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
@@ -24,7 +28,11 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/datasets/{dataset_id}/content/query", "params": params}
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": f"/datasets/{dataset_id}/content/query",
+        "params": params,
+    }
 
     _kwargs["json"] = body.to_dict()
 
@@ -86,9 +94,16 @@ def sync_detailed(
         Response[Union[DatasetContent, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, body=body, starting_token=starting_token, limit=limit)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        body=body,
+        starting_token=starting_token,
+        limit=limit,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
@@ -118,7 +133,11 @@ def sync(
     """
 
     return sync_detailed(
-        dataset_id=dataset_id, client=client, body=body, starting_token=starting_token, limit=limit
+        dataset_id=dataset_id,
+        client=client,
+        body=body,
+        starting_token=starting_token,
+        limit=limit,
     ).parsed
 
 
@@ -146,7 +165,12 @@ async def asyncio_detailed(
         Response[Union[DatasetContent, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, body=body, starting_token=starting_token, limit=limit)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        body=body,
+        starting_token=starting_token,
+        limit=limit,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -179,6 +203,10 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
-            dataset_id=dataset_id, client=client, body=body, starting_token=starting_token, limit=limit
+            dataset_id=dataset_id,
+            client=client,
+            body=body,
+            starting_token=starting_token,
+            limit=limit,
         )
     ).parsed

@@ -10,8 +10,14 @@ from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
-def _get_kwargs(scorer_id: str, version_number: int) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/scorers/{scorer_id}/versions/{version_number}/restore"}
+def _get_kwargs(
+    scorer_id: str,
+    version_number: int,
+) -> dict[str, Any]:
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": f"/scorers/{scorer_id}/versions/{version_number}/restore",
+    }
 
     return _kwargs
 
@@ -45,7 +51,10 @@ def _build_response(
 
 
 def sync_detailed(
-    scorer_id: str, version_number: int, *, client: AuthenticatedClient
+    scorer_id: str,
+    version_number: int,
+    *,
+    client: AuthenticatedClient,
 ) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
     """Restore Scorer Version
 
@@ -63,15 +72,23 @@ def sync_detailed(
         Response[Union[BaseScorerVersionResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(scorer_id=scorer_id, version_number=version_number)
+    kwargs = _get_kwargs(
+        scorer_id=scorer_id,
+        version_number=version_number,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    scorer_id: str, version_number: int, *, client: AuthenticatedClient
+    scorer_id: str,
+    version_number: int,
+    *,
+    client: AuthenticatedClient,
 ) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
     """Restore Scorer Version
 
@@ -89,11 +106,18 @@ def sync(
         Union[BaseScorerVersionResponse, HTTPValidationError]
     """
 
-    return sync_detailed(scorer_id=scorer_id, version_number=version_number, client=client).parsed
+    return sync_detailed(
+        scorer_id=scorer_id,
+        version_number=version_number,
+        client=client,
+    ).parsed
 
 
 async def asyncio_detailed(
-    scorer_id: str, version_number: int, *, client: AuthenticatedClient
+    scorer_id: str,
+    version_number: int,
+    *,
+    client: AuthenticatedClient,
 ) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
     """Restore Scorer Version
 
@@ -111,7 +135,10 @@ async def asyncio_detailed(
         Response[Union[BaseScorerVersionResponse, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(scorer_id=scorer_id, version_number=version_number)
+    kwargs = _get_kwargs(
+        scorer_id=scorer_id,
+        version_number=version_number,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -119,7 +146,10 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    scorer_id: str, version_number: int, *, client: AuthenticatedClient
+    scorer_id: str,
+    version_number: int,
+    *,
+    client: AuthenticatedClient,
 ) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
     """Restore Scorer Version
 
@@ -137,4 +167,10 @@ async def asyncio(
         Union[BaseScorerVersionResponse, HTTPValidationError]
     """
 
-    return (await asyncio_detailed(scorer_id=scorer_id, version_number=version_number, client=client)).parsed
+    return (
+        await asyncio_detailed(
+            scorer_id=scorer_id,
+            version_number=version_number,
+            client=client,
+        )
+    ).parsed

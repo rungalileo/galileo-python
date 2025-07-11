@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.tool_error_rate_scorer_type import ToolErrorRateScorerType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -22,13 +23,13 @@ class ToolErrorRateScorer:
             scorer.
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
         name (Union[Literal['tool_error_rate'], Unset]):  Default: 'tool_error_rate'.
-        type_ (Union[Literal['plus'], Unset]):  Default: 'plus'.
+        type_ (Union[Unset, ToolErrorRateScorerType]):  Default: ToolErrorRateScorerType.PLUS.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["tool_error_rate"], Unset] = "tool_error_rate"
-    type_: Union[Literal["plus"], Unset] = "plus"
+    type_: Union[Unset, ToolErrorRateScorerType] = ToolErrorRateScorerType.PLUS
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -59,7 +60,9 @@ class ToolErrorRateScorer:
 
         name = self.name
 
-        type_ = self.type_
+        type_: Union[Unset, str] = UNSET
+        if not isinstance(self.type_, Unset):
+            type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -133,11 +136,19 @@ class ToolErrorRateScorer:
         if name != "tool_error_rate" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'tool_error_rate', got '{name}'")
 
-        type_ = cast(Union[Literal["plus"], Unset], d.pop("type", UNSET))
-        if type_ != "plus" and not isinstance(type_, Unset):
-            raise ValueError(f"type must match const 'plus', got '{type_}'")
+        _type_ = d.pop("type", UNSET)
+        type_: Union[Unset, ToolErrorRateScorerType]
+        if isinstance(_type_, Unset):
+            type_ = UNSET
+        else:
+            type_ = ToolErrorRateScorerType(_type_)
 
-        tool_error_rate_scorer = cls(filters=filters, model_name=model_name, name=name, type_=type_)
+        tool_error_rate_scorer = cls(
+            filters=filters,
+            model_name=model_name,
+            name=name,
+            type_=type_,
+        )
 
         tool_error_rate_scorer.additional_properties = d
         return tool_error_rate_scorer

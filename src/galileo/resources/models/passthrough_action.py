@@ -62,7 +62,10 @@ class PassthroughAction:
         if type_ != "PASSTHROUGH" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'PASSTHROUGH', got '{type_}'")
 
-        passthrough_action = cls(subscriptions=subscriptions, type_=type_)
+        passthrough_action = cls(
+            subscriptions=subscriptions,
+            type_=type_,
+        )
 
         passthrough_action.additional_properties = d
         return passthrough_action

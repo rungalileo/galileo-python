@@ -162,7 +162,12 @@ class ColumnInfo:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"category": category, "id": id})
+        field_dict.update(
+            {
+                "category": category,
+                "id": id,
+            }
+        )
         if allowed_values is not UNSET:
             field_dict["allowed_values"] = allowed_values
         if applicable_types is not UNSET:

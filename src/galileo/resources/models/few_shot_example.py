@@ -44,7 +44,8 @@ class FewShotExample:
         generation_prompt_and_response = d.pop("generation_prompt_and_response")
 
         few_shot_example = cls(
-            evaluating_response=evaluating_response, generation_prompt_and_response=generation_prompt_and_response
+            evaluating_response=evaluating_response,
+            generation_prompt_and_response=generation_prompt_and_response,
         )
 
         few_shot_example.additional_properties = d

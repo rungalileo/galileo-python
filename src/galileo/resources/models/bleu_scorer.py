@@ -108,7 +108,10 @@ class BleuScorer:
         if name != "bleu" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'bleu', got '{name}'")
 
-        bleu_scorer = cls(filters=filters, name=name)
+        bleu_scorer = cls(
+            filters=filters,
+            name=name,
+        )
 
         bleu_scorer.additional_properties = d
         return bleu_scorer

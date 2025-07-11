@@ -28,7 +28,11 @@ class Token:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"access_token": access_token})
+        field_dict.update(
+            {
+                "access_token": access_token,
+            }
+        )
         if token_type is not UNSET:
             field_dict["token_type"] = token_type
 
@@ -41,7 +45,10 @@ class Token:
 
         token_type = d.pop("token_type", UNSET)
 
-        token = cls(access_token=access_token, token_type=token_type)
+        token = cls(
+            access_token=access_token,
+            token_type=token_type,
+        )
 
         token.additional_properties = d
         return token

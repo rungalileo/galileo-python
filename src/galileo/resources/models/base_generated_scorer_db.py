@@ -40,7 +40,12 @@ class BaseGeneratedScorerDB:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {"chain_poll_template": chain_poll_template, "id": id, "instructions": instructions, "name": name}
+            {
+                "chain_poll_template": chain_poll_template,
+                "id": id,
+                "instructions": instructions,
+                "name": name,
+            }
         )
 
         return field_dict
@@ -59,7 +64,10 @@ class BaseGeneratedScorerDB:
         name = d.pop("name")
 
         base_generated_scorer_db = cls(
-            chain_poll_template=chain_poll_template, id=id, instructions=instructions, name=name
+            chain_poll_template=chain_poll_template,
+            id=id,
+            instructions=instructions,
+            name=name,
         )
 
         base_generated_scorer_db.additional_properties = d

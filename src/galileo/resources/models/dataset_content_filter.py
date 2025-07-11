@@ -35,7 +35,12 @@ class DatasetContentFilter:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"column_name": column_name, "value": value})
+        field_dict.update(
+            {
+                "column_name": column_name,
+                "value": value,
+            }
+        )
         if operator is not UNSET:
             field_dict["operator"] = operator
 
@@ -55,7 +60,11 @@ class DatasetContentFilter:
         else:
             operator = DatasetContentFilterOperator(_operator)
 
-        dataset_content_filter = cls(column_name=column_name, value=value, operator=operator)
+        dataset_content_filter = cls(
+            column_name=column_name,
+            value=value,
+            operator=operator,
+        )
 
         dataset_content_filter.additional_properties = d
         return dataset_content_filter

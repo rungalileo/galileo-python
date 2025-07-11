@@ -51,7 +51,11 @@ class ListDatasetVersionResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"versions": versions})
+        field_dict.update(
+            {
+                "versions": versions,
+            }
+        )
         if limit is not UNSET:
             field_dict["limit"] = limit
         if next_starting_token is not UNSET:

@@ -30,7 +30,13 @@ class AggregatedTraceViewEdge:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"source": source, "target": target, "weight": weight})
+        field_dict.update(
+            {
+                "source": source,
+                "target": target,
+                "weight": weight,
+            }
+        )
 
         return field_dict
 
@@ -43,7 +49,11 @@ class AggregatedTraceViewEdge:
 
         weight = d.pop("weight")
 
-        aggregated_trace_view_edge = cls(source=source, target=target, weight=weight)
+        aggregated_trace_view_edge = cls(
+            source=source,
+            target=target,
+            weight=weight,
+        )
 
         aggregated_trace_view_edge.additional_properties = d
         return aggregated_trace_view_edge

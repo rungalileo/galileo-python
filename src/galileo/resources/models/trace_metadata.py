@@ -59,7 +59,12 @@ class TraceMetadata:
 
         response_at = d.pop("response_at", UNSET)
 
-        trace_metadata = cls(execution_time=execution_time, id=id, received_at=received_at, response_at=response_at)
+        trace_metadata = cls(
+            execution_time=execution_time,
+            id=id,
+            received_at=received_at,
+            response_at=response_at,
+        )
 
         trace_metadata.additional_properties = d
         return trace_metadata

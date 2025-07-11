@@ -135,7 +135,9 @@ class ExperimentMetricsRequest:
 
             filters.append(filters_item)
 
-        experiment_metrics_request = cls(filters=filters)
+        experiment_metrics_request = cls(
+            filters=filters,
+        )
 
         experiment_metrics_request.additional_properties = d
         return experiment_metrics_request

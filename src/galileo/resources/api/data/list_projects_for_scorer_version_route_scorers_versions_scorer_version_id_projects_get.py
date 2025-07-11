@@ -11,7 +11,11 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    scorer_version_id: str, *, scorer_id: str, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    scorer_version_id: str,
+    *,
+    scorer_id: str,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -87,10 +91,15 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        scorer_version_id=scorer_version_id, scorer_id=scorer_id, starting_token=starting_token, limit=limit
+        scorer_version_id=scorer_version_id,
+        scorer_id=scorer_id,
+        starting_token=starting_token,
+        limit=limit,
     )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
@@ -157,7 +166,10 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        scorer_version_id=scorer_version_id, scorer_id=scorer_id, starting_token=starting_token, limit=limit
+        scorer_version_id=scorer_version_id,
+        scorer_id=scorer_id,
+        starting_token=starting_token,
+        limit=limit,
     )
 
     response = await client.get_async_httpx_client().request(**kwargs)

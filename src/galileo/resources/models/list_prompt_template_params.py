@@ -165,7 +165,10 @@ class ListPromptTemplateParams:
 
         sort = _parse_sort(d.pop("sort", UNSET))
 
-        list_prompt_template_params = cls(filters=filters, sort=sort)
+        list_prompt_template_params = cls(
+            filters=filters,
+            sort=sort,
+        )
 
         list_prompt_template_params.additional_properties = d
         return list_prompt_template_params

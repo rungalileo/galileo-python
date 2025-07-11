@@ -85,7 +85,14 @@ class ProjectItem:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"created_at": created_at, "id": id, "name": name, "updated_at": updated_at})
+        field_dict.update(
+            {
+                "created_at": created_at,
+                "id": id,
+                "name": name,
+                "updated_at": updated_at,
+            }
+        )
         if bookmark is not UNSET:
             field_dict["bookmark"] = bookmark
         if created_by_user is not UNSET:

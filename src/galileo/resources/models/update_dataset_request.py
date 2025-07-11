@@ -103,7 +103,11 @@ class UpdateDatasetRequest:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        update_dataset_request = cls(column_mapping=column_mapping, draft=draft, name=name)
+        update_dataset_request = cls(
+            column_mapping=column_mapping,
+            draft=draft,
+            name=name,
+        )
 
         update_dataset_request.additional_properties = d
         return update_dataset_request

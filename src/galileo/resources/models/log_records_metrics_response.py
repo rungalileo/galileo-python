@@ -58,7 +58,9 @@ class LogRecordsMetricsResponse:
         group_by_columns = cast(list[str], d.pop("group_by_columns"))
 
         log_records_metrics_response = cls(
-            aggregate_metrics=aggregate_metrics, bucketed_metrics=bucketed_metrics, group_by_columns=group_by_columns
+            aggregate_metrics=aggregate_metrics,
+            bucketed_metrics=bucketed_metrics,
+            group_by_columns=group_by_columns,
         )
 
         log_records_metrics_response.additional_properties = d

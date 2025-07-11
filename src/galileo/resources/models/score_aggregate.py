@@ -32,7 +32,12 @@ class ScoreAggregate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"average": average, "unrated_count": unrated_count})
+        field_dict.update(
+            {
+                "average": average,
+                "unrated_count": unrated_count,
+            }
+        )
         if feedback_type is not UNSET:
             field_dict["feedback_type"] = feedback_type
 
@@ -49,7 +54,11 @@ class ScoreAggregate:
         if feedback_type != "score" and not isinstance(feedback_type, Unset):
             raise ValueError(f"feedback_type must match const 'score', got '{feedback_type}'")
 
-        score_aggregate = cls(average=average, unrated_count=unrated_count, feedback_type=feedback_type)
+        score_aggregate = cls(
+            average=average,
+            unrated_count=unrated_count,
+            feedback_type=feedback_type,
+        )
 
         score_aggregate.additional_properties = d
         return score_aggregate

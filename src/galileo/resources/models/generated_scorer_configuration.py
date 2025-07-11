@@ -13,11 +13,11 @@ T = TypeVar("T", bound="GeneratedScorerConfiguration")
 class GeneratedScorerConfiguration:
     """
     Attributes:
-        model_alias (Union[Unset, str]):  Default: 'GPT-4o mini'.
+        model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
         num_judges (Union[Unset, int]):  Default: 3.
     """
 
-    model_alias: Union[Unset, str] = "GPT-4o mini"
+    model_alias: Union[Unset, str] = "gpt-4.1-mini"
     num_judges: Union[Unset, int] = 3
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -43,7 +43,10 @@ class GeneratedScorerConfiguration:
 
         num_judges = d.pop("num_judges", UNSET)
 
-        generated_scorer_configuration = cls(model_alias=model_alias, num_judges=num_judges)
+        generated_scorer_configuration = cls(
+            model_alias=model_alias,
+            num_judges=num_judges,
+        )
 
         generated_scorer_configuration.additional_properties = d
         return generated_scorer_configuration

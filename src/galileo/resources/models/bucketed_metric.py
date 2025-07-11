@@ -40,7 +40,12 @@ class BucketedMetric:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"buckets": buckets, "name": name})
+        field_dict.update(
+            {
+                "buckets": buckets,
+                "name": name,
+            }
+        )
         if average is not UNSET:
             field_dict["average"] = average
 
@@ -64,7 +69,11 @@ class BucketedMetric:
 
         average = _parse_average(d.pop("average", UNSET))
 
-        bucketed_metric = cls(buckets=buckets, name=name, average=average)
+        bucketed_metric = cls(
+            buckets=buckets,
+            name=name,
+            average=average,
+        )
 
         bucketed_metric.additional_properties = d
         return bucketed_metric

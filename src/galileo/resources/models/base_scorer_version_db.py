@@ -73,7 +73,12 @@ class BaseScorerVersionDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"id": id, "version": version})
+        field_dict.update(
+            {
+                "id": id,
+                "version": version,
+            }
+        )
         if generated_scorer is not UNSET:
             field_dict["generated_scorer"] = generated_scorer
         if model_name is not UNSET:

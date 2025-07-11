@@ -32,7 +32,12 @@ class MessagesListItem:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"content": content, "role": role})
+        field_dict.update(
+            {
+                "content": content,
+                "role": role,
+            }
+        )
 
         return field_dict
 
@@ -54,7 +59,10 @@ class MessagesListItem:
 
         role = _parse_role(d.pop("role"))
 
-        messages_list_item = cls(content=content, role=role)
+        messages_list_item = cls(
+            content=content,
+            role=role,
+        )
 
         messages_list_item.additional_properties = d
         return messages_list_item

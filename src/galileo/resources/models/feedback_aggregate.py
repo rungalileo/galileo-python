@@ -41,7 +41,11 @@ class FeedbackAggregate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"aggregate": aggregate})
+        field_dict.update(
+            {
+                "aggregate": aggregate,
+            }
+        )
 
         return field_dict
 
@@ -89,7 +93,9 @@ class FeedbackAggregate:
 
         aggregate = _parse_aggregate(d.pop("aggregate"))
 
-        feedback_aggregate = cls(aggregate=aggregate)
+        feedback_aggregate = cls(
+            aggregate=aggregate,
+        )
 
         feedback_aggregate.additional_properties = d
         return feedback_aggregate

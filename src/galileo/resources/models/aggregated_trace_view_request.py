@@ -22,7 +22,11 @@ class AggregatedTraceViewRequest:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"log_stream_id": log_stream_id})
+        field_dict.update(
+            {
+                "log_stream_id": log_stream_id,
+            }
+        )
 
         return field_dict
 
@@ -31,7 +35,9 @@ class AggregatedTraceViewRequest:
         d = dict(src_dict)
         log_stream_id = d.pop("log_stream_id")
 
-        aggregated_trace_view_request = cls(log_stream_id=log_stream_id)
+        aggregated_trace_view_request = cls(
+            log_stream_id=log_stream_id,
+        )
 
         aggregated_trace_view_request.additional_properties = d
         return aggregated_trace_view_request

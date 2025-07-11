@@ -48,7 +48,9 @@ class Metrics:
 
         duration_ns = _parse_duration_ns(d.pop("duration_ns", UNSET))
 
-        metrics = cls(duration_ns=duration_ns)
+        metrics = cls(
+            duration_ns=duration_ns,
+        )
 
         metrics.additional_properties = d
         return metrics

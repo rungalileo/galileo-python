@@ -166,7 +166,12 @@ class MetricComputation:
 
         value = _parse_value(d.pop("value", UNSET))
 
-        metric_computation = cls(error_message=error_message, execution_time=execution_time, status=status, value=value)
+        metric_computation = cls(
+            error_message=error_message,
+            execution_time=execution_time,
+            status=status,
+            value=value,
+        )
 
         metric_computation.additional_properties = d
         return metric_computation

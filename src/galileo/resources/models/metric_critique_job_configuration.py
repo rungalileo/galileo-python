@@ -78,7 +78,13 @@ class MetricCritiqueJobConfiguration:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"critique_ids": critique_ids, "metric_name": metric_name, "project_type": project_type})
+        field_dict.update(
+            {
+                "critique_ids": critique_ids,
+                "metric_name": metric_name,
+                "project_type": project_type,
+            }
+        )
         if recompute_settings is not UNSET:
             field_dict["recompute_settings"] = recompute_settings
         if scorer_id is not UNSET:

@@ -83,7 +83,13 @@ class ProjectDBThin:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {"created_at": created_at, "created_by": created_by, "id": id, "runs": runs, "updated_at": updated_at}
+            {
+                "created_at": created_at,
+                "created_by": created_by,
+                "id": id,
+                "runs": runs,
+                "updated_at": updated_at,
+            }
         )
         if bookmark is not UNSET:
             field_dict["bookmark"] = bookmark

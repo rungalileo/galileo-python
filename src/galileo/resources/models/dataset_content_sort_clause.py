@@ -28,7 +28,11 @@ class DatasetContentSortClause:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"column_name": column_name})
+        field_dict.update(
+            {
+                "column_name": column_name,
+            }
+        )
         if ascending is not UNSET:
             field_dict["ascending"] = ascending
 
@@ -41,7 +45,10 @@ class DatasetContentSortClause:
 
         ascending = d.pop("ascending", UNSET)
 
-        dataset_content_sort_clause = cls(column_name=column_name, ascending=ascending)
+        dataset_content_sort_clause = cls(
+            column_name=column_name,
+            ascending=ascending,
+        )
 
         dataset_content_sort_clause.additional_properties = d
         return dataset_content_sort_clause

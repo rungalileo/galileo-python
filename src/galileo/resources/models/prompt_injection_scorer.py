@@ -163,7 +163,11 @@ class PromptInjectionScorer:
             type_ = PromptInjectionScorerType(_type_)
 
         prompt_injection_scorer = cls(
-            filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_
+            filters=filters,
+            model_name=model_name,
+            name=name,
+            num_judges=num_judges,
+            type_=type_,
         )
 
         prompt_injection_scorer.additional_properties = d

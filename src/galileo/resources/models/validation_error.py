@@ -34,7 +34,13 @@ class ValidationError:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"loc": loc, "msg": msg, "type": type_})
+        field_dict.update(
+            {
+                "loc": loc,
+                "msg": msg,
+                "type": type_,
+            }
+        )
 
         return field_dict
 
@@ -56,7 +62,11 @@ class ValidationError:
 
         type_ = d.pop("type")
 
-        validation_error = cls(loc=loc, msg=msg, type_=type_)
+        validation_error = cls(
+            loc=loc,
+            msg=msg,
+            type_=type_,
+        )
 
         validation_error.additional_properties = d
         return validation_error

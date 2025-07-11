@@ -50,7 +50,12 @@ class RunScorerSettingsResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"run_id": run_id, "scorers": scorers})
+        field_dict.update(
+            {
+                "run_id": run_id,
+                "scorers": scorers,
+            }
+        )
         if segment_filters is not UNSET:
             field_dict["segment_filters"] = segment_filters
 
@@ -93,7 +98,11 @@ class RunScorerSettingsResponse:
 
         segment_filters = _parse_segment_filters(d.pop("segment_filters", UNSET))
 
-        run_scorer_settings_response = cls(run_id=run_id, scorers=scorers, segment_filters=segment_filters)
+        run_scorer_settings_response = cls(
+            run_id=run_id,
+            scorers=scorers,
+            segment_filters=segment_filters,
+        )
 
         run_scorer_settings_response.additional_properties = d
         return run_scorer_settings_response

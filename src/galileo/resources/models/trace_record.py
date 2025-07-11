@@ -27,7 +27,7 @@ class TraceRecord:
         input_ (str): Input to the trace or span.
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
-        session_id (str): Galileo ID of the session
+        session_id (str): Galileo ID of the session containing the trace (or the same value as id for a trace)
         trace_id (str): Galileo ID of the trace containing the span (or the same value as id for a trace)
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace

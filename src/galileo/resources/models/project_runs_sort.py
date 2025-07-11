@@ -55,7 +55,11 @@ class ProjectRunsSort:
         if sort_type != "custom" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'custom', got '{sort_type}'")
 
-        project_runs_sort = cls(ascending=ascending, name=name, sort_type=sort_type)
+        project_runs_sort = cls(
+            ascending=ascending,
+            name=name,
+            sort_type=sort_type,
+        )
 
         project_runs_sort.additional_properties = d
         return project_runs_sort

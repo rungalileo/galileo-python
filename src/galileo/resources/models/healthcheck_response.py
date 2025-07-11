@@ -30,7 +30,13 @@ class HealthcheckResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"api_version": api_version, "message": message, "version": version})
+        field_dict.update(
+            {
+                "api_version": api_version,
+                "message": message,
+                "version": version,
+            }
+        )
 
         return field_dict
 
@@ -43,7 +49,11 @@ class HealthcheckResponse:
 
         version = d.pop("version")
 
-        healthcheck_response = cls(api_version=api_version, message=message, version=version)
+        healthcheck_response = cls(
+            api_version=api_version,
+            message=message,
+            version=version,
+        )
 
         healthcheck_response.additional_properties = d
         return healthcheck_response

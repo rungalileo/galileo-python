@@ -26,7 +26,12 @@ class BaseRegisteredScorerDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"id": id, "name": name})
+        field_dict.update(
+            {
+                "id": id,
+                "name": name,
+            }
+        )
 
         return field_dict
 
@@ -37,7 +42,10 @@ class BaseRegisteredScorerDB:
 
         name = d.pop("name")
 
-        base_registered_scorer_db = cls(id=id, name=name)
+        base_registered_scorer_db = cls(
+            id=id,
+            name=name,
+        )
 
         base_registered_scorer_db.additional_properties = d
         return base_registered_scorer_db

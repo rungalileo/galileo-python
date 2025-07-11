@@ -37,7 +37,12 @@ class AggregatedTraceViewResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"edges": edges, "nodes": nodes})
+        field_dict.update(
+            {
+                "edges": edges,
+                "nodes": nodes,
+            }
+        )
 
         return field_dict
 
@@ -61,7 +66,10 @@ class AggregatedTraceViewResponse:
 
             nodes.append(nodes_item)
 
-        aggregated_trace_view_response = cls(edges=edges, nodes=nodes)
+        aggregated_trace_view_response = cls(
+            edges=edges,
+            nodes=nodes,
+        )
 
         aggregated_trace_view_response.additional_properties = d
         return aggregated_trace_view_response

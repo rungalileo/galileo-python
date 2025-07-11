@@ -11,13 +11,19 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    dataset_id: str, *, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
+    dataset_id: str,
+    *,
+    body: UpdateDatasetContentRequest,
+    if_match: Union[None, Unset, str] = UNSET,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
     if not isinstance(if_match, Unset):
         headers["If-Match"] = if_match
 
-    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/datasets/{dataset_id}/content"}
+    _kwargs: dict[str, Any] = {
+        "method": "patch",
+        "url": f"/datasets/{dataset_id}/content",
+    }
 
     _kwargs["json"] = body.to_dict()
 
@@ -80,7 +86,15 @@ def sync_detailed(
     Args:
         dataset_id (str):
         if_match (Union[None, Unset, str]): ETag of the dataset as a version identifier.
-        body (UpdateDatasetContentRequest):
+        body (UpdateDatasetContentRequest): This structure represent the valid edits operations
+            that can be performed on a dataset.
+            There edit operations are:
+            - Row edits: These edits are performed on a specific row of the dataset.
+                - EditMode.id: The edit is performed on the index (numeric index). DEPRECATED
+                - EditMode.row_id: The edit is performed on the row_id of the row.
+            - Global edits: These edits are performed on the entire dataset and should not be mixed
+            with row edits.
+                - EditMode.global_edit
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -90,9 +104,15 @@ def sync_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, body=body, if_match=if_match)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        body=body,
+        if_match=if_match,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
@@ -123,7 +143,15 @@ def sync(
     Args:
         dataset_id (str):
         if_match (Union[None, Unset, str]): ETag of the dataset as a version identifier.
-        body (UpdateDatasetContentRequest):
+        body (UpdateDatasetContentRequest): This structure represent the valid edits operations
+            that can be performed on a dataset.
+            There edit operations are:
+            - Row edits: These edits are performed on a specific row of the dataset.
+                - EditMode.id: The edit is performed on the index (numeric index). DEPRECATED
+                - EditMode.row_id: The edit is performed on the row_id of the row.
+            - Global edits: These edits are performed on the entire dataset and should not be mixed
+            with row edits.
+                - EditMode.global_edit
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -133,7 +161,12 @@ def sync(
         Union[Any, HTTPValidationError]
     """
 
-    return sync_detailed(dataset_id=dataset_id, client=client, body=body, if_match=if_match).parsed
+    return sync_detailed(
+        dataset_id=dataset_id,
+        client=client,
+        body=body,
+        if_match=if_match,
+    ).parsed
 
 
 async def asyncio_detailed(
@@ -162,7 +195,15 @@ async def asyncio_detailed(
     Args:
         dataset_id (str):
         if_match (Union[None, Unset, str]): ETag of the dataset as a version identifier.
-        body (UpdateDatasetContentRequest):
+        body (UpdateDatasetContentRequest): This structure represent the valid edits operations
+            that can be performed on a dataset.
+            There edit operations are:
+            - Row edits: These edits are performed on a specific row of the dataset.
+                - EditMode.id: The edit is performed on the index (numeric index). DEPRECATED
+                - EditMode.row_id: The edit is performed on the row_id of the row.
+            - Global edits: These edits are performed on the entire dataset and should not be mixed
+            with row edits.
+                - EditMode.global_edit
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -172,7 +213,11 @@ async def asyncio_detailed(
         Response[Union[Any, HTTPValidationError]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, body=body, if_match=if_match)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        body=body,
+        if_match=if_match,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -205,7 +250,15 @@ async def asyncio(
     Args:
         dataset_id (str):
         if_match (Union[None, Unset, str]): ETag of the dataset as a version identifier.
-        body (UpdateDatasetContentRequest):
+        body (UpdateDatasetContentRequest): This structure represent the valid edits operations
+            that can be performed on a dataset.
+            There edit operations are:
+            - Row edits: These edits are performed on a specific row of the dataset.
+                - EditMode.id: The edit is performed on the index (numeric index). DEPRECATED
+                - EditMode.row_id: The edit is performed on the row_id of the row.
+            - Global edits: These edits are performed on the entire dataset and should not be mixed
+            with row edits.
+                - EditMode.global_edit
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -215,4 +268,11 @@ async def asyncio(
         Union[Any, HTTPValidationError]
     """
 
-    return (await asyncio_detailed(dataset_id=dataset_id, client=client, body=body, if_match=if_match)).parsed
+    return (
+        await asyncio_detailed(
+            dataset_id=dataset_id,
+            client=client,
+            body=body,
+            if_match=if_match,
+        )
+    ).parsed

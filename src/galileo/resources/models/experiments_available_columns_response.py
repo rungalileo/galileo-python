@@ -51,7 +51,9 @@ class ExperimentsAvailableColumnsResponse:
 
             columns.append(columns_item)
 
-        experiments_available_columns_response = cls(columns=columns)
+        experiments_available_columns_response = cls(
+            columns=columns,
+        )
 
         experiments_available_columns_response.additional_properties = d
         return experiments_available_columns_response

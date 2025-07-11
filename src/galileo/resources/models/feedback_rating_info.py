@@ -37,7 +37,13 @@ class FeedbackRatingInfo:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"explanation": explanation, "feedback_type": feedback_type, "value": value})
+        field_dict.update(
+            {
+                "explanation": explanation,
+                "feedback_type": feedback_type,
+                "value": value,
+            }
+        )
 
         return field_dict
 
@@ -61,7 +67,11 @@ class FeedbackRatingInfo:
 
         value = _parse_value(d.pop("value"))
 
-        feedback_rating_info = cls(explanation=explanation, feedback_type=feedback_type, value=value)
+        feedback_rating_info = cls(
+            explanation=explanation,
+            feedback_type=feedback_type,
+            value=value,
+        )
 
         feedback_rating_info.additional_properties = d
         return feedback_rating_info

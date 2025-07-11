@@ -11,10 +11,18 @@ from ...models.user_collaborator import UserCollaborator
 from ...types import Response
 
 
-def _get_kwargs(dataset_id: str, user_id: str, *, body: CollaboratorUpdate) -> dict[str, Any]:
+def _get_kwargs(
+    dataset_id: str,
+    user_id: str,
+    *,
+    body: CollaboratorUpdate,
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/datasets/{dataset_id}/users/{user_id}"}
+    _kwargs: dict[str, Any] = {
+        "method": "patch",
+        "url": f"/datasets/{dataset_id}/users/{user_id}",
+    }
 
     _kwargs["json"] = body.to_dict()
 
@@ -53,7 +61,11 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str, user_id: str, *, client: AuthenticatedClient, body: CollaboratorUpdate
+    dataset_id: str,
+    user_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: CollaboratorUpdate,
 ) -> Response[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Dataset Collaborator
 
@@ -72,15 +84,25 @@ def sync_detailed(
         Response[Union[HTTPValidationError, UserCollaborator]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, user_id=user_id, body=body)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        user_id=user_id,
+        body=body,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    dataset_id: str, user_id: str, *, client: AuthenticatedClient, body: CollaboratorUpdate
+    dataset_id: str,
+    user_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: CollaboratorUpdate,
 ) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Dataset Collaborator
 
@@ -99,11 +121,20 @@ def sync(
         Union[HTTPValidationError, UserCollaborator]
     """
 
-    return sync_detailed(dataset_id=dataset_id, user_id=user_id, client=client, body=body).parsed
+    return sync_detailed(
+        dataset_id=dataset_id,
+        user_id=user_id,
+        client=client,
+        body=body,
+    ).parsed
 
 
 async def asyncio_detailed(
-    dataset_id: str, user_id: str, *, client: AuthenticatedClient, body: CollaboratorUpdate
+    dataset_id: str,
+    user_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: CollaboratorUpdate,
 ) -> Response[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Dataset Collaborator
 
@@ -122,7 +153,11 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, UserCollaborator]]
     """
 
-    kwargs = _get_kwargs(dataset_id=dataset_id, user_id=user_id, body=body)
+    kwargs = _get_kwargs(
+        dataset_id=dataset_id,
+        user_id=user_id,
+        body=body,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -130,7 +165,11 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    dataset_id: str, user_id: str, *, client: AuthenticatedClient, body: CollaboratorUpdate
+    dataset_id: str,
+    user_id: str,
+    *,
+    client: AuthenticatedClient,
+    body: CollaboratorUpdate,
 ) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
     """Update User Dataset Collaborator
 
@@ -149,4 +188,11 @@ async def asyncio(
         Union[HTTPValidationError, UserCollaborator]
     """
 
-    return (await asyncio_detailed(dataset_id=dataset_id, user_id=user_id, client=client, body=body)).parsed
+    return (
+        await asyncio_detailed(
+            dataset_id=dataset_id,
+            user_id=user_id,
+            client=client,
+            body=body,
+        )
+    ).parsed

@@ -36,7 +36,11 @@ class SubscriptionConfig:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"url": url})
+        field_dict.update(
+            {
+                "url": url,
+            }
+        )
         if statuses is not UNSET:
             field_dict["statuses"] = statuses
 
@@ -54,7 +58,10 @@ class SubscriptionConfig:
 
             statuses.append(statuses_item)
 
-        subscription_config = cls(url=url, statuses=statuses)
+        subscription_config = cls(
+            url=url,
+            statuses=statuses,
+        )
 
         subscription_config.additional_properties = d
         return subscription_config

@@ -54,7 +54,13 @@ class DatasetRow:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {"index": index, "metadata": metadata, "row_id": row_id, "values": values, "values_dict": values_dict}
+            {
+                "index": index,
+                "metadata": metadata,
+                "row_id": row_id,
+                "values": values,
+                "values_dict": values_dict,
+            }
         )
 
         return field_dict
@@ -99,7 +105,13 @@ class DatasetRow:
 
         values_dict = DatasetRowValuesDict.from_dict(d.pop("values_dict"))
 
-        dataset_row = cls(index=index, metadata=metadata, row_id=row_id, values=values, values_dict=values_dict)
+        dataset_row = cls(
+            index=index,
+            metadata=metadata,
+            row_id=row_id,
+            values=values,
+            values_dict=values_dict,
+        )
 
         dataset_row.additional_properties = d
         return dataset_row

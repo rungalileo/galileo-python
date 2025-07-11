@@ -11,7 +11,10 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    project_id: str, *, stage_name: Union[None, Unset, str] = UNSET, stage_id: Union[None, Unset, str] = UNSET
+    project_id: str,
+    *,
+    stage_name: Union[None, Unset, str] = UNSET,
+    stage_id: Union[None, Unset, str] = UNSET,
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
@@ -31,7 +34,11 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/stages", "params": params}
+    _kwargs: dict[str, Any] = {
+        "method": "get",
+        "url": f"/projects/{project_id}/stages",
+        "params": params,
+    }
 
     return _kwargs
 
@@ -86,9 +93,15 @@ def sync_detailed(
         Response[Union[HTTPValidationError, StageDB]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, stage_name=stage_name, stage_id=stage_id)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        stage_name=stage_name,
+        stage_id=stage_id,
+    )
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.get_httpx_client().request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
@@ -115,7 +128,12 @@ def sync(
         Union[HTTPValidationError, StageDB]
     """
 
-    return sync_detailed(project_id=project_id, client=client, stage_name=stage_name, stage_id=stage_id).parsed
+    return sync_detailed(
+        project_id=project_id,
+        client=client,
+        stage_name=stage_name,
+        stage_id=stage_id,
+    ).parsed
 
 
 async def asyncio_detailed(
@@ -140,7 +158,11 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, StageDB]]
     """
 
-    kwargs = _get_kwargs(project_id=project_id, stage_name=stage_name, stage_id=stage_id)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+        stage_name=stage_name,
+        stage_id=stage_id,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -170,5 +192,10 @@ async def asyncio(
     """
 
     return (
-        await asyncio_detailed(project_id=project_id, client=client, stage_name=stage_name, stage_id=stage_id)
+        await asyncio_detailed(
+            project_id=project_id,
+            client=client,
+            stage_name=stage_name,
+            stage_id=stage_id,
+        )
     ).parsed
