@@ -3,6 +3,9 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+from dateutil.parser import isoparse
+
+from galileo.resources.models.validation_error import ValidationError
 
 from ..types import UNSET, Unset
 
@@ -10,7 +13,7 @@ if TYPE_CHECKING:
     from ..models.validation_error import ValidationError
 
 
-T = TypeVar("T", bound="HTTPValidationError")
+T = TypeVar("T", bound="BaseScorerVersionResponse")
 
 
 @_attrs_define
@@ -41,22 +44,17 @@ class HTTPValidationError:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.validation_error import ValidationError
-
         d = dict(src_dict)
-        detail = []
         _detail = d.pop("detail", UNSET)
-        for detail_item_data in _detail or []:
-            detail_item = ValidationError.from_dict(detail_item_data)
+        if _detail is not UNSET and _detail is not None:
+            # Use list comprehension for bulk parse
+            detail = [ValidationError.from_dict(item) for item in _detail]
+        else:
+            detail = _detail  # Could be UNSET, None, or empty
 
-            detail.append(detail_item)
-
-        http_validation_error = cls(
-            detail=detail,
-        )
-
-        http_validation_error.additional_properties = d
-        return http_validation_error
+        instance = cls(detail=detail)
+        instance.additional_properties = d
+        return instance
 
     @property
     def additional_keys(self) -> list[str]:

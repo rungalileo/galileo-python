@@ -1,15 +1,21 @@
 import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from galileo.resources.models.create_update_registered_scorer_response import \
+    CreateUpdateRegisteredScorerResponse
+from galileo.resources.models.generated_scorer_response import \
+    GeneratedScorerResponse
+
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
+    from ..models.create_update_registered_scorer_response import \
+        CreateUpdateRegisteredScorerResponse
     from ..models.generated_scorer_response import GeneratedScorerResponse
 
 
@@ -41,7 +47,8 @@ class BaseScorerVersionResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
+        from ..models.create_update_registered_scorer_response import \
+            CreateUpdateRegisteredScorerResponse
         from ..models.generated_scorer_response import GeneratedScorerResponse
 
         created_at = self.created_at.isoformat()
@@ -82,14 +89,7 @@ class BaseScorerVersionResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update(
-            {
-                "created_at": created_at,
-                "id": id,
-                "updated_at": updated_at,
-                "version": version,
-            }
-        )
+        field_dict.update({"created_at": created_at, "id": id, "updated_at": updated_at, "version": version})
         if generated_scorer is not UNSET:
             field_dict["generated_scorer"] = generated_scorer
         if model_name is not UNSET:
@@ -103,83 +103,45 @@ class BaseScorerVersionResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
-        from ..models.generated_scorer_response import GeneratedScorerResponse
-
         d = dict(src_dict)
-        created_at = isoparse(d.pop("created_at"))
 
-        id = d.pop("id")
+        # Fast batch pop
+        created_at_v = d.pop("created_at", None)
+        updated_at_v = d.pop("updated_at", None)
+        created_at = _fast_parse_iso(created_at_v)
+        updated_at = _fast_parse_iso(updated_at_v)
+        id = d.pop("id", "")
+        version = d.pop("version", 0)
 
-        updated_at = isoparse(d.pop("updated_at"))
-
-        version = d.pop("version")
-
-        def _parse_generated_scorer(data: object) -> Union["GeneratedScorerResponse", None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
+        gen_scorer = d.pop("generated_scorer", UNSET)
+        if gen_scorer is not UNSET and gen_scorer is not None and isinstance(gen_scorer, dict):
             try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                generated_scorer_type_0 = GeneratedScorerResponse.from_dict(data)
-
-                return generated_scorer_type_0
-            except:  # noqa: E722
+                gen_scorer = GeneratedScorerResponse.from_dict(gen_scorer)
+            except Exception:
                 pass
-            return cast(Union["GeneratedScorerResponse", None, Unset], data)
 
-        generated_scorer = _parse_generated_scorer(d.pop("generated_scorer", UNSET))
+        model_name = d.pop("model_name", UNSET)
+        num_judges = d.pop("num_judges", UNSET)
 
-        def _parse_model_name(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        model_name = _parse_model_name(d.pop("model_name", UNSET))
-
-        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, int], data)
-
-        num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
-
-        def _parse_registered_scorer(data: object) -> Union["CreateUpdateRegisteredScorerResponse", None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
+        reg_scorer = d.pop("registered_scorer", UNSET)
+        if reg_scorer is not UNSET and reg_scorer is not None and isinstance(reg_scorer, dict):
             try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                registered_scorer_type_0 = CreateUpdateRegisteredScorerResponse.from_dict(data)
-
-                return registered_scorer_type_0
-            except:  # noqa: E722
+                reg_scorer = CreateUpdateRegisteredScorerResponse.from_dict(reg_scorer)
+            except Exception:
                 pass
-            return cast(Union["CreateUpdateRegisteredScorerResponse", None, Unset], data)
 
-        registered_scorer = _parse_registered_scorer(d.pop("registered_scorer", UNSET))
-
-        base_scorer_version_response = cls(
+        instance = cls(
             created_at=created_at,
             id=id,
             updated_at=updated_at,
             version=version,
-            generated_scorer=generated_scorer,
+            generated_scorer=gen_scorer,
             model_name=model_name,
             num_judges=num_judges,
-            registered_scorer=registered_scorer,
+            registered_scorer=reg_scorer,
         )
-
-        base_scorer_version_response.additional_properties = d
-        return base_scorer_version_response
+        instance.additional_properties = d
+        return instance
 
     @property
     def additional_keys(self) -> list[str]:
@@ -196,3 +158,17 @@ class BaseScorerVersionResponse:
 
     def __contains__(self, key: str) -> bool:
         return key in self.additional_properties
+
+
+def _fast_parse_iso(dt):
+    # Fast path for naive ISO, fallback for timezone/edge
+    # (avoiding dateutil overhead for simple dates)
+    if isinstance(dt, str):
+        try:
+            if dt.endswith("Z"):
+                # Handle common utc-Z
+                return isoparse(dt)
+            return __import__("datetime").datetime.fromisoformat(dt)
+        except Exception:
+            return isoparse(dt)
+    return dt
