@@ -16,4 +16,4 @@ from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.stage import StageType
 
-__version__ = "1.8.0"
+__version__ = "1.8.1"
