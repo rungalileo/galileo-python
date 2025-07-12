@@ -23,7 +23,7 @@ class BaseLogStreamOrExperimentModel(BaseModel):
 
 class LogRecordsIngestRequest(BaseLogStreamOrExperimentModel):
     logging_method: LoggingMethod = Field(default=LoggingMethod.api_direct)
-    client_version: str | None = Field(default=None)
+    client_version: Union[str, None] = Field(default=None)
     reliable: bool = Field(
         default=False,
         description="Whether or not to use reliable logging.  If set to False, the method will respond immediately before verifying that the traces have been successfully ingested, and no error message will be returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or return an error message if there is an ingestion failure.",
@@ -68,27 +68,31 @@ class LogSpanUpdateResponse(LogRecordsIngestResponse):
 
 class TraceUpdateRequest(LogRecordsIngestRequest):
     trace_id: UUID4 = Field(..., description="Trace id to update.")
-    input: str | None = Field(default=None, description="Input of the trace. Overwrites previous value if present.")
-    output: str | None = Field(default=None, description="Output of the trace. Overwrites previous value if present.")
-    status_code: int | None = Field(
+    input: Union[str, None] = Field(
+        default=None, description="Input of the trace. Overwrites previous value if present."
+    )
+    output: Union[str, None] = Field(
+        default=None, description="Output of the trace. Overwrites previous value if present."
+    )
+    status_code: Union[int, None] = Field(
         default=None, description="Status code of the trace. Overwrites previous value if present."
     )
-    tags: list[str] | None = Field(default=None, description="Tags to add to the trace.")
-    is_complete: bool | None = Field(
+    tags: Union[list[str], None] = Field(default=None, description="Tags to add to the trace.")
+    is_complete: Union[bool, None] = Field(
         default=False, description="Whether or not the records in this request are complete."
     )
 
 
 class SpanUpdateRequest(LogRecordsIngestRequest):
     span_id: UUID4 = Field(..., description="Span id to update.")
-    input: StepAllowedInputType | None = Field(
+    input: Union[StepAllowedInputType, None] = Field(
         default=None, description="Input of the span. Overwrites previous value if present."
     )
-    output: StepAllowedOutputType | None = Field(
+    output: Union[StepAllowedOutputType, None] = Field(
         default=None, description="Output of the span. Overwrites previous value if present."
     )
-    tags: list[str] | None = Field(default=None, description="Tags to add to the span.")
-    status_code: int | None = Field(
+    tags: Union[list[str], None] = Field(default=None, description="Tags to add to the span.")
+    status_code: Union[int, None] = Field(
         default=None, description="Status code of the span. Overwrites previous value if present."
     )
 
