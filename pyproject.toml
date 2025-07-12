@@ -146,7 +146,9 @@ omit = [
 module-root = "./src/galileo"
 tests-root = "tests"
 test-framework = "pytest"
-ignore-paths = []
+ignore-paths = [
+    "./src/galileo/resources/" # Exclude auto-generated API endpoint functions.
+]
 disable-telemetry = false
 formatter-cmds = ["ruff check --exit-zero --fix $file", "ruff format $file"]
 
