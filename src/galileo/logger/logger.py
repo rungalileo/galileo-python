@@ -23,7 +23,9 @@ from galileo.schema.trace import (
     RetrieverSpanAllowedOutputType,
     SessionCreateRequest,
     SpansIngestRequest,
+    SpanUpdateRequest,
     TracesIngestRequest,
+    TraceUpdateRequest,
 )
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.core_api_client import GalileoCoreApiClient
@@ -236,7 +238,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     @nop_sync
     def _ingest_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
         traces_ingest_request = TracesIngestRequest(
-            traces=[trace], log_stream_id=self.log_stream_id, session_id=self.session_id, is_complete=is_complete
+            traces=[trace],
+            log_stream_id=self.log_stream_id,
+            session_id=self.session_id,
+            is_complete=is_complete,
+            reliable=True,
         )
 
         @backoff.on_exception(backoff.expo, Exception, max_tries=self._max_retries, logger=None)
@@ -263,7 +269,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             raise ValueError("A trace needs to be created in order to add a span.")
 
         spans_ingest_request = SpansIngestRequest(
-            spans=[span], trace_id=self.traces[0].id, log_stream_id=self.log_stream_id, parent_id=current_parent.id
+            spans=[span],
+            trace_id=self.traces[0].id,
+            log_stream_id=self.log_stream_id,
+            parent_id=current_parent.id,
+            reliable=True,
         )
 
         @backoff.on_exception(backoff.expo, Exception, max_tries=self._max_retries, logger=None)
@@ -271,17 +281,57 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             try:
                 await self._client.ingest_spans(request)
             except Exception as e:
-                # TODO: figure out when we want retry and when we don't
-                # if (
-                #         isinstance(e, APIError)
-                #         and 400 <= int(e.status) < 500
-                #         and int(e.status) != 429  # retry if rate-limited
-                # ):
-                #     return
                 raise e
 
         self._pool.submit(lambda: ingest_spans_with_backoff(spans_ingest_request), wait_for_result=False)
         self._logger.info("ingested span %s.", span.id)
+
+    @nop_sync
+    def _update_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
+        trace_update_request = TraceUpdateRequest(
+            trace_id=trace.id,
+            log_stream_id=self.log_stream_id,
+            session_id=self.session_id,
+            input=trace.input,
+            output=trace.output,
+            status_code=trace.status_code,
+            tags=trace.tags,
+            is_complete=is_complete,
+            reliable=True,
+        )
+
+        @backoff.on_exception(backoff.expo, Exception, max_tries=self._max_retries, logger=None)
+        async def update_trace_with_backoff(request):
+            try:
+                await self._client.update_trace(request)
+            except Exception as e:
+                raise e
+
+        self._pool.submit(lambda: update_trace_with_backoff(trace_update_request), wait_for_result=False)
+        self._logger.info("updated trace %s.", trace.id)
+
+    @nop_sync
+    def _update_span_streaming(self, span: Span) -> None:
+        span_update_request = SpanUpdateRequest(
+            span_id=span.id,
+            log_stream_id=self.log_stream_id,
+            session_id=self.session_id,
+            input=span.input,
+            output=span.output,
+            status_code=span.status_code,
+            tags=span.tags,
+            reliable=True,
+        )
+
+        @backoff.on_exception(backoff.expo, Exception, max_tries=self._max_retries, logger=None)
+        async def update_span_with_backoff(request):
+            try:
+                await self._client.update_span(request)
+            except Exception as e:
+                raise e
+
+        self._pool.submit(lambda: update_span_with_backoff(span_update_request), wait_for_result=False)
+        self._logger.info("updated span %s.", span.id)
 
     @nop_sync
     def _ingest_step_streaming(self, step: StepWithChildSpans, is_complete: bool = False) -> None:
@@ -290,6 +340,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 self._ingest_trace_streaming(step, is_complete=is_complete)
             else:
                 self._ingest_span_streaming(step)
+
+    @nop_sync
+    def _update_step_streaming(self, step: StepWithChildSpans, is_complete: bool = False) -> None:
+        if self.mode == "streaming":
+            if isinstance(step, Trace):
+                self._update_trace_streaming(step, is_complete=is_complete)
+            else:
+                self._update_span_streaming(step)
 
     @nop_sync
     def start_trace(
@@ -706,7 +764,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
     def _conclude(
         self, output: Optional[str] = None, duration_ns: Optional[int] = None, status_code: Optional[int] = None
-    ) -> Optional[StepWithChildSpans]:
+    ) -> tuple[StepWithChildSpans, Optional[StepWithChildSpans]]:
         current_parent = self.current_parent()
         if current_parent is None:
             raise ValueError("No existing workflow to conclude.")
@@ -747,14 +805,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             finished_step, current_parent = self._conclude(
                 output=output, duration_ns=duration_ns, status_code=status_code
             )
-            self._ingest_step_streaming(finished_step, is_complete=True)
+            self._update_step_streaming(finished_step, is_complete=True)
         else:
             current_parent = None
             while self.current_parent() is not None:
                 finished_step, current_parent = self._conclude(
                     output=output, duration_ns=duration_ns, status_code=status_code
                 )
-                self._ingest_step_streaming(finished_step, is_complete=True)
+                self._update_step_streaming(finished_step, is_complete=True)
 
         return current_parent
 

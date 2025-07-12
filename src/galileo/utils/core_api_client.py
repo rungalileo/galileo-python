@@ -8,7 +8,14 @@ from httpx import Client, Timeout
 
 from galileo.api_client import GalileoApiClient
 from galileo.constants.routes import Routes
-from galileo.schema.trace import LogRecordsSearchRequest, SessionCreateRequest, SpansIngestRequest, TracesIngestRequest
+from galileo.schema.trace import (
+    LogRecordsSearchRequest,
+    SessionCreateRequest,
+    SpansIngestRequest,
+    SpanUpdateRequest,
+    TracesIngestRequest,
+    TraceUpdateRequest,
+)
 from galileo.utils.request import HttpHeaders, make_request
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient as CoreApiClient
@@ -161,6 +168,62 @@ class GalileoCoreApiClient:
 
         return self._make_request(
             RequestMethod.POST, endpoint=Routes.spans.format(project_id=self.project_id), json=json
+        )
+
+    async def update_trace(self, trace_update_request: TraceUpdateRequest) -> dict[str, str]:
+        if self.experiment_id:
+            trace_update_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            trace_update_request.log_stream_id = UUID(self.log_stream_id)
+
+        json = trace_update_request.model_dump(mode="json")
+
+        return await self._make_async_request(
+            RequestMethod.PATCH,
+            endpoint=Routes.trace.format(project_id=self.project_id, trace_id=trace_update_request.trace_id),
+            json=json,
+        )
+
+    def update_trace_sync(self, trace_update_request: TraceUpdateRequest) -> dict[str, str]:
+        if self.experiment_id:
+            trace_update_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            trace_update_request.log_stream_id = UUID(self.log_stream_id)
+
+        json = trace_update_request.model_dump(mode="json")
+
+        return self._make_request(
+            RequestMethod.PATCH,
+            endpoint=Routes.trace.format(project_id=self.project_id, trace_id=trace_update_request.trace_id),
+            json=json,
+        )
+
+    async def update_span(self, span_update_request: SpanUpdateRequest) -> dict[str, str]:
+        if self.experiment_id:
+            span_update_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            span_update_request.log_stream_id = UUID(self.log_stream_id)
+
+        json = span_update_request.model_dump(mode="json")
+
+        return await self._make_async_request(
+            RequestMethod.PATCH,
+            endpoint=Routes.span.format(project_id=self.project_id, span_id=span_update_request.span_id),
+            json=json,
+        )
+
+    def update_span_sync(self, span_update_request: SpanUpdateRequest) -> dict[str, str]:
+        if self.experiment_id:
+            span_update_request.experiment_id = UUID(self.experiment_id)
+        elif self.log_stream_id:
+            span_update_request.log_stream_id = UUID(self.log_stream_id)
+
+        json = span_update_request.model_dump(mode="json")
+
+        return self._make_request(
+            RequestMethod.PATCH,
+            endpoint=Routes.span.format(project_id=self.project_id, span_id=span_update_request.span_id),
+            json=json,
         )
 
     def create_session_sync(self, session_create_request: SessionCreateRequest) -> dict[str, str]:
