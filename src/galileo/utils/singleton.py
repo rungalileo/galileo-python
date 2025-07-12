@@ -106,29 +106,33 @@ class GalileoLoggerSingleton:
         key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id, mode)
 
         # First check without acquiring lock for performance.
-        if key in self._galileo_loggers:
-            return self._galileo_loggers[key]
+        loggers = self._galileo_loggers
+        logger = loggers.get(key)
+        if logger is not None:
+            return logger
 
         # Acquire lock for thread-safe creation of new logger.
         with self._lock:
             # Double-check in case another thread created the logger while waiting.
-            if key in self._galileo_loggers:
-                return self._galileo_loggers[key]
+            logger = loggers.get(key)
+            if logger is not None:
+                return logger
 
-            # Prepare initialization arguments, only including non-None values.
-            galileo_client_init_args = {
-                "project": project,
-                "log_stream": log_stream,
-                "experiment_id": experiment_id,
-                "local_metrics": local_metrics,
-                "mode": mode,
-            }
-            # Create the logger with filtered kwargs.
-            logger = GalileoLogger(**{k: v for k, v in galileo_client_init_args.items() if v is not None})
+            # Only include explicitly non-None parameters to avoid allocation of dict+comprehension.
+            kwargs = {}
+            if project is not None:
+                kwargs["project"] = project
+            if log_stream is not None:
+                kwargs["log_stream"] = log_stream
+            if experiment_id is not None:
+                kwargs["experiment_id"] = experiment_id
+            if local_metrics is not None:
+                kwargs["local_metrics"] = local_metrics
+            if mode is not None:
+                kwargs["mode"] = mode
 
-            # Cache the newly created logger.
-            if logger:
-                self._galileo_loggers[key] = logger
+            logger = GalileoLogger(**kwargs)
+            loggers[key] = logger
             return logger
 
     def reset(
