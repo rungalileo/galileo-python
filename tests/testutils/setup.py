@@ -37,6 +37,7 @@ class ThreadPoolRequestCapture:
         # Extract both the request and function from the lambda
         captured_request = None
         captured_function_name = None
+        captured_function = None
 
         # Get the first function name referenced in the lambda
         # Since lambdas follow pattern: lambda: function_name(request)
@@ -53,14 +54,32 @@ class ThreadPoolRequestCapture:
 
                 # Check for request object
                 if isinstance(cell_content, BaseModel):
-                    captured_request = copy.copy(cell_content)
+                    captured_request = copy.deepcopy(cell_content)
 
                 # Check for callable function (if we didn't get function name from co_names)
                 elif captured_function_name is None and callable(cell_content) and hasattr(cell_content, "__name__"):
                     captured_function_name = cell_content.__name__
+                    captured_function = cell_content
+
+                # If we have function name but not function reference, look for it
+                elif (
+                    captured_function_name
+                    and callable(cell_content)
+                    and hasattr(cell_content, "__name__")
+                    and cell_content.__name__ == captured_function_name
+                ):
+                    captured_function = cell_content
+
+        # Create a new lambda that uses the deep-copied request to avoid mutation issues
+        if captured_function and captured_request:
+
+            def isolated_task_func():
+                return captured_function(captured_request)
+        else:
+            isolated_task_func = task_func
 
         task_info = ThreadPoolTaskInfo(
-            function_name=captured_function_name, request=captured_request, task_func=task_func, kwargs=kwargs
+            function_name=captured_function_name, request=captured_request, task_func=isolated_task_func, kwargs=kwargs
         )
         self.captured_tasks.append(task_info)
 
