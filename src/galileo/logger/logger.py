@@ -284,6 +284,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._logger.info("ingested span %s.", span.id)
 
     @nop_sync
+    def _ingest_step_streaming(self, step: StepWithChildSpans, is_complete: bool = False) -> None:
+        if self.mode == "streaming":
+            if isinstance(step, Trace):
+                self._ingest_trace_streaming(step, is_complete=is_complete)
+            else:
+                self._ingest_span_streaming(step)
+
+    @nop_sync
     def start_trace(
         self,
         input: StepAllowedInputType,
@@ -330,8 +338,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         trace = self.add_trace(**kwargs)
 
-        if self.mode == "streaming":
-            self._ingest_trace_streaming(trace)
+        self._ingest_step_streaming(trace)
 
         return trace
 
@@ -410,7 +417,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if self.mode == "streaming":
             self.traces = [trace]
             self._parent_stack = deque([trace])
-            self._ingest_trace_streaming(trace, is_complete=True)
+            self._ingest_step_streaming(trace, is_complete=True)
 
         return trace
 
@@ -479,10 +486,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
 
         span = super().add_llm_span(**kwargs)
-
-        if self.mode == "streaming":
-            self._ingest_span_streaming(span)
-
+        self._ingest_step_streaming(span)
         return span
 
     @nop_sync
@@ -556,8 +560,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             id=uuid.uuid4(),
         )
         span = super().add_retriever_span(**kwargs)
-        if self.mode == "streaming":
-            self._ingest_span_streaming(span)
+        self._ingest_step_streaming(span)
         return span
 
     @nop_sync
@@ -606,8 +609,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             id=uuid.uuid4(),
         )
         span = super().add_tool_span(**kwargs)
-        if self.mode == "streaming":
-            self._ingest_span_streaming(span)
+        self._ingest_step_streaming(span)
         return span
 
     @nop_sync
@@ -652,8 +654,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             id=uuid.uuid4(),
         )
         span = super().add_workflow_span(**kwargs)
-        if self.mode == "streaming":
-            self._ingest_span_streaming(span)
+        self._ingest_step_streaming(span)
         return span
 
     @nop_sync
@@ -700,9 +701,25 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             id=uuid.uuid4(),
         )
         span = super().add_agent_span(**kwargs)
-        if self.mode == "streaming":
-            self._ingest_span_streaming(span)
+        self._ingest_step_streaming(span)
         return span
+
+    def _conclude(
+        self, output: Optional[str] = None, duration_ns: Optional[int] = None, status_code: Optional[int] = None
+    ) -> Optional[StepWithChildSpans]:
+        current_parent = self.current_parent()
+        if current_parent is None:
+            raise ValueError("No existing workflow to conclude.")
+
+        current_parent.output = output or current_parent.output
+        current_parent.status_code = status_code
+        if duration_ns is not None:
+            current_parent.metrics.duration_ns = duration_ns
+
+        finished_step = self._parent_stack.pop()
+        if self.current_parent() is None and not isinstance(finished_step, Trace):
+            raise ValueError("Finished step is not a trace, but has no parent.  Not added to the list of traces.")
+        return (finished_step, self.current_parent())
 
     @nop_sync
     def conclude(
@@ -726,19 +743,20 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             Optional[StepWithChildSpans]: The parent of the current workflow. None if no parent exists.
         """
-        kwargs = dict(output=output, duration_ns=duration_ns, status_code=status_code, conclude_all=conclude_all)
-        if self.mode == "batch":
-            if not conclude_all:
-                return super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
-
-            # TODO: Allow the final span output to propagate to the parent spans
+        if not conclude_all:
+            finished_step, current_parent = self._conclude(
+                output=output, duration_ns=duration_ns, status_code=status_code
+            )
+            self._ingest_step_streaming(finished_step, is_complete=True)
+        else:
             current_parent = None
             while self.current_parent() is not None:
-                current_parent = super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
+                finished_step, current_parent = self._conclude(
+                    output=output, duration_ns=duration_ns, status_code=status_code
+                )
+                self._ingest_step_streaming(finished_step, is_complete=True)
 
-            return current_parent
-
-        return self.conclude_streaming(**kwargs)
+        return current_parent
 
     @nop_sync
     def flush(self) -> list[Trace]:
