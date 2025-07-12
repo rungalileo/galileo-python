@@ -264,15 +264,17 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
     @nop_sync
     def _ingest_span_streaming(self, span: Span) -> None:
-        current_parent = self.current_parent()
-        if current_parent is None:
+        parent_step: Optional[StepWithChildSpans] = (
+            self.current_parent() if not isinstance(span, StepWithChildSpans) else self.previous_parent()
+        )
+        if parent_step is None:
             raise ValueError("A trace needs to be created in order to add a span.")
 
         spans_ingest_request = SpansIngestRequest(
             spans=[span],
             trace_id=self.traces[0].id,
             log_stream_id=self.log_stream_id,
-            parent_id=current_parent.id,
+            parent_id=parent_step.id,
             reliable=True,
         )
 
@@ -292,7 +294,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             trace_id=trace.id,
             log_stream_id=self.log_stream_id,
             session_id=self.session_id,
-            input=trace.input,
             output=trace.output,
             status_code=trace.status_code,
             tags=trace.tags,
@@ -316,7 +317,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             span_id=span.id,
             log_stream_id=self.log_stream_id,
             session_id=self.session_id,
-            input=span.input,
             output=span.output,
             status_code=span.status_code,
             tags=span.tags,
@@ -335,19 +335,21 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
     @nop_sync
     def _ingest_step_streaming(self, step: StepWithChildSpans, is_complete: bool = False) -> None:
-        if self.mode == "streaming":
-            if isinstance(step, Trace):
-                self._ingest_trace_streaming(step, is_complete=is_complete)
-            else:
-                self._ingest_span_streaming(step)
+        if isinstance(step, Trace):
+            self._ingest_trace_streaming(step, is_complete=is_complete)
+        else:
+            self._ingest_span_streaming(step)
 
     @nop_sync
     def _update_step_streaming(self, step: StepWithChildSpans, is_complete: bool = False) -> None:
-        if self.mode == "streaming":
-            if isinstance(step, Trace):
-                self._update_trace_streaming(step, is_complete=is_complete)
-            else:
-                self._update_span_streaming(step)
+        if isinstance(step, Trace):
+            self._update_trace_streaming(step, is_complete=is_complete)
+        else:
+            self._update_span_streaming(step)
+
+    @nop_sync
+    def previous_parent(self) -> Optional[StepWithChildSpans]:
+        return self._parent_stack[-2] if len(self._parent_stack) > 1 else None
 
     @nop_sync
     def start_trace(
@@ -396,7 +398,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         trace = self.add_trace(**kwargs)
 
-        self._ingest_step_streaming(trace)
+        if self.mode == "streaming":
+            self.traces = [trace]
+            self._parent_stack = deque([trace])
+            self._ingest_step_streaming(trace)
 
         return trace
 
@@ -425,6 +430,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     ) -> Trace:
         """
         Create a new trace with a single span and add it to the list of traces.
+        The trace is automatically concluded.
 
         Parameters:
         ----------
@@ -474,7 +480,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         if self.mode == "streaming":
             self.traces = [trace]
-            self._parent_stack = deque([trace])
             self._ingest_step_streaming(trace, is_complete=True)
 
         return trace
@@ -544,7 +549,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
 
         span = super().add_llm_span(**kwargs)
-        self._ingest_step_streaming(span)
+
+        if self.mode == "streaming":
+            self._ingest_step_streaming(span)
+
         return span
 
     @nop_sync
@@ -618,7 +626,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             id=uuid.uuid4(),
         )
         span = super().add_retriever_span(**kwargs)
-        self._ingest_step_streaming(span)
+
+        if self.mode == "streaming":
+            self._ingest_step_streaming(span)
+
         return span
 
     @nop_sync
@@ -667,7 +678,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             id=uuid.uuid4(),
         )
         span = super().add_tool_span(**kwargs)
-        self._ingest_step_streaming(span)
+
+        if self.mode == "streaming":
+            self._ingest_step_streaming(span)
+
         return span
 
     @nop_sync
@@ -712,7 +726,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             id=uuid.uuid4(),
         )
         span = super().add_workflow_span(**kwargs)
-        self._ingest_step_streaming(span)
+
+        if self.mode == "streaming":
+            self._ingest_step_streaming(span)
+
         return span
 
     @nop_sync
@@ -759,7 +776,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             id=uuid.uuid4(),
         )
         span = super().add_agent_span(**kwargs)
-        self._ingest_step_streaming(span)
+
+        if self.mode == "streaming":
+            self._ingest_step_streaming(span)
+
         return span
 
     def _conclude(
@@ -805,14 +825,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             finished_step, current_parent = self._conclude(
                 output=output, duration_ns=duration_ns, status_code=status_code
             )
-            self._update_step_streaming(finished_step, is_complete=True)
+            if self.mode == "streaming":
+                self._update_step_streaming(finished_step, is_complete=True)
         else:
             current_parent = None
             while self.current_parent() is not None:
                 finished_step, current_parent = self._conclude(
                     output=output, duration_ns=duration_ns, status_code=status_code
                 )
-                self._update_step_streaming(finished_step, is_complete=True)
+                if self.mode == "streaming":
+                    self._update_step_streaming(finished_step, is_complete=True)
 
         return current_parent
 

@@ -1,8 +1,11 @@
+import copy
 import datetime
 from contextlib import contextmanager
 from typing import Any, Callable, Optional
 from unittest.mock import AsyncMock, Mock
 from uuid import UUID
+
+from pydantic import BaseModel
 
 from galileo.experiments import Experiments
 from galileo.log_streams import LogStream
@@ -14,48 +17,109 @@ from galileo.resources.models.project_create_response import ProjectCreateRespon
 from galileo.resources.models.task_type import TaskType
 
 
+class ThreadPoolTaskInfo(BaseModel):
+    function_name: str
+    request: Any
+    task_func: Callable
+    kwargs: dict
+
+
 class ThreadPoolRequestCapture:
     """Helper class to capture requests submitted to the thread pool in streaming methods."""
 
     def __init__(self):
-        self.captured_requests: list[Any] = []
-        self.capture_count = 0
+        self.captured_tasks: list[ThreadPoolTaskInfo] = []
         self.mock_pool = None
 
     def capture_request(self, task_func: Callable, **kwargs) -> None:
-        """Capture function that extracts requests from lambda closures."""
-        self.capture_count += 1
+        """Capture function that extracts requests and function names from lambda closures."""
 
-        # Extract the request from the lambda's closure
+        # Extract both the request and function from the lambda
+        captured_request = None
+        captured_function_name = None
 
-        # Look for different types of request objects in the closure
+        # Get the first function name referenced in the lambda
+        # Since lambdas follow pattern: lambda: function_name(request)
+        code = task_func.__code__
 
+        if code.co_names:
+            # The first (and typically only) name in co_names is our function
+            captured_function_name = code.co_names[0]
+
+        # Extract request from closure and also look for callable functions
         if task_func.__closure__:
             for cell in task_func.__closure__:
                 cell_content = cell.cell_contents
 
-                # Check if this is a request object by looking for common attributes
-                if (
-                    hasattr(cell_content, "traces")
-                    or hasattr(cell_content, "spans")
-                    or hasattr(cell_content, "trace_id")
-                    or hasattr(cell_content, "span_id")
-                ):
-                    self.captured_requests.append(cell_content)
-                    break
+                # Check for request object
+                if isinstance(cell_content, BaseModel):
+                    captured_request = copy.copy(cell_content)
 
-    def get_latest_request(self) -> Optional[Any]:
-        """Get the most recently captured request."""
-        return self.captured_requests[-1] if self.captured_requests else None
+                # Check for callable function (if we didn't get function name from co_names)
+                elif captured_function_name is None and callable(cell_content) and hasattr(cell_content, "__name__"):
+                    captured_function_name = cell_content.__name__
+
+        task_info = ThreadPoolTaskInfo(
+            function_name=captured_function_name, request=captured_request, task_func=task_func, kwargs=kwargs
+        )
+        self.captured_tasks.append(task_info)
+
+    def get_request_by_function_name(self, function_name: str) -> Optional[Any]:
+        return next((task.request for task in self.captured_tasks if task.function_name == function_name), None)
+
+    def get_latest_task(self) -> Optional[ThreadPoolTaskInfo]:
+        """Get the most recent task info (request + function name)."""
+        return self.captured_tasks[-1] if self.captured_tasks else None
+
+    def get_all_tasks(self) -> list[ThreadPoolTaskInfo]:
+        """
+        Get all captured tasks.
+
+        Returns:
+            list[ThreadPoolTaskInfo]: List of captured tasks.
+        """
+        return self.captured_tasks
 
     def get_all_requests(self) -> list[Any]:
         """Get all captured requests."""
-        return self.captured_requests.copy()
+        return [task.request for task in self.captured_tasks]
+
+    def get_all_function_names(self) -> list[str]:
+        """Get all captured function names."""
+        return [task.function_name for task in self.captured_tasks]
+
+    def get_task_by_function_name(self, function_name: str) -> Optional[ThreadPoolTaskInfo]:
+        """Get the first task info that matches the given function name.
+
+        Args:
+            function_name (str): The name of the function to search for.
+
+        Returns:
+            Optional[ThreadPoolTaskInfo]: The first task info that matches the given function name, or None if no match is found.
+        """
+        return next((task for task in self.captured_tasks if task.function_name == function_name), None)
+
+    def count_function_calls(self, function_name: str) -> int:
+        """Count how many times a particular function was called."""
+        functions = self.get_all_function_names()
+        return sum(1 for func_name in functions if func_name == function_name)
 
     def clear(self) -> None:
-        """Clear all captured requests."""
-        self.captured_requests.clear()
-        self.capture_count = 0
+        """Clear all captured tasks."""
+        self.captured_tasks.clear()
+
+    def assert_function_called(self, expected_function_name: str) -> None:
+        """Assert that the latest captured function matches the expected name."""
+        assert expected_function_name in self.get_all_function_names(), (
+            f"Expected function '{expected_function_name}' not in '{self.get_all_function_names()}'"
+        )
+
+    def assert_functions_called(self, expected_function_names: list[str]) -> None:
+        """Assert that the captured functions match the expected sequence."""
+        actual_functions = self.get_all_function_names()
+        assert actual_functions == expected_function_names, (
+            f"Expected functions {expected_function_names}, but got {actual_functions}"
+        )
 
 
 def setup_thread_pool_request_capture(logger: GalileoLogger) -> ThreadPoolRequestCapture:
