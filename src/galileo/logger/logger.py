@@ -785,19 +785,23 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     def _conclude(
         self, output: Optional[str] = None, duration_ns: Optional[int] = None, status_code: Optional[int] = None
     ) -> tuple[StepWithChildSpans, Optional[StepWithChildSpans]]:
-        current_parent = self.current_parent()
+        # Cache current_parent in local variable to avoid repeated lookups
+        parent_stack = self._parent_stack
+        current_parent = parent_stack[-1] if parent_stack else None
         if current_parent is None:
             raise ValueError("No existing workflow to conclude.")
 
-        current_parent.output = output or current_parent.output
+        current_parent.output = output if output is not None else current_parent.output
         current_parent.status_code = status_code
         if duration_ns is not None:
             current_parent.metrics.duration_ns = duration_ns
 
-        finished_step = self._parent_stack.pop()
-        if self.current_parent() is None and not isinstance(finished_step, Trace):
+        finished_step = parent_stack.pop()
+        # Only call current_parent() once more, after pop
+        new_parent = parent_stack[-1] if parent_stack else None
+        if new_parent is None and not isinstance(finished_step, Trace):
             raise ValueError("Finished step is not a trace, but has no parent.  Not added to the list of traces.")
-        return (finished_step, self.current_parent())
+        return (finished_step, new_parent)
 
     @nop_sync
     def conclude(
@@ -821,19 +825,24 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             Optional[StepWithChildSpans]: The parent of the current workflow. None if no parent exists.
         """
+        mode_streaming = self.mode == "streaming"
+        parent_stack = self._parent_stack
+
         if not conclude_all:
             finished_step, current_parent = self._conclude(
                 output=output, duration_ns=duration_ns, status_code=status_code
             )
-            if self.mode == "streaming":
+            if mode_streaming:
+                # Only update if in streaming mode
                 self._update_step_streaming(finished_step, is_complete=True)
         else:
             current_parent = None
-            while self.current_parent() is not None:
+            # Only call pop and check parent_stack as needed
+            while parent_stack:
                 finished_step, current_parent = self._conclude(
                     output=output, duration_ns=duration_ns, status_code=status_code
                 )
-                if self.mode == "streaming":
+                if mode_streaming:
                     self._update_step_streaming(finished_step, is_complete=True)
 
         return current_parent
