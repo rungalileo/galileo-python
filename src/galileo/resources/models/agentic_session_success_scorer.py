@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.agentic_session_success_scorer_type import AgenticSessionSuccessScorerType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -23,14 +24,14 @@ class AgenticSessionSuccessScorer:
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
         name (Union[Literal['agentic_session_success'], Unset]):  Default: 'agentic_session_success'.
         num_judges (Union[None, Unset, int]): Number of judges for the scorer.
-        type_ (Union[Literal['plus'], Unset]):  Default: 'plus'.
+        type_ (Union[Unset, AgenticSessionSuccessScorerType]):  Default: AgenticSessionSuccessScorerType.PLUS.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["agentic_session_success"], Unset] = "agentic_session_success"
     num_judges: Union[None, Unset, int] = UNSET
-    type_: Union[Literal["plus"], Unset] = "plus"
+    type_: Union[Unset, AgenticSessionSuccessScorerType] = AgenticSessionSuccessScorerType.PLUS
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -67,7 +68,9 @@ class AgenticSessionSuccessScorer:
         else:
             num_judges = self.num_judges
 
-        type_ = self.type_
+        type_: Union[Unset, str] = UNSET
+        if not isinstance(self.type_, Unset):
+            type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -152,9 +155,12 @@ class AgenticSessionSuccessScorer:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        type_ = cast(Union[Literal["plus"], Unset], d.pop("type", UNSET))
-        if type_ != "plus" and not isinstance(type_, Unset):
-            raise ValueError(f"type must match const 'plus', got '{type_}'")
+        _type_ = d.pop("type", UNSET)
+        type_: Union[Unset, AgenticSessionSuccessScorerType]
+        if isinstance(_type_, Unset):
+            type_ = UNSET
+        else:
+            type_ = AgenticSessionSuccessScorerType(_type_)
 
         agentic_session_success_scorer = cls(
             filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_

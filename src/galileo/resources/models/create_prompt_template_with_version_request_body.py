@@ -7,10 +7,8 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.create_prompt_template_with_version_request_body_settings import (
-        CreatePromptTemplateWithVersionRequestBodySettings,
-    )
     from ..models.messages_list_item import MessagesListItem
+    from ..models.prompt_run_settings import PromptRunSettings
 
 
 T = TypeVar("T", bound="CreatePromptTemplateWithVersionRequestBody")
@@ -28,7 +26,7 @@ class CreatePromptTemplateWithVersionRequestBody:
             hidden (Union[Unset, bool]):  Default: False.
             output_type (Union[None, Unset, str]):
             raw (Union[Unset, bool]):  Default: False.
-            settings (Union[Unset, CreatePromptTemplateWithVersionRequestBodySettings]):
+            settings (Union[Unset, PromptRunSettings]): Prompt run settings.
             version (Union[None, Unset, int]):
     """
 
@@ -37,7 +35,7 @@ class CreatePromptTemplateWithVersionRequestBody:
     hidden: Union[Unset, bool] = False
     output_type: Union[None, Unset, str] = UNSET
     raw: Union[Unset, bool] = False
-    settings: Union[Unset, "CreatePromptTemplateWithVersionRequestBodySettings"] = UNSET
+    settings: Union[Unset, "PromptRunSettings"] = UNSET
     version: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -92,10 +90,8 @@ class CreatePromptTemplateWithVersionRequestBody:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.create_prompt_template_with_version_request_body_settings import (
-            CreatePromptTemplateWithVersionRequestBodySettings,
-        )
         from ..models.messages_list_item import MessagesListItem
+        from ..models.prompt_run_settings import PromptRunSettings
 
         d = dict(src_dict)
         name = d.pop("name")
@@ -132,11 +128,11 @@ class CreatePromptTemplateWithVersionRequestBody:
         raw = d.pop("raw", UNSET)
 
         _settings = d.pop("settings", UNSET)
-        settings: Union[Unset, CreatePromptTemplateWithVersionRequestBodySettings]
+        settings: Union[Unset, PromptRunSettings]
         if isinstance(_settings, Unset):
             settings = UNSET
         else:
-            settings = CreatePromptTemplateWithVersionRequestBodySettings.from_dict(_settings)
+            settings = PromptRunSettings.from_dict(_settings)
 
         def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:

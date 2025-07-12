@@ -37,8 +37,7 @@ class WorkflowSpanRecordWithChildren:
         parent_id (str): Galileo ID of the parent of this span
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
-        session_id (str): Galileo ID of the session
-        trace_id (str): Galileo ID of the trace containing the span (or the same value as id for a trace)
+        session_id (str): Galileo ID of the session containing the trace (or the same value as id for a trace)
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, WorkflowSpanRecordWithChildrenDatasetMetadata]): Metadata from the dataset
@@ -60,6 +59,8 @@ class WorkflowSpanRecordWithChildren:
             states.
         step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
+        trace_id (Union[None, Unset, str]): Galileo ID of the trace containing the span (or the same value as id for a
+            trace)
         type_ (Union[Literal['workflow'], Unset]): Type of the trace, span or session. Default: 'workflow'.
         updated_at (Union[None, Unset, datetime.datetime]): Timestamp of the session or trace or span's last update
         user_metadata (Union[Unset, WorkflowSpanRecordWithChildrenUserMetadata]): Metadata associated with this trace or
@@ -72,7 +73,6 @@ class WorkflowSpanRecordWithChildren:
     project_id: str
     run_id: str
     session_id: str
-    trace_id: str
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "WorkflowSpanRecordWithChildrenDatasetMetadata"] = UNSET
@@ -101,6 +101,7 @@ class WorkflowSpanRecordWithChildren:
     status_code: Union[None, Unset, int] = UNSET
     step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
+    trace_id: Union[None, Unset, str] = UNSET
     type_: Union[Literal["workflow"], Unset] = "workflow"
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
     user_metadata: Union[Unset, "WorkflowSpanRecordWithChildrenUserMetadata"] = UNSET
@@ -134,8 +135,6 @@ class WorkflowSpanRecordWithChildren:
         run_id = self.run_id
 
         session_id = self.session_id
-
-        trace_id = self.trace_id
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -245,6 +244,12 @@ class WorkflowSpanRecordWithChildren:
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
+        trace_id: Union[None, Unset, str]
+        if isinstance(self.trace_id, Unset):
+            trace_id = UNSET
+        else:
+            trace_id = self.trace_id
+
         type_ = self.type_
 
         updated_at: Union[None, Unset, str]
@@ -269,7 +274,6 @@ class WorkflowSpanRecordWithChildren:
                 "project_id": project_id,
                 "run_id": run_id,
                 "session_id": session_id,
-                "trace_id": trace_id,
             }
         )
         if created_at is not UNSET:
@@ -306,6 +310,8 @@ class WorkflowSpanRecordWithChildren:
             field_dict["step_number"] = step_number
         if tags is not UNSET:
             field_dict["tags"] = tags
+        if trace_id is not UNSET:
+            field_dict["trace_id"] = trace_id
         if type_ is not UNSET:
             field_dict["type"] = type_
         if updated_at is not UNSET:
@@ -360,8 +366,6 @@ class WorkflowSpanRecordWithChildren:
         run_id = d.pop("run_id")
 
         session_id = d.pop("session_id")
-
-        trace_id = d.pop("trace_id")
 
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
@@ -564,6 +568,15 @@ class WorkflowSpanRecordWithChildren:
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
+        def _parse_trace_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
+
         type_ = cast(Union[Literal["workflow"], Unset], d.pop("type", UNSET))
         if type_ != "workflow" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'workflow', got '{type_}'")
@@ -599,7 +612,6 @@ class WorkflowSpanRecordWithChildren:
             project_id=project_id,
             run_id=run_id,
             session_id=session_id,
-            trace_id=trace_id,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
@@ -617,6 +629,7 @@ class WorkflowSpanRecordWithChildren:
             status_code=status_code,
             step_number=step_number,
             tags=tags,
+            trace_id=trace_id,
             type_=type_,
             updated_at=updated_at,
             user_metadata=user_metadata,

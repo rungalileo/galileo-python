@@ -27,7 +27,6 @@ class SessionRecord:
         id (str): Galileo ID of the session
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
-        session_id (str): Galileo ID of the session
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, SessionRecordDatasetMetadata]): Metadata from the dataset associated with this
@@ -44,6 +43,7 @@ class SessionRecord:
         output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
         previous_session_id (Union[None, Unset, str]):
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
+        session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
@@ -57,7 +57,6 @@ class SessionRecord:
     id: str
     project_id: str
     run_id: str
-    session_id: str
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "SessionRecordDatasetMetadata"] = UNSET
@@ -72,6 +71,7 @@ class SessionRecord:
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
     previous_session_id: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
+    session_id: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     trace_id: Union[None, Unset, str] = UNSET
@@ -89,8 +89,6 @@ class SessionRecord:
         project_id = self.project_id
 
         run_id = self.run_id
-
-        session_id = self.session_id
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -182,6 +180,12 @@ class SessionRecord:
         else:
             session_batch_id = self.session_batch_id
 
+        session_id: Union[None, Unset, str]
+        if isinstance(self.session_id, Unset):
+            session_id = UNSET
+        else:
+            session_id = self.session_id
+
         status_code: Union[None, Unset, int]
         if isinstance(self.status_code, Unset):
             status_code = UNSET
@@ -214,7 +218,7 @@ class SessionRecord:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"id": id, "project_id": project_id, "run_id": run_id, "session_id": session_id})
+        field_dict.update({"id": id, "project_id": project_id, "run_id": run_id})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -243,6 +247,8 @@ class SessionRecord:
             field_dict["previous_session_id"] = previous_session_id
         if session_batch_id is not UNSET:
             field_dict["session_batch_id"] = session_batch_id
+        if session_id is not UNSET:
+            field_dict["session_id"] = session_id
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
         if tags is not UNSET:
@@ -273,8 +279,6 @@ class SessionRecord:
         project_id = d.pop("project_id")
 
         run_id = d.pop("run_id")
-
-        session_id = d.pop("session_id")
 
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
@@ -429,6 +433,15 @@ class SessionRecord:
 
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
 
+        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_id = _parse_session_id(d.pop("session_id", UNSET))
+
         def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
@@ -481,7 +494,6 @@ class SessionRecord:
             id=id,
             project_id=project_id,
             run_id=run_id,
-            session_id=session_id,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
@@ -496,6 +508,7 @@ class SessionRecord:
             output=output,
             previous_session_id=previous_session_id,
             session_batch_id=session_batch_id,
+            session_id=session_id,
             status_code=status_code,
             tags=tags,
             trace_id=trace_id,

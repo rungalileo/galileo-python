@@ -45,7 +45,7 @@ def setup_mock_logstreams_client(mock_logstreams_client: Mock):
     mock_instance.get = Mock(
         return_value=LogStream(
             LogStreamResponse(
-                id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
+                id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b",
                 project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
                 name="test",
                 created_at=now,
@@ -56,7 +56,7 @@ def setup_mock_logstreams_client(mock_logstreams_client: Mock):
     mock_instance.create = Mock(
         return_value=LogStream(
             LogStreamResponse(
-                id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
+                id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b",
                 project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
                 name="test",
                 created_at=now,
@@ -99,7 +99,7 @@ def setup_mock_core_api_client(mock_core_api_client: Mock):
             "external_id": "test",
             "project_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a"),
             "project_name": "test project",
-            "log_stream_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"),
+            "log_stream_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b"),
         }
     )
     mock_instance.get_sessions_sync = Mock(

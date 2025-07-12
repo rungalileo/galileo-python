@@ -66,7 +66,7 @@ def prompt_template():
             "name": "andrii-good-prompt",
             "created_at": "2025-03-03T21:17:44.232862+00:00",
             "updated_at": "2025-03-03T21:17:44.232862+00:00",
-            "creator": {
+            "created_by_user": {
                 "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
                 "email": "andriisoldatenko@galileo.ai",
                 "first_name": "Andrii",
@@ -85,6 +85,12 @@ def prompt_template():
                 "settings_changed": False,
                 "created_at": "2025-03-03T21:17:44.232862+00:00",
                 "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                "created_by_user": {
+                    "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                    "email": "test@galileo.ai",
+                    "first_name": "Test",
+                    "last_name": "User",
+                },
             },
             "selected_version_id": "03487fd7-1032-4317-ac43-a68401c07ee9",
             "template": '[{"content":"you are a helpful assistant","role":"system"},{"content":"why is sky blue?","role":"user"}]',
@@ -102,6 +108,12 @@ def prompt_template():
                     "settings_changed": False,
                     "created_at": "2025-03-03T21:17:44.232862+00:00",
                     "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                    "created_by_user": {
+                        "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                        "email": "test@galileo.ai",
+                        "first_name": "Test",
+                        "last_name": "User",
+                    },
                 }
             ],
         }
@@ -117,7 +129,7 @@ def global_prompt_template():
             "name": "global-helpful-assistant",
             "created_at": "2025-03-03T21:17:44.232862+00:00",
             "updated_at": "2025-03-03T21:17:44.232862+00:00",
-            "creator": {
+            "created_by_user": {
                 "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
                 "email": "test@galileo.ai",
                 "first_name": "Test",
@@ -136,6 +148,12 @@ def global_prompt_template():
                 "settings_changed": False,
                 "created_at": "2025-03-03T21:17:44.232862+00:00",
                 "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                "created_by_user": {
+                    "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                    "email": "test@galileo.ai",
+                    "first_name": "Test",
+                    "last_name": "User",
+                },
             },
             "selected_version_id": "global-version-id-456",
             "template": '[{"content":"you are a global helpful assistant","role":"system"}]',
@@ -153,6 +171,12 @@ def global_prompt_template():
                     "settings_changed": False,
                     "created_at": "2025-03-03T21:17:44.232862+00:00",
                     "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                    "created_by_user": {
+                        "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                        "email": "test@galileo.ai",
+                        "first_name": "Test",
+                        "last_name": "User",
+                    },
                 },
                 {
                     "id": "global-version-id-456",
@@ -166,6 +190,12 @@ def global_prompt_template():
                     "settings_changed": False,
                     "created_at": "2025-03-03T21:17:44.232862+00:00",
                     "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                    "created_by_user": {
+                        "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                        "email": "test@galileo.ai",
+                        "first_name": "Test",
+                        "last_name": "User",
+                    },
                 },
             ],
         }
@@ -186,6 +216,12 @@ def global_prompt_template_version():
             "settings_changed": False,
             "created_at": "2025-03-03T21:17:44.232862+00:00",
             "updated_at": "2025-03-03T21:17:44.232862+00:00",
+            "created_by_user": {
+                "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                "email": "test@galileo.ai",
+                "first_name": "Test",
+                "last_name": "User",
+            },
         }
     )
 
@@ -201,7 +237,7 @@ def global_templates_list_response():
                     "name": "global-helpful-assistant",
                     "created_at": "2025-03-03T21:17:44.232862+00:00",
                     "updated_at": "2025-03-03T21:17:44.232862+00:00",
-                    "creator": {
+                    "created_by_user": {
                         "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
                         "email": "test@galileo.ai",
                         "first_name": "Test",
@@ -220,6 +256,12 @@ def global_templates_list_response():
                         "settings_changed": False,
                         "created_at": "2025-03-03T21:17:44.232862+00:00",
                         "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                        "created_by_user": {
+                            "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                            "email": "test@galileo.ai",
+                            "first_name": "Test",
+                            "last_name": "User",
+                        },
                     },
                     "selected_version_id": "global-version-id-456",
                     "template": '[{"content":"you are a global helpful assistant","role":"system"}]',
@@ -237,6 +279,12 @@ def global_templates_list_response():
                             "settings_changed": False,
                             "created_at": "2025-03-03T21:17:44.232862+00:00",
                             "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                            "created_by_user": {
+                                "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                                "email": "test@galileo.ai",
+                                "first_name": "Test",
+                                "last_name": "User",
+                            },
                         },
                         {
                             "id": "global-version-id-456",
@@ -250,6 +298,12 @@ def global_templates_list_response():
                             "settings_changed": False,
                             "created_at": "2025-03-03T21:17:44.232862+00:00",
                             "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                            "created_by_user": {
+                                "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                                "email": "test@galileo.ai",
+                                "first_name": "Test",
+                                "last_name": "User",
+                            },
                         },
                     ],
                 }

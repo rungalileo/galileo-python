@@ -50,7 +50,7 @@ class PromptTemplate(BasePromptTemplateResponse):
             super().__init__(
                 all_available_versions=prompt_template.all_available_versions,
                 created_at=prompt_template.created_at,
-                creator=prompt_template.creator,
+                created_by_user=prompt_template.created_by_user,
                 id=prompt_template.id,
                 max_version=prompt_template.max_version,
                 name=prompt_template.name,
@@ -69,6 +69,8 @@ class PromptTemplateVersion(BasePromptTemplateVersionResponse):
     def __init__(self, prompt_template_version: Union[None, BasePromptTemplateVersionResponse] = None):
         if prompt_template_version is not None:
             super().__init__(
+                created_at=prompt_template_version.created_at,
+                created_by_user=prompt_template_version.created_by_user,
                 id=prompt_template_version.id,
                 lines_added=prompt_template_version.lines_added,
                 lines_edited=prompt_template_version.lines_edited,
@@ -77,11 +79,10 @@ class PromptTemplateVersion(BasePromptTemplateVersionResponse):
                 settings=prompt_template_version.settings,
                 settings_changed=prompt_template_version.settings_changed,
                 template=prompt_template_version.template,
+                updated_at=prompt_template_version.updated_at,
                 version=prompt_template_version.version,
                 output_type=prompt_template_version.output_type,
                 raw=prompt_template_version.raw,
-                created_at=prompt_template_version.created_at,
-                updated_at=prompt_template_version.updated_at,
             )
             self.additional_properties = prompt_template_version.additional_properties.copy()
 

@@ -34,7 +34,7 @@ class CustomizedToxicityGPTScorer:
         indices (Union[None, Unset, list[int]]):
         lora_task_id (Union[None, Unset, int]):
         metric_name (Union[None, Unset, str]):
-        model_alias (Union[Unset, str]):  Default: 'GPT-4o mini'.
+        model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
         name (Union[Literal['output_toxicity'], Unset]):  Default: 'output_toxicity'.
         num_judges (Union[Unset, int]):  Default: 3.
         prompt (Union[None, Unset, str]):
@@ -56,7 +56,7 @@ class CustomizedToxicityGPTScorer:
     indices: Union[None, Unset, list[int]] = UNSET
     lora_task_id: Union[None, Unset, int] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
-    model_alias: Union[Unset, str] = "GPT-4o mini"
+    model_alias: Union[Unset, str] = "gpt-4.1-mini"
     name: Union[Literal["output_toxicity"], Unset] = "output_toxicity"
     num_judges: Union[Unset, int] = 3
     prompt: Union[None, Unset, str] = UNSET

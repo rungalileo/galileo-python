@@ -67,12 +67,13 @@ def prompt_template():
         prompt_template=BasePromptTemplateResponse(
             all_available_versions=[1, 2, 3],
             created_at=datetime.now(),
-            creator=None,
+            created_by_user="Test User",
             id=str(UUID(int=0)),
             max_version=3,
             name="awesome-new-prompt",
             selected_version=BasePromptTemplateVersionResponse(
                 created_at=datetime.now(),
+                created_by_user="Test User",
                 id=str(UUID(int=3)),
                 lines_added=0,
                 lines_edited=0,
