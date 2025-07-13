@@ -80,15 +80,20 @@ class ThreadPoolTaskHandler:
             self._add_or_update_task(task_id=task_id, future=future, start_time=time.time(), parent_task_id=None)
 
         if dependent_on_prev:
-            last_task_id = list(self._tasks.keys())[-1]
-            if self.get_status(last_task_id) == "completed":
-                print(f"previous task completed, submitting task: {task_id}")
+            if not self._tasks:
+                # No previous tasks, submit immediately
+                print(f"no previous tasks, submitting task immediately: {task_id}")
                 _submit()
             else:
-                print(f"previous task not completed, tracking task: {task_id}")
-                self._add_or_update_task(
-                    task_id=task_id, future=None, start_time=None, parent_task_id=last_task_id, callback=_submit
-                )
+                last_task_id = list(self._tasks.keys())[-1]
+                if self.get_status(last_task_id) == "completed":
+                    print(f"previous task completed, submitting task: {task_id}")
+                    _submit()
+                else:
+                    print(f"previous task not completed, tracking task: {task_id}")
+                    self._add_or_update_task(
+                        task_id=task_id, future=None, start_time=None, parent_task_id=last_task_id, callback=_submit
+                    )
         else:
             print(f"submitting task immediately: {task_id}")
             _submit()

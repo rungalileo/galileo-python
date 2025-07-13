@@ -71,10 +71,11 @@ class TestThreadPoolTaskHandler:
 
         handler.submit_task(task_id, async_fn, dependent_on_prev=True)
 
-        # Should submit immediately since no previous task
+        # Should submit immediately since no previous task exists
         mock_pool.submit.assert_called_once_with(async_fn, wait_for_result=False)
         assert task_id in handler._tasks
         assert handler._tasks[task_id]["future"] == mock_future
+        assert handler._tasks[task_id]["parent_task_id"] is None  # No parent since no previous tasks
 
     def test_submit_task_dependent_previous_completed(self, handler, mock_pool, mock_future):
         """Test submitting a dependent task when previous task is completed."""
@@ -232,17 +233,32 @@ class TestThreadPoolTaskHandler:
         parent_task_id = "parent"
         handler.submit_task(parent_task_id, self.dummy_async_func, dependent_on_prev=False)
 
-        # Set up child tasks
-        with patch.object(handler, "get_status", return_value="running"):
-            child1_id = "child1"
-            child2_id = "child2"
-            handler.submit_task(child1_id, self.dummy_async_func, dependent_on_prev=True)
-            handler.submit_task(child2_id, self.dummy_async_func, dependent_on_prev=True)
+        # Manually add two child tasks that depend on the parent
+        # (This simulates what would happen if we had a more complex dependency system)
+        def child1_callback():
+            return handler._pool.submit(self.dummy_async_func, wait_for_result=False)
+
+        def child2_callback():
+            return handler._pool.submit(self.dummy_async_func, wait_for_result=False)
+
+        handler._add_or_update_task(
+            task_id="child1", future=None, start_time=None, parent_task_id=parent_task_id, callback=child1_callback
+        )
+
+        handler._add_or_update_task(
+            task_id="child2", future=None, start_time=None, parent_task_id=parent_task_id, callback=child2_callback
+        )
 
         children = handler.get_children(parent_task_id)
         assert len(children) == 2
-        child_ids = [child["callback"] for child in children if child.get("parent_task_id") == parent_task_id]
-        assert len(child_ids) == 2
+
+        # Verify both children have the correct parent_task_id
+        child_task_ids = [
+            task_id for task_id, task in handler._tasks.items() if task.get("parent_task_id") == parent_task_id
+        ]
+        assert len(child_task_ids) == 2
+        assert "child1" in child_task_ids
+        assert "child2" in child_task_ids
 
     def test_all_tasks_completed_empty(self, handler):
         """Test all_tasks_completed with no tasks."""
