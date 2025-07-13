@@ -109,10 +109,10 @@ class ThreadPoolTaskHandler:
     def track_future(
         self,
         task_id: str,
-        future: Future | None = None,
-        start_time: float | None = None,
-        parent_task_id: str | None = None,
-        callback: Callable | None = None,
+        future: Optional[Future] = None,
+        start_time: Optional[float] = None,
+        parent_task_id: Optional[str] = None,
+        callback: Optional[Callable] = None,
     ):
         """
         Track a submitted future.
