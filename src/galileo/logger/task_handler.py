@@ -63,25 +63,19 @@ class ThreadPoolTaskHandler:
         self._retry_counts[task_id] = 0
 
     def submit_task(
-        self,
-        task_id: str,
-        async_fn: Union[Callable[[], Awaitable[Any]], Coroutine],
-        wait_for_result: bool = False,
-        dependent_on_prev: bool = False,
+        self, task_id: str, async_fn: Union[Callable[[], Awaitable[Any]], Coroutine], dependent_on_prev: bool = False
     ):
         """
         Submit a task to the thread pool.
 
         Args:
             task_id: The ID of the task.
-            pool: The thread pool to use.
             async_fn: The async function to submit to the thread pool.
-            wait_for_result: Whether to wait for the result of the async function.
             dependent_on_prev: Whether the task depends on the previous task.
         """
 
         def _submit(*args):
-            future = self._pool.submit(async_fn, wait_for_result=wait_for_result)
+            future = self._pool.submit(async_fn, wait_for_result=False)
             future.add_done_callback(lambda f: self._handle_task_completion(task_id))
             self._add_or_update_task(task_id=task_id, future=future, start_time=time.time(), parent_task_id=None)
 

@@ -245,14 +245,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             traces=[copy.deepcopy(trace)], session_id=self.session_id, is_complete=is_complete, reliable=True
         )
 
+        task_id = f"trace-ingest-{trace.id}"
+
         @backoff.on_exception(
             backoff.expo,
             Exception,
             max_tries=self._max_retries,
             logger=None,
             on_backoff=lambda details: (
-                self._task_handler.increment_retry(trace.id),
-                self._logger.info(f"Retry #{self._task_handler.get_retry_count(trace.id)} for task {trace.id}"),
+                self._task_handler.increment_retry(task_id),
+                self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
             ),
         )
         @handle_galileo_http_exceptions_for_retry
@@ -260,10 +262,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             await self._client.ingest_traces(request)
 
         self._task_handler.submit_task(
-            trace.id,
-            lambda: ingest_traces_with_backoff(traces_ingest_request),
-            wait_for_result=False,
-            dependent_on_prev=False,
+            task_id, lambda: ingest_traces_with_backoff(traces_ingest_request), dependent_on_prev=False
         )
         self._logger.info("ingested trace %s.", trace.id)
 
@@ -279,14 +278,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             spans=[copy.deepcopy(span)], trace_id=self.traces[0].id, parent_id=parent_step.id, reliable=True
         )
 
+        task_id = f"span-ingest-{span.id}"
+
         @backoff.on_exception(
             backoff.expo,
             Exception,
             max_tries=self._max_retries,
             logger=None,
             on_backoff=lambda details: (
-                self._task_handler.increment_retry(span.id),
-                self._logger.info(f"Retry #{self._task_handler.get_retry_count(span.id)} for task {span.id}"),
+                self._task_handler.increment_retry(task_id),
+                self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
             ),
         )
         @handle_galileo_http_exceptions_for_retry
@@ -294,10 +295,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             await self._client.ingest_spans(request)
 
         self._task_handler.submit_task(
-            span.id,
-            lambda: ingest_spans_with_backoff(spans_ingest_request),
-            wait_for_result=False,
-            dependent_on_prev=False,
+            task_id, lambda: ingest_spans_with_backoff(spans_ingest_request), dependent_on_prev=False
         )
         self._logger.info("ingested span %s.", span.id)
 
@@ -314,16 +312,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 reliable=True,
             )
 
+            task_id = f"trace-update-{trace.id}"
+
             @backoff.on_exception(
                 backoff.expo,
                 Exception,
                 max_tries=self._max_retries,
                 logger=None,
                 on_backoff=lambda details: (
-                    self._task_handler.increment_retry(f"trace-update-{trace.id}"),
-                    self._logger.info(
-                        f"Retry #{self._task_handler.get_retry_count(f'trace-update-{trace.id}')} for task {trace.id}"
-                    ),
+                    self._task_handler.increment_retry(task_id),
+                    self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
                 ),
             )
             @handle_galileo_http_exceptions_for_retry
@@ -331,10 +329,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 await self._client.update_trace(request)
 
             self._task_handler.submit_task(
-                f"trace-update-{trace.id}",
-                lambda: update_trace_with_backoff(trace_update_request),
-                wait_for_result=False,
-                dependent_on_prev=True,
+                task_id, lambda: update_trace_with_backoff(trace_update_request), dependent_on_prev=True
             )
             self._logger.info("updated trace %s.", trace.id)
         except Exception as e:
@@ -351,16 +346,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             reliable=True,
         )
 
+        task_id = f"span-update-{span.id}"
+
         @backoff.on_exception(
             backoff.expo,
             Exception,
             max_tries=self._max_retries,
             logger=None,
             on_backoff=lambda details: (
-                self._task_handler.increment_retry(f"span-update-{span.id}"),
-                self._logger.info(
-                    f"Retry #{self._task_handler.get_retry_count(f'span-update-{span.id}')} for task {span.id}"
-                ),
+                self._task_handler.increment_retry(task_id),
+                self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
             ),
         )
         @handle_galileo_http_exceptions_for_retry
@@ -368,10 +363,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             await self._client.update_span(request)
 
         self._task_handler.submit_task(
-            f"span-update-{span.id}",
-            lambda: update_span_with_backoff(span_update_request),
-            wait_for_result=False,
-            dependent_on_prev=True,
+            task_id, lambda: update_span_with_backoff(span_update_request), dependent_on_prev=True
         )
         self._logger.info("updated span %s.", span.id)
 
