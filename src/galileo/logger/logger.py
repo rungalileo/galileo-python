@@ -1,18 +1,22 @@
 import atexit
+import copy
 import json
 import logging
+import time
 import uuid
 from collections import deque
+from collections.abc import Awaitable, Coroutine
+from concurrent.futures import Future
 from datetime import datetime
 from os import getenv
-from typing import Literal, Optional, Union
+from typing import Any, Callable, Literal, Optional, Union
 
 import backoff
 from pydantic import ValidationError
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
-from galileo.logger.utils import get_last_output
+from galileo.logger.utils import get_last_output, handle_galileo_http_exceptions_for_retry
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import (
@@ -50,12 +54,155 @@ from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
+MAX_RETRIES = 3
+NUM_THREADS = 4
+
 
 class GalileoLoggerException(Exception):
     pass
 
 
 LoggerModeType = Literal["batch", "streaming"]
+
+TaskStatus = Literal["not_found", "pending", "running", "completed", "failed"]
+
+
+class ThreadPoolTaskHandler:
+    def __init__(self):
+        self.tasks: dict[str, dict] = {}
+        self.retry_counts: dict[str, int] = {}
+
+    def submit_task(
+        self,
+        task_id: str,
+        pool: EventLoopThreadPool,
+        async_fn: Union[Callable[[], Awaitable[Any]], Coroutine],
+        wait_for_result: bool = False,
+        dependent_on_prev: bool = False,
+    ):
+        """
+        Submit a task to the thread pool.
+
+        Args:
+            task_id: The ID of the task.
+            pool: The thread pool to use.
+            async_fn: The async function to submit to the thread pool.
+            wait_for_result: Whether to wait for the result of the async function.
+            dependent_on_prev: Whether the task depends on the previous task.
+        """
+
+        def _submit(*args):
+            future = pool.submit(async_fn, wait_for_result=wait_for_result)
+            self.track_future(task_id=task_id, future=future, start_time=time.time(), parent_task_id=None)
+
+        if dependent_on_prev:
+            last_task_id = list(self.tasks.keys())[-1]
+            if self.get_status(last_task_id) == "completed":
+                _submit()
+            else:
+                self.track_future(
+                    task_id=task_id, future=None, start_time=None, parent_task_id=last_task_id, callback=_submit
+                )
+        else:
+            _submit()
+
+    def track_future(
+        self,
+        task_id: str,
+        future: Future | None = None,
+        start_time: float | None = None,
+        parent_task_id: str | None = None,
+        callback: Callable | None = None,
+    ):
+        """
+        Track a submitted future.
+
+        Args:
+            task_id: The ID of the task.
+            future: The future to track.
+            start_time: The start time of the task.
+            parent_task_id: The ID of the parent task.
+            callback: The callback to run when the task is completed.
+        """
+        self.tasks[task_id] = {
+            "future": future,
+            "start_time": start_time,
+            "parent_task_id": parent_task_id,
+            "callback": callback,
+        }
+        self.retry_counts[task_id] = 0
+
+    def get_children(self, parent_task_id: str) -> list[dict]:
+        """
+        Get the children of a task.
+        """
+        return [task for _, task in self.tasks.items() if task.get("parent_task_id") == parent_task_id]
+
+    def increment_retry(self, task_id: str):
+        """
+        Increment the retry count for a task.
+
+        Args:
+            task_id: The ID of the task.
+        """
+        self.retry_counts[task_id] = self.retry_counts.get(task_id, 0) + 1
+
+    def get_status(self, task_id: str) -> TaskStatus:
+        """
+        Returns the status of a task.
+
+        Args:
+            task_id: The ID of the task.
+
+        Returns:
+            The status of the task.
+        """
+        if task_id not in self.tasks:
+            return "not_found"
+
+        task = self.tasks[task_id]
+
+        if task.get("parent_task_id"):
+            # if parent task is completed, run the callback
+            if self.get_status(task.get("parent_task_id")) == "completed":
+                callback = task.get("callback")
+                if callback:
+                    callback()
+            return "pending"
+
+        future = task["future"]
+        if not future:
+            return "not_found"
+
+        if not future.done():
+            return "running"
+
+        try:
+            future.result()  # This will raise exception if task failed
+            return "completed"
+        except Exception:
+            return "failed"
+
+    def get_result(self, task_id: str):
+        """Get result if task completed, otherwise raises exception"""
+        if task_id not in self.tasks:
+            raise ValueError(f"Task {task_id} not found")
+        return self.tasks[task_id]["future"].result()
+
+    def get_retry_count(self, task_id: str) -> int:
+        """
+        Get the retry count for a task.
+        """
+        return self.retry_counts.get(task_id, 0)
+
+    def all_tasks_completed(self) -> bool:
+        """
+        Check if all tasks are completed.
+
+        Returns:
+            True if all tasks are completed, False otherwise.
+        """
+        return all(self.get_status(task_id) not in ["running", "pending"] for task_id in self.tasks)
 
 
 class GalileoLogger(TracesLogger, DecorateAllMethods):
@@ -127,6 +274,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     mode: Optional[LoggerModeType] = None
     _logger = logging.getLogger("galileo.logger")
     _pool: EventLoopThreadPool
+    _task_handler: ThreadPoolTaskHandler
 
     def __init__(
         self,
@@ -170,8 +318,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self.local_metrics = local_metrics
 
         if self.mode == "streaming":
-            self._max_retries = 3
-            self._pool = EventLoopThreadPool(num_threads=4)
+            self._max_retries = MAX_RETRIES
+            self._pool = EventLoopThreadPool(num_threads=NUM_THREADS)
+            self._task_handler = ThreadPoolTaskHandler()
 
         if not self.project_id:
             self._init_project()
@@ -238,28 +387,34 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     @nop_sync
     def _ingest_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
         traces_ingest_request = TracesIngestRequest(
-            traces=[trace],
+            traces=[copy.deepcopy(trace)],
             log_stream_id=self.log_stream_id,
             session_id=self.session_id,
             is_complete=is_complete,
             reliable=True,
         )
 
-        @backoff.on_exception(backoff.expo, Exception, max_tries=self._max_retries, logger=None)
+        @backoff.on_exception(
+            backoff.expo,
+            Exception,
+            max_tries=self._max_retries,
+            logger=None,
+            on_backoff=lambda details: (
+                self._task_handler.increment_retry(trace.id),
+                self._logger.info(f"Retry #{self._task_handler.get_retry_count(trace.id)} for task {trace.id}"),
+            ),
+        )
+        @handle_galileo_http_exceptions_for_retry
         async def ingest_traces_with_backoff(request):
-            try:
-                await self._client.ingest_traces(request)
-            except Exception as e:
-                # TODO: figure out when we want retry and when we don't
-                # if (
-                #         isinstance(e, APIError)
-                #         and 400 <= int(e.status) < 500
-                #         and int(e.status) != 429  # retry if rate-limited
-                # ):
-                #     return
-                raise e
+            await self._client.ingest_traces(request)
 
-        self._pool.submit(lambda: ingest_traces_with_backoff(traces_ingest_request), wait_for_result=False)
+        self._task_handler.submit_task(
+            trace.id,
+            self._pool,
+            lambda: ingest_traces_with_backoff(traces_ingest_request),
+            wait_for_result=False,
+            dependent_on_prev=False,
+        )
         self._logger.info("ingested trace %s.", trace.id)
 
     @nop_sync
@@ -271,45 +426,74 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             raise ValueError("A trace needs to be created in order to add a span.")
 
         spans_ingest_request = SpansIngestRequest(
-            spans=[span],
+            spans=[copy.deepcopy(span)],
             trace_id=self.traces[0].id,
             log_stream_id=self.log_stream_id,
             parent_id=parent_step.id,
             reliable=True,
         )
 
-        @backoff.on_exception(backoff.expo, Exception, max_tries=self._max_retries, logger=None)
+        @backoff.on_exception(
+            backoff.expo,
+            Exception,
+            max_tries=self._max_retries,
+            logger=None,
+            on_backoff=lambda details: (
+                self._task_handler.increment_retry(span.id),
+                self._logger.info(f"Retry #{self._task_handler.get_retry_count(span.id)} for task {span.id}"),
+            ),
+        )
+        @handle_galileo_http_exceptions_for_retry
         async def ingest_spans_with_backoff(request):
-            try:
-                await self._client.ingest_spans(request)
-            except Exception as e:
-                raise e
+            await self._client.ingest_spans(request)
 
-        self._pool.submit(lambda: ingest_spans_with_backoff(spans_ingest_request), wait_for_result=False)
+        self._task_handler.submit_task(
+            span.id,
+            self._pool,
+            lambda: ingest_spans_with_backoff(spans_ingest_request),
+            wait_for_result=False,
+            dependent_on_prev=False,
+        )
         self._logger.info("ingested span %s.", span.id)
 
     @nop_sync
     def _update_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
-        trace_update_request = TraceUpdateRequest(
-            trace_id=trace.id,
-            log_stream_id=self.log_stream_id,
-            session_id=self.session_id,
-            output=trace.output,
-            status_code=trace.status_code,
-            tags=trace.tags,
-            is_complete=is_complete,
-            reliable=True,
-        )
+        try:
+            trace_update_request = TraceUpdateRequest(
+                trace_id=trace.id,
+                log_stream_id=self.log_stream_id,
+                session_id=self.session_id,
+                output=trace.output,
+                status_code=trace.status_code,
+                tags=trace.tags,
+                is_complete=is_complete,
+                reliable=True,
+            )
 
-        @backoff.on_exception(backoff.expo, Exception, max_tries=self._max_retries, logger=None)
-        async def update_trace_with_backoff(request):
-            try:
+            @backoff.on_exception(
+                backoff.expo,
+                Exception,
+                max_tries=self._max_retries,
+                logger=None,
+                on_backoff=lambda details: (
+                    self._task_handler.increment_retry(trace.id),
+                    self._logger.info(f"Retry #{self._task_handler.get_retry_count(trace.id)} for task {trace.id}"),
+                ),
+            )
+            @handle_galileo_http_exceptions_for_retry
+            async def update_trace_with_backoff(request):
                 await self._client.update_trace(request)
-            except Exception as e:
-                raise e
 
-        self._pool.submit(lambda: update_trace_with_backoff(trace_update_request), wait_for_result=False)
-        self._logger.info("updated trace %s.", trace.id)
+            self._task_handler.submit_task(
+                f"trace-update-{trace.id}",
+                self._pool,
+                lambda: update_trace_with_backoff(trace_update_request),
+                wait_for_result=False,
+                dependent_on_prev=True,
+            )
+            self._logger.info("updated trace %s.", trace.id)
+        except Exception as e:
+            self._logger.error("Failed to update trace %s: %s", trace.id, e, exc_info=True)
 
     @nop_sync
     def _update_span_streaming(self, span: Span) -> None:
@@ -323,14 +507,27 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             reliable=True,
         )
 
-        @backoff.on_exception(backoff.expo, Exception, max_tries=self._max_retries, logger=None)
+        @backoff.on_exception(
+            backoff.expo,
+            Exception,
+            max_tries=self._max_retries,
+            logger=None,
+            on_backoff=lambda details: (
+                self._task_handler.increment_retry(span.id),
+                self._logger.info(f"Retry #{self._task_handler.get_retry_count(span.id)} for task {span.id}"),
+            ),
+        )
+        @handle_galileo_http_exceptions_for_retry
         async def update_span_with_backoff(request):
-            try:
-                await self._client.update_span(request)
-            except Exception as e:
-                raise e
+            await self._client.update_span(request)
 
-        self._pool.submit(lambda: update_span_with_backoff(span_update_request), wait_for_result=False)
+        self._task_handler.submit_task(
+            f"span-update-{span.id}",
+            self._pool,
+            lambda: update_span_with_backoff(span_update_request),
+            wait_for_result=False,
+            dependent_on_prev=True,
+        )
         self._logger.info("updated span %s.", span.id)
 
     @nop_sync
@@ -933,11 +1130,22 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Terminate the logger and flush all traces to Galileo.
         """
+        start_time = time.perf_counter()
+
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
         if self.mode == "batch":
             self._logger.info("Attempting to flush on interpreter exit...")
             self.flush()
+        else:
+            print("Checking if all tasks are completed...")
+            while not self._task_handler.all_tasks_completed():
+                time.sleep(0.1)
+            self._pool.stop()
+            print("All tasks completed. Exiting...")
+
+        end_time = time.perf_counter()
+        print(f"time taken in terminate: {(end_time - start_time):0.4f} seconds")
 
     @nop_sync
     def start_session(
