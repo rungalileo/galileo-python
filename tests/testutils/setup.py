@@ -18,6 +18,7 @@ from galileo.resources.models.task_type import TaskType
 
 
 class ThreadPoolTaskInfo(BaseModel):
+    task_id: str
     function_name: str
     request: Any
     task_func: Callable
@@ -31,8 +32,8 @@ class ThreadPoolRequestCapture:
         self.captured_tasks: list[ThreadPoolTaskInfo] = []
         self.mock_pool = None
 
-    def capture_request(self, task_func: Callable, **kwargs) -> None:
-        """Capture function that extracts requests and function names from lambda closures."""
+    def capture_request(self, task_id: str, async_fn: Callable, **kwargs) -> None:
+        """Capture function that extracts requests and function names from ThreadPoolTaskHandler.submit_task calls."""
 
         # Extract both the request and function from the lambda
         captured_request = None
@@ -41,15 +42,15 @@ class ThreadPoolRequestCapture:
 
         # Get the first function name referenced in the lambda
         # Since lambdas follow pattern: lambda: function_name(request)
-        code = task_func.__code__
+        code = async_fn.__code__
 
         if code.co_names:
             # The first (and typically only) name in co_names is our function
             captured_function_name = code.co_names[0]
 
         # Extract request from closure and also look for callable functions
-        if task_func.__closure__:
-            for cell in task_func.__closure__:
+        if async_fn.__closure__:
+            for cell in async_fn.__closure__:
                 cell_content = cell.cell_contents
 
                 # Check for request object
@@ -76,10 +77,14 @@ class ThreadPoolRequestCapture:
             def isolated_task_func():
                 return captured_function(captured_request)
         else:
-            isolated_task_func = task_func
+            isolated_task_func = async_fn
 
         task_info = ThreadPoolTaskInfo(
-            function_name=captured_function_name, request=captured_request, task_func=isolated_task_func, kwargs=kwargs
+            task_id=task_id,
+            function_name=captured_function_name,
+            request=captured_request,
+            task_func=isolated_task_func,
+            kwargs=kwargs,
         )
         self.captured_tasks.append(task_info)
 
@@ -153,7 +158,7 @@ def setup_thread_pool_request_capture(logger: GalileoLogger) -> ThreadPoolReques
     """
     capture = ThreadPoolRequestCapture()
     mock_pool = Mock(side_effect=capture.capture_request)
-    logger._pool.submit = mock_pool
+    logger._task_handler.submit_task = mock_pool
     capture.mock_pool = mock_pool
     return capture
 
