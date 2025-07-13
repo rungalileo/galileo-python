@@ -52,7 +52,7 @@ from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
-MAX_RETRIES = 3
+STREAMING_MAX_RETRIES = 3
 
 
 class GalileoLoggerException(Exception):
@@ -174,7 +174,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self.local_metrics = local_metrics
 
         if self.mode == "streaming":
-            self._max_retries = MAX_RETRIES
+            self._max_retries = STREAMING_MAX_RETRIES
             self._task_handler = ThreadPoolTaskHandler()
 
         if not self.project_id:
