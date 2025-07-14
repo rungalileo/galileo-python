@@ -40,7 +40,7 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
         dataset_output: Optional[str] = None,
         dataset_metadata: Optional[dict[str, str]] = None,
         external_id: Optional[str] = None,
-    ):
+    ) -> Trace:
         return self.add_trace(
             input=input,
             redacted_input=redacted_input,

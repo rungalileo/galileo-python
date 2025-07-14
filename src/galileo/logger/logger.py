@@ -279,9 +279,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         self,
         input: LlmSpanAllowedInputType,
         output: LlmSpanAllowedOutputType,
+        model: Optional[str],
         redacted_input: Optional[LlmSpanAllowedInputType] = None,
         redacted_output: Optional[LlmSpanAllowedOutputType] = None,
-        model: Optional[str] = None,
         tools: Optional[list[dict]] = None,
         name: Optional[str] = None,
         created_at: Optional[datetime] = None,
@@ -306,9 +306,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         ----------
             input: LlmStepAllowedIOType: Input to the node.
             output: LlmStepAllowedIOType: Output of the node.
+            model: Optional[str]: Model used for this span. Feedback from April: Good docs about what model names we use.
             redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
             redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
-            model: str: Model used for this span. Feedback from April: Good docs about what model names we use.
             tools: Optional[List[Dict]]: List of available tools passed to LLM on invocation.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
@@ -525,10 +525,10 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
 
         Parameters:
         ----------
-            input: StepIOType: Input to the node.
-            redacted_input: Optional[StepIOType]: Redacted input to the node.
-            output: StepIOType: Output of the node.
-            redacted_output: Optional[StepIOType]: Redacted output to the node.
+            input: str: Input to the node.
+            redacted_input: Optional[str]: Redacted input to the node.
+            output: str: Output of the node.
+            redacted_output: Optional[str]: Redacted output to the node.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
@@ -666,8 +666,8 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
 
         Parameters:
         ----------
-            output: Optional[StepIOType]: Output of the node.
-            redacted_output: Optional[StepIOType]: Redacted output of the node.
+            output: Optional[str]: Output of the node.
+            redacted_output: Optional[str]: Redacted output of the node.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             status_code: Optional[int]: Status code of the node execution.
             conclude_all: bool: If True, all spans will be concluded, including the current span. False by default.
