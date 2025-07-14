@@ -113,6 +113,68 @@ def test_single_span_trace_to_galileo(
     assert logger._parent_stack == deque()
 
 
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_trace_with_redacted_input_and_output(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that redacted_input and redacted_output fields can be passed to traces."""
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+    created_at = datetime.datetime.now()
+    metadata = {"key": "value"}
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    # Test start_trace with redacted_input
+    logger.start_trace(
+        input="Tell me your API key: sk-abc123def456",
+        redacted_input="Tell me your API key: [REDACTED]",
+        name="test-trace",
+        duration_ns=1_000_000,
+        created_at=created_at,
+        metadata=metadata,
+    )
+    span = logger.add_llm_span(
+        input="Tell me your API key: sk-abc123def456",
+        output="I can't share API keys. My response contains secret: secret123",
+        model="gpt4o",
+        name="test-span",
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+    # Test conclude with redacted_output
+    logger.conclude(
+        output="I can't share API keys. My response contains secret: secret123",
+        redacted_output="I can't share API keys. My response contains secret: [REDACTED]",
+        status_code=200,
+    )
+    logger.flush()
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    expected_payload = TracesIngestRequest(
+        log_stream_id=None,
+        experiment_id=None,
+        traces=[
+            Trace(
+                input="Tell me your API key: sk-abc123def456",
+                redacted_input="Tell me your API key: [REDACTED]",
+                output="I can't share API keys. My response contains secret: secret123",
+                redacted_output="I can't share API keys. My response contains secret: [REDACTED]",
+                name="test-trace",
+                created_at=created_at,
+                user_metadata=metadata,
+                status_code=200,
+                spans=[span],
+                metrics=Metrics(duration_ns=1000000),
+            )
+        ],
+    )
+    assert payload == expected_payload
+    assert logger.traces == list()
+    assert logger._parent_stack == deque()
+
+
 @patch("galileo.experiments.Experiments")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.GalileoCoreApiClient")
