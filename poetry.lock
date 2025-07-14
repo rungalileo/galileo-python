@@ -96,6 +96,19 @@ files = [
 ]
 
 [[package]]
+name = "backports-asyncio-runner"
+version = "1.2.0"
+description = "Backport of asyncio.Runner, a context manager that controls event loop life cycle."
+optional = false
+python-versions = "<3.11,>=3.8"
+groups = ["test"]
+markers = "python_version < \"3.11\""
+files = [
+    {file = "backports_asyncio_runner-1.2.0-py3-none-any.whl", hash = "sha256:0da0a936a8aeb554eccb426dc55af3ba63bcdc69fa1a600b5bb305413a4477b5"},
+    {file = "backports_asyncio_runner-1.2.0.tar.gz", hash = "sha256:a5aa7b2b7d8f8bfcaa2b57313f70792df84e32a2a746f585213373f900b42162"},
+]
+
+[[package]]
 name = "backrefs"
 version = "5.9"
 description = "A wrapper around re and regex that adds additional back references."
@@ -534,55 +547,55 @@ toml = ["tomli ; python_full_version <= \"3.11.0a6\""]
 
 [[package]]
 name = "crosshair-tool"
-version = "0.0.93"
+version = "0.0.94"
 description = "Analyze Python code for correctness using symbolic execution."
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
 files = [
-    {file = "crosshair_tool-0.0.93-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:07d20d6a126c9c8b122daee7a7f02b7be5d1f9a685985e550c0beb2f36d1eb79"},
-    {file = "crosshair_tool-0.0.93-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:2755cb95a4e28190232b391d26c907610a354e4716a524fa5f1fd6ba8f0be680"},
-    {file = "crosshair_tool-0.0.93-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:6054dc87c2dc024dada927513bfe9d4887267214b8c78917445832244673aacd"},
-    {file = "crosshair_tool-0.0.93-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:649649dbf1b6aede8ea3151b0d5fa1028260f3ce6695c6de8852333acb1da46b"},
-    {file = "crosshair_tool-0.0.93-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:e3d1976d25fef5ce19008217bc3aff0c873c17689ca68d76179467ffac241ee1"},
-    {file = "crosshair_tool-0.0.93-cp310-cp310-win32.whl", hash = "sha256:6698be289f91c03d42e08145a04549936ffab724773d58be2b2d8050e649956a"},
-    {file = "crosshair_tool-0.0.93-cp310-cp310-win_amd64.whl", hash = "sha256:bdb9a8590905eb263e88528550795458322169e0ab9004495fa39b835faed9ae"},
-    {file = "crosshair_tool-0.0.93-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:ef4c28fa690c67a1461a9be4ee309aec230821bb1f2b434b3835c3ed2d941f5e"},
-    {file = "crosshair_tool-0.0.93-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:b7862d41f1dd0603ecc71193e4206461333e802f1c682957e11945401ffea5d1"},
-    {file = "crosshair_tool-0.0.93-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:526e82b554456d138df302ed739f33de1214529de93e24dc6b39a5d8bcd9a646"},
-    {file = "crosshair_tool-0.0.93-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:18086425427f0ea970ee76a93be92541f8f1e9568648dae6993ebbd3efd77920"},
-    {file = "crosshair_tool-0.0.93-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:e2d71aafb49b7f3fd58f8d94bafd1ad8eeca375242b16b544dc2faa9ad96a827"},
-    {file = "crosshair_tool-0.0.93-cp311-cp311-win32.whl", hash = "sha256:c2aed5ea2eeaf9061bdfcb4c916e01feee9ca837cca184cab67e779612796a57"},
-    {file = "crosshair_tool-0.0.93-cp311-cp311-win_amd64.whl", hash = "sha256:c7542273e0b4e28c14d4f04e3044d998afcbca626729c7dced848a4661977edd"},
-    {file = "crosshair_tool-0.0.93-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:dcb24cdb031b47fb9a14141230088f0a73d48d8eaec4ca8ee8a8708b13cb0a8f"},
-    {file = "crosshair_tool-0.0.93-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:8cc632233bccfb11cf590f4c25a79c2abb490c55b9a811d17919c59315d2fdaf"},
-    {file = "crosshair_tool-0.0.93-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:ffe166b41eee56aceb7dd311fc628e86a45c6b814677753c31e634f629405351"},
-    {file = "crosshair_tool-0.0.93-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:8d0462a658c710d71626025781014626002194400c691975cbba335c5d2d816b"},
-    {file = "crosshair_tool-0.0.93-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:8fe1a63d8f8f3bce2dc8c05e432439d9417048f8f75648685912ca3e9dba26d8"},
-    {file = "crosshair_tool-0.0.93-cp312-cp312-win32.whl", hash = "sha256:2b196ebd6fcec055404447062a01024ae6af47c6bd4b2b8034c86d8151a77d62"},
-    {file = "crosshair_tool-0.0.93-cp312-cp312-win_amd64.whl", hash = "sha256:6a32aa2435343fc84e183ab5ca0a2c354a9443db80fc61d688b75331dd6b9c64"},
-    {file = "crosshair_tool-0.0.93-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:d52a3503fef53915e7e25cfb02fa3f14cf29207f2377344f6eaf2f778a228e94"},
-    {file = "crosshair_tool-0.0.93-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:9f30c48905f806b7c6d4bd0e99805d24f4708ee2660fbd62f0a3494df87b505f"},
-    {file = "crosshair_tool-0.0.93-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:df4ad89717c173b7c2c2e78f66b5a55d7fe162d14061f907e69d8605faa4d3c1"},
-    {file = "crosshair_tool-0.0.93-cp313-cp313-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:dce5f08e1cf786c8d5ebd9bd3c9f140110bec6e2b87dbca81e60a86af8651762"},
-    {file = "crosshair_tool-0.0.93-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:551f2887a5b7da93eeba3046df02eb9d00de8d8d343bd82a79c19ce918f0b364"},
-    {file = "crosshair_tool-0.0.93-cp313-cp313-win32.whl", hash = "sha256:d382a761d643533b1379728841652ce5f4ce62d0e5d1027570268ed5207b55ec"},
-    {file = "crosshair_tool-0.0.93-cp313-cp313-win_amd64.whl", hash = "sha256:47583d671ce7251e146af8675343ac59da2ba572f97430f552c962971b649d80"},
-    {file = "crosshair_tool-0.0.93-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:21b36d0785bdd4750f31f8292492d61770d77e23375bf148bdeb81cc245b278c"},
-    {file = "crosshair_tool-0.0.93-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:5414e84d68e34319a238506e9ab9a1ab3b25c6f9406465c9fccf855035cdf606"},
-    {file = "crosshair_tool-0.0.93-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:ee1d14586b1fa38bb2de6aca31106c35cde5c132dea4d65e9a0ae5d4554cf409"},
-    {file = "crosshair_tool-0.0.93-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:3cc8304c96e19b0a5da85d3e90178e9e0849d7c4dc875ac521c957c850c71ed6"},
-    {file = "crosshair_tool-0.0.93-cp38-cp38-musllinux_1_2_x86_64.whl", hash = "sha256:1ab3a3140671ea95426b420020afa4319a53c6317db5654a62ddc402ea5b29db"},
-    {file = "crosshair_tool-0.0.93-cp38-cp38-win32.whl", hash = "sha256:b12f0ea3b6b45030906c849282e0875599e6463dbb62f155d49dd63ed2ba4e11"},
-    {file = "crosshair_tool-0.0.93-cp38-cp38-win_amd64.whl", hash = "sha256:df820681bfaf916ab5c8dd3756b2d1851cb21b0e92708f0320f8d02d298d62c6"},
-    {file = "crosshair_tool-0.0.93-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:dc5bcdf09b12ba314891816864e7b2d5fc130b4b5d645541961da4cf70ef335b"},
-    {file = "crosshair_tool-0.0.93-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:7e1248f0eba8cf696a7c206355fb2220054db809d06d8951dac01bf9a0b5818b"},
-    {file = "crosshair_tool-0.0.93-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:465405f9e4828c1259bd6dc2b0b4f312e4fdef3fdfd1537dfe5fb19c3e2399fb"},
-    {file = "crosshair_tool-0.0.93-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:97b3e397b3b487e8f1ab5db0291bc49b29a30586ef3e911355dc344d6e4769ac"},
-    {file = "crosshair_tool-0.0.93-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:e6ce216159a632992a12d8cf475582f86265f22267e1be0c6839e362109c5570"},
-    {file = "crosshair_tool-0.0.93-cp39-cp39-win32.whl", hash = "sha256:8a0c7753c43252c0612f2c6914281ad4f7db9038ebb978082c000b38e8b1c221"},
-    {file = "crosshair_tool-0.0.93-cp39-cp39-win_amd64.whl", hash = "sha256:7e297a2a0c257b2b23a5a0a7a2f0b9e5b8f5a3f012b048837ca452c49fc8d9c0"},
-    {file = "crosshair_tool-0.0.93.tar.gz", hash = "sha256:f9fbdffb9f1b7d1bc9adfe383093237cc2a0a4721bfcd92e7634dcf3ad4701b8"},
+    {file = "crosshair_tool-0.0.94-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:e1b3146635d8b9c27098d92eb2c1b0ada11d1ba0fc78b972d25385da826099cd"},
+    {file = "crosshair_tool-0.0.94-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:b15bafdc8e65a34c4a80d2dab9da283ac7458ef9e1e16a32650d36c841d48e63"},
+    {file = "crosshair_tool-0.0.94-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:c3316075244497f570a25200f1bce96f3e14883782b2e866fcec935878fd7e0d"},
+    {file = "crosshair_tool-0.0.94-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ba7fe5e05adc2470f280f4d7a50c5783e8b0565bdaf22dc4bc8e02c8ee78c229"},
+    {file = "crosshair_tool-0.0.94-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:3379f86d3a37e3e6c81ab679be858f1e831a18ad611f657e4917a9805c583cc7"},
+    {file = "crosshair_tool-0.0.94-cp310-cp310-win32.whl", hash = "sha256:91bbe3e71ab6b19bf5abd1ac8488ae516d9846f4b549fe4000e4794ed2ba48c7"},
+    {file = "crosshair_tool-0.0.94-cp310-cp310-win_amd64.whl", hash = "sha256:00962baa396537c5a77a32663aa88c56bb2dcb5c654f807fa0eafb19a9fa3b45"},
+    {file = "crosshair_tool-0.0.94-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:a7c7973c0873bd43b8182f629a108ec91b03c675e520d6fbba3230d68edf7869"},
+    {file = "crosshair_tool-0.0.94-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:a491c6c38c1bc04dcf12c9b005bf513563c7f900edba777e91f878ba85801676"},
+    {file = "crosshair_tool-0.0.94-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:f42e794ef63c470060f7d7e34f22130e6444be6caecb626b3725d1dc60eacaba"},
+    {file = "crosshair_tool-0.0.94-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:38405f3683020f3068a40c32bb34e0c12df0a2ec6f0e24668390fc278e6999f6"},
+    {file = "crosshair_tool-0.0.94-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:94a2951e1c8e89782b789de42fb4818c4d1f1cedfb37e758e23c6a87b9287dfa"},
+    {file = "crosshair_tool-0.0.94-cp311-cp311-win32.whl", hash = "sha256:f7006840c756024a76870ddd3d5cf4c93740539279cc939a91263c53b1174f39"},
+    {file = "crosshair_tool-0.0.94-cp311-cp311-win_amd64.whl", hash = "sha256:a6617dca0c88ccb5afdcd5ded4664d79b51d6d82dda29b44e60f135278bea35f"},
+    {file = "crosshair_tool-0.0.94-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:26d3ca1e54deddcb17ea06d974ffc7bc1b310d7220ee94111aae7e5d770ca37f"},
+    {file = "crosshair_tool-0.0.94-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:80d9c7a916fe7bd8ac9ca0b1b2233e9b15c43c62f678a25d40018bf85c9df11b"},
+    {file = "crosshair_tool-0.0.94-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:aa72032c723e00e6debdb6abd60d9ae7d0c12635967de4333d8981e05d7be90a"},
+    {file = "crosshair_tool-0.0.94-cp312-cp312-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:53309701ffe92fe180fb3f882bbc1c3c7bb4c2349cdcc0547ea948a3ac64dcd7"},
+    {file = "crosshair_tool-0.0.94-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:b11aae9ffb57bae0576761c823d9b4d0ce180d7628c25593a49d00a9b59c04c3"},
+    {file = "crosshair_tool-0.0.94-cp312-cp312-win32.whl", hash = "sha256:c9f299c97a35f756d53f9d391340f10178f5a10b8457622830977d7e6a5e0d32"},
+    {file = "crosshair_tool-0.0.94-cp312-cp312-win_amd64.whl", hash = "sha256:9f8f98c73a869323c356a1c7b35829e76ff70bd6af877f26ffe788bd4bd9e8e8"},
+    {file = "crosshair_tool-0.0.94-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:0268dd0cbed0613b3f454d34a9442015cc681a68ab2f9a50d6cd44073bb81049"},
+    {file = "crosshair_tool-0.0.94-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:d7f59204aa004685acfe9e430d031ee750b3b51e0daf001b777c4cf6fe57c743"},
+    {file = "crosshair_tool-0.0.94-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:c28ec058b3544911aa66d3290b589ab4bd3c3a8458c1a865b2deb9e90f571789"},
+    {file = "crosshair_tool-0.0.94-cp313-cp313-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:0067602250ee24a89213ad283fe6c6c0525a37ddb4c686dc96379b2c6111c0cd"},
+    {file = "crosshair_tool-0.0.94-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:7f68e63328fe32cf757e16cddc8dac68e5461dad9df11d5abe719e4e97e62a8d"},
+    {file = "crosshair_tool-0.0.94-cp313-cp313-win32.whl", hash = "sha256:a84959b60a1405a4c041813e4476a5922cc131db78cc7fcca0018e6dcf5af41e"},
+    {file = "crosshair_tool-0.0.94-cp313-cp313-win_amd64.whl", hash = "sha256:3177a75fff6e64e595f3de67b7165a7dcc757605936d6e54f2a949a84d0c53c8"},
+    {file = "crosshair_tool-0.0.94-cp38-cp38-macosx_10_9_universal2.whl", hash = "sha256:14fc2757681a2b0fadc1ac897c61c3b299a088676d9bb8cd0828fc37483dac40"},
+    {file = "crosshair_tool-0.0.94-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:58b9edb5eaea63344dcd4fab11691a30af84d8c563e6e31a0448c0fadf8e5dc4"},
+    {file = "crosshair_tool-0.0.94-cp38-cp38-macosx_11_0_arm64.whl", hash = "sha256:7d93d760289efc6347bac010d3da28793e8632baefcc21f29ef40a297f72d3ed"},
+    {file = "crosshair_tool-0.0.94-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:2ace575a00aef89d7182d670a0e66b224ea4c9429c38b600fa7f62e010c0a8ea"},
+    {file = "crosshair_tool-0.0.94-cp38-cp38-musllinux_1_2_x86_64.whl", hash = "sha256:5d7ca54e1cfc9c6e51f4bc4d81cb3702a0a9883c751f3498042fff9ee76b6dce"},
+    {file = "crosshair_tool-0.0.94-cp38-cp38-win32.whl", hash = "sha256:11a4e14b116fcb3248eb487eb699c1854a4e0983d27d4665a5a771986c64da86"},
+    {file = "crosshair_tool-0.0.94-cp38-cp38-win_amd64.whl", hash = "sha256:bfcf4d2a8c24226bd6503fb1d3fcbb573295d12b38f20454ecef08ac2f7a869a"},
+    {file = "crosshair_tool-0.0.94-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:7e358548acb1ced8e2485dfa82855d6351960c7d894986864615717c142b23b2"},
+    {file = "crosshair_tool-0.0.94-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:60e950593537ea972dbbf84daaf8ada014b92c2736f336d59a52b219114aaa84"},
+    {file = "crosshair_tool-0.0.94-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:aae29e2942127e1beee08bb06183ec8d3d7e0095893f0836dd2800e46c50c55d"},
+    {file = "crosshair_tool-0.0.94-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:7dd4cc4b502149f1873ed6b4596a9ebe25a59523f37bc0ad4b029731f8967d7f"},
+    {file = "crosshair_tool-0.0.94-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:119e9f92afdede6b03d2154563187111d70ab4bdb56bd89c36c71c07f8fc756e"},
+    {file = "crosshair_tool-0.0.94-cp39-cp39-win32.whl", hash = "sha256:5bab93c15ee892793dbf28e7f7af3805237953c19ab7759093d76c117c0fadad"},
+    {file = "crosshair_tool-0.0.94-cp39-cp39-win_amd64.whl", hash = "sha256:26a6b2fe1e8403d0ed73012796d6fe819e7fe88657810f82c53c65d3b20157b7"},
+    {file = "crosshair_tool-0.0.94.tar.gz", hash = "sha256:97ddc38946cd7c9aba12a1a4eed411b0cfac528ecf947f7a96e9ec00ada4f346"},
 ]
 
 [package.dependencies]
@@ -1266,20 +1279,20 @@ files = [
 
 [[package]]
 name = "langchain-core"
-version = "0.3.68"
+version = "0.3.69"
 description = "Building applications with LLMs through composability"
 optional = false
 python-versions = ">=3.9"
 groups = ["main", "test"]
 files = [
-    {file = "langchain_core-0.3.68-py3-none-any.whl", hash = "sha256:5e5c1fbef419590537c91b8c2d86af896fbcbaf0d5ed7fdcdd77f7d8f3467ba0"},
-    {file = "langchain_core-0.3.68.tar.gz", hash = "sha256:312e1932ac9aa2eaf111b70fdc171776fa571d1a86c1f873dcac88a094b19c6f"},
+    {file = "langchain_core-0.3.69-py3-none-any.whl", hash = "sha256:383e9cb4919f7ef4b24bf8552ef42e4323c064924fea88b28dd5d7ddb740d3b8"},
+    {file = "langchain_core-0.3.69.tar.gz", hash = "sha256:c132961117cc7f0227a4c58dd3e209674a6dd5b7e74abc61a0df93b0d736e283"},
 ]
 
 [package.dependencies]
 jsonpatch = ">=1.33,<2.0"
 langsmith = ">=0.3.45"
-packaging = ">=23.2,<25"
+packaging = ">=23.2"
 pydantic = ">=2.7.4"
 PyYAML = ">=5.3"
 tenacity = ">=8.1.0,<8.4.0 || >8.4.0,<10.0.0"
@@ -1287,14 +1300,14 @@ typing-extensions = ">=4.7"
 
 [[package]]
 name = "langsmith"
-version = "0.4.5"
+version = "0.4.6"
 description = "Client library to connect to the LangSmith LLM Tracing and Evaluation Platform."
 optional = false
 python-versions = ">=3.9"
 groups = ["main", "test"]
 files = [
-    {file = "langsmith-0.4.5-py3-none-any.whl", hash = "sha256:4167717a2cccc4dff5809dbddc439628e836f6fd13d4fdb31ea013bc8d5cfaf5"},
-    {file = "langsmith-0.4.5.tar.gz", hash = "sha256:49444bd8ccd4e46402f1b9ff1d686fa8e3a31b175e7085e72175ab8ec6164a34"},
+    {file = "langsmith-0.4.6-py3-none-any.whl", hash = "sha256:900e83fe59ee672bcf2f75c8bb47cd012bf8154d92a99c0355fc38b6485cbd3e"},
+    {file = "langsmith-0.4.6.tar.gz", hash = "sha256:9189dbc9c60f2086ca3a1f0110cfe3aff6b0b7c2e0e3384f9572e70502e7933c"},
 ]
 
 [package.dependencies]
@@ -2768,17 +2781,18 @@ dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "requests
 
 [[package]]
 name = "pytest-asyncio"
-version = "1.0.0"
+version = "1.1.0"
 description = "Pytest support for asyncio"
 optional = false
 python-versions = ">=3.9"
 groups = ["test"]
 files = [
-    {file = "pytest_asyncio-1.0.0-py3-none-any.whl", hash = "sha256:4f024da9f1ef945e680dc68610b52550e36590a67fd31bb3b4943979a1f90ef3"},
-    {file = "pytest_asyncio-1.0.0.tar.gz", hash = "sha256:d15463d13f4456e1ead2594520216b225a16f781e144f8fdf6c5bb4667c48b3f"},
+    {file = "pytest_asyncio-1.1.0-py3-none-any.whl", hash = "sha256:5fe2d69607b0bd75c656d1211f969cadba035030156745ee09e7d71740e58ecf"},
+    {file = "pytest_asyncio-1.1.0.tar.gz", hash = "sha256:796aa822981e01b68c12e4827b8697108f7205020f24b5793b3c41555dab68ea"},
 ]
 
 [package.dependencies]
+backports-asyncio-runner = {version = ">=1.1,<2", markers = "python_version < \"3.11\""}
 pytest = ">=8.2,<9"
 typing-extensions = {version = ">=4.12", markers = "python_version < \"3.10\""}
 
@@ -3764,18 +3778,18 @@ files = [
 
 [[package]]
 name = "typeshed-client"
-version = "2.7.0"
+version = "2.8.2"
 description = "A library for accessing stubs in typeshed."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["dev"]
 files = [
-    {file = "typeshed_client-2.7.0-py3-none-any.whl", hash = "sha256:97084e5abc58a76ace2c4618ecaebd625f2d19bbd85aa1b3fb86216bf174bbea"},
-    {file = "typeshed_client-2.7.0.tar.gz", hash = "sha256:e63df1e738588ad39f1226de042f4407ab6a99c456f0837063afd83b1415447c"},
+    {file = "typeshed_client-2.8.2-py3-none-any.whl", hash = "sha256:4cf886d976c777689cd31889f13abf5bfb7797c82519b07e5969e541380c75ee"},
+    {file = "typeshed_client-2.8.2.tar.gz", hash = "sha256:9d8e29fb74574d87bf9a719f77131dc40f2aeea20e97d25d4a3dc2cc30debd31"},
 ]
 
 [package.dependencies]
-importlib-resources = ">=1.4.0"
+importlib_resources = ">=1.4.0"
 typing-extensions = ">=4.5.0"
 
 [[package]]
