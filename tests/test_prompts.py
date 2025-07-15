@@ -14,6 +14,7 @@ from galileo.prompts import (
     get_prompt_template,
     get_prompts,
     list_prompt_templates,
+    update_prompt,
 )
 from galileo.resources.models import (
     BasePromptTemplateResponse,
@@ -25,6 +26,7 @@ from galileo.resources.models import (
     ProjectDB,
     PromptTemplateNameFilter,
     PromptTemplateNameFilterOperator,
+    UpdatePromptTemplateRequest,
 )
 from galileo.resources.types import Response
 
@@ -66,7 +68,7 @@ def prompt_template():
             "name": "andrii-good-prompt",
             "created_at": "2025-03-03T21:17:44.232862+00:00",
             "updated_at": "2025-03-03T21:17:44.232862+00:00",
-            "creator": {
+            "created_by_user": {
                 "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
                 "email": "andriisoldatenko@galileo.ai",
                 "first_name": "Andrii",
@@ -85,6 +87,12 @@ def prompt_template():
                 "settings_changed": False,
                 "created_at": "2025-03-03T21:17:44.232862+00:00",
                 "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                "created_by_user": {
+                    "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                    "email": "test@galileo.ai",
+                    "first_name": "Test",
+                    "last_name": "User",
+                },
             },
             "selected_version_id": "03487fd7-1032-4317-ac43-a68401c07ee9",
             "template": '[{"content":"you are a helpful assistant","role":"system"},{"content":"why is sky blue?","role":"user"}]',
@@ -102,6 +110,12 @@ def prompt_template():
                     "settings_changed": False,
                     "created_at": "2025-03-03T21:17:44.232862+00:00",
                     "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                    "created_by_user": {
+                        "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                        "email": "test@galileo.ai",
+                        "first_name": "Test",
+                        "last_name": "User",
+                    },
                 }
             ],
         }
@@ -117,7 +131,7 @@ def global_prompt_template():
             "name": "global-helpful-assistant",
             "created_at": "2025-03-03T21:17:44.232862+00:00",
             "updated_at": "2025-03-03T21:17:44.232862+00:00",
-            "creator": {
+            "created_by_user": {
                 "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
                 "email": "test@galileo.ai",
                 "first_name": "Test",
@@ -136,6 +150,12 @@ def global_prompt_template():
                 "settings_changed": False,
                 "created_at": "2025-03-03T21:17:44.232862+00:00",
                 "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                "created_by_user": {
+                    "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                    "email": "test@galileo.ai",
+                    "first_name": "Test",
+                    "last_name": "User",
+                },
             },
             "selected_version_id": "global-version-id-456",
             "template": '[{"content":"you are a global helpful assistant","role":"system"}]',
@@ -153,6 +173,12 @@ def global_prompt_template():
                     "settings_changed": False,
                     "created_at": "2025-03-03T21:17:44.232862+00:00",
                     "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                    "created_by_user": {
+                        "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                        "email": "test@galileo.ai",
+                        "first_name": "Test",
+                        "last_name": "User",
+                    },
                 },
                 {
                     "id": "global-version-id-456",
@@ -166,6 +192,12 @@ def global_prompt_template():
                     "settings_changed": False,
                     "created_at": "2025-03-03T21:17:44.232862+00:00",
                     "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                    "created_by_user": {
+                        "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                        "email": "test@galileo.ai",
+                        "first_name": "Test",
+                        "last_name": "User",
+                    },
                 },
             ],
         }
@@ -186,6 +218,12 @@ def global_prompt_template_version():
             "settings_changed": False,
             "created_at": "2025-03-03T21:17:44.232862+00:00",
             "updated_at": "2025-03-03T21:17:44.232862+00:00",
+            "created_by_user": {
+                "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                "email": "test@galileo.ai",
+                "first_name": "Test",
+                "last_name": "User",
+            },
         }
     )
 
@@ -201,7 +239,7 @@ def global_templates_list_response():
                     "name": "global-helpful-assistant",
                     "created_at": "2025-03-03T21:17:44.232862+00:00",
                     "updated_at": "2025-03-03T21:17:44.232862+00:00",
-                    "creator": {
+                    "created_by_user": {
                         "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
                         "email": "test@galileo.ai",
                         "first_name": "Test",
@@ -220,6 +258,12 @@ def global_templates_list_response():
                         "settings_changed": False,
                         "created_at": "2025-03-03T21:17:44.232862+00:00",
                         "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                        "created_by_user": {
+                            "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                            "email": "test@galileo.ai",
+                            "first_name": "Test",
+                            "last_name": "User",
+                        },
                     },
                     "selected_version_id": "global-version-id-456",
                     "template": '[{"content":"you are a global helpful assistant","role":"system"}]',
@@ -237,6 +281,12 @@ def global_templates_list_response():
                             "settings_changed": False,
                             "created_at": "2025-03-03T21:17:44.232862+00:00",
                             "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                            "created_by_user": {
+                                "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                                "email": "test@galileo.ai",
+                                "first_name": "Test",
+                                "last_name": "User",
+                            },
                         },
                         {
                             "id": "global-version-id-456",
@@ -250,6 +300,12 @@ def global_templates_list_response():
                             "settings_changed": False,
                             "created_at": "2025-03-03T21:17:44.232862+00:00",
                             "updated_at": "2025-03-03T21:17:44.232862+00:00",
+                            "created_by_user": {
+                                "id": "01ce18ac-3960-46e1-bb79-0e4965069add",
+                                "email": "test@galileo.ai",
+                                "first_name": "Test",
+                                "last_name": "User",
+                            },
                         },
                     ],
                 }
@@ -588,3 +644,157 @@ def test_delete_global_prompt_template_validation_errors():
     with pytest.raises(ValueError) as exc_info:
         delete_prompt(id=None, name=None)
     assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
+
+
+@patch("galileo.prompts.update_global_template_templates_template_id_patch")
+def test_update_global_prompt_template_by_id(update_global_template_mock: Mock):
+    """Test update_prompt with template ID."""
+    updated_template = global_prompt_template()
+    updated_template.name = "updated-template-name"
+
+    update_global_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=updated_template
+    )
+
+    template = update_prompt(id="global-template-id-123", new_name="updated-template-name")
+
+    assert template is not None
+    assert template.name == "updated-template-name"
+    assert template.id == "global-template-id-123"
+    update_global_template_mock.sync_detailed.assert_called_once_with(
+        template_id="global-template-id-123", client=ANY, body=UpdatePromptTemplateRequest(name="updated-template-name")
+    )
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.prompts.update_global_template_templates_template_id_patch")
+def test_update_global_prompt_template_by_name(update_global_template_mock: Mock, query_templates_mock: Mock):
+    """Test update_prompt with template name."""
+    query_templates_mock.sync.return_value = global_templates_list_response()
+
+    updated_template = global_prompt_template()
+    updated_template.name = "updated-template-name"
+
+    update_global_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=updated_template
+    )
+
+    template = update_prompt(name="global-helpful-assistant", new_name="updated-template-name")
+
+    assert template is not None
+    assert template.name == "updated-template-name"
+    assert template.id == "global-template-id-123"
+
+    query_templates_mock.sync.assert_called_once()
+    update_global_template_mock.sync_detailed.assert_called_once_with(
+        template_id="global-template-id-123", client=ANY, body=UpdatePromptTemplateRequest(name="updated-template-name")
+    )
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+def test_update_global_prompt_template_by_name_not_found(query_templates_mock: Mock):
+    """Test update_prompt when template is not found by name."""
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
+    with pytest.raises(ValueError) as exc_info:
+        update_prompt(name="nonexistent-template", new_name="new-name")
+
+    assert "Global template 'nonexistent-template' not found" in str(exc_info.value)
+    query_templates_mock.sync.assert_called_once()
+
+
+@patch("galileo.prompts.update_global_template_templates_template_id_patch")
+def test_update_global_prompt_template_error_scenarios(update_global_template_mock: Mock):
+    """Test update_prompt with realistic error scenarios."""
+
+    # Test 422 Unprocessable Entity
+    update_global_template_mock.sync_detailed.return_value = Response(
+        content=b'{"detail":[{"loc":["body","name"],"msg":"field required","type":"value_error.missing"}]}',
+        status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+        headers={},
+        parsed=HTTPValidationError(),
+    )
+
+    with pytest.raises(PromptTemplateAPIException) as exc_info:
+        update_prompt(id="global-template-id-123", new_name="new-name")
+    assert "field required" in str(exc_info.value)
+
+    # Test 404 Not Found
+    update_global_template_mock.sync_detailed.return_value = Response(
+        content=b'{"detail":"Template not found"}', status_code=HTTPStatus.NOT_FOUND, headers={}, parsed=None
+    )
+
+    with pytest.raises(PromptTemplateAPIException) as exc_info:
+        update_prompt(id="nonexistent-template-id", new_name="new-name")
+    assert "Template not found" in str(exc_info.value)
+
+    # Test 500 Internal Server Error
+    update_global_template_mock.sync_detailed.return_value = Response(
+        content=b'{"detail":"Internal server error"}',
+        status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+        headers={},
+        parsed=None,
+    )
+
+    with pytest.raises(PromptTemplateAPIException) as exc_info:
+        update_prompt(id="global-template-id-123", new_name="new-name")
+    assert "Internal server error" in str(exc_info.value)
+
+    assert update_global_template_mock.sync_detailed.call_count == 3
+
+
+def test_update_global_prompt_template_validation_errors():
+    """Test all validation error scenarios for update_prompt."""
+
+    # Test no parameters provided
+    with pytest.raises(ValueError) as exc_info:
+        update_prompt(new_name="new-name")  # type: ignore[call-overload]
+    assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
+
+    # Test both id and name provided
+    with pytest.raises(ValueError) as exc_info:
+        update_prompt(id="id", name="name", new_name="new-name")  # type: ignore[call-overload]
+    assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
+
+    # Test both None
+    with pytest.raises(ValueError) as exc_info:
+        update_prompt(id=None, name=None, new_name="new-name")  # type: ignore[call-overload]
+    assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
+
+
+@patch("galileo.prompts.update_global_template_templates_template_id_patch")
+def test_update_global_prompt_template_with_empty_name(update_global_template_mock: Mock):
+    """Test update_prompt with empty name (should be handled by API validation)."""
+    update_global_template_mock.sync_detailed.return_value = Response(
+        content=b'{"detail":[{"loc":["body","name"],"msg":"ensure this value has at least 1 characters","type":"value_error.any_str.min_length"}]}',
+        status_code=HTTPStatus.UNPROCESSABLE_ENTITY,
+        headers={},
+        parsed=HTTPValidationError(),
+    )
+
+    with pytest.raises(PromptTemplateAPIException) as exc_info:
+        update_prompt(id="global-template-id-123", new_name="")
+    assert "ensure this value has at least 1 characters" in str(exc_info.value)
+
+    update_global_template_mock.sync_detailed.assert_called_once_with(
+        template_id="global-template-id-123", client=ANY, body=UpdatePromptTemplateRequest(name="")
+    )
+
+
+@patch("galileo.prompts.update_global_template_templates_template_id_patch")
+def test_update_global_prompt_template_successful_response_with_http_validation_error(
+    update_global_template_mock: Mock,
+):
+    """Test update_prompt when API returns HTTPValidationError as parsed response."""
+    update_global_template_mock.sync_detailed.return_value = Response(
+        content=b'{"detail":"Some validation error"}',
+        status_code=HTTPStatus.OK,
+        headers={},
+        parsed=HTTPValidationError(),
+    )
+
+    with pytest.raises(PromptTemplateAPIException) as exc_info:
+        update_prompt(id="global-template-id-123", new_name="new-name")
+    assert "Some validation error" in str(exc_info.value)
+
+    update_global_template_mock.sync_detailed.assert_called_once()

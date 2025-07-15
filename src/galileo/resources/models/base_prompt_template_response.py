@@ -24,7 +24,7 @@ class BasePromptTemplateResponse:
     Attributes:
         all_available_versions (list[int]):
         created_at (datetime.datetime):
-        creator (Union['UserInfo', None]):
+        created_by_user (Union['UserInfo', None]):
         id (str):
         max_version (int):
         name (str):
@@ -39,7 +39,7 @@ class BasePromptTemplateResponse:
 
     all_available_versions: list[int]
     created_at: datetime.datetime
-    creator: Union["UserInfo", None]
+    created_by_user: Union["UserInfo", None]
     id: str
     max_version: int
     name: str
@@ -59,11 +59,11 @@ class BasePromptTemplateResponse:
 
         created_at = self.created_at.isoformat()
 
-        creator: Union[None, dict[str, Any]]
-        if isinstance(self.creator, UserInfo):
-            creator = self.creator.to_dict()
+        created_by_user: Union[None, dict[str, Any]]
+        if isinstance(self.created_by_user, UserInfo):
+            created_by_user = self.created_by_user.to_dict()
         else:
-            creator = self.creator
+            created_by_user = self.created_by_user
 
         id = self.id
 
@@ -101,7 +101,7 @@ class BasePromptTemplateResponse:
             {
                 "all_available_versions": all_available_versions,
                 "created_at": created_at,
-                "creator": creator,
+                "created_by_user": created_by_user,
                 "id": id,
                 "max_version": max_version,
                 "name": name,
@@ -130,20 +130,20 @@ class BasePromptTemplateResponse:
 
         created_at = isoparse(d.pop("created_at"))
 
-        def _parse_creator(data: object) -> Union["UserInfo", None]:
+        def _parse_created_by_user(data: object) -> Union["UserInfo", None]:
             if data is None:
                 return data
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                creator_type_0 = UserInfo.from_dict(data)
+                created_by_user_type_0 = UserInfo.from_dict(data)
 
-                return creator_type_0
+                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None], data)
 
-        creator = _parse_creator(d.pop("creator"))
+        created_by_user = _parse_created_by_user(d.pop("created_by_user"))
 
         id = d.pop("id")
 
@@ -178,7 +178,7 @@ class BasePromptTemplateResponse:
         base_prompt_template_response = cls(
             all_available_versions=all_available_versions,
             created_at=created_at,
-            creator=creator,
+            created_by_user=created_by_user,
             id=id,
             max_version=max_version,
             name=name,
