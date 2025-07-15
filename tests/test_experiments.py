@@ -782,5 +782,6 @@ class TestExperiments:
         assert exc_info.value.status_code == 500
         assert exc_info.value.response_text == str(b'{"detail":"mocked error"}')
         mock_get_project.assert_called_once_with(name="awesome-new-project")
-        mock_create_experiment.assert_called_once_with(ANY, "test_experiment")
+        assert mock_create_experiment.call_args[0][0] == "00000000-0000-0000-0000-000000000000"
+        assert mock_create_experiment.call_args[0][1] == "test_experiment"
         mock_create_job_sync.assert_called_once()
