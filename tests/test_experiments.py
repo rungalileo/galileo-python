@@ -32,6 +32,7 @@ from galileo.resources.models import (
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
 from galileo.utils.datasets import load_dataset_and_records
+from galileo_core.exceptions.http import GalileoHTTPException
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.shared.metric import MetricValueType
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
@@ -758,11 +759,13 @@ class TestExperiments:
         mock_create_job_sync: Mock,
         dataset_content: DatasetContent,
     ):
-        mock_create_job_sync.return_value = MagicMock(parsed=None, content=b'{"detail":"mocked error"}')
+        mock_create_job_sync.return_value = MagicMock(
+            parsed=None, content=b'{"detail":"mocked error"}', status_code=500
+        )
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
-        with pytest.raises(ValueError) as exc_info:
+        with pytest.raises(GalileoHTTPException) as exc_info:
             run_experiment(
                 "test_experiment",
                 project="awesome-new-project",
@@ -770,7 +773,9 @@ class TestExperiments:
                 prompt_template=prompt_template(),
             )
 
-        assert "create job failed" in str(exc_info.value)
+        assert exc_info.value.message == "Create job failed"
+        assert exc_info.value.status_code == 500
+        assert exc_info.value.response_text == str(b'{"detail":"mocked error"}')
         mock_get_project.assert_called_once_with(name="awesome-new-project")
         mock_create_experiment.assert_called_once_with(ANY, "test_experiment")
         mock_create_job_sync.assert_called_once()
