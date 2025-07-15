@@ -46,7 +46,7 @@ class ExperimentCreateRequest:
 
 
 class Experiments(BaseClientModel):
-    def create(self, project_id: str, name: str, dataset_obj: Dataset | None = None) -> ExperimentResponse:
+    def create(self, project_id: str, name: str, dataset_obj: Optional[Dataset] = None) -> ExperimentResponse:
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
         if dataset_obj is not None:
             dataset = {"dataset_id": dataset_obj.dataset.id, "version_index": dataset_obj.dataset.current_version_index}
