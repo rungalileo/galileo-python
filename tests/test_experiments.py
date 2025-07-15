@@ -273,7 +273,7 @@ class TestExperiments:
         mock_get_project.assert_called_once_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with(project().id, "test_experiment")
         mock_create_experiment.assert_called_once_with(
-            project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000"
+            project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000", mock_get_dataset.return_value
         )
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
@@ -402,7 +402,7 @@ class TestExperiments:
         assert f"/project/{project().id}/experiments/{experiment_response().id}" in result["link"]
         mock_get_project.assert_called_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", "test_experiment")
-        mock_create_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", ANY)
+        mock_create_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", ANY, mock_get_dataset.return_value)
 
         mock_get_dataset.assert_called_once_with(id="00000000-0000-4000-8000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
@@ -478,7 +478,7 @@ class TestExperiments:
         mock_get_project.assert_called_once_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with(project().id, "test_experiment")
         mock_create_experiment.assert_called_once_with(
-            project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000"
+            project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000", mock_get_dataset.return_value
         )
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
@@ -522,7 +522,7 @@ class TestExperiments:
         mock_get_project.assert_called_once_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with(project().id, "test_experiment")
         mock_create_experiment.assert_called_once_with(
-            project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000"
+            project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000", mock_get_dataset.return_value
         )
 
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
@@ -582,7 +582,7 @@ class TestExperiments:
 
         mock_get_project.assert_called_with(name="awesome-new-project")
         mock_get_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", "test_experiment")
-        mock_create_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", ANY)
+        mock_create_experiment.assert_called_once_with("00000000-0000-0000-0000-000000000000", ANY, mock_get_dataset.return_value)
 
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
