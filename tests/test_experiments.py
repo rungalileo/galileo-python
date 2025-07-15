@@ -32,6 +32,7 @@ from galileo.resources.models import (
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
 from galileo.utils.datasets import load_dataset_and_records
+from galileo_core.exceptions.http import GalileoHTTPException
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.shared.metric import MetricValueType
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
@@ -748,3 +749,39 @@ class TestExperiments:
 
         assert len(scorers) == 2  # Should return two valid scorers
         assert len(local_scorers) == 1  # One local scorer
+
+    @patch("galileo.jobs.create_job_jobs_post.sync_detailed")
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=None)
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_job_creation_failure(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_dataset: Mock,
+        mock_create_job_sync: Mock,
+        dataset_content: DatasetContent,
+    ):
+        mock_create_job_sync.return_value = MagicMock(
+            parsed=None, content=b'{"detail":"mocked error"}', status_code=500
+        )
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        with pytest.raises(GalileoHTTPException) as exc_info:
+            run_experiment(
+                "test_experiment",
+                project="awesome-new-project",
+                dataset_id=str(UUID(int=0)),
+                prompt_template=prompt_template(),
+            )
+
+        assert exc_info.value.message == "Create job failed"
+        assert exc_info.value.status_code == 500
+        assert exc_info.value.response_text == str(b'{"detail":"mocked error"}')
+        mock_get_project.assert_called_once_with(name="awesome-new-project")
+        assert mock_create_experiment.call_args[0][0] == "00000000-0000-0000-0000-000000000000"
+        assert mock_create_experiment.call_args[0][1] == "test_experiment"
+        mock_create_job_sync.assert_called_once()
