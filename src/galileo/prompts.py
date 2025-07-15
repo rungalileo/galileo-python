@@ -15,6 +15,7 @@ from galileo.resources.api.prompts import (
     get_project_templates_projects_project_id_templates_get,
     get_template_from_project_projects_project_id_templates_template_id_get,
     query_templates_templates_query_post,
+    update_global_template_templates_template_id_patch,
 )
 from galileo.resources.models import (
     BasePromptTemplateResponse,
@@ -24,6 +25,7 @@ from galileo.resources.models import (
     ListPromptTemplateParams,
     PromptTemplateNameFilter,
     PromptTemplateNameFilterOperator,
+    UpdatePromptTemplateRequest,
 )
 from galileo.resources.types import Unset
 from galileo.utils.exceptions import APIException
@@ -246,6 +248,43 @@ class GlobalPromptTemplates(BaseClientModel):
 
         return PromptTemplate(prompt_template=response.parsed)
 
+    def update(self, *, template_id: str, name: str) -> PromptTemplate:
+        """
+        Update a global prompt template.
+
+        Parameters
+        ----------
+        template_id : str
+            The ID of the template to update.
+        name : str
+            The new name for the template.
+
+        Returns
+        -------
+        PromptTemplate
+            The updated prompt template.
+
+        Raises
+        ------
+        PromptTemplateAPIException
+            If the API request fails or returns an error.
+        """
+        body = UpdatePromptTemplateRequest(name=name)
+
+        _logger.debug(f"Updating global template {template_id}: {body}")
+        response = update_global_template_templates_template_id_patch.sync_detailed(
+            template_id=template_id, client=self.client, body=body
+        )
+
+        if response.status_code != 200:
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
+
+        if not response.parsed or isinstance(response.parsed, HTTPValidationError):
+            _logger.error(response)
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
+
+        return PromptTemplate(prompt_template=response.parsed)
+
 
 def create_prompt_template(name: str, project: str, messages: Union[list[Message], str]) -> Optional[PromptTemplate]:
     warnings.warn("create_prompt_template is deprecated, use create_prompt instead.", DeprecationWarning, stacklevel=2)
@@ -357,6 +396,62 @@ def delete_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> No
         If neither or both id and name are provided, or if the template is not found.
     """
     return GlobalPromptTemplates().delete(template_id=id, name=name)  # type: ignore[call-overload]
+
+
+@overload
+def update_prompt(*, id: str, new_name: str) -> PromptTemplate: ...
+
+
+@overload
+def update_prompt(*, name: str, new_name: str) -> PromptTemplate: ...
+
+
+def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_name: str) -> PromptTemplate:
+    """
+    Update a global prompt template by ID or name.
+
+    Parameters
+    ----------
+    id : str, optional
+        The unique identifier of the template to update. Defaults to None.
+    name : str, optional
+        The name of the template to update. Defaults to None.
+    new_name : str
+        The new name for the template.
+
+    Returns
+    -------
+    PromptTemplate
+        The updated prompt template.
+
+    Raises
+    ------
+    ValueError
+        If neither or both id and name are provided, or if the template is not found.
+    PromptTemplateAPIException
+        If the API request fails or returns an error.
+
+    Examples
+    --------
+    >>> # Update template by ID
+    >>> template = update_prompt(id="template-id-123", new_name="new-name")
+
+    >>> # Update template by existing name
+    >>> template = update_prompt(name="old-name", new_name="new-name")
+    """
+    if (id is None) == (name is None):
+        raise ValueError("Exactly one of 'id' or 'name' must be provided")
+
+    if id:
+        return GlobalPromptTemplates().update(template_id=id, name=new_name)
+    elif name:
+        template = GlobalPromptTemplates().get(name=name)
+        if not template:
+            raise ValueError(f"Global template '{name}' not found")
+        return GlobalPromptTemplates().update(template_id=template.id, name=new_name)
+    else:
+        # Line won't be reached but mypy complains without this
+        raise ValueError("Invalid state: neither id nor name is provided")
 
 
 def create_prompt(name: str, template: Union[list[Message], str]) -> PromptTemplate:
