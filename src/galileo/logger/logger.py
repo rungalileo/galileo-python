@@ -227,6 +227,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
     def start_trace(
         self,
         input: StepAllowedInputType,
+        redacted_input: Optional[StepAllowedInputType] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -244,6 +245,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         Parameters:
         ----------
         input: StepAllowedInputType: Input to the node.
+        redacted_input: Optional[StepAllowedInputType]: Redacted input to the node.
         name: Optional[str]: Name of the trace.
         duration_ns: Optional[int]: Duration of the trace in nanoseconds.
         created_at: Optional[datetime]: Timestamp of the trace's creation.
@@ -257,6 +259,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         """
         kwargs = dict(
             input=input,
+            redacted_input=redacted_input,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -277,6 +280,8 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         input: LlmSpanAllowedInputType,
         output: LlmSpanAllowedOutputType,
         model: Optional[str],
+        redacted_input: Optional[LlmSpanAllowedInputType] = None,
+        redacted_output: Optional[LlmSpanAllowedOutputType] = None,
         tools: Optional[list[dict]] = None,
         name: Optional[str] = None,
         created_at: Optional[datetime] = None,
@@ -301,7 +306,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         ----------
             input: LlmStepAllowedIOType: Input to the node.
             output: LlmStepAllowedIOType: Output of the node.
-            model: str: Model used for this span. Feedback from April: Good docs about what model names we use.
+            model: Optional[str]: Model used for this span. Feedback from April: Good docs about what model names we use.
+            redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
+            redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
             tools: Optional[List[Dict]]: List of available tools passed to LLM on invocation.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
@@ -322,6 +329,8 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         return super().add_single_llm_span_trace(
             input=input,
             output=output,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             model=model,
             tools=tools,
             name=name,
@@ -347,6 +356,8 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         input: LlmSpanAllowedInputType,
         output: LlmSpanAllowedOutputType,
         model: Optional[str],
+        redacted_input: Optional[LlmSpanAllowedInputType] = None,
+        redacted_output: Optional[LlmSpanAllowedOutputType] = None,
         tools: Optional[list[dict]] = None,
         name: Optional[str] = None,
         created_at: Optional[datetime] = None,
@@ -369,6 +380,8 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             input: LlmStepAllowedIOType: Input to the node.
             output: LlmStepAllowedIOType: Output of the node.
             model: str: Model used for this span.
+            redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
+            redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
             tools: Optional[List[Dict]]: List of available tools passed to LLM on invocation.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
@@ -389,6 +402,8 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             input=input,
             output=output,
             model=model,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             tools=tools,
             name=name,
             created_at=created_at,
@@ -409,6 +424,8 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         self,
         input: str,
         output: RetrieverSpanAllowedOutputType,
+        redacted_input: Optional[str] = None,
+        redacted_output: RetrieverSpanAllowedOutputType = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -422,9 +439,12 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
 
         Parameters:
         ----------
-            input: StepIOType: Input to the node.
+            input: str: Input to the node.
             output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]:
                 Documents retrieved from the retriever.
+            redacted_input: Optional[str]: Redacted input to the node.
+            redacted_output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]:
+                Redacted documents retrieved from the retriever.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
@@ -436,35 +456,45 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
             RetrieverSpan: The created span.
         """
 
-        if isinstance(output, list):
-            if all(isinstance(doc, Document) for doc in output):
-                documents = output
-            elif all(isinstance(doc, str) for doc in output):
-                documents = [Document(content=doc, metadata={}) for doc in output]
-            elif all(isinstance(doc, dict) for doc in output):
+        def _convert_to_documents(data: RetrieverSpanAllowedOutputType, field_name: str) -> list[Document]:
+            """Convert various input types to a list of Document objects."""
+            if data is None:
+                return [Document(content="", metadata={})]
+
+            if isinstance(data, list):
+                if all(isinstance(doc, Document) for doc in data):
+                    return data
+                elif all(isinstance(doc, str) for doc in data):
+                    return [Document(content=doc, metadata={}) for doc in data]
+                elif all(isinstance(doc, dict) for doc in data):
+                    try:
+                        return [Document.model_validate(doc) for doc in data]
+                    except ValidationError:
+                        return [Document(content=json.dumps(doc), metadata={}) for doc in data]
+                else:
+                    raise ValueError(
+                        f"Invalid type for {field_name}. Expected list of strings, list of dicts, or a Document, but got {type(data)}"
+                    )
+            elif isinstance(data, Document):
+                return [data]
+            elif isinstance(data, str):
+                return [Document(content=data, metadata={})]
+            elif isinstance(data, dict):
                 try:
-                    documents = [Document.model_validate(doc) for doc in output]
+                    return [Document.model_validate(data)]
                 except ValidationError:
-                    documents = [Document(content=json.dumps(doc), metadata={}) for doc in output]
+                    return [Document(content=json.dumps(data), metadata={})]
             else:
-                raise ValueError(
-                    f"Invalid type for output. Expected list of strings, list of dicts, or a Document, but got {type(output)}"
-                )
-        elif isinstance(output, Document):
-            documents = [output]
-        elif isinstance(output, str):
-            documents = [Document(content=output, metadata={})]
-        elif isinstance(output, dict):
-            try:
-                documents = [Document.model_validate(output)]
-            except ValidationError:
-                documents = [Document(content=json.dumps(output), metadata={})]
-        else:
-            documents = [Document(content="", metadata={})]
+                return [Document(content="", metadata={})]
+
+        documents = _convert_to_documents(output, "output")
+        redacted_documents = _convert_to_documents(redacted_output, "redacted_output")
 
         return super().add_retriever_span(
             input=input,
             documents=documents,
+            redacted_input=redacted_input,
+            redacted_documents=redacted_documents,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -478,7 +508,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
     def add_tool_span(
         self,
         input: str,
+        redacted_input: Optional[str] = None,
         output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -493,8 +525,10 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
 
         Parameters:
         ----------
-            input: StepIOType: Input to the node.
-            output: StepIOType: Output of the node.
+            input: str: Input to the node.
+            redacted_input: Optional[str]: Redacted input to the node.
+            output: str: Output of the node.
+            redacted_output: Optional[str]: Redacted output to the node.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
@@ -508,7 +542,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         """
         return super().add_tool_span(
             input=input,
+            redacted_input=redacted_input,
             output=output,
+            redacted_output=redacted_output,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -523,7 +559,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
     def add_workflow_span(
         self,
         input: str,
+        redacted_input: Optional[str] = None,
         output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -539,7 +577,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         Parameters:
         ----------
             input: str: Input to the node.
+            redacted_input: Optional[str]: Redacted input to the node.
             output: Optional[str]: Output of the node. This can also be set on conclude().
+            redacted_output: Optional[str]: Redacted output to the node. This can also be set on conclude().
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
@@ -551,7 +591,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         """
         return super().add_workflow_span(
             input=input,
+            redacted_input=redacted_input,
             output=output,
+            redacted_output=redacted_output,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -564,7 +606,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
     def add_agent_span(
         self,
         input: str,
+        redacted_input: Optional[str] = None,
         output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -579,7 +623,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         Parameters:
         ----------
             input: str: Input to the node.
+            redacted_input: Optional[str]: Redacted input to the node.
             output: Optional[str]: Output of the node. This can also be set on conclude().
+            redacted_output: Optional[str]: Redacted output to the node. This can also be set on conclude().
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
@@ -593,7 +639,9 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         """
         return super().add_agent_span(
             input=input,
+            redacted_input=redacted_input,
             output=output,
+            redacted_output=redacted_output,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -607,6 +655,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
     def conclude(
         self,
         output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
         duration_ns: Optional[int] = None,
         status_code: Optional[int] = None,
         conclude_all: bool = False,
@@ -617,7 +666,8 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
 
         Parameters:
         ----------
-            output: Optional[StepIOType]: Output of the node.
+            output: Optional[str]: Output of the node.
+            redacted_output: Optional[str]: Redacted output of the node.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             status_code: Optional[int]: Status code of the node execution.
             conclude_all: bool: If True, all spans will be concluded, including the current span. False by default.
@@ -627,10 +677,20 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
         """
         if self.mode == "batch":
             return GalileoBatchLogger.conclude(
-                self, output=output, duration_ns=duration_ns, status_code=status_code, conclude_all=conclude_all
+                self,
+                output=output,
+                redacted_output=redacted_output,
+                duration_ns=duration_ns,
+                status_code=status_code,
+                conclude_all=conclude_all,
             )
         return GalileoStreamingLogger.conclude(
-            self, output=output, duration_ns=duration_ns, status_code=status_code, conclude_all=conclude_all
+            self,
+            output=output,
+            redacted_output=redacted_output,
+            duration_ns=duration_ns,
+            status_code=status_code,
+            conclude_all=conclude_all,
         )
 
     @nop_sync
