@@ -263,10 +263,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if trace_obj is None:
             raise GalileoLoggerException(f"Trace {self.trace_id} not found")
 
-        print(trace_obj)
-
         trace = Trace(**trace_obj)
-        print(trace)
         trace.spans = []
         self.traces.append(trace)
         if add_to_parent_stack:
@@ -281,8 +278,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if span_obj is None:
             raise GalileoLoggerException(f"Span {self.span_id} not found")
 
-        print(span_obj)
-
         trace_id = span_obj["trace_id"]
         if self.trace_id is not None and trace_id != self.trace_id:
             raise GalileoLoggerException(f"Span {self.span_id} does not belong to trace {self.trace_id}")
@@ -294,8 +289,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             span = AgentSpan(**span_obj)
         else:
             raise GalileoLoggerException(f"Only 'workflow' and 'agent' span types can be initialized, got {span_type}")
-
-        print(span)
 
         # if the trace hasn't been set yet, set it
         if len(self.traces) == 0:
@@ -1053,22 +1046,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Terminate the logger and flush all traces to Galileo.
         """
-        start_time = time.perf_counter()
-
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
+
         if self.mode == "batch":
             self._logger.info("Attempting to flush on interpreter exit...")
             self.flush()
         else:
-            print("Checking if all tasks are completed...")
             while not self._task_handler.all_tasks_completed():
                 time.sleep(0.1)
             self._task_handler.terminate()
-            print("All tasks completed. Exiting...")
-
-        end_time = time.perf_counter()
-        print(f"time taken in terminate: {(end_time - start_time):0.4f} seconds")
 
     @nop_sync
     def start_session(
