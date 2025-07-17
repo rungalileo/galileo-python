@@ -140,10 +140,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         log_stream_id: Optional[str] = None,
         experiment_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
-        mode: Optional[LoggerModeType] = "batch",
+        experimental: Optional[dict[str, str]] = None,
     ) -> None:
         super().__init__()
-        self.mode = mode
+        experimental = experimental or {}
+        mode_str = experimental.get("mode", "batch")
+        self.mode: LoggerModeType = mode_str
+
         project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
         log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
