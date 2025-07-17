@@ -294,6 +294,16 @@ class GalileoCoreApiClient:
             RequestMethod.POST, endpoint=Routes.sessions_search.format(project_id=self.project_id), json=json
         )
 
+    def get_trace_sync(self, trace_id: str) -> dict[str, str]:
+        return self._make_request(
+            RequestMethod.GET, endpoint=Routes.trace.format(project_id=self.project_id, trace_id=trace_id)
+        )
+
+    def get_span_sync(self, span_id: str) -> dict[str, str]:
+        return self._make_request(
+            RequestMethod.GET, endpoint=Routes.span.format(project_id=self.project_id, span_id=span_id)
+        )
+
     # TODO: Move this method to galileo_core.helpers.api_client
     @staticmethod
     def make_request_sync(

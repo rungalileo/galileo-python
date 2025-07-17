@@ -502,7 +502,7 @@ class GalileoDecorator:
 
         if not _trace_context.get():
             # If the singleton logger has an active trace, use it
-            if client_instance.current_parent():
+            if client_instance.has_active_trace():
                 trace = client_instance.traces[-1]
             else:
                 # If no trace is available, start a new one

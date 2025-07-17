@@ -127,8 +127,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     log_stream_id: Optional[str] = None
     experiment_id: Optional[str] = None
     session_id: Optional[str] = None
+    trace_id: Optional[str] = None
+    span_id: Optional[str] = None
     local_metrics: Optional[list[LocalMetricConfig]] = None
     mode: Optional[LoggerModeType] = None
+
     _logger = logging.getLogger("galileo.logger")
     _task_handler: ThreadPoolTaskHandler
 
@@ -139,9 +142,25 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         log_stream: Optional[str] = None,
         log_stream_id: Optional[str] = None,
         experiment_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+        span_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
         mode: Optional[LoggerModeType] = "batch",
     ) -> None:
+        """
+        Initializes the logger
+
+        Args:
+            project: Project name. If not provided, will use the project_id param or the project name from the environment variable GALILEO_PROJECT.
+            project_id: Project ID.
+            log_stream: Log stream name. If not provided, will use the log_stream_id param or the log stream name from the environment variable GALILEO_LOG_STREAM.
+            log_stream_id: Log stream ID.
+            experiment_id: Experiment ID. Used by the experiment runner.
+            trace_id: Trace ID. Used to initialize the logger with an existing trace. Note: This can only be used in "streaming" mode.
+            span_id: Span ID. Used to initialize the logger with an existing workflow or agent span. Note: This can only be used in "streaming" mode.
+            local_metrics: Local metrics
+            mode: Logger mode (batch or streaming)
+        """
         super().__init__()
         self.mode = mode
         project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
@@ -149,6 +168,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         project_id_from_env = getenv("GALILEO_PROJECT_ID")
         log_stream_id_from_env = getenv("GALILEO_LOG_STREAM_ID")
+
+        if trace_id or span_id:
+            if mode != "streaming":
+                raise GalileoLoggerException("trace_id or span_id can only be used in streaming mode")
+            self.trace_id = trace_id
+            self.span_id = span_id
 
         self.project_name = project or project_name_from_env
         self.project_id = project_id or project_id_from_env
@@ -188,6 +213,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         elif self.experiment_id:
             self._client = GalileoCoreApiClient(project_id=self.project_id, experiment_id=self.experiment_id)
 
+        if self.trace_id:
+            self._init_trace()
+        if self.span_id:
+            self._init_span()
+
         # cleans up when the python interpreter closes
         atexit.register(self.terminate)
 
@@ -223,6 +253,57 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._logger.info(f"🚀 Creating new log stream... log stream {self.log_stream_name} created!")
         else:
             self.log_stream_id = log_stream_obj.id
+
+    @nop_sync
+    def _init_trace(self, add_to_parent_stack: bool = True) -> None:
+        """
+        Initializes the trace
+        """
+        trace_obj = self._client.get_trace_sync(trace_id=self.trace_id)
+        if trace_obj is None:
+            raise GalileoLoggerException(f"Trace {self.trace_id} not found")
+
+        print(trace_obj)
+
+        trace = Trace(**trace_obj)
+        print(trace)
+        trace.spans = []
+        self.traces.append(trace)
+        if add_to_parent_stack:
+            self._parent_stack.append(trace)
+
+    @nop_sync
+    def _init_span(self) -> None:
+        """
+        Initializes the span
+        """
+        span_obj = self._client.get_span_sync(span_id=self.span_id)
+        if span_obj is None:
+            raise GalileoLoggerException(f"Span {self.span_id} not found")
+
+        print(span_obj)
+
+        trace_id = span_obj["trace_id"]
+        if self.trace_id is not None and trace_id != self.trace_id:
+            raise GalileoLoggerException(f"Span {self.span_id} does not belong to trace {self.trace_id}")
+
+        span_type = span_obj["type"]
+        if span_type == "workflow":
+            span = WorkflowSpan(**span_obj)
+        elif span_type == "agent":
+            span = AgentSpan(**span_obj)
+        else:
+            raise GalileoLoggerException(f"Only 'workflow' and 'agent' span types can be initialized, got {span_type}")
+
+        print(span)
+
+        # if the trace hasn't been set yet, set it
+        if len(self.traces) == 0:
+            self.trace_id = trace_id
+            # skip adding the trace to parent stack to prevent modifications to it
+            self._init_trace(add_to_parent_stack=False)
+
+        self._parent_stack.append(span)
 
     @staticmethod
     @nop_sync
@@ -384,6 +465,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     @nop_sync
     def previous_parent(self) -> Optional[StepWithChildSpans]:
         return self._parent_stack[-2] if len(self._parent_stack) > 1 else None
+
+    @nop_sync
+    def has_active_trace(self) -> bool:
+        if self.mode == "streaming" and (self.trace_id or self.span_id):
+            return True
+        current_parent = self.current_parent()
+        return current_parent is not None and isinstance(current_parent, Trace)
 
     @nop_sync
     def start_trace(
@@ -829,8 +917,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             current_parent.metrics.duration_ns = duration_ns
 
         finished_step = self._parent_stack.pop()
-        if self.current_parent() is None and not isinstance(finished_step, Trace):
-            raise ValueError("Finished step is not a trace, but has no parent.  Not added to the list of traces.")
         return (finished_step, self.current_parent())
 
     @nop_sync
