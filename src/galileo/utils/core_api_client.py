@@ -71,6 +71,12 @@ class GalileoCoreApiClient:
         if self.log_stream_id is None and self.experiment_id is None:
             raise ValueError("log_stream_id or experiment_id must be set")
 
+        # Cache header dicts for reuse (avoid recompute on every request)
+        self._auth_header = {"Galileo-API-Key": self.api_key}
+        self._client_type_header = {"client-type": "sdk-python"}
+        self._json_headers = {**self._auth_header, **HttpHeaders.json(), **self._client_type_header}
+        self._accept_headers = {**self._auth_header, **HttpHeaders.accept_json(), **self._client_type_header}
+
     @property
     def auth_header(self) -> dict[str, Optional[str]]:
         return {self.api_key_header_name: self.api_key}
@@ -90,11 +96,11 @@ class GalileoCoreApiClient:
         json_request_only: bool = False,
     ) -> Any:
         if json_request_only:
-            content_headers = HttpHeaders.accept_json()
+            headers = self._accept_headers
         else:
-            content_headers = HttpHeaders.json()
-        headers = {**self.auth_header, **content_headers, **self.client_type_header}
-        result = GalileoCoreApiClient.make_request_sync(
+            headers = self._json_headers
+
+        return GalileoCoreApiClient.make_request_sync(
             request_method=request_method,
             base_url=self.api_url,
             endpoint=endpoint,
@@ -104,7 +110,6 @@ class GalileoCoreApiClient:
             params=params,
             headers=headers,
         )
-        return result
 
     async def _make_async_request(
         self,
