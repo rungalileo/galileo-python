@@ -15,16 +15,21 @@ from galileo.resources.api.prompts import (
     get_project_templates_projects_project_id_templates_get,
     get_template_from_project_projects_project_id_templates_template_id_get,
     query_templates_templates_query_post,
+    render_template_render_template_post,
     update_global_template_templates_template_id_patch,
 )
 from galileo.resources.models import (
     BasePromptTemplateResponse,
     BasePromptTemplateVersionResponse,
     CreatePromptTemplateWithVersionRequestBody,
+    DatasetData,
     HTTPValidationError,
     ListPromptTemplateParams,
     PromptTemplateNameFilter,
     PromptTemplateNameFilterOperator,
+    RenderTemplateRequest,
+    RenderTemplateResponse,
+    StringData,
     UpdatePromptTemplateRequest,
 )
 from galileo.resources.types import Unset
@@ -285,6 +290,54 @@ class GlobalPromptTemplates(BaseClientModel):
 
         return PromptTemplate(prompt_template=response.parsed)
 
+    def render_template(
+        self,
+        *,
+        template: str,
+        data: Union[DatasetData, StringData],
+        starting_token: Union[Unset, int] = 0,
+        limit: Union[Unset, int] = 100,
+    ) -> RenderTemplateResponse:
+        """
+        Render a template with provided data.
+
+        Parameters
+        ----------
+        template : str
+            The template string to render.
+        data : Union[DatasetData, StringData]
+            The data to use for rendering the template. Can be either dataset data or string data.
+        starting_token : Union[Unset, int], optional
+            Starting token for pagination. Defaults to 0.
+        limit : Union[Unset, int], optional
+            Maximum number of rendered templates to return. Defaults to 100.
+
+        Returns
+        -------
+        Optional[RenderTemplateResponse]
+            The rendered template response if successful, None otherwise.
+
+        Raises
+        ------
+        PromptTemplateAPIException
+            If the API request fails or returns an error.
+        """
+        body = RenderTemplateRequest(template=template, data=data)
+
+        _logger.debug(f"Rendering template: {template}")
+        response = render_template_render_template_post.sync_detailed(
+            client=self.client, body=body, starting_token=starting_token, limit=limit
+        )
+
+        if response.status_code != 200:
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
+
+        if not response.parsed or isinstance(response.parsed, HTTPValidationError):
+            _logger.error(response)
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
+
+        return response.parsed
+
 
 def create_prompt_template(name: str, project: str, messages: Union[list[Message], str]) -> Optional[PromptTemplate]:
     warnings.warn("create_prompt_template is deprecated, use create_prompt instead.", DeprecationWarning, stacklevel=2)
@@ -507,3 +560,64 @@ def get_prompts(name_filter: Optional[str] = None, limit: Union[Unset, int] = 10
     >>> templates = get_prompts(limit=10)
     """
     return GlobalPromptTemplates().list(name_filter=name_filter, limit=limit)
+
+
+def render_template(
+    *,
+    template: str,
+    data: Union[DatasetData, StringData, list[str], str],
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> RenderTemplateResponse:
+    """
+    Render a template with provided data.
+
+    Parameters
+    ----------
+    template : str
+        The template string to render.
+    data : Union[DatasetData, StringData, list[str], str]
+        The data to use for rendering the template. Can be:
+        - DatasetData: Reference to a dataset
+        - StringData: List of input strings
+        - list[str]: List of input strings (will be converted to StringData)
+        - str: Dataset ID (will be converted to DatasetData)
+    starting_token : Union[Unset, int], optional
+        Starting token for pagination. Defaults to 0.
+    limit : Union[Unset, int], optional
+        Maximum number of rendered templates to return. Defaults to 100.
+
+    Returns
+    -------
+    Optional[RenderTemplateResponse]
+        The rendered template response if successful, None otherwise.
+
+    Raises
+    ------
+    PromptTemplateAPIException
+        If the API request fails or returns an error.
+
+    Examples
+    --------
+    >>> # Render template with string data
+    >>> response = render_template(
+    ...     template="Hello {{name}}!",
+    ...     data=["Alice", "Bob", "Charlie"]
+    ... )
+
+    >>> # Render template with dataset
+    >>> response = render_template(
+    ...     template="Hello {{name}}!",
+    ...     data="dataset-id-123"
+    ... )
+    """
+    if isinstance(data, list):
+        data = StringData(input_strings=data)
+    elif isinstance(data, str):
+        data = DatasetData(dataset_id=data)
+    else:
+        data = data
+
+    return GlobalPromptTemplates().render_template(
+        template=template, data=data, starting_token=starting_token, limit=limit
+    )

@@ -14,18 +14,23 @@ from galileo.prompts import (
     get_prompt_template,
     get_prompts,
     list_prompt_templates,
+    render_template,
     update_prompt,
 )
 from galileo.resources.models import (
     BasePromptTemplateResponse,
     BasePromptTemplateVersionResponse,
     CreatePromptTemplateWithVersionRequestBody,
+    DatasetData,
     HTTPValidationError,
     ListPromptTemplateParams,
     ListPromptTemplateResponse,
     ProjectDB,
     PromptTemplateNameFilter,
     PromptTemplateNameFilterOperator,
+    RenderTemplateRequest,
+    RenderTemplateResponse,
+    StringData,
     UpdatePromptTemplateRequest,
 )
 from galileo.resources.types import Response
@@ -322,6 +327,55 @@ def empty_templates_list_response():
     """Create empty template list response."""
     return ListPromptTemplateResponse.from_dict(
         {"templates": [], "limit": 100, "next_starting_token": None, "paginated": False, "starting_token": 0}
+    )
+
+
+def render_template_response():
+    """Create render template response."""
+    return RenderTemplateResponse.from_dict(
+        {
+            "rendered_templates": [
+                {"result": "Hello User1! How are you?", "warning": None},
+                {"result": "Hello User2! How are you?", "warning": None},
+            ],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+
+
+def render_template_response_empty():
+    """Create empty render template response."""
+    return RenderTemplateResponse.from_dict(
+        {"rendered_templates": [], "limit": 100, "next_starting_token": None, "paginated": False, "starting_token": 0}
+    )
+
+
+def render_template_response_paginated():
+    """Create paginated render template response with only 1 result."""
+    return RenderTemplateResponse.from_dict(
+        {
+            "rendered_templates": [{"result": "Hello User1! How are you?", "warning": None}],
+            "limit": 1,
+            "next_starting_token": 1,
+            "paginated": True,
+            "starting_token": 0,
+        }
+    )
+
+
+def render_template_response_second_page():
+    """Create render template response for second page of pagination."""
+    return RenderTemplateResponse.from_dict(
+        {
+            "rendered_templates": [{"result": "Hello User2! How are you?", "warning": None}],
+            "limit": 1,
+            "next_starting_token": None,
+            "paginated": True,
+            "starting_token": 1,
+        }
     )
 
 
@@ -798,3 +852,166 @@ def test_update_global_prompt_template_successful_response_with_http_validation_
     assert "Some validation error" in str(exc_info.value)
 
     update_global_template_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.prompts.render_template_render_template_post")
+def test_render_template_with_string_data(render_template_mock: Mock):
+    """Test render_template with string data."""
+    render_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response()
+    )
+
+    response = render_template(template="Hello {{name}}! How are you?", data=["User1", "User2"])
+
+    assert response is not None
+    assert len(response.rendered_templates) == 2
+    assert response.rendered_templates[0].result == "Hello User1! How are you?"
+    assert response.rendered_templates[1].result == "Hello User2! How are you?"
+    render_template_mock.sync_detailed.assert_called_once_with(
+        client=ANY,
+        body=RenderTemplateRequest(
+            template="Hello {{name}}! How are you?", data=StringData(input_strings=["User1", "User2"])
+        ),
+        starting_token=0,
+        limit=100,
+    )
+
+
+@patch("galileo.prompts.render_template_render_template_post")
+def test_render_template_with_dataset_data(render_template_mock: Mock):
+    """Test render_template with dataset data."""
+    render_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response()
+    )
+
+    response = render_template(template="Hello {{name}}! How are you?", data="dataset-id-123")
+
+    assert response is not None
+    assert len(response.rendered_templates) == 2
+    render_template_mock.sync_detailed.assert_called_once_with(
+        client=ANY,
+        body=RenderTemplateRequest(
+            template="Hello {{name}}! How are you?", data=DatasetData(dataset_id="dataset-id-123")
+        ),
+        starting_token=0,
+        limit=100,
+    )
+
+
+@patch("galileo.prompts.render_template_render_template_post")
+def test_render_template_with_pagination(render_template_mock: Mock):
+    """Test render_template with pagination parameters for both page 1 and page 2."""
+    # Test page 1 (starting_token=0, limit=1)
+    render_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response_paginated()
+    )
+
+    response = render_template(
+        template="Hello {{name}}! How are you?", data=["User1", "User2"], starting_token=0, limit=1
+    )
+
+    assert response is not None
+    assert len(response.rendered_templates) == 1
+    assert response.rendered_templates[0].result == "Hello User1! How are you?"
+    assert response.paginated is True
+    assert response.next_starting_token == 1
+    render_template_mock.sync_detailed.assert_called_with(
+        client=ANY,
+        body=RenderTemplateRequest(
+            template="Hello {{name}}! How are you?", data=StringData(input_strings=["User1", "User2"])
+        ),
+        starting_token=0,
+        limit=1,
+    )
+
+    # Test page 2 (starting_token=1, limit=1)
+    render_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response_second_page()
+    )
+
+    response = render_template(
+        template="Hello {{name}}! How are you?", data=["User1", "User2"], starting_token=1, limit=1
+    )
+
+    assert response is not None
+    assert len(response.rendered_templates) == 1
+    assert response.rendered_templates[0].result == "Hello User2! How are you?"
+    assert response.paginated is True
+    assert response.next_starting_token is None  # Last page
+    assert response.starting_token == 1
+
+    # Verify both calls were made
+    assert render_template_mock.sync_detailed.call_count == 2
+    render_template_mock.sync_detailed.assert_called_with(
+        client=ANY,
+        body=RenderTemplateRequest(
+            template="Hello {{name}}! How are you?", data=StringData(input_strings=["User1", "User2"])
+        ),
+        starting_token=1,
+        limit=1,
+    )
+
+
+@patch("galileo.prompts.render_template_render_template_post")
+def test_render_template_with_dataset_data_object(render_template_mock: Mock):
+    """Test render_template with DatasetData object."""
+    render_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response()
+    )
+
+    dataset_data = DatasetData(dataset_id="dataset-id-456")
+    response = render_template(template="Hello {{name}}! How are you?", data=dataset_data)
+
+    assert response is not None
+    render_template_mock.sync_detailed.assert_called_once_with(
+        client=ANY,
+        body=RenderTemplateRequest(template="Hello {{name}}! How are you?", data=dataset_data),
+        starting_token=0,
+        limit=100,
+    )
+
+
+@patch("galileo.prompts.render_template_render_template_post")
+def test_render_template_with_string_data_object(render_template_mock: Mock):
+    """Test render_template with StringData object."""
+    render_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response()
+    )
+
+    string_data = StringData(input_strings=["TestUser1", "TestUser2"])
+    response = render_template(template="Hello {{name}}! How are you?", data=string_data)
+
+    assert response is not None
+    render_template_mock.sync_detailed.assert_called_once_with(
+        client=ANY,
+        body=RenderTemplateRequest(template="Hello {{name}}! How are you?", data=string_data),
+        starting_token=0,
+        limit=100,
+    )
+
+
+@patch("galileo.prompts.render_template_render_template_post")
+def test_render_template_empty_response(render_template_mock: Mock):
+    """Test render_template with empty response."""
+    render_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response_empty()
+    )
+
+    response = render_template(template="Hello {{name}}! How are you?", data=["User1"])
+
+    assert response is not None
+    assert len(response.rendered_templates) == 0
+    render_template_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.prompts.render_template_render_template_post")
+def test_render_template_none_response(render_template_mock: Mock):
+    """Test render_template when API returns None."""
+    render_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=None
+    )
+
+    with pytest.raises(PromptTemplateAPIException):
+        render_template(template="Hello {{name}}!", data=["User1"])
+
+    render_template_mock.sync_detailed.assert_called_once()
