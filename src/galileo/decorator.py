@@ -741,11 +741,18 @@ class GalileoDecorator:
             GalileoLogger instance configured with the specified project and log stream
         """
 
+        # Fast local assignment of contextvars to avoid repeated .get() calls in function arguments.
+        if project is None:
+            project = _project_context.get()
+        if log_stream is None:
+            log_stream = _log_stream_context.get()
+        if experiment_id is None:
+            experiment_id = _experiment_id_context.get()
+        if mode is None:
+            mode = _mode_context.get()
+
         return GalileoLoggerSingleton().get(
-            project=project or _project_context.get(),
-            log_stream=log_stream or _log_stream_context.get(),
-            experiment_id=experiment_id or _experiment_id_context.get(),
-            mode=mode or _mode_context.get(),
+            project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode
         )
 
     def get_current_project(self) -> Optional[str]:
