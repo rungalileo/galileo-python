@@ -738,7 +738,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
 
         Parameters:
         ----------
-            name: Optional[str]: Name of the session. If not provided, a session name will be generated automatically.
+            name: Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
             previous_session_id: Optional[str]: ID of the previous session.
             external_id: Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
         Returns:
