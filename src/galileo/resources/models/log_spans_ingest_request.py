@@ -1,18 +1,23 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.logging_method import LoggingMethod, check_logging_method
 from ..types import UNSET, Unset
+
+from ..models.logging_method import LoggingMethod
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.agent_span import AgentSpan
-    from ..models.llm_span import LlmSpan
-    from ..models.retriever_span import RetrieverSpan
-    from ..models.tool_span import ToolSpan
     from ..models.workflow_span import WorkflowSpan
+    from ..models.tool_span import ToolSpan
+    from ..models.retriever_span import RetrieverSpan
+    from ..models.llm_span import LlmSpan
 
 
 T = TypeVar("T", bound="LogSpansIngestRequest")
@@ -48,9 +53,10 @@ class LogSpansIngestRequest:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.agent_span import AgentSpan
-        from ..models.llm_span import LlmSpan
-        from ..models.retriever_span import RetrieverSpan
         from ..models.workflow_span import WorkflowSpan
+        from ..models.tool_span import ToolSpan
+        from ..models.retriever_span import RetrieverSpan
+        from ..models.llm_span import LlmSpan
 
         parent_id = self.parent_id
 
@@ -92,7 +98,7 @@ class LogSpansIngestRequest:
 
         logging_method: Union[Unset, str] = UNSET
         if not isinstance(self.logging_method, Unset):
-            logging_method = self.logging_method
+            logging_method = self.logging_method.value
 
         reliable = self.reliable
 
@@ -115,10 +121,10 @@ class LogSpansIngestRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agent_span import AgentSpan
-        from ..models.llm_span import LlmSpan
-        from ..models.retriever_span import RetrieverSpan
-        from ..models.tool_span import ToolSpan
         from ..models.workflow_span import WorkflowSpan
+        from ..models.tool_span import ToolSpan
+        from ..models.retriever_span import RetrieverSpan
+        from ..models.llm_span import LlmSpan
 
         d = dict(src_dict)
         parent_id = d.pop("parent_id")
@@ -206,7 +212,7 @@ class LogSpansIngestRequest:
         if isinstance(_logging_method, Unset):
             logging_method = UNSET
         else:
-            logging_method = check_logging_method(_logging_method)
+            logging_method = LoggingMethod(_logging_method)
 
         reliable = d.pop("reliable", UNSET)
 

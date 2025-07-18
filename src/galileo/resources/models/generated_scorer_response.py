@@ -1,13 +1,18 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.node_type import NodeType, check_node_type
 from ..types import UNSET, Unset
+
+from ..models.node_type import NodeType
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Union
+import datetime
 
 if TYPE_CHECKING:
     from ..models.chain_poll_template import ChainPollTemplate
@@ -47,6 +52,9 @@ class GeneratedScorerResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.chain_poll_template import ChainPollTemplate
+        from ..models.generated_scorer_configuration import GeneratedScorerConfiguration
+
         chain_poll_template = self.chain_poll_template.to_dict()
 
         created_at = self.created_at.isoformat()
@@ -61,7 +69,7 @@ class GeneratedScorerResponse:
         if isinstance(self.scoreable_node_types, list):
             scoreable_node_types = []
             for scoreable_node_types_type_0_item_data in self.scoreable_node_types:
-                scoreable_node_types_type_0_item: str = scoreable_node_types_type_0_item_data
+                scoreable_node_types_type_0_item = scoreable_node_types_type_0_item_data.value
                 scoreable_node_types.append(scoreable_node_types_type_0_item)
 
         else:
@@ -129,7 +137,7 @@ class GeneratedScorerResponse:
                 scoreable_node_types_type_0 = []
                 _scoreable_node_types_type_0 = data
                 for scoreable_node_types_type_0_item_data in _scoreable_node_types_type_0:
-                    scoreable_node_types_type_0_item = check_node_type(scoreable_node_types_type_0_item_data)
+                    scoreable_node_types_type_0_item = NodeType(scoreable_node_types_type_0_item_data)
 
                     scoreable_node_types_type_0.append(scoreable_node_types_type_0_item)
 

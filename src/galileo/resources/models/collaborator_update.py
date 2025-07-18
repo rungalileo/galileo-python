@@ -1,10 +1,13 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.collaborator_role import CollaboratorRole, check_collaborator_role
+from ..types import UNSET, Unset
+
+from ..models.collaborator_role import CollaboratorRole
+
 
 T = TypeVar("T", bound="CollaboratorUpdate")
 
@@ -20,7 +23,7 @@ class CollaboratorUpdate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        role: str = self.role
+        role = self.role.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -31,7 +34,7 @@ class CollaboratorUpdate:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        role = check_collaborator_role(d.pop("role"))
+        role = CollaboratorRole(d.pop("role"))
 
         collaborator_update = cls(role=role)
 

@@ -1,10 +1,14 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
+
+from ..types import UNSET, Unset
+from typing import cast
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.column_info import ColumnInfo
@@ -24,6 +28,8 @@ class LogRecordsAvailableColumnsResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.column_info import ColumnInfo
+
         columns: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.columns, Unset):
             columns = []

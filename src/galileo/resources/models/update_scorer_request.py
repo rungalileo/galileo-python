@@ -1,11 +1,16 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.model_type import ModelType, check_model_type
 from ..types import UNSET, Unset
+
+from ..models.model_type import ModelType
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.scorer_defaults import ScorerDefaults
@@ -60,8 +65,8 @@ class UpdateScorerRequest:
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
             model_type = UNSET
-        elif isinstance(self.model_type, str):
-            model_type = self.model_type
+        elif isinstance(self.model_type, ModelType):
+            model_type = self.model_type.value
         else:
             model_type = self.model_type
 
@@ -147,7 +152,7 @@ class UpdateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = check_model_type(data)
+                model_type_type_0 = ModelType(data)
 
                 return model_type_type_0
             except:  # noqa: E722

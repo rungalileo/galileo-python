@@ -1,14 +1,17 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.tool_selection_quality_scorer_type import (
-    ToolSelectionQualityScorerType,
-    check_tool_selection_quality_scorer_type,
-)
 from ..types import UNSET, Unset
+
+from ..models.tool_selection_quality_scorer_type import ToolSelectionQualityScorerType
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.metadata_filter import MetadataFilter
@@ -27,17 +30,18 @@ class ToolSelectionQualityScorer:
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
         name (Union[Literal['tool_selection_quality'], Unset]):  Default: 'tool_selection_quality'.
         num_judges (Union[None, Unset, int]): Number of judges for the scorer.
-        type_ (Union[Unset, ToolSelectionQualityScorerType]):  Default: 'plus'.
+        type_ (Union[Unset, ToolSelectionQualityScorerType]):  Default: ToolSelectionQualityScorerType.PLUS.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["tool_selection_quality"], Unset] = "tool_selection_quality"
     num_judges: Union[None, Unset, int] = UNSET
-    type_: Union[Unset, ToolSelectionQualityScorerType] = "plus"
+    type_: Union[Unset, ToolSelectionQualityScorerType] = ToolSelectionQualityScorerType.PLUS
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
         filters: Union[None, Unset, list[dict[str, Any]]]
@@ -73,7 +77,7 @@ class ToolSelectionQualityScorer:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_
+            type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -163,7 +167,7 @@ class ToolSelectionQualityScorer:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = check_tool_selection_quality_scorer_type(_type_)
+            type_ = ToolSelectionQualityScorerType(_type_)
 
         tool_selection_quality_scorer = cls(
             filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_

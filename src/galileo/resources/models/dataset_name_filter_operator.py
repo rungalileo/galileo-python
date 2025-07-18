@@ -1,11 +1,12 @@
-from typing import Literal, cast
-
-DatasetNameFilterOperator = Literal["contains", "eq", "ne", "not_in", "one_of"]
-
-DATASET_NAME_FILTER_OPERATOR_VALUES: set[DatasetNameFilterOperator] = {"contains", "eq", "ne", "not_in", "one_of"}
+from enum import Enum
 
 
-def check_dataset_name_filter_operator(value: str) -> DatasetNameFilterOperator:
-    if value in DATASET_NAME_FILTER_OPERATOR_VALUES:
-        return cast(DatasetNameFilterOperator, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {DATASET_NAME_FILTER_OPERATOR_VALUES!r}")
+class DatasetNameFilterOperator(str, Enum):
+    CONTAINS = "contains"
+    EQ = "eq"
+    NE = "ne"
+    NOT_IN = "not_in"
+    ONE_OF = "one_of"
+
+    def __str__(self) -> str:
+        return str(self.value)

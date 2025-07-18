@@ -1,22 +1,28 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
-from uuid import UUID
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.scorer_type import ScorerType, check_scorer_type
 from ..types import UNSET, Unset
+
+from ..models.scorer_type import ScorerType
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+from uuid import UUID
+import datetime
 
 if TYPE_CHECKING:
     from ..models.document import Document
-    from ..models.feedback_aggregate import FeedbackAggregate
-    from ..models.feedback_rating_db import FeedbackRatingDB
-    from ..models.hallucination_segment import HallucinationSegment
     from ..models.metric_critique_columnar import MetricCritiqueColumnar
+    from ..models.hallucination_segment import HallucinationSegment
     from ..models.segment import Segment
+    from ..models.feedback_rating_db import FeedbackRatingDB
+    from ..models.feedback_aggregate import FeedbackAggregate
 
 
 T = TypeVar("T", bound="MetricSuccess")
@@ -125,11 +131,11 @@ class MetricSuccess:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.document import Document
-        from ..models.feedback_aggregate import FeedbackAggregate
-        from ..models.feedback_rating_db import FeedbackRatingDB
-        from ..models.hallucination_segment import HallucinationSegment
         from ..models.metric_critique_columnar import MetricCritiqueColumnar
+        from ..models.hallucination_segment import HallucinationSegment
         from ..models.segment import Segment
+        from ..models.feedback_rating_db import FeedbackRatingDB
+        from ..models.feedback_aggregate import FeedbackAggregate
 
         value: Union[
             None,
@@ -284,8 +290,8 @@ class MetricSuccess:
         scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
             scorer_type = UNSET
-        elif isinstance(self.scorer_type, str):
-            scorer_type = self.scorer_type
+        elif isinstance(self.scorer_type, ScorerType):
+            scorer_type = self.scorer_type.value
         else:
             scorer_type = self.scorer_type
 
@@ -318,11 +324,11 @@ class MetricSuccess:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document import Document
-        from ..models.feedback_aggregate import FeedbackAggregate
-        from ..models.feedback_rating_db import FeedbackRatingDB
-        from ..models.hallucination_segment import HallucinationSegment
         from ..models.metric_critique_columnar import MetricCritiqueColumnar
+        from ..models.hallucination_segment import HallucinationSegment
         from ..models.segment import Segment
+        from ..models.feedback_rating_db import FeedbackRatingDB
+        from ..models.feedback_aggregate import FeedbackAggregate
 
         d = dict(src_dict)
 
@@ -942,7 +948,7 @@ class MetricSuccess:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                scorer_type_type_0 = check_scorer_type(data)
+                scorer_type_type_0 = ScorerType(data)
 
                 return scorer_type_type_0
             except:  # noqa: E722

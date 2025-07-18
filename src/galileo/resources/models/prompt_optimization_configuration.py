@@ -1,11 +1,15 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.llm_integration import LLMIntegration, check_llm_integration
 from ..types import UNSET, Unset
+
+from ..models.llm_integration import LLMIntegration
+from ..types import UNSET, Unset
+from typing import Union
+
 
 T = TypeVar("T", bound="PromptOptimizationConfiguration")
 
@@ -64,7 +68,7 @@ class PromptOptimizationConfiguration:
 
         integration_name: Union[Unset, str] = UNSET
         if not isinstance(self.integration_name, Unset):
-            integration_name = self.integration_name
+            integration_name = self.integration_name.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -115,7 +119,7 @@ class PromptOptimizationConfiguration:
         if isinstance(_integration_name, Unset):
             integration_name = UNSET
         else:
-            integration_name = check_llm_integration(_integration_name)
+            integration_name = LLMIntegration(_integration_name)
 
         prompt_optimization_configuration = cls(
             evaluation_criteria=evaluation_criteria,

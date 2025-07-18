@@ -1,19 +1,24 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
+
 if TYPE_CHECKING:
     from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
-    from ..models.scorer_creator_filter import ScorerCreatorFilter
-    from ..models.scorer_model_type_filter import ScorerModelTypeFilter
-    from ..models.scorer_name_filter import ScorerNameFilter
-    from ..models.scorer_tags_filter import ScorerTagsFilter
     from ..models.scorer_type_filter import ScorerTypeFilter
+    from ..models.scorer_name_filter import ScorerNameFilter
     from ..models.scorer_updated_at_filter import ScorerUpdatedAtFilter
+    from ..models.scorer_model_type_filter import ScorerModelTypeFilter
+    from ..models.scorer_tags_filter import ScorerTagsFilter
+    from ..models.scorer_creator_filter import ScorerCreatorFilter
 
 
 T = TypeVar("T", bound="ListScorersRequest")
@@ -45,11 +50,12 @@ class ListScorersRequest:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
-        from ..models.scorer_creator_filter import ScorerCreatorFilter
-        from ..models.scorer_model_type_filter import ScorerModelTypeFilter
-        from ..models.scorer_name_filter import ScorerNameFilter
-        from ..models.scorer_tags_filter import ScorerTagsFilter
         from ..models.scorer_type_filter import ScorerTypeFilter
+        from ..models.scorer_name_filter import ScorerNameFilter
+        from ..models.scorer_updated_at_filter import ScorerUpdatedAtFilter
+        from ..models.scorer_model_type_filter import ScorerModelTypeFilter
+        from ..models.scorer_tags_filter import ScorerTagsFilter
+        from ..models.scorer_creator_filter import ScorerCreatorFilter
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -84,12 +90,12 @@ class ListScorersRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
-        from ..models.scorer_creator_filter import ScorerCreatorFilter
-        from ..models.scorer_model_type_filter import ScorerModelTypeFilter
-        from ..models.scorer_name_filter import ScorerNameFilter
-        from ..models.scorer_tags_filter import ScorerTagsFilter
         from ..models.scorer_type_filter import ScorerTypeFilter
+        from ..models.scorer_name_filter import ScorerNameFilter
         from ..models.scorer_updated_at_filter import ScorerUpdatedAtFilter
+        from ..models.scorer_model_type_filter import ScorerModelTypeFilter
+        from ..models.scorer_tags_filter import ScorerTagsFilter
+        from ..models.scorer_creator_filter import ScorerCreatorFilter
 
         d = dict(src_dict)
         filters = []

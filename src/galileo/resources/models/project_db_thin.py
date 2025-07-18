@@ -1,13 +1,18 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.project_type import ProjectType, check_project_type
 from ..types import UNSET, Unset
+
+from ..models.project_type import ProjectType
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Union
+import datetime
 
 if TYPE_CHECKING:
     from ..models.permission import Permission
@@ -44,6 +49,9 @@ class ProjectDBThin:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.permission import Permission
+        from ..models.run_db_thin import RunDBThin
+
         created_at = self.created_at.isoformat()
 
         created_by = self.created_by
@@ -75,8 +83,8 @@ class ProjectDBThin:
         type_: Union[None, Unset, str]
         if isinstance(self.type_, Unset):
             type_ = UNSET
-        elif isinstance(self.type_, str):
-            type_ = self.type_
+        elif isinstance(self.type_, ProjectType):
+            type_ = self.type_.value
         else:
             type_ = self.type_
 
@@ -143,7 +151,7 @@ class ProjectDBThin:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                type_type_0 = check_project_type(data)
+                type_type_0 = ProjectType(data)
 
                 return type_type_0
             except:  # noqa: E722

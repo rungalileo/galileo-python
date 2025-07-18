@@ -1,17 +1,22 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...types import Response, UNSET
+from ... import errors
+
 from ...models.delete_prompt_response import DeletePromptResponse
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from typing import cast
 
 
 def _get_kwargs(project_id: str, template_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/projects/{project_id}/templates/{template_id}"}
+    _kwargs: dict[str, Any] = {
+        "method": "delete",
+        "url": "/projects/{project_id}/templates/{template_id}".format(project_id=project_id, template_id=template_id),
+    }
 
     return _kwargs
 

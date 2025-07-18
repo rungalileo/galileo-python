@@ -1,11 +1,17 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.context_adherence_scorer_type import ContextAdherenceScorerType, check_context_adherence_scorer_type
 from ..types import UNSET, Unset
+
+from ..models.context_adherence_scorer_type import ContextAdherenceScorerType
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.metadata_filter import MetadataFilter
@@ -24,17 +30,18 @@ class ContextAdherenceScorer:
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
         name (Union[Literal['context_adherence'], Unset]):  Default: 'context_adherence'.
         num_judges (Union[None, Unset, int]): Number of judges for the scorer.
-        type_ (Union[Unset, ContextAdherenceScorerType]):  Default: 'luna'.
+        type_ (Union[Unset, ContextAdherenceScorerType]):  Default: ContextAdherenceScorerType.LUNA.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["context_adherence"], Unset] = "context_adherence"
     num_judges: Union[None, Unset, int] = UNSET
-    type_: Union[Unset, ContextAdherenceScorerType] = "luna"
+    type_: Union[Unset, ContextAdherenceScorerType] = ContextAdherenceScorerType.LUNA
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
         filters: Union[None, Unset, list[dict[str, Any]]]
@@ -70,7 +77,7 @@ class ContextAdherenceScorer:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_
+            type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -160,7 +167,7 @@ class ContextAdherenceScorer:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = check_context_adherence_scorer_type(_type_)
+            type_ = ContextAdherenceScorerType(_type_)
 
         context_adherence_scorer = cls(
             filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_

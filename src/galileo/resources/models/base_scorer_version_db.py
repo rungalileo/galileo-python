@@ -1,11 +1,16 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.output_type_enum import OutputTypeEnum, check_output_type_enum
 from ..types import UNSET, Unset
+
+from ..models.output_type_enum import OutputTypeEnum
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.base_generated_scorer_db import BaseGeneratedScorerDB
@@ -82,8 +87,8 @@ class BaseScorerVersionDB:
         output_type: Union[None, Unset, str]
         if isinstance(self.output_type, Unset):
             output_type = UNSET
-        elif isinstance(self.output_type, str):
-            output_type = self.output_type
+        elif isinstance(self.output_type, OutputTypeEnum):
+            output_type = self.output_type.value
         else:
             output_type = self.output_type
 
@@ -186,7 +191,7 @@ class BaseScorerVersionDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = check_output_type_enum(data)
+                output_type_type_0 = OutputTypeEnum(data)
 
                 return output_type_type_0
             except:  # noqa: E722

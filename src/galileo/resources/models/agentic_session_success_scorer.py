@@ -1,14 +1,17 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.agentic_session_success_scorer_type import (
-    AgenticSessionSuccessScorerType,
-    check_agentic_session_success_scorer_type,
-)
 from ..types import UNSET, Unset
+
+from ..models.agentic_session_success_scorer_type import AgenticSessionSuccessScorerType
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.metadata_filter import MetadataFilter
@@ -27,17 +30,18 @@ class AgenticSessionSuccessScorer:
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
         name (Union[Literal['agentic_session_success'], Unset]):  Default: 'agentic_session_success'.
         num_judges (Union[None, Unset, int]): Number of judges for the scorer.
-        type_ (Union[Unset, AgenticSessionSuccessScorerType]):  Default: 'plus'.
+        type_ (Union[Unset, AgenticSessionSuccessScorerType]):  Default: AgenticSessionSuccessScorerType.PLUS.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["agentic_session_success"], Unset] = "agentic_session_success"
     num_judges: Union[None, Unset, int] = UNSET
-    type_: Union[Unset, AgenticSessionSuccessScorerType] = "plus"
+    type_: Union[Unset, AgenticSessionSuccessScorerType] = AgenticSessionSuccessScorerType.PLUS
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
         filters: Union[None, Unset, list[dict[str, Any]]]
@@ -73,7 +77,7 @@ class AgenticSessionSuccessScorer:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_
+            type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -163,7 +167,7 @@ class AgenticSessionSuccessScorer:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = check_agentic_session_success_scorer_type(_type_)
+            type_ = AgenticSessionSuccessScorerType(_type_)
 
         agentic_session_success_scorer = cls(
             filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_

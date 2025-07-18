@@ -1,17 +1,22 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.model_type import ModelType, check_model_type
-from ..models.output_type_enum import OutputTypeEnum, check_output_type_enum
-from ..models.scorer_types import ScorerTypes, check_scorer_types
 from ..types import UNSET, Unset
 
+from ..models.model_type import ModelType
+from ..models.output_type_enum import OutputTypeEnum
+from ..models.scorer_types import ScorerTypes
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
+
 if TYPE_CHECKING:
-    from ..models.base_scorer_version_db import BaseScorerVersionDB
     from ..models.metadata_filter import MetadataFilter
+    from ..models.base_scorer_version_db import BaseScorerVersionDB
     from ..models.node_name_filter import NodeNameFilter
 
 
@@ -56,12 +61,13 @@ class ScorerConfig:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.metadata_filter import MetadataFilter
         from ..models.base_scorer_version_db import BaseScorerVersionDB
         from ..models.node_name_filter import NodeNameFilter
 
         id = self.id
 
-        scorer_type: str = self.scorer_type
+        scorer_type = self.scorer_type.value
 
         cot_enabled: Union[None, Unset, bool]
         if isinstance(self.cot_enabled, Unset):
@@ -95,8 +101,8 @@ class ScorerConfig:
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
             model_type = UNSET
-        elif isinstance(self.model_type, str):
-            model_type = self.model_type
+        elif isinstance(self.model_type, ModelType):
+            model_type = self.model_type.value
         else:
             model_type = self.model_type
 
@@ -115,8 +121,8 @@ class ScorerConfig:
         output_type: Union[None, Unset, str]
         if isinstance(self.output_type, Unset):
             output_type = UNSET
-        elif isinstance(self.output_type, str):
-            output_type = self.output_type
+        elif isinstance(self.output_type, OutputTypeEnum):
+            output_type = self.output_type.value
         else:
             output_type = self.output_type
 
@@ -163,14 +169,14 @@ class ScorerConfig:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.base_scorer_version_db import BaseScorerVersionDB
         from ..models.metadata_filter import MetadataFilter
+        from ..models.base_scorer_version_db import BaseScorerVersionDB
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
         id = d.pop("id")
 
-        scorer_type = check_scorer_types(d.pop("scorer_type"))
+        scorer_type = ScorerTypes(d.pop("scorer_type"))
 
         def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
             if data is None:
@@ -236,7 +242,7 @@ class ScorerConfig:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = check_model_type(data)
+                model_type_type_0 = ModelType(data)
 
                 return model_type_type_0
             except:  # noqa: E722
@@ -271,7 +277,7 @@ class ScorerConfig:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = check_output_type_enum(data)
+                output_type_type_0 = OutputTypeEnum(data)
 
                 return output_type_type_0
             except:  # noqa: E722

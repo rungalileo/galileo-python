@@ -1,14 +1,19 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.project_labels import ProjectLabels, check_project_labels
-from ..models.project_type import ProjectType, check_project_type
 from ..types import UNSET, Unset
+
+from ..models.project_labels import ProjectLabels
+from ..models.project_type import ProjectType
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Union
+import datetime
 
 if TYPE_CHECKING:
     from ..models.permission import Permission
@@ -52,6 +57,10 @@ class ProjectDB:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.permission import Permission
+        from ..models.run_db import RunDB
+        from ..models.user_info import UserInfo
+
         created_at = self.created_at.isoformat()
 
         created_by = self.created_by
@@ -79,7 +88,7 @@ class ProjectDB:
         if not isinstance(self.labels, Unset):
             labels = []
             for labels_item_data in self.labels:
-                labels_item: str = labels_item_data
+                labels_item = labels_item_data.value
                 labels.append(labels_item)
 
         name: Union[None, Unset, str]
@@ -98,8 +107,8 @@ class ProjectDB:
         type_: Union[None, Unset, str]
         if isinstance(self.type_, Unset):
             type_ = UNSET
-        elif isinstance(self.type_, str):
-            type_ = self.type_
+        elif isinstance(self.type_, ProjectType):
+            type_ = self.type_.value
         else:
             type_ = self.type_
 
@@ -168,7 +177,7 @@ class ProjectDB:
         labels = []
         _labels = d.pop("labels", UNSET)
         for labels_item_data in _labels or []:
-            labels_item = check_project_labels(labels_item_data)
+            labels_item = ProjectLabels(labels_item_data)
 
             labels.append(labels_item)
 
@@ -196,7 +205,7 @@ class ProjectDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                type_type_0 = check_project_type(data)
+                type_type_0 = ProjectType(data)
 
                 return type_type_0
             except:  # noqa: E722

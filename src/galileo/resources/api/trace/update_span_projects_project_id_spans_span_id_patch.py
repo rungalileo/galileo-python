@@ -1,20 +1,25 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...types import Response, UNSET
+from ... import errors
+
 from ...models.http_validation_error import HTTPValidationError
 from ...models.log_span_update_request import LogSpanUpdateRequest
 from ...models.log_span_update_response import LogSpanUpdateResponse
-from ...types import Response
+from typing import cast
 
 
 def _get_kwargs(project_id: str, span_id: str, *, body: LogSpanUpdateRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/projects/{project_id}/spans/{span_id}"}
+    _kwargs: dict[str, Any] = {
+        "method": "patch",
+        "url": "/projects/{project_id}/spans/{span_id}".format(project_id=project_id, span_id=span_id),
+    }
 
     _kwargs["json"] = body.to_dict()
 

@@ -1,16 +1,18 @@
-import datetime
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.log_records_date_filter_operator import (
-    LogRecordsDateFilterOperator,
-    check_log_records_date_filter_operator,
-)
 from ..types import UNSET, Unset
+
+from ..models.log_records_date_filter_operator import LogRecordsDateFilterOperator
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import Literal, Union, cast
+import datetime
+
 
 T = TypeVar("T", bound="LogRecordsDateFilter")
 
@@ -34,7 +36,7 @@ class LogRecordsDateFilter:
     def to_dict(self) -> dict[str, Any]:
         column_id = self.column_id
 
-        operator: str = self.operator
+        operator = self.operator.value
 
         value = self.value.isoformat()
 
@@ -53,7 +55,7 @@ class LogRecordsDateFilter:
         d = dict(src_dict)
         column_id = d.pop("column_id")
 
-        operator = check_log_records_date_filter_operator(d.pop("operator"))
+        operator = LogRecordsDateFilterOperator(d.pop("operator"))
 
         value = isoparse(d.pop("value"))
 

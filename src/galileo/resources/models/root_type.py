@@ -1,11 +1,10 @@
-from typing import Literal, cast
-
-RootType = Literal["session", "span", "trace"]
-
-ROOT_TYPE_VALUES: set[RootType] = {"session", "span", "trace"}
+from enum import Enum
 
 
-def check_root_type(value: str) -> RootType:
-    if value in ROOT_TYPE_VALUES:
-        return cast(RootType, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {ROOT_TYPE_VALUES!r}")
+class RootType(str, Enum):
+    SESSION = "session"
+    SPAN = "span"
+    TRACE = "trace"
+
+    def __str__(self) -> str:
+        return str(self.value)

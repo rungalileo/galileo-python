@@ -1,14 +1,19 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...types import Response, UNSET
+from ... import errors
+
 from ...models.http_validation_error import HTTPValidationError
 from ...models.project_db_thin import ProjectDBThin
 from ...models.project_type import ProjectType
-from ...types import UNSET, Response, Unset
+from ...types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
 
 
 def _get_kwargs(*, type_: Union[None, ProjectType, Unset] = UNSET) -> dict[str, Any]:
@@ -17,8 +22,8 @@ def _get_kwargs(*, type_: Union[None, ProjectType, Unset] = UNSET) -> dict[str, 
     json_type_: Union[None, Unset, str]
     if isinstance(type_, Unset):
         json_type_ = UNSET
-    elif isinstance(type_, str):
-        json_type_ = type_
+    elif isinstance(type_, ProjectType):
+        json_type_ = type_.value
     else:
         json_type_ = type_
     params["type"] = json_type_

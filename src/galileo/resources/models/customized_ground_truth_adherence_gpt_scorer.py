@@ -1,24 +1,30 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.node_type import NodeType, check_node_type
-from ..models.output_type_enum import OutputTypeEnum, check_output_type_enum
-from ..models.scorer_name import ScorerName, check_scorer_name
 from ..types import UNSET, Unset
 
+from ..models.node_type import NodeType
+from ..models.output_type_enum import OutputTypeEnum
+from ..models.scorer_name import ScorerName
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+
 if TYPE_CHECKING:
-    from ..models.customized_ground_truth_adherence_gpt_scorer_aggregates_type_0 import (
-        CustomizedGroundTruthAdherenceGPTScorerAggregatesType0,
-    )
+    from ..models.metadata_filter import MetadataFilter
     from ..models.customized_ground_truth_adherence_gpt_scorer_extra_type_0 import (
         CustomizedGroundTruthAdherenceGPTScorerExtraType0,
     )
-    from ..models.ground_truth_adherence_template import GroundTruthAdherenceTemplate
-    from ..models.metadata_filter import MetadataFilter
     from ..models.node_name_filter import NodeNameFilter
+    from ..models.ground_truth_adherence_template import GroundTruthAdherenceTemplate
+    from ..models.customized_ground_truth_adherence_gpt_scorer_aggregates_type_0 import (
+        CustomizedGroundTruthAdherenceGPTScorerAggregatesType0,
+    )
 
 
 T = TypeVar("T", bound="CustomizedGroundTruthAdherenceGPTScorer")
@@ -78,13 +84,15 @@ class CustomizedGroundTruthAdherenceGPTScorer:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.customized_ground_truth_adherence_gpt_scorer_aggregates_type_0 import (
-            CustomizedGroundTruthAdherenceGPTScorerAggregatesType0,
-        )
+        from ..models.metadata_filter import MetadataFilter
         from ..models.customized_ground_truth_adherence_gpt_scorer_extra_type_0 import (
             CustomizedGroundTruthAdherenceGPTScorerExtraType0,
         )
         from ..models.node_name_filter import NodeNameFilter
+        from ..models.ground_truth_adherence_template import GroundTruthAdherenceTemplate
+        from ..models.customized_ground_truth_adherence_gpt_scorer_aggregates_type_0 import (
+            CustomizedGroundTruthAdherenceGPTScorerAggregatesType0,
+        )
 
         aggregate_keys: Union[Unset, list[str]] = UNSET
         if not isinstance(self.aggregate_keys, Unset):
@@ -175,8 +183,8 @@ class CustomizedGroundTruthAdherenceGPTScorer:
         output_type: Union[None, Unset, str]
         if isinstance(self.output_type, Unset):
             output_type = UNSET
-        elif isinstance(self.output_type, str):
-            output_type = self.output_type
+        elif isinstance(self.output_type, OutputTypeEnum):
+            output_type = self.output_type.value
         else:
             output_type = self.output_type
 
@@ -200,7 +208,7 @@ class CustomizedGroundTruthAdherenceGPTScorer:
         elif isinstance(self.scoreable_node_types, list):
             scoreable_node_types = []
             for scoreable_node_types_type_0_item_data in self.scoreable_node_types:
-                scoreable_node_types_type_0_item: str = scoreable_node_types_type_0_item_data
+                scoreable_node_types_type_0_item = scoreable_node_types_type_0_item_data.value
                 scoreable_node_types.append(scoreable_node_types_type_0_item)
 
         else:
@@ -221,7 +229,7 @@ class CustomizedGroundTruthAdherenceGPTScorer:
         if not isinstance(self.sub_scorers, Unset):
             sub_scorers = []
             for sub_scorers_item_data in self.sub_scorers:
-                sub_scorers_item: str = sub_scorers_item_data
+                sub_scorers_item = sub_scorers_item_data.value
                 sub_scorers.append(sub_scorers_item)
 
         field_dict: dict[str, Any] = {}
@@ -276,15 +284,15 @@ class CustomizedGroundTruthAdherenceGPTScorer:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.customized_ground_truth_adherence_gpt_scorer_aggregates_type_0 import (
-            CustomizedGroundTruthAdherenceGPTScorerAggregatesType0,
-        )
+        from ..models.metadata_filter import MetadataFilter
         from ..models.customized_ground_truth_adherence_gpt_scorer_extra_type_0 import (
             CustomizedGroundTruthAdherenceGPTScorerExtraType0,
         )
-        from ..models.ground_truth_adherence_template import GroundTruthAdherenceTemplate
-        from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
+        from ..models.ground_truth_adherence_template import GroundTruthAdherenceTemplate
+        from ..models.customized_ground_truth_adherence_gpt_scorer_aggregates_type_0 import (
+            CustomizedGroundTruthAdherenceGPTScorerAggregatesType0,
+        )
 
         d = dict(src_dict)
         aggregate_keys = cast(list[str], d.pop("aggregate_keys", UNSET))
@@ -448,7 +456,7 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = check_output_type_enum(data)
+                output_type_type_0 = OutputTypeEnum(data)
 
                 return output_type_type_0
             except:  # noqa: E722
@@ -488,7 +496,7 @@ class CustomizedGroundTruthAdherenceGPTScorer:
                 scoreable_node_types_type_0 = []
                 _scoreable_node_types_type_0 = data
                 for scoreable_node_types_type_0_item_data in _scoreable_node_types_type_0:
-                    scoreable_node_types_type_0_item = check_node_type(scoreable_node_types_type_0_item_data)
+                    scoreable_node_types_type_0_item = NodeType(scoreable_node_types_type_0_item_data)
 
                     scoreable_node_types_type_0.append(scoreable_node_types_type_0_item)
 
@@ -523,7 +531,7 @@ class CustomizedGroundTruthAdherenceGPTScorer:
         sub_scorers = []
         _sub_scorers = d.pop("sub_scorers", UNSET)
         for sub_scorers_item_data in _sub_scorers or []:
-            sub_scorers_item = check_scorer_name(sub_scorers_item_data)
+            sub_scorers_item = ScorerName(sub_scorers_item_data)
 
             sub_scorers.append(sub_scorers_item)
 

@@ -1,11 +1,15 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.execution_status import ExecutionStatus, check_execution_status
 from ..types import UNSET, Unset
+
+from ..models.execution_status import ExecutionStatus
+from ..types import UNSET, Unset
+from typing import cast
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.trace_metadata import TraceMetadata
@@ -29,13 +33,15 @@ class Response:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.trace_metadata import TraceMetadata
+
         text = self.text
 
         trace_metadata = self.trace_metadata.to_dict()
 
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
-            status = self.status
+            status = self.status.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -59,7 +65,7 @@ class Response:
         if isinstance(_status, Unset):
             status = UNSET
         else:
-            status = check_execution_status(_status)
+            status = ExecutionStatus(_status)
 
         response = cls(text=text, trace_metadata=trace_metadata, status=status)
 

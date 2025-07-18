@@ -1,11 +1,14 @@
-from typing import Literal, cast
-
-DataType = Literal["boolean", "floating_point", "integer", "string_list", "text", "timestamp", "uuid"]
-
-DATA_TYPE_VALUES: set[DataType] = {"boolean", "floating_point", "integer", "string_list", "text", "timestamp", "uuid"}
+from enum import Enum
 
 
-def check_data_type(value: str) -> DataType:
-    if value in DATA_TYPE_VALUES:
-        return cast(DataType, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {DATA_TYPE_VALUES!r}")
+class DataType(str, Enum):
+    BOOLEAN = "boolean"
+    FLOATING_POINT = "floating_point"
+    INTEGER = "integer"
+    STRING_LIST = "string_list"
+    TEXT = "text"
+    TIMESTAMP = "timestamp"
+    UUID = "uuid"
+
+    def __str__(self) -> str:
+        return str(self.value)

@@ -1,20 +1,22 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...types import Response, UNSET
+from ... import errors
+
 from ...models.http_validation_error import HTTPValidationError
 from ...models.log_traces_ingest_request import LogTracesIngestRequest
 from ...models.log_traces_ingest_response import LogTracesIngestResponse
-from ...types import Response
+from typing import cast
 
 
 def _get_kwargs(project_id: str, *, body: LogTracesIngestRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/traces"}
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/projects/{project_id}/traces".format(project_id=project_id)}
 
     _kwargs["json"] = body.to_dict()
 

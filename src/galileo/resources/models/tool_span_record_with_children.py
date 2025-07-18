@@ -1,22 +1,28 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+import datetime
+
 if TYPE_CHECKING:
-    from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
     from ..models.llm_span_record import LlmSpanRecord
-    from ..models.metrics import Metrics
-    from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
     from ..models.tool_span_record_with_children_dataset_metadata import ToolSpanRecordWithChildrenDatasetMetadata
+    from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+    from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
+    from ..models.metrics import Metrics
+    from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
     from ..models.tool_span_record_with_children_metric_info_type_0 import ToolSpanRecordWithChildrenMetricInfoType0
     from ..models.tool_span_record_with_children_user_metadata import ToolSpanRecordWithChildrenUserMetadata
-    from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
 
 
 T = TypeVar("T", bound="ToolSpanRecordWithChildren")
@@ -108,10 +114,14 @@ class ToolSpanRecordWithChildren:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.llm_span_record import LlmSpanRecord
-        from ..models.tool_span_record_with_children_metric_info_type_0 import ToolSpanRecordWithChildrenMetricInfoType0
+        from ..models.tool_span_record_with_children_dataset_metadata import ToolSpanRecordWithChildrenDatasetMetadata
+        from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+        from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
+        from ..models.metrics import Metrics
         from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
+        from ..models.tool_span_record_with_children_metric_info_type_0 import ToolSpanRecordWithChildrenMetricInfoType0
+        from ..models.tool_span_record_with_children_user_metadata import ToolSpanRecordWithChildrenUserMetadata
 
         id = self.id
 
@@ -328,14 +338,14 @@ class ToolSpanRecordWithChildren:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.llm_span_record import LlmSpanRecord
-        from ..models.metrics import Metrics
-        from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
         from ..models.tool_span_record_with_children_dataset_metadata import ToolSpanRecordWithChildrenDatasetMetadata
+        from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+        from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
+        from ..models.metrics import Metrics
+        from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
         from ..models.tool_span_record_with_children_metric_info_type_0 import ToolSpanRecordWithChildrenMetricInfoType0
         from ..models.tool_span_record_with_children_user_metadata import ToolSpanRecordWithChildrenUserMetadata
-        from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
 
         d = dict(src_dict)
         id = d.pop("id")

@@ -1,35 +1,18 @@
-from typing import Literal, cast
-
-LLMIntegration = Literal[
-    "anthropic",
-    "aws_bedrock",
-    "aws_sagemaker",
-    "azure",
-    "databricks",
-    "mistral",
-    "nvidia",
-    "openai",
-    "vegas_gateway",
-    "vertex_ai",
-    "writer",
-]
-
-LLM_INTEGRATION_VALUES: set[LLMIntegration] = {
-    "anthropic",
-    "aws_bedrock",
-    "aws_sagemaker",
-    "azure",
-    "databricks",
-    "mistral",
-    "nvidia",
-    "openai",
-    "vegas_gateway",
-    "vertex_ai",
-    "writer",
-}
+from enum import Enum
 
 
-def check_llm_integration(value: str) -> LLMIntegration:
-    if value in LLM_INTEGRATION_VALUES:
-        return cast(LLMIntegration, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {LLM_INTEGRATION_VALUES!r}")
+class LLMIntegration(str, Enum):
+    ANTHROPIC = "anthropic"
+    AWS_BEDROCK = "aws_bedrock"
+    AWS_SAGEMAKER = "aws_sagemaker"
+    AZURE = "azure"
+    DATABRICKS = "databricks"
+    MISTRAL = "mistral"
+    NVIDIA = "nvidia"
+    OPENAI = "openai"
+    VEGAS_GATEWAY = "vegas_gateway"
+    VERTEX_AI = "vertex_ai"
+    WRITER = "writer"
+
+    def __str__(self) -> str:
+        return str(self.value)

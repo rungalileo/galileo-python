@@ -1,11 +1,11 @@
-from typing import Literal, cast
-
-UserRole = Literal["admin", "manager", "read_only", "user"]
-
-USER_ROLE_VALUES: set[UserRole] = {"admin", "manager", "read_only", "user"}
+from enum import Enum
 
 
-def check_user_role(value: str) -> UserRole:
-    if value in USER_ROLE_VALUES:
-        return cast(UserRole, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {USER_ROLE_VALUES!r}")
+class UserRole(str, Enum):
+    ADMIN = "admin"
+    MANAGER = "manager"
+    READ_ONLY = "read_only"
+    USER = "user"
+
+    def __str__(self) -> str:
+        return str(self.value)

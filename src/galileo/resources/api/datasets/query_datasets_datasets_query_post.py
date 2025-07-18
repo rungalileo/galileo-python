@@ -1,15 +1,19 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...types import Response, UNSET
+from ... import errors
+
 from ...models.dataset_action import DatasetAction
 from ...models.http_validation_error import HTTPValidationError
 from ...models.list_dataset_params import ListDatasetParams
 from ...models.list_dataset_response import ListDatasetResponse
-from ...types import UNSET, Response, Unset
+from ...types import UNSET, Unset
+from typing import cast
+from typing import Union
 
 
 def _get_kwargs(
@@ -27,7 +31,7 @@ def _get_kwargs(
     if not isinstance(actions, Unset):
         json_actions = []
         for actions_item_data in actions:
-            actions_item: str = actions_item_data
+            actions_item = actions_item_data.value
             json_actions.append(actions_item)
 
     params["actions"] = json_actions

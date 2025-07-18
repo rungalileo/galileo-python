@@ -1,14 +1,19 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
+
 if TYPE_CHECKING:
-    from ..models.scorer_config import ScorerConfig
     from ..models.segment_filter import SegmentFilter
+    from ..models.scorer_config import ScorerConfig
 
 
 T = TypeVar("T", bound="RunScorerSettingsResponse")
@@ -29,6 +34,9 @@ class RunScorerSettingsResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.segment_filter import SegmentFilter
+        from ..models.scorer_config import ScorerConfig
+
         run_id = self.run_id
 
         scorers = []
@@ -58,8 +66,8 @@ class RunScorerSettingsResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.scorer_config import ScorerConfig
         from ..models.segment_filter import SegmentFilter
+        from ..models.scorer_config import ScorerConfig
 
         d = dict(src_dict)
         run_id = d.pop("run_id")

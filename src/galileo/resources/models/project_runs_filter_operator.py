@@ -1,11 +1,14 @@
-from typing import Literal, cast
-
-ProjectRunsFilterOperator = Literal["between", "eq", "gt", "gte", "lt", "lte", "ne"]
-
-PROJECT_RUNS_FILTER_OPERATOR_VALUES: set[ProjectRunsFilterOperator] = {"between", "eq", "gt", "gte", "lt", "lte", "ne"}
+from enum import Enum
 
 
-def check_project_runs_filter_operator(value: str) -> ProjectRunsFilterOperator:
-    if value in PROJECT_RUNS_FILTER_OPERATOR_VALUES:
-        return cast(ProjectRunsFilterOperator, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {PROJECT_RUNS_FILTER_OPERATOR_VALUES!r}")
+class ProjectRunsFilterOperator(str, Enum):
+    BETWEEN = "between"
+    EQ = "eq"
+    GT = "gt"
+    GTE = "gte"
+    LT = "lt"
+    LTE = "lte"
+    NE = "ne"
+
+    def __str__(self) -> str:
+        return str(self.value)

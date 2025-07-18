@@ -1,12 +1,17 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..types import UNSET, Unset
+
+from typing import cast
+from typing import cast, Union
+
 if TYPE_CHECKING:
-    from ..models.dataset_row_metadata import DatasetRowMetadata
     from ..models.dataset_row_values_dict import DatasetRowValuesDict
+    from ..models.dataset_row_metadata import DatasetRowMetadata
 
 
 T = TypeVar("T", bound="DatasetRow")
@@ -31,6 +36,7 @@ class DatasetRow:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.dataset_row_values_dict import DatasetRowValuesDict
         from ..models.dataset_row_metadata import DatasetRowMetadata
 
         index = self.index
@@ -61,8 +67,8 @@ class DatasetRow:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.dataset_row_metadata import DatasetRowMetadata
         from ..models.dataset_row_values_dict import DatasetRowValuesDict
+        from ..models.dataset_row_metadata import DatasetRowMetadata
 
         d = dict(src_dict)
         index = d.pop("index")

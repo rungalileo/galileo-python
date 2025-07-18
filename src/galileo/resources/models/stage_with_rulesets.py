@@ -1,11 +1,16 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.stage_type import StageType, check_stage_type
 from ..types import UNSET, Unset
+
+from ..models.stage_type import StageType
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.ruleset import Ruleset
@@ -36,6 +41,8 @@ class StageWithRulesets:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.ruleset import Ruleset
+
         name = self.name
 
         project_id = self.project_id
@@ -57,7 +64,7 @@ class StageWithRulesets:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_
+            type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -105,7 +112,7 @@ class StageWithRulesets:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = check_stage_type(_type_)
+            type_ = StageType(_type_)
 
         stage_with_rulesets = cls(
             name=name,

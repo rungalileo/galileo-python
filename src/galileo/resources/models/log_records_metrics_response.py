@@ -1,8 +1,12 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
+
+from typing import cast
 
 if TYPE_CHECKING:
     from ..models.log_records_metrics_response_aggregate_metrics import LogRecordsMetricsResponseAggregateMetrics
@@ -27,6 +31,9 @@ class LogRecordsMetricsResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.log_records_metrics_response_aggregate_metrics import LogRecordsMetricsResponseAggregateMetrics
+        from ..models.log_records_metrics_response_bucketed_metrics import LogRecordsMetricsResponseBucketedMetrics
+
         aggregate_metrics = self.aggregate_metrics.to_dict()
 
         bucketed_metrics = self.bucketed_metrics.to_dict()

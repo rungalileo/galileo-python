@@ -1,22 +1,24 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...types import Response, UNSET
+from ... import errors
+
 from ...models.base_scorer_version_response import BaseScorerVersionResponse
 from ...models.body_create_code_scorer_version_scorers_scorer_id_version_code_post import (
     BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost,
 )
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from typing import cast
 
 
 def _get_kwargs(scorer_id: str, *, body: BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/scorers/{scorer_id}/version/code"}
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/scorers/{scorer_id}/version/code".format(scorer_id=scorer_id)}
 
     _kwargs["files"] = body.to_multipart()
 

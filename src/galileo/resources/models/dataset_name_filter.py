@@ -1,11 +1,18 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.dataset_name_filter_operator import DatasetNameFilterOperator, check_dataset_name_filter_operator
 from ..types import UNSET, Unset
+
+from ..models.dataset_name_filter_operator import DatasetNameFilterOperator
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+
 
 T = TypeVar("T", bound="DatasetNameFilter")
 
@@ -27,7 +34,7 @@ class DatasetNameFilter:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        operator: str = self.operator
+        operator = self.operator.value
 
         value: Union[list[str], str]
         if isinstance(self.value, list):
@@ -53,7 +60,7 @@ class DatasetNameFilter:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        operator = check_dataset_name_filter_operator(d.pop("operator"))
+        operator = DatasetNameFilterOperator(d.pop("operator"))
 
         def _parse_value(data: object) -> Union[list[str], str]:
             try:

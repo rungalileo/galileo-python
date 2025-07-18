@@ -1,11 +1,9 @@
-from typing import Literal, cast
-
-InsightType = Literal["horizontal_bar", "vertical_bar"]
-
-INSIGHT_TYPE_VALUES: set[InsightType] = {"horizontal_bar", "vertical_bar"}
+from enum import Enum
 
 
-def check_insight_type(value: str) -> InsightType:
-    if value in INSIGHT_TYPE_VALUES:
-        return cast(InsightType, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {INSIGHT_TYPE_VALUES!r}")
+class InsightType(str, Enum):
+    HORIZONTAL_BAR = "horizontal_bar"
+    VERTICAL_BAR = "vertical_bar"
+
+    def __str__(self) -> str:
+        return str(self.value)

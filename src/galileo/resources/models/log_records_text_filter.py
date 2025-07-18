@@ -1,14 +1,18 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.log_records_text_filter_operator import (
-    LogRecordsTextFilterOperator,
-    check_log_records_text_filter_operator,
-)
 from ..types import UNSET, Unset
+
+from ..models.log_records_text_filter_operator import LogRecordsTextFilterOperator
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+
 
 T = TypeVar("T", bound="LogRecordsTextFilter")
 
@@ -34,7 +38,7 @@ class LogRecordsTextFilter:
     def to_dict(self) -> dict[str, Any]:
         column_id = self.column_id
 
-        operator: str = self.operator
+        operator = self.operator.value
 
         value: Union[list[str], str]
         if isinstance(self.value, list):
@@ -62,7 +66,7 @@ class LogRecordsTextFilter:
         d = dict(src_dict)
         column_id = d.pop("column_id")
 
-        operator = check_log_records_text_filter_operator(d.pop("operator"))
+        operator = LogRecordsTextFilterOperator(d.pop("operator"))
 
         def _parse_value(data: object) -> Union[list[str], str]:
             try:

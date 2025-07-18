@@ -1,10 +1,14 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.message_list_item_role import MessageListItemRole, check_message_list_item_role
+from ..types import UNSET, Unset
+
+from ..models.message_list_item_role import MessageListItemRole
+from typing import cast, Union
+
 
 T = TypeVar("T", bound="MessagesListItem")
 
@@ -25,8 +29,8 @@ class MessagesListItem:
         content = self.content
 
         role: str
-        if isinstance(self.role, str):
-            role = self.role
+        if isinstance(self.role, MessageListItemRole):
+            role = self.role.value
         else:
             role = self.role
 
@@ -45,7 +49,7 @@ class MessagesListItem:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                role_type_1 = check_message_list_item_role(data)
+                role_type_1 = MessageListItemRole(data)
 
                 return role_type_1
             except:  # noqa: E722

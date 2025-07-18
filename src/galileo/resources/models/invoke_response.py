@@ -1,20 +1,25 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.execution_status import ExecutionStatus, check_execution_status
 from ..types import UNSET, Unset
 
+from ..models.execution_status import ExecutionStatus
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
+
 if TYPE_CHECKING:
-    from ..models.action_result import ActionResult
     from ..models.invoke_response_headers_type_0 import InvokeResponseHeadersType0
     from ..models.invoke_response_metadata_type_0 import InvokeResponseMetadataType0
-    from ..models.invoke_response_metric_results import InvokeResponseMetricResults
-    from ..models.ruleset_result import RulesetResult
     from ..models.stage_metadata import StageMetadata
+    from ..models.invoke_response_metric_results import InvokeResponseMetricResults
+    from ..models.action_result import ActionResult
     from ..models.trace_metadata import TraceMetadata
+    from ..models.ruleset_result import RulesetResult
 
 
 T = TypeVar("T", bound="InvokeResponse")
@@ -53,6 +58,11 @@ class InvokeResponse:
     def to_dict(self) -> dict[str, Any]:
         from ..models.invoke_response_headers_type_0 import InvokeResponseHeadersType0
         from ..models.invoke_response_metadata_type_0 import InvokeResponseMetadataType0
+        from ..models.stage_metadata import StageMetadata
+        from ..models.invoke_response_metric_results import InvokeResponseMetricResults
+        from ..models.action_result import ActionResult
+        from ..models.trace_metadata import TraceMetadata
+        from ..models.ruleset_result import RulesetResult
 
         action_result = self.action_result.to_dict()
 
@@ -93,7 +103,7 @@ class InvokeResponse:
 
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
-            status = self.status
+            status = self.status.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -122,13 +132,13 @@ class InvokeResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.action_result import ActionResult
         from ..models.invoke_response_headers_type_0 import InvokeResponseHeadersType0
         from ..models.invoke_response_metadata_type_0 import InvokeResponseMetadataType0
-        from ..models.invoke_response_metric_results import InvokeResponseMetricResults
-        from ..models.ruleset_result import RulesetResult
         from ..models.stage_metadata import StageMetadata
+        from ..models.invoke_response_metric_results import InvokeResponseMetricResults
+        from ..models.action_result import ActionResult
         from ..models.trace_metadata import TraceMetadata
+        from ..models.ruleset_result import RulesetResult
 
         d = dict(src_dict)
         action_result = ActionResult.from_dict(d.pop("action_result"))
@@ -194,7 +204,7 @@ class InvokeResponse:
         if isinstance(_status, Unset):
             status = UNSET
         else:
-            status = check_execution_status(_status)
+            status = ExecutionStatus(_status)
 
         invoke_response = cls(
             action_result=action_result,

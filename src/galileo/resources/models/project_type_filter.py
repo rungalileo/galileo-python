@@ -1,12 +1,18 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.project_type import ProjectType, check_project_type
-from ..models.project_type_filter_operator import ProjectTypeFilterOperator, check_project_type_filter_operator
 from ..types import UNSET, Unset
+
+from ..models.project_type import ProjectType
+from ..models.project_type_filter_operator import ProjectTypeFilterOperator
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+
 
 T = TypeVar("T", bound="ProjectTypeFilter")
 
@@ -26,15 +32,15 @@ class ProjectTypeFilter:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        operator: str = self.operator
+        operator = self.operator.value
 
         value: Union[list[str], str]
-        if isinstance(self.value, str):
-            value = self.value
+        if isinstance(self.value, ProjectType):
+            value = self.value.value
         else:
             value = []
             for value_type_1_item_data in self.value:
-                value_type_1_item: str = value_type_1_item_data
+                value_type_1_item = value_type_1_item_data.value
                 value.append(value_type_1_item)
 
         name = self.name
@@ -50,13 +56,13 @@ class ProjectTypeFilter:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        operator = check_project_type_filter_operator(d.pop("operator"))
+        operator = ProjectTypeFilterOperator(d.pop("operator"))
 
         def _parse_value(data: object) -> Union[ProjectType, list[ProjectType]]:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                value_type_0 = check_project_type(data)
+                value_type_0 = ProjectType(data)
 
                 return value_type_0
             except:  # noqa: E722
@@ -66,7 +72,7 @@ class ProjectTypeFilter:
             value_type_1 = []
             _value_type_1 = data
             for value_type_1_item_data in _value_type_1:
-                value_type_1_item = check_project_type(value_type_1_item_data)
+                value_type_1_item = ProjectType(value_type_1_item_data)
 
                 value_type_1.append(value_type_1_item)
 

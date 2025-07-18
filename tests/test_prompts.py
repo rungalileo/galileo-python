@@ -81,6 +81,7 @@ def prompt_template():
             },
             "permissions": [],
             "selected_version": {
+                "content_changed": False,
                 "id": "03487fd7-1032-4317-ac43-a68401c07ee9",
                 "template": '[{"content":"you are a helpful assistant","role":"system"},{"content":"why is sky blue?","role":"user"}]',
                 "version": 0,
@@ -104,6 +105,7 @@ def prompt_template():
             "total_versions": 1,
             "all_versions": [
                 {
+                    "content_changed": False,
                     "id": "03487fd7-1032-4317-ac43-a68401c07ee9",
                     "template": '[{"content":"you are a helpful assistant","role":"system"},{"content":"why is sky blue?","role":"user"}]',
                     "version": 0,
@@ -144,6 +146,7 @@ def global_prompt_template():
             },
             "permissions": [],
             "selected_version": {
+                "content_changed": False,
                 "id": "global-version-id-456",
                 "template": '[{"content":"you are a global helpful assistant","role":"system"}]',
                 "version": 1,
@@ -167,6 +170,7 @@ def global_prompt_template():
             "total_versions": 2,
             "all_versions": [
                 {
+                    "content_changed": False,
                     "id": "global-version-id-123",
                     "template": '[{"content":"you are a helpful assistant","role":"system"}]',
                     "version": 0,
@@ -186,6 +190,7 @@ def global_prompt_template():
                     },
                 },
                 {
+                    "content_changed": False,
                     "id": "global-version-id-456",
                     "template": '[{"content":"you are a global helpful assistant","role":"system"}]',
                     "version": 1,
@@ -212,6 +217,7 @@ def global_prompt_template():
 def global_prompt_template_version():
     return BasePromptTemplateVersionResponse.from_dict(
         {
+            "content_changed": False,
             "id": "global-version-id-123",
             "template": '[{"content":"you are a helpful assistant","role":"system"}]',
             "version": 0,
@@ -252,6 +258,7 @@ def global_templates_list_response():
                     },
                     "permissions": [],
                     "selected_version": {
+                        "content_changed": False,
                         "id": "global-version-id-456",
                         "template": '[{"content":"you are a global helpful assistant","role":"system"}]',
                         "version": 1,
@@ -275,6 +282,7 @@ def global_templates_list_response():
                     "total_versions": 2,
                     "all_versions": [
                         {
+                            "content_changed": False,
                             "id": "global-version-id-123",
                             "template": '[{"content":"you are a helpful assistant","role":"system"}]',
                             "version": 0,
@@ -294,6 +302,7 @@ def global_templates_list_response():
                             },
                         },
                         {
+                            "content_changed": False,
                             "id": "global-version-id-456",
                             "template": '[{"content":"you are a global helpful assistant","role":"system"}]',
                             "version": 1,

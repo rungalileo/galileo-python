@@ -1,14 +1,19 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.model_type import ModelType, check_model_type
-from ..models.scorer_types import ScorerTypes, check_scorer_types
 from ..types import UNSET, Unset
+
+from ..models.model_type import ModelType
+from ..models.scorer_types import ScorerTypes
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Union
+import datetime
 
 if TYPE_CHECKING:
     from ..models.base_scorer_version_db import BaseScorerVersionDB
@@ -65,7 +70,7 @@ class ScorerResponse:
 
         name = self.name
 
-        scorer_type: str = self.scorer_type
+        scorer_type = self.scorer_type.value
 
         tags = self.tags
 
@@ -128,8 +133,8 @@ class ScorerResponse:
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
             model_type = UNSET
-        elif isinstance(self.model_type, str):
-            model_type = self.model_type
+        elif isinstance(self.model_type, ModelType):
+            model_type = self.model_type.value
         else:
             model_type = self.model_type
 
@@ -179,7 +184,7 @@ class ScorerResponse:
 
         name = d.pop("name")
 
-        scorer_type = check_scorer_types(d.pop("scorer_type"))
+        scorer_type = ScorerTypes(d.pop("scorer_type"))
 
         tags = cast(list[str], d.pop("tags"))
 
@@ -290,7 +295,7 @@ class ScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = check_model_type(data)
+                model_type_type_0 = ModelType(data)
 
                 return model_type_type_0
             except:  # noqa: E722

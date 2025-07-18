@@ -1,20 +1,22 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...types import Response, UNSET
+from ... import errors
+
 from ...models.group_collaborator import GroupCollaborator
 from ...models.group_collaborator_create import GroupCollaboratorCreate
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from typing import cast
 
 
 def _get_kwargs(dataset_id: str, *, body: list["GroupCollaboratorCreate"]) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/datasets/{dataset_id}/groups"}
+    _kwargs: dict[str, Any] = {"method": "post", "url": "/datasets/{dataset_id}/groups".format(dataset_id=dataset_id)}
 
     _kwargs["json"] = []
     for body_item_data in body:

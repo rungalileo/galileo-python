@@ -1,19 +1,24 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.column_category import ColumnCategory, check_column_category
-from ..models.data_type import DataType, check_data_type
-from ..models.data_unit import DataUnit, check_data_unit
-from ..models.insight_type import InsightType, check_insight_type
-from ..models.step_type import StepType, check_step_type
 from ..types import UNSET, Unset
 
+from ..models.column_category import ColumnCategory
+from ..models.data_type import DataType
+from ..models.data_unit import DataUnit
+from ..models.insight_type import InsightType
+from ..models.step_type import StepType
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
+
 if TYPE_CHECKING:
-    from ..models.metric_threshold import MetricThreshold
     from ..models.scorer_config import ScorerConfig
+    from ..models.metric_threshold import MetricThreshold
 
 
 T = TypeVar("T", bound="ColumnInfo")
@@ -65,10 +70,10 @@ class ColumnInfo:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.metric_threshold import MetricThreshold
         from ..models.scorer_config import ScorerConfig
+        from ..models.metric_threshold import MetricThreshold
 
-        category: str = self.category
+        category = self.category.value
 
         id = self.id
 
@@ -85,22 +90,22 @@ class ColumnInfo:
         if not isinstance(self.applicable_types, Unset):
             applicable_types = []
             for applicable_types_item_data in self.applicable_types:
-                applicable_types_item: str = applicable_types_item_data
+                applicable_types_item = applicable_types_item_data.value
                 applicable_types.append(applicable_types_item)
 
         data_type: Union[None, Unset, str]
         if isinstance(self.data_type, Unset):
             data_type = UNSET
-        elif isinstance(self.data_type, str):
-            data_type = self.data_type
+        elif isinstance(self.data_type, DataType):
+            data_type = self.data_type.value
         else:
             data_type = self.data_type
 
         data_unit: Union[None, Unset, str]
         if isinstance(self.data_unit, Unset):
             data_unit = UNSET
-        elif isinstance(self.data_unit, str):
-            data_unit = self.data_unit
+        elif isinstance(self.data_unit, DataUnit):
+            data_unit = self.data_unit.value
         else:
             data_unit = self.data_unit
 
@@ -121,8 +126,8 @@ class ColumnInfo:
         insight_type: Union[None, Unset, str]
         if isinstance(self.insight_type, Unset):
             insight_type = UNSET
-        elif isinstance(self.insight_type, str):
-            insight_type = self.insight_type
+        elif isinstance(self.insight_type, InsightType):
+            insight_type = self.insight_type.value
         else:
             insight_type = self.insight_type
 
@@ -198,11 +203,11 @@ class ColumnInfo:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.metric_threshold import MetricThreshold
         from ..models.scorer_config import ScorerConfig
+        from ..models.metric_threshold import MetricThreshold
 
         d = dict(src_dict)
-        category = check_column_category(d.pop("category"))
+        category = ColumnCategory(d.pop("category"))
 
         id = d.pop("id")
 
@@ -226,7 +231,7 @@ class ColumnInfo:
         applicable_types = []
         _applicable_types = d.pop("applicable_types", UNSET)
         for applicable_types_item_data in _applicable_types or []:
-            applicable_types_item = check_step_type(applicable_types_item_data)
+            applicable_types_item = StepType(applicable_types_item_data)
 
             applicable_types.append(applicable_types_item)
 
@@ -238,7 +243,7 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_type_type_0 = check_data_type(data)
+                data_type_type_0 = DataType(data)
 
                 return data_type_type_0
             except:  # noqa: E722
@@ -255,7 +260,7 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_unit_type_0 = check_data_unit(data)
+                data_unit_type_0 = DataUnit(data)
 
                 return data_unit_type_0
             except:  # noqa: E722
@@ -292,7 +297,7 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                insight_type_type_0 = check_insight_type(data)
+                insight_type_type_0 = InsightType(data)
 
                 return insight_type_type_0
             except:  # noqa: E722

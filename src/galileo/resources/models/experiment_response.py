@@ -1,19 +1,24 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.task_type import TaskType, check_task_type
 from ..types import UNSET, Unset
 
+from ..models.task_type import TaskType
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Union
+import datetime
+
 if TYPE_CHECKING:
-    from ..models.experiment_dataset import ExperimentDataset
+    from ..models.prompt_run_settings import PromptRunSettings
     from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
     from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
-    from ..models.prompt_run_settings import PromptRunSettings
+    from ..models.experiment_dataset import ExperimentDataset
 
 
 T = TypeVar("T", bound="ExperimentResponse")
@@ -61,14 +66,16 @@ class ExperimentResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.experiment_dataset import ExperimentDataset
         from ..models.prompt_run_settings import PromptRunSettings
+        from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
+        from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
+        from ..models.experiment_dataset import ExperimentDataset
 
         id = self.id
 
         project_id = self.project_id
 
-        task_type: int = self.task_type
+        task_type = self.task_type.value
 
         aggregate_feedback: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.aggregate_feedback, Unset):
@@ -170,17 +177,17 @@ class ExperimentResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.experiment_dataset import ExperimentDataset
+        from ..models.prompt_run_settings import PromptRunSettings
         from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
         from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
-        from ..models.prompt_run_settings import PromptRunSettings
+        from ..models.experiment_dataset import ExperimentDataset
 
         d = dict(src_dict)
         id = d.pop("id")
 
         project_id = d.pop("project_id")
 
-        task_type = check_task_type(d.pop("task_type"))
+        task_type = TaskType(d.pop("task_type"))
 
         _aggregate_feedback = d.pop("aggregate_feedback", UNSET)
         aggregate_feedback: Union[Unset, ExperimentResponseAggregateFeedback]

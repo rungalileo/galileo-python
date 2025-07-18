@@ -1,11 +1,25 @@
-from typing import Literal, cast
-
-TaskType = Literal[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
-
-TASK_TYPE_VALUES: set[TaskType] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17}
+from enum import IntEnum
 
 
-def check_task_type(value: int) -> TaskType:
-    if value in TASK_TYPE_VALUES:
-        return cast(TaskType, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {TASK_TYPE_VALUES!r}")
+class TaskType(IntEnum):
+    VALUE_0 = 0
+    VALUE_1 = 1
+    VALUE_2 = 2
+    VALUE_3 = 3
+    VALUE_4 = 4
+    VALUE_5 = 5
+    VALUE_6 = 6
+    VALUE_7 = 7
+    VALUE_8 = 8
+    VALUE_9 = 9
+    VALUE_10 = 10
+    VALUE_11 = 11
+    VALUE_12 = 12
+    VALUE_13 = 13
+    VALUE_14 = 14
+    VALUE_15 = 15
+    VALUE_16 = 16
+    VALUE_17 = 17
+
+    def __str__(self) -> str:
+        return str(self.value)

@@ -1,16 +1,22 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+import datetime
+
 if TYPE_CHECKING:
-    from ..models.metrics import Metrics
     from ..models.trace_record_dataset_metadata import TraceRecordDatasetMetadata
+    from ..models.metrics import Metrics
     from ..models.trace_record_feedback_rating_info import TraceRecordFeedbackRatingInfo
     from ..models.trace_record_metric_info_type_0 import TraceRecordMetricInfoType0
     from ..models.trace_record_user_metadata import TraceRecordUserMetadata
@@ -85,7 +91,11 @@ class TraceRecord:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.trace_record_dataset_metadata import TraceRecordDatasetMetadata
+        from ..models.metrics import Metrics
+        from ..models.trace_record_feedback_rating_info import TraceRecordFeedbackRatingInfo
         from ..models.trace_record_metric_info_type_0 import TraceRecordMetricInfoType0
+        from ..models.trace_record_user_metadata import TraceRecordUserMetadata
 
         id = self.id
 
@@ -264,8 +274,8 @@ class TraceRecord:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.metrics import Metrics
         from ..models.trace_record_dataset_metadata import TraceRecordDatasetMetadata
+        from ..models.metrics import Metrics
         from ..models.trace_record_feedback_rating_info import TraceRecordFeedbackRatingInfo
         from ..models.trace_record_metric_info_type_0 import TraceRecordMetricInfoType0
         from ..models.trace_record_user_metadata import TraceRecordUserMetadata

@@ -1,11 +1,11 @@
-from typing import Literal, cast
-
-GroupAction = Literal["join", "list_members", "request_to_join", "update"]
-
-GROUP_ACTION_VALUES: set[GroupAction] = {"join", "list_members", "request_to_join", "update"}
+from enum import Enum
 
 
-def check_group_action(value: str) -> GroupAction:
-    if value in GROUP_ACTION_VALUES:
-        return cast(GroupAction, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {GROUP_ACTION_VALUES!r}")
+class GroupAction(str, Enum):
+    JOIN = "join"
+    LIST_MEMBERS = "list_members"
+    REQUEST_TO_JOIN = "request_to_join"
+    UPDATE = "update"
+
+    def __str__(self) -> str:
+        return str(self.value)

@@ -1,11 +1,12 @@
-from typing import Literal, cast
-
-DataUnit = Literal["count_and_total", "dollars", "milli_seconds", "nano_seconds", "percentage"]
-
-DATA_UNIT_VALUES: set[DataUnit] = {"count_and_total", "dollars", "milli_seconds", "nano_seconds", "percentage"}
+from enum import Enum
 
 
-def check_data_unit(value: str) -> DataUnit:
-    if value in DATA_UNIT_VALUES:
-        return cast(DataUnit, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {DATA_UNIT_VALUES!r}")
+class DataUnit(str, Enum):
+    COUNT_AND_TOTAL = "count_and_total"
+    DOLLARS = "dollars"
+    MILLI_SECONDS = "milli_seconds"
+    NANO_SECONDS = "nano_seconds"
+    PERCENTAGE = "percentage"
+
+    def __str__(self) -> str:
+        return str(self.value)

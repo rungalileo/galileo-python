@@ -1,16 +1,22 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Literal, cast
+from typing import Union
+
 if TYPE_CHECKING:
-    from ..models.recompute_settings_log_stream import RecomputeSettingsLogStream
+    from ..models.recompute_settings_runs import RecomputeSettingsRuns
     from ..models.recompute_settings_observe import RecomputeSettingsObserve
     from ..models.recompute_settings_project import RecomputeSettingsProject
-    from ..models.recompute_settings_runs import RecomputeSettingsRuns
+    from ..models.recompute_settings_log_stream import RecomputeSettingsLogStream
 
 
 T = TypeVar("T", bound="MetricCritiqueJobConfiguration")
@@ -44,10 +50,10 @@ class MetricCritiqueJobConfiguration:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.recompute_settings_log_stream import RecomputeSettingsLogStream
+        from ..models.recompute_settings_runs import RecomputeSettingsRuns
         from ..models.recompute_settings_observe import RecomputeSettingsObserve
         from ..models.recompute_settings_project import RecomputeSettingsProject
-        from ..models.recompute_settings_runs import RecomputeSettingsRuns
+        from ..models.recompute_settings_log_stream import RecomputeSettingsLogStream
 
         critique_ids = self.critique_ids
 
@@ -88,10 +94,10 @@ class MetricCritiqueJobConfiguration:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.recompute_settings_log_stream import RecomputeSettingsLogStream
+        from ..models.recompute_settings_runs import RecomputeSettingsRuns
         from ..models.recompute_settings_observe import RecomputeSettingsObserve
         from ..models.recompute_settings_project import RecomputeSettingsProject
-        from ..models.recompute_settings_runs import RecomputeSettingsRuns
+        from ..models.recompute_settings_log_stream import RecomputeSettingsLogStream
 
         d = dict(src_dict)
         critique_ids = cast(list[str], d.pop("critique_ids"))

@@ -1,11 +1,16 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.project_type import ProjectType, check_project_type
 from ..types import UNSET, Unset
+
+from ..models.project_type import ProjectType
+from ..types import UNSET, Unset
+from typing import cast, Union
+from typing import Union
+
 
 T = TypeVar("T", bound="ProjectCreate")
 
@@ -39,7 +44,7 @@ class ProjectCreate:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_
+            type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -74,7 +79,7 @@ class ProjectCreate:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = check_project_type(_type_)
+            type_ = ProjectType(_type_)
 
         project_create = cls(
             name=name, create_example_templates=create_example_templates, created_by=created_by, type_=type_

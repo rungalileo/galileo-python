@@ -1,11 +1,17 @@
 from collections.abc import Mapping
-from typing import Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.metadata_filter_operator import MetadataFilterOperator, check_metadata_filter_operator
 from ..types import UNSET, Unset
+
+from ..models.metadata_filter_operator import MetadataFilterOperator
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+
 
 T = TypeVar("T", bound="MetadataFilter")
 
@@ -32,7 +38,7 @@ class MetadataFilter:
     def to_dict(self) -> dict[str, Any]:
         key = self.key
 
-        operator: str = self.operator
+        operator = self.operator.value
 
         value: Union[list[str], str]
         if isinstance(self.value, list):
@@ -60,7 +66,7 @@ class MetadataFilter:
         d = dict(src_dict)
         key = d.pop("key")
 
-        operator = check_metadata_filter_operator(d.pop("operator"))
+        operator = MetadataFilterOperator(d.pop("operator"))
 
         def _parse_value(data: object) -> Union[list[str], str]:
             try:

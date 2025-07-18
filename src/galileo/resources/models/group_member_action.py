@@ -1,11 +1,9 @@
-from typing import Literal, cast
-
-GroupMemberAction = Literal["delete", "update_role"]
-
-GROUP_MEMBER_ACTION_VALUES: set[GroupMemberAction] = {"delete", "update_role"}
+from enum import Enum
 
 
-def check_group_member_action(value: str) -> GroupMemberAction:
-    if value in GROUP_MEMBER_ACTION_VALUES:
-        return cast(GroupMemberAction, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {GROUP_MEMBER_ACTION_VALUES!r}")
+class GroupMemberAction(str, Enum):
+    DELETE = "delete"
+    UPDATE_ROLE = "update_role"
+
+    def __str__(self) -> str:
+        return str(self.value)

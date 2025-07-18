@@ -1,20 +1,25 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.llm_export_format import LLMExportFormat, check_llm_export_format
-from ..models.root_type import RootType, check_root_type
 from ..types import UNSET, Unset
+
+from ..models.llm_export_format import LLMExportFormat
+from ..models.root_type import RootType
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+    from ..models.log_records_text_filter import LogRecordsTextFilter
+    from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
-    from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_sort_clause import LogRecordsSortClause
-    from ..models.log_records_text_filter import LogRecordsTextFilter
 
 
 T = TypeVar("T", bound="LogRecordsExportRequest")
@@ -57,11 +62,13 @@ class LogRecordsExportRequest:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+        from ..models.log_records_text_filter import LogRecordsTextFilter
+        from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
-        from ..models.log_records_number_filter import LogRecordsNumberFilter
+        from ..models.log_records_sort_clause import LogRecordsSortClause
 
-        root_type: str = self.root_type
+        root_type = self.root_type.value
 
         column_ids: Union[None, Unset, list[str]]
         if isinstance(self.column_ids, Unset):
@@ -80,7 +87,7 @@ class LogRecordsExportRequest:
 
         export_format: Union[Unset, str] = UNSET
         if not isinstance(self.export_format, Unset):
-            export_format = self.export_format
+            export_format = self.export_format.value
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -131,14 +138,14 @@ class LogRecordsExportRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+        from ..models.log_records_text_filter import LogRecordsTextFilter
+        from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
-        from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_sort_clause import LogRecordsSortClause
-        from ..models.log_records_text_filter import LogRecordsTextFilter
 
         d = dict(src_dict)
-        root_type = check_root_type(d.pop("root_type"))
+        root_type = RootType(d.pop("root_type"))
 
         def _parse_column_ids(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
@@ -171,7 +178,7 @@ class LogRecordsExportRequest:
         if isinstance(_export_format, Unset):
             export_format = UNSET
         else:
-            export_format = check_llm_export_format(_export_format)
+            export_format = LLMExportFormat(_export_format)
 
         filters = []
         _filters = d.pop("filters", UNSET)

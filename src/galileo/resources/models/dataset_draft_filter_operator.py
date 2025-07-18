@@ -1,11 +1,9 @@
-from typing import Literal, cast
-
-DatasetDraftFilterOperator = Literal["eq", "ne"]
-
-DATASET_DRAFT_FILTER_OPERATOR_VALUES: set[DatasetDraftFilterOperator] = {"eq", "ne"}
+from enum import Enum
 
 
-def check_dataset_draft_filter_operator(value: str) -> DatasetDraftFilterOperator:
-    if value in DATASET_DRAFT_FILTER_OPERATOR_VALUES:
-        return cast(DatasetDraftFilterOperator, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {DATASET_DRAFT_FILTER_OPERATOR_VALUES!r}")
+class DatasetDraftFilterOperator(str, Enum):
+    EQ = "eq"
+    NE = "ne"
+
+    def __str__(self) -> str:
+        return str(self.value)

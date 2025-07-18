@@ -76,6 +76,7 @@ class PromptTemplateVersion(BasePromptTemplateVersionResponse):
     def __init__(self, prompt_template_version: Union[None, BasePromptTemplateVersionResponse] = None):
         if prompt_template_version is not None:
             super().__init__(
+                content_changed=prompt_template_version.content_changed,
                 created_at=prompt_template_version.created_at,
                 created_by_user=prompt_template_version.created_by_user,
                 id=prompt_template_version.id,

@@ -1,11 +1,11 @@
-from typing import Literal, cast
-
-LoggingMethod = Literal["api_direct", "playground", "python_client", "typescript_client"]
-
-LOGGING_METHOD_VALUES: set[LoggingMethod] = {"api_direct", "playground", "python_client", "typescript_client"}
+from enum import Enum
 
 
-def check_logging_method(value: str) -> LoggingMethod:
-    if value in LOGGING_METHOD_VALUES:
-        return cast(LoggingMethod, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {LOGGING_METHOD_VALUES!r}")
+class LoggingMethod(str, Enum):
+    API_DIRECT = "api_direct"
+    PLAYGROUND = "playground"
+    PYTHON_CLIENT = "python_client"
+    TYPESCRIPT_CLIENT = "typescript_client"
+
+    def __str__(self) -> str:
+        return str(self.value)

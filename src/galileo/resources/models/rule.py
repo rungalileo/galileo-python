@@ -1,10 +1,15 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.rule_operator import RuleOperator, check_rule_operator
+from ..types import UNSET, Unset
+
+from ..models.rule_operator import RuleOperator
+from typing import cast
+from typing import cast, Union
+
 
 T = TypeVar("T", bound="Rule")
 
@@ -26,7 +31,7 @@ class Rule:
     def to_dict(self) -> dict[str, Any]:
         metric = self.metric
 
-        operator: str = self.operator
+        operator = self.operator.value
 
         target_value: Union[None, float, int, list[Any], str]
         if isinstance(self.target_value, list):
@@ -46,7 +51,7 @@ class Rule:
         d = dict(src_dict)
         metric = d.pop("metric")
 
-        operator = check_rule_operator(d.pop("operator"))
+        operator = RuleOperator(d.pop("operator"))
 
         def _parse_target_value(data: object) -> Union[None, float, int, list[Any], str]:
             if data is None:

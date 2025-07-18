@@ -1,11 +1,16 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.stage_type import StageType, check_stage_type
 from ..types import UNSET, Unset
+
+from ..models.stage_type import StageType
+from ..types import UNSET, Unset
+from typing import cast, Union
+from typing import Union
+
 
 T = TypeVar("T", bound="StageDB")
 
@@ -54,7 +59,7 @@ class StageDB:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_
+            type_ = self.type_.value
 
         version: Union[None, Unset, int]
         if isinstance(self.version, Unset):
@@ -103,7 +108,7 @@ class StageDB:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = check_stage_type(_type_)
+            type_ = StageType(_type_)
 
         def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:

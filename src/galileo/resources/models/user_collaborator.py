@@ -1,13 +1,18 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.collaborator_role import CollaboratorRole, check_collaborator_role
 from ..types import UNSET, Unset
+
+from ..models.collaborator_role import CollaboratorRole
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Union
+import datetime
 
 if TYPE_CHECKING:
     from ..models.permission import Permission
@@ -41,6 +46,8 @@ class UserCollaborator:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.permission import Permission
+
         created_at = self.created_at.isoformat()
 
         email = self.email
@@ -53,7 +60,7 @@ class UserCollaborator:
         last_name: Union[None, str]
         last_name = self.last_name
 
-        role: str = self.role
+        role = self.role.value
 
         user_id = self.user_id
 
@@ -107,7 +114,7 @@ class UserCollaborator:
 
         last_name = _parse_last_name(d.pop("last_name"))
 
-        role = check_collaborator_role(d.pop("role"))
+        role = CollaboratorRole(d.pop("role"))
 
         user_id = d.pop("user_id")
 

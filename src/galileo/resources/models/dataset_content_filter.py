@@ -1,11 +1,15 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.dataset_content_filter_operator import DatasetContentFilterOperator, check_dataset_content_filter_operator
 from ..types import UNSET, Unset
+
+from ..models.dataset_content_filter_operator import DatasetContentFilterOperator
+from ..types import UNSET, Unset
+from typing import Union
+
 
 T = TypeVar("T", bound="DatasetContentFilter")
 
@@ -31,7 +35,7 @@ class DatasetContentFilter:
 
         operator: Union[Unset, str] = UNSET
         if not isinstance(self.operator, Unset):
-            operator = self.operator
+            operator = self.operator.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -53,7 +57,7 @@ class DatasetContentFilter:
         if isinstance(_operator, Unset):
             operator = UNSET
         else:
-            operator = check_dataset_content_filter_operator(_operator)
+            operator = DatasetContentFilterOperator(_operator)
 
         dataset_content_filter = cls(column_name=column_name, value=value, operator=operator)
 

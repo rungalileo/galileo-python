@@ -1,20 +1,26 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+import datetime
+
 if TYPE_CHECKING:
+    from ..models.session_record_metric_info_type_0 import SessionRecordMetricInfoType0
     from ..models.document import Document
-    from ..models.message import Message
+    from ..models.session_record_user_metadata import SessionRecordUserMetadata
     from ..models.metrics import Metrics
     from ..models.session_record_dataset_metadata import SessionRecordDatasetMetadata
-    from ..models.session_record_metric_info_type_0 import SessionRecordMetricInfoType0
-    from ..models.session_record_user_metadata import SessionRecordUserMetadata
+    from ..models.message import Message
 
 
 T = TypeVar("T", bound="SessionRecord")
@@ -85,8 +91,12 @@ class SessionRecord:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.message import Message
         from ..models.session_record_metric_info_type_0 import SessionRecordMetricInfoType0
+        from ..models.document import Document
+        from ..models.session_record_user_metadata import SessionRecordUserMetadata
+        from ..models.metrics import Metrics
+        from ..models.session_record_dataset_metadata import SessionRecordDatasetMetadata
+        from ..models.message import Message
 
         id = self.id
 
@@ -300,12 +310,12 @@ class SessionRecord:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.session_record_metric_info_type_0 import SessionRecordMetricInfoType0
         from ..models.document import Document
-        from ..models.message import Message
+        from ..models.session_record_user_metadata import SessionRecordUserMetadata
         from ..models.metrics import Metrics
         from ..models.session_record_dataset_metadata import SessionRecordDatasetMetadata
-        from ..models.session_record_metric_info_type_0 import SessionRecordMetricInfoType0
-        from ..models.session_record_user_metadata import SessionRecordUserMetadata
+        from ..models.message import Message
 
         d = dict(src_dict)
         id = d.pop("id")

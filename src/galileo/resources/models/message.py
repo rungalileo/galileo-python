@@ -1,11 +1,16 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.message_role import MessageRole, check_message_role
 from ..types import UNSET, Unset
+
+from ..models.message_role import MessageRole
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.tool_call import ToolCall
@@ -31,9 +36,11 @@ class Message:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.tool_call import ToolCall
+
         content = self.content
 
-        role: str = self.role
+        role = self.role.value
 
         tool_call_id: Union[None, Unset, str]
         if isinstance(self.tool_call_id, Unset):
@@ -70,7 +77,7 @@ class Message:
         d = dict(src_dict)
         content = d.pop("content")
 
-        role = check_message_role(d.pop("role"))
+        role = MessageRole(d.pop("role"))
 
         def _parse_tool_call_id(data: object) -> Union[None, Unset, str]:
             if data is None:

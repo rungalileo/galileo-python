@@ -1,14 +1,17 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.chunk_attribution_utilization_scorer_type import (
-    ChunkAttributionUtilizationScorerType,
-    check_chunk_attribution_utilization_scorer_type,
-)
 from ..types import UNSET, Unset
+
+from ..models.chunk_attribution_utilization_scorer_type import ChunkAttributionUtilizationScorerType
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.metadata_filter import MetadataFilter
@@ -26,16 +29,18 @@ class ChunkAttributionUtilizationScorer:
             scorer.
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
         name (Union[Literal['chunk_attribution_utilization'], Unset]):  Default: 'chunk_attribution_utilization'.
-        type_ (Union[Unset, ChunkAttributionUtilizationScorerType]):  Default: 'luna'.
+        type_ (Union[Unset, ChunkAttributionUtilizationScorerType]):  Default:
+            ChunkAttributionUtilizationScorerType.LUNA.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["chunk_attribution_utilization"], Unset] = "chunk_attribution_utilization"
-    type_: Union[Unset, ChunkAttributionUtilizationScorerType] = "luna"
+    type_: Union[Unset, ChunkAttributionUtilizationScorerType] = ChunkAttributionUtilizationScorerType.LUNA
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.metadata_filter import MetadataFilter
         from ..models.node_name_filter import NodeNameFilter
 
         filters: Union[None, Unset, list[dict[str, Any]]]
@@ -65,7 +70,7 @@ class ChunkAttributionUtilizationScorer:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_
+            type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -144,7 +149,7 @@ class ChunkAttributionUtilizationScorer:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = check_chunk_attribution_utilization_scorer_type(_type_)
+            type_ = ChunkAttributionUtilizationScorerType(_type_)
 
         chunk_attribution_utilization_scorer = cls(filters=filters, model_name=model_name, name=name, type_=type_)
 

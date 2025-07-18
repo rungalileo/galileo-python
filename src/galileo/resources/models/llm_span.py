@@ -1,19 +1,25 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+import datetime
+
 if TYPE_CHECKING:
+    from ..models.llm_span_user_metadata import LlmSpanUserMetadata
+    from ..models.llm_span_tools_type_0_item import LlmSpanToolsType0Item
+    from ..models.message import Message
     from ..models.llm_metrics import LlmMetrics
     from ..models.llm_span_dataset_metadata import LlmSpanDatasetMetadata
-    from ..models.llm_span_tools_type_0_item import LlmSpanToolsType0Item
-    from ..models.llm_span_user_metadata import LlmSpanUserMetadata
-    from ..models.message import Message
 
 
 T = TypeVar("T", bound="LlmSpan")
@@ -79,7 +85,11 @@ class LlmSpan:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.llm_span_user_metadata import LlmSpanUserMetadata
+        from ..models.llm_span_tools_type_0_item import LlmSpanToolsType0Item
         from ..models.message import Message
+        from ..models.llm_metrics import LlmMetrics
+        from ..models.llm_span_dataset_metadata import LlmSpanDatasetMetadata
 
         input_ = []
         for input_item_data in self.input_:
@@ -268,11 +278,11 @@ class LlmSpan:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.llm_span_user_metadata import LlmSpanUserMetadata
+        from ..models.llm_span_tools_type_0_item import LlmSpanToolsType0Item
+        from ..models.message import Message
         from ..models.llm_metrics import LlmMetrics
         from ..models.llm_span_dataset_metadata import LlmSpanDatasetMetadata
-        from ..models.llm_span_tools_type_0_item import LlmSpanToolsType0Item
-        from ..models.llm_span_user_metadata import LlmSpanUserMetadata
-        from ..models.message import Message
 
         d = dict(src_dict)
         input_ = []

@@ -1,14 +1,16 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...types import Response, UNSET
+from ... import errors
+
 from ...models.base_prompt_template_response import BasePromptTemplateResponse
 from ...models.create_prompt_template_with_version_request_body import CreatePromptTemplateWithVersionRequestBody
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from typing import cast
 
 
 def _get_kwargs(*, body: CreatePromptTemplateWithVersionRequestBody) -> dict[str, Any]:

@@ -1,25 +1,31 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.agent_type import AgentType, check_agent_type
 from ..types import UNSET, Unset
 
+from ..models.agent_type import AgentType
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+import datetime
+
 if TYPE_CHECKING:
-    from ..models.agent_span_record_with_children_dataset_metadata import AgentSpanRecordWithChildrenDatasetMetadata
-    from ..models.agent_span_record_with_children_metric_info_type_0 import AgentSpanRecordWithChildrenMetricInfoType0
-    from ..models.agent_span_record_with_children_user_metadata import AgentSpanRecordWithChildrenUserMetadata
-    from ..models.document import Document
-    from ..models.llm_span_record import LlmSpanRecord
-    from ..models.message import Message
-    from ..models.metrics import Metrics
-    from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
     from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
+    from ..models.llm_span_record import LlmSpanRecord
+    from ..models.document import Document
+    from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+    from ..models.metrics import Metrics
+    from ..models.agent_span_record_with_children_metric_info_type_0 import AgentSpanRecordWithChildrenMetricInfoType0
+    from ..models.message import Message
     from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
+    from ..models.agent_span_record_with_children_dataset_metadata import AgentSpanRecordWithChildrenDatasetMetadata
+    from ..models.agent_span_record_with_children_user_metadata import AgentSpanRecordWithChildrenUserMetadata
 
 
 T = TypeVar("T", bound="AgentSpanRecordWithChildren")
@@ -111,13 +117,18 @@ class AgentSpanRecordWithChildren:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
+        from ..models.llm_span_record import LlmSpanRecord
+        from ..models.document import Document
+        from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+        from ..models.metrics import Metrics
         from ..models.agent_span_record_with_children_metric_info_type_0 import (
             AgentSpanRecordWithChildrenMetricInfoType0,
         )
-        from ..models.llm_span_record import LlmSpanRecord
         from ..models.message import Message
-        from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
         from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
+        from ..models.agent_span_record_with_children_dataset_metadata import AgentSpanRecordWithChildrenDatasetMetadata
+        from ..models.agent_span_record_with_children_user_metadata import AgentSpanRecordWithChildrenUserMetadata
 
         id = self.id
 
@@ -141,7 +152,7 @@ class AgentSpanRecordWithChildren:
 
         agent_type: Union[Unset, str] = UNSET
         if not isinstance(self.agent_type, Unset):
-            agent_type = self.agent_type
+            agent_type = self.agent_type.value
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -362,18 +373,18 @@ class AgentSpanRecordWithChildren:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.agent_span_record_with_children_dataset_metadata import AgentSpanRecordWithChildrenDatasetMetadata
+        from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
+        from ..models.llm_span_record import LlmSpanRecord
+        from ..models.document import Document
+        from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+        from ..models.metrics import Metrics
         from ..models.agent_span_record_with_children_metric_info_type_0 import (
             AgentSpanRecordWithChildrenMetricInfoType0,
         )
-        from ..models.agent_span_record_with_children_user_metadata import AgentSpanRecordWithChildrenUserMetadata
-        from ..models.document import Document
-        from ..models.llm_span_record import LlmSpanRecord
         from ..models.message import Message
-        from ..models.metrics import Metrics
-        from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
-        from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
         from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
+        from ..models.agent_span_record_with_children_dataset_metadata import AgentSpanRecordWithChildrenDatasetMetadata
+        from ..models.agent_span_record_with_children_user_metadata import AgentSpanRecordWithChildrenUserMetadata
 
         d = dict(src_dict)
         id = d.pop("id")
@@ -409,7 +420,7 @@ class AgentSpanRecordWithChildren:
         if isinstance(_agent_type, Unset):
             agent_type = UNSET
         else:
-            agent_type = check_agent_type(_agent_type)
+            agent_type = AgentType(_agent_type)
 
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]

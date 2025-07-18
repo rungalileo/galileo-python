@@ -1,14 +1,19 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.auth_method import AuthMethod, check_auth_method
-from ..models.user_role import UserRole, check_user_role
 from ..types import UNSET, Unset
+
+from ..models.auth_method import AuthMethod
+from ..models.user_role import UserRole
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Union
+import datetime
 
 if TYPE_CHECKING:
     from ..models.permission import Permission
@@ -50,6 +55,8 @@ class UserDB:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.permission import Permission
+
         created_at = self.created_at.isoformat()
 
         email = self.email
@@ -64,7 +71,7 @@ class UserDB:
 
         auth_method: Union[Unset, str] = UNSET
         if not isinstance(self.auth_method, Unset):
-            auth_method = self.auth_method
+            auth_method = self.auth_method.value
 
         email_is_verified: Union[None, Unset, bool]
         if isinstance(self.email_is_verified, Unset):
@@ -93,7 +100,7 @@ class UserDB:
 
         role: Union[Unset, str] = UNSET
         if not isinstance(self.role, Unset):
-            role = self.role
+            role = self.role.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -144,7 +151,7 @@ class UserDB:
         if isinstance(_auth_method, Unset):
             auth_method = UNSET
         else:
-            auth_method = check_auth_method(_auth_method)
+            auth_method = AuthMethod(_auth_method)
 
         def _parse_email_is_verified(data: object) -> Union[None, Unset, bool]:
             if data is None:
@@ -185,7 +192,7 @@ class UserDB:
         if isinstance(_role, Unset):
             role = UNSET
         else:
-            role = check_user_role(_role)
+            role = UserRole(_role)
 
         user_db = cls(
             created_at=created_at,

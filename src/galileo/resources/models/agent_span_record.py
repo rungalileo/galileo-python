@@ -1,21 +1,27 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
-from ..models.agent_type import AgentType, check_agent_type
 from ..types import UNSET, Unset
+
+from ..models.agent_type import AgentType
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+import datetime
 
 if TYPE_CHECKING:
     from ..models.agent_span_record_dataset_metadata import AgentSpanRecordDatasetMetadata
-    from ..models.agent_span_record_metric_info_type_0 import AgentSpanRecordMetricInfoType0
-    from ..models.agent_span_record_user_metadata import AgentSpanRecordUserMetadata
     from ..models.document import Document
-    from ..models.message import Message
     from ..models.metrics import Metrics
+    from ..models.agent_span_record_user_metadata import AgentSpanRecordUserMetadata
+    from ..models.message import Message
+    from ..models.agent_span_record_metric_info_type_0 import AgentSpanRecordMetricInfoType0
 
 
 T = TypeVar("T", bound="AgentSpanRecord")
@@ -92,8 +98,12 @@ class AgentSpanRecord:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.agent_span_record_metric_info_type_0 import AgentSpanRecordMetricInfoType0
+        from ..models.agent_span_record_dataset_metadata import AgentSpanRecordDatasetMetadata
+        from ..models.document import Document
+        from ..models.metrics import Metrics
+        from ..models.agent_span_record_user_metadata import AgentSpanRecordUserMetadata
         from ..models.message import Message
+        from ..models.agent_span_record_metric_info_type_0 import AgentSpanRecordMetricInfoType0
 
         id = self.id
 
@@ -117,7 +127,7 @@ class AgentSpanRecord:
 
         agent_type: Union[Unset, str] = UNSET
         if not isinstance(self.agent_type, Unset):
-            agent_type = self.agent_type
+            agent_type = self.agent_type.value
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -319,11 +329,11 @@ class AgentSpanRecord:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agent_span_record_dataset_metadata import AgentSpanRecordDatasetMetadata
-        from ..models.agent_span_record_metric_info_type_0 import AgentSpanRecordMetricInfoType0
-        from ..models.agent_span_record_user_metadata import AgentSpanRecordUserMetadata
         from ..models.document import Document
-        from ..models.message import Message
         from ..models.metrics import Metrics
+        from ..models.agent_span_record_user_metadata import AgentSpanRecordUserMetadata
+        from ..models.message import Message
+        from ..models.agent_span_record_metric_info_type_0 import AgentSpanRecordMetricInfoType0
 
         d = dict(src_dict)
         id = d.pop("id")
@@ -359,7 +369,7 @@ class AgentSpanRecord:
         if isinstance(_agent_type, Unset):
             agent_type = UNSET
         else:
-            agent_type = check_agent_type(_agent_type)
+            agent_type = AgentType(_agent_type)
 
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]

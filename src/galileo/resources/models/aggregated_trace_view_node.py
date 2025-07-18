@@ -1,10 +1,14 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.step_type import StepType, check_step_type
+from ..types import UNSET, Unset
+
+from ..models.step_type import StepType
+from typing import cast
+from typing import cast, Union
 
 if TYPE_CHECKING:
     from ..models.aggregated_trace_view_node_metrics import AggregatedTraceViewNodeMetrics
@@ -36,6 +40,8 @@ class AggregatedTraceViewNode:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.aggregated_trace_view_node_metrics import AggregatedTraceViewNodeMetrics
+
         has_children = self.has_children
 
         id = self.id
@@ -50,7 +56,7 @@ class AggregatedTraceViewNode:
         parent_id: Union[None, str]
         parent_id = self.parent_id
 
-        type_: str = self.type_
+        type_ = self.type_.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -95,7 +101,7 @@ class AggregatedTraceViewNode:
 
         parent_id = _parse_parent_id(d.pop("parent_id"))
 
-        type_ = check_step_type(d.pop("type"))
+        type_ = StepType(d.pop("type"))
 
         aggregated_trace_view_node = cls(
             has_children=has_children,

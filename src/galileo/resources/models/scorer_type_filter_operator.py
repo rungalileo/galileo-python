@@ -1,11 +1,11 @@
-from typing import Literal, cast
-
-ScorerTypeFilterOperator = Literal["eq", "ne", "not_in", "one_of"]
-
-SCORER_TYPE_FILTER_OPERATOR_VALUES: set[ScorerTypeFilterOperator] = {"eq", "ne", "not_in", "one_of"}
+from enum import Enum
 
 
-def check_scorer_type_filter_operator(value: str) -> ScorerTypeFilterOperator:
-    if value in SCORER_TYPE_FILTER_OPERATOR_VALUES:
-        return cast(ScorerTypeFilterOperator, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {SCORER_TYPE_FILTER_OPERATOR_VALUES!r}")
+class ScorerTypeFilterOperator(str, Enum):
+    EQ = "eq"
+    NE = "ne"
+    NOT_IN = "not_in"
+    ONE_OF = "one_of"
+
+    def __str__(self) -> str:
+        return str(self.value)

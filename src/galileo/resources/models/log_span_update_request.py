@@ -1,15 +1,20 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.logging_method import LoggingMethod, check_logging_method
 from ..types import UNSET, Unset
 
+from ..models.logging_method import LoggingMethod
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
+
 if TYPE_CHECKING:
-    from ..models.document import Document
     from ..models.message import Message
+    from ..models.document import Document
 
 
 T = TypeVar("T", bound="LogSpanUpdateRequest")
@@ -50,6 +55,7 @@ class LogSpanUpdateRequest:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.message import Message
+        from ..models.document import Document
 
         span_id = self.span_id
 
@@ -85,7 +91,7 @@ class LogSpanUpdateRequest:
 
         logging_method: Union[Unset, str] = UNSET
         if not isinstance(self.logging_method, Unset):
-            logging_method = self.logging_method
+            logging_method = self.logging_method.value
 
         output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
         if isinstance(self.output, Unset):
@@ -144,8 +150,8 @@ class LogSpanUpdateRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.document import Document
         from ..models.message import Message
+        from ..models.document import Document
 
         d = dict(src_dict)
         span_id = d.pop("span_id")
@@ -204,7 +210,7 @@ class LogSpanUpdateRequest:
         if isinstance(_logging_method, Unset):
             logging_method = UNSET
         else:
-            logging_method = check_logging_method(_logging_method)
+            logging_method = LoggingMethod(_logging_method)
 
         def _parse_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
             if data is None:

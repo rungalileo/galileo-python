@@ -1,20 +1,26 @@
-import datetime
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-from dateutil.parser import isoparse
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+from dateutil.parser import isoparse
+from typing import cast
+from typing import cast, Union
+from typing import Literal, Union, cast
+from typing import Union
+import datetime
+
 if TYPE_CHECKING:
-    from ..models.llm_metrics import LlmMetrics
-    from ..models.llm_span_record_dataset_metadata import LlmSpanRecordDatasetMetadata
-    from ..models.llm_span_record_metric_info_type_0 import LlmSpanRecordMetricInfoType0
     from ..models.llm_span_record_tools_type_0_item import LlmSpanRecordToolsType0Item
+    from ..models.llm_span_record_metric_info_type_0 import LlmSpanRecordMetricInfoType0
     from ..models.llm_span_record_user_metadata import LlmSpanRecordUserMetadata
     from ..models.message import Message
+    from ..models.llm_metrics import LlmMetrics
+    from ..models.llm_span_record_dataset_metadata import LlmSpanRecordDatasetMetadata
 
 
 T = TypeVar("T", bound="LlmSpanRecord")
@@ -98,8 +104,12 @@ class LlmSpanRecord:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.llm_span_record_tools_type_0_item import LlmSpanRecordToolsType0Item
         from ..models.llm_span_record_metric_info_type_0 import LlmSpanRecordMetricInfoType0
+        from ..models.llm_span_record_user_metadata import LlmSpanRecordUserMetadata
         from ..models.message import Message
+        from ..models.llm_metrics import LlmMetrics
+        from ..models.llm_span_record_dataset_metadata import LlmSpanRecordDatasetMetadata
 
         id = self.id
 
@@ -332,12 +342,12 @@ class LlmSpanRecord:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.llm_metrics import LlmMetrics
-        from ..models.llm_span_record_dataset_metadata import LlmSpanRecordDatasetMetadata
-        from ..models.llm_span_record_metric_info_type_0 import LlmSpanRecordMetricInfoType0
         from ..models.llm_span_record_tools_type_0_item import LlmSpanRecordToolsType0Item
+        from ..models.llm_span_record_metric_info_type_0 import LlmSpanRecordMetricInfoType0
         from ..models.llm_span_record_user_metadata import LlmSpanRecordUserMetadata
         from ..models.message import Message
+        from ..models.llm_metrics import LlmMetrics
+        from ..models.llm_span_record_dataset_metadata import LlmSpanRecordDatasetMetadata
 
         d = dict(src_dict)
         id = d.pop("id")

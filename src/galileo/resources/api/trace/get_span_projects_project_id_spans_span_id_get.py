@@ -1,21 +1,27 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...types import Response, UNSET
+from ... import errors
+
 from ...models.agent_span_record_with_children import AgentSpanRecordWithChildren
 from ...models.http_validation_error import HTTPValidationError
 from ...models.llm_span_record import LlmSpanRecord
 from ...models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
 from ...models.tool_span_record_with_children import ToolSpanRecordWithChildren
 from ...models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
-from ...types import Response
+from typing import cast
+from typing import cast, Union
 
 
 def _get_kwargs(project_id: str, span_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/spans/{span_id}"}
+    _kwargs: dict[str, Any] = {
+        "method": "get",
+        "url": "/projects/{project_id}/spans/{span_id}".format(project_id=project_id, span_id=span_id),
+    }
 
     return _kwargs
 

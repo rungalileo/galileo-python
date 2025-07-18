@@ -1,17 +1,22 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.llm_integration import LLMIntegration, check_llm_integration
-from ..models.model_cost_by import ModelCostBy, check_model_cost_by
 from ..types import UNSET, Unset
+
+from ..models.llm_integration import LLMIntegration
+from ..models.model_cost_by import ModelCostBy
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.input_map import InputMap
-    from ..models.output_map import OutputMap
     from ..models.run_params_map import RunParamsMap
+    from ..models.output_map import OutputMap
 
 
 T = TypeVar("T", bound="Model")
@@ -72,6 +77,7 @@ class Model:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.input_map import InputMap
+        from ..models.run_params_map import RunParamsMap
         from ..models.output_map import OutputMap
 
         alias = self.alias
@@ -96,7 +102,7 @@ class Model:
 
         cost_by: Union[Unset, str] = UNSET
         if not isinstance(self.cost_by, Unset):
-            cost_by = self.cost_by
+            cost_by = self.cost_by.value
 
         formatting_tokens = self.formatting_tokens
 
@@ -118,7 +124,7 @@ class Model:
 
         integration: Union[Unset, str] = UNSET
         if not isinstance(self.integration, Unset):
-            integration = self.integration
+            integration = self.integration.value
 
         is_chat = self.is_chat
 
@@ -207,8 +213,8 @@ class Model:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.input_map import InputMap
-        from ..models.output_map import OutputMap
         from ..models.run_params_map import RunParamsMap
+        from ..models.output_map import OutputMap
 
         d = dict(src_dict)
         alias = d.pop("alias")
@@ -240,7 +246,7 @@ class Model:
         if isinstance(_cost_by, Unset):
             cost_by = UNSET
         else:
-            cost_by = check_model_cost_by(_cost_by)
+            cost_by = ModelCostBy(_cost_by)
 
         formatting_tokens = d.pop("formatting_tokens", UNSET)
 
@@ -277,7 +283,7 @@ class Model:
         if isinstance(_integration, Unset):
             integration = UNSET
         else:
-            integration = check_llm_integration(_integration)
+            integration = LLMIntegration(_integration)
 
         is_chat = d.pop("is_chat", UNSET)
 

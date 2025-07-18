@@ -1,10 +1,13 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.stage_type import StageType, check_stage_type
+from ..types import UNSET, Unset
+
+from ..models.stage_type import StageType
+
 
 T = TypeVar("T", bound="StageMetadata")
 
@@ -34,7 +37,7 @@ class StageMetadata:
 
         stage_name = self.stage_name
 
-        stage_type: str = self.stage_type
+        stage_type = self.stage_type.value
 
         stage_version = self.stage_version
 
@@ -61,7 +64,7 @@ class StageMetadata:
 
         stage_name = d.pop("stage_name")
 
-        stage_type = check_stage_type(d.pop("stage_type"))
+        stage_type = StageType(d.pop("stage_type"))
 
         stage_version = d.pop("stage_version")
 

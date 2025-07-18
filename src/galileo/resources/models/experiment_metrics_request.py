@@ -1,17 +1,22 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
+
 if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+    from ..models.log_records_text_filter import LogRecordsTextFilter
+    from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
-    from ..models.log_records_number_filter import LogRecordsNumberFilter
-    from ..models.log_records_text_filter import LogRecordsTextFilter
 
 
 T = TypeVar("T", bound="ExperimentMetricsRequest")
@@ -41,9 +46,10 @@ class ExperimentMetricsRequest:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+        from ..models.log_records_text_filter import LogRecordsTextFilter
+        from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
-        from ..models.log_records_number_filter import LogRecordsNumberFilter
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -74,10 +80,10 @@ class ExperimentMetricsRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+        from ..models.log_records_text_filter import LogRecordsTextFilter
+        from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
-        from ..models.log_records_number_filter import LogRecordsNumberFilter
-        from ..models.log_records_text_filter import LogRecordsTextFilter
 
         d = dict(src_dict)
         filters = []

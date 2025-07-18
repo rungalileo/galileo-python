@@ -1,17 +1,22 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.execution_status import ExecutionStatus, check_execution_status
 from ..types import UNSET, Unset
 
+from ..models.execution_status import ExecutionStatus
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
+
 if TYPE_CHECKING:
-    from ..models.override_action import OverrideAction
-    from ..models.passthrough_action import PassthroughAction
     from ..models.rule import Rule
+    from ..models.override_action import OverrideAction
     from ..models.rule_result import RuleResult
+    from ..models.passthrough_action import PassthroughAction
 
 
 T = TypeVar("T", bound="RulesetResult")
@@ -36,7 +41,10 @@ class RulesetResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.rule import Rule
         from ..models.override_action import OverrideAction
+        from ..models.rule_result import RuleResult
+        from ..models.passthrough_action import PassthroughAction
 
         action: Union[Unset, dict[str, Any]]
         if isinstance(self.action, Unset):
@@ -68,7 +76,7 @@ class RulesetResult:
 
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
-            status = self.status
+            status = self.status.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -88,10 +96,10 @@ class RulesetResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.override_action import OverrideAction
-        from ..models.passthrough_action import PassthroughAction
         from ..models.rule import Rule
+        from ..models.override_action import OverrideAction
         from ..models.rule_result import RuleResult
+        from ..models.passthrough_action import PassthroughAction
 
         d = dict(src_dict)
 
@@ -142,7 +150,7 @@ class RulesetResult:
         if isinstance(_status, Unset):
             status = UNSET
         else:
-            status = check_execution_status(_status)
+            status = ExecutionStatus(_status)
 
         ruleset_result = cls(
             action=action, description=description, rule_results=rule_results, rules=rules, status=status

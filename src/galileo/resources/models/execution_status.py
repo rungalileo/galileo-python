@@ -1,19 +1,23 @@
-from typing import Literal, cast
-
-ExecutionStatus = Literal["error", "failed", "not_triggered", "paused", "skipped", "timeout", "triggered"]
-
-EXECUTION_STATUS_VALUES: set[ExecutionStatus] = {
-    "error",
-    "failed",
-    "not_triggered",
-    "paused",
-    "skipped",
-    "timeout",
-    "triggered",
-}
+from enum import Enum
+from typing import Optional
 
 
-def check_execution_status(value: str) -> ExecutionStatus:
-    if value in EXECUTION_STATUS_VALUES:
-        return cast(ExecutionStatus, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {EXECUTION_STATUS_VALUES!r}")
+class ExecutionStatus(str, Enum):
+    ERROR = "error"
+    FAILED = "failed"
+    NOT_TRIGGERED = "not_triggered"
+    PAUSED = "paused"
+    SKIPPED = "skipped"
+    TIMEOUT = "timeout"
+    TRIGGERED = "triggered"
+
+    def __str__(self) -> str:
+        return str(self.value)
+
+    @classmethod
+    def _missing_(cls, value: object) -> Optional["ExecutionStatus"]:
+        if isinstance(value, str):
+            for member in cls:
+                if member.value == value.lower():
+                    return member
+        return None

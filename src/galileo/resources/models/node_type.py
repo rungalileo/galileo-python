@@ -1,11 +1,16 @@
-from typing import Literal, cast
-
-NodeType = Literal["agent", "chain", "chat", "llm", "retriever", "session", "tool", "trace", "workflow"]
-
-NODE_TYPE_VALUES: set[NodeType] = {"agent", "chain", "chat", "llm", "retriever", "session", "tool", "trace", "workflow"}
+from enum import Enum
 
 
-def check_node_type(value: str) -> NodeType:
-    if value in NODE_TYPE_VALUES:
-        return cast(NodeType, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {NODE_TYPE_VALUES!r}")
+class NodeType(str, Enum):
+    AGENT = "agent"
+    CHAIN = "chain"
+    CHAT = "chat"
+    LLM = "llm"
+    RETRIEVER = "retriever"
+    SESSION = "session"
+    TOOL = "tool"
+    TRACE = "trace"
+    WORKFLOW = "workflow"
+
+    def __str__(self) -> str:
+        return str(self.value)

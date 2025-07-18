@@ -1,11 +1,9 @@
-from typing import Literal, cast
-
-StageType = Literal["central", "local"]
-
-STAGE_TYPE_VALUES: set[StageType] = {"central", "local"}
+from enum import Enum
 
 
-def check_stage_type(value: str) -> StageType:
-    if value in STAGE_TYPE_VALUES:
-        return cast(StageType, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {STAGE_TYPE_VALUES!r}")
+class StageType(str, Enum):
+    CENTRAL = "central"
+    LOCAL = "local"
+
+    def __str__(self) -> str:
+        return str(self.value)

@@ -1,12 +1,16 @@
 from collections.abc import Mapping
-from io import BytesIO
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
+import json
 from .. import types
-from ..types import File
+
+from ..types import UNSET, Unset
+
+from ..types import File, FileTypes
+from io import BytesIO
+
 
 T = TypeVar("T", bound="BodyUploadFileProjectsProjectIdUploadFilePost")
 

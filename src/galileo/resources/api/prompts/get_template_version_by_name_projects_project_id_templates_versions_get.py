@@ -1,13 +1,18 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...types import Response, UNSET
+from ... import errors
+
 from ...models.base_prompt_template_version_response import BasePromptTemplateVersionResponse
 from ...models.http_validation_error import HTTPValidationError
-from ...types import UNSET, Response, Unset
+from ...types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
 
 
 def _get_kwargs(project_id: str, *, template_name: str, version: Union[None, Unset, int] = UNSET) -> dict[str, Any]:
@@ -24,7 +29,11 @@ def _get_kwargs(project_id: str, *, template_name: str, version: Union[None, Uns
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/templates/versions", "params": params}
+    _kwargs: dict[str, Any] = {
+        "method": "get",
+        "url": "/projects/{project_id}/templates/versions".format(project_id=project_id),
+        "params": params,
+    }
 
     return _kwargs
 

@@ -1,16 +1,21 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
+
 if TYPE_CHECKING:
-    from ..models.model import Model
-    from ..models.open_ai_tool_choice import OpenAIToolChoice
     from ..models.prompt_run_settings_response_format_type_0 import PromptRunSettingsResponseFormatType0
     from ..models.prompt_run_settings_tools_type_0_item import PromptRunSettingsToolsType0Item
+    from ..models.model import Model
+    from ..models.open_ai_tool_choice import OpenAIToolChoice
 
 
 T = TypeVar("T", bound="PromptRunSettings")
@@ -60,8 +65,10 @@ class PromptRunSettings:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.open_ai_tool_choice import OpenAIToolChoice
         from ..models.prompt_run_settings_response_format_type_0 import PromptRunSettingsResponseFormatType0
+        from ..models.prompt_run_settings_tools_type_0_item import PromptRunSettingsToolsType0Item
+        from ..models.model import Model
+        from ..models.open_ai_tool_choice import OpenAIToolChoice
 
         deployment_name: Union[None, Unset, str]
         if isinstance(self.deployment_name, Unset):
@@ -177,10 +184,10 @@ class PromptRunSettings:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.model import Model
-        from ..models.open_ai_tool_choice import OpenAIToolChoice
         from ..models.prompt_run_settings_response_format_type_0 import PromptRunSettingsResponseFormatType0
         from ..models.prompt_run_settings_tools_type_0_item import PromptRunSettingsToolsType0Item
+        from ..models.model import Model
+        from ..models.open_ai_tool_choice import OpenAIToolChoice
 
         d = dict(src_dict)
 

@@ -1,11 +1,9 @@
-from typing import Literal, cast
-
-OutputSexistScorerType = Literal["luna", "plus"]
-
-OUTPUT_SEXIST_SCORER_TYPE_VALUES: set[OutputSexistScorerType] = {"luna", "plus"}
+from enum import Enum
 
 
-def check_output_sexist_scorer_type(value: str) -> OutputSexistScorerType:
-    if value in OUTPUT_SEXIST_SCORER_TYPE_VALUES:
-        return cast(OutputSexistScorerType, value)
-    raise TypeError(f"Unexpected value {value!r}. Expected one of {OUTPUT_SEXIST_SCORER_TYPE_VALUES!r}")
+class OutputSexistScorerType(str, Enum):
+    LUNA = "luna"
+    PLUS = "plus"
+
+    def __str__(self) -> str:
+        return str(self.value)

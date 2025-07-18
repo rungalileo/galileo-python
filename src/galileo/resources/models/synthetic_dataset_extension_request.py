@@ -1,11 +1,16 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
+from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.synthetic_data_types import SyntheticDataTypes, check_synthetic_data_types
 from ..types import UNSET, Unset
+
+from ..models.synthetic_data_types import SyntheticDataTypes
+from ..types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
 
 if TYPE_CHECKING:
     from ..models.prompt_run_settings import PromptRunSettings
@@ -39,6 +44,7 @@ class SyntheticDatasetExtensionRequest:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.prompt_run_settings import PromptRunSettings
         from ..models.synthetic_data_source_dataset import SyntheticDataSourceDataset
 
         count = self.count
@@ -49,7 +55,7 @@ class SyntheticDatasetExtensionRequest:
         elif isinstance(self.data_types, list):
             data_types = []
             for data_types_type_0_item_data in self.data_types:
-                data_types_type_0_item: str = data_types_type_0_item_data
+                data_types_type_0_item = data_types_type_0_item_data.value
                 data_types.append(data_types_type_0_item)
 
         else:
@@ -122,7 +128,7 @@ class SyntheticDatasetExtensionRequest:
                 data_types_type_0 = []
                 _data_types_type_0 = data
                 for data_types_type_0_item_data in _data_types_type_0:
-                    data_types_type_0_item = check_synthetic_data_types(data_types_type_0_item_data)
+                    data_types_type_0_item = SyntheticDataTypes(data_types_type_0_item_data)
 
                     data_types_type_0.append(data_types_type_0_item)
 
