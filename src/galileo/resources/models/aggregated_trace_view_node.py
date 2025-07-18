@@ -1,10 +1,14 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.step_type import StepType
+from ..models.step_type import StepType, check_step_type
+
+if TYPE_CHECKING:
+    from ..models.aggregated_trace_view_node_metrics import AggregatedTraceViewNodeMetrics
+
 
 T = TypeVar("T", bound="AggregatedTraceViewNode")
 
@@ -15,6 +19,7 @@ class AggregatedTraceViewNode:
     Attributes:
         has_children (bool):
         id (str):
+        metrics (AggregatedTraceViewNodeMetrics):
         name (Union[None, str]):
         occurrences (int):
         parent_id (Union[None, str]):
@@ -23,6 +28,7 @@ class AggregatedTraceViewNode:
 
     has_children: bool
     id: str
+    metrics: "AggregatedTraceViewNodeMetrics"
     name: Union[None, str]
     occurrences: int
     parent_id: Union[None, str]
@@ -34,6 +40,8 @@ class AggregatedTraceViewNode:
 
         id = self.id
 
+        metrics = self.metrics.to_dict()
+
         name: Union[None, str]
         name = self.name
 
@@ -42,7 +50,7 @@ class AggregatedTraceViewNode:
         parent_id: Union[None, str]
         parent_id = self.parent_id
 
-        type_ = self.type_.value
+        type_: str = self.type_
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -50,6 +58,7 @@ class AggregatedTraceViewNode:
             {
                 "has_children": has_children,
                 "id": id,
+                "metrics": metrics,
                 "name": name,
                 "occurrences": occurrences,
                 "parent_id": parent_id,
@@ -61,10 +70,14 @@ class AggregatedTraceViewNode:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.aggregated_trace_view_node_metrics import AggregatedTraceViewNodeMetrics
+
         d = dict(src_dict)
         has_children = d.pop("has_children")
 
         id = d.pop("id")
+
+        metrics = AggregatedTraceViewNodeMetrics.from_dict(d.pop("metrics"))
 
         def _parse_name(data: object) -> Union[None, str]:
             if data is None:
@@ -82,10 +95,16 @@ class AggregatedTraceViewNode:
 
         parent_id = _parse_parent_id(d.pop("parent_id"))
 
-        type_ = StepType(d.pop("type"))
+        type_ = check_step_type(d.pop("type"))
 
         aggregated_trace_view_node = cls(
-            has_children=has_children, id=id, name=name, occurrences=occurrences, parent_id=parent_id, type_=type_
+            has_children=has_children,
+            id=id,
+            metrics=metrics,
+            name=name,
+            occurrences=occurrences,
+            parent_id=parent_id,
+            type_=type_,
         )
 
         aggregated_trace_view_node.additional_properties = d

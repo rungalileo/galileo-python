@@ -6,7 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.task_type import TaskType
+from ..models.task_type import TaskType, check_task_type
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -112,8 +112,8 @@ class RunDBThin:
         task_type: Union[None, Unset, int]
         if isinstance(self.task_type, Unset):
             task_type = UNSET
-        elif isinstance(self.task_type, TaskType):
-            task_type = self.task_type.value
+        elif isinstance(self.task_type, int):
+            task_type = self.task_type
         else:
             task_type = self.task_type
 
@@ -230,7 +230,7 @@ class RunDBThin:
             try:
                 if not isinstance(data, int):
                     raise TypeError()
-                task_type_type_0 = TaskType(data)
+                task_type_type_0 = check_task_type(data)
 
                 return task_type_type_0
             except:  # noqa: E722

@@ -4,17 +4,17 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.api_key_action import ApiKeyAction
-from ..models.dataset_action import DatasetAction
-from ..models.fine_tuned_scorer_action import FineTunedScorerAction
-from ..models.generated_scorer_action import GeneratedScorerAction
-from ..models.group_action import GroupAction
-from ..models.group_member_action import GroupMemberAction
-from ..models.integration_action import IntegrationAction
-from ..models.organization_action import OrganizationAction
-from ..models.project_action import ProjectAction
-from ..models.registered_scorer_action import RegisteredScorerAction
-from ..models.user_action import UserAction
+from ..models.api_key_action import ApiKeyAction, check_api_key_action
+from ..models.dataset_action import DatasetAction, check_dataset_action
+from ..models.fine_tuned_scorer_action import FineTunedScorerAction, check_fine_tuned_scorer_action
+from ..models.generated_scorer_action import GeneratedScorerAction, check_generated_scorer_action
+from ..models.group_action import GroupAction, check_group_action
+from ..models.group_member_action import GroupMemberAction, check_group_member_action
+from ..models.integration_action import IntegrationAction, check_integration_action
+from ..models.organization_action import OrganizationAction, check_organization_action
+from ..models.project_action import ProjectAction, check_project_action
+from ..models.registered_scorer_action import RegisteredScorerAction, check_registered_scorer_action
+from ..models.user_action import UserAction, check_user_action
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="Permission")
@@ -49,28 +49,28 @@ class Permission:
 
     def to_dict(self) -> dict[str, Any]:
         action: str
-        if isinstance(self.action, UserAction):
-            action = self.action.value
-        elif isinstance(self.action, GroupAction):
-            action = self.action.value
-        elif isinstance(self.action, GroupMemberAction):
-            action = self.action.value
-        elif isinstance(self.action, ProjectAction):
-            action = self.action.value
-        elif isinstance(self.action, RegisteredScorerAction):
-            action = self.action.value
-        elif isinstance(self.action, ApiKeyAction):
-            action = self.action.value
-        elif isinstance(self.action, GeneratedScorerAction):
-            action = self.action.value
-        elif isinstance(self.action, FineTunedScorerAction):
-            action = self.action.value
-        elif isinstance(self.action, DatasetAction):
-            action = self.action.value
-        elif isinstance(self.action, IntegrationAction):
-            action = self.action.value
+        if isinstance(self.action, str):
+            action = self.action
+        elif isinstance(self.action, str):
+            action = self.action
+        elif isinstance(self.action, str):
+            action = self.action
+        elif isinstance(self.action, str):
+            action = self.action
+        elif isinstance(self.action, str):
+            action = self.action
+        elif isinstance(self.action, str):
+            action = self.action
+        elif isinstance(self.action, str):
+            action = self.action
+        elif isinstance(self.action, str):
+            action = self.action
+        elif isinstance(self.action, str):
+            action = self.action
+        elif isinstance(self.action, str):
+            action = self.action
         else:
-            action = self.action.value
+            action = self.action
 
         allowed = self.allowed
 
@@ -110,7 +110,7 @@ class Permission:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                action_type_0 = UserAction(data)
+                action_type_0 = check_user_action(data)
 
                 return action_type_0
             except:  # noqa: E722
@@ -118,7 +118,7 @@ class Permission:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                action_type_1 = GroupAction(data)
+                action_type_1 = check_group_action(data)
 
                 return action_type_1
             except:  # noqa: E722
@@ -126,7 +126,7 @@ class Permission:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                action_type_2 = GroupMemberAction(data)
+                action_type_2 = check_group_member_action(data)
 
                 return action_type_2
             except:  # noqa: E722
@@ -134,7 +134,7 @@ class Permission:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                action_type_3 = ProjectAction(data)
+                action_type_3 = check_project_action(data)
 
                 return action_type_3
             except:  # noqa: E722
@@ -142,7 +142,7 @@ class Permission:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                action_type_4 = RegisteredScorerAction(data)
+                action_type_4 = check_registered_scorer_action(data)
 
                 return action_type_4
             except:  # noqa: E722
@@ -150,7 +150,7 @@ class Permission:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                action_type_5 = ApiKeyAction(data)
+                action_type_5 = check_api_key_action(data)
 
                 return action_type_5
             except:  # noqa: E722
@@ -158,7 +158,7 @@ class Permission:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                action_type_6 = GeneratedScorerAction(data)
+                action_type_6 = check_generated_scorer_action(data)
 
                 return action_type_6
             except:  # noqa: E722
@@ -166,7 +166,7 @@ class Permission:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                action_type_7 = FineTunedScorerAction(data)
+                action_type_7 = check_fine_tuned_scorer_action(data)
 
                 return action_type_7
             except:  # noqa: E722
@@ -174,7 +174,7 @@ class Permission:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                action_type_8 = DatasetAction(data)
+                action_type_8 = check_dataset_action(data)
 
                 return action_type_8
             except:  # noqa: E722
@@ -182,14 +182,14 @@ class Permission:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                action_type_9 = IntegrationAction(data)
+                action_type_9 = check_integration_action(data)
 
                 return action_type_9
             except:  # noqa: E722
                 pass
             if not isinstance(data, str):
                 raise TypeError()
-            action_type_10 = OrganizationAction(data)
+            action_type_10 = check_organization_action(data)
 
             return action_type_10
 

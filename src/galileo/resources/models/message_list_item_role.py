@@ -1,13 +1,11 @@
-from enum import Enum
+from typing import Literal, cast
+
+MessageListItemRole = Literal["agent", "assistant", "function", "system", "tool", "user"]
+
+MESSAGE_LIST_ITEM_ROLE_VALUES: set[MessageListItemRole] = {"agent", "assistant", "function", "system", "tool", "user"}
 
 
-class MessageListItemRole(str, Enum):
-    AGENT = "agent"
-    ASSISTANT = "assistant"
-    FUNCTION = "function"
-    SYSTEM = "system"
-    TOOL = "tool"
-    USER = "user"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_message_list_item_role(value: str) -> MessageListItemRole:
+    if value in MESSAGE_LIST_ITEM_ROLE_VALUES:
+        return cast(MessageListItemRole, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {MESSAGE_LIST_ITEM_ROLE_VALUES!r}")

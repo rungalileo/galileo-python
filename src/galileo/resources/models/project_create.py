@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.project_type import ProjectType
+from ..models.project_type import ProjectType, check_project_type
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ProjectCreate")
@@ -39,7 +39,7 @@ class ProjectCreate:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_.value
+            type_ = self.type_
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -74,7 +74,7 @@ class ProjectCreate:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = ProjectType(_type_)
+            type_ = check_project_type(_type_)
 
         project_create = cls(
             name=name, create_example_templates=create_example_templates, created_by=created_by, type_=type_

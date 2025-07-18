@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Union
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.collaborator_role import CollaboratorRole
+from ..models.collaborator_role import CollaboratorRole, check_collaborator_role
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="UserCollaboratorCreate")
@@ -27,7 +27,7 @@ class UserCollaboratorCreate:
 
         role: Union[Unset, str] = UNSET
         if not isinstance(self.role, Unset):
-            role = self.role.value
+            role = self.role
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -47,7 +47,7 @@ class UserCollaboratorCreate:
         if isinstance(_role, Unset):
             role = UNSET
         else:
-            role = CollaboratorRole(_role)
+            role = check_collaborator_role(_role)
 
         user_collaborator_create = cls(user_id=user_id, role=role)
 

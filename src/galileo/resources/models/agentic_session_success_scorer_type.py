@@ -1,9 +1,11 @@
-from enum import Enum
+from typing import Literal, cast
+
+AgenticSessionSuccessScorerType = Literal["luna", "plus"]
+
+AGENTIC_SESSION_SUCCESS_SCORER_TYPE_VALUES: set[AgenticSessionSuccessScorerType] = {"luna", "plus"}
 
 
-class AgenticSessionSuccessScorerType(str, Enum):
-    LUNA = "luna"
-    PLUS = "plus"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_agentic_session_success_scorer_type(value: str) -> AgenticSessionSuccessScorerType:
+    if value in AGENTIC_SESSION_SUCCESS_SCORER_TYPE_VALUES:
+        return cast(AgenticSessionSuccessScorerType, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {AGENTIC_SESSION_SUCCESS_SCORER_TYPE_VALUES!r}")

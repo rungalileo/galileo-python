@@ -34,7 +34,7 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_0 = Response.from_dict(data)
+                response_200_type_0 = BaseResponse.from_dict(data)
 
                 return response_200_type_0
             except:  # noqa: E722
@@ -75,7 +75,7 @@ def sync_detailed(
     """Invoke
 
     Args:
-        body (Request):
+        body (BaseRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -98,7 +98,7 @@ def sync(
     """Invoke
 
     Args:
-        body (Request):
+        body (BaseRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -117,7 +117,7 @@ async def asyncio_detailed(
     """Invoke
 
     Args:
-        body (Request):
+        body (BaseRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -140,7 +140,7 @@ async def asyncio(
     """Invoke
 
     Args:
-        body (Request):
+        body (BaseRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

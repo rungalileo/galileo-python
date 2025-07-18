@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.scorer_name import ScorerName
-from ..models.task_type import TaskType
+from ..models.scorer_name import ScorerName, check_scorer_name
+from ..models.task_type import TaskType, check_task_type
 from ..types import UNSET, File, FileTypes, Unset
 
 if TYPE_CHECKING:
@@ -537,7 +537,7 @@ class CreateJobResponse:
         else:
             prompt_template_version_id = self.prompt_template_version_id
 
-        protect_scorer_payload: Union[None, Unset, FileTypes]
+        protect_scorer_payload: Union[FileTypes, None, Unset]
         if isinstance(self.protect_scorer_payload, Unset):
             protect_scorer_payload = UNSET
         elif isinstance(self.protect_scorer_payload, File):
@@ -653,14 +653,14 @@ class CreateJobResponse:
         if not isinstance(self.sub_scorers, Unset):
             sub_scorers = []
             for sub_scorers_item_data in self.sub_scorers:
-                sub_scorers_item = sub_scorers_item_data.value
+                sub_scorers_item: str = sub_scorers_item_data
                 sub_scorers.append(sub_scorers_item)
 
         task_type: Union[None, Unset, int]
         if isinstance(self.task_type, Unset):
             task_type = UNSET
-        elif isinstance(self.task_type, TaskType):
-            task_type = self.task_type.value
+        elif isinstance(self.task_type, int):
+            task_type = self.task_type
         else:
             task_type = self.task_type
 
@@ -1784,7 +1784,7 @@ class CreateJobResponse:
         sub_scorers = []
         _sub_scorers = d.pop("sub_scorers", UNSET)
         for sub_scorers_item_data in _sub_scorers or []:
-            sub_scorers_item = ScorerName(sub_scorers_item_data)
+            sub_scorers_item = check_scorer_name(sub_scorers_item_data)
 
             sub_scorers.append(sub_scorers_item)
 
@@ -1796,7 +1796,7 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, int):
                     raise TypeError()
-                task_type_type_0 = TaskType(data)
+                task_type_type_0 = check_task_type(data)
 
                 return task_type_type_0
             except:  # noqa: E722

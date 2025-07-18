@@ -6,7 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.collaborator_role import CollaboratorRole
+from ..models.collaborator_role import CollaboratorRole, check_collaborator_role
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -45,7 +45,7 @@ class GroupCollaborator:
 
         id = self.id
 
-        role = self.role.value
+        role: str = self.role
 
         permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
@@ -77,7 +77,7 @@ class GroupCollaborator:
 
         id = d.pop("id")
 
-        role = CollaboratorRole(d.pop("role"))
+        role = check_collaborator_role(d.pop("role"))
 
         permissions = []
         _permissions = d.pop("permissions", UNSET)

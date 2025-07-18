@@ -37,6 +37,8 @@ class Trace:
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
         parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
+        redacted_input (Union[None, Unset, str]): Redacted input of the trace or span.
+        redacted_output (Union[None, Unset, str]): Redacted output of the trace or span.
         session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
         spans (Union[Unset, list[Union['AgentSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]]): Child
             spans.
@@ -61,6 +63,8 @@ class Trace:
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
     parent_id: Union[None, Unset, str] = UNSET
+    redacted_input: Union[None, Unset, str] = UNSET
+    redacted_output: Union[None, Unset, str] = UNSET
     session_id: Union[None, Unset, str] = UNSET
     spans: Union[Unset, list[Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]]] = UNSET
     status_code: Union[None, Unset, int] = UNSET
@@ -128,6 +132,18 @@ class Trace:
             parent_id = UNSET
         else:
             parent_id = self.parent_id
+
+        redacted_input: Union[None, Unset, str]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        else:
+            redacted_input = self.redacted_input
+
+        redacted_output: Union[None, Unset, str]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        else:
+            redacted_output = self.redacted_output
 
         session_id: Union[None, Unset, str]
         if isinstance(self.session_id, Unset):
@@ -204,6 +220,10 @@ class Trace:
             field_dict["output"] = output
         if parent_id is not UNSET:
             field_dict["parent_id"] = parent_id
+        if redacted_input is not UNSET:
+            field_dict["redacted_input"] = redacted_input
+        if redacted_output is not UNSET:
+            field_dict["redacted_output"] = redacted_output
         if session_id is not UNSET:
             field_dict["session_id"] = session_id
         if spans is not UNSET:
@@ -313,6 +333,24 @@ class Trace:
             return cast(Union[None, Unset, str], data)
 
         parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
+
+        def _parse_redacted_input(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
+
+        def _parse_redacted_output(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 
         def _parse_session_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -424,6 +462,8 @@ class Trace:
             name=name,
             output=output,
             parent_id=parent_id,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             session_id=session_id,
             spans=spans,
             status_code=status_code,

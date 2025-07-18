@@ -7,7 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.scorer_type import ScorerType
+from ..models.scorer_type import ScorerType, check_scorer_type
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -284,8 +284,8 @@ class MetricSuccess:
         scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
             scorer_type = UNSET
-        elif isinstance(self.scorer_type, ScorerType):
-            scorer_type = self.scorer_type.value
+        elif isinstance(self.scorer_type, str):
+            scorer_type = self.scorer_type
         else:
             scorer_type = self.scorer_type
 
@@ -942,7 +942,7 @@ class MetricSuccess:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                scorer_type_type_0 = ScorerType(data)
+                scorer_type_type_0 = check_scorer_type(data)
 
                 return scorer_type_type_0
             except:  # noqa: E722

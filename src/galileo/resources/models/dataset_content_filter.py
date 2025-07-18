@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Union
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.dataset_content_filter_operator import DatasetContentFilterOperator
+from ..models.dataset_content_filter_operator import DatasetContentFilterOperator, check_dataset_content_filter_operator
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="DatasetContentFilter")
@@ -31,7 +31,7 @@ class DatasetContentFilter:
 
         operator: Union[Unset, str] = UNSET
         if not isinstance(self.operator, Unset):
-            operator = self.operator.value
+            operator = self.operator
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -53,7 +53,7 @@ class DatasetContentFilter:
         if isinstance(_operator, Unset):
             operator = UNSET
         else:
-            operator = DatasetContentFilterOperator(_operator)
+            operator = check_dataset_content_filter_operator(_operator)
 
         dataset_content_filter = cls(column_name=column_name, value=value, operator=operator)
 

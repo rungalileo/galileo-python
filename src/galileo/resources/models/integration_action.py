@@ -1,10 +1,11 @@
-from enum import Enum
+from typing import Literal, cast
+
+IntegrationAction = Literal["delete", "share", "update"]
+
+INTEGRATION_ACTION_VALUES: set[IntegrationAction] = {"delete", "share", "update"}
 
 
-class IntegrationAction(str, Enum):
-    DELETE = "delete"
-    SHARE = "share"
-    UPDATE = "update"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_integration_action(value: str) -> IntegrationAction:
+    if value in INTEGRATION_ACTION_VALUES:
+        return cast(IntegrationAction, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {INTEGRATION_ACTION_VALUES!r}")

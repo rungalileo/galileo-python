@@ -4,7 +4,7 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.action_type import ActionType
+from ..models.action_type import ActionType, check_action_type
 
 T = TypeVar("T", bound="ActionResult")
 
@@ -22,7 +22,7 @@ class ActionResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        type_ = self.type_.value
+        type_: str = self.type_
 
         value = self.value
 
@@ -35,7 +35,7 @@ class ActionResult:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        type_ = ActionType(d.pop("type"))
+        type_ = check_action_type(d.pop("type"))
 
         value = d.pop("value")
 

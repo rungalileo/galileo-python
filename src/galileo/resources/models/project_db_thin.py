@@ -6,7 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.project_type import ProjectType
+from ..models.project_type import ProjectType, check_project_type
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -75,8 +75,8 @@ class ProjectDBThin:
         type_: Union[None, Unset, str]
         if isinstance(self.type_, Unset):
             type_ = UNSET
-        elif isinstance(self.type_, ProjectType):
-            type_ = self.type_.value
+        elif isinstance(self.type_, str):
+            type_ = self.type_
         else:
             type_ = self.type_
 
@@ -143,7 +143,7 @@ class ProjectDBThin:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                type_type_0 = ProjectType(data)
+                type_type_0 = check_project_type(data)
 
                 return type_type_0
             except:  # noqa: E722

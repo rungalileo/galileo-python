@@ -4,7 +4,7 @@ from typing import Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.metadata_filter_operator import MetadataFilterOperator
+from ..models.metadata_filter_operator import MetadataFilterOperator, check_metadata_filter_operator
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="MetadataFilter")
@@ -32,7 +32,7 @@ class MetadataFilter:
     def to_dict(self) -> dict[str, Any]:
         key = self.key
 
-        operator = self.operator.value
+        operator: str = self.operator
 
         value: Union[list[str], str]
         if isinstance(self.value, list):
@@ -60,7 +60,7 @@ class MetadataFilter:
         d = dict(src_dict)
         key = d.pop("key")
 
-        operator = MetadataFilterOperator(d.pop("operator"))
+        operator = check_metadata_filter_operator(d.pop("operator"))
 
         def _parse_value(data: object) -> Union[list[str], str]:
             try:

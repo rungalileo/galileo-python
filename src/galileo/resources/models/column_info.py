@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.column_category import ColumnCategory
-from ..models.data_type import DataType
-from ..models.data_unit import DataUnit
-from ..models.insight_type import InsightType
-from ..models.step_type import StepType
+from ..models.column_category import ColumnCategory, check_column_category
+from ..models.data_type import DataType, check_data_type
+from ..models.data_unit import DataUnit, check_data_unit
+from ..models.insight_type import InsightType, check_insight_type
+from ..models.step_type import StepType, check_step_type
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -68,7 +68,7 @@ class ColumnInfo:
         from ..models.metric_threshold import MetricThreshold
         from ..models.scorer_config import ScorerConfig
 
-        category = self.category.value
+        category: str = self.category
 
         id = self.id
 
@@ -85,22 +85,22 @@ class ColumnInfo:
         if not isinstance(self.applicable_types, Unset):
             applicable_types = []
             for applicable_types_item_data in self.applicable_types:
-                applicable_types_item = applicable_types_item_data.value
+                applicable_types_item: str = applicable_types_item_data
                 applicable_types.append(applicable_types_item)
 
         data_type: Union[None, Unset, str]
         if isinstance(self.data_type, Unset):
             data_type = UNSET
-        elif isinstance(self.data_type, DataType):
-            data_type = self.data_type.value
+        elif isinstance(self.data_type, str):
+            data_type = self.data_type
         else:
             data_type = self.data_type
 
         data_unit: Union[None, Unset, str]
         if isinstance(self.data_unit, Unset):
             data_unit = UNSET
-        elif isinstance(self.data_unit, DataUnit):
-            data_unit = self.data_unit.value
+        elif isinstance(self.data_unit, str):
+            data_unit = self.data_unit
         else:
             data_unit = self.data_unit
 
@@ -121,8 +121,8 @@ class ColumnInfo:
         insight_type: Union[None, Unset, str]
         if isinstance(self.insight_type, Unset):
             insight_type = UNSET
-        elif isinstance(self.insight_type, InsightType):
-            insight_type = self.insight_type.value
+        elif isinstance(self.insight_type, str):
+            insight_type = self.insight_type
         else:
             insight_type = self.insight_type
 
@@ -202,7 +202,7 @@ class ColumnInfo:
         from ..models.scorer_config import ScorerConfig
 
         d = dict(src_dict)
-        category = ColumnCategory(d.pop("category"))
+        category = check_column_category(d.pop("category"))
 
         id = d.pop("id")
 
@@ -226,7 +226,7 @@ class ColumnInfo:
         applicable_types = []
         _applicable_types = d.pop("applicable_types", UNSET)
         for applicable_types_item_data in _applicable_types or []:
-            applicable_types_item = StepType(applicable_types_item_data)
+            applicable_types_item = check_step_type(applicable_types_item_data)
 
             applicable_types.append(applicable_types_item)
 
@@ -238,7 +238,7 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_type_type_0 = DataType(data)
+                data_type_type_0 = check_data_type(data)
 
                 return data_type_type_0
             except:  # noqa: E722
@@ -255,7 +255,7 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_unit_type_0 = DataUnit(data)
+                data_unit_type_0 = check_data_unit(data)
 
                 return data_unit_type_0
             except:  # noqa: E722
@@ -292,7 +292,7 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                insight_type_type_0 = InsightType(data)
+                insight_type_type_0 = check_insight_type(data)
 
                 return insight_type_type_0
             except:  # noqa: E722

@@ -1,10 +1,11 @@
-from enum import Enum
+from typing import Literal, cast
+
+ScorerTypes = Literal["code", "llm", "preset"]
+
+SCORER_TYPES_VALUES: set[ScorerTypes] = {"code", "llm", "preset"}
 
 
-class ScorerTypes(str, Enum):
-    CODE = "code"
-    LLM = "llm"
-    PRESET = "preset"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_scorer_types(value: str) -> ScorerTypes:
+    if value in SCORER_TYPES_VALUES:
+        return cast(ScorerTypes, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {SCORER_TYPES_VALUES!r}")

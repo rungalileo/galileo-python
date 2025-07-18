@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.stage_type import StageType
+from ..models.stage_type import StageType, check_stage_type
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="StageDB")
@@ -54,7 +54,7 @@ class StageDB:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_.value
+            type_ = self.type_
 
         version: Union[None, Unset, int]
         if isinstance(self.version, Unset):
@@ -103,7 +103,7 @@ class StageDB:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = StageType(_type_)
+            type_ = check_stage_type(_type_)
 
         def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:

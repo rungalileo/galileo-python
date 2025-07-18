@@ -1,13 +1,25 @@
-from enum import Enum
+from typing import Literal, cast
+
+SyntheticDataTypes = Literal[
+    "General Query",
+    "Multiple Questions in Query",
+    "Off-Topic Query",
+    "Prompt Injection",
+    "Sexist Content in Query",
+    "Toxic Content in Query",
+]
+
+SYNTHETIC_DATA_TYPES_VALUES: set[SyntheticDataTypes] = {
+    "General Query",
+    "Multiple Questions in Query",
+    "Off-Topic Query",
+    "Prompt Injection",
+    "Sexist Content in Query",
+    "Toxic Content in Query",
+}
 
 
-class SyntheticDataTypes(str, Enum):
-    GENERAL_QUERY = "General Query"
-    MULTIPLE_QUESTIONS_IN_QUERY = "Multiple Questions in Query"
-    OFF_TOPIC_QUERY = "Off-Topic Query"
-    PROMPT_INJECTION = "Prompt Injection"
-    SEXIST_CONTENT_IN_QUERY = "Sexist Content in Query"
-    TOXIC_CONTENT_IN_QUERY = "Toxic Content in Query"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_synthetic_data_types(value: str) -> SyntheticDataTypes:
+    if value in SYNTHETIC_DATA_TYPES_VALUES:
+        return cast(SyntheticDataTypes, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {SYNTHETIC_DATA_TYPES_VALUES!r}")

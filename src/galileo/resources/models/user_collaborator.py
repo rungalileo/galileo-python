@@ -6,7 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.collaborator_role import CollaboratorRole
+from ..models.collaborator_role import CollaboratorRole, check_collaborator_role
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -53,7 +53,7 @@ class UserCollaborator:
         last_name: Union[None, str]
         last_name = self.last_name
 
-        role = self.role.value
+        role: str = self.role
 
         user_id = self.user_id
 
@@ -107,7 +107,7 @@ class UserCollaborator:
 
         last_name = _parse_last_name(d.pop("last_name"))
 
-        role = CollaboratorRole(d.pop("role"))
+        role = check_collaborator_role(d.pop("role"))
 
         user_id = d.pop("user_id")
 

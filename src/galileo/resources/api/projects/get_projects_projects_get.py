@@ -26,8 +26,8 @@ def _get_kwargs(
     json_type_: Union[None, Unset, str]
     if isinstance(type_, Unset):
         json_type_ = UNSET
-    elif isinstance(type_, ProjectType):
-        json_type_ = type_.value
+    elif isinstance(type_, str):
+        json_type_ = type_
     else:
         json_type_ = type_
     params["type"] = json_type_

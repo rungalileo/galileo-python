@@ -4,8 +4,8 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.execution_status import ExecutionStatus
-from ..models.rule_operator import RuleOperator
+from ..models.execution_status import ExecutionStatus, check_execution_status
+from ..models.rule_operator import RuleOperator, check_rule_operator
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="RuleResult")
@@ -34,7 +34,7 @@ class RuleResult:
     def to_dict(self) -> dict[str, Any]:
         metric = self.metric
 
-        operator = self.operator.value
+        operator: str = self.operator
 
         target_value: Union[None, float, int, list[Any], str]
         if isinstance(self.target_value, list):
@@ -51,7 +51,7 @@ class RuleResult:
 
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
-            status = self.status.value
+            status = self.status
 
         value: Union[Any, None, Unset]
         if isinstance(self.value, Unset):
@@ -76,7 +76,7 @@ class RuleResult:
         d = dict(src_dict)
         metric = d.pop("metric")
 
-        operator = RuleOperator(d.pop("operator"))
+        operator = check_rule_operator(d.pop("operator"))
 
         def _parse_target_value(data: object) -> Union[None, float, int, list[Any], str]:
             if data is None:
@@ -107,7 +107,7 @@ class RuleResult:
         if isinstance(_status, Unset):
             status = UNSET
         else:
-            status = ExecutionStatus(_status)
+            status = check_execution_status(_status)
 
         def _parse_value(data: object) -> Union[Any, None, Unset]:
             if data is None:

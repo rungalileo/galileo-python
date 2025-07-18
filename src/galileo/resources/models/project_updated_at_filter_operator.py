@@ -1,13 +1,11 @@
-from enum import Enum
+from typing import Literal, cast
+
+ProjectUpdatedAtFilterOperator = Literal["eq", "gt", "gte", "lt", "lte", "ne"]
+
+PROJECT_UPDATED_AT_FILTER_OPERATOR_VALUES: set[ProjectUpdatedAtFilterOperator] = {"eq", "gt", "gte", "lt", "lte", "ne"}
 
 
-class ProjectUpdatedAtFilterOperator(str, Enum):
-    EQ = "eq"
-    GT = "gt"
-    GTE = "gte"
-    LT = "lt"
-    LTE = "lte"
-    NE = "ne"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_project_updated_at_filter_operator(value: str) -> ProjectUpdatedAtFilterOperator:
+    if value in PROJECT_UPDATED_AT_FILTER_OPERATOR_VALUES:
+        return cast(ProjectUpdatedAtFilterOperator, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {PROJECT_UPDATED_AT_FILTER_OPERATOR_VALUES!r}")

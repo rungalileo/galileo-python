@@ -4,7 +4,10 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.agentic_workflow_success_scorer_type import AgenticWorkflowSuccessScorerType
+from ..models.agentic_workflow_success_scorer_type import (
+    AgenticWorkflowSuccessScorerType,
+    check_agentic_workflow_success_scorer_type,
+)
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -24,14 +27,14 @@ class AgenticWorkflowSuccessScorer:
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
         name (Union[Literal['agentic_workflow_success'], Unset]):  Default: 'agentic_workflow_success'.
         num_judges (Union[None, Unset, int]): Number of judges for the scorer.
-        type_ (Union[Unset, AgenticWorkflowSuccessScorerType]):  Default: AgenticWorkflowSuccessScorerType.PLUS.
+        type_ (Union[Unset, AgenticWorkflowSuccessScorerType]):  Default: 'plus'.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["agentic_workflow_success"], Unset] = "agentic_workflow_success"
     num_judges: Union[None, Unset, int] = UNSET
-    type_: Union[Unset, AgenticWorkflowSuccessScorerType] = AgenticWorkflowSuccessScorerType.PLUS
+    type_: Union[Unset, AgenticWorkflowSuccessScorerType] = "plus"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -70,7 +73,7 @@ class AgenticWorkflowSuccessScorer:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_.value
+            type_ = self.type_
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -160,7 +163,7 @@ class AgenticWorkflowSuccessScorer:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = AgenticWorkflowSuccessScorerType(_type_)
+            type_ = check_agentic_workflow_success_scorer_type(_type_)
 
         agentic_workflow_success_scorer = cls(
             filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_

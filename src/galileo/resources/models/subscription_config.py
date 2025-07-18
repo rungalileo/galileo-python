@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Union
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.execution_status import ExecutionStatus
+from ..models.execution_status import ExecutionStatus, check_execution_status
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="SubscriptionConfig")
@@ -31,7 +31,7 @@ class SubscriptionConfig:
         if not isinstance(self.statuses, Unset):
             statuses = []
             for statuses_item_data in self.statuses:
-                statuses_item = statuses_item_data.value
+                statuses_item: str = statuses_item_data
                 statuses.append(statuses_item)
 
         field_dict: dict[str, Any] = {}
@@ -50,7 +50,7 @@ class SubscriptionConfig:
         statuses = []
         _statuses = d.pop("statuses", UNSET)
         for statuses_item_data in _statuses or []:
-            statuses_item = ExecutionStatus(statuses_item_data)
+            statuses_item = check_execution_status(statuses_item_data)
 
             statuses.append(statuses_item)
 

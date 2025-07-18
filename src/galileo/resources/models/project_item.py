@@ -6,6 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..models.project_labels import ProjectLabels, check_project_labels
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -27,6 +28,8 @@ class ProjectItem:
         updated_at (datetime.datetime):
         bookmark (Union[Unset, bool]):  Default: False.
         created_by_user (Union['UserInfo', None, Unset]):
+        description (Union[None, Unset, str]):
+        labels (Union[Unset, list[ProjectLabels]]): List of labels associated with the project.
         num_experiments (Union[None, Unset, int]): Count of runs with task_type=16
         num_logstreams (Union[None, Unset, int]): Count of runs with task_type=15
         permissions (Union[Unset, list['Permission']]):
@@ -38,6 +41,8 @@ class ProjectItem:
     updated_at: datetime.datetime
     bookmark: Union[Unset, bool] = False
     created_by_user: Union["UserInfo", None, Unset] = UNSET
+    description: Union[None, Unset, str] = UNSET
+    labels: Union[Unset, list[ProjectLabels]] = UNSET
     num_experiments: Union[None, Unset, int] = UNSET
     num_logstreams: Union[None, Unset, int] = UNSET
     permissions: Union[Unset, list["Permission"]] = UNSET
@@ -63,6 +68,19 @@ class ProjectItem:
             created_by_user = self.created_by_user.to_dict()
         else:
             created_by_user = self.created_by_user
+
+        description: Union[None, Unset, str]
+        if isinstance(self.description, Unset):
+            description = UNSET
+        else:
+            description = self.description
+
+        labels: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.labels, Unset):
+            labels = []
+            for labels_item_data in self.labels:
+                labels_item: str = labels_item_data
+                labels.append(labels_item)
 
         num_experiments: Union[None, Unset, int]
         if isinstance(self.num_experiments, Unset):
@@ -90,6 +108,10 @@ class ProjectItem:
             field_dict["bookmark"] = bookmark
         if created_by_user is not UNSET:
             field_dict["created_by_user"] = created_by_user
+        if description is not UNSET:
+            field_dict["description"] = description
+        if labels is not UNSET:
+            field_dict["labels"] = labels
         if num_experiments is not UNSET:
             field_dict["num_experiments"] = num_experiments
         if num_logstreams is not UNSET:
@@ -132,6 +154,22 @@ class ProjectItem:
 
         created_by_user = _parse_created_by_user(d.pop("created_by_user", UNSET))
 
+        def _parse_description(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        description = _parse_description(d.pop("description", UNSET))
+
+        labels = []
+        _labels = d.pop("labels", UNSET)
+        for labels_item_data in _labels or []:
+            labels_item = check_project_labels(labels_item_data)
+
+            labels.append(labels_item)
+
         def _parse_num_experiments(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
@@ -164,6 +202,8 @@ class ProjectItem:
             updated_at=updated_at,
             bookmark=bookmark,
             created_by_user=created_by_user,
+            description=description,
+            labels=labels,
             num_experiments=num_experiments,
             num_logstreams=num_logstreams,
             permissions=permissions,

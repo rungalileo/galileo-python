@@ -1,68 +1,135 @@
-from enum import Enum
+from typing import Literal, cast
+
+ScorerName = Literal[
+    "_action_advancement_luna",
+    "_action_completion_luna",
+    "_adherence_nli",
+    "_agentic_session_success",
+    "_agentic_workflow_success",
+    "_bleu",
+    "_chunk_attribution_utilization_gpt",
+    "_chunk_attribution_utilization_nli",
+    "_completeness_gpt",
+    "_completeness_nli",
+    "_context_adherence_luna",
+    "_context_relevance",
+    "_cost",
+    "_customized_agentic_session_success",
+    "_customized_agentic_workflow_success",
+    "_customized_chunk_attribution_utilization_gpt",
+    "_customized_completeness_gpt",
+    "_customized_factuality",
+    "_customized_ground_truth_adherence",
+    "_customized_groundedness",
+    "_customized_input_sexist_gpt",
+    "_customized_input_toxicity_gpt",
+    "_customized_instruction_adherence",
+    "_customized_prompt_injection_gpt",
+    "_customized_sexist_gpt",
+    "_customized_tool_error_rate",
+    "_customized_tool_selection_quality",
+    "_customized_toxicity_gpt",
+    "_factuality",
+    "_generic_wizard",
+    "_ground_truth_adherence",
+    "_groundedness",
+    "_input_pii",
+    "_input_sexist",
+    "_input_sexist_gpt",
+    "_input_tone",
+    "_input_toxicity",
+    "_input_toxicity_gpt",
+    "_instruction_adherence",
+    "_latency",
+    "_pii",
+    "_prompt_injection",
+    "_prompt_injection_gpt",
+    "_prompt_perplexity",
+    "_protect_status",
+    "_rag_nli",
+    "_rouge",
+    "_sexist",
+    "_sexist_gpt",
+    "_tone",
+    "_tool_error_rate",
+    "_tool_error_rate_luna",
+    "_tool_selection_quality",
+    "_tool_selection_quality_luna",
+    "_toxicity",
+    "_toxicity_gpt",
+    "_uncertainty",
+    "_user_finetuned",
+    "_user_generated",
+    "_user_registered",
+    "_user_submitted",
+]
+
+SCORER_NAME_VALUES: set[ScorerName] = {
+    "_action_advancement_luna",
+    "_action_completion_luna",
+    "_adherence_nli",
+    "_agentic_session_success",
+    "_agentic_workflow_success",
+    "_bleu",
+    "_chunk_attribution_utilization_gpt",
+    "_chunk_attribution_utilization_nli",
+    "_completeness_gpt",
+    "_completeness_nli",
+    "_context_adherence_luna",
+    "_context_relevance",
+    "_cost",
+    "_customized_agentic_session_success",
+    "_customized_agentic_workflow_success",
+    "_customized_chunk_attribution_utilization_gpt",
+    "_customized_completeness_gpt",
+    "_customized_factuality",
+    "_customized_ground_truth_adherence",
+    "_customized_groundedness",
+    "_customized_input_sexist_gpt",
+    "_customized_input_toxicity_gpt",
+    "_customized_instruction_adherence",
+    "_customized_prompt_injection_gpt",
+    "_customized_sexist_gpt",
+    "_customized_tool_error_rate",
+    "_customized_tool_selection_quality",
+    "_customized_toxicity_gpt",
+    "_factuality",
+    "_generic_wizard",
+    "_ground_truth_adherence",
+    "_groundedness",
+    "_input_pii",
+    "_input_sexist",
+    "_input_sexist_gpt",
+    "_input_tone",
+    "_input_toxicity",
+    "_input_toxicity_gpt",
+    "_instruction_adherence",
+    "_latency",
+    "_pii",
+    "_prompt_injection",
+    "_prompt_injection_gpt",
+    "_prompt_perplexity",
+    "_protect_status",
+    "_rag_nli",
+    "_rouge",
+    "_sexist",
+    "_sexist_gpt",
+    "_tone",
+    "_tool_error_rate",
+    "_tool_error_rate_luna",
+    "_tool_selection_quality",
+    "_tool_selection_quality_luna",
+    "_toxicity",
+    "_toxicity_gpt",
+    "_uncertainty",
+    "_user_finetuned",
+    "_user_generated",
+    "_user_registered",
+    "_user_submitted",
+}
 
 
-class ScorerName(str, Enum):
-    VALUE_0 = "_completeness_gpt"
-    VALUE_1 = "_context_adherence_luna"
-    VALUE_10 = "_input_pii"
-    VALUE_11 = "_sexist"
-    VALUE_12 = "_input_sexist"
-    VALUE_13 = "_sexist_gpt"
-    VALUE_14 = "_input_sexist_gpt"
-    VALUE_15 = "_tone"
-    VALUE_16 = "_input_tone"
-    VALUE_17 = "_toxicity"
-    VALUE_18 = "_toxicity_gpt"
-    VALUE_19 = "_input_toxicity"
-    VALUE_2 = "_context_relevance"
-    VALUE_20 = "_input_toxicity_gpt"
-    VALUE_21 = "_user_registered"
-    VALUE_22 = "_user_submitted"
-    VALUE_23 = "_user_generated"
-    VALUE_24 = "_user_finetuned"
-    VALUE_25 = "_uncertainty"
-    VALUE_26 = "_bleu"
-    VALUE_27 = "_cost"
-    VALUE_28 = "_rouge"
-    VALUE_29 = "_prompt_injection_gpt"
-    VALUE_3 = "_chunk_attribution_utilization_gpt"
-    VALUE_30 = "_prompt_injection"
-    VALUE_31 = "_rag_nli"
-    VALUE_32 = "_adherence_nli"
-    VALUE_33 = "_completeness_nli"
-    VALUE_34 = "_chunk_attribution_utilization_nli"
-    VALUE_35 = "_instruction_adherence"
-    VALUE_36 = "_ground_truth_adherence"
-    VALUE_37 = "_tool_selection_quality"
-    VALUE_38 = "_tool_selection_quality_luna"
-    VALUE_39 = "_tool_error_rate"
-    VALUE_4 = "_factuality"
-    VALUE_40 = "_tool_error_rate_luna"
-    VALUE_41 = "_action_completion_luna"
-    VALUE_42 = "_agentic_session_success"
-    VALUE_43 = "_action_advancement_luna"
-    VALUE_44 = "_agentic_workflow_success"
-    VALUE_45 = "_generic_wizard"
-    VALUE_46 = "_customized_completeness_gpt"
-    VALUE_47 = "_customized_factuality"
-    VALUE_48 = "_customized_groundedness"
-    VALUE_49 = "_customized_chunk_attribution_utilization_gpt"
-    VALUE_5 = "_groundedness"
-    VALUE_50 = "_customized_instruction_adherence"
-    VALUE_51 = "_customized_ground_truth_adherence"
-    VALUE_52 = "_customized_prompt_injection_gpt"
-    VALUE_53 = "_customized_tool_selection_quality"
-    VALUE_54 = "_customized_tool_error_rate"
-    VALUE_55 = "_customized_agentic_session_success"
-    VALUE_56 = "_customized_agentic_workflow_success"
-    VALUE_57 = "_customized_sexist_gpt"
-    VALUE_58 = "_customized_input_sexist_gpt"
-    VALUE_59 = "_customized_toxicity_gpt"
-    VALUE_6 = "_latency"
-    VALUE_60 = "_customized_input_toxicity_gpt"
-    VALUE_7 = "_prompt_perplexity"
-    VALUE_8 = "_protect_status"
-    VALUE_9 = "_pii"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_scorer_name(value: str) -> ScorerName:
+    if value in SCORER_NAME_VALUES:
+        return cast(ScorerName, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {SCORER_NAME_VALUES!r}")

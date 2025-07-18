@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.logging_method import LoggingMethod
+from ..models.logging_method import LoggingMethod, check_logging_method
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="LogTraceUpdateRequest")
@@ -79,7 +79,7 @@ class LogTraceUpdateRequest:
 
         logging_method: Union[Unset, str] = UNSET
         if not isinstance(self.logging_method, Unset):
-            logging_method = self.logging_method.value
+            logging_method = self.logging_method
 
         output: Union[None, Unset, str]
         if isinstance(self.output, Unset):
@@ -185,7 +185,7 @@ class LogTraceUpdateRequest:
         if isinstance(_logging_method, Unset):
             logging_method = UNSET
         else:
-            logging_method = LoggingMethod(_logging_method)
+            logging_method = check_logging_method(_logging_method)
 
         def _parse_output(data: object) -> Union[None, Unset, str]:
             if data is None:

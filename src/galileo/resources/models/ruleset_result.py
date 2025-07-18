@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.execution_status import ExecutionStatus
+from ..models.execution_status import ExecutionStatus, check_execution_status
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -68,7 +68,7 @@ class RulesetResult:
 
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
-            status = self.status.value
+            status = self.status
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -142,7 +142,7 @@ class RulesetResult:
         if isinstance(_status, Unset):
             status = UNSET
         else:
-            status = ExecutionStatus(_status)
+            status = check_execution_status(_status)
 
         ruleset_result = cls(
             action=action, description=description, rule_results=rule_results, rules=rules, status=status

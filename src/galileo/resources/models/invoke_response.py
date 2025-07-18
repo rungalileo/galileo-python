@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.execution_status import ExecutionStatus
+from ..models.execution_status import ExecutionStatus, check_execution_status
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -93,7 +93,7 @@ class InvokeResponse:
 
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
-            status = self.status.value
+            status = self.status
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -194,7 +194,7 @@ class InvokeResponse:
         if isinstance(_status, Unset):
             status = UNSET
         else:
-            status = ExecutionStatus(_status)
+            status = check_execution_status(_status)
 
         invoke_response = cls(
             action_result=action_result,

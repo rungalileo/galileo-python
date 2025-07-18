@@ -6,7 +6,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.project_type import ProjectType
+from ..models.project_labels import ProjectLabels, check_project_labels
+from ..models.project_type import ProjectType, check_project_type
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -29,6 +30,8 @@ class ProjectDB:
         runs (list['RunDB']):
         updated_at (datetime.datetime):
         bookmark (Union[Unset, bool]):  Default: False.
+        description (Union[None, Unset, str]):
+        labels (Union[Unset, list[ProjectLabels]]):
         name (Union[None, Unset, str]):
         permissions (Union[Unset, list['Permission']]):
         type_ (Union[None, ProjectType, Unset]):
@@ -41,6 +44,8 @@ class ProjectDB:
     runs: list["RunDB"]
     updated_at: datetime.datetime
     bookmark: Union[Unset, bool] = False
+    description: Union[None, Unset, str] = UNSET
+    labels: Union[Unset, list[ProjectLabels]] = UNSET
     name: Union[None, Unset, str] = UNSET
     permissions: Union[Unset, list["Permission"]] = UNSET
     type_: Union[None, ProjectType, Unset] = UNSET
@@ -64,6 +69,19 @@ class ProjectDB:
 
         bookmark = self.bookmark
 
+        description: Union[None, Unset, str]
+        if isinstance(self.description, Unset):
+            description = UNSET
+        else:
+            description = self.description
+
+        labels: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.labels, Unset):
+            labels = []
+            for labels_item_data in self.labels:
+                labels_item: str = labels_item_data
+                labels.append(labels_item)
+
         name: Union[None, Unset, str]
         if isinstance(self.name, Unset):
             name = UNSET
@@ -80,8 +98,8 @@ class ProjectDB:
         type_: Union[None, Unset, str]
         if isinstance(self.type_, Unset):
             type_ = UNSET
-        elif isinstance(self.type_, ProjectType):
-            type_ = self.type_.value
+        elif isinstance(self.type_, str):
+            type_ = self.type_
         else:
             type_ = self.type_
 
@@ -99,6 +117,10 @@ class ProjectDB:
         )
         if bookmark is not UNSET:
             field_dict["bookmark"] = bookmark
+        if description is not UNSET:
+            field_dict["description"] = description
+        if labels is not UNSET:
+            field_dict["labels"] = labels
         if name is not UNSET:
             field_dict["name"] = name
         if permissions is not UNSET:
@@ -134,6 +156,22 @@ class ProjectDB:
 
         bookmark = d.pop("bookmark", UNSET)
 
+        def _parse_description(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        description = _parse_description(d.pop("description", UNSET))
+
+        labels = []
+        _labels = d.pop("labels", UNSET)
+        for labels_item_data in _labels or []:
+            labels_item = check_project_labels(labels_item_data)
+
+            labels.append(labels_item)
+
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -158,7 +196,7 @@ class ProjectDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                type_type_0 = ProjectType(data)
+                type_type_0 = check_project_type(data)
 
                 return type_type_0
             except:  # noqa: E722
@@ -175,6 +213,8 @@ class ProjectDB:
             runs=runs,
             updated_at=updated_at,
             bookmark=bookmark,
+            description=description,
+            labels=labels,
             name=name,
             permissions=permissions,
             type_=type_,

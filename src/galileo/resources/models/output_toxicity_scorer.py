@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.output_toxicity_scorer_type import OutputToxicityScorerType
+from ..models.output_toxicity_scorer_type import OutputToxicityScorerType, check_output_toxicity_scorer_type
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -24,14 +24,14 @@ class OutputToxicityScorer:
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
         name (Union[Literal['output_toxicity'], Unset]):  Default: 'output_toxicity'.
         num_judges (Union[None, Unset, int]): Number of judges for the scorer.
-        type_ (Union[Unset, OutputToxicityScorerType]):  Default: OutputToxicityScorerType.LUNA.
+        type_ (Union[Unset, OutputToxicityScorerType]):  Default: 'luna'.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["output_toxicity"], Unset] = "output_toxicity"
     num_judges: Union[None, Unset, int] = UNSET
-    type_: Union[Unset, OutputToxicityScorerType] = OutputToxicityScorerType.LUNA
+    type_: Union[Unset, OutputToxicityScorerType] = "luna"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -70,7 +70,7 @@ class OutputToxicityScorer:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_.value
+            type_ = self.type_
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -160,7 +160,7 @@ class OutputToxicityScorer:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = OutputToxicityScorerType(_type_)
+            type_ = check_output_toxicity_scorer_type(_type_)
 
         output_toxicity_scorer = cls(
             filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_

@@ -6,7 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.data_type_options import DataTypeOptions
+from ..models.data_type_options import DataTypeOptions, check_data_type_options
 
 T = TypeVar("T", bound="CreateUpdateRegisteredScorerResponse")
 
@@ -41,8 +41,8 @@ class CreateUpdateRegisteredScorerResponse:
         created_by = self.created_by
 
         data_type: Union[None, str]
-        if isinstance(self.data_type, DataTypeOptions):
-            data_type = self.data_type.value
+        if isinstance(self.data_type, str):
+            data_type = self.data_type
         else:
             data_type = self.data_type
 
@@ -92,7 +92,7 @@ class CreateUpdateRegisteredScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_type_type_0 = DataTypeOptions(data)
+                data_type_type_0 = check_data_type_options(data)
 
                 return data_type_type_0
             except:  # noqa: E722

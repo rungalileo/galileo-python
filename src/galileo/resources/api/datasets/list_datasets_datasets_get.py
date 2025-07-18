@@ -23,7 +23,7 @@ def _get_kwargs(
     if not isinstance(actions, Unset):
         json_actions = []
         for actions_item_data in actions:
-            actions_item = actions_item_data.value
+            actions_item: str = actions_item_data
             json_actions.append(actions_item)
 
     params["actions"] = json_actions

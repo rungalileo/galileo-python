@@ -4,7 +4,7 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.collaborator_role import CollaboratorRole
+from ..models.collaborator_role import CollaboratorRole, check_collaborator_role
 
 T = TypeVar("T", bound="CollaboratorUpdate")
 
@@ -20,7 +20,7 @@ class CollaboratorUpdate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        role = self.role.value
+        role: str = self.role
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -31,7 +31,7 @@ class CollaboratorUpdate:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        role = CollaboratorRole(d.pop("role"))
+        role = check_collaborator_role(d.pop("role"))
 
         collaborator_update = cls(role=role)
 

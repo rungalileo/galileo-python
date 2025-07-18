@@ -44,7 +44,7 @@ def _get_kwargs(
 
     json_format_: Union[Unset, str] = UNSET
     if not isinstance(format_, Unset):
-        json_format_ = format_.value
+        json_format_ = format_
 
     params["format"] = json_format_
 

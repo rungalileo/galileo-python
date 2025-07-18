@@ -6,8 +6,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.auth_method import AuthMethod
-from ..models.user_role import UserRole
+from ..models.auth_method import AuthMethod, check_auth_method
+from ..models.user_role import UserRole, check_user_role
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -64,7 +64,7 @@ class UserDB:
 
         auth_method: Union[Unset, str] = UNSET
         if not isinstance(self.auth_method, Unset):
-            auth_method = self.auth_method.value
+            auth_method = self.auth_method
 
         email_is_verified: Union[None, Unset, bool]
         if isinstance(self.email_is_verified, Unset):
@@ -93,7 +93,7 @@ class UserDB:
 
         role: Union[Unset, str] = UNSET
         if not isinstance(self.role, Unset):
-            role = self.role.value
+            role = self.role
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -144,7 +144,7 @@ class UserDB:
         if isinstance(_auth_method, Unset):
             auth_method = UNSET
         else:
-            auth_method = AuthMethod(_auth_method)
+            auth_method = check_auth_method(_auth_method)
 
         def _parse_email_is_verified(data: object) -> Union[None, Unset, bool]:
             if data is None:
@@ -185,7 +185,7 @@ class UserDB:
         if isinstance(_role, Unset):
             role = UNSET
         else:
-            role = UserRole(_role)
+            role = check_user_role(_role)
 
         user_db = cls(
             created_at=created_at,

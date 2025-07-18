@@ -1,18 +1,23 @@
-from enum import Enum
+from typing import Literal, cast
+
+RuleOperator = Literal["all", "any", "contains", "empty", "eq", "gt", "gte", "lt", "lte", "neq", "not_empty"]
+
+RULE_OPERATOR_VALUES: set[RuleOperator] = {
+    "all",
+    "any",
+    "contains",
+    "empty",
+    "eq",
+    "gt",
+    "gte",
+    "lt",
+    "lte",
+    "neq",
+    "not_empty",
+}
 
 
-class RuleOperator(str, Enum):
-    ALL = "all"
-    ANY = "any"
-    CONTAINS = "contains"
-    EMPTY = "empty"
-    EQ = "eq"
-    GT = "gt"
-    GTE = "gte"
-    LT = "lt"
-    LTE = "lte"
-    NEQ = "neq"
-    NOT_EMPTY = "not_empty"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_rule_operator(value: str) -> RuleOperator:
+    if value in RULE_OPERATOR_VALUES:
+        return cast(RuleOperator, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {RULE_OPERATOR_VALUES!r}")

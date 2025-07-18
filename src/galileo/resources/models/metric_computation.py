@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.metric_computation_status import MetricComputationStatus
+from ..models.metric_computation_status import MetricComputationStatus, check_metric_computation_status
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -50,8 +50,8 @@ class MetricComputation:
         status: Union[None, Unset, str]
         if isinstance(self.status, Unset):
             status = UNSET
-        elif isinstance(self.status, MetricComputationStatus):
-            status = self.status.value
+        elif isinstance(self.status, str):
+            status = self.status
         else:
             status = self.status
 
@@ -116,7 +116,7 @@ class MetricComputation:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                status_type_0 = MetricComputationStatus(data)
+                status_type_0 = check_metric_computation_status(data)
 
                 return status_type_0
             except:  # noqa: E722

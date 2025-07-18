@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.stage_type import StageType
+from ..models.stage_type import StageType, check_stage_type
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -57,7 +57,7 @@ class StageWithRulesets:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_.value
+            type_ = self.type_
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -105,7 +105,7 @@ class StageWithRulesets:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = StageType(_type_)
+            type_ = check_stage_type(_type_)
 
         stage_with_rulesets = cls(
             name=name,

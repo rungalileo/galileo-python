@@ -21,7 +21,9 @@ from .agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
 from .agentic_workflow_success_scorer_type import AgenticWorkflowSuccessScorerType
 from .agentic_workflow_success_template import AgenticWorkflowSuccessTemplate
 from .aggregated_trace_view_edge import AggregatedTraceViewEdge
+from .aggregated_trace_view_graph import AggregatedTraceViewGraph
 from .aggregated_trace_view_node import AggregatedTraceViewNode
+from .aggregated_trace_view_node_metrics import AggregatedTraceViewNodeMetrics
 from .aggregated_trace_view_request import AggregatedTraceViewRequest
 from .aggregated_trace_view_response import AggregatedTraceViewResponse
 from .api_key_action import ApiKeyAction
@@ -330,6 +332,7 @@ from .output_sexist_scorer_type import OutputSexistScorerType
 from .output_tone_scorer import OutputToneScorer
 from .output_toxicity_scorer import OutputToxicityScorer
 from .output_toxicity_scorer_type import OutputToxicityScorerType
+from .output_type_enum import OutputTypeEnum
 from .override_action import OverrideAction
 from .passthrough_action import PassthroughAction
 from .payload import Payload
@@ -350,6 +353,7 @@ from .project_db_thin import ProjectDBThin
 from .project_delete_response import ProjectDeleteResponse
 from .project_id_filter import ProjectIDFilter
 from .project_item import ProjectItem
+from .project_labels import ProjectLabels
 from .project_name_filter import ProjectNameFilter
 from .project_name_filter_operator import ProjectNameFilterOperator
 from .project_name_sort import ProjectNameSort
@@ -404,6 +408,10 @@ from .retriever_span_record import RetrieverSpanRecord
 from .retriever_span_record_dataset_metadata import RetrieverSpanRecordDatasetMetadata
 from .retriever_span_record_metric_info_type_0 import RetrieverSpanRecordMetricInfoType0
 from .retriever_span_record_user_metadata import RetrieverSpanRecordUserMetadata
+from .retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+from .retriever_span_record_with_children_dataset_metadata import RetrieverSpanRecordWithChildrenDatasetMetadata
+from .retriever_span_record_with_children_metric_info_type_0 import RetrieverSpanRecordWithChildrenMetricInfoType0
+from .retriever_span_record_with_children_user_metadata import RetrieverSpanRecordWithChildrenUserMetadata
 from .retriever_span_user_metadata import RetrieverSpanUserMetadata
 from .rollback_request import RollbackRequest
 from .root_type import RootType
@@ -427,7 +435,7 @@ from .scorer_created_at_filter import ScorerCreatedAtFilter
 from .scorer_created_at_filter_operator import ScorerCreatedAtFilterOperator
 from .scorer_creator_filter import ScorerCreatorFilter
 from .scorer_defaults import ScorerDefaults
-from .scorer_input_type import ScorerInputType
+from .scorer_model_type_filter import ScorerModelTypeFilter
 from .scorer_name import ScorerName
 from .scorer_name_filter import ScorerNameFilter
 from .scorer_name_filter_operator import ScorerNameFilterOperator
@@ -464,9 +472,11 @@ from .star_rating import StarRating
 from .step_type import StepType
 from .string_data import StringData
 from .subscription_config import SubscriptionConfig
+from .synthetic_data_source_dataset import SyntheticDataSourceDataset
 from .synthetic_data_types import SyntheticDataTypes
 from .synthetic_dataset_extension_request import SyntheticDatasetExtensionRequest
 from .synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
+from .system_metric_info import SystemMetricInfo
 from .tags_aggregate import TagsAggregate
 from .tags_aggregate_counts import TagsAggregateCounts
 from .tags_rating import TagsRating
@@ -489,6 +499,10 @@ from .tool_span_record import ToolSpanRecord
 from .tool_span_record_dataset_metadata import ToolSpanRecordDatasetMetadata
 from .tool_span_record_metric_info_type_0 import ToolSpanRecordMetricInfoType0
 from .tool_span_record_user_metadata import ToolSpanRecordUserMetadata
+from .tool_span_record_with_children import ToolSpanRecordWithChildren
+from .tool_span_record_with_children_dataset_metadata import ToolSpanRecordWithChildrenDatasetMetadata
+from .tool_span_record_with_children_metric_info_type_0 import ToolSpanRecordWithChildrenMetricInfoType0
+from .tool_span_record_with_children_user_metadata import ToolSpanRecordWithChildrenUserMetadata
 from .tool_span_user_metadata import ToolSpanUserMetadata
 from .toxicity_template import ToxicityTemplate
 from .trace import Trace
@@ -553,7 +567,9 @@ __all__ = (
     "AgentSpanUserMetadata",
     "AgentType",
     "AggregatedTraceViewEdge",
+    "AggregatedTraceViewGraph",
     "AggregatedTraceViewNode",
+    "AggregatedTraceViewNodeMetrics",
     "AggregatedTraceViewRequest",
     "AggregatedTraceViewResponse",
     "ApiKeyAction",
@@ -838,6 +854,7 @@ __all__ = (
     "OutputToneScorer",
     "OutputToxicityScorer",
     "OutputToxicityScorerType",
+    "OutputTypeEnum",
     "OverrideAction",
     "PassthroughAction",
     "Payload",
@@ -858,6 +875,7 @@ __all__ = (
     "ProjectDeleteResponse",
     "ProjectIDFilter",
     "ProjectItem",
+    "ProjectLabels",
     "ProjectNameFilter",
     "ProjectNameFilterOperator",
     "ProjectNameSort",
@@ -912,6 +930,10 @@ __all__ = (
     "RetrieverSpanRecordDatasetMetadata",
     "RetrieverSpanRecordMetricInfoType0",
     "RetrieverSpanRecordUserMetadata",
+    "RetrieverSpanRecordWithChildren",
+    "RetrieverSpanRecordWithChildrenDatasetMetadata",
+    "RetrieverSpanRecordWithChildrenMetricInfoType0",
+    "RetrieverSpanRecordWithChildrenUserMetadata",
     "RetrieverSpanUserMetadata",
     "RollbackRequest",
     "RootType",
@@ -935,7 +957,7 @@ __all__ = (
     "ScorerCreatedAtFilterOperator",
     "ScorerCreatorFilter",
     "ScorerDefaults",
-    "ScorerInputType",
+    "ScorerModelTypeFilter",
     "ScorerName",
     "ScorerNameFilter",
     "ScorerNameFilterOperator",
@@ -974,7 +996,9 @@ __all__ = (
     "SubscriptionConfig",
     "SyntheticDatasetExtensionRequest",
     "SyntheticDatasetExtensionResponse",
+    "SyntheticDataSourceDataset",
     "SyntheticDataTypes",
+    "SystemMetricInfo",
     "TagsAggregate",
     "TagsAggregateCounts",
     "TagsRating",
@@ -997,6 +1021,10 @@ __all__ = (
     "ToolSpanRecordDatasetMetadata",
     "ToolSpanRecordMetricInfoType0",
     "ToolSpanRecordUserMetadata",
+    "ToolSpanRecordWithChildren",
+    "ToolSpanRecordWithChildrenDatasetMetadata",
+    "ToolSpanRecordWithChildrenMetricInfoType0",
+    "ToolSpanRecordWithChildrenUserMetadata",
     "ToolSpanUserMetadata",
     "ToxicityTemplate",
     "Trace",

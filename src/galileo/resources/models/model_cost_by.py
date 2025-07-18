@@ -1,9 +1,11 @@
-from enum import Enum
+from typing import Literal, cast
+
+ModelCostBy = Literal["characters", "tokens"]
+
+MODEL_COST_BY_VALUES: set[ModelCostBy] = {"characters", "tokens"}
 
 
-class ModelCostBy(str, Enum):
-    CHARACTERS = "characters"
-    TOKENS = "tokens"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_model_cost_by(value: str) -> ModelCostBy:
+    if value in MODEL_COST_BY_VALUES:
+        return cast(ModelCostBy, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {MODEL_COST_BY_VALUES!r}")

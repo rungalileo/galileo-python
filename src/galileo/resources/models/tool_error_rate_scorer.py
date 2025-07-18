@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.tool_error_rate_scorer_type import ToolErrorRateScorerType
+from ..models.tool_error_rate_scorer_type import ToolErrorRateScorerType, check_tool_error_rate_scorer_type
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -23,13 +23,13 @@ class ToolErrorRateScorer:
             scorer.
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
         name (Union[Literal['tool_error_rate'], Unset]):  Default: 'tool_error_rate'.
-        type_ (Union[Unset, ToolErrorRateScorerType]):  Default: ToolErrorRateScorerType.PLUS.
+        type_ (Union[Unset, ToolErrorRateScorerType]):  Default: 'plus'.
     """
 
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["tool_error_rate"], Unset] = "tool_error_rate"
-    type_: Union[Unset, ToolErrorRateScorerType] = ToolErrorRateScorerType.PLUS
+    type_: Union[Unset, ToolErrorRateScorerType] = "plus"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -62,7 +62,7 @@ class ToolErrorRateScorer:
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
-            type_ = self.type_.value
+            type_ = self.type_
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -141,7 +141,7 @@ class ToolErrorRateScorer:
         if isinstance(_type_, Unset):
             type_ = UNSET
         else:
-            type_ = ToolErrorRateScorerType(_type_)
+            type_ = check_tool_error_rate_scorer_type(_type_)
 
         tool_error_rate_scorer = cls(filters=filters, model_name=model_name, name=name, type_=type_)
 

@@ -6,7 +6,10 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.scorer_created_at_filter_operator import ScorerCreatedAtFilterOperator
+from ..models.scorer_created_at_filter_operator import (
+    ScorerCreatedAtFilterOperator,
+    check_scorer_created_at_filter_operator,
+)
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ScorerCreatedAtFilter")
@@ -27,7 +30,7 @@ class ScorerCreatedAtFilter:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        operator = self.operator.value
+        operator: str = self.operator
 
         value = self.value.isoformat()
 
@@ -44,7 +47,7 @@ class ScorerCreatedAtFilter:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        operator = ScorerCreatedAtFilterOperator(d.pop("operator"))
+        operator = check_scorer_created_at_filter_operator(d.pop("operator"))
 
         value = isoparse(d.pop("value"))
 

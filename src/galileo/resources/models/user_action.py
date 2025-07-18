@@ -1,10 +1,11 @@
-from enum import Enum
+from typing import Literal, cast
+
+UserAction = Literal["delete", "read_api_keys", "update"]
+
+USER_ACTION_VALUES: set[UserAction] = {"delete", "read_api_keys", "update"}
 
 
-class UserAction(str, Enum):
-    DELETE = "delete"
-    READ_API_KEYS = "read_api_keys"
-    UPDATE = "update"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_user_action(value: str) -> UserAction:
+    if value in USER_ACTION_VALUES:
+        return cast(UserAction, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {USER_ACTION_VALUES!r}")

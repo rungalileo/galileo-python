@@ -1,12 +1,11 @@
-from enum import Enum
+from typing import Literal, cast
+
+ProjectNameFilterOperator = Literal["contains", "eq", "ne", "not_in", "one_of"]
+
+PROJECT_NAME_FILTER_OPERATOR_VALUES: set[ProjectNameFilterOperator] = {"contains", "eq", "ne", "not_in", "one_of"}
 
 
-class ProjectNameFilterOperator(str, Enum):
-    CONTAINS = "contains"
-    EQ = "eq"
-    NE = "ne"
-    NOT_IN = "not_in"
-    ONE_OF = "one_of"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_project_name_filter_operator(value: str) -> ProjectNameFilterOperator:
+    if value in PROJECT_NAME_FILTER_OPERATOR_VALUES:
+        return cast(ProjectNameFilterOperator, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {PROJECT_NAME_FILTER_OPERATOR_VALUES!r}")

@@ -36,6 +36,8 @@ class LlmSpan:
         model (Union[None, Unset, str]): Model used for this span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
+        redacted_input (Union[None, Unset, list['Message']]): Redacted input of the trace or span.
+        redacted_output (Union['Message', None, Unset]): Redacted output of the trace or span.
         session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
@@ -63,6 +65,8 @@ class LlmSpan:
     model: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
     parent_id: Union[None, Unset, str] = UNSET
+    redacted_input: Union[None, Unset, list["Message"]] = UNSET
+    redacted_output: Union["Message", None, Unset] = UNSET
     session_id: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     step_number: Union[None, Unset, int] = UNSET
@@ -75,6 +79,8 @@ class LlmSpan:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.message import Message
+
         input_ = []
         for input_item_data in self.input_:
             input_item = input_item_data.to_dict()
@@ -137,6 +143,26 @@ class LlmSpan:
             parent_id = UNSET
         else:
             parent_id = self.parent_id
+
+        redacted_input: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        elif isinstance(self.redacted_input, list):
+            redacted_input = []
+            for redacted_input_type_0_item_data in self.redacted_input:
+                redacted_input_type_0_item = redacted_input_type_0_item_data.to_dict()
+                redacted_input.append(redacted_input_type_0_item)
+
+        else:
+            redacted_input = self.redacted_input
+
+        redacted_output: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        elif isinstance(self.redacted_output, Message):
+            redacted_output = self.redacted_output.to_dict()
+        else:
+            redacted_output = self.redacted_output
 
         session_id: Union[None, Unset, str]
         if isinstance(self.session_id, Unset):
@@ -215,6 +241,10 @@ class LlmSpan:
             field_dict["name"] = name
         if parent_id is not UNSET:
             field_dict["parent_id"] = parent_id
+        if redacted_input is not UNSET:
+            field_dict["redacted_input"] = redacted_input
+        if redacted_output is not UNSET:
+            field_dict["redacted_output"] = redacted_output
         if session_id is not UNSET:
             field_dict["session_id"] = session_id
         if status_code is not UNSET:
@@ -340,6 +370,45 @@ class LlmSpan:
 
         parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
 
+        def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_input_type_0 = []
+                _redacted_input_type_0 = data
+                for redacted_input_type_0_item_data in _redacted_input_type_0:
+                    redacted_input_type_0_item = Message.from_dict(redacted_input_type_0_item_data)
+
+                    redacted_input_type_0.append(redacted_input_type_0_item)
+
+                return redacted_input_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["Message"]], data)
+
+        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
+
+        def _parse_redacted_output(data: object) -> Union["Message", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                redacted_output_type_0 = Message.from_dict(data)
+
+                return redacted_output_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["Message", None, Unset], data)
+
+        redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
+
         def _parse_session_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -434,6 +503,8 @@ class LlmSpan:
             model=model,
             name=name,
             parent_id=parent_id,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             session_id=session_id,
             status_code=status_code,
             step_number=step_number,

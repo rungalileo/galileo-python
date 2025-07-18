@@ -4,7 +4,10 @@ from typing import Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.log_records_number_filter_operator import LogRecordsNumberFilterOperator
+from ..models.log_records_number_filter_operator import (
+    LogRecordsNumberFilterOperator,
+    check_log_records_number_filter_operator,
+)
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="LogRecordsNumberFilter")
@@ -29,7 +32,7 @@ class LogRecordsNumberFilter:
     def to_dict(self) -> dict[str, Any]:
         column_id = self.column_id
 
-        operator = self.operator.value
+        operator: str = self.operator
 
         value: Union[float, int, list[float], list[int]]
         if isinstance(self.value, list):
@@ -56,7 +59,7 @@ class LogRecordsNumberFilter:
         d = dict(src_dict)
         column_id = d.pop("column_id")
 
-        operator = LogRecordsNumberFilterOperator(d.pop("operator"))
+        operator = check_log_records_number_filter_operator(d.pop("operator"))
 
         def _parse_value(data: object) -> Union[float, int, list[float], list[int]]:
             try:

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.model_type import ModelType
+from ..models.model_type import ModelType, check_model_type
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -60,8 +60,8 @@ class UpdateScorerRequest:
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
             model_type = UNSET
-        elif isinstance(self.model_type, ModelType):
-            model_type = self.model_type.value
+        elif isinstance(self.model_type, str):
+            model_type = self.model_type
         else:
             model_type = self.model_type
 
@@ -147,7 +147,7 @@ class UpdateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = ModelType(data)
+                model_type_type_0 = check_model_type(data)
 
                 return model_type_type_0
             except:  # noqa: E722

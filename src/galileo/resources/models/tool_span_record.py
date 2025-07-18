@@ -42,6 +42,8 @@ class ToolSpanRecord:
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
+        redacted_input (Union[None, Unset, str]): Redacted input of the trace or span.
+        redacted_output (Union[None, Unset, str]): Redacted output of the trace or span.
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
@@ -73,6 +75,8 @@ class ToolSpanRecord:
     metrics_batch_id: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
+    redacted_input: Union[None, Unset, str] = UNSET
+    redacted_output: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     step_number: Union[None, Unset, int] = UNSET
@@ -159,6 +163,18 @@ class ToolSpanRecord:
         else:
             output = self.output
 
+        redacted_input: Union[None, Unset, str]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        else:
+            redacted_input = self.redacted_input
+
+        redacted_output: Union[None, Unset, str]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        else:
+            redacted_output = self.redacted_output
+
         session_batch_id: Union[None, Unset, str]
         if isinstance(self.session_batch_id, Unset):
             session_batch_id = UNSET
@@ -243,6 +259,10 @@ class ToolSpanRecord:
             field_dict["name"] = name
         if output is not UNSET:
             field_dict["output"] = output
+        if redacted_input is not UNSET:
+            field_dict["redacted_input"] = redacted_input
+        if redacted_output is not UNSET:
+            field_dict["redacted_output"] = redacted_output
         if session_batch_id is not UNSET:
             field_dict["session_batch_id"] = session_batch_id
         if status_code is not UNSET:
@@ -380,6 +400,24 @@ class ToolSpanRecord:
 
         output = _parse_output(d.pop("output", UNSET))
 
+        def _parse_redacted_input(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
+
+        def _parse_redacted_output(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
+
         def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -474,6 +512,8 @@ class ToolSpanRecord:
             metrics_batch_id=metrics_batch_id,
             name=name,
             output=output,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             session_batch_id=session_batch_id,
             status_code=status_code,
             step_number=step_number,

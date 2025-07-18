@@ -1,9 +1,11 @@
-from enum import Enum
+from typing import Literal, cast
+
+PromptInjectionScorerType = Literal["luna", "plus"]
+
+PROMPT_INJECTION_SCORER_TYPE_VALUES: set[PromptInjectionScorerType] = {"luna", "plus"}
 
 
-class PromptInjectionScorerType(str, Enum):
-    LUNA = "luna"
-    PLUS = "plus"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_prompt_injection_scorer_type(value: str) -> PromptInjectionScorerType:
+    if value in PROMPT_INJECTION_SCORER_TYPE_VALUES:
+        return cast(PromptInjectionScorerType, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {PROMPT_INJECTION_SCORER_TYPE_VALUES!r}")

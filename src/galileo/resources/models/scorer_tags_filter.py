@@ -4,7 +4,7 @@ from typing import Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.scorer_tags_filter_operator import ScorerTagsFilterOperator
+from ..models.scorer_tags_filter_operator import ScorerTagsFilterOperator, check_scorer_tags_filter_operator
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ScorerTagsFilter")
@@ -25,7 +25,7 @@ class ScorerTagsFilter:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        operator = self.operator.value
+        operator: str = self.operator
 
         value = self.value
 
@@ -42,7 +42,7 @@ class ScorerTagsFilter:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        operator = ScorerTagsFilterOperator(d.pop("operator"))
+        operator = check_scorer_tags_filter_operator(d.pop("operator"))
 
         value = d.pop("value")
 

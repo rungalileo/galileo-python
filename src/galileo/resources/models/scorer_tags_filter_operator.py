@@ -1,9 +1,11 @@
-from enum import Enum
+from typing import Literal, cast
+
+ScorerTagsFilterOperator = Literal["contains", "not_in"]
+
+SCORER_TAGS_FILTER_OPERATOR_VALUES: set[ScorerTagsFilterOperator] = {"contains", "not_in"}
 
 
-class ScorerTagsFilterOperator(str, Enum):
-    CONTAINS = "contains"
-    NOT_IN = "not_in"
-
-    def __str__(self) -> str:
-        return str(self.value)
+def check_scorer_tags_filter_operator(value: str) -> ScorerTagsFilterOperator:
+    if value in SCORER_TAGS_FILTER_OPERATOR_VALUES:
+        return cast(ScorerTagsFilterOperator, value)
+    raise TypeError(f"Unexpected value {value!r}. Expected one of {SCORER_TAGS_FILTER_OPERATOR_VALUES!r}")

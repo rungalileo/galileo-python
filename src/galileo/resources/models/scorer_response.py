@@ -6,8 +6,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.model_type import ModelType
-from ..models.scorer_types import ScorerTypes
+from ..models.model_type import ModelType, check_model_type
+from ..models.scorer_types import ScorerTypes, check_scorer_types
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -65,7 +65,7 @@ class ScorerResponse:
 
         name = self.name
 
-        scorer_type = self.scorer_type.value
+        scorer_type: str = self.scorer_type
 
         tags = self.tags
 
@@ -128,8 +128,8 @@ class ScorerResponse:
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
             model_type = UNSET
-        elif isinstance(self.model_type, ModelType):
-            model_type = self.model_type.value
+        elif isinstance(self.model_type, str):
+            model_type = self.model_type
         else:
             model_type = self.model_type
 
@@ -179,7 +179,7 @@ class ScorerResponse:
 
         name = d.pop("name")
 
-        scorer_type = ScorerTypes(d.pop("scorer_type"))
+        scorer_type = check_scorer_types(d.pop("scorer_type"))
 
         tags = cast(list[str], d.pop("tags"))
 
@@ -290,7 +290,7 @@ class ScorerResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = ModelType(data)
+                model_type_type_0 = check_model_type(data)
 
                 return model_type_type_0
             except:  # noqa: E722

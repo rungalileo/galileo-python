@@ -4,8 +4,8 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.llm_integration import LLMIntegration
-from ..models.model_cost_by import ModelCostBy
+from ..models.llm_integration import LLMIntegration, check_llm_integration
+from ..models.model_cost_by import ModelCostBy, check_model_cost_by
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -96,7 +96,7 @@ class Model:
 
         cost_by: Union[Unset, str] = UNSET
         if not isinstance(self.cost_by, Unset):
-            cost_by = self.cost_by.value
+            cost_by = self.cost_by
 
         formatting_tokens = self.formatting_tokens
 
@@ -118,7 +118,7 @@ class Model:
 
         integration: Union[Unset, str] = UNSET
         if not isinstance(self.integration, Unset):
-            integration = self.integration.value
+            integration = self.integration
 
         is_chat = self.is_chat
 
@@ -240,7 +240,7 @@ class Model:
         if isinstance(_cost_by, Unset):
             cost_by = UNSET
         else:
-            cost_by = ModelCostBy(_cost_by)
+            cost_by = check_model_cost_by(_cost_by)
 
         formatting_tokens = d.pop("formatting_tokens", UNSET)
 
@@ -277,7 +277,7 @@ class Model:
         if isinstance(_integration, Unset):
             integration = UNSET
         else:
-            integration = LLMIntegration(_integration)
+            integration = check_llm_integration(_integration)
 
         is_chat = d.pop("is_chat", UNSET)
 

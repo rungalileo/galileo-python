@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.message_role import MessageRole
+from ..models.message_role import MessageRole, check_message_role
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -33,7 +33,7 @@ class Message:
     def to_dict(self) -> dict[str, Any]:
         content = self.content
 
-        role = self.role.value
+        role: str = self.role
 
         tool_call_id: Union[None, Unset, str]
         if isinstance(self.tool_call_id, Unset):
@@ -70,7 +70,7 @@ class Message:
         d = dict(src_dict)
         content = d.pop("content")
 
-        role = MessageRole(d.pop("role"))
+        role = check_message_role(d.pop("role"))
 
         def _parse_tool_call_id(data: object) -> Union[None, Unset, str]:
             if data is None:

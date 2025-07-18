@@ -4,7 +4,10 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.feedback_rating_info_feedback_type import FeedbackRatingInfoFeedbackType
+from ..models.feedback_rating_info_feedback_type import (
+    FeedbackRatingInfoFeedbackType,
+    check_feedback_rating_info_feedback_type,
+)
 
 T = TypeVar("T", bound="FeedbackRatingInfo")
 
@@ -26,7 +29,7 @@ class FeedbackRatingInfo:
     def to_dict(self) -> dict[str, Any]:
         explanation = self.explanation
 
-        feedback_type = self.feedback_type.value
+        feedback_type: str = self.feedback_type
 
         value: Union[bool, int, list[str], str]
         if isinstance(self.value, list):
@@ -46,7 +49,7 @@ class FeedbackRatingInfo:
         d = dict(src_dict)
         explanation = d.pop("explanation")
 
-        feedback_type = FeedbackRatingInfoFeedbackType(d.pop("feedback_type"))
+        feedback_type = check_feedback_rating_info_feedback_type(d.pop("feedback_type"))
 
         def _parse_value(data: object) -> Union[bool, int, list[str], str]:
             try:

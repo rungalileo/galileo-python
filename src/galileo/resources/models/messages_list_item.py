@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.message_list_item_role import MessageListItemRole
+from ..models.message_list_item_role import MessageListItemRole, check_message_list_item_role
 
 T = TypeVar("T", bound="MessagesListItem")
 
@@ -25,8 +25,8 @@ class MessagesListItem:
         content = self.content
 
         role: str
-        if isinstance(self.role, MessageListItemRole):
-            role = self.role.value
+        if isinstance(self.role, str):
+            role = self.role
         else:
             role = self.role
 
@@ -45,7 +45,7 @@ class MessagesListItem:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                role_type_1 = MessageListItemRole(data)
+                role_type_1 = check_message_list_item_role(data)
 
                 return role_type_1
             except:  # noqa: E722

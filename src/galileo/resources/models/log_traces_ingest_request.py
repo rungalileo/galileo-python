@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.logging_method import LoggingMethod
+from ..models.logging_method import LoggingMethod, check_logging_method
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -70,7 +70,7 @@ class LogTracesIngestRequest:
 
         logging_method: Union[Unset, str] = UNSET
         if not isinstance(self.logging_method, Unset):
-            logging_method = self.logging_method.value
+            logging_method = self.logging_method
 
         reliable = self.reliable
 
@@ -146,7 +146,7 @@ class LogTracesIngestRequest:
         if isinstance(_logging_method, Unset):
             logging_method = UNSET
         else:
-            logging_method = LoggingMethod(_logging_method)
+            logging_method = check_logging_method(_logging_method)
 
         reliable = d.pop("reliable", UNSET)
 
