@@ -34,7 +34,7 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_0 = BaseResponse.from_dict(data)
+                response_200_type_0 = Response.from_dict(data)
 
                 return response_200_type_0
             except:  # noqa: E722

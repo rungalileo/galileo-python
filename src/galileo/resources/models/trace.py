@@ -36,12 +36,16 @@ class Trace:
         metrics (Union[Unset, Metrics]):
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
+        parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
+        session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
         spans (Union[Unset, list[Union['AgentSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]]): Child
             spans.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
+        trace_id (Union[None, Unset, str]): Galileo ID of the trace containing the span (or the same value as id for a
+            trace)
         type_ (Union[Literal['trace'], Unset]): Type of the trace, span or session. Default: 'trace'.
         user_metadata (Union[Unset, TraceUserMetadata]): Metadata associated with this trace or span.
     """
@@ -56,10 +60,13 @@ class Trace:
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
+    parent_id: Union[None, Unset, str] = UNSET
+    session_id: Union[None, Unset, str] = UNSET
     spans: Union[Unset, list[Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]]] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
+    trace_id: Union[None, Unset, str] = UNSET
     type_: Union[Literal["trace"], Unset] = "trace"
     user_metadata: Union[Unset, "TraceUserMetadata"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -116,6 +123,18 @@ class Trace:
         else:
             output = self.output
 
+        parent_id: Union[None, Unset, str]
+        if isinstance(self.parent_id, Unset):
+            parent_id = UNSET
+        else:
+            parent_id = self.parent_id
+
+        session_id: Union[None, Unset, str]
+        if isinstance(self.session_id, Unset):
+            session_id = UNSET
+        else:
+            session_id = self.session_id
+
         spans: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.spans, Unset):
             spans = []
@@ -150,6 +169,12 @@ class Trace:
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
+        trace_id: Union[None, Unset, str]
+        if isinstance(self.trace_id, Unset):
+            trace_id = UNSET
+        else:
+            trace_id = self.trace_id
+
         type_ = self.type_
 
         user_metadata: Union[Unset, dict[str, Any]] = UNSET
@@ -177,6 +202,10 @@ class Trace:
             field_dict["name"] = name
         if output is not UNSET:
             field_dict["output"] = output
+        if parent_id is not UNSET:
+            field_dict["parent_id"] = parent_id
+        if session_id is not UNSET:
+            field_dict["session_id"] = session_id
         if spans is not UNSET:
             field_dict["spans"] = spans
         if status_code is not UNSET:
@@ -185,6 +214,8 @@ class Trace:
             field_dict["step_number"] = step_number
         if tags is not UNSET:
             field_dict["tags"] = tags
+        if trace_id is not UNSET:
+            field_dict["trace_id"] = trace_id
         if type_ is not UNSET:
             field_dict["type"] = type_
         if user_metadata is not UNSET:
@@ -274,6 +305,24 @@ class Trace:
 
         output = _parse_output(d.pop("output", UNSET))
 
+        def _parse_parent_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
+
+        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_id = _parse_session_id(d.pop("session_id", UNSET))
+
         spans = []
         _spans = d.pop("spans", UNSET)
         for spans_item_data in _spans or []:
@@ -343,6 +392,15 @@ class Trace:
 
         tags = cast(list[str], d.pop("tags", UNSET))
 
+        def _parse_trace_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
+
         type_ = cast(Union[Literal["trace"], Unset], d.pop("type", UNSET))
         if type_ != "trace" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'trace', got '{type_}'")
@@ -365,10 +423,13 @@ class Trace:
             metrics=metrics,
             name=name,
             output=output,
+            parent_id=parent_id,
+            session_id=session_id,
             spans=spans,
             status_code=status_code,
             step_number=step_number,
             tags=tags,
+            trace_id=trace_id,
             type_=type_,
             user_metadata=user_metadata,
         )

@@ -26,6 +26,7 @@ class IGalileoLogger(metaclass=abc.ABCMeta):
     def start_trace(
         self,
         input: StepAllowedInputType,
+        redacted_input: Optional[StepAllowedInputType] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -42,6 +43,7 @@ class IGalileoLogger(metaclass=abc.ABCMeta):
     def conclude(
         self,
         output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
         duration_ns: Optional[int] = None,
         status_code: Optional[int] = None,
         conclude_all: bool = False,

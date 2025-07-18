@@ -15,15 +15,22 @@ from galileo.resources.api.prompts import (
     get_project_templates_projects_project_id_templates_get,
     get_template_from_project_projects_project_id_templates_template_id_get,
     query_templates_templates_query_post,
+    render_template_render_template_post,
+    update_global_template_templates_template_id_patch,
 )
 from galileo.resources.models import (
     BasePromptTemplateResponse,
     BasePromptTemplateVersionResponse,
     CreatePromptTemplateWithVersionRequestBody,
+    DatasetData,
     HTTPValidationError,
     ListPromptTemplateParams,
     PromptTemplateNameFilter,
     PromptTemplateNameFilterOperator,
+    RenderTemplateRequest,
+    RenderTemplateResponse,
+    StringData,
+    UpdatePromptTemplateRequest,
 )
 from galileo.resources.types import Unset
 from galileo.utils.exceptions import APIException
@@ -50,7 +57,7 @@ class PromptTemplate(BasePromptTemplateResponse):
             super().__init__(
                 all_available_versions=prompt_template.all_available_versions,
                 created_at=prompt_template.created_at,
-                creator=prompt_template.creator,
+                created_by_user=prompt_template.created_by_user,
                 id=prompt_template.id,
                 max_version=prompt_template.max_version,
                 name=prompt_template.name,
@@ -69,6 +76,8 @@ class PromptTemplateVersion(BasePromptTemplateVersionResponse):
     def __init__(self, prompt_template_version: Union[None, BasePromptTemplateVersionResponse] = None):
         if prompt_template_version is not None:
             super().__init__(
+                created_at=prompt_template_version.created_at,
+                created_by_user=prompt_template_version.created_by_user,
                 id=prompt_template_version.id,
                 lines_added=prompt_template_version.lines_added,
                 lines_edited=prompt_template_version.lines_edited,
@@ -77,11 +86,10 @@ class PromptTemplateVersion(BasePromptTemplateVersionResponse):
                 settings=prompt_template_version.settings,
                 settings_changed=prompt_template_version.settings_changed,
                 template=prompt_template_version.template,
+                updated_at=prompt_template_version.updated_at,
                 version=prompt_template_version.version,
                 output_type=prompt_template_version.output_type,
                 raw=prompt_template_version.raw,
-                created_at=prompt_template_version.created_at,
-                updated_at=prompt_template_version.updated_at,
             )
             self.additional_properties = prompt_template_version.additional_properties.copy()
 
@@ -245,6 +253,91 @@ class GlobalPromptTemplates(BaseClientModel):
 
         return PromptTemplate(prompt_template=response.parsed)
 
+    def update(self, *, template_id: str, name: str) -> PromptTemplate:
+        """
+        Update a global prompt template.
+
+        Parameters
+        ----------
+        template_id : str
+            The ID of the template to update.
+        name : str
+            The new name for the template.
+
+        Returns
+        -------
+        PromptTemplate
+            The updated prompt template.
+
+        Raises
+        ------
+        PromptTemplateAPIException
+            If the API request fails or returns an error.
+        """
+        body = UpdatePromptTemplateRequest(name=name)
+
+        _logger.debug(f"Updating global template {template_id}: {body}")
+        response = update_global_template_templates_template_id_patch.sync_detailed(
+            template_id=template_id, client=self.client, body=body
+        )
+
+        if response.status_code != 200:
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
+
+        if not response.parsed or isinstance(response.parsed, HTTPValidationError):
+            _logger.error(response)
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
+
+        return PromptTemplate(prompt_template=response.parsed)
+
+    def render_template(
+        self,
+        *,
+        template: str,
+        data: Union[DatasetData, StringData],
+        starting_token: Union[Unset, int] = 0,
+        limit: Union[Unset, int] = 100,
+    ) -> RenderTemplateResponse:
+        """
+        Render a template with provided data.
+
+        Parameters
+        ----------
+        template : str
+            The template string to render.
+        data : Union[DatasetData, StringData]
+            The data to use for rendering the template. Can be either dataset data or string data.
+        starting_token : Union[Unset, int], optional
+            Starting token for pagination. Defaults to 0.
+        limit : Union[Unset, int], optional
+            Maximum number of rendered templates to return. Defaults to 100.
+
+        Returns
+        -------
+        Optional[RenderTemplateResponse]
+            The rendered template response if successful, None otherwise.
+
+        Raises
+        ------
+        PromptTemplateAPIException
+            If the API request fails or returns an error.
+        """
+        body = RenderTemplateRequest(template=template, data=data)
+
+        _logger.debug(f"Rendering template: {template}")
+        response = render_template_render_template_post.sync_detailed(
+            client=self.client, body=body, starting_token=starting_token, limit=limit
+        )
+
+        if response.status_code != 200:
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
+
+        if not response.parsed or isinstance(response.parsed, HTTPValidationError):
+            _logger.error(response)
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
+
+        return response.parsed
+
 
 def create_prompt_template(name: str, project: str, messages: Union[list[Message], str]) -> Optional[PromptTemplate]:
     warnings.warn("create_prompt_template is deprecated, use create_prompt instead.", DeprecationWarning, stacklevel=2)
@@ -358,6 +451,62 @@ def delete_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> No
     return GlobalPromptTemplates().delete(template_id=id, name=name)  # type: ignore[call-overload]
 
 
+@overload
+def update_prompt(*, id: str, new_name: str) -> PromptTemplate: ...
+
+
+@overload
+def update_prompt(*, name: str, new_name: str) -> PromptTemplate: ...
+
+
+def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_name: str) -> PromptTemplate:
+    """
+    Update a global prompt template by ID or name.
+
+    Parameters
+    ----------
+    id : str, optional
+        The unique identifier of the template to update. Defaults to None.
+    name : str, optional
+        The name of the template to update. Defaults to None.
+    new_name : str
+        The new name for the template.
+
+    Returns
+    -------
+    PromptTemplate
+        The updated prompt template.
+
+    Raises
+    ------
+    ValueError
+        If neither or both id and name are provided, or if the template is not found.
+    PromptTemplateAPIException
+        If the API request fails or returns an error.
+
+    Examples
+    --------
+    >>> # Update template by ID
+    >>> template = update_prompt(id="template-id-123", new_name="new-name")
+
+    >>> # Update template by existing name
+    >>> template = update_prompt(name="old-name", new_name="new-name")
+    """
+    if (id is None) == (name is None):
+        raise ValueError("Exactly one of 'id' or 'name' must be provided")
+
+    if id:
+        return GlobalPromptTemplates().update(template_id=id, name=new_name)
+    elif name:
+        template = GlobalPromptTemplates().get(name=name)
+        if not template:
+            raise ValueError(f"Global template '{name}' not found")
+        return GlobalPromptTemplates().update(template_id=template.id, name=new_name)
+    else:
+        # Line won't be reached but mypy complains without this
+        raise ValueError("Invalid state: neither id nor name is provided")
+
+
 def create_prompt(name: str, template: Union[list[Message], str]) -> PromptTemplate:
     """
     Create a new global prompt template.
@@ -411,3 +560,64 @@ def get_prompts(name_filter: Optional[str] = None, limit: Union[Unset, int] = 10
     >>> templates = get_prompts(limit=10)
     """
     return GlobalPromptTemplates().list(name_filter=name_filter, limit=limit)
+
+
+def render_template(
+    *,
+    template: str,
+    data: Union[DatasetData, StringData, list[str], str],
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
+) -> RenderTemplateResponse:
+    """
+    Render a template with provided data.
+
+    Parameters
+    ----------
+    template : str
+        The template string to render.
+    data : Union[DatasetData, StringData, list[str], str]
+        The data to use for rendering the template. Can be:
+        - DatasetData: Reference to a dataset
+        - StringData: List of input strings
+        - list[str]: List of input strings (will be converted to StringData)
+        - str: Dataset ID (will be converted to DatasetData)
+    starting_token : Union[Unset, int], optional
+        Starting token for pagination. Defaults to 0.
+    limit : Union[Unset, int], optional
+        Maximum number of rendered templates to return. Defaults to 100.
+
+    Returns
+    -------
+    Optional[RenderTemplateResponse]
+        The rendered template response if successful, None otherwise.
+
+    Raises
+    ------
+    PromptTemplateAPIException
+        If the API request fails or returns an error.
+
+    Examples
+    --------
+    >>> # Render template with string data
+    >>> response = render_template(
+    ...     template="Hello {{name}}!",
+    ...     data=["Alice", "Bob", "Charlie"]
+    ... )
+
+    >>> # Render template with dataset
+    >>> response = render_template(
+    ...     template="Hello {{name}}!",
+    ...     data="dataset-id-123"
+    ... )
+    """
+    if isinstance(data, list):
+        data = StringData(input_strings=data)
+    elif isinstance(data, str):
+        data = DatasetData(dataset_id=data)
+    else:
+        data = data
+
+    return GlobalPromptTemplates().render_template(
+        template=template, data=data, starting_token=starting_token, limit=limit
+    )
