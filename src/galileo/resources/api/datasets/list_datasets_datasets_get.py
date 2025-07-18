@@ -19,20 +19,15 @@ def _get_kwargs(
 ) -> dict[str, Any]:
     params: dict[str, Any] = {}
 
-    json_actions: Union[Unset, list[str]] = UNSET
     if not isinstance(actions, Unset):
-        json_actions = []
-        for actions_item_data in actions:
-            actions_item: str = actions_item_data
-            json_actions.append(actions_item)
+        # Use list(actions) for identity/no conversion or a fast list comprehension if needed.
+        params["actions"] = list(actions)
 
-    params["actions"] = json_actions
+    if starting_token is not UNSET and starting_token is not None:
+        params["starting_token"] = starting_token
 
-    params["starting_token"] = starting_token
-
-    params["limit"] = limit
-
-    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+    if limit is not UNSET and limit is not None:
+        params["limit"] = limit
 
     _kwargs: dict[str, Any] = {"method": "get", "url": "/datasets", "params": params}
 
