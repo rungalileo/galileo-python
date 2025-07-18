@@ -1,0 +1,22 @@
+[project]
+name = "crew-ai"
+version = "0.1.0"
+description = "An example project for using Galileo with Crew AI."
+readme = "README.md"
+requires-python = ">=3.11, <3.14"
+dependencies = [
+    "arize-otel>=0.9.0",
+    "crewai>=0.5.0",
+    "crewai-tools>=0.55.0",
+    "ddgs>=9.2.3",
+    "duckduckgo-search>=8.1.1",
+    "langchain-community>=0.3.21",
+    "openinference-instrumentation-crewai>=0.1.11",
+    "openinference-instrumentation-langchain>=0.1.46",
+    "openinference-instrumentation-litellm>=0.1.24",
+    "opentelemetry-api>=1.35.0",
+    "opentelemetry-exporter-otlp>=1.35.0",
+    "opentelemetry-proto>=1.12.0",
+    "opentelemetry-sdk>=1.35.0",
+    "wikipedia>=1.4.0",
+]
