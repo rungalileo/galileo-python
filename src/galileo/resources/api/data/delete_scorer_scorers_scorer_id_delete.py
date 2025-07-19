@@ -1,19 +1,17 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.delete_scorer_response import DeleteScorerResponse
 from ...models.http_validation_error import HTTPValidationError
-from typing import cast
+from ...types import Response
 
 
 def _get_kwargs(scorer_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "delete", "url": "/scorers/{scorer_id}".format(scorer_id=scorer_id)}
+    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/scorers/{scorer_id}"}
 
     return _kwargs
 

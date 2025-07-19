@@ -1,17 +1,13 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.get_projects_paginated_response_v2 import GetProjectsPaginatedResponseV2
 from ...models.http_validation_error import HTTPValidationError
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
@@ -29,7 +25,7 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/scorers/versions/{scorer_version_id}/projects".format(scorer_version_id=scorer_version_id),
+        "url": f"/scorers/versions/{scorer_version_id}/projects",
         "params": params,
     }
 

@@ -1,17 +1,13 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.base_scorer_version_response import BaseScorerVersionResponse
 from ...models.http_validation_error import HTTPValidationError
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(scorer_id: str, *, version: Union[Unset, int] = UNSET) -> dict[str, Any]:
@@ -21,11 +17,7 @@ def _get_kwargs(scorer_id: str, *, version: Union[Unset, int] = UNSET) -> dict[s
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/scorers/{scorer_id}/version".format(scorer_id=scorer_id),
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/scorers/{scorer_id}/version", "params": params}
 
     return _kwargs
 

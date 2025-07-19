@@ -1,22 +1,17 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 from ..models.llm_integration import LLMIntegration
 from ..models.model_cost_by import ModelCostBy
 from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
 
 if TYPE_CHECKING:
     from ..models.input_map import InputMap
-    from ..models.run_params_map import RunParamsMap
     from ..models.output_map import OutputMap
+    from ..models.run_params_map import RunParamsMap
 
 
 T = TypeVar("T", bound="Model")
@@ -77,7 +72,6 @@ class Model:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.input_map import InputMap
-        from ..models.run_params_map import RunParamsMap
         from ..models.output_map import OutputMap
 
         alias = self.alias
@@ -213,8 +207,8 @@ class Model:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.input_map import InputMap
-        from ..models.run_params_map import RunParamsMap
         from ..models.output_map import OutputMap
+        from ..models.run_params_map import RunParamsMap
 
         d = dict(src_dict)
         alias = d.pop("alias")

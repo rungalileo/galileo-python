@@ -1,22 +1,17 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
-from typing import cast
-from typing import cast, Union
-
 if TYPE_CHECKING:
     from ..models.metric_computing import MetricComputing
-    from ..models.metric_failed import MetricFailed
-    from ..models.metric_not_computed import MetricNotComputed
-    from ..models.metric_success import MetricSuccess
-    from ..models.metric_pending import MetricPending
     from ..models.metric_error import MetricError
+    from ..models.metric_failed import MetricFailed
     from ..models.metric_not_applicable import MetricNotApplicable
+    from ..models.metric_not_computed import MetricNotComputed
+    from ..models.metric_pending import MetricPending
+    from ..models.metric_success import MetricSuccess
 
 
 T = TypeVar("T", bound="TraceRecordMetricInfoType0")
@@ -41,12 +36,11 @@ class TraceRecordMetricInfoType0:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.metric_computing import MetricComputing
-        from ..models.metric_failed import MetricFailed
-        from ..models.metric_not_computed import MetricNotComputed
-        from ..models.metric_success import MetricSuccess
-        from ..models.metric_pending import MetricPending
         from ..models.metric_error import MetricError
         from ..models.metric_not_applicable import MetricNotApplicable
+        from ..models.metric_not_computed import MetricNotComputed
+        from ..models.metric_pending import MetricPending
+        from ..models.metric_success import MetricSuccess
 
         field_dict: dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
@@ -70,12 +64,12 @@ class TraceRecordMetricInfoType0:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.metric_computing import MetricComputing
-        from ..models.metric_failed import MetricFailed
-        from ..models.metric_not_computed import MetricNotComputed
-        from ..models.metric_success import MetricSuccess
-        from ..models.metric_pending import MetricPending
         from ..models.metric_error import MetricError
+        from ..models.metric_failed import MetricFailed
         from ..models.metric_not_applicable import MetricNotApplicable
+        from ..models.metric_not_computed import MetricNotComputed
+        from ..models.metric_pending import MetricPending
+        from ..models.metric_success import MetricSuccess
 
         d = dict(src_dict)
         trace_record_metric_info_type_0 = cls()

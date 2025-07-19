@@ -1,18 +1,13 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.job_db import JobDB
-from ...types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(project_id: str, run_id: str, *, status: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
@@ -27,11 +22,7 @@ def _get_kwargs(project_id: str, run_id: str, *, status: Union[None, Unset, str]
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/projects/{project_id}/runs/{run_id}/jobs".format(project_id=project_id, run_id=run_id),
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/runs/{run_id}/jobs", "params": params}
 
     return _kwargs
 

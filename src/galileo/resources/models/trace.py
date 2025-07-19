@@ -1,28 +1,22 @@
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
-
-from ..types import UNSET, Unset
 from dateutil.parser import isoparse
-from typing import cast
-from typing import cast, Union
-from typing import Literal, Union, cast
-from typing import Union
-import datetime
+
+from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.agent_span import AgentSpan
-    from ..models.workflow_span import WorkflowSpan
-    from ..models.trace_user_metadata import TraceUserMetadata
-    from ..models.tool_span import ToolSpan
+    from ..models.llm_span import LlmSpan
     from ..models.metrics import Metrics
     from ..models.retriever_span import RetrieverSpan
+    from ..models.tool_span import ToolSpan
     from ..models.trace_dataset_metadata import TraceDatasetMetadata
-    from ..models.llm_span import LlmSpan
+    from ..models.trace_user_metadata import TraceUserMetadata
+    from ..models.workflow_span import WorkflowSpan
 
 
 T = TypeVar("T", bound="Trace")
@@ -83,13 +77,9 @@ class Trace:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.agent_span import AgentSpan
-        from ..models.workflow_span import WorkflowSpan
-        from ..models.trace_user_metadata import TraceUserMetadata
-        from ..models.tool_span import ToolSpan
-        from ..models.metrics import Metrics
-        from ..models.retriever_span import RetrieverSpan
-        from ..models.trace_dataset_metadata import TraceDatasetMetadata
         from ..models.llm_span import LlmSpan
+        from ..models.retriever_span import RetrieverSpan
+        from ..models.workflow_span import WorkflowSpan
 
         input_ = self.input_
 
@@ -256,13 +246,13 @@ class Trace:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agent_span import AgentSpan
-        from ..models.workflow_span import WorkflowSpan
-        from ..models.trace_user_metadata import TraceUserMetadata
-        from ..models.tool_span import ToolSpan
+        from ..models.llm_span import LlmSpan
         from ..models.metrics import Metrics
         from ..models.retriever_span import RetrieverSpan
+        from ..models.tool_span import ToolSpan
         from ..models.trace_dataset_metadata import TraceDatasetMetadata
-        from ..models.llm_span import LlmSpan
+        from ..models.trace_user_metadata import TraceUserMetadata
+        from ..models.workflow_span import WorkflowSpan
 
         d = dict(src_dict)
         input_ = d.pop("input")

@@ -1,33 +1,27 @@
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
-
-from ..types import UNSET, Unset
 from dateutil.parser import isoparse
-from typing import cast
-from typing import cast, Union
-from typing import Literal, Union, cast
-from typing import Union
-import datetime
+
+from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
-    from ..models.llm_span_record import LlmSpanRecord
+    from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
     from ..models.document import Document
+    from ..models.llm_span_record import LlmSpanRecord
+    from ..models.message import Message
+    from ..models.metrics import Metrics
+    from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+    from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
     from ..models.workflow_span_record_with_children_dataset_metadata import (
         WorkflowSpanRecordWithChildrenDatasetMetadata,
     )
-    from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
-    from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
     from ..models.workflow_span_record_with_children_metric_info_type_0 import (
         WorkflowSpanRecordWithChildrenMetricInfoType0,
     )
-    from ..models.metrics import Metrics
-    from ..models.message import Message
     from ..models.workflow_span_record_with_children_user_metadata import WorkflowSpanRecordWithChildrenUserMetadata
 
 
@@ -118,20 +112,13 @@ class WorkflowSpanRecordWithChildren:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
-        from ..models.llm_span_record import LlmSpanRecord
-        from ..models.document import Document
-        from ..models.workflow_span_record_with_children_dataset_metadata import (
-            WorkflowSpanRecordWithChildrenDatasetMetadata,
-        )
-        from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
         from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
+        from ..models.llm_span_record import LlmSpanRecord
+        from ..models.message import Message
+        from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
         from ..models.workflow_span_record_with_children_metric_info_type_0 import (
             WorkflowSpanRecordWithChildrenMetricInfoType0,
         )
-        from ..models.metrics import Metrics
-        from ..models.message import Message
-        from ..models.workflow_span_record_with_children_user_metadata import WorkflowSpanRecordWithChildrenUserMetadata
 
         id = self.id
 
@@ -370,19 +357,19 @@ class WorkflowSpanRecordWithChildren:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
-        from ..models.llm_span_record import LlmSpanRecord
+        from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.document import Document
+        from ..models.llm_span_record import LlmSpanRecord
+        from ..models.message import Message
+        from ..models.metrics import Metrics
+        from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+        from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
         from ..models.workflow_span_record_with_children_dataset_metadata import (
             WorkflowSpanRecordWithChildrenDatasetMetadata,
         )
-        from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
-        from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.workflow_span_record_with_children_metric_info_type_0 import (
             WorkflowSpanRecordWithChildrenMetricInfoType0,
         )
-        from ..models.metrics import Metrics
-        from ..models.message import Message
         from ..models.workflow_span_record_with_children_user_metadata import WorkflowSpanRecordWithChildrenUserMetadata
 
         d = dict(src_dict)

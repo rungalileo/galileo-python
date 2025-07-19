@@ -1,31 +1,26 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
-
 if TYPE_CHECKING:
-    from ..models.project_runs_sort import ProjectRunsSort
-    from ..models.project_type_filter import ProjectTypeFilter
-    from ..models.project_updated_at_sort import ProjectUpdatedAtSort
-    from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
-    from ..models.project_created_at_sort import ProjectCreatedAtSort
-    from ..models.project_name_sort import ProjectNameSort
     from ..models.project_bookmark_filter import ProjectBookmarkFilter
-    from ..models.project_name_filter import ProjectNameFilter
+    from ..models.project_bookmark_sort import ProjectBookmarkSort
     from ..models.project_created_at_filter import ProjectCreatedAtFilter
-    from ..models.project_runs_filter import ProjectRunsFilter
-    from ..models.project_type_sort import ProjectTypeSort
+    from ..models.project_created_at_sort import ProjectCreatedAtSort
     from ..models.project_creator_filter import ProjectCreatorFilter
     from ..models.project_id_filter import ProjectIDFilter
-    from ..models.project_bookmark_sort import ProjectBookmarkSort
+    from ..models.project_name_filter import ProjectNameFilter
+    from ..models.project_name_sort import ProjectNameSort
+    from ..models.project_runs_filter import ProjectRunsFilter
+    from ..models.project_runs_sort import ProjectRunsSort
+    from ..models.project_type_filter import ProjectTypeFilter
+    from ..models.project_type_sort import ProjectTypeSort
+    from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
+    from ..models.project_updated_at_sort import ProjectUpdatedAtSort
 
 
 T = TypeVar("T", bound="ProjectCollectionParams")
@@ -69,20 +64,19 @@ class ProjectCollectionParams:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.project_runs_sort import ProjectRunsSort
-        from ..models.project_type_filter import ProjectTypeFilter
-        from ..models.project_updated_at_sort import ProjectUpdatedAtSort
-        from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
-        from ..models.project_created_at_sort import ProjectCreatedAtSort
-        from ..models.project_name_sort import ProjectNameSort
-        from ..models.project_bookmark_filter import ProjectBookmarkFilter
-        from ..models.project_name_filter import ProjectNameFilter
+        from ..models.project_bookmark_sort import ProjectBookmarkSort
         from ..models.project_created_at_filter import ProjectCreatedAtFilter
-        from ..models.project_runs_filter import ProjectRunsFilter
-        from ..models.project_type_sort import ProjectTypeSort
+        from ..models.project_created_at_sort import ProjectCreatedAtSort
         from ..models.project_creator_filter import ProjectCreatorFilter
         from ..models.project_id_filter import ProjectIDFilter
-        from ..models.project_bookmark_sort import ProjectBookmarkSort
+        from ..models.project_name_filter import ProjectNameFilter
+        from ..models.project_name_sort import ProjectNameSort
+        from ..models.project_runs_filter import ProjectRunsFilter
+        from ..models.project_runs_sort import ProjectRunsSort
+        from ..models.project_type_filter import ProjectTypeFilter
+        from ..models.project_type_sort import ProjectTypeSort
+        from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
+        from ..models.project_updated_at_sort import ProjectUpdatedAtSort
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -138,20 +132,20 @@ class ProjectCollectionParams:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.project_runs_sort import ProjectRunsSort
-        from ..models.project_type_filter import ProjectTypeFilter
-        from ..models.project_updated_at_sort import ProjectUpdatedAtSort
-        from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
-        from ..models.project_created_at_sort import ProjectCreatedAtSort
-        from ..models.project_name_sort import ProjectNameSort
         from ..models.project_bookmark_filter import ProjectBookmarkFilter
-        from ..models.project_name_filter import ProjectNameFilter
+        from ..models.project_bookmark_sort import ProjectBookmarkSort
         from ..models.project_created_at_filter import ProjectCreatedAtFilter
-        from ..models.project_runs_filter import ProjectRunsFilter
-        from ..models.project_type_sort import ProjectTypeSort
+        from ..models.project_created_at_sort import ProjectCreatedAtSort
         from ..models.project_creator_filter import ProjectCreatorFilter
         from ..models.project_id_filter import ProjectIDFilter
-        from ..models.project_bookmark_sort import ProjectBookmarkSort
+        from ..models.project_name_filter import ProjectNameFilter
+        from ..models.project_name_sort import ProjectNameSort
+        from ..models.project_runs_filter import ProjectRunsFilter
+        from ..models.project_runs_sort import ProjectRunsSort
+        from ..models.project_type_filter import ProjectTypeFilter
+        from ..models.project_type_sort import ProjectTypeSort
+        from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
+        from ..models.project_updated_at_sort import ProjectUpdatedAtSort
 
         d = dict(src_dict)
         filters = []

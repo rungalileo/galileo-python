@@ -1,24 +1,19 @@
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
+from dateutil.parser import isoparse
 
 from ..models.task_type import TaskType
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
-from typing import cast
-from typing import cast, Union
-from typing import Union
-import datetime
 
 if TYPE_CHECKING:
-    from ..models.prompt_run_settings import PromptRunSettings
+    from ..models.experiment_dataset import ExperimentDataset
     from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
     from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
-    from ..models.experiment_dataset import ExperimentDataset
+    from ..models.prompt_run_settings import PromptRunSettings
 
 
 T = TypeVar("T", bound="ExperimentResponse")
@@ -66,10 +61,8 @@ class ExperimentResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.prompt_run_settings import PromptRunSettings
-        from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
-        from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
         from ..models.experiment_dataset import ExperimentDataset
+        from ..models.prompt_run_settings import PromptRunSettings
 
         id = self.id
 
@@ -177,10 +170,10 @@ class ExperimentResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.prompt_run_settings import PromptRunSettings
+        from ..models.experiment_dataset import ExperimentDataset
         from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
         from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
-        from ..models.experiment_dataset import ExperimentDataset
+        from ..models.prompt_run_settings import PromptRunSettings
 
         d = dict(src_dict)
         id = d.pop("id")

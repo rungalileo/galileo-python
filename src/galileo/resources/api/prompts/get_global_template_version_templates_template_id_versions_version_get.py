@@ -1,22 +1,17 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.base_prompt_template_version_response import BasePromptTemplateVersionResponse
 from ...models.http_validation_error import HTTPValidationError
-from typing import cast
+from ...types import Response
 
 
 def _get_kwargs(template_id: str, version: int) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/templates/{template_id}/versions/{version}".format(template_id=template_id, version=version),
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/templates/{template_id}/versions/{version}"}
 
     return _kwargs
 

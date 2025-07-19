@@ -1,19 +1,17 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.job_db import JobDB
-from typing import cast
+from ...types import Response
 
 
 def _get_kwargs(job_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": "/jobs/{job_id}".format(job_id=job_id)}
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/jobs/{job_id}"}
 
     return _kwargs
 

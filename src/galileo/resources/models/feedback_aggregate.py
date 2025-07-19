@@ -1,18 +1,13 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
-from typing import cast
-from typing import cast, Union
-
 if TYPE_CHECKING:
-    from ..models.star_aggregate import StarAggregate
     from ..models.like_dislike_aggregate import LikeDislikeAggregate
     from ..models.score_aggregate import ScoreAggregate
+    from ..models.star_aggregate import StarAggregate
     from ..models.tags_aggregate import TagsAggregate
 
 
@@ -30,10 +25,9 @@ class FeedbackAggregate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.star_aggregate import StarAggregate
         from ..models.like_dislike_aggregate import LikeDislikeAggregate
         from ..models.score_aggregate import ScoreAggregate
-        from ..models.tags_aggregate import TagsAggregate
+        from ..models.star_aggregate import StarAggregate
 
         aggregate: dict[str, Any]
         if isinstance(self.aggregate, LikeDislikeAggregate):
@@ -53,9 +47,9 @@ class FeedbackAggregate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.star_aggregate import StarAggregate
         from ..models.like_dislike_aggregate import LikeDislikeAggregate
         from ..models.score_aggregate import ScoreAggregate
+        from ..models.star_aggregate import StarAggregate
         from ..models.tags_aggregate import TagsAggregate
 
         d = dict(src_dict)

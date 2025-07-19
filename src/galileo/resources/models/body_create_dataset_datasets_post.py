@@ -1,19 +1,12 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from io import BytesIO
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-import json
+
 from .. import types
-
-from ..types import UNSET, Unset
-
-from ..types import File, FileTypes
-from ..types import UNSET, Unset
-from io import BytesIO
-from typing import cast, Union
-from typing import Union
-
+from ..types import UNSET, File, FileTypes, Unset
 
 T = TypeVar("T", bound="BodyCreateDatasetDatasetsPost")
 

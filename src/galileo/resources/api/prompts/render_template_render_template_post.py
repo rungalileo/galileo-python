@@ -1,18 +1,14 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.render_template_request import RenderTemplateRequest
 from ...models.render_template_response import RenderTemplateResponse
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(

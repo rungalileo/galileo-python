@@ -1,27 +1,20 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.dataset_version_db import DatasetVersionDB
 from ...models.http_validation_error import HTTPValidationError
 from ...models.update_dataset_version_request import UpdateDatasetVersionRequest
-from typing import cast
+from ...types import Response
 
 
 def _get_kwargs(dataset_id: str, version_index: int, *, body: UpdateDatasetVersionRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "patch",
-        "url": "/datasets/{dataset_id}/versions/{version_index}".format(
-            dataset_id=dataset_id, version_index=version_index
-        ),
-    }
+    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/datasets/{dataset_id}/versions/{version_index}"}
 
     _kwargs["json"] = body.to_dict()
 

@@ -1,30 +1,24 @@
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
+from dateutil.parser import isoparse
 
 from ..models.agent_type import AgentType
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
-from typing import cast
-from typing import cast, Union
-from typing import Literal, Union, cast
-from typing import Union
-import datetime
 
 if TYPE_CHECKING:
-    from ..models.workflow_span import WorkflowSpan
-    from ..models.document import Document
-    from ..models.tool_span import ToolSpan
-    from ..models.metrics import Metrics
-    from ..models.agent_span_user_metadata import AgentSpanUserMetadata
-    from ..models.message import Message
-    from ..models.retriever_span import RetrieverSpan
     from ..models.agent_span_dataset_metadata import AgentSpanDatasetMetadata
+    from ..models.agent_span_user_metadata import AgentSpanUserMetadata
+    from ..models.document import Document
     from ..models.llm_span import LlmSpan
+    from ..models.message import Message
+    from ..models.metrics import Metrics
+    from ..models.retriever_span import RetrieverSpan
+    from ..models.tool_span import ToolSpan
+    from ..models.workflow_span import WorkflowSpan
 
 
 T = TypeVar("T", bound="AgentSpan")
@@ -86,15 +80,10 @@ class AgentSpan:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.workflow_span import WorkflowSpan
-        from ..models.document import Document
-        from ..models.tool_span import ToolSpan
-        from ..models.metrics import Metrics
-        from ..models.agent_span_user_metadata import AgentSpanUserMetadata
+        from ..models.llm_span import LlmSpan
         from ..models.message import Message
         from ..models.retriever_span import RetrieverSpan
-        from ..models.agent_span_dataset_metadata import AgentSpanDatasetMetadata
-        from ..models.llm_span import LlmSpan
+        from ..models.workflow_span import WorkflowSpan
 
         input_: Union[list[dict[str, Any]], str]
         if isinstance(self.input_, list):
@@ -296,15 +285,15 @@ class AgentSpan:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.workflow_span import WorkflowSpan
-        from ..models.document import Document
-        from ..models.tool_span import ToolSpan
-        from ..models.metrics import Metrics
-        from ..models.agent_span_user_metadata import AgentSpanUserMetadata
-        from ..models.message import Message
-        from ..models.retriever_span import RetrieverSpan
         from ..models.agent_span_dataset_metadata import AgentSpanDatasetMetadata
+        from ..models.agent_span_user_metadata import AgentSpanUserMetadata
+        from ..models.document import Document
         from ..models.llm_span import LlmSpan
+        from ..models.message import Message
+        from ..models.metrics import Metrics
+        from ..models.retriever_span import RetrieverSpan
+        from ..models.tool_span import ToolSpan
+        from ..models.workflow_span import WorkflowSpan
 
         d = dict(src_dict)
 

@@ -1,16 +1,14 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.api_key_login_request import ApiKeyLoginRequest
 from ...models.http_validation_error import HTTPValidationError
 from ...models.token import Token
-from typing import cast
+from ...types import Response
 
 
 def _get_kwargs(*, body: ApiKeyLoginRequest) -> dict[str, Any]:

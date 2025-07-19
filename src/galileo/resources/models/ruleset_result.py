@@ -1,22 +1,17 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 from ..models.execution_status import ExecutionStatus
 from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
 
 if TYPE_CHECKING:
-    from ..models.rule import Rule
     from ..models.override_action import OverrideAction
-    from ..models.rule_result import RuleResult
     from ..models.passthrough_action import PassthroughAction
+    from ..models.rule import Rule
+    from ..models.rule_result import RuleResult
 
 
 T = TypeVar("T", bound="RulesetResult")
@@ -41,10 +36,7 @@ class RulesetResult:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.rule import Rule
         from ..models.override_action import OverrideAction
-        from ..models.rule_result import RuleResult
-        from ..models.passthrough_action import PassthroughAction
 
         action: Union[Unset, dict[str, Any]]
         if isinstance(self.action, Unset):
@@ -96,10 +88,10 @@ class RulesetResult:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.rule import Rule
         from ..models.override_action import OverrideAction
-        from ..models.rule_result import RuleResult
         from ..models.passthrough_action import PassthroughAction
+        from ..models.rule import Rule
+        from ..models.rule_result import RuleResult
 
         d = dict(src_dict)
 

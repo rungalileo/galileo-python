@@ -1,22 +1,17 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.base_prompt_template_response import BasePromptTemplateResponse
 from ...models.http_validation_error import HTTPValidationError
-from typing import cast
+from ...types import Response
 
 
 def _get_kwargs(project_id: str, template_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/projects/{project_id}/templates/{template_id}".format(project_id=project_id, template_id=template_id),
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/templates/{template_id}"}
 
     return _kwargs
 

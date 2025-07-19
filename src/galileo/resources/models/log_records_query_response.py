@@ -1,24 +1,19 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
-
 if TYPE_CHECKING:
-    from ..models.trace_record import TraceRecord
+    from ..models.agent_span_record import AgentSpanRecord
     from ..models.llm_span_record import LlmSpanRecord
     from ..models.retriever_span_record import RetrieverSpanRecord
     from ..models.session_record import SessionRecord
-    from ..models.workflow_span_record import WorkflowSpanRecord
-    from ..models.agent_span_record import AgentSpanRecord
     from ..models.tool_span_record import ToolSpanRecord
+    from ..models.trace_record import TraceRecord
+    from ..models.workflow_span_record import WorkflowSpanRecord
 
 
 T = TypeVar("T", bound="LogRecordsQueryResponse")
@@ -57,13 +52,12 @@ class LogRecordsQueryResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.trace_record import TraceRecord
+        from ..models.agent_span_record import AgentSpanRecord
         from ..models.llm_span_record import LlmSpanRecord
         from ..models.retriever_span_record import RetrieverSpanRecord
-        from ..models.session_record import SessionRecord
-        from ..models.workflow_span_record import WorkflowSpanRecord
-        from ..models.agent_span_record import AgentSpanRecord
         from ..models.tool_span_record import ToolSpanRecord
+        from ..models.trace_record import TraceRecord
+        from ..models.workflow_span_record import WorkflowSpanRecord
 
         limit = self.limit
 
@@ -117,13 +111,13 @@ class LogRecordsQueryResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.trace_record import TraceRecord
+        from ..models.agent_span_record import AgentSpanRecord
         from ..models.llm_span_record import LlmSpanRecord
         from ..models.retriever_span_record import RetrieverSpanRecord
         from ..models.session_record import SessionRecord
-        from ..models.workflow_span_record import WorkflowSpanRecord
-        from ..models.agent_span_record import AgentSpanRecord
         from ..models.tool_span_record import ToolSpanRecord
+        from ..models.trace_record import TraceRecord
+        from ..models.workflow_span_record import WorkflowSpanRecord
 
         d = dict(src_dict)
         limit = d.pop("limit", UNSET)

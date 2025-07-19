@@ -1,17 +1,13 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.dataset_content import DatasetContent
 from ...models.http_validation_error import HTTPValidationError
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
@@ -27,9 +23,7 @@ def _get_kwargs(
 
     _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": "/datasets/{dataset_id}/versions/{version_index}/content".format(
-            dataset_id=dataset_id, version_index=version_index
-        ),
+        "url": f"/datasets/{dataset_id}/versions/{version_index}/content",
         "params": params,
     }
 

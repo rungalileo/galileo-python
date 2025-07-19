@@ -1,22 +1,20 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.base_prompt_template_response import BasePromptTemplateResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...models.update_prompt_template_request import UpdatePromptTemplateRequest
-from typing import cast
+from ...types import Response
 
 
 def _get_kwargs(template_id: str, *, body: UpdatePromptTemplateRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "patch", "url": "/templates/{template_id}".format(template_id=template_id)}
+    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/templates/{template_id}"}
 
     _kwargs["json"] = body.to_dict()
 

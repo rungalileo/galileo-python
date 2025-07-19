@@ -1,26 +1,20 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
 
 from ..models.node_type import NodeType
 from ..models.output_type_enum import OutputTypeEnum
 from ..models.scorer_name import ScorerName
 from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Literal, Union, cast
-from typing import Union
 
 if TYPE_CHECKING:
     from ..models.customized_toxicity_gpt_scorer_aggregates_type_0 import CustomizedToxicityGPTScorerAggregatesType0
-    from ..models.metadata_filter import MetadataFilter
-    from ..models.toxicity_template import ToxicityTemplate
-    from ..models.node_name_filter import NodeNameFilter
     from ..models.customized_toxicity_gpt_scorer_extra_type_0 import CustomizedToxicityGPTScorerExtraType0
+    from ..models.metadata_filter import MetadataFilter
+    from ..models.node_name_filter import NodeNameFilter
+    from ..models.toxicity_template import ToxicityTemplate
 
 
 T = TypeVar("T", bound="CustomizedToxicityGPTScorer")
@@ -81,10 +75,8 @@ class CustomizedToxicityGPTScorer:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.customized_toxicity_gpt_scorer_aggregates_type_0 import CustomizedToxicityGPTScorerAggregatesType0
-        from ..models.metadata_filter import MetadataFilter
-        from ..models.toxicity_template import ToxicityTemplate
-        from ..models.node_name_filter import NodeNameFilter
         from ..models.customized_toxicity_gpt_scorer_extra_type_0 import CustomizedToxicityGPTScorerExtraType0
+        from ..models.node_name_filter import NodeNameFilter
 
         aggregate_keys: Union[Unset, list[str]] = UNSET
         if not isinstance(self.aggregate_keys, Unset):
@@ -277,10 +269,10 @@ class CustomizedToxicityGPTScorer:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.customized_toxicity_gpt_scorer_aggregates_type_0 import CustomizedToxicityGPTScorerAggregatesType0
-        from ..models.metadata_filter import MetadataFilter
-        from ..models.toxicity_template import ToxicityTemplate
-        from ..models.node_name_filter import NodeNameFilter
         from ..models.customized_toxicity_gpt_scorer_extra_type_0 import CustomizedToxicityGPTScorerExtraType0
+        from ..models.metadata_filter import MetadataFilter
+        from ..models.node_name_filter import NodeNameFilter
+        from ..models.toxicity_template import ToxicityTemplate
 
         d = dict(src_dict)
         aggregate_keys = cast(list[str], d.pop("aggregate_keys", UNSET))

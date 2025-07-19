@@ -1,14 +1,10 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 from ..models.message_list_item_role import MessageListItemRole
-from typing import cast, Union
-
 
 T = TypeVar("T", bound="MessagesListItem")
 

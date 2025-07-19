@@ -1,26 +1,20 @@
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
-
-from ..types import UNSET, Unset
 from dateutil.parser import isoparse
-from typing import cast
-from typing import cast, Union
-from typing import Literal, Union, cast
-from typing import Union
-import datetime
+
+from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.workflow_span_record_user_metadata import WorkflowSpanRecordUserMetadata
     from ..models.document import Document
-    from ..models.workflow_span_record_dataset_metadata import WorkflowSpanRecordDatasetMetadata
-    from ..models.metrics import Metrics
-    from ..models.workflow_span_record_metric_info_type_0 import WorkflowSpanRecordMetricInfoType0
     from ..models.message import Message
+    from ..models.metrics import Metrics
+    from ..models.workflow_span_record_dataset_metadata import WorkflowSpanRecordDatasetMetadata
+    from ..models.workflow_span_record_metric_info_type_0 import WorkflowSpanRecordMetricInfoType0
+    from ..models.workflow_span_record_user_metadata import WorkflowSpanRecordUserMetadata
 
 
 T = TypeVar("T", bound="WorkflowSpanRecord")
@@ -95,12 +89,8 @@ class WorkflowSpanRecord:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.workflow_span_record_user_metadata import WorkflowSpanRecordUserMetadata
-        from ..models.document import Document
-        from ..models.workflow_span_record_dataset_metadata import WorkflowSpanRecordDatasetMetadata
-        from ..models.metrics import Metrics
-        from ..models.workflow_span_record_metric_info_type_0 import WorkflowSpanRecordMetricInfoType0
         from ..models.message import Message
+        from ..models.workflow_span_record_metric_info_type_0 import WorkflowSpanRecordMetricInfoType0
 
         id = self.id
 
@@ -319,12 +309,12 @@ class WorkflowSpanRecord:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.workflow_span_record_user_metadata import WorkflowSpanRecordUserMetadata
         from ..models.document import Document
-        from ..models.workflow_span_record_dataset_metadata import WorkflowSpanRecordDatasetMetadata
-        from ..models.metrics import Metrics
-        from ..models.workflow_span_record_metric_info_type_0 import WorkflowSpanRecordMetricInfoType0
         from ..models.message import Message
+        from ..models.metrics import Metrics
+        from ..models.workflow_span_record_dataset_metadata import WorkflowSpanRecordDatasetMetadata
+        from ..models.workflow_span_record_metric_info_type_0 import WorkflowSpanRecordMetricInfoType0
+        from ..models.workflow_span_record_user_metadata import WorkflowSpanRecordUserMetadata
 
         d = dict(src_dict)
         id = d.pop("id")

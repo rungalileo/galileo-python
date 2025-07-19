@@ -1,27 +1,20 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.experiment_response import ExperimentResponse
 from ...models.experiment_update_request import ExperimentUpdateRequest
 from ...models.http_validation_error import HTTPValidationError
-from typing import cast
+from ...types import Response
 
 
 def _get_kwargs(project_id: str, experiment_id: str, *, body: ExperimentUpdateRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "put",
-        "url": "/projects/{project_id}/experiments/{experiment_id}".format(
-            project_id=project_id, experiment_id=experiment_id
-        ),
-    }
+    _kwargs: dict[str, Any] = {"method": "put", "url": f"/projects/{project_id}/experiments/{experiment_id}"}
 
     _kwargs["json"] = body.to_dict()
 

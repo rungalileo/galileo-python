@@ -1,17 +1,13 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.list_group_collaborators_response import ListGroupCollaboratorsResponse
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
@@ -25,11 +21,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/datasets/{dataset_id}/groups".format(dataset_id=dataset_id),
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/datasets/{dataset_id}/groups", "params": params}
 
     return _kwargs
 

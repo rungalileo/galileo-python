@@ -1,15 +1,11 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 from ..models.scorer_tags_filter_operator import ScorerTagsFilterOperator
 from ..types import UNSET, Unset
-from typing import Literal, Union, cast
-
 
 T = TypeVar("T", bound="ScorerTagsFilter")
 

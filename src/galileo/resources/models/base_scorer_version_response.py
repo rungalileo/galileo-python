@@ -1,22 +1,17 @@
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
+from dateutil.parser import isoparse
 
 from ..models.output_type_enum import OutputTypeEnum
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
-from typing import cast
-from typing import cast, Union
-from typing import Union
-import datetime
 
 if TYPE_CHECKING:
-    from ..models.generated_scorer_response import GeneratedScorerResponse
     from ..models.create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
+    from ..models.generated_scorer_response import GeneratedScorerResponse
 
 
 T = TypeVar("T", bound="BaseScorerVersionResponse")
@@ -53,8 +48,8 @@ class BaseScorerVersionResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.generated_scorer_response import GeneratedScorerResponse
         from ..models.create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
+        from ..models.generated_scorer_response import GeneratedScorerResponse
 
         created_at = self.created_at.isoformat()
 
@@ -137,8 +132,8 @@ class BaseScorerVersionResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.generated_scorer_response import GeneratedScorerResponse
         from ..models.create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
+        from ..models.generated_scorer_response import GeneratedScorerResponse
 
         d = dict(src_dict)
         created_at = isoparse(d.pop("created_at"))

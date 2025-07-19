@@ -1,72 +1,66 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from io import BytesIO
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 from ..models.scorer_name import ScorerName
 from ..models.task_type import TaskType
-from ..types import File, FileTypes
-from ..types import UNSET, Unset
-from io import BytesIO
-from typing import cast
-from typing import cast, Union
-from typing import Union
+from ..types import UNSET, File, FileTypes, Unset
 
 if TYPE_CHECKING:
+    from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
+    from ..models.agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
     from ..models.base_scorer import BaseScorer
-    from ..models.input_sexist_scorer import InputSexistScorer
+    from ..models.bleu_scorer import BleuScorer
+    from ..models.chunk_attribution_utilization_scorer import ChunkAttributionUtilizationScorer
+    from ..models.completeness_scorer import CompletenessScorer
+    from ..models.context_adherence_scorer import ContextAdherenceScorer
     from ..models.context_relevance_scorer import ContextRelevanceScorer
-    from ..models.customized_ground_truth_adherence_gpt_scorer import CustomizedGroundTruthAdherenceGPTScorer
-    from ..models.input_pii_scorer import InputPIIScorer
-    from ..models.customized_prompt_injection_gpt_scorer import CustomizedPromptInjectionGPTScorer
-    from ..models.output_tone_scorer import OutputToneScorer
-    from ..models.prompt_perplexity_scorer import PromptPerplexityScorer
-    from ..models.metric_critique_job_configuration import MetricCritiqueJobConfiguration
-    from ..models.uncertainty_scorer import UncertaintyScorer
-    from ..models.customized_factuality_gpt_scorer import CustomizedFactualityGPTScorer
     from ..models.correctness_scorer import CorrectnessScorer
-    from ..models.registered_scorer import RegisteredScorer
-    from ..models.instruction_adherence_scorer import InstructionAdherenceScorer
-    from ..models.input_toxicity_scorer import InputToxicityScorer
-    from ..models.prompt_run_settings import PromptRunSettings
-    from ..models.prompt_optimization_configuration import PromptOptimizationConfiguration
+    from ..models.customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
+    from ..models.customized_agentic_workflow_success_gpt_scorer import CustomizedAgenticWorkflowSuccessGPTScorer
     from ..models.customized_chunk_attribution_utilization_gpt_scorer import (
         CustomizedChunkAttributionUtilizationGPTScorer,
     )
-    from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
-    from ..models.task_resource_limits import TaskResourceLimits
-    from ..models.customized_input_sexist_gpt_scorer import CustomizedInputSexistGPTScorer
-    from ..models.customized_instruction_adherence_gpt_scorer import CustomizedInstructionAdherenceGPTScorer
-    from ..models.fine_tuned_scorer import FineTunedScorer
-    from ..models.chunk_attribution_utilization_scorer import ChunkAttributionUtilizationScorer
-    from ..models.bleu_scorer import BleuScorer
-    from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
-    from ..models.completeness_scorer import CompletenessScorer
-    from ..models.scorers_configuration import ScorersConfiguration
-    from ..models.tool_error_rate_scorer import ToolErrorRateScorer
-    from ..models.scorer_config import ScorerConfig
-    from ..models.segment_filter import SegmentFilter
     from ..models.customized_completeness_gpt_scorer import CustomizedCompletenessGPTScorer
-    from ..models.input_tone_scorer import InputToneScorer
-    from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
-    from ..models.customized_agentic_workflow_success_gpt_scorer import CustomizedAgenticWorkflowSuccessGPTScorer
-    from ..models.output_toxicity_scorer import OutputToxicityScorer
-    from ..models.customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
-    from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
+    from ..models.customized_factuality_gpt_scorer import CustomizedFactualityGPTScorer
+    from ..models.customized_ground_truth_adherence_gpt_scorer import CustomizedGroundTruthAdherenceGPTScorer
     from ..models.customized_groundedness_gpt_scorer import CustomizedGroundednessGPTScorer
-    from ..models.agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
-    from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
-    from ..models.customized_sexist_gpt_scorer import CustomizedSexistGPTScorer
-    from ..models.output_pii_scorer import OutputPIIScorer
-    from ..models.rouge_scorer import RougeScorer
-    from ..models.output_sexist_scorer import OutputSexistScorer
-    from ..models.prompt_injection_scorer import PromptInjectionScorer
+    from ..models.customized_input_sexist_gpt_scorer import CustomizedInputSexistGPTScorer
     from ..models.customized_input_toxicity_gpt_scorer import CustomizedInputToxicityGPTScorer
-    from ..models.context_adherence_scorer import ContextAdherenceScorer
-    from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
+    from ..models.customized_instruction_adherence_gpt_scorer import CustomizedInstructionAdherenceGPTScorer
+    from ..models.customized_prompt_injection_gpt_scorer import CustomizedPromptInjectionGPTScorer
+    from ..models.customized_sexist_gpt_scorer import CustomizedSexistGPTScorer
+    from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
+    from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
+    from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
+    from ..models.fine_tuned_scorer import FineTunedScorer
+    from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
+    from ..models.input_pii_scorer import InputPIIScorer
+    from ..models.input_sexist_scorer import InputSexistScorer
+    from ..models.input_tone_scorer import InputToneScorer
+    from ..models.input_toxicity_scorer import InputToxicityScorer
+    from ..models.instruction_adherence_scorer import InstructionAdherenceScorer
+    from ..models.metric_critique_job_configuration import MetricCritiqueJobConfiguration
+    from ..models.output_pii_scorer import OutputPIIScorer
+    from ..models.output_sexist_scorer import OutputSexistScorer
+    from ..models.output_tone_scorer import OutputToneScorer
+    from ..models.output_toxicity_scorer import OutputToxicityScorer
+    from ..models.prompt_injection_scorer import PromptInjectionScorer
+    from ..models.prompt_optimization_configuration import PromptOptimizationConfiguration
+    from ..models.prompt_perplexity_scorer import PromptPerplexityScorer
+    from ..models.prompt_run_settings import PromptRunSettings
+    from ..models.registered_scorer import RegisteredScorer
+    from ..models.rouge_scorer import RougeScorer
+    from ..models.scorer_config import ScorerConfig
+    from ..models.scorers_configuration import ScorersConfiguration
+    from ..models.segment_filter import SegmentFilter
+    from ..models.task_resource_limits import TaskResourceLimits
+    from ..models.tool_error_rate_scorer import ToolErrorRateScorer
+    from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
+    from ..models.uncertainty_scorer import UncertaintyScorer
 
 
 T = TypeVar("T", bound="CreateJobResponse")
@@ -228,57 +222,52 @@ class CreateJobResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
+        from ..models.agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
         from ..models.base_scorer import BaseScorer
-        from ..models.input_sexist_scorer import InputSexistScorer
+        from ..models.bleu_scorer import BleuScorer
+        from ..models.chunk_attribution_utilization_scorer import ChunkAttributionUtilizationScorer
+        from ..models.completeness_scorer import CompletenessScorer
+        from ..models.context_adherence_scorer import ContextAdherenceScorer
         from ..models.context_relevance_scorer import ContextRelevanceScorer
-        from ..models.customized_ground_truth_adherence_gpt_scorer import CustomizedGroundTruthAdherenceGPTScorer
-        from ..models.input_pii_scorer import InputPIIScorer
-        from ..models.customized_prompt_injection_gpt_scorer import CustomizedPromptInjectionGPTScorer
-        from ..models.output_tone_scorer import OutputToneScorer
-        from ..models.prompt_perplexity_scorer import PromptPerplexityScorer
-        from ..models.metric_critique_job_configuration import MetricCritiqueJobConfiguration
-        from ..models.uncertainty_scorer import UncertaintyScorer
-        from ..models.customized_factuality_gpt_scorer import CustomizedFactualityGPTScorer
         from ..models.correctness_scorer import CorrectnessScorer
-        from ..models.registered_scorer import RegisteredScorer
-        from ..models.instruction_adherence_scorer import InstructionAdherenceScorer
-        from ..models.input_toxicity_scorer import InputToxicityScorer
-        from ..models.prompt_run_settings import PromptRunSettings
-        from ..models.prompt_optimization_configuration import PromptOptimizationConfiguration
+        from ..models.customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
+        from ..models.customized_agentic_workflow_success_gpt_scorer import CustomizedAgenticWorkflowSuccessGPTScorer
         from ..models.customized_chunk_attribution_utilization_gpt_scorer import (
             CustomizedChunkAttributionUtilizationGPTScorer,
         )
-        from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
-        from ..models.task_resource_limits import TaskResourceLimits
+        from ..models.customized_completeness_gpt_scorer import CustomizedCompletenessGPTScorer
+        from ..models.customized_factuality_gpt_scorer import CustomizedFactualityGPTScorer
+        from ..models.customized_ground_truth_adherence_gpt_scorer import CustomizedGroundTruthAdherenceGPTScorer
+        from ..models.customized_groundedness_gpt_scorer import CustomizedGroundednessGPTScorer
         from ..models.customized_input_sexist_gpt_scorer import CustomizedInputSexistGPTScorer
         from ..models.customized_instruction_adherence_gpt_scorer import CustomizedInstructionAdherenceGPTScorer
-        from ..models.fine_tuned_scorer import FineTunedScorer
-        from ..models.chunk_attribution_utilization_scorer import ChunkAttributionUtilizationScorer
-        from ..models.bleu_scorer import BleuScorer
-        from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
-        from ..models.completeness_scorer import CompletenessScorer
-        from ..models.scorers_configuration import ScorersConfiguration
-        from ..models.tool_error_rate_scorer import ToolErrorRateScorer
-        from ..models.scorer_config import ScorerConfig
-        from ..models.segment_filter import SegmentFilter
-        from ..models.customized_completeness_gpt_scorer import CustomizedCompletenessGPTScorer
-        from ..models.input_tone_scorer import InputToneScorer
-        from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
-        from ..models.customized_agentic_workflow_success_gpt_scorer import CustomizedAgenticWorkflowSuccessGPTScorer
-        from ..models.output_toxicity_scorer import OutputToxicityScorer
-        from ..models.customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
-        from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
-        from ..models.customized_groundedness_gpt_scorer import CustomizedGroundednessGPTScorer
-        from ..models.agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
-        from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
+        from ..models.customized_prompt_injection_gpt_scorer import CustomizedPromptInjectionGPTScorer
         from ..models.customized_sexist_gpt_scorer import CustomizedSexistGPTScorer
+        from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
+        from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
+        from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
+        from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
+        from ..models.input_pii_scorer import InputPIIScorer
+        from ..models.input_sexist_scorer import InputSexistScorer
+        from ..models.input_tone_scorer import InputToneScorer
+        from ..models.input_toxicity_scorer import InputToxicityScorer
+        from ..models.instruction_adherence_scorer import InstructionAdherenceScorer
+        from ..models.metric_critique_job_configuration import MetricCritiqueJobConfiguration
         from ..models.output_pii_scorer import OutputPIIScorer
-        from ..models.rouge_scorer import RougeScorer
         from ..models.output_sexist_scorer import OutputSexistScorer
+        from ..models.output_tone_scorer import OutputToneScorer
+        from ..models.output_toxicity_scorer import OutputToxicityScorer
         from ..models.prompt_injection_scorer import PromptInjectionScorer
-        from ..models.customized_input_toxicity_gpt_scorer import CustomizedInputToxicityGPTScorer
-        from ..models.context_adherence_scorer import ContextAdherenceScorer
-        from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
+        from ..models.prompt_optimization_configuration import PromptOptimizationConfiguration
+        from ..models.prompt_perplexity_scorer import PromptPerplexityScorer
+        from ..models.prompt_run_settings import PromptRunSettings
+        from ..models.rouge_scorer import RougeScorer
+        from ..models.scorer_config import ScorerConfig
+        from ..models.scorers_configuration import ScorersConfiguration
+        from ..models.task_resource_limits import TaskResourceLimits
+        from ..models.tool_error_rate_scorer import ToolErrorRateScorer
+        from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
 
         link = self.link
 
@@ -774,57 +763,57 @@ class CreateJobResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
+        from ..models.agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
         from ..models.base_scorer import BaseScorer
-        from ..models.input_sexist_scorer import InputSexistScorer
+        from ..models.bleu_scorer import BleuScorer
+        from ..models.chunk_attribution_utilization_scorer import ChunkAttributionUtilizationScorer
+        from ..models.completeness_scorer import CompletenessScorer
+        from ..models.context_adherence_scorer import ContextAdherenceScorer
         from ..models.context_relevance_scorer import ContextRelevanceScorer
-        from ..models.customized_ground_truth_adherence_gpt_scorer import CustomizedGroundTruthAdherenceGPTScorer
-        from ..models.input_pii_scorer import InputPIIScorer
-        from ..models.customized_prompt_injection_gpt_scorer import CustomizedPromptInjectionGPTScorer
-        from ..models.output_tone_scorer import OutputToneScorer
-        from ..models.prompt_perplexity_scorer import PromptPerplexityScorer
-        from ..models.metric_critique_job_configuration import MetricCritiqueJobConfiguration
-        from ..models.uncertainty_scorer import UncertaintyScorer
-        from ..models.customized_factuality_gpt_scorer import CustomizedFactualityGPTScorer
         from ..models.correctness_scorer import CorrectnessScorer
-        from ..models.registered_scorer import RegisteredScorer
-        from ..models.instruction_adherence_scorer import InstructionAdherenceScorer
-        from ..models.input_toxicity_scorer import InputToxicityScorer
-        from ..models.prompt_run_settings import PromptRunSettings
-        from ..models.prompt_optimization_configuration import PromptOptimizationConfiguration
+        from ..models.customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
+        from ..models.customized_agentic_workflow_success_gpt_scorer import CustomizedAgenticWorkflowSuccessGPTScorer
         from ..models.customized_chunk_attribution_utilization_gpt_scorer import (
             CustomizedChunkAttributionUtilizationGPTScorer,
         )
-        from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
-        from ..models.task_resource_limits import TaskResourceLimits
-        from ..models.customized_input_sexist_gpt_scorer import CustomizedInputSexistGPTScorer
-        from ..models.customized_instruction_adherence_gpt_scorer import CustomizedInstructionAdherenceGPTScorer
-        from ..models.fine_tuned_scorer import FineTunedScorer
-        from ..models.chunk_attribution_utilization_scorer import ChunkAttributionUtilizationScorer
-        from ..models.bleu_scorer import BleuScorer
-        from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
-        from ..models.completeness_scorer import CompletenessScorer
-        from ..models.scorers_configuration import ScorersConfiguration
-        from ..models.tool_error_rate_scorer import ToolErrorRateScorer
-        from ..models.scorer_config import ScorerConfig
-        from ..models.segment_filter import SegmentFilter
         from ..models.customized_completeness_gpt_scorer import CustomizedCompletenessGPTScorer
-        from ..models.input_tone_scorer import InputToneScorer
-        from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
-        from ..models.customized_agentic_workflow_success_gpt_scorer import CustomizedAgenticWorkflowSuccessGPTScorer
-        from ..models.output_toxicity_scorer import OutputToxicityScorer
-        from ..models.customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
-        from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
+        from ..models.customized_factuality_gpt_scorer import CustomizedFactualityGPTScorer
+        from ..models.customized_ground_truth_adherence_gpt_scorer import CustomizedGroundTruthAdherenceGPTScorer
         from ..models.customized_groundedness_gpt_scorer import CustomizedGroundednessGPTScorer
-        from ..models.agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
-        from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
-        from ..models.customized_sexist_gpt_scorer import CustomizedSexistGPTScorer
-        from ..models.output_pii_scorer import OutputPIIScorer
-        from ..models.rouge_scorer import RougeScorer
-        from ..models.output_sexist_scorer import OutputSexistScorer
-        from ..models.prompt_injection_scorer import PromptInjectionScorer
+        from ..models.customized_input_sexist_gpt_scorer import CustomizedInputSexistGPTScorer
         from ..models.customized_input_toxicity_gpt_scorer import CustomizedInputToxicityGPTScorer
-        from ..models.context_adherence_scorer import ContextAdherenceScorer
-        from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
+        from ..models.customized_instruction_adherence_gpt_scorer import CustomizedInstructionAdherenceGPTScorer
+        from ..models.customized_prompt_injection_gpt_scorer import CustomizedPromptInjectionGPTScorer
+        from ..models.customized_sexist_gpt_scorer import CustomizedSexistGPTScorer
+        from ..models.customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
+        from ..models.customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
+        from ..models.customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
+        from ..models.fine_tuned_scorer import FineTunedScorer
+        from ..models.ground_truth_adherence_scorer import GroundTruthAdherenceScorer
+        from ..models.input_pii_scorer import InputPIIScorer
+        from ..models.input_sexist_scorer import InputSexistScorer
+        from ..models.input_tone_scorer import InputToneScorer
+        from ..models.input_toxicity_scorer import InputToxicityScorer
+        from ..models.instruction_adherence_scorer import InstructionAdherenceScorer
+        from ..models.metric_critique_job_configuration import MetricCritiqueJobConfiguration
+        from ..models.output_pii_scorer import OutputPIIScorer
+        from ..models.output_sexist_scorer import OutputSexistScorer
+        from ..models.output_tone_scorer import OutputToneScorer
+        from ..models.output_toxicity_scorer import OutputToxicityScorer
+        from ..models.prompt_injection_scorer import PromptInjectionScorer
+        from ..models.prompt_optimization_configuration import PromptOptimizationConfiguration
+        from ..models.prompt_perplexity_scorer import PromptPerplexityScorer
+        from ..models.prompt_run_settings import PromptRunSettings
+        from ..models.registered_scorer import RegisteredScorer
+        from ..models.rouge_scorer import RougeScorer
+        from ..models.scorer_config import ScorerConfig
+        from ..models.scorers_configuration import ScorersConfiguration
+        from ..models.segment_filter import SegmentFilter
+        from ..models.task_resource_limits import TaskResourceLimits
+        from ..models.tool_error_rate_scorer import ToolErrorRateScorer
+        from ..models.tool_selection_quality_scorer import ToolSelectionQualityScorer
+        from ..models.uncertainty_scorer import UncertaintyScorer
 
         d = dict(src_dict)
         link = d.pop("link")

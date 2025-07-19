@@ -1,25 +1,20 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 from ..models.execution_status import ExecutionStatus
 from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
 
 if TYPE_CHECKING:
+    from ..models.action_result import ActionResult
     from ..models.invoke_response_headers_type_0 import InvokeResponseHeadersType0
     from ..models.invoke_response_metadata_type_0 import InvokeResponseMetadataType0
-    from ..models.stage_metadata import StageMetadata
     from ..models.invoke_response_metric_results import InvokeResponseMetricResults
-    from ..models.action_result import ActionResult
-    from ..models.trace_metadata import TraceMetadata
     from ..models.ruleset_result import RulesetResult
+    from ..models.stage_metadata import StageMetadata
+    from ..models.trace_metadata import TraceMetadata
 
 
 T = TypeVar("T", bound="InvokeResponse")
@@ -58,11 +53,6 @@ class InvokeResponse:
     def to_dict(self) -> dict[str, Any]:
         from ..models.invoke_response_headers_type_0 import InvokeResponseHeadersType0
         from ..models.invoke_response_metadata_type_0 import InvokeResponseMetadataType0
-        from ..models.stage_metadata import StageMetadata
-        from ..models.invoke_response_metric_results import InvokeResponseMetricResults
-        from ..models.action_result import ActionResult
-        from ..models.trace_metadata import TraceMetadata
-        from ..models.ruleset_result import RulesetResult
 
         action_result = self.action_result.to_dict()
 
@@ -132,13 +122,13 @@ class InvokeResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.action_result import ActionResult
         from ..models.invoke_response_headers_type_0 import InvokeResponseHeadersType0
         from ..models.invoke_response_metadata_type_0 import InvokeResponseMetadataType0
-        from ..models.stage_metadata import StageMetadata
         from ..models.invoke_response_metric_results import InvokeResponseMetricResults
-        from ..models.action_result import ActionResult
-        from ..models.trace_metadata import TraceMetadata
         from ..models.ruleset_result import RulesetResult
+        from ..models.stage_metadata import StageMetadata
+        from ..models.trace_metadata import TraceMetadata
 
         d = dict(src_dict)
         action_result = ActionResult.from_dict(d.pop("action_result"))

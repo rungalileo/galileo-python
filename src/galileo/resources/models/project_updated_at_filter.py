@@ -1,18 +1,13 @@
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
+from dateutil.parser import isoparse
 
 from ..models.project_updated_at_filter_operator import ProjectUpdatedAtFilterOperator
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
-from typing import cast
-from typing import Literal, Union, cast
-import datetime
-
 
 T = TypeVar("T", bound="ProjectUpdatedAtFilter")
 

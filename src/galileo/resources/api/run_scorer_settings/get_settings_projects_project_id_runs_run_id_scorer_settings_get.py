@@ -1,22 +1,17 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.run_scorer_settings_response import RunScorerSettingsResponse
-from typing import cast
+from ...types import Response
 
 
 def _get_kwargs(project_id: str, run_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": "/projects/{project_id}/runs/{run_id}/scorer-settings".format(project_id=project_id, run_id=run_id),
-    }
+    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/runs/{run_id}/scorer-settings"}
 
     return _kwargs
 

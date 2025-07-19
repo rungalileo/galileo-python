@@ -1,23 +1,18 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 from ..models.logging_method import LoggingMethod
 from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
 
 if TYPE_CHECKING:
     from ..models.agent_span import AgentSpan
-    from ..models.workflow_span import WorkflowSpan
-    from ..models.tool_span import ToolSpan
-    from ..models.retriever_span import RetrieverSpan
     from ..models.llm_span import LlmSpan
+    from ..models.retriever_span import RetrieverSpan
+    from ..models.tool_span import ToolSpan
+    from ..models.workflow_span import WorkflowSpan
 
 
 T = TypeVar("T", bound="LogSpansIngestRequest")
@@ -53,10 +48,9 @@ class LogSpansIngestRequest:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.agent_span import AgentSpan
-        from ..models.workflow_span import WorkflowSpan
-        from ..models.tool_span import ToolSpan
-        from ..models.retriever_span import RetrieverSpan
         from ..models.llm_span import LlmSpan
+        from ..models.retriever_span import RetrieverSpan
+        from ..models.workflow_span import WorkflowSpan
 
         parent_id = self.parent_id
 
@@ -121,10 +115,10 @@ class LogSpansIngestRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.agent_span import AgentSpan
-        from ..models.workflow_span import WorkflowSpan
-        from ..models.tool_span import ToolSpan
-        from ..models.retriever_span import RetrieverSpan
         from ..models.llm_span import LlmSpan
+        from ..models.retriever_span import RetrieverSpan
+        from ..models.tool_span import ToolSpan
+        from ..models.workflow_span import WorkflowSpan
 
         d = dict(src_dict)
         parent_id = d.pop("parent_id")

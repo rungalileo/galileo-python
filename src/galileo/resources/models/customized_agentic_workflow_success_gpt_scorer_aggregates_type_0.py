@@ -1,11 +1,8 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
-
 
 T = TypeVar("T", bound="CustomizedAgenticWorkflowSuccessGPTScorerAggregatesType0")
 

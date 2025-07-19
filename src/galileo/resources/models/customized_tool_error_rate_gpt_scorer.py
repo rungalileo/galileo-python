@@ -1,27 +1,21 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
 
 from ..models.node_type import NodeType
 from ..models.output_type_enum import OutputTypeEnum
 from ..models.scorer_name import ScorerName
 from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Literal, Union, cast
-from typing import Union
 
 if TYPE_CHECKING:
-    from ..models.metadata_filter import MetadataFilter
-    from ..models.node_name_filter import NodeNameFilter
-    from ..models.customized_tool_error_rate_gpt_scorer_extra_type_0 import CustomizedToolErrorRateGPTScorerExtraType0
     from ..models.customized_tool_error_rate_gpt_scorer_aggregates_type_0 import (
         CustomizedToolErrorRateGPTScorerAggregatesType0,
     )
+    from ..models.customized_tool_error_rate_gpt_scorer_extra_type_0 import CustomizedToolErrorRateGPTScorerExtraType0
+    from ..models.metadata_filter import MetadataFilter
+    from ..models.node_name_filter import NodeNameFilter
     from ..models.tool_error_rate_template import ToolErrorRateTemplate
 
 
@@ -82,15 +76,13 @@ class CustomizedToolErrorRateGPTScorer:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.metadata_filter import MetadataFilter
-        from ..models.node_name_filter import NodeNameFilter
-        from ..models.customized_tool_error_rate_gpt_scorer_extra_type_0 import (
-            CustomizedToolErrorRateGPTScorerExtraType0,
-        )
         from ..models.customized_tool_error_rate_gpt_scorer_aggregates_type_0 import (
             CustomizedToolErrorRateGPTScorerAggregatesType0,
         )
-        from ..models.tool_error_rate_template import ToolErrorRateTemplate
+        from ..models.customized_tool_error_rate_gpt_scorer_extra_type_0 import (
+            CustomizedToolErrorRateGPTScorerExtraType0,
+        )
+        from ..models.node_name_filter import NodeNameFilter
 
         aggregate_keys: Union[Unset, list[str]] = UNSET
         if not isinstance(self.aggregate_keys, Unset):
@@ -282,14 +274,14 @@ class CustomizedToolErrorRateGPTScorer:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.metadata_filter import MetadataFilter
-        from ..models.node_name_filter import NodeNameFilter
-        from ..models.customized_tool_error_rate_gpt_scorer_extra_type_0 import (
-            CustomizedToolErrorRateGPTScorerExtraType0,
-        )
         from ..models.customized_tool_error_rate_gpt_scorer_aggregates_type_0 import (
             CustomizedToolErrorRateGPTScorerAggregatesType0,
         )
+        from ..models.customized_tool_error_rate_gpt_scorer_extra_type_0 import (
+            CustomizedToolErrorRateGPTScorerExtraType0,
+        )
+        from ..models.metadata_filter import MetadataFilter
+        from ..models.node_name_filter import NodeNameFilter
         from ..models.tool_error_rate_template import ToolErrorRateTemplate
 
         d = dict(src_dict)

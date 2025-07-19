@@ -1,10 +1,8 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
 
 from ..models.column_category import ColumnCategory
 from ..models.data_type import DataType
@@ -12,13 +10,10 @@ from ..models.data_unit import DataUnit
 from ..models.insight_type import InsightType
 from ..models.step_type import StepType
 from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
 
 if TYPE_CHECKING:
-    from ..models.scorer_config import ScorerConfig
     from ..models.metric_threshold import MetricThreshold
+    from ..models.scorer_config import ScorerConfig
 
 
 T = TypeVar("T", bound="ColumnInfo")
@@ -70,8 +65,8 @@ class ColumnInfo:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.scorer_config import ScorerConfig
         from ..models.metric_threshold import MetricThreshold
+        from ..models.scorer_config import ScorerConfig
 
         category = self.category.value
 
@@ -203,8 +198,8 @@ class ColumnInfo:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.scorer_config import ScorerConfig
         from ..models.metric_threshold import MetricThreshold
+        from ..models.scorer_config import ScorerConfig
 
         d = dict(src_dict)
         category = ColumnCategory(d.pop("category"))

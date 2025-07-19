@@ -1,28 +1,22 @@
+import datetime
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
+from uuid import UUID
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
-
-from ..types import UNSET, Unset
+from dateutil.parser import isoparse
 
 from ..models.scorer_type import ScorerType
 from ..types import UNSET, Unset
-from dateutil.parser import isoparse
-from typing import cast
-from typing import cast, Union
-from typing import Literal, Union, cast
-from typing import Union
-from uuid import UUID
-import datetime
 
 if TYPE_CHECKING:
     from ..models.document import Document
-    from ..models.metric_critique_columnar import MetricCritiqueColumnar
-    from ..models.hallucination_segment import HallucinationSegment
-    from ..models.segment import Segment
-    from ..models.feedback_rating_db import FeedbackRatingDB
     from ..models.feedback_aggregate import FeedbackAggregate
+    from ..models.feedback_rating_db import FeedbackRatingDB
+    from ..models.hallucination_segment import HallucinationSegment
+    from ..models.metric_critique_columnar import MetricCritiqueColumnar
+    from ..models.segment import Segment
 
 
 T = TypeVar("T", bound="MetricSuccess")
@@ -131,11 +125,11 @@ class MetricSuccess:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.document import Document
-        from ..models.metric_critique_columnar import MetricCritiqueColumnar
-        from ..models.hallucination_segment import HallucinationSegment
-        from ..models.segment import Segment
-        from ..models.feedback_rating_db import FeedbackRatingDB
         from ..models.feedback_aggregate import FeedbackAggregate
+        from ..models.feedback_rating_db import FeedbackRatingDB
+        from ..models.hallucination_segment import HallucinationSegment
+        from ..models.metric_critique_columnar import MetricCritiqueColumnar
+        from ..models.segment import Segment
 
         value: Union[
             None,
@@ -324,11 +318,11 @@ class MetricSuccess:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.document import Document
-        from ..models.metric_critique_columnar import MetricCritiqueColumnar
-        from ..models.hallucination_segment import HallucinationSegment
-        from ..models.segment import Segment
-        from ..models.feedback_rating_db import FeedbackRatingDB
         from ..models.feedback_aggregate import FeedbackAggregate
+        from ..models.feedback_rating_db import FeedbackRatingDB
+        from ..models.hallucination_segment import HallucinationSegment
+        from ..models.metric_critique_columnar import MetricCritiqueColumnar
+        from ..models.segment import Segment
 
         d = dict(src_dict)
 

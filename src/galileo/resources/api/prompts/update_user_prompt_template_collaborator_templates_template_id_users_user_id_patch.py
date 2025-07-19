@@ -1,25 +1,20 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.collaborator_update import CollaboratorUpdate
 from ...models.http_validation_error import HTTPValidationError
 from ...models.user_collaborator import UserCollaborator
-from typing import cast
+from ...types import Response
 
 
 def _get_kwargs(template_id: str, user_id: str, *, body: CollaboratorUpdate) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {
-        "method": "patch",
-        "url": "/templates/{template_id}/users/{user_id}".format(template_id=template_id, user_id=user_id),
-    }
+    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/templates/{template_id}/users/{user_id}"}
 
     _kwargs["json"] = body.to_dict()
 

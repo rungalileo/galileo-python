@@ -1,17 +1,11 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..types import UNSET, Unset
-
 from ..models.scorer_type import ScorerType
 from ..types import UNSET, Unset
-from typing import cast, Union
-from typing import Literal, Union, cast
-from typing import Union
-
 
 T = TypeVar("T", bound="MetricError")
 

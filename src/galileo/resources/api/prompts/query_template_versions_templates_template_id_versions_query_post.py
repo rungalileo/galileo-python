@@ -1,18 +1,14 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.list_prompt_template_version_params import ListPromptTemplateVersionParams
 from ...models.list_prompt_template_version_response import ListPromptTemplateVersionResponse
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
@@ -32,11 +28,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/templates/{template_id}/versions/query".format(template_id=template_id),
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/templates/{template_id}/versions/query", "params": params}
 
     _kwargs["json"] = body.to_dict()
 

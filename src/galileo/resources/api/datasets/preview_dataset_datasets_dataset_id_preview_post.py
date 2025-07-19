@@ -1,18 +1,14 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
-from ...types import Response, UNSET
 from ... import errors
-
+from ...client import AuthenticatedClient, Client
 from ...models.dataset_content import DatasetContent
 from ...models.http_validation_error import HTTPValidationError
 from ...models.preview_dataset_request import PreviewDatasetRequest
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
@@ -32,11 +28,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/datasets/{dataset_id}/preview".format(dataset_id=dataset_id),
-        "params": params,
-    }
+    _kwargs: dict[str, Any] = {"method": "post", "url": f"/datasets/{dataset_id}/preview", "params": params}
 
     _kwargs["json"] = body.to_dict()
 

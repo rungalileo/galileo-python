@@ -1,27 +1,22 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Optional, BinaryIO, TextIO, TYPE_CHECKING, Generator
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-from ..types import UNSET, Unset
-from typing import cast
-from typing import cast, Union
-from typing import Union
-
 if TYPE_CHECKING:
-    from ..models.dataset_name_sort import DatasetNameSort
-    from ..models.dataset_draft_filter import DatasetDraftFilter
     from ..models.dataset_created_at_sort import DatasetCreatedAtSort
-    from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
-    from ..models.dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
+    from ..models.dataset_draft_filter import DatasetDraftFilter
     from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
+    from ..models.dataset_name_filter import DatasetNameFilter
+    from ..models.dataset_name_sort import DatasetNameSort
+    from ..models.dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
     from ..models.dataset_projects_sort import DatasetProjectsSort
     from ..models.dataset_rows_sort import DatasetRowsSort
     from ..models.dataset_updated_at_sort import DatasetUpdatedAtSort
-    from ..models.dataset_name_filter import DatasetNameFilter
+    from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
 
 
 T = TypeVar("T", bound="ListDatasetParams")
@@ -52,16 +47,15 @@ class ListDatasetParams:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.dataset_name_sort import DatasetNameSort
-        from ..models.dataset_draft_filter import DatasetDraftFilter
         from ..models.dataset_created_at_sort import DatasetCreatedAtSort
-        from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
-        from ..models.dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
+        from ..models.dataset_draft_filter import DatasetDraftFilter
         from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
+        from ..models.dataset_name_filter import DatasetNameFilter
+        from ..models.dataset_name_sort import DatasetNameSort
+        from ..models.dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
         from ..models.dataset_projects_sort import DatasetProjectsSort
         from ..models.dataset_rows_sort import DatasetRowsSort
         from ..models.dataset_updated_at_sort import DatasetUpdatedAtSort
-        from ..models.dataset_name_filter import DatasetNameFilter
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -109,16 +103,16 @@ class ListDatasetParams:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.dataset_name_sort import DatasetNameSort
-        from ..models.dataset_draft_filter import DatasetDraftFilter
         from ..models.dataset_created_at_sort import DatasetCreatedAtSort
-        from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
-        from ..models.dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
+        from ..models.dataset_draft_filter import DatasetDraftFilter
         from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
+        from ..models.dataset_name_filter import DatasetNameFilter
+        from ..models.dataset_name_sort import DatasetNameSort
+        from ..models.dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
         from ..models.dataset_projects_sort import DatasetProjectsSort
         from ..models.dataset_rows_sort import DatasetRowsSort
         from ..models.dataset_updated_at_sort import DatasetUpdatedAtSort
-        from ..models.dataset_name_filter import DatasetNameFilter
+        from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
 
         d = dict(src_dict)
         filters = []
