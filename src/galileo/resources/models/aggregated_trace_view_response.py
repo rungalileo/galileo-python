@@ -5,8 +5,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
-    from ..models.aggregated_trace_view_edge import AggregatedTraceViewEdge
-    from ..models.aggregated_trace_view_node import AggregatedTraceViewNode
+    from ..models.aggregated_trace_view_graph import AggregatedTraceViewGraph
 
 
 T = TypeVar("T", bound="AggregatedTraceViewResponse")
@@ -16,52 +15,41 @@ T = TypeVar("T", bound="AggregatedTraceViewResponse")
 class AggregatedTraceViewResponse:
     """
     Attributes:
-        edges (list['AggregatedTraceViewEdge']):
-        nodes (list['AggregatedTraceViewNode']):
+        graph (AggregatedTraceViewGraph):
+        num_sessions (int): Number of sessions in the aggregated view
+        num_traces (int): Number of traces in the aggregated view
     """
 
-    edges: list["AggregatedTraceViewEdge"]
-    nodes: list["AggregatedTraceViewNode"]
+    graph: "AggregatedTraceViewGraph"
+    num_sessions: int
+    num_traces: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        edges = []
-        for edges_item_data in self.edges:
-            edges_item = edges_item_data.to_dict()
-            edges.append(edges_item)
+        graph = self.graph.to_dict()
 
-        nodes = []
-        for nodes_item_data in self.nodes:
-            nodes_item = nodes_item_data.to_dict()
-            nodes.append(nodes_item)
+        num_sessions = self.num_sessions
+
+        num_traces = self.num_traces
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"edges": edges, "nodes": nodes})
+        field_dict.update({"graph": graph, "num_sessions": num_sessions, "num_traces": num_traces})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.aggregated_trace_view_edge import AggregatedTraceViewEdge
-        from ..models.aggregated_trace_view_node import AggregatedTraceViewNode
+        from ..models.aggregated_trace_view_graph import AggregatedTraceViewGraph
 
         d = dict(src_dict)
-        edges = []
-        _edges = d.pop("edges")
-        for edges_item_data in _edges:
-            edges_item = AggregatedTraceViewEdge.from_dict(edges_item_data)
+        graph = AggregatedTraceViewGraph.from_dict(d.pop("graph"))
 
-            edges.append(edges_item)
+        num_sessions = d.pop("num_sessions")
 
-        nodes = []
-        _nodes = d.pop("nodes")
-        for nodes_item_data in _nodes:
-            nodes_item = AggregatedTraceViewNode.from_dict(nodes_item_data)
+        num_traces = d.pop("num_traces")
 
-            nodes.append(nodes_item)
-
-        aggregated_trace_view_response = cls(edges=edges, nodes=nodes)
+        aggregated_trace_view_response = cls(graph=graph, num_sessions=num_sessions, num_traces=num_traces)
 
         aggregated_trace_view_response.additional_properties = d
         return aggregated_trace_view_response

@@ -21,6 +21,7 @@ class LogStreamResponse:
         project_id (str):
         updated_at (datetime.datetime):
         created_by (Union[None, Unset, str]):
+        has_user_created_sessions (Union[Unset, bool]):  Default: False.
     """
 
     created_at: datetime.datetime
@@ -29,6 +30,7 @@ class LogStreamResponse:
     project_id: str
     updated_at: datetime.datetime
     created_by: Union[None, Unset, str] = UNSET
+    has_user_created_sessions: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -48,6 +50,8 @@ class LogStreamResponse:
         else:
             created_by = self.created_by
 
+        has_user_created_sessions = self.has_user_created_sessions
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -55,6 +59,8 @@ class LogStreamResponse:
         )
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
+        if has_user_created_sessions is not UNSET:
+            field_dict["has_user_created_sessions"] = has_user_created_sessions
 
         return field_dict
 
@@ -80,8 +86,16 @@ class LogStreamResponse:
 
         created_by = _parse_created_by(d.pop("created_by", UNSET))
 
+        has_user_created_sessions = d.pop("has_user_created_sessions", UNSET)
+
         log_stream_response = cls(
-            created_at=created_at, id=id, name=name, project_id=project_id, updated_at=updated_at, created_by=created_by
+            created_at=created_at,
+            id=id,
+            name=name,
+            project_id=project_id,
+            updated_at=updated_at,
+            created_by=created_by,
+            has_user_created_sessions=has_user_created_sessions,
         )
 
         log_stream_response.additional_properties = d

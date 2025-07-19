@@ -5,6 +5,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.node_type import NodeType
+from ..models.output_type_enum import OutputTypeEnum
 from ..models.scorer_name import ScorerName
 from ..types import UNSET, Unset
 
@@ -29,6 +30,7 @@ class CustomizedGroundednessGPTScorer:
         aggregates (Union['CustomizedGroundednessGPTScorerAggregatesType0', None, Unset]):
         chainpoll_template (Union[Unset, GroundednessTemplate]): Template for the groundedness metric,
             containing all the info necessary to send the groundedness prompt.
+        cot_enabled (Union[None, Unset, bool]):
         description (Union[None, Unset, str]):
         extra (Union['CustomizedGroundednessGPTScorerExtraType0', None, Unset]):
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
@@ -39,6 +41,7 @@ class CustomizedGroundednessGPTScorer:
         model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
         name (Union[Literal['context_adherence'], Unset]):  Default: 'context_adherence'.
         num_judges (Union[Unset, int]):  Default: 3.
+        output_type (Union[None, OutputTypeEnum, Unset]):
         prompt (Union[None, Unset, str]):
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
@@ -51,6 +54,7 @@ class CustomizedGroundednessGPTScorer:
     aggregate_keys: Union[Unset, list[str]] = UNSET
     aggregates: Union["CustomizedGroundednessGPTScorerAggregatesType0", None, Unset] = UNSET
     chainpoll_template: Union[Unset, "GroundednessTemplate"] = UNSET
+    cot_enabled: Union[None, Unset, bool] = UNSET
     description: Union[None, Unset, str] = UNSET
     extra: Union["CustomizedGroundednessGPTScorerExtraType0", None, Unset] = UNSET
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
@@ -61,6 +65,7 @@ class CustomizedGroundednessGPTScorer:
     model_alias: Union[Unset, str] = "gpt-4.1-mini"
     name: Union[Literal["context_adherence"], Unset] = "context_adherence"
     num_judges: Union[Unset, int] = 3
+    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
     prompt: Union[None, Unset, str] = UNSET
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
@@ -92,6 +97,12 @@ class CustomizedGroundednessGPTScorer:
         chainpoll_template: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.chainpoll_template, Unset):
             chainpoll_template = self.chainpoll_template.to_dict()
+
+        cot_enabled: Union[None, Unset, bool]
+        if isinstance(self.cot_enabled, Unset):
+            cot_enabled = UNSET
+        else:
+            cot_enabled = self.cot_enabled
 
         description: Union[None, Unset, str]
         if isinstance(self.description, Unset):
@@ -157,6 +168,14 @@ class CustomizedGroundednessGPTScorer:
 
         num_judges = self.num_judges
 
+        output_type: Union[None, Unset, str]
+        if isinstance(self.output_type, Unset):
+            output_type = UNSET
+        elif isinstance(self.output_type, OutputTypeEnum):
+            output_type = self.output_type.value
+        else:
+            output_type = self.output_type
+
         prompt: Union[None, Unset, str]
         if isinstance(self.prompt, Unset):
             prompt = UNSET
@@ -210,6 +229,8 @@ class CustomizedGroundednessGPTScorer:
             field_dict["aggregates"] = aggregates
         if chainpoll_template is not UNSET:
             field_dict["chainpoll_template"] = chainpoll_template
+        if cot_enabled is not UNSET:
+            field_dict["cot_enabled"] = cot_enabled
         if description is not UNSET:
             field_dict["description"] = description
         if extra is not UNSET:
@@ -230,6 +251,8 @@ class CustomizedGroundednessGPTScorer:
             field_dict["name"] = name
         if num_judges is not UNSET:
             field_dict["num_judges"] = num_judges
+        if output_type is not UNSET:
+            field_dict["output_type"] = output_type
         if prompt is not UNSET:
             field_dict["prompt"] = prompt
         if regex_field is not UNSET:
@@ -283,6 +306,15 @@ class CustomizedGroundednessGPTScorer:
             chainpoll_template = UNSET
         else:
             chainpoll_template = GroundednessTemplate.from_dict(_chainpoll_template)
+
+        def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
 
         def _parse_description(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -400,6 +432,23 @@ class CustomizedGroundednessGPTScorer:
 
         num_judges = d.pop("num_judges", UNSET)
 
+        def _parse_output_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                output_type_type_0 = OutputTypeEnum(data)
+
+                return output_type_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, OutputTypeEnum, Unset], data)
+
+        output_type = _parse_output_type(d.pop("output_type", UNSET))
+
         def _parse_prompt(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -474,6 +523,7 @@ class CustomizedGroundednessGPTScorer:
             aggregate_keys=aggregate_keys,
             aggregates=aggregates,
             chainpoll_template=chainpoll_template,
+            cot_enabled=cot_enabled,
             description=description,
             extra=extra,
             filters=filters,
@@ -484,6 +534,7 @@ class CustomizedGroundednessGPTScorer:
             model_alias=model_alias,
             name=name,
             num_judges=num_judges,
+            output_type=output_type,
             prompt=prompt,
             regex_field=regex_field,
             registered_scorer_id=registered_scorer_id,

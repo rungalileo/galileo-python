@@ -46,6 +46,8 @@ class LlmSpanRecord:
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         model (Union[None, Unset, str]): Model used for this span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
+        redacted_input (Union[None, Unset, list['Message']]): Redacted input of the trace or span.
+        redacted_output (Union['Message', None, Unset]): Redacted output of the trace or span.
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
@@ -81,6 +83,8 @@ class LlmSpanRecord:
     metrics_batch_id: Union[None, Unset, str] = UNSET
     model: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
+    redacted_input: Union[None, Unset, list["Message"]] = UNSET
+    redacted_output: Union["Message", None, Unset] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     step_number: Union[None, Unset, int] = UNSET
@@ -95,6 +99,7 @@ class LlmSpanRecord:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.llm_span_record_metric_info_type_0 import LlmSpanRecordMetricInfoType0
+        from ..models.message import Message
 
         id = self.id
 
@@ -178,6 +183,26 @@ class LlmSpanRecord:
             model = self.model
 
         name = self.name
+
+        redacted_input: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        elif isinstance(self.redacted_input, list):
+            redacted_input = []
+            for redacted_input_type_0_item_data in self.redacted_input:
+                redacted_input_type_0_item = redacted_input_type_0_item_data.to_dict()
+                redacted_input.append(redacted_input_type_0_item)
+
+        else:
+            redacted_input = self.redacted_input
+
+        redacted_output: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        elif isinstance(self.redacted_output, Message):
+            redacted_output = self.redacted_output.to_dict()
+        else:
+            redacted_output = self.redacted_output
 
         session_batch_id: Union[None, Unset, str]
         if isinstance(self.session_batch_id, Unset):
@@ -278,6 +303,10 @@ class LlmSpanRecord:
             field_dict["model"] = model
         if name is not UNSET:
             field_dict["name"] = name
+        if redacted_input is not UNSET:
+            field_dict["redacted_input"] = redacted_input
+        if redacted_output is not UNSET:
+            field_dict["redacted_output"] = redacted_output
         if session_batch_id is not UNSET:
             field_dict["session_batch_id"] = session_batch_id
         if status_code is not UNSET:
@@ -435,6 +464,45 @@ class LlmSpanRecord:
 
         name = d.pop("name", UNSET)
 
+        def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_input_type_0 = []
+                _redacted_input_type_0 = data
+                for redacted_input_type_0_item_data in _redacted_input_type_0:
+                    redacted_input_type_0_item = Message.from_dict(redacted_input_type_0_item_data)
+
+                    redacted_input_type_0.append(redacted_input_type_0_item)
+
+                return redacted_input_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["Message"]], data)
+
+        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
+
+        def _parse_redacted_output(data: object) -> Union["Message", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                redacted_output_type_0 = Message.from_dict(data)
+
+                return redacted_output_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["Message", None, Unset], data)
+
+        redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
+
         def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -553,6 +621,8 @@ class LlmSpanRecord:
             metrics_batch_id=metrics_batch_id,
             model=model,
             name=name,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             session_batch_id=session_batch_id,
             status_code=status_code,
             step_number=step_number,

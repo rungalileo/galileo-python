@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.prompt_run_settings import PromptRunSettings
+    from ..models.synthetic_data_source_dataset import SyntheticDataSourceDataset
 
 
 T = TypeVar("T", bound="SyntheticDatasetExtensionRequest")
@@ -21,21 +22,25 @@ class SyntheticDatasetExtensionRequest:
     Attributes:
         count (Union[Unset, int]):  Default: 10.
         data_types (Union[None, Unset, list[SyntheticDataTypes]]):
-        examples (Union[None, Unset, list[str]]):
+        examples (Union[Unset, list[str]]):
         instructions (Union[None, Unset, str]):
         prompt (Union[None, Unset, str]):
         prompt_settings (Union[Unset, PromptRunSettings]): Prompt run settings.
+        source_dataset (Union['SyntheticDataSourceDataset', None, Unset]):
     """
 
     count: Union[Unset, int] = 10
     data_types: Union[None, Unset, list[SyntheticDataTypes]] = UNSET
-    examples: Union[None, Unset, list[str]] = UNSET
+    examples: Union[Unset, list[str]] = UNSET
     instructions: Union[None, Unset, str] = UNSET
     prompt: Union[None, Unset, str] = UNSET
     prompt_settings: Union[Unset, "PromptRunSettings"] = UNSET
+    source_dataset: Union["SyntheticDataSourceDataset", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.synthetic_data_source_dataset import SyntheticDataSourceDataset
+
         count = self.count
 
         data_types: Union[None, Unset, list[str]]
@@ -50,13 +55,8 @@ class SyntheticDatasetExtensionRequest:
         else:
             data_types = self.data_types
 
-        examples: Union[None, Unset, list[str]]
-        if isinstance(self.examples, Unset):
-            examples = UNSET
-        elif isinstance(self.examples, list):
-            examples = self.examples
-
-        else:
+        examples: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.examples, Unset):
             examples = self.examples
 
         instructions: Union[None, Unset, str]
@@ -75,6 +75,14 @@ class SyntheticDatasetExtensionRequest:
         if not isinstance(self.prompt_settings, Unset):
             prompt_settings = self.prompt_settings.to_dict()
 
+        source_dataset: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.source_dataset, Unset):
+            source_dataset = UNSET
+        elif isinstance(self.source_dataset, SyntheticDataSourceDataset):
+            source_dataset = self.source_dataset.to_dict()
+        else:
+            source_dataset = self.source_dataset
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -90,12 +98,15 @@ class SyntheticDatasetExtensionRequest:
             field_dict["prompt"] = prompt
         if prompt_settings is not UNSET:
             field_dict["prompt_settings"] = prompt_settings
+        if source_dataset is not UNSET:
+            field_dict["source_dataset"] = source_dataset
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.prompt_run_settings import PromptRunSettings
+        from ..models.synthetic_data_source_dataset import SyntheticDataSourceDataset
 
         d = dict(src_dict)
         count = d.pop("count", UNSET)
@@ -122,22 +133,7 @@ class SyntheticDatasetExtensionRequest:
 
         data_types = _parse_data_types(d.pop("data_types", UNSET))
 
-        def _parse_examples(data: object) -> Union[None, Unset, list[str]]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                examples_type_0 = cast(list[str], data)
-
-                return examples_type_0
-            except:  # noqa: E722
-                pass
-            return cast(Union[None, Unset, list[str]], data)
-
-        examples = _parse_examples(d.pop("examples", UNSET))
+        examples = cast(list[str], d.pop("examples", UNSET))
 
         def _parse_instructions(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -164,6 +160,23 @@ class SyntheticDatasetExtensionRequest:
         else:
             prompt_settings = PromptRunSettings.from_dict(_prompt_settings)
 
+        def _parse_source_dataset(data: object) -> Union["SyntheticDataSourceDataset", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                source_dataset_type_0 = SyntheticDataSourceDataset.from_dict(data)
+
+                return source_dataset_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["SyntheticDataSourceDataset", None, Unset], data)
+
+        source_dataset = _parse_source_dataset(d.pop("source_dataset", UNSET))
+
         synthetic_dataset_extension_request = cls(
             count=count,
             data_types=data_types,
@@ -171,6 +184,7 @@ class SyntheticDatasetExtensionRequest:
             instructions=instructions,
             prompt=prompt,
             prompt_settings=prompt_settings,
+            source_dataset=source_dataset,
         )
 
         synthetic_dataset_extension_request.additional_properties = d

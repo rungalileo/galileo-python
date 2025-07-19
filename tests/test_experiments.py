@@ -73,6 +73,7 @@ def prompt_template():
             max_version=3,
             name="awesome-new-prompt",
             selected_version=BasePromptTemplateVersionResponse(
+                content_changed=False,
                 created_at=datetime.now(),
                 created_by_user="Test User",
                 id=str(UUID(int=3)),

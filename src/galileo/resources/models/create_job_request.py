@@ -529,7 +529,7 @@ class CreateJobRequest:
         else:
             prompt_template_version_id = self.prompt_template_version_id
 
-        protect_scorer_payload: Union[None, Unset, FileTypes]
+        protect_scorer_payload: Union[FileTypes, None, Unset]
         if isinstance(self.protect_scorer_payload, Unset):
             protect_scorer_payload = UNSET
         elif isinstance(self.protect_scorer_payload, File):
