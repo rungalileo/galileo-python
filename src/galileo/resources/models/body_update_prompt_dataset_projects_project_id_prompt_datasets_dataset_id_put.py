@@ -6,7 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from .. import types
-from ..types import UNSET, File, Unset
+from ..types import UNSET, File, FileTypes, Unset
 
 T = TypeVar("T", bound="BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut")
 
@@ -33,7 +33,7 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
         else:
             column_names = self.column_names
 
-        file: Union[None, Unset, types.FileTypes]
+        file: Union[FileTypes, None, Unset]
         if isinstance(self.file, Unset):
             file = UNSET
         elif isinstance(self.file, File):

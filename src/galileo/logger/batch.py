@@ -30,6 +30,7 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
     def start_trace(
         self,
         input: StepAllowedInputType,
+        redacted_input: Optional[StepAllowedInputType] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -39,9 +40,10 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
         dataset_output: Optional[str] = None,
         dataset_metadata: Optional[dict[str, str]] = None,
         external_id: Optional[str] = None,
-    ):
+    ) -> Trace:
         return self.add_trace(
             input=input,
+            redacted_input=redacted_input,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -56,17 +58,22 @@ class GalileoBatchLogger(TracesLogger, IGalileoLogger):
     def conclude(
         self,
         output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
         duration_ns: Optional[int] = None,
         status_code: Optional[int] = None,
         conclude_all: bool = False,
     ) -> Optional[StepWithChildSpans]:
         if not conclude_all:
-            return super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
+            return super().conclude(
+                output=output, redacted_output=redacted_output, duration_ns=duration_ns, status_code=status_code
+            )
 
         # TODO: Allow the final span output to propagate to the parent spans
         current_parent = None
         while self.current_parent() is not None:
-            current_parent = super().conclude(output=output, duration_ns=duration_ns, status_code=status_code)
+            current_parent = super().conclude(
+                output=output, redacted_output=redacted_output, duration_ns=duration_ns, status_code=status_code
+            )
 
         return current_parent
 

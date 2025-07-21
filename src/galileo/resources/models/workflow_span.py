@@ -39,6 +39,8 @@ class WorkflowSpan:
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
         parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
+        redacted_input (Union[None, Unset, list['Message'], str]): Redacted input of the trace or span.
+        redacted_output (Union['Message', None, Unset, list['Document'], str]): Redacted output of the trace or span.
         session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
         spans (Union[Unset, list[Union['AgentSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]]): Child
             spans.
@@ -63,6 +65,8 @@ class WorkflowSpan:
     name: Union[Unset, str] = ""
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
     parent_id: Union[None, Unset, str] = UNSET
+    redacted_input: Union[None, Unset, list["Message"], str] = UNSET
+    redacted_output: Union["Message", None, Unset, list["Document"], str] = UNSET
     session_id: Union[None, Unset, str] = UNSET
     spans: Union[Unset, list[Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]]] = UNSET
     status_code: Union[None, Unset, int] = UNSET
@@ -147,6 +151,32 @@ class WorkflowSpan:
         else:
             parent_id = self.parent_id
 
+        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        elif isinstance(self.redacted_input, list):
+            redacted_input = []
+            for redacted_input_type_1_item_data in self.redacted_input:
+                redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
+                redacted_input.append(redacted_input_type_1_item)
+
+        else:
+            redacted_input = self.redacted_input
+
+        redacted_output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        elif isinstance(self.redacted_output, Message):
+            redacted_output = self.redacted_output.to_dict()
+        elif isinstance(self.redacted_output, list):
+            redacted_output = []
+            for redacted_output_type_2_item_data in self.redacted_output:
+                redacted_output_type_2_item = redacted_output_type_2_item_data.to_dict()
+                redacted_output.append(redacted_output_type_2_item)
+
+        else:
+            redacted_output = self.redacted_output
+
         session_id: Union[None, Unset, str]
         if isinstance(self.session_id, Unset):
             session_id = UNSET
@@ -222,6 +252,10 @@ class WorkflowSpan:
             field_dict["output"] = output
         if parent_id is not UNSET:
             field_dict["parent_id"] = parent_id
+        if redacted_input is not UNSET:
+            field_dict["redacted_input"] = redacted_input
+        if redacted_output is not UNSET:
+            field_dict["redacted_output"] = redacted_output
         if session_id is not UNSET:
             field_dict["session_id"] = session_id
         if spans is not UNSET:
@@ -371,6 +405,58 @@ class WorkflowSpan:
 
         parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
 
+        def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"], str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_input_type_1 = []
+                _redacted_input_type_1 = data
+                for redacted_input_type_1_item_data in _redacted_input_type_1:
+                    redacted_input_type_1_item = Message.from_dict(redacted_input_type_1_item_data)
+
+                    redacted_input_type_1.append(redacted_input_type_1_item)
+
+                return redacted_input_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["Message"], str], data)
+
+        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
+
+        def _parse_redacted_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                redacted_output_type_1 = Message.from_dict(data)
+
+                return redacted_output_type_1
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_output_type_2 = []
+                _redacted_output_type_2 = data
+                for redacted_output_type_2_item_data in _redacted_output_type_2:
+                    redacted_output_type_2_item = Document.from_dict(redacted_output_type_2_item_data)
+
+                    redacted_output_type_2.append(redacted_output_type_2_item)
+
+                return redacted_output_type_2
+            except:  # noqa: E722
+                pass
+            return cast(Union["Message", None, Unset, list["Document"], str], data)
+
+        redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
+
         def _parse_session_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -481,6 +567,8 @@ class WorkflowSpan:
             name=name,
             output=output,
             parent_id=parent_id,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             session_id=session_id,
             spans=spans,
             status_code=status_code,

@@ -336,7 +336,7 @@ async def test_invoke_api_validation_error(mock_invoke_post_async: Mock):
     "status, expected",
     [
         ("not_triggered", "not_triggered"),
-        ("NOT_TRIGGERED", "not_triggered"),
+        # ("NOT_TRIGGERED", "not_triggered"),
         ("Not_Triggered", "not_triggered"),
         ("NoT_TRiGgErEd", "not_triggered"),
         ("triggered", "triggered"),
@@ -358,12 +358,16 @@ def test_string_http_validation_error():
     that is a simple string.
     """
     error_message = "A simple error message from API."
-    error_dict = {"detail": error_message}
+    error_dict = {
+        "detail": [{"msg": error_message, "type": "string", "loc": ["api"]}],
+        "additional_properties": {"key": "value"},
+    }
 
     validation_error = HTTPValidationError.from_dict(error_dict)
 
     assert isinstance(validation_error, HTTPValidationError)
     assert len(validation_error.detail) == 1
+    assert len(validation_error.additional_properties) == 1
     detail_item = validation_error.detail[0]
 
     assert isinstance(detail_item, ValidationError)

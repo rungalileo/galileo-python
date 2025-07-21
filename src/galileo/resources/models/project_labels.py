@@ -1,9 +1,8 @@
 from enum import Enum
 
 
-class ScorerInputType(str, Enum):
-    BASIC = "basic"
-    NORMALIZED = "normalized"
+class ProjectLabels(str, Enum):
+    SAMPLE = "sample"
 
     def __str__(self) -> str:
         return str(self.value)

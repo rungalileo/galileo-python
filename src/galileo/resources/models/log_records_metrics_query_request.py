@@ -23,8 +23,8 @@ T = TypeVar("T", bound="LogRecordsMetricsQueryRequest")
 class LogRecordsMetricsQueryRequest:
     """
     Attributes:
-        end_time (datetime.datetime):
-        start_time (datetime.datetime):
+        end_time (datetime.datetime): Include traces up to this time.
+        start_time (datetime.datetime): Include traces from this time onward.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsDateFilter', 'LogRecordsIDFilter',
             'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):

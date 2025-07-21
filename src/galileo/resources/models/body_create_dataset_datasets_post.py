@@ -6,7 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from .. import types
-from ..types import UNSET, File, Unset
+from ..types import UNSET, File, FileTypes, Unset
 
 T = TypeVar("T", bound="BodyCreateDatasetDatasetsPost")
 
@@ -46,7 +46,7 @@ class BodyCreateDatasetDatasetsPost:
 
         draft = self.draft
 
-        file: Union[None, Unset, types.FileTypes]
+        file: Union[FileTypes, None, Unset]
         if isinstance(self.file, Unset):
             file = UNSET
         elif isinstance(self.file, File):

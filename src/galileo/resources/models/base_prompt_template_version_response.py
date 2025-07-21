@@ -22,40 +22,44 @@ class BasePromptTemplateVersionResponse:
     """Base response from API for a prompt template version.
 
     Attributes:
+        content_changed (bool):
         created_at (datetime.datetime):
         created_by_user (Union['UserInfo', None]):
         id (str):
-        lines_added (int):
-        lines_edited (int):
-        lines_removed (int):
         model_changed (bool):
         settings (PromptRunSettings): Prompt run settings.
         settings_changed (bool):
         template (Union[list['MessagesListItem'], str]):
         updated_at (datetime.datetime):
         version (int):
+        lines_added (Union[Unset, int]):  Default: 0.
+        lines_edited (Union[Unset, int]):  Default: 0.
+        lines_removed (Union[Unset, int]):  Default: 0.
         output_type (Union[None, Unset, str]):
         raw (Union[Unset, bool]):  Default: False.
     """
 
+    content_changed: bool
     created_at: datetime.datetime
     created_by_user: Union["UserInfo", None]
     id: str
-    lines_added: int
-    lines_edited: int
-    lines_removed: int
     model_changed: bool
     settings: "PromptRunSettings"
     settings_changed: bool
     template: Union[list["MessagesListItem"], str]
     updated_at: datetime.datetime
     version: int
+    lines_added: Union[Unset, int] = 0
+    lines_edited: Union[Unset, int] = 0
+    lines_removed: Union[Unset, int] = 0
     output_type: Union[None, Unset, str] = UNSET
     raw: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.user_info import UserInfo
+
+        content_changed = self.content_changed
 
         created_at = self.created_at.isoformat()
 
@@ -66,12 +70,6 @@ class BasePromptTemplateVersionResponse:
             created_by_user = self.created_by_user
 
         id = self.id
-
-        lines_added = self.lines_added
-
-        lines_edited = self.lines_edited
-
-        lines_removed = self.lines_removed
 
         model_changed = self.model_changed
 
@@ -93,6 +91,12 @@ class BasePromptTemplateVersionResponse:
 
         version = self.version
 
+        lines_added = self.lines_added
+
+        lines_edited = self.lines_edited
+
+        lines_removed = self.lines_removed
+
         output_type: Union[None, Unset, str]
         if isinstance(self.output_type, Unset):
             output_type = UNSET
@@ -105,12 +109,10 @@ class BasePromptTemplateVersionResponse:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "content_changed": content_changed,
                 "created_at": created_at,
                 "created_by_user": created_by_user,
                 "id": id,
-                "lines_added": lines_added,
-                "lines_edited": lines_edited,
-                "lines_removed": lines_removed,
                 "model_changed": model_changed,
                 "settings": settings,
                 "settings_changed": settings_changed,
@@ -119,6 +121,12 @@ class BasePromptTemplateVersionResponse:
                 "version": version,
             }
         )
+        if lines_added is not UNSET:
+            field_dict["lines_added"] = lines_added
+        if lines_edited is not UNSET:
+            field_dict["lines_edited"] = lines_edited
+        if lines_removed is not UNSET:
+            field_dict["lines_removed"] = lines_removed
         if output_type is not UNSET:
             field_dict["output_type"] = output_type
         if raw is not UNSET:
@@ -133,6 +141,8 @@ class BasePromptTemplateVersionResponse:
         from ..models.user_info import UserInfo
 
         d = dict(src_dict)
+        content_changed = d.pop("content_changed")
+
         created_at = isoparse(d.pop("created_at"))
 
         def _parse_created_by_user(data: object) -> Union["UserInfo", None]:
@@ -151,12 +161,6 @@ class BasePromptTemplateVersionResponse:
         created_by_user = _parse_created_by_user(d.pop("created_by_user"))
 
         id = d.pop("id")
-
-        lines_added = d.pop("lines_added")
-
-        lines_edited = d.pop("lines_edited")
-
-        lines_removed = d.pop("lines_removed")
 
         model_changed = d.pop("model_changed")
 
@@ -186,6 +190,12 @@ class BasePromptTemplateVersionResponse:
 
         version = d.pop("version")
 
+        lines_added = d.pop("lines_added", UNSET)
+
+        lines_edited = d.pop("lines_edited", UNSET)
+
+        lines_removed = d.pop("lines_removed", UNSET)
+
         def _parse_output_type(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -198,18 +208,19 @@ class BasePromptTemplateVersionResponse:
         raw = d.pop("raw", UNSET)
 
         base_prompt_template_version_response = cls(
+            content_changed=content_changed,
             created_at=created_at,
             created_by_user=created_by_user,
             id=id,
-            lines_added=lines_added,
-            lines_edited=lines_edited,
-            lines_removed=lines_removed,
             model_changed=model_changed,
             settings=settings,
             settings_changed=settings_changed,
             template=template,
             updated_at=updated_at,
             version=version,
+            lines_added=lines_added,
+            lines_edited=lines_edited,
+            lines_removed=lines_removed,
             output_type=output_type,
             raw=raw,
         )
