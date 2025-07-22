@@ -12,14 +12,12 @@ from galileo.resources.api.jobs import (
     get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get,
 )
 from galileo.resources.models import JobDB
-from galileo.utils.catch_log import DecorateAllMethods
 from galileo_core.constants.job import JobStatus
-from galileo_core.constants.run import RunDefaults
 
 _logger = logging.getLogger(__name__)
 
 
-class Jobs(BaseClientModel, DecorateAllMethods):
+class Jobs(BaseClientModel):  # , DecorateAllMethods):
     def get(self, job_id: UUID4) -> JobDB:
         response = get_job_jobs_job_id_get.sync(client=self.client, job_id=str(job_id))
         if not isinstance(response, JobDB):
@@ -30,10 +28,14 @@ class Jobs(BaseClientModel, DecorateAllMethods):
         response = get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync(
             client=self.client, project_id=str(project_id), run_id=str(run_id)
         )
+        print(f"get_scorer_jobs response: {response}")
         if not isinstance(response, list):
             _logger.warning(f"Failed to get scorer jobs for project {project_id}, run {run_id}. Response: {response}")
             return []
-        return [job for job in response if job.job_name == RunDefaults.prompt_scorer_job_name]
+        # TODO keep the same enum filter for RunDefaults?
+        # from rungalileo.schemas.content.jobs import JobName
+        # JobName.log_stream_scorer / JobName.log_stream_run
+        return [job for job in response if job.job_name == "log_stream_scorer"]  # RunDefaults.prompt_scorer_job_name]
 
 
 def scorer_jobs_status(project_id: Optional[UUID4] = None, run_id: Optional[UUID4] = None) -> None:
@@ -41,7 +43,12 @@ def scorer_jobs_status(project_id: Optional[UUID4] = None, run_id: Optional[UUID
     scorer_jobs = jobs_client.get_scorer_jobs(project_id=project_id, run_id=run_id)
     for job in scorer_jobs:
         scorer_name = "scorer"
-        if "prompt_scorer_settings" in job.request_data and "scorer_name" in job.request_data["prompt_scorer_settings"]:
+        # TODO No request data in the job? PQ expected it always
+        if (
+            "request_data" in job
+            and "prompt_scorer_settings" in job.request_data
+            and "scorer_name" in job.request_data["prompt_scorer_settings"]
+        ):
             scorer_name = job.request_data["prompt_scorer_settings"]["scorer_name"]
 
         if JobStatus.is_incomplete(job.status):
@@ -49,6 +56,7 @@ def scorer_jobs_status(project_id: Optional[UUID4] = None, run_id: Optional[UUID
         elif JobStatus.is_failed(job.status):
             print(f"{scorer_name.lstrip('_')}: Failed ❌, error was: {job.error_message}")
         else:
+            # TODO do we expect scorer_name to be "scorer"?
             print(f"{scorer_name.lstrip('_')}: Done ✅")
 
 

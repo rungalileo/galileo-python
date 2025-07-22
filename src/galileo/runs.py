@@ -35,6 +35,7 @@ class Runs(BaseClientModel, DecorateAllMethods):
         response = upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_patch.sync(
             client=self.client, project_id=str(project_id), run_id=str(run_id), body=body
         )
+        logger.debug(f"Update scorer settings response: {response}")
 
         if not isinstance(response, RunScorerSettingsResponse):
             if isinstance(response, HTTPValidationError):

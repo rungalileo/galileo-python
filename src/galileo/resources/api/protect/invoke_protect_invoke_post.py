@@ -1,3 +1,4 @@
+import traceback
 from http import HTTPStatus
 from typing import Any, Optional, Union
 
@@ -36,7 +37,8 @@ def _parse_response(
                 response_200_type_0 = BaseResponse.from_dict(data)
 
                 return response_200_type_0
-            except:  # noqa: E722
+            except Exception:  # noqa: E722
+                traceback.print_exc()
                 pass
             if not isinstance(data, dict):
                 raise TypeError()

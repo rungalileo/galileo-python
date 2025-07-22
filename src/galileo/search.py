@@ -21,7 +21,6 @@ from galileo.resources.models import (
     LogRecordsSortClause,
     LogRecordsTextFilter,
 )
-from galileo.utils.catch_log import DecorateAllMethods
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +36,7 @@ FilterType = Union[
 ]
 
 
-class Search(BaseClientModel, DecorateAllMethods):
+class Search(BaseClientModel):  # , DecorateAllMethods):
     def query(
         self,
         project_id: UUID4,
@@ -55,8 +54,8 @@ class Search(BaseClientModel, DecorateAllMethods):
         body = LogRecordsQueryRequest(
             experiment_id=experiment_id,
             log_stream_id=log_stream_id,
-            filters=filters,
-            sort=sort,
+            filters=filters or [],
+            sort=sort or LogRecordsSortClause(column_id="created_at", ascending=False),
             limit=limit,
             starting_token=starting_token,
         )
@@ -70,6 +69,7 @@ class Search(BaseClientModel, DecorateAllMethods):
         api_function = api_function_map[record_type]
 
         response = api_function.sync(client=self.client, project_id=str(project_id), body=body)
+        logger.debug(f"Query {record_type.value} response: {response}")
 
         if not isinstance(response, LogRecordsQueryResponse):
             if isinstance(response, HTTPValidationError):

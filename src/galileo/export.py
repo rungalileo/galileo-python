@@ -1,5 +1,6 @@
 import csv
 import json
+import logging
 from collections.abc import Iterator
 from typing import Any, Optional, Union
 
@@ -7,7 +8,7 @@ from pydantic import UUID4
 
 from galileo.base import BaseClientModel
 from galileo.resources.api.trace.export_records_projects_project_id_export_records_post import (
-    sync_detailed as export_records_sync,
+    stream_detailed as export_records_stream,
 )
 from galileo.resources.models import (
     LLMExportFormat,
@@ -20,6 +21,8 @@ from galileo.resources.models import (
     LogRecordsTextFilter,
     RootType,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class ExportClient(BaseClientModel):
@@ -44,7 +47,7 @@ class ExportClient(BaseClientModel):
         column_ids: Optional[list[str]] = None,
         sort: Optional[LogRecordsSortClause] = None,
     ) -> Iterator[dict[str, Any]]:
-        response = export_records_sync(
+        response = export_records_stream(
             client=self.client,
             project_id=project_id,
             body=LogRecordsExportRequest(
@@ -57,10 +60,9 @@ class ExportClient(BaseClientModel):
                 sort=sort,
             ),
         )
+        logger.debug(f"Export records response: {response}")
 
-        line_iterator = (
-            line.decode("utf-8") if isinstance(line, bytes) else line for line in response.content.iter_lines()
-        )
+        line_iterator = (line.decode("utf-8") if isinstance(line, bytes) else line for line in response.iter_lines())
 
         if export_format == LLMExportFormat.JSONL:
             for line in line_iterator:

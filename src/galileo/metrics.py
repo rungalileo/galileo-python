@@ -97,7 +97,7 @@ class Metrics(BaseClientModel):  # , DecorateAllMethods):
             end_time=end_time,
             experiment_id=experiment_id,
             log_stream_id=log_stream_id,
-            filters=filters,
+            filters=filters or [],
             group_by=group_by,
             interval=interval,
         )
@@ -105,6 +105,7 @@ class Metrics(BaseClientModel):  # , DecorateAllMethods):
         response = query_metrics_projects_project_id_metrics_search_post.sync(
             client=self.client, project_id=str(project_id), body=body
         )
+        _logger.debug(f"Query metrics response: {response}")
 
         if not isinstance(response, LogRecordsMetricsResponse):
             if isinstance(response, HTTPValidationError):
