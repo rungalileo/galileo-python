@@ -1,4 +1,4 @@
-import os
+from os import getenv
 from typing import Optional, Union
 
 from pydantic import UUID4
@@ -34,7 +34,8 @@ def _get_project_id(
     if project_id:
         return str(project_id)
 
-    project_name = project_name if project_name else os.getenv("GALILEO_PROJECT_NAME")
+    # Load the project name from environment variable if not provided
+    project_name = project_name if project_name else getenv("GALILEO_PROJECT")
 
     if project_name:
         project = Projects(client=client).get(name=project_name)

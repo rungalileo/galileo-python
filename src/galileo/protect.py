@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from os import getenv
 from typing import Optional, Union
 
 from pydantic import UUID4
@@ -31,6 +32,10 @@ class Protect(BaseClientModel, DecorateAllMethods):
         metadata: Optional[dict[str, str]] = None,
         headers: Optional[dict[str, str]] = None,
     ) -> Optional[Union[Response, HTTPValidationError]]:
+        # Load the project name from environment variable if not provided
+        if not project_id and not project_name:
+            project_name = getenv("GALILEO_PROJECT")
+
         request = Request(
             payload=payload,
             prioritized_rulesets=prioritized_rulesets or [],
