@@ -108,6 +108,7 @@ class TestAInvoke:
         headers: dict,
         stage_version: Optional[int],
     ) -> None:
+        # Clear the Galileo_PROJECT environment variable to avoid conflicts
         os.environ.pop("GALILEO_PROJECT", None)
 
         mock_invoke_post_async.return_value = invoke_response()
