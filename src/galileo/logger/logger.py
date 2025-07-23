@@ -92,7 +92,7 @@ class GalileoLogger(GalileoBatchLogger, GalileoStreamingLogger, DecorateAllMetho
     trace = logger.start_trace(input="Who's a good bot?")
     logger.add_retriever_span(
         input="Who's a good bot?",
-        documents=["Research shows that I am a good bot."],
+        output=["Research shows that I am a good bot."],
         duration_ns=1000
     )
     logger.add_llm_span(
