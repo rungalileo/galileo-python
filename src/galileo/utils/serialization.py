@@ -92,6 +92,7 @@ class EventSerializer(JSONEncoder):
                 from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
                 from langchain_core.outputs import ChatGeneration, LLMResult
                 from langchain_core.prompt_values import ChatPromptValue
+                from langchain_core.documents import Document as LangchainDocument
 
                 if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
                     return self.default(obj.messages)
@@ -117,6 +118,9 @@ class EventSerializer(JSONEncoder):
                     dumped = obj.model_dump(include={"content", "type"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     return self.default(dumped)
+
+                if isinstance(obj, LangchainDocument):
+                    return self.default(obj.model_dump(include={"page_content", "metadata"}))
 
                 if isinstance(obj, Serializable):
                     ret = obj.to_json()

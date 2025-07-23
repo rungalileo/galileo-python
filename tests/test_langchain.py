@@ -150,7 +150,7 @@ class TestGalileoCallback:
         assert callback._nodes[str(run_id)].node_type == "agent"
         assert (
             callback._nodes[str(run_id)].span_params["input"]
-            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?"}]}'
+            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?", "role": "user"}}]}'
         )
 
         # End chain
@@ -163,7 +163,7 @@ class TestGalileoCallback:
         assert traces[0].spans[0].type == "agent"
         assert (
             traces[0].spans[0].input
-            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?"}]}'
+            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?", "role": "user"}]}'
         )
         assert traces[0].spans[0].output == '{"result": "test answer"}'
         assert traces[0].spans[0].step_number is None
@@ -399,7 +399,9 @@ class TestGalileoCallback:
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "tool"
         assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
-        assert callback._nodes[str(run_id)].span_params["output"] == "tool response"
+        assert callback._nodes[str(run_id)].span_params["output"] == (
+            '{"content": "tool response", "tool_call_id": "1", "status": "success", "role": "tool"}'
+        )
 
         # Start tool
         callback.on_tool_start(
@@ -454,7 +456,9 @@ class TestGalileoCallback:
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "tool"
         assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
-        assert callback._nodes[str(run_id)].span_params["output"] == "tool response"
+        assert callback._nodes[str(run_id)].span_params["output"] == (
+            '{"content": "tool response", "tool_call_id": "1", "status": "success", "role": "tool"}'
+        )
 
         # Start tool
         callback.on_tool_start(
