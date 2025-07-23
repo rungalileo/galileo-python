@@ -189,6 +189,7 @@ class GalileoCallback(BaseCallbackHandler):
                 tags=tags,
                 created_at=created_at,
                 step_number=step_number,
+                tool_call_id=node.span_params.get("tool_call_id"),
             )
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
