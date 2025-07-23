@@ -392,8 +392,6 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a chat model starts."""
-        # print(f"on_chat_model_start serialized: {type(serialized)}, {serialized}")
-        # print(f"on_chat_model_start messages: {type(messages)}, {messages}")
         node_type = "chat"
         node_name = GalileoCallback._get_node_name(node_type, serialized)
         invocation_params = kwargs.get("invocation_params", {})
@@ -403,14 +401,8 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
 
         # Serialize messages safely
         try:
-            for batch in messages:
-                for message in batch:
-                    print(type(message))
-            # flattened_messages = [message.model_dump() for batch in messages for message in batch]
             flattened_messages = [message for batch in messages for message in batch]
-            prepped_messages = flattened_messages
-            _logger.info(f"Messages before serialization: {prepped_messages}")
-            serialized_messages = json.loads(json.dumps(prepped_messages, cls=EventSerializer))
+            serialized_messages = json.loads(json.dumps(flattened_messages, cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize chat messages: {e}")
             serialized_messages = str(messages)
