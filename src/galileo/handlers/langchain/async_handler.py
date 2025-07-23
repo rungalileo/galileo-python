@@ -474,7 +474,11 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             return obj
         if hasattr(obj, "update") and isinstance(obj.update, dict) and "messages" in obj.update:
             update_messages = obj.update["messages"]
-            if isinstance(update_messages, list) and len(update_messages) > 0 and isinstance(update_messages[-1], ToolMessage):
+            if (
+                isinstance(update_messages, list)
+                and len(update_messages) > 0
+                and isinstance(update_messages[-1], ToolMessage)
+            ):
                 return update_messages[-1]
         return None
 

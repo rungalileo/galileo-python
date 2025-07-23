@@ -44,10 +44,7 @@ def serialize_datetime(v: dt.datetime) -> str:
 
 
 def map_langchain_role(role: str) -> str:
-    role_map = {
-        "ai": "assistant",
-        "human": "user",
-    }
+    role_map = {"ai": "assistant", "human": "user"}
     return role_map.get(role, role)
 
 
@@ -90,9 +87,8 @@ class EventSerializer(JSONEncoder):
                 return str(obj)
 
             if is_langchain_available:
-                from langchain_core.load.serializable import Serializable
-
                 from langchain_core.agents import AgentAction, AgentFinish
+                from langchain_core.load.serializable import Serializable
                 from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
                 from langchain_core.outputs import ChatGeneration, LLMResult
                 from langchain_core.prompt_values import ChatPromptValue
