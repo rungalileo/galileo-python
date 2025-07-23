@@ -1,3 +1,4 @@
+import logging
 import uuid
 from typing import Optional
 from unittest.mock import ANY, Mock, patch
@@ -5,6 +6,7 @@ from unittest.mock import ANY, Mock, patch
 import pytest
 from pydantic import UUID4
 
+from galileo.projects import Project
 from galileo.resources.models import HTTPValidationError
 from galileo.resources.models.stage_db import StageDB as APIStageDB
 from galileo.stages import create_stage, get_stage, pause_stage, resume_stage, update_stage
@@ -102,6 +104,44 @@ def test_create_stage_generates_name_and_type(mock_ts_name: Mock, mock_api: Mock
     assert body.type_ == StageType.central
     assert stage.type == StageType.central.value
     assert stage.paused is True
+
+
+@patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
+@patch("galileo.projects.get_projects_projects_get.sync_detailed")
+def test_create_stage_loads_project_from_env(mock_get_project: Mock, mock_api: Mock):
+    """If no project_id or name is provided, it should load the project name from env."""
+    with patch.dict("os.environ", {"GALILEO_PROJECT": "test_project"}):
+        mock_api.return_value = None
+
+        rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+        stage_name = "test-central-stage-with-rules"
+
+        project = Project()
+        project.id = str(FIXED_PROJECT_ID)
+        mock_get_project.return_value = project
+
+        _ = create_stage(name=stage_name, rulesets=rules, stage_type=StageType.central)
+
+        mock_api.assert_called_once()
+        api_call_args = mock_api.call_args.kwargs
+        body = api_call_args["body"]
+
+        assert body.project_id == str(FIXED_PROJECT_ID)
+
+
+def test_create_stage_returns_none_if_no_project_id(caplog):
+    """If no project_id or name is provided, it should load the project name from env."""
+    # Clear the Galileo_PROJECT environment variable to avoid conflicts
+    with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
+        caplog.set_level(logging.WARNING)
+
+        rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+        stage_name = "test-central-stage-with-rules"
+
+        stage = create_stage(name=stage_name, rulesets=rules, stage_type=StageType.central)
+        assert stage is None, "Expected create_stage to return None when no project_id is provided."
+
+        assert "Either project_id or project_name must be provided." in caplog.text
 
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
