@@ -133,17 +133,16 @@ def test_create_stage_loads_project_from_env(mock_get_project: Mock, mock_api: M
 def test_create_stage_returns_none_if_no_project_id(caplog):
     """If no project_id or name is provided, it should load the project name from env."""
     # Clear the Galileo_PROJECT environment variable to avoid conflicts
-    os.environ.pop("GALILEO_PROJECT", None)
+    with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
+        caplog.set_level(logging.WARNING)
 
-    caplog.set_level(logging.WARNING)
+        rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+        stage_name = "test-central-stage-with-rules"
 
-    rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
-    stage_name = "test-central-stage-with-rules"
+        stage = create_stage(name=stage_name, rulesets=rules, stage_type=StageType.central)
+        assert stage is None, "Expected create_stage to return None when no project_id is provided."
 
-    stage = create_stage(name=stage_name, rulesets=rules, stage_type=StageType.central)
-    assert stage is None, "Expected create_stage to return None when no project_id is provided."
-
-    assert "Either project_id or project_name must be provided." in caplog.text
+        assert "Either project_id or project_name must be provided." in caplog.text
 
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
