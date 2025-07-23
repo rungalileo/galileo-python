@@ -14,7 +14,7 @@ from galileo.utils.serialization import EventSerializer, convert_to_string_dict,
 _logger = logging.getLogger(__name__)
 
 try:
-    from langchain_core.agents import AgentAction, AgentFinish
+    from langchain_core.agents import AgentFinish
     from langchain_core.callbacks.base import AsyncCallbackHandler
     from langchain_core.documents import Document
     from langchain_core.messages import BaseMessage, ToolMessage
@@ -23,7 +23,6 @@ except ImportError:
     _logger.warning("Failed to import langchain, using stubs")
     AsyncCallbackHandler = object
     Document = object
-    AgentAction = object
     BaseMessage = object
     LLMResult = object
     AgentFinish = object
