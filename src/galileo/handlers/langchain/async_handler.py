@@ -17,7 +17,7 @@ try:
     from langchain_core.agents import AgentAction, AgentFinish
     from langchain_core.callbacks.base import AsyncCallbackHandler
     from langchain_core.documents import Document
-    from langchain_core.messages import BaseMessage
+    from langchain_core.messages import BaseMessage, ToolMessage
     from langchain_core.outputs import LLMResult
 except ImportError:
     _logger.warning("Failed to import langchain, using stubs")
@@ -27,6 +27,7 @@ except ImportError:
     BaseMessage = object
     LLMResult = object
     AgentFinish = object
+    ToolMessage = object
 
 
 class GalileoAsyncCallback(AsyncCallbackHandler):
@@ -188,6 +189,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
                 tags=tags,
                 created_at=created_at,
                 step_number=step_number,
+                tool_call_id=node.span_params.get("tool_call_id"),
             )
         else:
             _logger.warning(f"Unknown node type: {node.node_type}")
@@ -468,34 +470,45 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a tool node starts."""
-        print(f"on_tool_start serialized: {type(serialized)}, {serialized}")
-        print(f"on_tool_start input_str: {type(input_str)}, {input_str}")
         node_type = "tool"
         node_name = GalileoCallback._get_node_name(node_type, serialized)
+        if "inputs" in kwargs and isinstance(kwargs["inputs"], dict):
+            input_str = json.dumps(kwargs["inputs"], cls=EventSerializer)
         await self._start_node(
             node_type,
             parent_run_id,
             run_id,
             name=node_name,
-            input=json.dumps(json.loads(input_str), cls=EventSerializer),
+            input=input_str,
             tags=tags,
             metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
         )
+
+    @staticmethod
+    def _find_tool_message(obj: Any) -> Optional[ToolMessage]:
+        if isinstance(obj, ToolMessage):
+            return obj
+        if hasattr(obj, "update") and isinstance(obj.update, dict) and "messages" in obj.update:
+            update_messages = obj.update["messages"]
+            if isinstance(update_messages, list) and len(update_messages) > 0 and isinstance(update_messages[-1], ToolMessage):
+                return update_messages[-1]
+        return None
 
     async def on_tool_end(
         self, output: Any, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a tool node ends."""
         print(f"on_tool_end output: {type(output)}, {output}")
-        output_data = json.loads(json.dumps(output, cls=EventSerializer))
-        print(f"on_tool_end output_data: {type(output_data)}, {output_data}")
-        # if isinstance(output, dict) and "content" in output:
-        #     output = serialize_to_str(output["content"])
-        # elif hasattr(output, "content"):
-        #     output = serialize_to_str(output.content)
-        # else:
-        #     output = serialize_to_str(output)
-        await self._end_node(run_id, output=output_data["content"], tool_call_id=output_data["tool_call_id"])
+        end_node_kwargs = {}
+        if (tool_message := self._find_tool_message(output)) is not None:
+            print(f"on_tool_end tool_message: {tool_message}")
+            end_node_kwargs["tool_call_id"] = tool_message.tool_call_id
+            end_node_kwargs["output"] = json.dumps(tool_message.content, cls=EventSerializer)
+        else:
+            print(f"on_tool_end no tool message found")
+            end_node_kwargs["output"] = json.dumps(output, cls=EventSerializer)
+        print(f"on_tool_end end_node_kwargs: {end_node_kwargs}")
+        await self._end_node(run_id, **end_node_kwargs)
 
     async def on_retriever_start(
         self,
