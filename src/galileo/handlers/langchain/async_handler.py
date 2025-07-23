@@ -505,10 +505,17 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         """Langchain callback when a tool node ends."""
         end_node_kwargs = {}
         if (tool_message := self._find_tool_message(output)) is not None:
+            end_node_kwargs["output"] = tool_message.content
             end_node_kwargs["tool_call_id"] = tool_message.tool_call_id
-            end_node_kwargs["output"] = json.dumps(tool_message.content, cls=EventSerializer)
         else:
-            end_node_kwargs["output"] = json.dumps(output, cls=EventSerializer)
+            end_node_kwargs["output"] = output
+        # This will pass-through strings like 'blah' without encoding them
+        # into '"blah"', but will turn everything else into a JSON string.
+        end_node_kwargs["output"] = (
+            end_node_kwargs["output"]
+            if isinstance(end_node_kwargs["output"], str)
+            else json.dumps(end_node_kwargs["output"], cls=EventSerializer)
+        )
         await self._end_node(run_id, **end_node_kwargs)
 
     async def on_retriever_start(

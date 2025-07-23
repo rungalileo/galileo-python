@@ -5,7 +5,8 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from langchain_core.agents import AgentFinish
 from langchain_core.documents import Document
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+from langchain_core.outputs import ChatGeneration, LLMResult
 
 from galileo import Message, MessageRole
 from galileo.handlers.langchain import GalileoCallback
@@ -150,7 +151,7 @@ class TestGalileoCallback:
         assert callback._nodes[str(run_id)].node_type == "agent"
         assert (
             callback._nodes[str(run_id)].span_params["input"]
-            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?", "role": "user"}}]}'
+            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?", "role": "user"}]}'
         )
 
         # End chain
@@ -218,12 +219,10 @@ class TestGalileoCallback:
         callback.on_llm_new_token("AI", run_id=run_id)
 
         # End LLM
-        llm_response = MagicMock()
-        llm_response.generations = [[MagicMock()]]
-        llm_response.llm_output = {"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}}
-
-        # Mock dict method on the generation
-        llm_response.generations[0][0].dict.return_value = {"text": "AI is a technology..."}
+        llm_response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="AI is a technology..."))]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
 
         callback.on_llm_end(response=llm_response, run_id=run_id, parent_run_id=parent_id)
 
@@ -530,10 +529,16 @@ class TestGalileoCallback:
         )
 
         # End LLM
-        llm_response = MagicMock()
-        llm_response.generations = [[MagicMock()]]
-        llm_response.llm_output = {"token_usage": {"total_tokens": 100}}
-        llm_response.generations[0][0].model_dump.return_value = {"text": "LLMs have seen significant progress..."}
+        llm_response = LLMResult(
+            generations=[
+                [
+                    ChatGeneration(
+                        message=AIMessage(content="LLMs have seen significant progress..."),
+                        generation_info={"token_usage": {"total_tokens": 100}},
+                    )
+                ]
+            ]
+        )
 
         callback.on_llm_end(response=llm_response, run_id=llm_id, parent_run_id=chain_id)
 
@@ -547,7 +552,11 @@ class TestGalileoCallback:
         )
 
         # End tool
-        callback.on_tool_end(output="Verification complete: accurate statement", run_id=tool_id, parent_run_id=chain_id)
+        callback.on_tool_end(
+            output=ToolMessage(content="Verification complete: accurate statement", tool_call_id="1"),
+            run_id=tool_id,
+            parent_run_id=chain_id,
+        )
 
         # End chain
         callback.on_chain_end(
@@ -583,7 +592,7 @@ class TestGalileoCallback:
             )
         ]
         assert traces[0].spans[0].spans[1].output == Message(
-            content='{"text": "LLMs have seen significant progress..."}',
+            content="LLMs have seen significant progress...",
             role=MessageRole.assistant,
             tool_call_id=None,
             tool_calls=None,
@@ -739,12 +748,10 @@ class TestGalileoCallback:
         callback.on_llm_new_token("AI", run_id=llm_run_id)
 
         # End LLM
-        llm_response = MagicMock()
-        llm_response.generations = [[MagicMock()]]
-        llm_response.llm_output = {"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}}
-
-        # Mock dict method on the generation
-        llm_response.generations[0][0].dict.return_value = {"text": "AI is a technology..."}
+        llm_response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="AI is a technology..."))]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
 
         callback.on_llm_end(response=llm_response, run_id=llm_run_id, parent_run_id=parent_id)
 

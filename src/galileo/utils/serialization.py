@@ -87,14 +87,14 @@ class EventSerializer(JSONEncoder):
                 return str(obj)
 
             if is_langchain_available:
-                from langchain_core.agents import AgentAction, AgentFinish
+                from langchain_core.agents import AgentAction
+                from langchain_core.documents import Document as LangchainDocument
                 from langchain_core.load.serializable import Serializable
                 from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
                 from langchain_core.outputs import ChatGeneration, LLMResult
                 from langchain_core.prompt_values import ChatPromptValue
-                from langchain_core.documents import Document as LangchainDocument
 
-                if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
+                if isinstance(obj, (AgentAction, ChatPromptValue)):
                     return self.default(obj.messages)
                 elif isinstance(obj, ChatGeneration):
                     return self.default(obj.message)
@@ -123,8 +123,12 @@ class EventSerializer(JSONEncoder):
                     return self.default(obj.model_dump(mode="json", include={"page_content", "metadata"}))
 
                 if isinstance(obj, Serializable):
-                    ret = obj.to_json()
-                    return ret
+                    serialized = obj.to_json()
+                    if "kwargs" in serialized:
+                        kwargs = serialized["kwargs"]
+                        kwargs.pop("type", None)
+                        return kwargs
+                    return serialized
 
             if is_dataclass(obj):
                 return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
