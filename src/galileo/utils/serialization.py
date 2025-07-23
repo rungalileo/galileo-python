@@ -96,17 +96,8 @@ class EventSerializer(JSONEncoder):
                 from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
                 from langchain_core.outputs import ChatGeneration, LLMResult
                 from langchain_core.prompt_values import ChatPromptValue
-                from langgraph.types import Command
 
-                if isinstance(obj, Command):
-                    print(f"Command: {obj}")
-                    if isinstance(obj.update, dict) and "messages" in obj.update:
-                        update_messages = obj.update["messages"]
-                        if isinstance(update_messages, list) and len(update_messages) > 0 and isinstance(update_messages[-1], ToolMessage):
-                            update_messages[-1].tool_call_id = obj.id
-                        obj.update["messages"] = update_messages
-                    return self.default(obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True))
-                elif isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
+                if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
                     print(f"AgentFinish, AgentAction, ChatPromptValue: {obj}")
                     return self.default(obj.messages)
                 elif isinstance(obj, ChatGeneration):
