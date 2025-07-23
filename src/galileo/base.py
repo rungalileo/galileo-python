@@ -1,6 +1,7 @@
 from typing import Optional
 
 from galileo.api_client import GalileoApiClient
+from galileo.config import GalileoSDKConfig
 
 
 class BaseClientModel:
@@ -18,4 +19,7 @@ class BaseClientModel:
         if client is not None:
             self.client = client
         else:
-            self.client = GalileoApiClient()
+            config = GalileoSDKConfig.get()
+            # Accessing the api_client property triggers the token refresh logic
+            _ = config.api_client
+            self.client = GalileoApiClient(base_url=str(config.api_url), token=config.jwt_token.get_secret_value())
