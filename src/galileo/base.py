@@ -22,4 +22,4 @@ class BaseClientModel:
             config = GalileoSDKConfig.get()
             # Accessing the api_client property triggers the token refresh logic
             _ = config.api_client
-            self.client = GalileoApiClient(base_url=str(config.api_url), token=config.jwt_token.get_secret_value())
+            self.client = GalileoApiClient(_base_url=str(config.api_url), token=config.jwt_token.get_secret_value())

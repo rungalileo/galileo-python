@@ -50,7 +50,7 @@ class GalileoApiClient(AuthenticatedClient):
             self._headers[self.client_type_header_name] = self.client_type_header_value
 
             self._client: httpx.Client = httpx.Client(
-                base_url=self.base_url,
+                base_url=self._base_url,
                 cookies=self._cookies,
                 headers=self._headers,
                 timeout=self._timeout,
@@ -68,7 +68,7 @@ class GalileoApiClient(AuthenticatedClient):
             self._headers[self.client_type_header_name] = self.client_type_header_value
 
             self._async_client: httpx.AsyncClient = httpx.AsyncClient(
-                base_url=self.base_url,
+                base_url=self._base_url,
                 cookies=self._cookies,
                 headers=self._headers,
                 timeout=self._timeout,
