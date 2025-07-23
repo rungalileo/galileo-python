@@ -14,20 +14,19 @@ from galileo.utils.serialization import EventSerializer, convert_to_string_dict,
 _logger = logging.getLogger(__name__)
 
 try:
-    from langchain_core.agents import AgentAction, AgentFinish
+    from langchain_core.agents import AgentFinish
     from langchain_core.callbacks.base import BaseCallbackHandler
     from langchain_core.documents import Document
-    from langchain_core.messages import BaseMessage
+    from langchain_core.messages import BaseMessage, ToolMessage
     from langchain_core.outputs import LLMResult
 except ImportError:
     _logger.warning("Failed to import langchain, using stubs")
     BaseCallbackHandler = object
     Document = object
-    AgentAction = object
     BaseMessage = object
     LLMResult = object
     AgentFinish = object
-
+    ToolMessage = object
 
 _root_node: contextvars.ContextVar[Optional[Node]] = contextvars.ContextVar("langchain_root_node", default=None)
 
@@ -419,14 +418,11 @@ class GalileoCallback(BaseCallbackHandler):
 
         # Serialize messages safely
         try:
-            # flattened_messages = [message.model_dump() for batch in messages for message in batch]
             flattened_messages = [message for batch in messages for message in batch]
-            _logger.info(f"Messages before serialization: {flattened_messages}")
             serialized_messages = json.loads(json.dumps(flattened_messages, cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize chat messages: {e}")
             serialized_messages = str(messages)
-        _logger.info(f"Messages after serialization: {serialized_messages}")
 
         self._start_node(
             node_type,
@@ -449,7 +445,6 @@ class GalileoCallback(BaseCallbackHandler):
         token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
 
         try:
-            # flattened_messages = [message.model_dump() for batch in response.generations for message in batch]
             flattened_messages = [message for batch in response.generations for message in batch]
             output = json.loads(json.dumps(flattened_messages[0], cls=EventSerializer))
         except Exception as e:
@@ -478,6 +473,8 @@ class GalileoCallback(BaseCallbackHandler):
         """Langchain callback when a tool node starts."""
         node_type = "tool"
         node_name = self._get_node_name(node_type, serialized)
+        if "inputs" in kwargs and isinstance(kwargs["inputs"], dict):
+            input_str = json.dumps(kwargs["inputs"], cls=EventSerializer)
         self._start_node(
             node_type,
             parent_run_id,
@@ -488,15 +485,25 @@ class GalileoCallback(BaseCallbackHandler):
             metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
         )
 
+    @staticmethod
+    def _find_tool_message(obj: Any) -> Optional[ToolMessage]:
+        if isinstance(obj, ToolMessage):
+            return obj
+        if hasattr(obj, "update") and isinstance(obj.update, dict) and "messages" in obj.update:
+            update_messages = obj.update["messages"]
+            if isinstance(update_messages, list) and len(update_messages) > 0 and isinstance(update_messages[-1], ToolMessage):
+                return update_messages[-1]
+        return None
+
     def on_tool_end(self, output: Any, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any) -> Any:
         """Langchain callback when a tool node ends."""
-        if isinstance(output, dict) and "content" in output:
-            output = serialize_to_str(output["content"])
-        elif hasattr(output, "content"):
-            output = serialize_to_str(output.content)
+        end_node_kwargs = {}
+        if (tool_message := self._find_tool_message(output)) is not None:
+            end_node_kwargs["output"] = json.dumps(tool_message.content, cls=EventSerializer)
+            end_node_kwargs["tool_call_id"] = tool_message.tool_call_id
         else:
-            output = serialize_to_str(output)
-        self._end_node(run_id, output=output)
+            end_node_kwargs["output"] = json.dumps(output, cls=EventSerializer)
+        self._end_node(run_id, **end_node_kwargs)
 
     def on_retriever_start(
         self,
