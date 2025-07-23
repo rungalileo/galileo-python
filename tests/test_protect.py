@@ -1,4 +1,3 @@
-import os
 from typing import Optional
 from unittest.mock import ANY, AsyncMock, Mock, patch
 from uuid import uuid4
@@ -108,9 +107,6 @@ class TestAInvoke:
         headers: dict,
         stage_version: Optional[int],
     ) -> None:
-        # Clear the Galileo_PROJECT environment variable to avoid conflicts
-        os.environ.pop("GALILEO_PROJECT", None)
-
         mock_invoke_post_async.return_value = invoke_response()
 
         current_project_id = uuid4() if include_project_id else None
@@ -378,35 +374,3 @@ def test_string_http_validation_error():
     assert detail_item.loc == ["api"]
     assert detail_item.msg == error_message
     assert detail_item.type_ == "string"
-
-
-@patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
-@mark.asyncio
-async def test_get_project_from_env(mock_invoke_post_async: Mock):
-    """
-    Tests that the project name is correctly loaded from the environment variable.
-    """
-    with patch.dict("os.environ", {"GALILEO_PROJECT": "test_project"}):
-        mock_invoke_post_async.return_value = invoke_response()
-
-        payload = Payload(input=A_PROTECT_INPUT)
-        stage_id = uuid4()
-        stage_name = A_STAGE_NAME
-
-        _ = await ainvoke(payload=payload, prioritized_rulesets=None, stage_id=stage_id, stage_name=stage_name)
-
-        body = Request(
-            payload=payload,
-            prioritized_rulesets=[],
-            project_id=None,
-            project_name="test_project",
-            stage_id=stage_id,
-            stage_name=stage_name,
-            timeout=10.0,
-        )
-
-        body_dict = body.model_dump(mode="json")
-        body_dict["prioritized_rulesets"] = body_dict.pop("rulesets", [])
-        expected_body = APIRequest.from_dict(body_dict)
-
-        mock_invoke_post_async.assert_called_once_with(client=ANY, body=expected_body)
