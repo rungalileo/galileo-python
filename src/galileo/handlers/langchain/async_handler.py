@@ -391,6 +391,8 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a chat model starts."""
+        # print(f"on_chat_model_start serialized: {type(serialized)}, {serialized}")
+        # print(f"on_chat_model_start messages: {type(messages)}, {messages}")
         node_type = "chat"
         node_name = GalileoCallback._get_node_name(node_type, serialized)
         invocation_params = kwargs.get("invocation_params", {})
@@ -400,11 +402,18 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
 
         # Serialize messages safely
         try:
-            flattened_messages = [message.dict() for batch in messages for message in batch]
-            serialized_messages = json.loads(json.dumps(flattened_messages, cls=EventSerializer))
+            for batch in messages:
+                for message in batch:
+                    print(type(message))
+            # flattened_messages = [message.model_dump() for batch in messages for message in batch]
+            flattened_messages = [message for batch in messages for message in batch]
+            prepped_messages = flattened_messages
+            _logger.info(f"Messages before serialization: {prepped_messages}")
+            serialized_messages = json.loads(json.dumps(prepped_messages, cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize chat messages: {e}")
             serialized_messages = str(messages)
+        _logger.info(f"Messages after serialization: {serialized_messages}")
 
         await self._start_node(
             node_type,
@@ -427,11 +436,17 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
 
         try:
-            flattened_messages = [message.dict() for batch in response.generations for message in batch]
+            for batch in response.generations:
+                for message in batch:
+                    print(type(message))
+            # flattened_messages = [message.model_dump() for batch in response.generations for message in batch]
+            flattened_messages = [message for batch in response.generations for message in batch]
+            _logger.info(f"Output before serialization: {flattened_messages}")
             output = json.loads(json.dumps(flattened_messages[0], cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize LLM output: {e}")
             output = str(response.generations)
+        _logger.info(f"Output after serialization: {output}")
 
         await self._end_node(
             run_id,
@@ -453,6 +468,8 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a tool node starts."""
+        print(f"on_tool_start serialized: {type(serialized)}, {serialized}")
+        print(f"on_tool_start input_str: {type(input_str)}, {input_str}")
         node_type = "tool"
         node_name = GalileoCallback._get_node_name(node_type, serialized)
         await self._start_node(
@@ -460,7 +477,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             parent_run_id,
             run_id,
             name=node_name,
-            input=input_str,
+            input=json.dumps(json.loads(input_str), cls=EventSerializer),
             tags=tags,
             metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
         )
@@ -469,13 +486,16 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         self, output: Any, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a tool node ends."""
-        if isinstance(output, dict) and "content" in output:
-            output = serialize_to_str(output["content"])
-        elif hasattr(output, "content"):
-            output = serialize_to_str(output.content)
-        else:
-            output = serialize_to_str(output)
-        await self._end_node(run_id, output=output)
+        print(f"on_tool_end output: {type(output)}, {output}")
+        output_data = json.loads(json.dumps(output, cls=EventSerializer))
+        print(f"on_tool_end output_data: {type(output_data)}, {output_data}")
+        # if isinstance(output, dict) and "content" in output:
+        #     output = serialize_to_str(output["content"])
+        # elif hasattr(output, "content"):
+        #     output = serialize_to_str(output.content)
+        # else:
+        #     output = serialize_to_str(output)
+        await self._end_node(run_id, output=output_data["content"], tool_call_id=output_data["tool_call_id"])
 
     async def on_retriever_start(
         self,

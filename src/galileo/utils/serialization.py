@@ -43,6 +43,14 @@ def serialize_datetime(v: dt.datetime) -> str:
         return _serialize_zoned_datetime(localized_dt)
 
 
+def map_langchain_role(role: str) -> str:
+    role_map = {
+        "ai": "assistant",
+        "human": "user",
+    }
+    return role_map.get(role, role)
+
+
 class EventSerializer(JSONEncoder):
     """
     Custom JSON encoder to assist in the serialization of a wide range of objects.
@@ -67,6 +75,7 @@ class EventSerializer(JSONEncoder):
                 return type(obj).__name__
 
             if is_dataclass(obj):
+                print(f"Dataclass: {obj}")
                 return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
 
             if isinstance(obj, UUID):
@@ -81,18 +90,11 @@ class EventSerializer(JSONEncoder):
             if isinstance(obj, date):
                 return obj.isoformat()
 
-            elif isinstance(obj, BaseModel):
-                return self.default(
-                    obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
-                )
             if isinstance(obj, Path):
                 return str(obj)
 
             if is_langchain_available:
                 from langchain_core.load.serializable import Serializable
-
-                if isinstance(obj, Serializable):
-                    return obj.to_json()
 
                 from langchain_core.agents import AgentAction, AgentFinish
                 from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
@@ -100,30 +102,48 @@ class EventSerializer(JSONEncoder):
                 from langchain_core.prompt_values import ChatPromptValue
 
                 if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
+                    print(f"AgentFinish, AgentAction, ChatPromptValue: {obj}")
                     return self.default(obj.messages)
                 elif isinstance(obj, ChatGeneration):
+                    print(f"ChatGeneration: {type(obj)}")
                     return self.default(obj.message)
                 elif isinstance(obj, LLMResult):
+                    print(f"LLMResult: {type(obj)}")
                     return self.default(obj.generations[0])
-                elif isinstance(obj, BaseMessage):
+                elif isinstance(obj, (AIMessageChunk, AIMessage)):
                     # Map the `type` to `role`.
-                    dumped = obj.model_dump(include={"content", "type"})
-                    dumped["role"] = dumped.pop("type")
-                    return self.default(dumped)
-                elif isinstance(obj, (AIMessageChunk, AIMessage)) and obj.tool_calls:
-                    # Map the `type` to `role`.
-                    dumped = obj.model_dump(include={"content", "type", "tool_calls"})
-                    dumped["role"] = dumped.pop("type")
+                    print(f"AIMessageChunk, AIMessage: {type(obj)}")
+                    dumped = obj.model_dump(include={"content", "type", "additional_kwargs"})
+                    dumped["role"] = map_langchain_role(dumped.pop("type"))
+                    additional_kwargs = dumped.pop("additional_kwargs", {})
+                    if "tool_calls" in additional_kwargs:
+                        dumped["tool_calls"] = additional_kwargs.pop("tool_calls")
                     return self.default(dumped)
                 elif isinstance(obj, ToolMessage):
                     # Map the `type` to `role`.
+                    print(f"ToolMessage: {obj}")
                     dumped = obj.model_dump(include={"content", "type", "status", "tool_call_id"})
-                    dumped["role"] = dumped.pop("type")
+                    dumped["role"] = map_langchain_role(dumped.pop("type"))
+                    print(f"ToolMessage dumped: {dumped}")
                     return self.default(dumped)
-                elif isinstance(obj, BaseModel):
-                    return self.default(
-                        obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
-                    )
+                elif isinstance(obj, BaseMessage):
+                    # Map the `type` to `role`.
+                    print(f"BaseMessage: {type(obj)}")
+                    dumped = obj.model_dump(include={"content", "type"})
+                    dumped["role"] = map_langchain_role(dumped.pop("type"))
+                    return self.default(dumped)
+
+                if isinstance(obj, Serializable):
+                    print(f"Serializable: {type(obj)}")
+                    ret = obj.to_json()
+                    print(f"Serializable to_json: {ret}")
+                    return ret
+
+            if isinstance(obj, BaseModel):
+                print(f"BaseModel: {type(obj)}")
+                return self.default(
+                    obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
+                )
 
             # 64-bit integers might overflow the JavaScript safe integer range.
             if isinstance(obj, int):
@@ -137,20 +157,25 @@ class EventSerializer(JSONEncoder):
                 return list(obj)
 
             if isinstance(obj, dict):
+                # print(f"dict: {type(obj)}")
                 return {self.default(k): self.default(v) for k, v in obj.items()}
 
             if isinstance(obj, list):
+                # print(f"list: {type(obj)}")
                 return [self.default(item) for item in obj]
 
             # Important: this needs to be always checked after str and bytes types
             # Useful for serializing protobuf messages
             if isinstance(obj, Sequence):
+                # print(f"Sequence: {type(obj)}")
                 return [self.default(item) for item in obj]
 
             if hasattr(obj, "__slots__") and len(obj.__slots__) > 0:
+                # print(f"__slots__: {type(obj)}")
                 return self.default({slot: getattr(obj, slot, None) for slot in obj.__slots__})
 
             elif hasattr(obj, "__dict__"):
+                # print(f"__dict__: {type(obj)}")
                 obj_id = id(obj)
 
                 if obj_id in self.seen:
@@ -167,7 +192,8 @@ class EventSerializer(JSONEncoder):
                 # Return object type rather than JSONEncoder.default(obj) which simply raises a TypeError
                 return f"<{type(obj).__name__}>"
 
-        except Exception:
+        except Exception as e:
+            print(f"Serialization failed for object of type {type(obj).__name__}: {e}")
             _logger.warning(f"Serialization failed for object of type {type(obj).__name__}")
             return f'"<not serializable object of type: {type(obj).__name__}>"'
 

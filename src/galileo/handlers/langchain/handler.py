@@ -419,11 +419,14 @@ class GalileoCallback(BaseCallbackHandler):
 
         # Serialize messages safely
         try:
-            flattened_messages = [message.model_dump() for batch in messages for message in batch]
+            # flattened_messages = [message.model_dump() for batch in messages for message in batch]
+            flattened_messages = [message for batch in messages for message in batch]
+            _logger.info(f"Messages before serialization: {flattened_messages}")
             serialized_messages = json.loads(json.dumps(flattened_messages, cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize chat messages: {e}")
             serialized_messages = str(messages)
+        _logger.info(f"Messages after serialization: {serialized_messages}")
 
         self._start_node(
             node_type,
@@ -446,7 +449,8 @@ class GalileoCallback(BaseCallbackHandler):
         token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
 
         try:
-            flattened_messages = [message.model_dump() for batch in response.generations for message in batch]
+            # flattened_messages = [message.model_dump() for batch in response.generations for message in batch]
+            flattened_messages = [message for batch in response.generations for message in batch]
             output = json.loads(json.dumps(flattened_messages[0], cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize LLM output: {e}")
