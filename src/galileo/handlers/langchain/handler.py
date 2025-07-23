@@ -487,6 +487,23 @@ class GalileoCallback(BaseCallbackHandler):
 
     @staticmethod
     def _find_tool_message(obj: Any) -> Optional[ToolMessage]:
+        """
+        Look for a ToolMessage in the output passed to langchain's on_tool_end callback.
+        If found, return the ToolMessage. Otherwise, return None.
+        
+        Can return a ToolMessage in two cases:
+        1. The output is already a ToolMessage.
+        2. The output is a Command object with a ToolMessage in its update list.
+        
+        As of this writing, Command and ToolMessage are the only Langchain/Langgraph
+        classes inheriting from ToolOutputMixin. And Langchain is supposed to convert
+        any tool output **not** inheriting from ToolOutputMixin to a ToolMessage.
+        
+        So this should cover all cases. Either:
+
+        - the output is a Command (converted to ToolMessage here),
+        - or Langchain will force it to be a ToolMessage before passing it to us.
+        """
         if isinstance(obj, ToolMessage):
             return obj
         if hasattr(obj, "update") and isinstance(obj.update, dict) and "messages" in obj.update:
