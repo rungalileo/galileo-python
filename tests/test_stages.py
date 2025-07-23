@@ -1,5 +1,4 @@
 import logging
-import os
 import uuid
 from typing import Optional
 from unittest.mock import ANY, Mock, patch
