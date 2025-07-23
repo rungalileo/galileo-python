@@ -146,25 +146,20 @@ class EventSerializer(JSONEncoder):
                 return list(obj)
 
             if isinstance(obj, dict):
-                # print(f"dict: {type(obj)}")
                 return {self.default(k): self.default(v) for k, v in obj.items()}
 
             if isinstance(obj, list):
-                # print(f"list: {type(obj)}")
                 return [self.default(item) for item in obj]
 
             # Important: this needs to be always checked after str and bytes types
             # Useful for serializing protobuf messages
             if isinstance(obj, Sequence):
-                # print(f"Sequence: {type(obj)}")
                 return [self.default(item) for item in obj]
 
             if hasattr(obj, "__slots__") and len(obj.__slots__) > 0:
-                # print(f"__slots__: {type(obj)}")
                 return self.default({slot: getattr(obj, slot, None) for slot in obj.__slots__})
 
             elif hasattr(obj, "__dict__"):
-                # print(f"__dict__: {type(obj)}")
                 obj_id = id(obj)
 
                 if obj_id in self.seen:
@@ -181,8 +176,7 @@ class EventSerializer(JSONEncoder):
                 # Return object type rather than JSONEncoder.default(obj) which simply raises a TypeError
                 return f"<{type(obj).__name__}>"
 
-        except Exception as e:
-            print(f"Serialization failed for object of type {type(obj).__name__}: {e}")
+        except Exception:
             _logger.warning(f"Serialization failed for object of type {type(obj).__name__}")
             return f'"<not serializable object of type: {type(obj).__name__}>"'
 
