@@ -78,9 +78,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         rulesets: Optional[list[Rule]] = None,
         description: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_project_id(
-            project_id=project_id, project_name=project_name, client=self.client
-        )
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, client=self.client)
 
         actual_name = name or ts_name("stage")
 
@@ -112,9 +110,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_project_id(
-            project_id=project_id, project_name=project_name, client=self.client
-        )
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, client=self.client)
 
         if not stage_id and not stage_name:
             raise ValueError("Either stage_id or stage_name must be provided.")
@@ -137,9 +133,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
         prioritized_rulesets: Optional[list[Rule]] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_project_id(
-            project_id=project_id, project_name=project_name, client=self.client
-        )
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, client=self.client)
 
         actual_stage_id: str = _get_stage_id(
             stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, client=self.client
@@ -167,9 +161,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
     ) -> StageDB:
         """Sets the pause state of a stage."""
-        actual_project_id: str = _get_project_id(
-            project_id=project_id, project_name=project_name, client=self.client
-        )
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, client=self.client)
 
         actual_stage_id: str = _get_stage_id(
             stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, client=self.client
@@ -230,7 +222,13 @@ def create_stage(
         The newly created Stage.
     """
     return Stages().create(
-        project_id=project_id, project_name=project_name, name=name, stage_type=stage_type, pause=pause, rulesets=rulesets, description=description
+        project_id=project_id,
+        project_name=project_name,
+        name=name,
+        stage_type=stage_type,
+        pause=pause,
+        rulesets=rulesets,
+        description=description,
     )
 
 
