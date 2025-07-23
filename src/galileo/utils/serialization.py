@@ -102,25 +102,25 @@ class EventSerializer(JSONEncoder):
                     return self.default(obj.generations[0])
                 elif isinstance(obj, (AIMessageChunk, AIMessage)):
                     # Map the `type` to `role`.
-                    dumped = obj.model_dump(include={"content", "type", "additional_kwargs"})
+                    dumped = obj.model_dump(mode="json", include={"content", "type", "additional_kwargs"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     additional_kwargs = dumped.pop("additional_kwargs", {})
                     if "tool_calls" in additional_kwargs:
                         dumped["tool_calls"] = additional_kwargs.pop("tool_calls")
-                    return self.default(dumped)
+                    return dumped
                 elif isinstance(obj, ToolMessage):
                     # Map the `type` to `role`.
-                    dumped = obj.model_dump(include={"content", "type", "status", "tool_call_id"})
+                    dumped = obj.model_dump(mode="json", include={"content", "type", "status", "tool_call_id"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
-                    return self.default(dumped)
+                    return dumped
                 elif isinstance(obj, BaseMessage):
                     # Map the `type` to `role`.
-                    dumped = obj.model_dump(include={"content", "type"})
+                    dumped = obj.model_dump(mode="json", include={"content", "type"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
-                    return self.default(dumped)
+                    return dumped
 
                 if isinstance(obj, LangchainDocument):
-                    return self.default(obj.model_dump(include={"page_content", "metadata"}))
+                    return self.default(obj.model_dump(mode="json", include={"page_content", "metadata"}))
 
                 if isinstance(obj, Serializable):
                     ret = obj.to_json()
