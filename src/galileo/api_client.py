@@ -1,6 +1,7 @@
 import httpx
 from attrs import define, field
 
+from galileo.config import GalileoSDKConfig
 from galileo.resources.client import AuthenticatedClient
 
 
@@ -38,6 +39,7 @@ class GalileoApiClient(AuthenticatedClient):
     """
 
     token: str = field(kw_only=True, repr=False)
+    config: GalileoSDKConfig = field(kw_only=True, repr=False)
 
     client_type_header_name: str = "client-type"
     client_type_header_value: str = "sdk-python"
@@ -77,3 +79,9 @@ class GalileoApiClient(AuthenticatedClient):
                 **self._httpx_args,
             )
         return self._async_client
+
+    def get_console_url(self) -> str:
+        return str(self.config.console_url)
+
+    def get_api_url(self) -> str:
+        return str(self.config.api_url)
