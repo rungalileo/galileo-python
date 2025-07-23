@@ -406,7 +406,6 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         except Exception as e:
             _logger.warning(f"Failed to serialize chat messages: {e}")
             serialized_messages = str(messages)
-        _logger.info(f"Messages after serialization: {serialized_messages}")
 
         await self._start_node(
             node_type,
@@ -429,17 +428,11 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
 
         try:
-            for batch in response.generations:
-                for message in batch:
-                    print(type(message))
-            # flattened_messages = [message.model_dump() for batch in response.generations for message in batch]
             flattened_messages = [message for batch in response.generations for message in batch]
-            _logger.info(f"Output before serialization: {flattened_messages}")
             output = json.loads(json.dumps(flattened_messages[0], cls=EventSerializer))
         except Exception as e:
             _logger.warning(f"Failed to serialize LLM output: {e}")
             output = str(response.generations)
-        _logger.info(f"Output after serialization: {output}")
 
         await self._end_node(
             run_id,
@@ -489,16 +482,12 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         self, output: Any, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a tool node ends."""
-        print(f"on_tool_end output: {type(output)}, {output}")
         end_node_kwargs = {}
         if (tool_message := self._find_tool_message(output)) is not None:
-            print(f"on_tool_end tool_message: {tool_message}")
             end_node_kwargs["tool_call_id"] = tool_message.tool_call_id
             end_node_kwargs["output"] = json.dumps(tool_message.content, cls=EventSerializer)
         else:
-            print(f"on_tool_end no tool message found")
             end_node_kwargs["output"] = json.dumps(output, cls=EventSerializer)
-        print(f"on_tool_end end_node_kwargs: {end_node_kwargs}")
         await self._end_node(run_id, **end_node_kwargs)
 
     async def on_retriever_start(
