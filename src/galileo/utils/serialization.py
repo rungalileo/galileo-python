@@ -98,17 +98,13 @@ class EventSerializer(JSONEncoder):
                 from langchain_core.prompt_values import ChatPromptValue
 
                 if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
-                    print(f"AgentFinish, AgentAction, ChatPromptValue: {obj}")
                     return self.default(obj.messages)
                 elif isinstance(obj, ChatGeneration):
-                    print(f"ChatGeneration: {type(obj)}")
                     return self.default(obj.message)
                 elif isinstance(obj, LLMResult):
-                    print(f"LLMResult: {type(obj)}")
                     return self.default(obj.generations[0])
                 elif isinstance(obj, (AIMessageChunk, AIMessage)):
                     # Map the `type` to `role`.
-                    print(f"AIMessageChunk, AIMessage: {type(obj)}")
                     dumped = obj.model_dump(include={"content", "type", "additional_kwargs"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     additional_kwargs = dumped.pop("additional_kwargs", {})
@@ -117,30 +113,23 @@ class EventSerializer(JSONEncoder):
                     return self.default(dumped)
                 elif isinstance(obj, ToolMessage):
                     # Map the `type` to `role`.
-                    print(f"ToolMessage: {obj}")
                     dumped = obj.model_dump(include={"content", "type", "status", "tool_call_id"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
-                    print(f"ToolMessage dumped: {dumped}")
                     return self.default(dumped)
                 elif isinstance(obj, BaseMessage):
                     # Map the `type` to `role`.
-                    print(f"BaseMessage: {type(obj)}")
                     dumped = obj.model_dump(include={"content", "type"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     return self.default(dumped)
 
                 if isinstance(obj, Serializable):
-                    print(f"Serializable: {type(obj)}")
                     ret = obj.to_json()
-                    print(f"Serializable to_json: {ret}")
                     return ret
 
             if is_dataclass(obj):
-                print(f"Dataclass: {obj}")
                 return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
 
             if isinstance(obj, BaseModel):
-                print(f"BaseModel: {type(obj)}")
                 return self.default(
                     obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
                 )
