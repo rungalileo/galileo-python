@@ -28,12 +28,10 @@ class ThreadPoolTaskHandler:
         """
         Handle the completion of a task, triggering any children.
         """
-        print(f"task completed: {task_id}")
         # Find all child tasks that depend on this task
         for child_task_id, task in list(self._tasks.items()):
             if task.get("parent_task_id") == task_id and task.get("callback"):
                 # Execute the callback which will submit the child task
-                print(f"triggering child task: {child_task_id}")
                 task["callback"]()
 
     def _add_or_update_task(
@@ -82,20 +80,16 @@ class ThreadPoolTaskHandler:
         if dependent_on_prev:
             if not self._tasks:
                 # No previous tasks, submit immediately
-                print(f"no previous tasks, submitting task immediately: {task_id}")
                 _submit()
             else:
                 last_task_id = list(self._tasks.keys())[-1]
                 if self.get_status(last_task_id) == "completed":
-                    print(f"previous task completed, submitting task: {task_id}")
                     _submit()
                 else:
-                    print(f"previous task not completed, tracking task: {task_id}")
                     self._add_or_update_task(
                         task_id=task_id, future=None, start_time=None, parent_task_id=last_task_id, callback=_submit
                     )
         else:
-            print(f"submitting task immediately: {task_id}")
             _submit()
 
     def get_children(self, parent_task_id: str) -> list[dict]:

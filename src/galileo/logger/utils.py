@@ -47,11 +47,11 @@ def handle_galileo_http_exceptions_for_retry(func: Callable) -> Callable:
             if e.status_code == 429:
                 print("Rate limited, retrying...")
                 raise e
-            if e.status_code >= 500:
+            if e.status_code > 500:
                 print("Server error, retrying...")
                 raise e
 
-            print("Unrecognized error, not retrying...")
+            print("Unrecoverable failure or unrecognized error, not retrying...")
             print(e)
             return
 

@@ -1025,7 +1025,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Terminate the logger and flush all traces to Galileo.
         """
-        start_time = time.perf_counter()
 
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
@@ -1033,14 +1032,22 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._logger.info("Attempting to flush on interpreter exit...")
             self.flush()
         else:
-            print("Checking if all tasks are completed...")
+            self._logger.info("Checking if all requests are completed...")
+            timeout_seconds = 5
+            timeout_reached = False
+            start_wait = time.time()
             while not self._task_handler.all_tasks_completed():
+                if time.time() - start_wait > timeout_seconds:
+                    timeout_reached = True
+                    break
                 time.sleep(0.1)
-            self._task_handler.terminate()
-            print("All tasks completed. Exiting...")
 
-        end_time = time.perf_counter()
-        print(f"time taken in terminate: {(end_time - start_time):0.4f} seconds")
+            if timeout_reached:
+                self._logger.warning("Terminate timeout reached. Some requests may not have completed.")
+            else:
+                self._logger.info("All requests are complete.")
+
+            self._task_handler.terminate()
 
     @nop_sync
     def start_session(
