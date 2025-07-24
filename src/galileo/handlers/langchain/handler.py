@@ -313,13 +313,12 @@ class GalileoCallback(BaseCallbackHandler):
             elif node_class_reference and isinstance(node_class_reference, list):
                 return node_class_reference[-1]
             elif isinstance(kwargs, dict):
-                if (kwargs_name := kwargs.get("name")) is not None:
+                if (kwargs_name := kwargs.get("name")):
                     return kwargs_name
                 if "metadata" in kwargs and isinstance(kwargs["metadata"], dict):
-                    if (metadata_name := kwargs["metadata"].get("name")) is not None:
+                    if (metadata_name := kwargs["metadata"].get("name")):
                         return metadata_name
-            else:
-                return node_type.capitalize()
+            return node_type.capitalize()
         except Exception as e:
             _logger.error(f"Failed to get node name: {e}")
             return node_type.capitalize()
