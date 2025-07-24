@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from langchain_core.agents import AgentFinish
 from langchain_core.documents import Document
-from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage, SystemMessage
 from langchain_core.outputs import ChatGeneration, LLMResult
 
 from galileo import Message, MessageRole
@@ -241,9 +241,10 @@ class TestGalileoCallback:
         callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
 
         # Start chat model (llm)
+        system_message = SystemMessage(content="You are a helpful assistant.")
         human_message = HumanMessage(content="Tell me about AI")
         ai_message = AIMessage(content="AI is a technology...")
-        messages = [[human_message, ai_message]]
+        messages = [[system_message, human_message, ai_message]]
 
         callback.on_chat_model_start(
             serialized={},
@@ -262,9 +263,13 @@ class TestGalileoCallback:
         # Check that message serialization worked
         input_data = callback._nodes[str(run_id)].span_params["input"]
         assert isinstance(input_data, list)
-        assert len(input_data) == 2  # Two messages
-        assert input_data[0]["content"] == "Tell me about AI"
-        assert input_data[1]["content"] == "AI is a technology..."
+        assert len(input_data) == 3  # Two messages
+        assert input_data[0]["content"] == "You are a helpful assistant."
+        assert input_data[1]["content"] == "Tell me about AI"
+        assert input_data[2]["content"] == "AI is a technology..."
+        assert input_data[0]["role"] == "system"
+        assert input_data[1]["role"] == "user"
+        assert input_data[2]["role"] == "assistant"
 
     def test_on_chat_model_start_end_with_tools(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
         """Test chat model start and end callbacks with tools"""
