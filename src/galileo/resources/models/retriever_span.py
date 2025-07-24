@@ -9,10 +9,14 @@ from dateutil.parser import isoparse
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.agent_span import AgentSpan
     from ..models.document import Document
+    from ..models.llm_span import LlmSpan
     from ..models.metrics import Metrics
     from ..models.retriever_span_dataset_metadata import RetrieverSpanDatasetMetadata
     from ..models.retriever_span_user_metadata import RetrieverSpanUserMetadata
+    from ..models.tool_span import ToolSpan
+    from ..models.workflow_span import WorkflowSpan
 
 
 T = TypeVar("T", bound="RetrieverSpan")
@@ -33,10 +37,18 @@ class RetrieverSpan:
         id (Union[None, Unset, str]): Galileo ID of the session, trace or span
         metrics (Union[Unset, Metrics]):
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
+        parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
+        redacted_input (Union[None, Unset, str]): Redacted input of the trace or span.
+        redacted_output (Union[None, Unset, list['Document']]): Redacted output of the trace or span.
+        session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
+        spans (Union[Unset, list[Union['AgentSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]]): Child
+            spans.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
+        trace_id (Union[None, Unset, str]): Galileo ID of the trace containing the span (or the same value as id for a
+            trace)
         type_ (Union[Literal['retriever'], Unset]): Type of the trace, span or session. Default: 'retriever'.
         user_metadata (Union[Unset, RetrieverSpanUserMetadata]): Metadata associated with this trace or span.
     """
@@ -51,14 +63,24 @@ class RetrieverSpan:
     id: Union[None, Unset, str] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
+    parent_id: Union[None, Unset, str] = UNSET
+    redacted_input: Union[None, Unset, str] = UNSET
+    redacted_output: Union[None, Unset, list["Document"]] = UNSET
+    session_id: Union[None, Unset, str] = UNSET
+    spans: Union[Unset, list[Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]]] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
+    trace_id: Union[None, Unset, str] = UNSET
     type_: Union[Literal["retriever"], Unset] = "retriever"
     user_metadata: Union[Unset, "RetrieverSpanUserMetadata"] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.agent_span import AgentSpan
+        from ..models.llm_span import LlmSpan
+        from ..models.workflow_span import WorkflowSpan
+
         input_ = self.input_
 
         output = []
@@ -104,6 +126,54 @@ class RetrieverSpan:
 
         name = self.name
 
+        parent_id: Union[None, Unset, str]
+        if isinstance(self.parent_id, Unset):
+            parent_id = UNSET
+        else:
+            parent_id = self.parent_id
+
+        redacted_input: Union[None, Unset, str]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        else:
+            redacted_input = self.redacted_input
+
+        redacted_output: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        elif isinstance(self.redacted_output, list):
+            redacted_output = []
+            for redacted_output_type_0_item_data in self.redacted_output:
+                redacted_output_type_0_item = redacted_output_type_0_item_data.to_dict()
+                redacted_output.append(redacted_output_type_0_item)
+
+        else:
+            redacted_output = self.redacted_output
+
+        session_id: Union[None, Unset, str]
+        if isinstance(self.session_id, Unset):
+            session_id = UNSET
+        else:
+            session_id = self.session_id
+
+        spans: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.spans, Unset):
+            spans = []
+            for spans_item_data in self.spans:
+                spans_item: dict[str, Any]
+                if isinstance(spans_item_data, AgentSpan):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, WorkflowSpan):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, LlmSpan):
+                    spans_item = spans_item_data.to_dict()
+                elif isinstance(spans_item_data, RetrieverSpan):
+                    spans_item = spans_item_data.to_dict()
+                else:
+                    spans_item = spans_item_data.to_dict()
+
+                spans.append(spans_item)
+
         status_code: Union[None, Unset, int]
         if isinstance(self.status_code, Unset):
             status_code = UNSET
@@ -119,6 +189,12 @@ class RetrieverSpan:
         tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
+
+        trace_id: Union[None, Unset, str]
+        if isinstance(self.trace_id, Unset):
+            trace_id = UNSET
+        else:
+            trace_id = self.trace_id
 
         type_ = self.type_
 
@@ -145,12 +221,24 @@ class RetrieverSpan:
             field_dict["metrics"] = metrics
         if name is not UNSET:
             field_dict["name"] = name
+        if parent_id is not UNSET:
+            field_dict["parent_id"] = parent_id
+        if redacted_input is not UNSET:
+            field_dict["redacted_input"] = redacted_input
+        if redacted_output is not UNSET:
+            field_dict["redacted_output"] = redacted_output
+        if session_id is not UNSET:
+            field_dict["session_id"] = session_id
+        if spans is not UNSET:
+            field_dict["spans"] = spans
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
         if step_number is not UNSET:
             field_dict["step_number"] = step_number
         if tags is not UNSET:
             field_dict["tags"] = tags
+        if trace_id is not UNSET:
+            field_dict["trace_id"] = trace_id
         if type_ is not UNSET:
             field_dict["type"] = type_
         if user_metadata is not UNSET:
@@ -160,10 +248,14 @@ class RetrieverSpan:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.agent_span import AgentSpan
         from ..models.document import Document
+        from ..models.llm_span import LlmSpan
         from ..models.metrics import Metrics
         from ..models.retriever_span_dataset_metadata import RetrieverSpanDatasetMetadata
         from ..models.retriever_span_user_metadata import RetrieverSpanUserMetadata
+        from ..models.tool_span import ToolSpan
+        from ..models.workflow_span import WorkflowSpan
 
         d = dict(src_dict)
         input_ = d.pop("input")
@@ -234,6 +326,104 @@ class RetrieverSpan:
 
         name = d.pop("name", UNSET)
 
+        def _parse_parent_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        parent_id = _parse_parent_id(d.pop("parent_id", UNSET))
+
+        def _parse_redacted_input(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
+
+        def _parse_redacted_output(data: object) -> Union[None, Unset, list["Document"]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_output_type_0 = []
+                _redacted_output_type_0 = data
+                for redacted_output_type_0_item_data in _redacted_output_type_0:
+                    redacted_output_type_0_item = Document.from_dict(redacted_output_type_0_item_data)
+
+                    redacted_output_type_0.append(redacted_output_type_0_item)
+
+                return redacted_output_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["Document"]], data)
+
+        redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
+
+        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_id = _parse_session_id(d.pop("session_id", UNSET))
+
+        spans = []
+        _spans = d.pop("spans", UNSET)
+        for spans_item_data in _spans or []:
+
+            def _parse_spans_item(
+                data: object,
+            ) -> Union["AgentSpan", "LlmSpan", "RetrieverSpan", "ToolSpan", "WorkflowSpan"]:
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    spans_item_type_0 = AgentSpan.from_dict(data)
+
+                    return spans_item_type_0
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    spans_item_type_1 = WorkflowSpan.from_dict(data)
+
+                    return spans_item_type_1
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    spans_item_type_2 = LlmSpan.from_dict(data)
+
+                    return spans_item_type_2
+                except:  # noqa: E722
+                    pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    spans_item_type_3 = RetrieverSpan.from_dict(data)
+
+                    return spans_item_type_3
+                except:  # noqa: E722
+                    pass
+                if not isinstance(data, dict):
+                    raise TypeError()
+                spans_item_type_4 = ToolSpan.from_dict(data)
+
+                return spans_item_type_4
+
+            spans_item = _parse_spans_item(spans_item_data)
+
+            spans.append(spans_item)
+
         def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
@@ -253,6 +443,15 @@ class RetrieverSpan:
         step_number = _parse_step_number(d.pop("step_number", UNSET))
 
         tags = cast(list[str], d.pop("tags", UNSET))
+
+        def _parse_trace_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
 
         type_ = cast(Union[Literal["retriever"], Unset], d.pop("type", UNSET))
         if type_ != "retriever" and not isinstance(type_, Unset):
@@ -276,9 +475,15 @@ class RetrieverSpan:
             id=id,
             metrics=metrics,
             name=name,
+            parent_id=parent_id,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
+            session_id=session_id,
+            spans=spans,
             status_code=status_code,
             step_number=step_number,
             tags=tags,
+            trace_id=trace_id,
             type_=type_,
             user_metadata=user_metadata,
         )

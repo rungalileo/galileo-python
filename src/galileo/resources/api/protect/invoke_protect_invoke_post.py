@@ -14,7 +14,6 @@ from ...types import Response
 
 def _get_kwargs(*, body: BaseRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-
     _kwargs: dict[str, Any] = {"method": "post", "url": "/protect/invoke"}
 
     _kwargs["json"] = body.to_dict()
@@ -75,14 +74,14 @@ def sync_detailed(
     """Invoke
 
     Args:
-        body (Request):
+        body (BaseRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['InvokeResponse', 'Response']]]
+        Response[Union[HTTPValidationError, Union['InvokeResponse', 'BaseResponse']]]
     """
 
     kwargs = _get_kwargs(body=body)
@@ -98,7 +97,7 @@ def sync(
     """Invoke
 
     Args:
-        body (Request):
+        body (BaseRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -117,14 +116,14 @@ async def asyncio_detailed(
     """Invoke
 
     Args:
-        body (Request):
+        body (BaseRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['InvokeResponse', 'Response']]]
+        Response[Union[HTTPValidationError, Union['InvokeResponse', 'BaseResponse']]]
     """
 
     kwargs = _get_kwargs(body=body)
@@ -140,7 +139,7 @@ async def asyncio(
     """Invoke
 
     Args:
-        body (Request):
+        body (BaseRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

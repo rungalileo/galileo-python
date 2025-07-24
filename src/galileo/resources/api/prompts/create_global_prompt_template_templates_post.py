@@ -65,6 +65,8 @@ def sync_detailed(
         Request context including authentication information
     create_request : CreatePromptTemplateWithVersionRequestBody
         Request body containing template name and content
+    principal : Principal
+        Principal object.
 
     Returns
     -------
@@ -105,6 +107,8 @@ def sync(
         Request context including authentication information
     create_request : CreatePromptTemplateWithVersionRequestBody
         Request body containing template name and content
+    principal : Principal
+        Principal object.
 
     Returns
     -------
@@ -141,6 +145,8 @@ async def asyncio_detailed(
         Request context including authentication information
     create_request : CreatePromptTemplateWithVersionRequestBody
         Request body containing template name and content
+    principal : Principal
+        Principal object.
 
     Returns
     -------
@@ -181,6 +187,8 @@ async def asyncio(
         Request context including authentication information
     create_request : CreatePromptTemplateWithVersionRequestBody
         Request body containing template name and content
+    principal : Principal
+        Principal object.
 
     Returns
     -------

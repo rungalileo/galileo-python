@@ -15,11 +15,15 @@ from .agent_span_record_with_children_user_metadata import AgentSpanRecordWithCh
 from .agent_span_user_metadata import AgentSpanUserMetadata
 from .agent_type import AgentType
 from .agentic_session_success_scorer import AgenticSessionSuccessScorer
+from .agentic_session_success_scorer_type import AgenticSessionSuccessScorerType
 from .agentic_session_success_template import AgenticSessionSuccessTemplate
 from .agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
+from .agentic_workflow_success_scorer_type import AgenticWorkflowSuccessScorerType
 from .agentic_workflow_success_template import AgenticWorkflowSuccessTemplate
 from .aggregated_trace_view_edge import AggregatedTraceViewEdge
+from .aggregated_trace_view_graph import AggregatedTraceViewGraph
 from .aggregated_trace_view_node import AggregatedTraceViewNode
+from .aggregated_trace_view_node_metrics import AggregatedTraceViewNodeMetrics
 from .aggregated_trace_view_request import AggregatedTraceViewRequest
 from .aggregated_trace_view_response import AggregatedTraceViewResponse
 from .api_key_action import ApiKeyAction
@@ -29,8 +33,6 @@ from .base_generated_scorer_db import BaseGeneratedScorerDB
 from .base_prompt_template_response import BasePromptTemplateResponse
 from .base_prompt_template_version import BasePromptTemplateVersion
 from .base_prompt_template_version_response import BasePromptTemplateVersionResponse
-from .base_prompt_template_version_response_settings import BasePromptTemplateVersionResponseSettings
-from .base_prompt_template_version_settings import BasePromptTemplateVersionSettings
 from .base_registered_scorer_db import BaseRegisteredScorerDB
 from .base_scorer import BaseScorer
 from .base_scorer_aggregates_type_0 import BaseScorerAggregatesType0
@@ -75,10 +77,8 @@ from .create_job_request import CreateJobRequest
 from .create_job_response import CreateJobResponse
 from .create_llm_scorer_version_request import CreateLLMScorerVersionRequest
 from .create_prompt_template_with_version_request_body import CreatePromptTemplateWithVersionRequestBody
-from .create_prompt_template_with_version_request_body_settings import (
-    CreatePromptTemplateWithVersionRequestBodySettings,
-)
 from .create_scorer_request import CreateScorerRequest
+from .create_scorer_version_request import CreateScorerVersionRequest
 from .create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
 from .customized_agentic_session_success_gpt_scorer import CustomizedAgenticSessionSuccessGPTScorer
 from .customized_agentic_session_success_gpt_scorer_aggregates_type_0 import (
@@ -159,6 +159,7 @@ from .dataset_db import DatasetDB
 from .dataset_delete_row import DatasetDeleteRow
 from .dataset_draft_filter import DatasetDraftFilter
 from .dataset_draft_filter_operator import DatasetDraftFilterOperator
+from .dataset_filter_rows import DatasetFilterRows
 from .dataset_format import DatasetFormat
 from .dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
 from .dataset_name_filter import DatasetNameFilter
@@ -234,6 +235,7 @@ from .invoke_response_metadata_type_0 import InvokeResponseMetadataType0
 from .invoke_response_metric_results import InvokeResponseMetricResults
 from .job_db import JobDB
 from .job_db_request_data import JobDBRequestData
+from .job_progress import JobProgress
 from .like_dislike_aggregate import LikeDislikeAggregate
 from .like_dislike_rating import LikeDislikeRating
 from .list_dataset_params import ListDatasetParams
@@ -251,6 +253,7 @@ from .list_scorer_versions_response import ListScorerVersionsResponse
 from .list_scorers_request import ListScorersRequest
 from .list_scorers_response import ListScorersResponse
 from .list_user_collaborators_response import ListUserCollaboratorsResponse
+from .llm_export_format import LLMExportFormat
 from .llm_integration import LLMIntegration
 from .llm_metrics import LlmMetrics
 from .llm_span import LlmSpan
@@ -267,6 +270,7 @@ from .log_records_available_columns_response import LogRecordsAvailableColumnsRe
 from .log_records_boolean_filter import LogRecordsBooleanFilter
 from .log_records_date_filter import LogRecordsDateFilter
 from .log_records_date_filter_operator import LogRecordsDateFilterOperator
+from .log_records_export_request import LogRecordsExportRequest
 from .log_records_id_filter import LogRecordsIDFilter
 from .log_records_metrics_query_request import LogRecordsMetricsQueryRequest
 from .log_records_metrics_response import LogRecordsMetricsResponse
@@ -328,6 +332,7 @@ from .output_sexist_scorer_type import OutputSexistScorerType
 from .output_tone_scorer import OutputToneScorer
 from .output_toxicity_scorer import OutputToxicityScorer
 from .output_toxicity_scorer_type import OutputToxicityScorerType
+from .output_type_enum import OutputTypeEnum
 from .override_action import OverrideAction
 from .passthrough_action import PassthroughAction
 from .payload import Payload
@@ -348,6 +353,7 @@ from .project_db_thin import ProjectDBThin
 from .project_delete_response import ProjectDeleteResponse
 from .project_id_filter import ProjectIDFilter
 from .project_item import ProjectItem
+from .project_labels import ProjectLabels
 from .project_name_filter import ProjectNameFilter
 from .project_name_filter_operator import ProjectNameFilterOperator
 from .project_name_sort import ProjectNameSort
@@ -402,8 +408,13 @@ from .retriever_span_record import RetrieverSpanRecord
 from .retriever_span_record_dataset_metadata import RetrieverSpanRecordDatasetMetadata
 from .retriever_span_record_metric_info_type_0 import RetrieverSpanRecordMetricInfoType0
 from .retriever_span_record_user_metadata import RetrieverSpanRecordUserMetadata
+from .retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+from .retriever_span_record_with_children_dataset_metadata import RetrieverSpanRecordWithChildrenDatasetMetadata
+from .retriever_span_record_with_children_metric_info_type_0 import RetrieverSpanRecordWithChildrenMetricInfoType0
+from .retriever_span_record_with_children_user_metadata import RetrieverSpanRecordWithChildrenUserMetadata
 from .retriever_span_user_metadata import RetrieverSpanUserMetadata
 from .rollback_request import RollbackRequest
+from .root_type import RootType
 from .rouge_scorer import RougeScorer
 from .rule import Rule
 from .rule_operator import RuleOperator
@@ -424,7 +435,7 @@ from .scorer_created_at_filter import ScorerCreatedAtFilter
 from .scorer_created_at_filter_operator import ScorerCreatedAtFilterOperator
 from .scorer_creator_filter import ScorerCreatorFilter
 from .scorer_defaults import ScorerDefaults
-from .scorer_input_type import ScorerInputType
+from .scorer_model_type_filter import ScorerModelTypeFilter
 from .scorer_name import ScorerName
 from .scorer_name_filter import ScorerNameFilter
 from .scorer_name_filter_operator import ScorerNameFilterOperator
@@ -461,6 +472,11 @@ from .star_rating import StarRating
 from .step_type import StepType
 from .string_data import StringData
 from .subscription_config import SubscriptionConfig
+from .synthetic_data_source_dataset import SyntheticDataSourceDataset
+from .synthetic_data_types import SyntheticDataTypes
+from .synthetic_dataset_extension_request import SyntheticDatasetExtensionRequest
+from .synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
+from .system_metric_info import SystemMetricInfo
 from .tags_aggregate import TagsAggregate
 from .tags_aggregate_counts import TagsAggregateCounts
 from .tags_rating import TagsRating
@@ -472,8 +488,10 @@ from .token import Token
 from .tool_call import ToolCall
 from .tool_call_function import ToolCallFunction
 from .tool_error_rate_scorer import ToolErrorRateScorer
+from .tool_error_rate_scorer_type import ToolErrorRateScorerType
 from .tool_error_rate_template import ToolErrorRateTemplate
 from .tool_selection_quality_scorer import ToolSelectionQualityScorer
+from .tool_selection_quality_scorer_type import ToolSelectionQualityScorerType
 from .tool_selection_quality_template import ToolSelectionQualityTemplate
 from .tool_span import ToolSpan
 from .tool_span_dataset_metadata import ToolSpanDatasetMetadata
@@ -481,6 +499,10 @@ from .tool_span_record import ToolSpanRecord
 from .tool_span_record_dataset_metadata import ToolSpanRecordDatasetMetadata
 from .tool_span_record_metric_info_type_0 import ToolSpanRecordMetricInfoType0
 from .tool_span_record_user_metadata import ToolSpanRecordUserMetadata
+from .tool_span_record_with_children import ToolSpanRecordWithChildren
+from .tool_span_record_with_children_dataset_metadata import ToolSpanRecordWithChildrenDatasetMetadata
+from .tool_span_record_with_children_metric_info_type_0 import ToolSpanRecordWithChildrenMetricInfoType0
+from .tool_span_record_with_children_user_metadata import ToolSpanRecordWithChildrenUserMetadata
 from .tool_span_user_metadata import ToolSpanUserMetadata
 from .toxicity_template import ToxicityTemplate
 from .trace import Trace
@@ -501,6 +523,7 @@ from .uncertainty_scorer import UncertaintyScorer
 from .update_dataset_content_request import UpdateDatasetContentRequest
 from .update_dataset_request import UpdateDatasetRequest
 from .update_dataset_version_request import UpdateDatasetVersionRequest
+from .update_prompt_template_request import UpdatePromptTemplateRequest
 from .update_scorer_request import UpdateScorerRequest
 from .upsert_dataset_content_request import UpsertDatasetContentRequest
 from .user_action import UserAction
@@ -526,8 +549,10 @@ __all__ = (
     "ActionResult",
     "ActionType",
     "AgenticSessionSuccessScorer",
+    "AgenticSessionSuccessScorerType",
     "AgenticSessionSuccessTemplate",
     "AgenticWorkflowSuccessScorer",
+    "AgenticWorkflowSuccessScorerType",
     "AgenticWorkflowSuccessTemplate",
     "AgentSpan",
     "AgentSpanDatasetMetadata",
@@ -542,7 +567,9 @@ __all__ = (
     "AgentSpanUserMetadata",
     "AgentType",
     "AggregatedTraceViewEdge",
+    "AggregatedTraceViewGraph",
     "AggregatedTraceViewNode",
+    "AggregatedTraceViewNodeMetrics",
     "AggregatedTraceViewRequest",
     "AggregatedTraceViewResponse",
     "ApiKeyAction",
@@ -552,8 +579,6 @@ __all__ = (
     "BasePromptTemplateResponse",
     "BasePromptTemplateVersion",
     "BasePromptTemplateVersionResponse",
-    "BasePromptTemplateVersionResponseSettings",
-    "BasePromptTemplateVersionSettings",
     "BaseRegisteredScorerDB",
     "BaseScorer",
     "BaseScorerAggregatesType0",
@@ -592,8 +617,8 @@ __all__ = (
     "CreateJobResponse",
     "CreateLLMScorerVersionRequest",
     "CreatePromptTemplateWithVersionRequestBody",
-    "CreatePromptTemplateWithVersionRequestBodySettings",
     "CreateScorerRequest",
+    "CreateScorerVersionRequest",
     "CreateUpdateRegisteredScorerResponse",
     "CustomizedAgenticSessionSuccessGPTScorer",
     "CustomizedAgenticSessionSuccessGPTScorerAggregatesType0",
@@ -653,6 +678,7 @@ __all__ = (
     "DatasetDeleteRow",
     "DatasetDraftFilter",
     "DatasetDraftFilterOperator",
+    "DatasetFilterRows",
     "DatasetFormat",
     "DatasetLastEditedByUserAtSort",
     "DatasetNameFilter",
@@ -731,6 +757,7 @@ __all__ = (
     "InvokeResponseMetricResults",
     "JobDB",
     "JobDBRequestData",
+    "JobProgress",
     "LikeDislikeAggregate",
     "LikeDislikeRating",
     "ListDatasetParams",
@@ -748,6 +775,7 @@ __all__ = (
     "ListScorersResponse",
     "ListScorerVersionsResponse",
     "ListUserCollaboratorsResponse",
+    "LLMExportFormat",
     "LLMIntegration",
     "LlmMetrics",
     "LlmSpan",
@@ -765,6 +793,7 @@ __all__ = (
     "LogRecordsBooleanFilter",
     "LogRecordsDateFilter",
     "LogRecordsDateFilterOperator",
+    "LogRecordsExportRequest",
     "LogRecordsIDFilter",
     "LogRecordsMetricsQueryRequest",
     "LogRecordsMetricsResponse",
@@ -825,6 +854,7 @@ __all__ = (
     "OutputToneScorer",
     "OutputToxicityScorer",
     "OutputToxicityScorerType",
+    "OutputTypeEnum",
     "OverrideAction",
     "PassthroughAction",
     "Payload",
@@ -845,6 +875,7 @@ __all__ = (
     "ProjectDeleteResponse",
     "ProjectIDFilter",
     "ProjectItem",
+    "ProjectLabels",
     "ProjectNameFilter",
     "ProjectNameFilterOperator",
     "ProjectNameSort",
@@ -899,8 +930,13 @@ __all__ = (
     "RetrieverSpanRecordDatasetMetadata",
     "RetrieverSpanRecordMetricInfoType0",
     "RetrieverSpanRecordUserMetadata",
+    "RetrieverSpanRecordWithChildren",
+    "RetrieverSpanRecordWithChildrenDatasetMetadata",
+    "RetrieverSpanRecordWithChildrenMetricInfoType0",
+    "RetrieverSpanRecordWithChildrenUserMetadata",
     "RetrieverSpanUserMetadata",
     "RollbackRequest",
+    "RootType",
     "RougeScorer",
     "Rule",
     "RuleOperator",
@@ -921,7 +957,7 @@ __all__ = (
     "ScorerCreatedAtFilterOperator",
     "ScorerCreatorFilter",
     "ScorerDefaults",
-    "ScorerInputType",
+    "ScorerModelTypeFilter",
     "ScorerName",
     "ScorerNameFilter",
     "ScorerNameFilterOperator",
@@ -958,6 +994,11 @@ __all__ = (
     "StepType",
     "StringData",
     "SubscriptionConfig",
+    "SyntheticDatasetExtensionRequest",
+    "SyntheticDatasetExtensionResponse",
+    "SyntheticDataSourceDataset",
+    "SyntheticDataTypes",
+    "SystemMetricInfo",
     "TagsAggregate",
     "TagsAggregateCounts",
     "TagsRating",
@@ -969,8 +1010,10 @@ __all__ = (
     "ToolCall",
     "ToolCallFunction",
     "ToolErrorRateScorer",
+    "ToolErrorRateScorerType",
     "ToolErrorRateTemplate",
     "ToolSelectionQualityScorer",
+    "ToolSelectionQualityScorerType",
     "ToolSelectionQualityTemplate",
     "ToolSpan",
     "ToolSpanDatasetMetadata",
@@ -978,6 +1021,10 @@ __all__ = (
     "ToolSpanRecordDatasetMetadata",
     "ToolSpanRecordMetricInfoType0",
     "ToolSpanRecordUserMetadata",
+    "ToolSpanRecordWithChildren",
+    "ToolSpanRecordWithChildrenDatasetMetadata",
+    "ToolSpanRecordWithChildrenMetricInfoType0",
+    "ToolSpanRecordWithChildrenUserMetadata",
     "ToolSpanUserMetadata",
     "ToxicityTemplate",
     "Trace",
@@ -998,6 +1045,7 @@ __all__ = (
     "UpdateDatasetContentRequest",
     "UpdateDatasetRequest",
     "UpdateDatasetVersionRequest",
+    "UpdatePromptTemplateRequest",
     "UpdateScorerRequest",
     "UpsertDatasetContentRequest",
     "UserAction",

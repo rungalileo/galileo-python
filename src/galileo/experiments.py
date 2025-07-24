@@ -46,8 +46,11 @@ class ExperimentCreateRequest:
 
 
 class Experiments(BaseClientModel):
-    def create(self, project_id: str, name: str) -> ExperimentResponse:
+    def create(self, project_id: str, name: str, dataset_obj: Optional[Dataset] = None) -> ExperimentResponse:
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
+        if dataset_obj is not None:
+            dataset = {"dataset_id": dataset_obj.dataset.id, "version_index": dataset_obj.dataset.current_version_index}
+            body.additional_properties["dataset"] = dataset
 
         experiment = create_experiment_projects_project_id_experiments_post.sync(
             project_id=project_id,
@@ -298,7 +301,7 @@ def run_experiment(
         #       .replace('Z', '');
         experiment_name = f"{existing_experiment.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
 
-    experiment_obj = Experiments().create(project_obj.id, experiment_name)
+    experiment_obj = Experiments().create(project_obj.id, experiment_name, dataset_obj)
 
     # Set up metrics if provided
     scorer_settings: Optional[list[ScorerConfig]] = None
