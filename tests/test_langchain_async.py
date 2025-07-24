@@ -267,7 +267,7 @@ class TestGalileoAsyncCallback:
         assert input_data[2]["content"] == "AI is a technology..."
         assert input_data[0]["role"] == "system"
         assert input_data[1]["role"] == "user"
-        assert input_data[2]["role"] == "ai"
+        assert input_data[2]["role"] == "assistant"
 
     @mark.asyncio
     async def test_on_chat_model_start_end_with_tools(
