@@ -505,6 +505,40 @@ class TestGalileoAsyncCallback:
         assert len(callback._nodes[str(run_id)].span_params["output"]) == 1
 
     @mark.asyncio
+    async def test_extracting_chain_names_from_metadata(
+        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+    ):
+        """Test extracting chain names from metadata kwarg, with two nested chains"""
+        chain_id = uuid.uuid4()
+        chain_id2 = uuid.uuid4()
+
+        await callback.on_chain_start(
+            serialized={}, inputs={"query": "test"}, run_id=chain_id, metadata={"name": "Test Chain"}
+        )
+
+        await callback.on_chain_start(
+            serialized={},
+            inputs={"query": "test"},
+            run_id=chain_id2,
+            parent_run_id=chain_id,
+            metadata={"name": "Test Chain 2"},
+        )
+
+        await callback.on_chain_end(outputs={"result": "test"}, run_id=chain_id)
+
+        await callback.on_chain_end(outputs={"result": "test"}, run_id=chain_id2)
+
+        traces = galileo_logger.traces
+
+        assert len(traces) == 1
+
+        assert len(traces[0].spans) == 1
+        assert traces[0].spans[0].name == "Test Chain"
+
+        assert len(traces[0].spans[0].spans) == 1
+        assert traces[0].spans[0].spans[0].name == "Test Chain 2"
+
+    @mark.asyncio
     async def test_complex_execution_flow(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
         """Test a complex execution flow with multiple component types"""
         # Create UUIDs for different components
