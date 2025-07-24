@@ -879,6 +879,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             raise ValueError("No existing workflow to conclude.")
 
         current_parent.output = output or current_parent.output
+        current_parent.redacted_output = redacted_output or current_parent.redacted_output
         current_parent.status_code = status_code
         if duration_ns is not None:
             current_parent.metrics.duration_ns = duration_ns
