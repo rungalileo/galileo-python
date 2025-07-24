@@ -11,6 +11,7 @@ from galileo.resources.models import HTTPValidationError
 from galileo.resources.models.stage_db import StageDB as APIStageDB
 from galileo.stages import create_stage, get_stage, pause_stage, resume_stage, update_stage
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
+from galileo_core.schemas.protect.ruleset import Ruleset
 from galileo_core.schemas.protect.stage import StageDB, StageType
 
 FIXED_PROJECT_ID = uuid.uuid4()
@@ -113,14 +114,14 @@ def test_create_stage_loads_project_from_env(mock_get_project: Mock, mock_api: M
     with patch.dict("os.environ", {"GALILEO_PROJECT": "test_project"}):
         mock_api.return_value = None
 
-        rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+        rulesets = [Ruleset(rules=[Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")])]
         stage_name = "test-central-stage-with-rules"
 
         project = Project()
         project.id = str(FIXED_PROJECT_ID)
         mock_get_project.return_value = project
 
-        _ = create_stage(name=stage_name, rulesets=rules, stage_type=StageType.central)
+        _ = create_stage(name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central)
 
         mock_api.assert_called_once()
         api_call_args = mock_api.call_args.kwargs
@@ -135,10 +136,10 @@ def test_create_stage_returns_none_if_no_project_id(caplog):
     with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
         caplog.set_level(logging.WARNING)
 
-        rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+        rulesets = [Ruleset(rules=[Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")])]
         stage_name = "test-central-stage-with-rules"
 
-        stage = create_stage(name=stage_name, rulesets=rules, stage_type=StageType.central)
+        stage = create_stage(name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central)
         assert stage is None, "Expected create_stage to return None when no project_id is provided."
 
         assert "Either project_id or project_name must be provided." in caplog.text
@@ -147,11 +148,12 @@ def test_create_stage_returns_none_if_no_project_id(caplog):
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 def test_create_central_stage_with_rulesets(mock_api: Mock):
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+    rulesets = [Ruleset(rules=rules)]
     stage_name = "test-central-stage-with-rules"
     mock_api.return_value = _api_stage_db_factory(name=stage_name, stage_type=StageType.central)
 
     stage_response = create_stage(
-        project_id=FIXED_PROJECT_ID, name=stage_name, rulesets=rules, stage_type=StageType.central
+        project_id=FIXED_PROJECT_ID, name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central
     )
 
     mock_api.assert_called_once()
@@ -210,16 +212,17 @@ def test_update_stage_rulesets(mock_get: Mock, mock_api: Mock):
     mock_get.return_value = _core_stage_db_factory(stage_id=FIXED_STAGE_ID)
     mock_api.return_value = _api_stage_db_factory(stage_id=FIXED_STAGE_ID, version=2)
 
-    rulesets = [Rule(metric="m", operator=RuleOperator.eq, target_value="v")]
+    rules = [Rule(metric="m", operator=RuleOperator.eq, target_value="v")]
+    rulesets = [Ruleset(rules=rules)]
     stage = update_stage(project_id=FIXED_PROJECT_ID, stage_id=FIXED_STAGE_ID, prioritized_rulesets=rulesets)
 
     api_body = mock_api.call_args.kwargs["body"]
     assert len(api_body.prioritized_rulesets) == 1
 
     api_rules = api_body.prioritized_rulesets[0].rules
-    assert api_rules[0].metric == rulesets[0].metric
-    assert api_rules[0].target_value == rulesets[0].target_value
-    assert api_rules[0].operator.lower() == rulesets[0].operator
+    assert api_rules[0].metric == rules[0].metric
+    assert api_rules[0].target_value == rules[0].target_value
+    assert api_rules[0].operator.lower() == rules[0].operator
     assert stage.version == 2
 
 
