@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 from os import getenv
 from typing import Optional, Union
 
@@ -17,7 +18,6 @@ from galileo.resources.models.stage_db import StageDB as APIStageDB
 from galileo.resources.models.stage_with_rulesets import StageWithRulesets as APIStageWithRulesets
 from galileo.resources.types import UNSET
 from galileo.utils.catch_log import DecorateAllMethods
-from galileo_core.schemas.protect.rule import Rule
 from galileo_core.schemas.protect.ruleset import Ruleset, RulesetsMixin
 from galileo_core.schemas.protect.stage import StageDB, StageType, StageWithRulesets
 from galileo_core.utils.name import ts_name
@@ -75,7 +75,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         name: Optional[str] = None,
         stage_type: StageType = StageType.local,
         pause: bool = False,
-        rulesets: Optional[list[Rule]] = None,
+        prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
         description: Optional[str] = None,
     ) -> StageDB:
         actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, client=self.client)
@@ -88,7 +88,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
             type=stage_type,
             paused=pause,
             description=description,
-            prioritized_rulesets=[Ruleset(rules=rulesets)] if rulesets else [],
+            prioritized_rulesets=prioritized_rulesets or [],
         )
 
         request_dict = request.model_dump(mode="json")
@@ -131,7 +131,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         project_name: Optional[str] = None,
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
-        prioritized_rulesets: Optional[list[Rule]] = None,
+        prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     ) -> StageDB:
         actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, client=self.client)
 
@@ -139,8 +139,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
             stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, client=self.client
         )
 
-        rulesets = [Ruleset(rules=prioritized_rulesets)] if prioritized_rulesets else []
-        request = RulesetsMixin(prioritized_rulesets=rulesets)
+        request = RulesetsMixin(prioritized_rulesets=prioritized_rulesets or [])
         request_dict = request.model_dump()
         request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
         body = APIRulesetsMixin.from_dict(request_dict)
@@ -203,7 +202,7 @@ def create_stage(
     name: Optional[str] = None,
     stage_type: StageType = StageType.local,
     pause: bool = False,
-    rulesets: Optional[list[Rule]] = None,
+    prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     description: Optional[str] = None,
 ) -> Optional[StageDB]:
     """Creates a new stage.
@@ -215,7 +214,7 @@ def create_stage(
         name: Name of the stage. Defaults to a generated name.
         stage_type: Type of the stage.
         pause: Whether the stage should be created in a paused state.
-        rulesets: List of rules for the stage.
+        prioritized_rulesets: List of rulesets for the stage.
         description: Description for the stage.
 
     Returns:
@@ -227,7 +226,7 @@ def create_stage(
         name=name,
         stage_type=stage_type,
         pause=pause,
-        rulesets=rulesets,
+        prioritized_rulesets=prioritized_rulesets,
         description=description,
     )
 
@@ -259,7 +258,7 @@ def update_stage(
     project_name: Optional[str] = None,
     stage_id: Optional[Union[str, UUID4]] = None,
     stage_name: Optional[str] = None,
-    prioritized_rulesets: Optional[list[Rule]] = None,
+    prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
 ) -> Optional[StageDB]:
     """Updates a stage's rulesets, creating a new version.
 
