@@ -1,27 +1,26 @@
 from typing import Optional
 
-from galileo.api_client import GalileoApiClient
-from galileo.config import GalileoSDKConfig
+from galileo.config import GalileoConfig
+from galileo_core.helpers.api_client import ApiClient
 
 
 class BaseClientModel:
     """
     A base class for all client data models.
     Used by the model classes to lazy load the API client.
-
-    Args:
-        client (Optional[GalileoApiClient], optional): The client to use. Defaults to None.
     """
 
-    client: GalileoApiClient
+    _config: GalileoConfig
 
-    def __init__(self, client: Optional[GalileoApiClient] = None) -> None:
-        if client is not None:
-            self.client = client
+    def __init__(self, config: Optional[GalileoConfig] = None) -> None:
+        if config:
+            self._config = config
         else:
-            config = GalileoSDKConfig.get()
-            # Accessing the api_client property triggers the token refresh logic
-            _ = config.api_client
-            self.client = GalileoApiClient(
-                _base_url=str(config.api_url), token=config.jwt_token.get_secret_value(), config=config
-            )
+            self._config = GalileoConfig.get()
+
+    @property
+    def client(self) -> ApiClient:
+        """
+        Returns a fresh client from the config, ensuring the token is up-to-date.
+        """
+        return self._config.api_client

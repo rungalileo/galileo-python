@@ -1,4 +1,7 @@
 post_hooks:
-  - "rm ../../../src/galileo/resources/README.md"
+  - "echo success"
+  # post_hook commands are executed with the newly generated client as the working directory.
+  # - "rm README.md"
+  # - "rm ../../../src/galileo/resources/README.md"
   # Commenting this out for now as it's not working
   # - 'python ../../../scripts/patch_http_validation_error.py "../../../src/galileo/resources/models/http_validation_error.py"'
