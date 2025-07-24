@@ -309,7 +309,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             return
 
         node_type = "chain"
-        node_name = GalileoCallback._get_node_name(node_type, serialized)
+        node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
 
         # If the `name` is `LangGraph` or `Agent`, set the node type to `agent`.
         if node_name in ["LangGraph", "Agent"]:
@@ -350,7 +350,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         Note: This callback is only used for non-chat models.
         """
         node_type = "llm"
-        node_name = GalileoCallback._get_node_name(node_type, serialized)
+        node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model_name", "")
         temperature = invocation_params.get("temperature", 0.0)
@@ -393,7 +393,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
     ) -> Any:
         """Langchain callback when a chat model starts."""
         node_type = "chat"
-        node_name = GalileoCallback._get_node_name(node_type, serialized)
+        node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
         invocation_params = kwargs.get("invocation_params", {})
         model = invocation_params.get("model", invocation_params.get("_type", "undefined-type"))
         temperature = invocation_params.get("temperature", 0.0)
@@ -455,7 +455,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
     ) -> Any:
         """Langchain callback when a tool node starts."""
         node_type = "tool"
-        node_name = GalileoCallback._get_node_name(node_type, serialized)
+        node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
         if "inputs" in kwargs and isinstance(kwargs["inputs"], dict):
             input_str = json.dumps(kwargs["inputs"], cls=EventSerializer)
         await self._start_node(
@@ -468,43 +468,12 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
             metadata={k: str(v) for k, v in metadata.items()} if metadata else None,
         )
 
-    @staticmethod
-    def _find_tool_message(obj: Any) -> Optional[ToolMessage]:
-        """
-        Look for a ToolMessage in the output passed to langchain's on_tool_end callback.
-        If found, return the ToolMessage. Otherwise, return None.
-
-        Can return a ToolMessage in two cases:
-        1. The output is already a ToolMessage.
-        2. The output is a Command object with a ToolMessage in its update list.
-
-        As of this writing, Command and ToolMessage are the only Langchain/Langgraph
-        classes inheriting from ToolOutputMixin. And Langchain is supposed to convert
-        any tool output **not** inheriting from ToolOutputMixin to a ToolMessage.
-
-        So this should cover all cases. Either:
-
-        - the output is a Command (converted to ToolMessage here),
-        - or Langchain will force it to be a ToolMessage before passing it to us.
-        """
-        if isinstance(obj, ToolMessage):
-            return obj
-        if hasattr(obj, "update") and isinstance(obj.update, dict) and "messages" in obj.update:
-            update_messages = obj.update["messages"]
-            if (
-                isinstance(update_messages, list)
-                and len(update_messages) > 0
-                and isinstance(update_messages[-1], ToolMessage)
-            ):
-                return update_messages[-1]
-        return None
-
     async def on_tool_end(
         self, output: Any, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a tool node ends."""
         end_node_kwargs = {}
-        if (tool_message := self._find_tool_message(output)) is not None:
+        if (tool_message := GalileoCallback._find_tool_message(output)) is not None:
             end_node_kwargs["output"] = tool_message.content
             end_node_kwargs["tool_call_id"] = tool_message.tool_call_id
         else:
@@ -531,7 +500,7 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
     ) -> Any:
         """Langchain callback when a retriever node starts."""
         node_type = "retriever"
-        node_name = GalileoCallback._get_node_name(node_type, serialized)
+        node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
         await self._start_node(
             node_type,
             parent_run_id,
