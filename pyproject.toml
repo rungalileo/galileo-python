@@ -20,6 +20,8 @@ openai-agents = { version = "<0.1.1", optional = true }
 
 galileo-core = "~=3.56.0"
 
+backoff = "^2.2.1"
+
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.0"
 coverage = "^7.9.2"
@@ -35,7 +37,6 @@ langchain-core = "^0.3.68"
 pytest-sugar = "^1.0.0"
 vcrpy = "^7.0.0"
 time-machine = "^2.16.0"  # freezegun causes problems with pydantic model validations
-
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^4.0.1"

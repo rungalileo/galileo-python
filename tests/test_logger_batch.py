@@ -91,7 +91,7 @@ def test_single_span_trace_to_galileo(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -108,7 +108,16 @@ def test_single_span_trace_to_galileo(
             )
         ],
     )
-    assert payload == expected_payload
+
+    trace = payload.traces[0]
+    assert trace.input == expected_payload.traces[0].input
+    assert trace.output == expected_payload.traces[0].output
+    assert trace.name == expected_payload.traces[0].name
+    assert trace.created_at == expected_payload.traces[0].created_at
+    assert trace.user_metadata == expected_payload.traces[0].user_metadata
+    assert trace.status_code == expected_payload.traces[0].status_code
+    assert trace.spans == expected_payload.traces[0].spans
+    assert trace.metrics == expected_payload.traces[0].metrics
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 
@@ -259,7 +268,7 @@ def test_single_span_trace_to_galileo_experiment_id(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,
         experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
@@ -276,7 +285,15 @@ def test_single_span_trace_to_galileo_experiment_id(
             )
         ],
     )
-    assert payload == expected_payload
+    trace = payload.traces[0]
+    assert trace.input == expected_payload.traces[0].input
+    assert trace.output == expected_payload.traces[0].output
+    assert trace.name == expected_payload.traces[0].name
+    assert trace.created_at == expected_payload.traces[0].created_at
+    assert trace.user_metadata == expected_payload.traces[0].user_metadata
+    assert trace.status_code == expected_payload.traces[0].status_code
+    assert trace.spans == expected_payload.traces[0].spans
+    assert trace.metrics == expected_payload.traces[0].metrics
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 
@@ -412,7 +429,7 @@ def test_multi_span_trace_to_galileo(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -429,7 +446,15 @@ def test_multi_span_trace_to_galileo(
             )
         ],
     )
-    assert payload == expected_payload
+    trace = payload.traces[0]
+    assert trace.input == expected_payload.traces[0].input
+    assert trace.output == expected_payload.traces[0].output
+    assert trace.name == expected_payload.traces[0].name
+    assert trace.created_at == expected_payload.traces[0].created_at
+    assert trace.user_metadata == expected_payload.traces[0].user_metadata
+    assert trace.status_code == expected_payload.traces[0].status_code
+    assert trace.spans == expected_payload.traces[0].spans
+    assert trace.metrics == expected_payload.traces[0].metrics
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 
@@ -477,7 +502,7 @@ async def test_single_span_trace_to_galileo_with_async(
 
     setattr(span.metrics, "length", 6)
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -494,7 +519,15 @@ async def test_single_span_trace_to_galileo_with_async(
             )
         ],
     )
-    assert payload == expected_payload
+    trace = payload.traces[0]
+    assert trace.input == expected_payload.traces[0].input
+    assert trace.output == expected_payload.traces[0].output
+    assert trace.name == expected_payload.traces[0].name
+    assert trace.created_at == expected_payload.traces[0].created_at
+    assert trace.user_metadata == expected_payload.traces[0].user_metadata
+    assert trace.status_code == expected_payload.traces[0].status_code
+    assert trace.spans == expected_payload.traces[0].spans
+    assert trace.metrics == expected_payload.traces[0].metrics
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 

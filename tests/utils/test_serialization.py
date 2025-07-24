@@ -1,3 +1,4 @@
+import asyncio
 import datetime as dt
 import enum
 import json
@@ -63,11 +64,13 @@ class TestEventSerializer:
 
     def test_default_queue(self) -> None:
         # Test Queue serialization
-        # Test Queue serialization
-        queue = Queue()
-        result = json.dumps(queue, cls=EventSerializer)
-        decoded_result = json.loads(result)
-        assert decoded_result == "Queue"
+        async def run():
+            queue = Queue()
+            result = json.dumps(queue, cls=EventSerializer)
+            decoded_result = json.loads(result)
+            assert decoded_result == "Queue"
+
+        asyncio.run(run())
 
     def test_default_dataclass(self) -> None:
         # Test dataclass serialization
