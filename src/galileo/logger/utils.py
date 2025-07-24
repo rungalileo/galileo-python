@@ -39,20 +39,19 @@ def handle_galileo_http_exceptions_for_retry(func: Callable) -> Callable:
             return await func(*args, **kwargs)
         except GalileoHTTPException as e:
             if e.status_code == 404:
-                print("Trace not found, retrying...")
+                _logger.info("Trace not found, retrying...")
                 raise e
             if e.status_code == 408:
-                print("Request timed out, retrying...")
+                _logger.info("Request timed out, retrying...")
                 raise e
             if e.status_code == 429:
-                print("Rate limited, retrying...")
+                _logger.info("Rate limited, retrying...")
                 raise e
             if e.status_code > 500:
-                print("Server error, retrying...")
+                _logger.info("Server error, retrying...")
                 raise e
 
-            print("Unrecoverable failure or unrecognized error, not retrying...")
-            print(e)
+            _logger.error(f"Unrecoverable failure or unrecognized error: {e}")
             return
 
     return wrapper
