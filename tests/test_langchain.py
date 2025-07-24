@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from langchain_core.agents import AgentFinish
 from langchain_core.documents import Document
-from langchain_core.messages import AIMessage, HumanMessage, ToolMessage, SystemMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.outputs import ChatGeneration, LLMResult
 
 from galileo import Message, MessageRole
