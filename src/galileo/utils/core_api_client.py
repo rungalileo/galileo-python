@@ -2,10 +2,10 @@ import logging
 from typing import Any, Optional
 from uuid import UUID
 
+from galileo.config import GalileoConfig
 from galileo.constants.routes import Routes
 from galileo.schema.trace import LogRecordsSearchRequest, SessionCreateRequest, TracesIngestRequest
 from galileo_core.constants.request_method import RequestMethod
-from galileo_core.schemas.base_config import GalileoConfig
 
 _logger = logging.getLogger(__name__)
 

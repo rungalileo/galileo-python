@@ -2,10 +2,10 @@
 # We need to ignore syntax errors until https://github.com/python/mypy/issues/17535 is resolved.
 from typing import Any, Optional
 
-from galileo_core.schemas.base_config import GalileoConfig
+from galileo_core.schemas.base_config import GalileoConfig as BaseConfig
 
 
-class GalileoSDKConfig(GalileoConfig):
+class GalileoConfig(BaseConfig):
     # Config file for this project.
     config_filename: str = "galileo-config.json"
 
@@ -18,9 +18,8 @@ class GalileoSDKConfig(GalileoConfig):
     @classmethod
     def get(cls, **kwargs: Any) -> "GalileoConfig":
         global _galileo_config
-        if _galileo_config is None:
-            _galileo_config = cls(**kwargs)
+        _galileo_config = cls._get(_galileo_config, **kwargs)  # type: ignore[arg-type]
         return _galileo_config
 
 
-_galileo_config: Optional[GalileoSDKConfig] = None
+_galileo_config: Optional[GalileoConfig] = None
