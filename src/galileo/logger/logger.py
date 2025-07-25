@@ -47,7 +47,7 @@ from galileo_core.schemas.logging.span import (
     ToolSpan,
     WorkflowSpan,
 )
-from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
+from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType, StepType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
@@ -272,7 +272,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     @nop_sync
     def _ingest_span_streaming(self, span: Span) -> None:
         parent_step: Optional[StepWithChildSpans] = (
-            self.current_parent() if not isinstance(span, StepWithChildSpans) else self.previous_parent()
+            self.current_parent()
+            if span.type
+            not in [
+                StepType.trace,
+                StepType.workflow,
+                StepType.agent,
+            ]  # TODO: change this to StepWithChildSpans once we fix tool and retriever spans in `core
+            else self.previous_parent()
         )
         if parent_step is None:
             raise ValueError("A trace needs to be created in order to add a span.")
