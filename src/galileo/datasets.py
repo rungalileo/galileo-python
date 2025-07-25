@@ -169,7 +169,7 @@ class Datasets(BaseClientModel):
 
         """
         datasets: ListDatasetResponse = list_datasets_datasets_get.sync(client=self.client, limit=limit)
-        return [Dataset(dataset_db=dataset, config=self._config) for dataset in datasets.datasets] if datasets else []
+        return [Dataset(dataset_db=dataset, config=self.config) for dataset in datasets.datasets] if datasets else []
 
     @overload
     def get(self, *, id: str, with_content: bool = False) -> Optional[Dataset]: ...
@@ -213,7 +213,7 @@ class Datasets(BaseClientModel):
             dataset_response = get_dataset_datasets_dataset_id_get.sync(client=self.client, dataset_id=id)
             if not dataset_response:
                 return None
-            dataset = Dataset(dataset_db=dataset_response, config=self._config)
+            dataset = Dataset(dataset_db=dataset_response, config=self.config)
 
         elif name:
             filter = DatasetNameFilter(operator=DatasetNameFilterOperator.EQ, value=name)
@@ -225,7 +225,7 @@ class Datasets(BaseClientModel):
             if not datasets_response or len(datasets_response.datasets) == 0:
                 return None
 
-            dataset = Dataset(dataset_db=datasets_response.datasets[0], config=self._config)
+            dataset = Dataset(dataset_db=datasets_response.datasets[0], config=self.config)
 
         if with_content:
             dataset.get_content()
@@ -307,7 +307,7 @@ class Datasets(BaseClientModel):
         if not detailed_response.parsed or isinstance(detailed_response.parsed, HTTPValidationError):
             raise DatasetAPIException(detailed_response.content)
 
-        return Dataset(dataset_db=detailed_response.parsed, config=self._config)
+        return Dataset(dataset_db=detailed_response.parsed, config=self.config)
 
 
 #

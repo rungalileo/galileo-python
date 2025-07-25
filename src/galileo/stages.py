@@ -78,7 +78,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         rulesets: Optional[list[Rule]] = None,
         description: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self._config)
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self.config)
 
         actual_name = name or ts_name("stage")
 
@@ -110,7 +110,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self._config)
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self.config)
 
         if not stage_id and not stage_name:
             raise ValueError("Either stage_id or stage_name must be provided.")
@@ -133,10 +133,10 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
         prioritized_rulesets: Optional[list[Rule]] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self._config)
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self.config)
 
         actual_stage_id: str = _get_stage_id(
-            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, config=self._config
+            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, config=self.config
         )
 
         rulesets = [Ruleset(rules=prioritized_rulesets)] if prioritized_rulesets else []
@@ -161,10 +161,10 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
     ) -> StageDB:
         """Sets the pause state of a stage."""
-        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self._config)
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self.config)
 
         actual_stage_id: str = _get_stage_id(
-            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, config=self._config
+            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, config=self.config
         )
 
         response = pause_stage_projects_project_id_stages_stage_id_put.sync(
