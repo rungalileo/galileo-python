@@ -1,7 +1,6 @@
 import logging
 from unittest.mock import Mock, patch
 
-from galileo.api_client import GalileoApiClient
 from galileo.projects import Projects
 
 
@@ -9,8 +8,10 @@ from galileo.projects import Projects
 def test_get_all_projects_projects_all_get_exc(get_all_projects_projects_all_get, caplog):
     get_all_projects_projects_all_get.sync = Mock(side_effect=ValueError("unable to get all projects"))
 
-    api_client = GalileoApiClient()
-    projects_client = Projects(client=api_client)
+    mock_config = Mock()
+    mock_client = Mock()
+    mock_config.api_client = mock_client
+    projects_client = Projects(config=mock_config)
     # it doesn't trough exception, because we catch all and log
     projects_client.list()
 

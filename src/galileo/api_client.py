@@ -1,7 +1,10 @@
-import httpx
-from attrs import define, field
+from os import getenv
+from typing import Optional
 
-from galileo.config import GalileoSDKConfig
+import httpx
+from attrs import define, evolve, field
+
+from galileo.constants import DEFAULT_API_URL
 from galileo.resources.client import AuthenticatedClient
 
 
@@ -12,8 +15,10 @@ class GalileoApiClient(AuthenticatedClient):
     The following are accepted as keyword arguments and will be used to construct httpx Clients internally:
 
         ``base_url``: The base URL for the API, all requests are made to a relative path to this URL
+            This can also be set via the GALILEO_CONSOLE_URL environment variable
 
-        ``token``: The JWT token to be sent with every request.
+        ``api_key``: The API key to be sent with every request
+            This can also be set via the GALILEO_API_KEY environment variable
 
         ``cookies``: A dictionary of cookies to be sent with every request
 
@@ -38,16 +43,42 @@ class GalileoApiClient(AuthenticatedClient):
         auth_header_name: The name of the Authorization header
     """
 
-    token: str = field(kw_only=True, repr=False)
-    config: GalileoSDKConfig = field(kw_only=True, repr=False)
+    _base_url: Optional[str] = field(factory=lambda: GalileoApiClient.get_api_url(), kw_only=True, alias="base_url")
+    _api_key: Optional[str] = field(factory=lambda: getenv("GALILEO_API_KEY", None), kw_only=True, alias="api_key")
+    token: Optional[str] = None
 
+    api_key_header_name: str = "Galileo-API-Key"
     client_type_header_name: str = "client-type"
     client_type_header_value: str = "sdk-python"
+
+    @staticmethod
+    def get_console_url() -> str:
+        console_url = getenv("GALILEO_CONSOLE_URL", DEFAULT_API_URL)
+        if DEFAULT_API_URL == console_url:
+            return "https://app.galileo.ai"
+
+        return console_url
+
+    def with_api_key(self, api_key: str) -> "GalileoApiClient":
+        """Get a new client matching this one with a new API key"""
+        if self._client is not None:
+            self._client.headers.update({self.api_key_header_name: api_key})
+        if self._async_client is not None:
+            self._async_client.headers.update({self.api_key_header_name: api_key})
+        return evolve(self, api_key=api_key)
 
     def get_httpx_client(self) -> httpx.Client:
         """Get the underlying httpx.Client, constructing a new one if not previously set"""
         if self._client is None:
-            self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
+            if self._api_key:
+                self._headers[self.api_key_header_name] = self._api_key
+            elif self.token:
+                self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
+            else:
+                raise ValueError("Either api_key or token must be set")
+
+            if not self._base_url:
+                raise ValueError("base_url must be set")
 
             self._headers[self.client_type_header_name] = self.client_type_header_value
 
@@ -65,7 +96,15 @@ class GalileoApiClient(AuthenticatedClient):
     def get_async_httpx_client(self) -> httpx.AsyncClient:
         """Get the underlying httpx.AsyncClient, constructing a new one if not previously set"""
         if self._async_client is None:
-            self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
+            if self._api_key:
+                self._headers[self.api_key_header_name] = self._api_key
+            elif self.token:
+                self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
+            else:
+                raise ValueError("Either api_key or token must be set")
+
+            if not self._base_url:
+                raise ValueError("base_url must be set")
 
             self._headers[self.client_type_header_name] = self.client_type_header_value
 
@@ -80,8 +119,13 @@ class GalileoApiClient(AuthenticatedClient):
             )
         return self._async_client
 
-    def get_console_url(self) -> str:
-        return str(self.config.console_url)
-
-    def get_api_url(self) -> str:
-        return str(self.config.api_url)
+    @staticmethod
+    def get_api_url(base_url: Optional[str] = None) -> str:
+        api_url = base_url or getenv("GALILEO_CONSOLE_URL", DEFAULT_API_URL)
+        if api_url is None:
+            raise ValueError("base_url or GALILEO_CONSOLE_URL must be set")
+        if any(map(api_url.__contains__, ["localhost", "127.0.0.1"])):
+            api_url = "http://localhost:8088"
+        else:
+            api_url = api_url.replace("app.galileo.ai", "api.galileo.ai").replace("console", "api")
+        return api_url
