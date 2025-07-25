@@ -10,13 +10,13 @@ class BaseClientModel:
     Used by the model classes to lazy load the API client.
 
     Args:
-    config (Optional[GalileoConfig], optional): The config to use. Defaults to None.
+        config (Optional[GalileoConfig], optional): The config to use. Defaults to None.
     """
 
     config: GalileoConfig
 
     def __init__(self, config: Optional[GalileoConfig] = None) -> None:
-        if config:
+        if config is not None:
             self.config = config
         else:
             self.config = GalileoConfig.get()
