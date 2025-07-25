@@ -25,7 +25,6 @@ openapi-python-client generate --meta none  --path "$OPENAPI_SPEC_PATH" --output
 # Remove unnecessary files
 rm "$OUTPUT_PATH"/README.md
 rm "$OUTPUT_PATH"/pyproject.toml
-rm "$OUTPUT_PATH"/.gitignore
 rm -r "$OUTPUT_PATH"/.ruff_cache
 
 # Flatten the structure by moving the client directory to the output path
