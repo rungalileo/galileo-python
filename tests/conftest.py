@@ -4,7 +4,6 @@ from typing import Callable
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
-import httpx
 import pytest
 from openai.types import CompletionUsage
 from openai.types.chat import ChatCompletionMessage
@@ -20,45 +19,16 @@ from galileo_core.schemas.protect.rule import Rule, RuleOperator
 from galileo_core.schemas.protect.ruleset import Ruleset
 
 
-class RequestMatcher:
-    def __init__(self):
-        self.matchers = []
-
-    def __call__(self, method: str, route: str, json: dict, status_code: int = 200):
-        matcher = MagicMock()
-        self.matchers.append(
-            {"method": method, "url_path": route, "response_json": json, "status_code": status_code, "mock": matcher}
-        )
-        return matcher
-
-    def side_effect(self, method: str, url: str, **kwargs):
-        for matcher in self.matchers:
-            if method.upper() == matcher["method"].upper() and str(url).endswith(matcher["url_path"]):
-                matcher["mock"]()
-                request = httpx.Request(method, url)
-                return httpx.Response(
-                    status_code=matcher["status_code"], json=matcher["response_json"], request=request
-                )
-        raise ConnectionError(f"No mock for {method} {url}")
-
-
-@pytest.fixture
-def mock_request() -> Generator[Callable, None, None]:
-    matcher = RequestMatcher()
-    with patch("httpx.AsyncClient.request", side_effect=matcher.side_effect) as _fixture:
-        yield matcher
-
-
 @pytest.fixture
 def mock_healthcheck(mock_request: Callable) -> Generator[None, None, None]:
-    matcher = mock_request(method=RequestMethod.GET, route=CoreRoutes.healthcheck, json={})
+    route = mock_request(method=RequestMethod.GET, path=CoreRoutes.healthcheck)
     yield
-    assert matcher.called
+    assert route.called
 
 
 @pytest.fixture
 def mock_get_current_user(mock_request: Callable) -> Generator[None, None, None]:
-    matcher = mock_request(
+    route = mock_request(
         RequestMethod.GET,
         CoreRoutes.current_user,
         json=User.model_validate({"id": uuid4(), "email": "user@example.com", "role": UserRole.user}).model_dump(
@@ -66,14 +36,14 @@ def mock_get_current_user(mock_request: Callable) -> Generator[None, None, None]
         ),
     )
     yield
-    assert matcher.called
+    assert route.called
 
 
 @pytest.fixture
 def mock_login_api_key(mock_request: Callable) -> Generator[None, None, None]:
-    matcher = mock_request(RequestMethod.POST, CoreRoutes.api_key_login, json={"access_token": "secret_jwt_token"})
+    route = mock_request(RequestMethod.POST, CoreRoutes.api_key_login, json={"access_token": "secret_jwt_token"})
     yield
-    assert matcher.called
+    assert route.called
 
 
 @pytest.fixture
