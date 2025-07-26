@@ -91,7 +91,8 @@ def thread_pool_capture():
 
     Usage:
         def test_streaming_method(thread_pool_capture):
-            logger = GalileoLogger(project="test", log_stream="test", mode="streaming")
+            logger = GalileoLogger(project="test", log_stream="test", experimental={"mode": "streaming"})
+
             capture = thread_pool_capture(logger)
 
             logger._ingest_trace_streaming(trace)

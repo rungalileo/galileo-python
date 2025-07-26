@@ -326,7 +326,7 @@ def list_log_streams(*, project_id: Optional[str] = None, project_name: Optional
     Returns
     -------
     list[LogStream]
-        A list of projects.
+        A list of Log streams.
 
     Raises
     ------

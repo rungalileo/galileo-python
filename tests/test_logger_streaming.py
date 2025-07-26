@@ -32,7 +32,7 @@ def test_disable_galileo_logger(mock_core_api_client: Mock, monkeypatch, caplog)
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.WARNING):
-        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
         capture = setup_thread_pool_request_capture(logger)
 
@@ -69,7 +69,7 @@ def test_start_trace(mock_core_api_client: Mock, mock_projects_client: Mock, moc
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -102,7 +102,7 @@ def test_add_llm_span(mock_core_api_client: Mock, mock_projects_client: Mock, mo
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -169,7 +169,7 @@ def test_conclude_trace(mock_core_api_client: Mock, mock_projects_client: Mock, 
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -224,7 +224,7 @@ def test_conclude_trace_with_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -311,7 +311,7 @@ def test_conclude_trace_and_start_new_trace(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -430,7 +430,7 @@ def test_conclude_trace_with_nested_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -562,7 +562,7 @@ def test_conclude_all_with_nested_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -685,7 +685,7 @@ def test_conclude_trace_with_agent_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -821,7 +821,7 @@ def test_trace_with_multiple_nested_spans(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1044,7 +1044,7 @@ def test_trace_with_nested_span_and_sibling(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1201,8 +1201,8 @@ def test_add_llm_span_and_conclude_existing_trace(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        mode="streaming",
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
+        experimental={"mode": "streaming"},
     )
 
     mock_core_api_client_instance.get_trace_sync.assert_called_once()
@@ -1277,7 +1277,7 @@ def test_add_nested_span_and_conclude_existing_trace(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        mode="streaming",
+        experimental={"mode": "streaming"},
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
     )
 
@@ -1399,7 +1399,7 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        mode="streaming",
+        experimental={"mode": "streaming"},
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
 
@@ -1474,7 +1474,7 @@ def test_add_nested_span_and_conclude_existing_span(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        mode="streaming",
+        experimental={"mode": "streaming"},
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
 
@@ -1610,7 +1610,7 @@ def test_catch_error_mismatched_trace_span_ids(
         GalileoLogger(
             project="my_project",
             log_stream="my_log_stream",
-            mode="streaming",
+            experimental={"mode": "streaming"},
             trace_id="00000000-0000-0000-0000-000000000000",
             span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
         )

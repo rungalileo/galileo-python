@@ -36,18 +36,18 @@ class ProtectLLM(LLM):
 @mark.parametrize(
     ["output", "ignore_trigger", "expected_return", "expected_call_count"],
     [
-        [dumps({"text": "foo", "status": "NOT_TRIGGERED", **A_TRACE_METADATA_DICT}), False, "foo", 1],
-        [dumps({"text": "foo", "status": "NOT_TRIGGERED", **A_TRACE_METADATA_DICT}), True, "foo", 1],
+        [dumps({"text": "foo", "status": "not_triggered", **A_TRACE_METADATA_DICT}), False, "foo", 1],
+        [dumps({"text": "foo", "status": "not_triggered", **A_TRACE_METADATA_DICT}), True, "foo", 1],
         [dumps({"text": "timeout", "status": "TIMEOUT", **A_TRACE_METADATA_DICT}), False, "timeout", 1],
         [dumps({"text": "timeout", "status": "TIMEOUT", **A_TRACE_METADATA_DICT}), True, "timeout", 1],
         [
-            dumps({"text": "not_triggered", "status": "NOT_TRIGGERED", **A_TRACE_METADATA_DICT}),
+            dumps({"text": "not_triggered", "status": "not_triggered", **A_TRACE_METADATA_DICT}),
             False,
             "not_triggered",
             1,
         ],
         [
-            dumps({"text": "not_triggered", "status": "NOT_TRIGGERED", **A_TRACE_METADATA_DICT}),
+            dumps({"text": "not_triggered", "status": "not_triggered", **A_TRACE_METADATA_DICT}),
             True,
             "not_triggered",
             1,
@@ -80,6 +80,6 @@ def test_parser(output: str, ignore_trigger: bool, expected_return: str, expecte
 def test_echo(echo_output: bool, expected_output: str, capsys: CaptureFixture) -> None:
     """Verify that the ProtectParser echoes the output if echo_output is True."""
     parser = ProtectParser(chain=ProtectLLM(), echo_output=echo_output)
-    parser.parser(dumps({"text": "foo", "status": "NOT_TRIGGERED", **A_TRACE_METADATA_DICT}))
+    parser.parser(dumps({"text": "foo", "status": "not_triggered", **A_TRACE_METADATA_DICT}))
     captured = capsys.readouterr()
     assert captured.out == expected_output

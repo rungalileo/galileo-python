@@ -8,8 +8,8 @@ from ...client import AuthenticatedClient, Client
 from ...models.agent_span_record_with_children import AgentSpanRecordWithChildren
 from ...models.http_validation_error import HTTPValidationError
 from ...models.llm_span_record import LlmSpanRecord
-from ...models.retriever_span_record import RetrieverSpanRecord
-from ...models.tool_span_record import ToolSpanRecord
+from ...models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+from ...models.tool_span_record_with_children import ToolSpanRecordWithChildren
 from ...models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
 from ...types import Response
 
@@ -28,8 +28,8 @@ def _parse_response(
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -41,8 +41,8 @@ def _parse_response(
         ) -> Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ]:
             try:
@@ -72,14 +72,14 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_3 = ToolSpanRecord.from_dict(data)
+                response_200_type_3 = ToolSpanRecordWithChildren.from_dict(data)
 
                 return response_200_type_3
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            response_200_type_4 = RetrieverSpanRecord.from_dict(data)
+            response_200_type_4 = RetrieverSpanRecordWithChildren.from_dict(data)
 
             return response_200_type_4
 
@@ -104,8 +104,8 @@ def _build_response(
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -126,8 +126,8 @@ def sync_detailed(
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -143,7 +143,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]
+        Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
@@ -161,8 +161,8 @@ def sync(
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -178,7 +178,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]
+        Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]
     """
 
     return sync_detailed(project_id=project_id, span_id=span_id, client=client).parsed
@@ -192,8 +192,8 @@ async def asyncio_detailed(
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -209,7 +209,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]
+        Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
@@ -227,8 +227,8 @@ async def asyncio(
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -244,7 +244,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]
+        Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]
     """
 
     return (await asyncio_detailed(project_id=project_id, span_id=span_id, client=client)).parsed

@@ -47,7 +47,7 @@ from galileo_core.schemas.logging.span import (
     ToolSpan,
     WorkflowSpan,
 )
-from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType
+from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType, StepType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
@@ -103,7 +103,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     trace = logger.start_trace(input="Who's a good bot?")
     logger.add_retriever_span(
         input="Who's a good bot?",
-        output="Research shows that I am a good bot.",
+        output=["Research shows that I am a good bot."],
         duration_ns=1000
     )
     logger.add_llm_span(
@@ -145,7 +145,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         trace_id: Optional[str] = None,
         span_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
-        mode: Optional[LoggerModeType] = "batch",
+        experimental: Optional[dict[str, str]] = None,
     ) -> None:
         """
         Initializes the logger
@@ -162,7 +162,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             mode: Logger mode (batch or streaming)
         """
         super().__init__()
-        self.mode = mode
+        experimental = experimental or {}
+        mode_str = experimental.get("mode", "batch")
+        self.mode: LoggerModeType = mode_str
+
         project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
         log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
@@ -170,7 +173,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         log_stream_id_from_env = getenv("GALILEO_LOG_STREAM_ID")
 
         if trace_id or span_id:
-            if mode != "streaming":
+            if self.mode != "streaming":
                 raise GalileoLoggerException("trace_id or span_id can only be used in streaming mode")
             self.trace_id = trace_id
             self.span_id = span_id
@@ -343,7 +346,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     @nop_sync
     def _ingest_span_streaming(self, span: Span) -> None:
         parent_step: Optional[StepWithChildSpans] = (
-            self.current_parent() if not isinstance(span, StepWithChildSpans) else self.previous_parent()
+            self.current_parent()
+            if span.type
+            not in [
+                StepType.trace,
+                StepType.workflow,
+                StepType.agent,
+            ]  # TODO: change this to StepWithChildSpans once we fix tool and retriever spans in `core
+            else self.previous_parent()
         )
         if parent_step is None:
             raise ValueError("A trace needs to be created in order to add a span.")
@@ -470,6 +480,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     def start_trace(
         self,
         input: StepAllowedInputType,
+        redacted_input: Optional[StepAllowedInputType] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -487,6 +498,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
         input: StepAllowedInputType: Input to the node.
+        redacted_input: Optional[StepAllowedInputType]: Redacted input to the node.
         name: Optional[str]: Name of the trace.
         duration_ns: Optional[int]: Duration of the trace in nanoseconds.
         created_at: Optional[datetime]: Timestamp of the trace's creation.
@@ -500,6 +512,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         kwargs = dict(
             input=input,
+            redacted_input=redacted_input,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -526,6 +539,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         input: LlmSpanAllowedInputType,
         output: LlmSpanAllowedOutputType,
         model: Optional[str],
+        redacted_input: Optional[LlmSpanAllowedInputType] = None,
+        redacted_output: Optional[LlmSpanAllowedOutputType] = None,
         tools: Optional[list[dict]] = None,
         name: Optional[str] = None,
         created_at: Optional[datetime] = None,
@@ -551,7 +566,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         ----------
             input: LlmStepAllowedIOType: Input to the node.
             output: LlmStepAllowedIOType: Output of the node.
-            model: str: Model used for this span. Feedback from April: Good docs about what model names we use.
+            model: Optional[str]: Model used for this span. Feedback from April: Good docs about what model names we use.
+            redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
+            redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
             tools: Optional[List[Dict]]: List of available tools passed to LLM on invocation.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
@@ -572,6 +589,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         trace = super().add_single_llm_span_trace(
             input=input,
             output=output,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             model=model,
             tools=tools,
             name=name,
@@ -605,6 +624,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         input: LlmSpanAllowedInputType,
         output: LlmSpanAllowedOutputType,
         model: Optional[str],
+        redacted_input: Optional[LlmSpanAllowedInputType] = None,
+        redacted_output: Optional[LlmSpanAllowedOutputType] = None,
         tools: Optional[list[dict]] = None,
         name: Optional[str] = None,
         created_at: Optional[datetime] = None,
@@ -627,6 +648,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             input: LlmStepAllowedIOType: Input to the node.
             output: LlmStepAllowedIOType: Output of the node.
             model: str: Model used for this span.
+            redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
+            redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
             tools: Optional[List[Dict]]: List of available tools passed to LLM on invocation.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
@@ -647,6 +670,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             input=input,
             output=output,
             model=model,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             tools=tools,
             name=name,
             created_at=created_at,
@@ -675,6 +700,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self,
         input: str,
         output: RetrieverSpanAllowedOutputType,
+        redacted_input: Optional[str] = None,
+        redacted_output: RetrieverSpanAllowedOutputType = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -688,9 +715,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Parameters:
         ----------
-            input: StepIOType: Input to the node.
+            input: str: Input to the node.
             output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]:
                 Documents retrieved from the retriever.
+            redacted_input: Optional[str]: Redacted input to the node.
+            redacted_output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]:
+                Redacted documents retrieved from the retriever.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
@@ -702,35 +732,45 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             RetrieverSpan: The created span.
         """
 
-        if isinstance(output, list):
-            if all(isinstance(doc, Document) for doc in output):
-                documents = output
-            elif all(isinstance(doc, str) for doc in output):
-                documents = [Document(content=doc, metadata={}) for doc in output]
-            elif all(isinstance(doc, dict) for doc in output):
+        def _convert_to_documents(data: RetrieverSpanAllowedOutputType, field_name: str) -> list[Document]:
+            """Convert various input types to a list of Document objects."""
+            if data is None:
+                return [Document(content="", metadata={})]
+
+            if isinstance(data, list):
+                if all(isinstance(doc, Document) for doc in data):
+                    return data
+                elif all(isinstance(doc, str) for doc in data):
+                    return [Document(content=doc, metadata={}) for doc in data]
+                elif all(isinstance(doc, dict) for doc in data):
+                    try:
+                        return [Document.model_validate(doc) for doc in data]
+                    except ValidationError:
+                        return [Document(content=json.dumps(doc), metadata={}) for doc in data]
+                else:
+                    raise ValueError(
+                        f"Invalid type for {field_name}. Expected list of strings, list of dicts, or a Document, but got {type(data)}"
+                    )
+            elif isinstance(data, Document):
+                return [data]
+            elif isinstance(data, str):
+                return [Document(content=data, metadata={})]
+            elif isinstance(data, dict):
                 try:
-                    documents = [Document.model_validate(doc) for doc in output]
+                    return [Document.model_validate(data)]
                 except ValidationError:
-                    documents = [Document(content=json.dumps(doc), metadata={}) for doc in output]
+                    return [Document(content=json.dumps(data), metadata={})]
             else:
-                raise ValueError(
-                    f"Invalid type for output. Expected list of strings, list of dicts, or a Document, but got {type(output)}"
-                )
-        elif isinstance(output, Document):
-            documents = [output]
-        elif isinstance(output, str):
-            documents = [Document(content=output, metadata={})]
-        elif isinstance(output, dict):
-            try:
-                documents = [Document.model_validate(output)]
-            except ValidationError:
-                documents = [Document(content=json.dumps(output), metadata={})]
-        else:
-            documents = [Document(content="", metadata={})]
+                return [Document(content="", metadata={})]
+
+        documents = _convert_to_documents(output, "output")
+        redacted_documents = _convert_to_documents(redacted_output, "redacted_output")
 
         kwargs = dict(
             input=input,
             documents=documents,
+            redacted_input=redacted_input,
+            redacted_documents=redacted_documents,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -751,7 +791,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     def add_tool_span(
         self,
         input: str,
+        redacted_input: Optional[str] = None,
         output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -766,8 +808,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Parameters:
         ----------
-            input: StepIOType: Input to the node.
-            output: StepIOType: Output of the node.
+            input: str: Input to the node.
+            redacted_input: Optional[str]: Redacted input to the node.
+            output: str: Output of the node.
+            redacted_output: Optional[str]: Redacted output to the node.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
@@ -781,7 +825,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         kwargs = dict(
             input=input,
+            redacted_input=redacted_input,
             output=output,
+            redacted_output=redacted_output,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -803,7 +849,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     def add_workflow_span(
         self,
         input: str,
+        redacted_input: Optional[str] = None,
         output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -819,7 +867,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
             input: str: Input to the node.
+            redacted_input: Optional[str]: Redacted input to the node.
             output: Optional[str]: Output of the node. This can also be set on conclude().
+            redacted_output: Optional[str]: Redacted output to the node. This can also be set on conclude().
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
@@ -831,7 +881,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         kwargs = dict(
             input=input,
+            redacted_input=redacted_input,
             output=output,
+            redacted_output=redacted_output,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -851,7 +903,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     def add_agent_span(
         self,
         input: str,
+        redacted_input: Optional[str] = None,
         output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
         name: Optional[str] = None,
         duration_ns: Optional[int] = None,
         created_at: Optional[datetime] = None,
@@ -866,7 +920,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
             input: str: Input to the node.
+            redacted_input: Optional[str]: Redacted input to the node.
             output: Optional[str]: Output of the node. This can also be set on conclude().
+            redacted_output: Optional[str]: Redacted output to the node. This can also be set on conclude().
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
@@ -880,7 +936,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         kwargs = dict(
             input=input,
+            redacted_input=redacted_input,
             output=output,
+            redacted_output=redacted_output,
             name=name,
             duration_ns=duration_ns,
             created_at=created_at,
@@ -898,24 +956,32 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         return span
 
     def _conclude(
-        self, output: Optional[str] = None, duration_ns: Optional[int] = None, status_code: Optional[int] = None
+        self,
+        output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
+        duration_ns: Optional[int] = None,
+        status_code: Optional[int] = None,
     ) -> tuple[StepWithChildSpans, Optional[StepWithChildSpans]]:
         current_parent = self.current_parent()
         if current_parent is None:
             raise ValueError("No existing workflow to conclude.")
 
         current_parent.output = output or current_parent.output
+        current_parent.redacted_output = redacted_output or current_parent.redacted_output
         current_parent.status_code = status_code
         if duration_ns is not None:
             current_parent.metrics.duration_ns = duration_ns
 
         finished_step = self._parent_stack.pop()
+        if self.current_parent() is None and not isinstance(finished_step, Trace):
+            raise ValueError("Finished step is not a trace, but has no parent.  Not added to the list of traces.")
         return (finished_step, self.current_parent())
 
     @nop_sync
     def conclude(
         self,
         output: Optional[str] = None,
+        redacted_output: Optional[str] = None,
         duration_ns: Optional[int] = None,
         status_code: Optional[int] = None,
         conclude_all: bool = False,
@@ -926,7 +992,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Parameters:
         ----------
-            output: Optional[StepIOType]: Output of the node.
+            output: Optional[str]: Output of the node.
+            redacted_output: Optional[str]: Redacted output of the node.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             status_code: Optional[int]: Status code of the node execution.
             conclude_all: bool: If True, all spans will be concluded, including the current span. False by default.
@@ -936,7 +1003,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         if not conclude_all:
             finished_step, current_parent = self._conclude(
-                output=output, duration_ns=duration_ns, status_code=status_code
+                output=output, redacted_output=redacted_output, duration_ns=duration_ns, status_code=status_code
             )
             if self.mode == "streaming":
                 self._update_step_streaming(finished_step, is_complete=True)
@@ -944,7 +1011,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             current_parent = None
             while self.current_parent() is not None:
                 finished_step, current_parent = self._conclude(
-                    output=output, duration_ns=duration_ns, status_code=status_code
+                    output=output, redacted_output=redacted_output, duration_ns=duration_ns, status_code=status_code
                 )
                 if self.mode == "streaming":
                     self._update_step_streaming(finished_step, is_complete=True)
@@ -1046,6 +1113,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Terminate the logger and flush all traces to Galileo.
         """
+
         # Unregister the atexit handler first
         atexit.unregister(self.terminate)
 
@@ -1053,8 +1121,20 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._logger.info("Attempting to flush on interpreter exit...")
             self.flush()
         else:
+            self._logger.info("Checking if all requests are completed...")
+            timeout_seconds = 5
+            timeout_reached = False
+            start_wait = time.time()
             while not self._task_handler.all_tasks_completed():
+                if time.time() - start_wait > timeout_seconds:
+                    timeout_reached = True
+                    break
                 time.sleep(0.1)
+
+            if timeout_reached:
+                self._logger.warning("Terminate timeout reached. Some requests may not have completed.")
+            else:
+                self._logger.info("All requests are complete.")
             self._task_handler.terminate()
 
     @nop_sync
@@ -1066,7 +1146,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Parameters:
         ----------
-            name: Optional[str]: Name of the session. If not provided, a session name will be generated automatically.
+            name: Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
             previous_session_id: Optional[str]: ID of the previous session.
             external_id: Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
         Returns:

@@ -319,7 +319,7 @@ Sessions allow you to group related traces together. By default, a session is cr
 from galileo import GalileoLogger
 
 logger = GalileoLogger(project="gen-ai-project", log_stream="my-log-stream")
-session_id =logger.start_session(session_name="my-session-name")
+session_id =logger.start_session(name="my-session-name")
 
 ...
 
@@ -346,7 +346,7 @@ All of this can also be done using the `galileo_context` context manager:
 ```python
 from galileo import galileo_context
 
-session_id = galileo_context.start_session(session_name="my-session-name")
+session_id = galileo_context.start_session(name="my-session-name")
 
 # OR
 

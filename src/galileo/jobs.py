@@ -4,6 +4,7 @@ from typing import Optional
 from galileo.base import BaseClientModel
 from galileo.resources.api.jobs import create_job_jobs_post
 from galileo.resources.models import CreateJobRequest, CreateJobResponse, PromptRunSettings, ScorerConfig, TaskType
+from galileo_core.exceptions.http import GalileoHTTPException
 
 _logger = logging.getLogger(__name__)
 
@@ -33,5 +34,7 @@ class Jobs(BaseClientModel):
         _logger.info(f"create job: {create_params}")
         result = create_job_jobs_post.sync_detailed(client=self.client, body=CreateJobRequest(**create_params))
         if not result.parsed or not isinstance(result.parsed, CreateJobResponse):
-            _logger.error(f"create job failed: {result.content}")
+            raise GalileoHTTPException(
+                message="Create job failed", status_code=result.status_code, response_text=str(result.content)
+            )
         return result.parsed

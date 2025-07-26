@@ -122,6 +122,133 @@ def test_single_span_trace_to_galileo(
     assert logger._parent_stack == deque()
 
 
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_all_span_types_with_redacted_fields(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that redacted_input and redacted_output fields work for all span types."""
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    metadata = {"key": "value"}
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    logger.start_trace(
+        input="Sensitive trace input: api_key_123",
+        redacted_input="Sensitive trace input: [REDACTED]",
+        name="test-trace",
+        created_at=created_at,
+        metadata=metadata,
+    )
+
+    logger.add_workflow_span(
+        input="Workflow input with secret: password123",
+        redacted_input="Workflow input with secret: [REDACTED]",
+        output="Workflow output with token: token456",
+        redacted_output="Workflow output with token: [REDACTED]",
+        name="test-workflow-span",
+        created_at=created_at,
+        metadata=metadata,
+    )
+
+    logger.add_llm_span(
+        input="LLM input with API key: sk-abc123",
+        output="LLM output with secret: secret789",
+        redacted_input="LLM input with API key: [REDACTED]",
+        redacted_output="LLM output with secret: [REDACTED]",
+        model="gpt4o",
+        name="test-llm-span",
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+
+    logger.add_tool_span(
+        input="Tool input with credentials: user:pass123",
+        output="Tool output with result: result_secret",
+        redacted_input="Tool input with credentials: [REDACTED]",
+        redacted_output="Tool output with result: [REDACTED]",
+        name="test-tool-span",
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+
+    logger.add_retriever_span(
+        input="Retriever query with PII: john.doe@email.com",
+        output=["Document with SSN: 123-45-6789", "Document with phone: 555-1234"],
+        redacted_input="Retriever query with PII: [REDACTED]",
+        redacted_output=["Document with SSN: [REDACTED]", "Document with phone: [REDACTED]"],
+        name="test-retriever-span",
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+
+    logger.conclude(
+        output="Workflow concluded with token: final_token",
+        redacted_output="Workflow concluded with token: [REDACTED]",
+        status_code=200,
+    )
+
+    logger.conclude(
+        output="Trace output with final secret: final_secret",
+        redacted_output="Trace output with final secret: [REDACTED]",
+        status_code=200,
+    )
+
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    trace = payload.traces[0]
+
+    assert trace.input == "Sensitive trace input: api_key_123"
+    assert trace.redacted_input == "Sensitive trace input: [REDACTED]"
+    assert trace.output == "Trace output with final secret: final_secret"
+    assert trace.redacted_output == "Trace output with final secret: [REDACTED]"
+
+    workflow_span = trace.spans[0]
+    assert isinstance(workflow_span, WorkflowSpan)
+    assert workflow_span.input == "Workflow input with secret: password123"
+    assert workflow_span.redacted_input == "Workflow input with secret: [REDACTED]"
+    assert workflow_span.output == "Workflow concluded with token: final_token"
+    assert workflow_span.redacted_output == "Workflow concluded with token: [REDACTED]"
+
+    llm_span_actual = workflow_span.spans[0]
+    assert isinstance(llm_span_actual, LlmSpan)
+    assert llm_span_actual.input[0].content == "LLM input with API key: sk-abc123"
+    assert llm_span_actual.redacted_input[0].content == "LLM input with API key: [REDACTED]"
+    assert llm_span_actual.output.content == "LLM output with secret: secret789"
+    assert llm_span_actual.redacted_output.content == "LLM output with secret: [REDACTED]"
+
+    tool_span = workflow_span.spans[1]
+    assert isinstance(tool_span, ToolSpan)
+    assert tool_span.input == "Tool input with credentials: user:pass123"
+    assert tool_span.redacted_input == "Tool input with credentials: [REDACTED]"
+    assert tool_span.output == "Tool output with result: result_secret"
+    assert tool_span.redacted_output == "Tool output with result: [REDACTED]"
+
+    retriever_span = workflow_span.spans[2]
+    assert isinstance(retriever_span, RetrieverSpan)
+    assert retriever_span.input == "Retriever query with PII: john.doe@email.com"
+    assert retriever_span.redacted_input == "Retriever query with PII: [REDACTED]"
+    assert retriever_span.output == [
+        Document(content="Document with SSN: 123-45-6789", metadata=None),
+        Document(content="Document with phone: 555-1234", metadata=None),
+    ]
+    assert retriever_span.redacted_output == [
+        Document(content="Document with SSN: [REDACTED]", metadata=None),
+        Document(content="Document with phone: [REDACTED]", metadata=None),
+    ]
+
+    assert logger.traces == list()
+    assert logger._parent_stack == deque()
+
+
 @patch("galileo.experiments.Experiments")
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.GalileoCoreApiClient")
