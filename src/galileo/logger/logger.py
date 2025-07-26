@@ -973,8 +973,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             current_parent.metrics.duration_ns = duration_ns
 
         finished_step = self._parent_stack.pop()
-        if self.current_parent() is None and not isinstance(finished_step, Trace):
-            raise ValueError("Finished step is not a trace, but has no parent.  Not added to the list of traces.")
         return (finished_step, self.current_parent())
 
     @nop_sync
