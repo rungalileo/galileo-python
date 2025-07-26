@@ -256,6 +256,7 @@ def setup_mock_experiments_client(mock_experiment_client: Mock):
 
 
 def setup_mock_core_api_client(mock_core_api_client: Mock):
+    now = datetime.datetime.now()
     mock_instance = mock_core_api_client.return_value
     mock_instance.get_project_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
     mock_instance.get_log_stream_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
@@ -280,6 +281,35 @@ def setup_mock_core_api_client(mock_core_api_client: Mock):
     )
     mock_instance.get_sessions_sync = Mock(
         return_value={"starting_token": 0, "limit": 100, "paginated": False, "records": [], "num_records": 0}
+    )
+    mock_instance.get_trace_sync = Mock(
+        return_value={
+            "id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"),
+            "name": "test-trace",
+            "type": "trace",
+            "input": "test-input",
+            "output": None,
+            "created_at": now,
+            "updated_at": now,
+            "user_metadata": {},
+            "spans": [],
+            "metrics": {},
+        }
+    )
+    mock_instance.get_span_sync = Mock(
+        return_value={
+            "id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e"),
+            "name": "test-workflow-span",
+            "type": "workflow",
+            "input": "test-input",
+            "output": None,
+            "created_at": now,
+            "updated_at": now,
+            "user_metadata": {},
+            "metrics": {},
+            "parent_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"),
+            "trace_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"),
+        }
     )
 
     return mock_instance
