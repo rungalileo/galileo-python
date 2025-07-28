@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.update_dataset_content_request import UpdateDatasetContentRequest
 from ...types import UNSET, Response, Unset
@@ -17,7 +19,11 @@ def _get_kwargs(
     if not isinstance(if_match, Unset):
         headers["If-Match"] = if_match
 
-    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/datasets/{dataset_id}/content"}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.PATCH,
+        "return_raw_response": True,
+        "path": f"/datasets/{dataset_id}/content",
+    }
 
     _kwargs["json"] = body.to_dict()
 
@@ -27,9 +33,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Any, HTTPValidationError]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[Any, HTTPValidationError]]:
     if response.status_code == 200:
         response_200 = response.json()
         return response_200
@@ -43,9 +47,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -55,11 +57,7 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateDatasetContentRequest,
-    if_match: Union[None, Unset, str] = UNSET,
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Update Dataset Content
 
@@ -100,17 +98,13 @@ def sync_detailed(
 
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, if_match=if_match)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateDatasetContentRequest,
-    if_match: Union[None, Unset, str] = UNSET,
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Update Dataset Content
 
@@ -153,11 +147,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateDatasetContentRequest,
-    if_match: Union[None, Unset, str] = UNSET,
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Update Dataset Content
 
@@ -198,17 +188,13 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, if_match=if_match)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    dataset_id: str,
-    *,
-    client: AuthenticatedClient,
-    body: UpdateDatasetContentRequest,
-    if_match: Union[None, Unset, str] = UNSET,
+    dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Update Dataset Content
 

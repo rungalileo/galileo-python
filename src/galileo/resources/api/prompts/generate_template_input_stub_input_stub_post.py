@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.template_stub_request import TemplateStubRequest
 from ...types import Response
@@ -13,7 +15,7 @@ from ...types import Response
 def _get_kwargs(*, body: TemplateStubRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": "/input_stub"}
+    _kwargs: dict[str, Any] = {"method": RequestMethod.POST, "return_raw_response": True, "path": "/input_stub"}
 
     _kwargs["json"] = body.to_dict()
 
@@ -23,9 +25,7 @@ def _get_kwargs(*, body: TemplateStubRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Any, HTTPValidationError]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[Any, HTTPValidationError]]:
     if response.status_code == 200:
         response_200 = response.json()
         return response_200
@@ -39,9 +39,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -50,9 +48,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *, client: AuthenticatedClient, body: TemplateStubRequest
-) -> Response[Union[Any, HTTPValidationError]]:
+def sync_detailed(*, client: ApiClient, body: TemplateStubRequest) -> Response[Union[Any, HTTPValidationError]]:
     """Generate Template Input Stub
 
     Args:
@@ -68,12 +64,12 @@ def sync_detailed(
 
     kwargs = _get_kwargs(body=body)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: AuthenticatedClient, body: TemplateStubRequest) -> Optional[Union[Any, HTTPValidationError]]:
+def sync(*, client: ApiClient, body: TemplateStubRequest) -> Optional[Union[Any, HTTPValidationError]]:
     """Generate Template Input Stub
 
     Args:
@@ -91,7 +87,7 @@ def sync(*, client: AuthenticatedClient, body: TemplateStubRequest) -> Optional[
 
 
 async def asyncio_detailed(
-    *, client: AuthenticatedClient, body: TemplateStubRequest
+    *, client: ApiClient, body: TemplateStubRequest
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Generate Template Input Stub
 
@@ -108,14 +104,12 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(body=body)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *, client: AuthenticatedClient, body: TemplateStubRequest
-) -> Optional[Union[Any, HTTPValidationError]]:
+async def asyncio(*, client: ApiClient, body: TemplateStubRequest) -> Optional[Union[Any, HTTPValidationError]]:
     """Generate Template Input Stub
 
     Args:

@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.rollback_request import RollbackRequest
 from ...models.upsert_dataset_content_request import UpsertDatasetContentRequest
@@ -14,7 +16,11 @@ from ...types import Response
 def _get_kwargs(dataset_id: str, *, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "put", "url": f"/datasets/{dataset_id}/content"}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.PUT,
+        "return_raw_response": True,
+        "path": f"/datasets/{dataset_id}/content",
+    }
 
     _kwargs["json"]: dict[str, Any]
     if isinstance(body, RollbackRequest):
@@ -28,9 +34,7 @@ def _get_kwargs(dataset_id: str, *, body: Union["RollbackRequest", "UpsertDatase
     return _kwargs
 
 
-def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Any, HTTPValidationError]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[Any, HTTPValidationError]]:
     if response.status_code == 200:
         response_200 = response.json()
         return response_200
@@ -44,9 +48,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -56,7 +58,7 @@ def _build_response(
 
 
 def sync_detailed(
-    dataset_id: str, *, client: AuthenticatedClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
+    dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Upsert Dataset Content
 
@@ -76,13 +78,13 @@ def sync_detailed(
 
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    dataset_id: str, *, client: AuthenticatedClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
+    dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Upsert Dataset Content
 
@@ -104,7 +106,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    dataset_id: str, *, client: AuthenticatedClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
+    dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Upsert Dataset Content
 
@@ -124,13 +126,13 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    dataset_id: str, *, client: AuthenticatedClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
+    dataset_id: str, *, client: ApiClient, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]
 ) -> Optional[Union[Any, HTTPValidationError]]:
     """Upsert Dataset Content
 

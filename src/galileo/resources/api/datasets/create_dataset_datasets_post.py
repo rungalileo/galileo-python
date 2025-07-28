@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.body_create_dataset_datasets_post import BodyCreateDatasetDatasetsPost
 from ...models.dataset_db import DatasetDB
 from ...models.dataset_format import DatasetFormat
@@ -32,7 +34,12 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": "/datasets", "params": params}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.POST,
+        "return_raw_response": True,
+        "path": "/datasets",
+        "params": params,
+    }
 
     _kwargs["files"] = body.to_multipart()
 
@@ -40,9 +47,7 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[DatasetDB, HTTPValidationError]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[DatasetDB, HTTPValidationError]]:
     if response.status_code == 200:
         response_200 = DatasetDB.from_dict(response.json())
 
@@ -57,9 +62,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[DatasetDB, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[DatasetDB, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -70,7 +73,7 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: BodyCreateDatasetDatasetsPost,
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
@@ -94,14 +97,14 @@ def sync_detailed(
 
     kwargs = _get_kwargs(body=body, format_=format_, hidden=hidden)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: BodyCreateDatasetDatasetsPost,
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
@@ -128,7 +131,7 @@ def sync(
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: BodyCreateDatasetDatasetsPost,
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
@@ -152,14 +155,14 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(body=body, format_=format_, hidden=hidden)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: BodyCreateDatasetDatasetsPost,
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,

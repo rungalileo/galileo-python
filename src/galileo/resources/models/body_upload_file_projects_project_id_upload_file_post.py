@@ -5,7 +5,6 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from .. import types
 from ..types import File
 
 T = TypeVar("T", bound="BodyUploadFileProjectsProjectIdUploadFilePost")
@@ -34,17 +33,18 @@ class BodyUploadFileProjectsProjectIdUploadFilePost:
 
         return field_dict
 
-    def to_multipart(self) -> types.RequestFiles:
-        files: types.RequestFiles = []
+    def to_multipart(self) -> dict[str, Any]:
+        file = self.file.to_tuple()
 
-        files.append(("file", self.file.to_tuple()))
+        upload_metadata = (None, str(self.upload_metadata).encode(), "text/plain")
 
-        files.append(("upload_metadata", (None, str(self.upload_metadata).encode(), "text/plain")))
-
+        field_dict: dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
-            files.append((prop_name, (None, str(prop).encode(), "text/plain")))
+            field_dict[prop_name] = (None, str(prop).encode(), "text/plain")
 
-        return files
+        field_dict.update({"file": file, "upload_metadata": upload_metadata})
+
+        return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:

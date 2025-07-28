@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.log_records_available_columns_request import LogRecordsAvailableColumnsRequest
 from ...models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
@@ -14,7 +16,11 @@ from ...types import Response
 def _get_kwargs(project_id: str, *, body: LogRecordsAvailableColumnsRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/spans/available_columns"}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.POST,
+        "return_raw_response": True,
+        "path": f"/projects/{project_id}/spans/available_columns",
+    }
 
     _kwargs["json"] = body.to_dict()
 
@@ -25,7 +31,7 @@ def _get_kwargs(project_id: str, *, body: LogRecordsAvailableColumnsRequest) -> 
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     if response.status_code == 200:
         response_200 = LogRecordsAvailableColumnsResponse.from_dict(response.json())
@@ -42,7 +48,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -53,7 +59,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, *, client: AuthenticatedClient, body: LogRecordsAvailableColumnsRequest
+    project_id: str, *, client: ApiClient, body: LogRecordsAvailableColumnsRequest
 ) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     """Spans Available Columns
 
@@ -71,13 +77,13 @@ def sync_detailed(
 
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, *, client: AuthenticatedClient, body: LogRecordsAvailableColumnsRequest
+    project_id: str, *, client: ApiClient, body: LogRecordsAvailableColumnsRequest
 ) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     """Spans Available Columns
 
@@ -97,7 +103,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    project_id: str, *, client: AuthenticatedClient, body: LogRecordsAvailableColumnsRequest
+    project_id: str, *, client: ApiClient, body: LogRecordsAvailableColumnsRequest
 ) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     """Spans Available Columns
 
@@ -115,13 +121,13 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    project_id: str, *, client: AuthenticatedClient, body: LogRecordsAvailableColumnsRequest
+    project_id: str, *, client: ApiClient, body: LogRecordsAvailableColumnsRequest
 ) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
     """Spans Available Columns
 

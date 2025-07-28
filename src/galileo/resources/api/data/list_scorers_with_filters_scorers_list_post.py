@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.list_scorers_request import ListScorersRequest
 from ...models.list_scorers_response import ListScorersResponse
@@ -24,7 +26,12 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": "/scorers/list", "params": params}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.POST,
+        "return_raw_response": True,
+        "path": "/scorers/list",
+        "params": params,
+    }
 
     _kwargs["json"] = body.to_dict()
 
@@ -35,7 +42,7 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
     if response.status_code == 200:
         response_200 = ListScorersResponse.from_dict(response.json())
@@ -52,7 +59,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -64,7 +71,7 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: ListScorersRequest,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
@@ -86,14 +93,14 @@ def sync_detailed(
 
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: ListScorersRequest,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
@@ -118,7 +125,7 @@ def sync(
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: ListScorersRequest,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
@@ -140,14 +147,14 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: ListScorersRequest,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,

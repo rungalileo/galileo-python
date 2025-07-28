@@ -3,21 +3,27 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.experiments_available_columns_response import ExperimentsAvailableColumnsResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
 def _get_kwargs(project_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/experiments/available_columns"}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.POST,
+        "return_raw_response": True,
+        "path": f"/projects/{project_id}/experiments/available_columns",
+    }
 
     return _kwargs
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
     if response.status_code == 200:
         response_200 = ExperimentsAvailableColumnsResponse.from_dict(response.json())
@@ -34,7 +40,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -45,7 +51,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, *, client: AuthenticatedClient
+    project_id: str, *, client: ApiClient
 ) -> Response[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
     """Experiments Available Columns
 
@@ -64,13 +70,13 @@ def sync_detailed(
 
     kwargs = _get_kwargs(project_id=project_id)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, *, client: AuthenticatedClient
+    project_id: str, *, client: ApiClient
 ) -> Optional[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
     """Experiments Available Columns
 
@@ -91,7 +97,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    project_id: str, *, client: AuthenticatedClient
+    project_id: str, *, client: ApiClient
 ) -> Response[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
     """Experiments Available Columns
 
@@ -110,13 +116,13 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(project_id=project_id)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    project_id: str, *, client: AuthenticatedClient
+    project_id: str, *, client: ApiClient
 ) -> Optional[Union[ExperimentsAvailableColumnsResponse, HTTPValidationError]]:
     """Experiments Available Columns
 

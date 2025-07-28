@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.base_prompt_template_response import BasePromptTemplateResponse
 from ...models.create_prompt_template_with_version_request_body import CreatePromptTemplateWithVersionRequestBody
 from ...models.http_validation_error import HTTPValidationError
@@ -14,7 +16,7 @@ from ...types import Response
 def _get_kwargs(*, body: CreatePromptTemplateWithVersionRequestBody) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": "/templates"}
+    _kwargs: dict[str, Any] = {"method": RequestMethod.POST, "return_raw_response": True, "path": "/templates"}
 
     _kwargs["json"] = body.to_dict()
 
@@ -25,7 +27,7 @@ def _get_kwargs(*, body: CreatePromptTemplateWithVersionRequestBody) -> dict[str
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     if response.status_code == 200:
         response_200 = BasePromptTemplateResponse.from_dict(response.json())
@@ -42,7 +44,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -53,7 +55,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: AuthenticatedClient, body: CreatePromptTemplateWithVersionRequestBody
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Create Global Prompt Template
 
@@ -89,13 +91,13 @@ def sync_detailed(
 
     kwargs = _get_kwargs(body=body)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *, client: AuthenticatedClient, body: CreatePromptTemplateWithVersionRequestBody
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Create Global Prompt Template
 
@@ -133,7 +135,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    *, client: AuthenticatedClient, body: CreatePromptTemplateWithVersionRequestBody
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Create Global Prompt Template
 
@@ -169,13 +171,13 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(body=body)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    *, client: AuthenticatedClient, body: CreatePromptTemplateWithVersionRequestBody
+    *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
     """Create Global Prompt Template
 
