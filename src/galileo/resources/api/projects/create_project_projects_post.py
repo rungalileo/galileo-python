@@ -22,7 +22,7 @@ def _get_kwargs(*, body: ProjectCreate) -> dict[str, Any]:
 
     headers["Content-Type"] = "application/json"
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 

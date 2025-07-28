@@ -22,7 +22,7 @@ def _get_kwargs(*, body: BodyLoginEmailLoginPost) -> dict[str, Any]:
 
     headers["Content-Type"] = "application/x-www-form-urlencoded"
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 

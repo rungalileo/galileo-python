@@ -26,7 +26,7 @@ def _get_kwargs(template_id: str, *, body: BasePromptTemplateVersion) -> dict[st
 
     headers["Content-Type"] = "application/json"
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 

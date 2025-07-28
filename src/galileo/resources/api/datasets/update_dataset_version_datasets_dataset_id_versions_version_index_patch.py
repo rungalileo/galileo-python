@@ -26,7 +26,7 @@ def _get_kwargs(dataset_id: str, version_index: int, *, body: UpdateDatasetVersi
 
     headers["Content-Type"] = "application/json"
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 

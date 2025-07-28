@@ -26,7 +26,7 @@ def _get_kwargs(project_id: str, log_stream_id: str, *, body: LogStreamUpdateReq
 
     headers["Content-Type"] = "application/json"
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 

@@ -26,7 +26,7 @@ def _get_kwargs(project_id: str, span_id: str, *, body: LogSpanUpdateRequest) ->
 
     headers["Content-Type"] = "application/json"
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 
