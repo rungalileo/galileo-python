@@ -7,6 +7,7 @@ from galileo.metrics import Metrics, create_custom_llm_metric
 from galileo.resources.models.base_scorer_version_response import BaseScorerVersionResponse
 from galileo.resources.models.create_llm_scorer_version_request import CreateLLMScorerVersionRequest
 from galileo.resources.models.create_scorer_request import CreateScorerRequest
+from galileo.resources.models.output_type_enum import OutputTypeEnum
 from galileo.resources.models.scorer_defaults import ScorerDefaults
 from galileo.resources.models.scorer_response import ScorerResponse
 from galileo.resources.models.scorer_types import ScorerTypes
@@ -22,7 +23,7 @@ def mock_scorer_response():
         scorer_type=ScorerTypes.LLM,
         description="Test metric description",
         tags=["test", "custom"],
-        defaults=ScorerDefaults(model_name="GPT-4o", num_judges=3),
+        defaults=ScorerDefaults(model_name="gpt-4.1-mini", num_judges=3),
         created_at="2025-01-01T00:00:00Z",
         created_by=UUID("87654321-4321-8765-2109-987654321cba"),
         updated_at="2025-01-01T00:00:00Z",
@@ -39,7 +40,7 @@ def mock_scorer_version_response():
     mock_response.user_prompt = "Test prompt"
     mock_response.scoreable_node_types = [StepType.llm]
     mock_response.cot_enabled = True
-    mock_response.model_name = "GPT-4o"
+    mock_response.model_name = "gpt-4.1-mini"
     mock_response.num_judges = 3
     return mock_response
 
@@ -75,7 +76,7 @@ class TestMetrics:
         assert scorer_request.scorer_type == ScorerTypes.LLM
         assert scorer_request.description == ""
         assert scorer_request.tags == []
-        assert scorer_request.defaults.model_name == "GPT-4o"
+        assert scorer_request.defaults.model_name == "gpt-4.1-mini"
         assert scorer_request.defaults.num_judges == 3
 
         # Verify create_version was called with correct parameters
@@ -87,7 +88,8 @@ class TestMetrics:
         assert version_request.user_prompt == "Rate the quality of this response"
         assert version_request.scoreable_node_types == [StepType.llm]
         assert version_request.cot_enabled is True
-        assert version_request.model_name == "GPT-4o"
+        assert version_request.output_type == OutputTypeEnum.BOOLEAN
+        assert version_request.model_name == "gpt-4.1-mini"
         assert version_request.num_judges == 3
         assert create_version_call.kwargs["scorer_id"] == mock_scorer_response.id
 
@@ -113,6 +115,7 @@ class TestMetrics:
             num_judges=5,
             description="Custom metric description",
             tags=["custom", "evaluation", "quality"],
+            output_type=OutputTypeEnum.CATEGORICAL,
         )
 
         # Verify the result
@@ -133,6 +136,7 @@ class TestMetrics:
         assert version_request.cot_enabled is False
         assert version_request.model_name == "GPT-3.5-turbo"
         assert version_request.num_judges == 5
+        assert version_request.output_type == OutputTypeEnum.CATEGORICAL
 
     @patch("galileo.metrics.create_llm_scorer_version_scorers_scorer_id_version_llm_post")
     @patch("galileo.metrics.create_scorers_post")
@@ -212,6 +216,7 @@ class TestPublicFunctions:
             num_judges=5,
             description="Test description",
             tags=["test"],
+            output_type=OutputTypeEnum.CATEGORICAL,
         )
 
         # Verify Metrics class was instantiated
@@ -219,7 +224,15 @@ class TestPublicFunctions:
 
         # Verify the method was called with correct parameters
         mock_metrics_instance.create_custom_llm_metric.assert_called_once_with(
-            "test_metric", "Test prompt", StepType.workflow, False, "GPT-3.5-turbo", 5, "Test description", ["test"]
+            "test_metric",
+            "Test prompt",
+            StepType.workflow,
+            False,
+            "GPT-3.5-turbo",
+            5,
+            "Test description",
+            ["test"],
+            OutputTypeEnum.CATEGORICAL,
         )
 
         # Verify the result is returned
@@ -243,10 +256,11 @@ class TestPublicFunctions:
             "Test prompt",
             StepType.llm,  # default
             True,  # default
-            "GPT-4o",  # default
+            "gpt-4.1-mini",  # default
             3,  # default
             "",  # default
             [],  # default
+            OutputTypeEnum.BOOLEAN,  # default
         )
 
         # Verify the result is returned
