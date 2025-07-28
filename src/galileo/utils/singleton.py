@@ -24,7 +24,7 @@ class GalileoLoggerSingleton:
 
     _instance = None  # Class-level attribute to hold the singleton instance.
     _lock = threading.Lock()  # Lock for thread-safe instantiation and operations.
-    _galileo_loggers: dict[tuple[str, str, str], GalileoLogger] = {}  # Cache for loggers.
+    _galileo_loggers: dict[tuple[str, str, str, str], GalileoLogger] = {}  # Cache for loggers.
 
     def __new__(cls) -> "GalileoLoggerSingleton":
         """
@@ -43,8 +43,8 @@ class GalileoLoggerSingleton:
 
     @staticmethod
     def _get_key(
-        project: Optional[str], log_stream: Optional[str], experiment_id: Optional[str] = None
-    ) -> tuple[str, str, str]:
+        project: Optional[str], log_stream: Optional[str], experiment_id: Optional[str] = None, mode: str = "batch"
+    ) -> tuple[str, str, str, str]:
         """
         Generate a key tuple based on project and log_stream parameters.
 
@@ -56,15 +56,15 @@ class GalileoLoggerSingleton:
             project (Optional[str]): The project name.
             log_stream (Optional[str]): The log stream name.
             experiment_id (Optional[str]): The experiment ID.
-
+            mode (Optional[str]): The logger mode.
         Returns:
-            Tuple[str, str, str]: A tuple key (project, log_stream) used for caching.
+            Tuple[str, str, str, str]: A tuple key (project, log_stream, experiment_id, mode) used for caching.
         """
         _logger.debug("current thread is %s", threading.current_thread().name)
 
         # GalileoLoggerSingleton must NOT be shared across different threads
         current_thread_name = threading.current_thread().name
-        key = (current_thread_name,)
+        key = (current_thread_name, mode)
 
         if project is None:
             project = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
@@ -82,6 +82,7 @@ class GalileoLoggerSingleton:
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
+        mode: str = "batch",
         local_metrics: Optional[list[LocalMetricConfig]] = None,
     ) -> GalileoLogger:
         """
@@ -102,7 +103,7 @@ class GalileoLoggerSingleton:
             GalileoLogger: An instance of GalileoLogger corresponding to the key.
         """
         # Compute the key based on provided parameters or environment variables.
-        key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id)
+        key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id, mode)
 
         # First check without acquiring lock for performance.
         if key in self._galileo_loggers:
@@ -130,7 +131,11 @@ class GalileoLoggerSingleton:
             return logger
 
     def reset(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        mode: str = "batch",
     ) -> None:
         """
         Reset (terminate and remove) one or all GalileoLogger instances.
@@ -142,7 +147,7 @@ class GalileoLoggerSingleton:
         """
         with self._lock:
             # Terminate and remove a specific logger.
-            key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id)
+            key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id, mode)
             if key in self._galileo_loggers:
                 self._galileo_loggers[key].terminate()
                 del self._galileo_loggers[key]
@@ -158,7 +163,11 @@ class GalileoLoggerSingleton:
             self._galileo_loggers.clear()
 
     def flush(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        mode: str = "batch",
     ) -> None:
         """
         Flush (upload and clear) a GalileoLogger instance.
@@ -174,7 +183,7 @@ class GalileoLoggerSingleton:
         """
         with self._lock:
             # Terminate and remove a specific logger.
-            key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id)
+            key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id, mode)
             if key in self._galileo_loggers:
                 self._galileo_loggers[key].flush()
 
@@ -187,7 +196,7 @@ class GalileoLoggerSingleton:
             for logger in self._galileo_loggers.values():
                 logger.flush()
 
-    def get_all_loggers(self) -> dict[tuple[str, str, str], GalileoLogger]:
+    def get_all_loggers(self) -> dict[tuple[str, str, str, str], GalileoLogger]:
         """
         Retrieve a copy of the dictionary containing all active loggers.
 

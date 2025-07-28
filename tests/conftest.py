@@ -17,6 +17,7 @@ from galileo_core.schemas.core.user import User
 from galileo_core.schemas.core.user_role import UserRole
 from galileo_core.schemas.protect.rule import Rule, RuleOperator
 from galileo_core.schemas.protect.ruleset import Ruleset
+from tests.testutils.setup import setup_thread_pool_request_capture
 
 
 @pytest.fixture
@@ -133,6 +134,29 @@ def local_dataset():
         {"input": "Which continent is Spain in?", "output": "Europe"},
         {"input": "Which continent is Japan in?", "output": "Asia"},
     ]
+
+
+@pytest.fixture
+def thread_pool_capture():
+    """
+    Pytest fixture that provides a function to capture thread pool requests from streaming methods.
+
+    Usage:
+        def test_streaming_method(thread_pool_capture):
+            logger = GalileoLogger(project="test", log_stream="test", experimental={"mode": "streaming"})
+            capture = thread_pool_capture(logger)
+
+            logger._ingest_trace_streaming(trace)
+
+            capture.mock_pool.assert_called_once()
+            request = capture.get_latest_request()
+            assert isinstance(request, TracesIngestRequest)
+    """
+
+    def _capture_factory(logger):
+        return setup_thread_pool_request_capture(logger)
+
+    return _capture_factory
 
 
 @pytest.fixture(

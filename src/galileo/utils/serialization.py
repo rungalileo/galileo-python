@@ -43,6 +43,11 @@ def serialize_datetime(v: dt.datetime) -> str:
         return _serialize_zoned_datetime(localized_dt)
 
 
+def map_langchain_role(role: str) -> str:
+    role_map = {"ai": "assistant", "human": "user"}
+    return role_map.get(role, role)
+
+
 class EventSerializer(JSONEncoder):
     """
     Custom JSON encoder to assist in the serialization of a wide range of objects.
@@ -66,9 +71,6 @@ class EventSerializer(JSONEncoder):
             if isinstance(obj, Queue):
                 return type(obj).__name__
 
-            if is_dataclass(obj):
-                return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
-
             if isinstance(obj, UUID):
                 return str(obj)
 
@@ -81,49 +83,60 @@ class EventSerializer(JSONEncoder):
             if isinstance(obj, date):
                 return obj.isoformat()
 
-            elif isinstance(obj, BaseModel):
-                return self.default(
-                    obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
-                )
             if isinstance(obj, Path):
                 return str(obj)
 
             if is_langchain_available:
+                from langchain_core.agents import AgentAction
+                from langchain_core.documents import Document as LangchainDocument
                 from langchain_core.load.serializable import Serializable
-
-                if isinstance(obj, Serializable):
-                    return obj.to_json()
-
-                from langchain_core.agents import AgentAction, AgentFinish
                 from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, ToolMessage
                 from langchain_core.outputs import ChatGeneration, LLMResult
                 from langchain_core.prompt_values import ChatPromptValue
 
-                if isinstance(obj, (AgentFinish, AgentAction, ChatPromptValue)):
+                if isinstance(obj, (AgentAction, ChatPromptValue)):
                     return self.default(obj.messages)
                 elif isinstance(obj, ChatGeneration):
                     return self.default(obj.message)
                 elif isinstance(obj, LLMResult):
                     return self.default(obj.generations[0])
-                elif isinstance(obj, BaseMessage):
+                elif isinstance(obj, (AIMessageChunk, AIMessage)):
                     # Map the `type` to `role`.
-                    dumped = obj.model_dump(include={"content", "type"})
-                    dumped["role"] = dumped.pop("type")
-                    return self.default(dumped)
-                elif isinstance(obj, (AIMessageChunk, AIMessage)) and obj.tool_calls:
-                    # Map the `type` to `role`.
-                    dumped = obj.model_dump(include={"content", "type", "tool_calls"})
-                    dumped["role"] = dumped.pop("type")
-                    return self.default(dumped)
+                    dumped = obj.model_dump(mode="json", include={"content", "type", "additional_kwargs"})
+                    dumped["role"] = map_langchain_role(dumped.pop("type"))
+                    additional_kwargs = dumped.pop("additional_kwargs", {})
+                    if "tool_calls" in additional_kwargs:
+                        dumped["tool_calls"] = additional_kwargs.pop("tool_calls")
+                    return dumped
                 elif isinstance(obj, ToolMessage):
                     # Map the `type` to `role`.
-                    dumped = obj.model_dump(include={"content", "type", "status", "tool_call_id"})
-                    dumped["role"] = dumped.pop("type")
-                    return self.default(dumped)
-                elif isinstance(obj, BaseModel):
-                    return self.default(
-                        obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
-                    )
+                    dumped = obj.model_dump(mode="json", include={"content", "type", "status", "tool_call_id"})
+                    dumped["role"] = map_langchain_role(dumped.pop("type"))
+                    return dumped
+                elif isinstance(obj, BaseMessage):
+                    # Map the `type` to `role`.
+                    dumped = obj.model_dump(mode="json", include={"content", "type"})
+                    dumped["role"] = map_langchain_role(dumped.pop("type"))
+                    return dumped
+
+                if isinstance(obj, LangchainDocument):
+                    return self.default(obj.model_dump(mode="json", include={"page_content", "metadata"}))
+
+                if isinstance(obj, Serializable):
+                    serialized = obj.to_json()
+                    if "kwargs" in serialized:
+                        kwargs = serialized["kwargs"]
+                        kwargs.pop("type", None)
+                        return kwargs
+                    return serialized
+
+            if is_dataclass(obj):
+                return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
+
+            if isinstance(obj, BaseModel):
+                return self.default(
+                    obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
+                )
 
             # 64-bit integers might overflow the JavaScript safe integer range.
             if isinstance(obj, int):
