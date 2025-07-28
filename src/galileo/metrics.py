@@ -6,6 +6,7 @@ from galileo.resources.models import ScorerTypes
 from galileo.resources.models.base_scorer_version_response import BaseScorerVersionResponse
 from galileo.resources.models.create_llm_scorer_version_request import CreateLLMScorerVersionRequest
 from galileo.resources.models.create_scorer_request import CreateScorerRequest
+from galileo.resources.models.output_type_enum import OutputTypeEnum
 from galileo.resources.models.scorer_defaults import ScorerDefaults
 from galileo_core.schemas.logging.step import StepType
 
@@ -19,10 +20,11 @@ class Metrics(BaseClientModel):
         user_prompt: str,
         node_level: StepType = StepType.llm,
         cot_enabled: bool = True,
-        model_name: str = "GPT-4o",
+        model_name: str = "gpt-4.1-mini",
         num_judges: int = 3,
         description: str = "",
         tags: list[str] = [],
+        output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN,
     ) -> BaseScorerVersionResponse:
         """
         Create a custom LLM metric.
@@ -36,6 +38,7 @@ class Metrics(BaseClientModel):
             num_judges (int): Number of judges for the metric.
             description (str): Description of the metric.
             tags (List[str]): Tags associated with the metric.
+            output_type (OutputTypeEnum): Output type for the metric.
 
         Returns:
             BaseScorerVersionResponse: Response containing the created metric details.
@@ -56,6 +59,7 @@ class Metrics(BaseClientModel):
             user_prompt=user_prompt,
             scoreable_node_types=scoreable_node_types,
             cot_enabled=cot_enabled,
+            output_type=output_type,
             model_name=model_name,
             num_judges=num_judges,
         )
@@ -74,10 +78,11 @@ def create_custom_llm_metric(
     user_prompt: str,
     node_level: StepType = StepType.llm,
     cot_enabled: bool = True,
-    model_name: str = "GPT-4o",
+    model_name: str = "gpt-4.1-mini",
     num_judges: int = 3,
     description: str = "",
     tags: list[str] = [],
+    output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN,
 ) -> BaseScorerVersionResponse:
     """
     Create a custom LLM metric.
@@ -91,10 +96,11 @@ def create_custom_llm_metric(
         num_judges (int): Number of judges for the metric.
         description (str): Description of the metric.
         tags (List[str]): Tags associated with the metric.
+        output_type (OutputTypeEnum): Output type for the metric.
 
     Returns:
         BaseScorerVersionResponse: Response containing the created metric details.
     """
     return Metrics().create_custom_llm_metric(
-        name, user_prompt, node_level, cot_enabled, model_name, num_judges, description, tags
+        name, user_prompt, node_level, cot_enabled, model_name, num_judges, description, tags, output_type
     )
