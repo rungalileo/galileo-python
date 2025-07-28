@@ -62,7 +62,7 @@ def _get_kwargs(
 {% endif %}
 
 {% if endpoint.header_parameters or endpoint.bodies | length > 0 %}
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
 {% endif %}
     return _kwargs
 
