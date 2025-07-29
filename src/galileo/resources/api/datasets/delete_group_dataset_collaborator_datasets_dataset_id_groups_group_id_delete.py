@@ -3,21 +3,25 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
 def _get_kwargs(dataset_id: str, group_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "delete", "url": f"/datasets/{dataset_id}/groups/{group_id}"}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.DELETE,
+        "return_raw_response": True,
+        "path": f"/datasets/{dataset_id}/groups/{group_id}",
+    }
 
     return _kwargs
 
 
-def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Any, HTTPValidationError]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[Any, HTTPValidationError]]:
     if response.status_code == 200:
         response_200 = response.json()
         return response_200
@@ -31,9 +35,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Any, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -42,9 +44,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    dataset_id: str, group_id: str, *, client: AuthenticatedClient
-) -> Response[Union[Any, HTTPValidationError]]:
+def sync_detailed(dataset_id: str, group_id: str, *, client: ApiClient) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Group Dataset Collaborator
 
      Remove a group's access to a dataset.
@@ -63,12 +63,12 @@ def sync_detailed(
 
     kwargs = _get_kwargs(dataset_id=dataset_id, group_id=group_id)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(dataset_id: str, group_id: str, *, client: AuthenticatedClient) -> Optional[Union[Any, HTTPValidationError]]:
+def sync(dataset_id: str, group_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Group Dataset Collaborator
 
      Remove a group's access to a dataset.
@@ -89,7 +89,7 @@ def sync(dataset_id: str, group_id: str, *, client: AuthenticatedClient) -> Opti
 
 
 async def asyncio_detailed(
-    dataset_id: str, group_id: str, *, client: AuthenticatedClient
+    dataset_id: str, group_id: str, *, client: ApiClient
 ) -> Response[Union[Any, HTTPValidationError]]:
     """Delete Group Dataset Collaborator
 
@@ -109,14 +109,12 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(dataset_id=dataset_id, group_id=group_id)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    dataset_id: str, group_id: str, *, client: AuthenticatedClient
-) -> Optional[Union[Any, HTTPValidationError]]:
+async def asyncio(dataset_id: str, group_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
     """Delete Group Dataset Collaborator
 
      Remove a group's access to a dataset.
