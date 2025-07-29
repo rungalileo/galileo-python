@@ -1,6 +1,6 @@
 from typing import Optional
 
-from galileo.config import GalileoConfig
+from galileo.config import GalileoPythonConfig
 from galileo_core.helpers.api_client import ApiClient
 
 
@@ -10,16 +10,16 @@ class BaseClientModel:
     Used by the model classes to lazy load the API client.
 
     Args:
-        config (Optional[GalileoConfig], optional): The config to use. Defaults to None.
+        config (Optional[GalileoPythonConfig], optional): The config to use. Defaults to None.
     """
 
-    config: GalileoConfig
+    config: GalileoPythonConfig
 
-    def __init__(self, config: Optional[GalileoConfig] = None) -> None:
+    def __init__(self, config: Optional[GalileoPythonConfig] = None) -> None:
         if config is not None:
             self.config = config
         else:
-            self.config = GalileoConfig.get()
+            self.config = GalileoPythonConfig.get()
 
     @property
     def client(self) -> ApiClient:

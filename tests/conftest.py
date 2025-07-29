@@ -9,7 +9,7 @@ from openai.types import CompletionUsage
 from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 
-from galileo.config import GalileoConfig
+from galileo.config import GalileoPythonConfig
 from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.constants.routes import Routes as CoreRoutes
@@ -58,7 +58,7 @@ def mock_decode_jwt() -> Generator[MagicMock, None, None]:
 def set_validated_config(
     mock_healthcheck: None, mock_login_api_key: None, mock_get_current_user: None, mock_decode_jwt: MagicMock
 ) -> Generator[None, None, None]:
-    config = GalileoConfig.get()
+    config = GalileoPythonConfig.get()
     yield
     config.reset()
 
@@ -66,7 +66,6 @@ def set_validated_config(
 @pytest.fixture(autouse=True)
 def env_setup(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "local")
-    monkeypatch.setenv("GALILEO_API_KEY", "api-1234567890")
 
 
 @pytest.fixture

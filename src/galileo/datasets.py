@@ -2,7 +2,7 @@ import mimetypes
 from typing import Any, Optional, Union, overload
 
 from galileo.base import BaseClientModel
-from galileo.config import GalileoConfig
+from galileo.config import GalileoPythonConfig
 from galileo.resources.api.datasets import (
     create_dataset_datasets_post,
     delete_dataset_datasets_dataset_id_delete,
@@ -41,7 +41,7 @@ class DatasetAPIException(APIException):
 class Dataset(BaseClientModel, DecorateAllMethods):
     content: Optional[DatasetContent] = None
 
-    def __init__(self, dataset_db: DatasetDB, config: Optional[GalileoConfig] = None) -> None:
+    def __init__(self, dataset_db: DatasetDB, config: Optional[GalileoPythonConfig] = None) -> None:
         self.dataset = dataset_db
         super().__init__(config=config)
 

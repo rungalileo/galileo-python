@@ -5,7 +5,7 @@ from typing import Optional, Union
 from pydantic import UUID4
 
 from galileo.base import BaseClientModel
-from galileo.config import GalileoConfig
+from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
 from galileo.resources.api.protect import (
     create_stage_projects_project_id_stages_post,
@@ -26,7 +26,7 @@ from galileo_core.utils.name import ts_name
 def _get_project_id(
     project_id: Optional[Union[str, UUID4]] = None,
     project_name: Optional[str] = None,
-    config: Optional[GalileoConfig] = None,
+    config: Optional[GalileoPythonConfig] = None,
 ) -> str:
     """
     Resolves project ID from either project_id or project_name.
@@ -50,7 +50,7 @@ def _get_stage_id(
     stage_id: Optional[Union[str, UUID4]] = None,
     stage_name: Optional[str] = None,
     project_id: Optional[Union[str, UUID4]] = None,
-    config: Optional[GalileoConfig] = None,
+    config: Optional[GalileoPythonConfig] = None,
 ) -> str:
     """
     Resolves stage ID from either stage_id or stage_name.

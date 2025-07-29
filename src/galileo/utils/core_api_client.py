@@ -2,7 +2,7 @@ import logging
 from typing import Any, Optional
 from uuid import UUID
 
-from galileo.config import GalileoConfig
+from galileo.config import GalileoPythonConfig
 from galileo.constants.routes import Routes
 from galileo.schema.trace import (
     LogRecordsSearchRequest,
@@ -32,12 +32,12 @@ class GalileoCoreApiClient:
 
     project_id: Optional[str] = None
     log_stream_id: Optional[str] = None
-    config: GalileoConfig
+    config: GalileoPythonConfig
 
     def __init__(
         self, project_id: Optional[str] = None, log_stream_id: Optional[str] = None, experiment_id: Optional[str] = None
     ):
-        self.config = GalileoConfig.get()
+        self.config = GalileoPythonConfig.get()
         self.project_id = project_id
         self.log_stream_id = log_stream_id
         self.experiment_id = experiment_id
