@@ -178,7 +178,7 @@ class Experiments(BaseClientModel):
 
         _logger.debug(f"job: {job}")
 
-        link = f"{self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {link}"
         print(message)
 
@@ -208,7 +208,7 @@ class Experiments(BaseClientModel):
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
 
-        link = f"{self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has completed and results are available at {link}"
         print(message)
 

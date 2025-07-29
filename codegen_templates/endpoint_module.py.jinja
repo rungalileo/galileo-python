@@ -3,7 +3,8 @@ from typing import Any, Optional, Union, cast
 
 import httpx
 
-from ...client import AuthenticatedClient, Client
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
 from ...types import Response, UNSET
 from ... import errors
 
@@ -27,15 +28,16 @@ def _get_kwargs(
     {{ query_params(endpoint) | indent(4) }}
 
     _kwargs: dict[str, Any] = {
-        "method": "{{ endpoint.method }}",
+        "method": RequestMethod.{{ endpoint.method | upper }},
+        "return_raw_response": True,
         {% if endpoint.path_parameters %}
-        "url": "{{ endpoint.path }}".format(
+        "path": "{{ endpoint.path }}".format(
         {%- for parameter in endpoint.path_parameters -%}
         {{parameter.python_name}}={{parameter.python_name}},
         {%- endfor -%}
         ),
         {% else %}
-        "url": "{{ endpoint.path }}",
+        "path": "{{ endpoint.path }}",
         {% endif %}
         {% if endpoint.query_parameters %}
         "params": params,
@@ -60,12 +62,12 @@ def _get_kwargs(
 {% endif %}
 
 {% if endpoint.header_parameters or endpoint.bodies | length > 0 %}
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
 {% endif %}
     return _kwargs
 
 
-def _parse_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Optional[{{ return_string }}]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[{{ return_string }}]:
     {% for response in endpoint.responses %}
     if response.status_code == {{ response.status_code.value }}:
         {% if parsed_responses %}{% import "property_templates/" + response.prop.template as prop_template %}
@@ -87,7 +89,7 @@ def _parse_response(*, client: Union[AuthenticatedClient, Client], response: htt
         return None
 
 
-def _build_response(*, client: Union[AuthenticatedClient, Client], response: httpx.Response) -> Response[{{ return_string }}]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[{{ return_string }}]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -105,7 +107,7 @@ def sync_detailed(
         {{ kwargs(endpoint, include_client=False) }}
     )
 
-    response = client.get_httpx_client().request(
+    response = client.request(
         **kwargs,
     )
 
@@ -131,7 +133,7 @@ async def asyncio_detailed(
         {{ kwargs(endpoint, include_client=False) }}
     )
 
-    response = await client.get_async_httpx_client().request(
+    response = await client.arequest(
         **kwargs
     )
 

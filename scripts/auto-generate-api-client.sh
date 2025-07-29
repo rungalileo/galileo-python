@@ -20,12 +20,11 @@ cd "$HOME_DIR"
 mv "$OUTPUT_PATH"  "$OUTPUT_PATH"_backup
 
 # Run the OpenAPI Python client generator
-openapi-python-client generate --path "$OPENAPI_SPEC_PATH" --output-path "$OUTPUT_PATH" --custom-template-path ../codegen_templates --config "$CONFIG_PATH"
+openapi-python-client generate --meta none  --path "$OPENAPI_SPEC_PATH" --output-path "$OUTPUT_PATH" --custom-template-path ../codegen_templates --config "$CONFIG_PATH"
 
 # Remove unnecessary files
 rm "$OUTPUT_PATH"/README.md
 rm "$OUTPUT_PATH"/pyproject.toml
-rm "$OUTPUT_PATH"/.gitignore
 rm -r "$OUTPUT_PATH"/.ruff_cache
 
 # Flatten the structure by moving the client directory to the output path

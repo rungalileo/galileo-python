@@ -99,11 +99,7 @@ _kwargs["json"] = {{ property.python_name }}
 {% endif %}
 {# Proper client based on whether or not the endpoint requires authentication #}
 {% if include_client %}
-{% if endpoint.requires_security %}
-client: AuthenticatedClient,
-{% else %}
-client: Union[AuthenticatedClient, Client],
-{% endif %}
+client: ApiClient,
 {% endif %}
 {# Any allowed bodies #}
 {% if endpoint.bodies | length == 1 %}
