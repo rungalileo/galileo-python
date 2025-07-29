@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.invoke_response import InvokeResponse
 from ...models.request import Request as BaseRequest
@@ -14,18 +16,19 @@ from ...types import Response
 
 def _get_kwargs(*, body: BaseRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-    _kwargs: dict[str, Any] = {"method": "post", "url": "/protect/invoke"}
+
+    _kwargs: dict[str, Any] = {"method": RequestMethod.POST, "return_raw_response": True, "path": "/protect/invoke"}
 
     _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
     if response.status_code == 200:
 
@@ -58,7 +61,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -69,7 +72,7 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: AuthenticatedClient, body: BaseRequest
+    *, client: ApiClient, body: BaseRequest
 ) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
     """Invoke
 
@@ -86,13 +89,13 @@ def sync_detailed(
 
     kwargs = _get_kwargs(body=body)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    *, client: AuthenticatedClient, body: BaseRequest
+    *, client: ApiClient, body: BaseRequest
 ) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
     """Invoke
 
@@ -104,14 +107,14 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['InvokeResponse', 'Response']]
+        Union[HTTPValidationError, Union['InvokeResponse', 'BaseResponse']]
     """
 
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
-    *, client: AuthenticatedClient, body: BaseRequest
+    *, client: ApiClient, body: BaseRequest
 ) -> Response[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
     """Invoke
 
@@ -128,13 +131,13 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(body=body)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    *, client: AuthenticatedClient, body: BaseRequest
+    *, client: ApiClient, body: BaseRequest
 ) -> Optional[Union[HTTPValidationError, Union["InvokeResponse", "BaseResponse"]]]:
     """Invoke
 
@@ -146,7 +149,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['InvokeResponse', 'Response']]
+        Union[HTTPValidationError, Union['InvokeResponse', 'BaseResponse']]
     """
 
     return (await asyncio_detailed(client=client, body=body)).parsed

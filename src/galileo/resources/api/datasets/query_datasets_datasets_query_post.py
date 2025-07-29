@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.dataset_action import DatasetAction
 from ...models.http_validation_error import HTTPValidationError
 from ...models.list_dataset_params import ListDatasetParams
@@ -38,18 +40,23 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": "/datasets/query", "params": params}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.POST,
+        "return_raw_response": True,
+        "path": "/datasets/query",
+        "params": params,
+    }
 
     _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[HTTPValidationError, ListDatasetResponse]]:
     if response.status_code == 200:
         response_200 = ListDatasetResponse.from_dict(response.json())
@@ -66,7 +73,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[Union[HTTPValidationError, ListDatasetResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -78,7 +85,7 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: ListDatasetParams,
     actions: Union[Unset, list[DatasetAction]] = UNSET,
     starting_token: Union[Unset, int] = 0,
@@ -103,14 +110,14 @@ def sync_detailed(
 
     kwargs = _get_kwargs(body=body, actions=actions, starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: ListDatasetParams,
     actions: Union[Unset, list[DatasetAction]] = UNSET,
     starting_token: Union[Unset, int] = 0,
@@ -138,7 +145,7 @@ def sync(
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: ListDatasetParams,
     actions: Union[Unset, list[DatasetAction]] = UNSET,
     starting_token: Union[Unset, int] = 0,
@@ -163,14 +170,14 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(body=body, actions=actions, starting_token=starting_token, limit=limit)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: ListDatasetParams,
     actions: Union[Unset, list[DatasetAction]] = UNSET,
     starting_token: Union[Unset, int] = 0,

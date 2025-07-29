@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.body_upload_prompt_evaluation_dataset_projects_project_id_prompt_datasets_post import (
     BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
 )
@@ -35,16 +37,21 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/prompt_datasets", "params": params}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.POST,
+        "return_raw_response": True,
+        "path": f"/projects/{project_id}/prompt_datasets",
+        "params": params,
+    }
 
     _kwargs["files"] = body.to_multipart()
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[HTTPValidationError, PromptDatasetDB]]:
     if response.status_code == 200:
         response_200 = PromptDatasetDB.from_dict(response.json())
@@ -61,7 +68,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[Union[HTTPValidationError, PromptDatasetDB]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -74,7 +81,7 @@ def _build_response(
 def sync_detailed(
     project_id: str,
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
@@ -97,7 +104,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(project_id=project_id, body=body, format_=format_, hidden=hidden)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -105,7 +112,7 @@ def sync_detailed(
 def sync(
     project_id: str,
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
@@ -132,7 +139,7 @@ def sync(
 async def asyncio_detailed(
     project_id: str,
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
@@ -155,7 +162,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(project_id=project_id, body=body, format_=format_, hidden=hidden)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -163,7 +170,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str,
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     body: BodyUploadPromptEvaluationDatasetProjectsProjectIdPromptDatasetsPost,
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
