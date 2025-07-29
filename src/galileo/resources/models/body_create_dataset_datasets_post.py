@@ -5,8 +5,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from .. import types
-from ..types import UNSET, File, FileTypes, Unset
+from ..types import UNSET, File, FileJsonType, Unset
 
 T = TypeVar("T", bound="BodyCreateDatasetDatasetsPost")
 
@@ -46,7 +45,7 @@ class BodyCreateDatasetDatasetsPost:
 
         draft = self.draft
 
-        file: Union[FileTypes, None, Unset]
+        file: Union[FileJsonType, None, Unset]
         if isinstance(self.file, Unset):
             file = UNSET
         elif isinstance(self.file, File):
@@ -81,53 +80,66 @@ class BodyCreateDatasetDatasetsPost:
 
         return field_dict
 
-    def to_multipart(self) -> types.RequestFiles:
-        files: types.RequestFiles = []
+    def to_multipart(self) -> dict[str, Any]:
+        copy_from_dataset_id: Union[Unset, tuple[None, bytes, str]]
 
-        if not isinstance(self.copy_from_dataset_id, Unset):
-            if isinstance(self.copy_from_dataset_id, str):
-                files.append(("copy_from_dataset_id", (None, str(self.copy_from_dataset_id).encode(), "text/plain")))
-            else:
-                files.append(("copy_from_dataset_id", (None, str(self.copy_from_dataset_id).encode(), "text/plain")))
+        if isinstance(self.copy_from_dataset_id, Unset):
+            copy_from_dataset_id = UNSET
+        elif isinstance(self.copy_from_dataset_id, str):
+            copy_from_dataset_id = (None, str(self.copy_from_dataset_id).encode(), "text/plain")
+        else:
+            copy_from_dataset_id = (None, str(self.copy_from_dataset_id).encode(), "text/plain")
 
-        if not isinstance(self.copy_from_dataset_version_index, Unset):
-            if isinstance(self.copy_from_dataset_version_index, int):
-                files.append(
-                    (
-                        "copy_from_dataset_version_index",
-                        (None, str(self.copy_from_dataset_version_index).encode(), "text/plain"),
-                    )
-                )
-            else:
-                files.append(
-                    (
-                        "copy_from_dataset_version_index",
-                        (None, str(self.copy_from_dataset_version_index).encode(), "text/plain"),
-                    )
-                )
+        copy_from_dataset_version_index: Union[Unset, tuple[None, bytes, str]]
 
-        if not isinstance(self.draft, Unset):
-            files.append(("draft", (None, str(self.draft).encode(), "text/plain")))
+        if isinstance(self.copy_from_dataset_version_index, Unset):
+            copy_from_dataset_version_index = UNSET
+        elif isinstance(self.copy_from_dataset_version_index, int):
+            copy_from_dataset_version_index = (None, str(self.copy_from_dataset_version_index).encode(), "text/plain")
+        else:
+            copy_from_dataset_version_index = (None, str(self.copy_from_dataset_version_index).encode(), "text/plain")
 
-        if not isinstance(self.file, Unset):
-            if isinstance(self.file, File):
-                files.append(("file", self.file.to_tuple()))
-            else:
-                files.append(("file", (None, str(self.file).encode(), "text/plain")))
+        draft = self.draft if isinstance(self.draft, Unset) else (None, str(self.draft).encode(), "text/plain")
 
-        if not isinstance(self.hidden, Unset):
-            files.append(("hidden", (None, str(self.hidden).encode(), "text/plain")))
+        file: Union[Unset, tuple[None, bytes, str]]
 
-        if not isinstance(self.name, Unset):
-            if isinstance(self.name, str):
-                files.append(("name", (None, str(self.name).encode(), "text/plain")))
-            else:
-                files.append(("name", (None, str(self.name).encode(), "text/plain")))
+        if isinstance(self.file, Unset):
+            file = UNSET
+        elif isinstance(self.file, File):
+            file = self.file.to_tuple()
+        else:
+            file = (None, str(self.file).encode(), "text/plain")
 
+        hidden = self.hidden if isinstance(self.hidden, Unset) else (None, str(self.hidden).encode(), "text/plain")
+
+        name: Union[Unset, tuple[None, bytes, str]]
+
+        if isinstance(self.name, Unset):
+            name = UNSET
+        elif isinstance(self.name, str):
+            name = (None, str(self.name).encode(), "text/plain")
+        else:
+            name = (None, str(self.name).encode(), "text/plain")
+
+        field_dict: dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
-            files.append((prop_name, (None, str(prop).encode(), "text/plain")))
+            field_dict[prop_name] = (None, str(prop).encode(), "text/plain")
 
-        return files
+        field_dict.update({})
+        if copy_from_dataset_id is not UNSET:
+            field_dict["copy_from_dataset_id"] = copy_from_dataset_id
+        if copy_from_dataset_version_index is not UNSET:
+            field_dict["copy_from_dataset_version_index"] = copy_from_dataset_version_index
+        if draft is not UNSET:
+            field_dict["draft"] = draft
+        if file is not UNSET:
+            field_dict["file"] = file
+        if hidden is not UNSET:
+            field_dict["hidden"] = hidden
+        if name is not UNSET:
+            field_dict["name"] = name
+
+        return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
