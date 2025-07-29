@@ -33,4 +33,8 @@ rm -r "$OUTPUT_PATH"/"$CLIENT_DIR_NAME"
 # Remove the backup directory
 rm -r "$OUTPUT_PATH"_backup
 
+# Lint and format the generated code
+ruff check "$OUTPUT_PATH"/ --fix
+ruff format "$OUTPUT_PATH"/
+
 echo "OpenAPI Python client generated."
