@@ -474,7 +474,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if self.mode == "streaming" and (self.trace_id or self.span_id):
             return True
         current_parent = self.current_parent()
-        return current_parent is not None and isinstance(current_parent, Trace)
+        return current_parent is not None
 
     @nop_sync
     def start_trace(
