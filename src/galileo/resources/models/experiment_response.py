@@ -28,25 +28,6 @@ class ExperimentResponse:
         task_type (TaskType): Valid task types for modeling.
 
             We store these as ints instead of strings because we will be looking this up in the database frequently.
-
-            text_classification = 0
-            text_multi_label = 1
-            text_ner = 2
-            image_classification = 3
-            tabular_classification = 4
-            object_detection = 5
-            semantic_segmentation = 6
-            prompt_evaluation = 7
-            seq2seq = 8
-            llm_monitor = 9
-            seq2seq_completion = 10
-            seq2seq_chat = 11
-            prompt_chain = 12
-            protect = 13
-            prompt_optimization = 14
-            log_stream = 15
-            experiment = 16
-            playground = 17
         aggregate_feedback (Union[Unset, ExperimentResponseAggregateFeedback]): Aggregate feedback information related
             to the experiment
         aggregate_metrics (Union[Unset, ExperimentResponseAggregateMetrics]):

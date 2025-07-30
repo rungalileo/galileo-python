@@ -1,3 +1,4 @@
+import json
 from collections.abc import Mapping
 from io import BytesIO
 from typing import Any, TypeVar, Union, cast
@@ -5,8 +6,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from .. import types
-from ..types import UNSET, File, FileTypes, Unset
+from ..types import UNSET, File, FileJsonType, Unset
 
 T = TypeVar("T", bound="BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut")
 
@@ -33,7 +33,7 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
         else:
             column_names = self.column_names
 
-        file: Union[FileTypes, None, Unset]
+        file: Union[FileJsonType, None, Unset]
         if isinstance(self.file, Unset):
             file = UNSET
         elif isinstance(self.file, File):
@@ -52,26 +52,37 @@ class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
 
         return field_dict
 
-    def to_multipart(self) -> types.RequestFiles:
-        files: types.RequestFiles = []
+    def to_multipart(self) -> dict[str, Any]:
+        column_names: Union[Unset, tuple[None, bytes, str]]
 
-        if not isinstance(self.column_names, Unset):
-            if isinstance(self.column_names, list):
-                for column_names_type_0_item_element in self.column_names:
-                    files.append(("column_names", (None, str(column_names_type_0_item_element).encode(), "text/plain")))
-            else:
-                files.append(("column_names", (None, str(self.column_names).encode(), "text/plain")))
+        if isinstance(self.column_names, Unset):
+            column_names = UNSET
+        elif isinstance(self.column_names, list):
+            _temp_column_names = self.column_names
+            column_names = (None, json.dumps(_temp_column_names).encode(), "application/json")
+        else:
+            column_names = (None, str(self.column_names).encode(), "text/plain")
 
-        if not isinstance(self.file, Unset):
-            if isinstance(self.file, File):
-                files.append(("file", self.file.to_tuple()))
-            else:
-                files.append(("file", (None, str(self.file).encode(), "text/plain")))
+        file: Union[Unset, tuple[None, bytes, str]]
 
+        if isinstance(self.file, Unset):
+            file = UNSET
+        elif isinstance(self.file, File):
+            file = self.file.to_tuple()
+        else:
+            file = (None, str(self.file).encode(), "text/plain")
+
+        field_dict: dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
-            files.append((prop_name, (None, str(prop).encode(), "text/plain")))
+            field_dict[prop_name] = (None, str(prop).encode(), "text/plain")
 
-        return files
+        field_dict.update({})
+        if column_names is not UNSET:
+            field_dict["column_names"] = column_names
+        if file is not UNSET:
+            field_dict["file"] = file
+
+        return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:

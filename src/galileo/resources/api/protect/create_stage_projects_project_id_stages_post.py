@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.stage_db import StageDB
 from ...models.stage_with_rulesets import StageWithRulesets
@@ -14,19 +16,21 @@ from ...types import Response
 def _get_kwargs(project_id: str, *, body: StageWithRulesets) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "post", "url": f"/projects/{project_id}/stages"}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.POST,
+        "return_raw_response": True,
+        "path": f"/projects/{project_id}/stages",
+    }
 
     _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 
-def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, StageDB]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[HTTPValidationError, StageDB]]:
     if response.status_code == 200:
         response_200 = StageDB.from_dict(response.json())
 
@@ -41,9 +45,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, StageDB]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, StageDB]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -53,7 +55,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, *, client: AuthenticatedClient, body: StageWithRulesets
+    project_id: str, *, client: ApiClient, body: StageWithRulesets
 ) -> Response[Union[HTTPValidationError, StageDB]]:
     """Create Stage
 
@@ -71,13 +73,13 @@ def sync_detailed(
 
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, *, client: AuthenticatedClient, body: StageWithRulesets
+    project_id: str, *, client: ApiClient, body: StageWithRulesets
 ) -> Optional[Union[HTTPValidationError, StageDB]]:
     """Create Stage
 
@@ -97,7 +99,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    project_id: str, *, client: AuthenticatedClient, body: StageWithRulesets
+    project_id: str, *, client: ApiClient, body: StageWithRulesets
 ) -> Response[Union[HTTPValidationError, StageDB]]:
     """Create Stage
 
@@ -115,13 +117,13 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    project_id: str, *, client: AuthenticatedClient, body: StageWithRulesets
+    project_id: str, *, client: ApiClient, body: StageWithRulesets
 ) -> Optional[Union[HTTPValidationError, StageDB]]:
     """Create Stage
 

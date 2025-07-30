@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
 from ...models.log_span_update_request import LogSpanUpdateRequest
 from ...models.log_span_update_response import LogSpanUpdateResponse
@@ -14,18 +16,22 @@ from ...types import Response
 def _get_kwargs(project_id: str, span_id: str, *, body: LogSpanUpdateRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
-    _kwargs: dict[str, Any] = {"method": "patch", "url": f"/projects/{project_id}/spans/{span_id}"}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.PATCH,
+        "return_raw_response": True,
+        "path": f"/projects/{project_id}/spans/{span_id}",
+    }
 
     _kwargs["json"] = body.to_dict()
 
     headers["Content-Type"] = "application/json"
 
-    _kwargs["headers"] = headers
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[HTTPValidationError, LogSpanUpdateResponse]]:
     if response.status_code == 200:
         response_200 = LogSpanUpdateResponse.from_dict(response.json())
@@ -42,7 +48,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[Union[HTTPValidationError, LogSpanUpdateResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -53,7 +59,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, span_id: str, *, client: AuthenticatedClient, body: LogSpanUpdateRequest
+    project_id: str, span_id: str, *, client: ApiClient, body: LogSpanUpdateRequest
 ) -> Response[Union[HTTPValidationError, LogSpanUpdateResponse]]:
     """Update Span
 
@@ -74,13 +80,13 @@ def sync_detailed(
 
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id, body=body)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, span_id: str, *, client: AuthenticatedClient, body: LogSpanUpdateRequest
+    project_id: str, span_id: str, *, client: ApiClient, body: LogSpanUpdateRequest
 ) -> Optional[Union[HTTPValidationError, LogSpanUpdateResponse]]:
     """Update Span
 
@@ -103,7 +109,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    project_id: str, span_id: str, *, client: AuthenticatedClient, body: LogSpanUpdateRequest
+    project_id: str, span_id: str, *, client: ApiClient, body: LogSpanUpdateRequest
 ) -> Response[Union[HTTPValidationError, LogSpanUpdateResponse]]:
     """Update Span
 
@@ -124,13 +130,13 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id, body=body)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    project_id: str, span_id: str, *, client: AuthenticatedClient, body: LogSpanUpdateRequest
+    project_id: str, span_id: str, *, client: ApiClient, body: LogSpanUpdateRequest
 ) -> Optional[Union[HTTPValidationError, LogSpanUpdateResponse]]:
     """Update Span
 
