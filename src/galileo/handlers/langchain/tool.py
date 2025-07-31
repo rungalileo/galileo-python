@@ -20,6 +20,25 @@ class ProtectToolInputSchema(BaseModelV1):
 
 
 class ProtectTool(BaseTool):
+    """A LangChain tool that wraps the Galileo Protect API.
+
+    This tool allows you to integrate Galileo Protect into your LangChain applications
+    to scan for and mitigate harmful content in both inputs and outputs. It can be
+    configured with specific rulesets and linked to a Galileo project and stage for
+    monitoring and management.
+
+    It accepts an input and/or output as arguments (parsed by a Pydantic model) and returns a JSON-serialized ``Response`` object from the Protect API.
+
+    Attributes:
+        prioritized_rulesets: An optional sequence of ``Ruleset`` objects to apply.
+        project_id: The UUID of the Galileo project this tool is associated with.
+        project_name: The name of the Galileo project.
+        stage_name: The name of the Protect stage to use for this tool.
+        stage_id: The UUID of the Protect stage.
+        stage_version: The version of the Protect stage to use.
+        timeout: The timeout in seconds for the API request.
+    """
+
     name: str = "GalileoProtect"
     description: str = (
         "Protect your LLM applications from harmful content using Galileo Protect. "
@@ -81,6 +100,17 @@ class ProtectTool(BaseTool):
 
 
 class ProtectParser(BaseModel):
+    """A LangChain runnable that parses and routes the output of a ``ProtectTool``.
+
+    If the Protect API response is 'triggered', it returns the response text.
+    Otherwise, it invokes a fallback chain.
+
+    Attributes:
+        chain: The ``Runnable`` to invoke if the Protect invocation is not triggered.
+        ignore_trigger: If True, always invoke the fallback chain.
+        echo_output: If True, print the raw Protect API response to the console.
+    """
+
     chain: Runnable = Field(..., description="The chain to trigger if the Protect invocation is not triggered.")
     ignore_trigger: bool = Field(
         default=False,
@@ -91,6 +121,21 @@ class ProtectParser(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def parser(self, response_raw_json: str) -> str:
+        """Parses the JSON response from ``ProtectTool`` and decides the execution path.
+
+        If the response status is 'triggered', the response text is returned. Otherwise,
+        the fallback chain is invoked with the text.
+
+        If JSON parsing fails, it assumes the input is not from ``ProtectTool`` and
+        invokes the fallback chain directly with the raw input.
+
+        Args:
+            response_raw_json: Expects the output from the ``ProtectTool``.
+
+        Returns:
+            The text from the Protect response if triggered, or the result of invoking
+            the fallback chain.
+        """
         try:
             response = Response.model_validate_json(response_raw_json)
         except Exception:
