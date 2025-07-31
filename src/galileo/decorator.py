@@ -51,14 +51,16 @@ from collections.abc import AsyncGenerator, Generator
 from contextvars import ContextVar
 from functools import wraps
 from types import TracebackType
-from typing import Any, Callable, Literal, Optional, TypeVar, Union, cast, overload
+from typing import Any, Callable, Optional, TypeVar, Union, cast, overload
 
 from typing_extensions import ParamSpec
 
 from galileo.logger import GalileoLogger
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import LocalMetricConfig
+from galileo.schema.trace import SPAN_TYPE
 from galileo.utils import _get_timestamp
+from galileo.utils.logging import is_concludable_span_type, is_textual_span_type
 from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
 from galileo_core.schemas.logging.span import WorkflowSpan
@@ -66,8 +68,6 @@ from galileo_core.schemas.logging.trace import Trace
 
 _logger = logging.getLogger(__name__)
 
-# Span types supported by the Galileo SDK
-SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow", "agent"]
 
 # For users with mypy type checking, we need to define a TypeVar for the decorated function
 # Otherwise, mypy will infer the return type of the decorated function as Any
@@ -611,7 +611,7 @@ class GalileoDecorator:
             if output is None:
                 # Process result when no output is provided
                 if result is not None:
-                    if not span_type or span_type in ["workflow", "tool", "agent"]:
+                    if not span_type or is_textual_span_type(span_type):
                         # For workflow/tool/agent spans, directly convert to string
                         output = serialize_to_str(result)
                     else:
@@ -620,7 +620,7 @@ class GalileoDecorator:
                         output = json.loads(json.dumps(result, cls=EventSerializer))
                 else:
                     output = ""
-            elif not isinstance(output, str) and (not span_type or span_type in ["workflow", "tool", "agent"]):
+            elif not isinstance(output, str) and (not span_type or is_textual_span_type(span_type)):
                 # Convert output to string if needed for workflow/tool/agent spans
                 output = serialize_to_str(output)
 
@@ -639,7 +639,7 @@ class GalileoDecorator:
 
             # If the span type is a workflow or agent, conclude it
             _logger.debug(f"{span_type=} {stack=} {span_params=}")
-            if span_type in ["workflow", "agent"] or not span_type:
+            if is_concludable_span_type(span_type) or not span_type:
                 if stack:
                     stack.pop()
                     _span_stack_context.set(stack)
