@@ -121,6 +121,7 @@ class GalileoLoggerSingleton:
                 "log_stream": log_stream,
                 "experiment_id": experiment_id,
                 "local_metrics": local_metrics,
+                "mode": mode,
             }
             # Create the logger with filtered kwargs.
             logger = GalileoLogger(**{k: v for k, v in galileo_client_init_args.items() if v is not None})

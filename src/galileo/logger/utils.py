@@ -52,6 +52,7 @@ def handle_galileo_http_exceptions_for_retry(func: Callable) -> Callable:
                 raise e
 
             _logger.error(f"Unrecoverable failure or unrecognized error: {e}")
+
             return
 
     return wrapper
