@@ -1,31 +1,46 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="BasePromptTemplateVersionSettings")
+from ..types import UNSET, Unset
+
+T = TypeVar("T", bound="ScorerModelTypeFilter")
 
 
 @_attrs_define
-class BasePromptTemplateVersionSettings:
-    """ """
+class ScorerModelTypeFilter:
+    """
+    Attributes:
+        name (Union[Literal['model_type'], Unset]):  Default: 'model_type'.
+    """
 
+    name: Union[Literal["model_type"], Unset] = "model_type"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        name = self.name
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
+        field_dict.update({})
+        if name is not UNSET:
+            field_dict["name"] = name
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        base_prompt_template_version_settings = cls()
+        name = cast(Union[Literal["model_type"], Unset], d.pop("name", UNSET))
+        if name != "model_type" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'model_type', got '{name}'")
 
-        base_prompt_template_version_settings.additional_properties = d
-        return base_prompt_template_version_settings
+        scorer_model_type_filter = cls(name=name)
+
+        scorer_model_type_filter.additional_properties = d
+        return scorer_model_type_filter
 
     @property
     def additional_keys(self) -> list[str]:

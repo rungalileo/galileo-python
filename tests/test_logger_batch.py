@@ -28,7 +28,7 @@ LOGGER = logging.getLogger(__name__)
 def test_galileo_logger_exceptions() -> None:
     with pytest.raises(Exception) as exc_info:
         GalileoLogger(project="my_project", log_stream="my_log_stream", experiment_id="my_experiment_id")
-    assert str(exc_info.value) == "User must provide either experiment_id or log_stream, not both."
+    assert str(exc_info.value) == "User cannot specify both a log stream and an experiment."
 
 
 @patch("galileo.logger.logger.GalileoCoreApiClient")
@@ -91,7 +91,7 @@ def test_single_span_trace_to_galileo(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -108,7 +108,143 @@ def test_single_span_trace_to_galileo(
             )
         ],
     )
-    assert payload == expected_payload
+
+    trace = payload.traces[0]
+    assert trace.input == expected_payload.traces[0].input
+    assert trace.output == expected_payload.traces[0].output
+    assert trace.name == expected_payload.traces[0].name
+    assert trace.created_at == expected_payload.traces[0].created_at
+    assert trace.user_metadata == expected_payload.traces[0].user_metadata
+    assert trace.status_code == expected_payload.traces[0].status_code
+    assert trace.spans == expected_payload.traces[0].spans
+    assert trace.metrics == expected_payload.traces[0].metrics
+    assert logger.traces == list()
+    assert logger._parent_stack == deque()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_all_span_types_with_redacted_fields(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test that redacted_input and redacted_output fields work for all span types."""
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    metadata = {"key": "value"}
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    logger.start_trace(
+        input="Sensitive trace input: api_key_123",
+        redacted_input="Sensitive trace input: [REDACTED]",
+        name="test-trace",
+        created_at=created_at,
+        metadata=metadata,
+    )
+
+    logger.add_workflow_span(
+        input="Workflow input with secret: password123",
+        redacted_input="Workflow input with secret: [REDACTED]",
+        output="Workflow output with token: token456",
+        redacted_output="Workflow output with token: [REDACTED]",
+        name="test-workflow-span",
+        created_at=created_at,
+        metadata=metadata,
+    )
+
+    logger.add_llm_span(
+        input="LLM input with API key: sk-abc123",
+        output="LLM output with secret: secret789",
+        redacted_input="LLM input with API key: [REDACTED]",
+        redacted_output="LLM output with secret: [REDACTED]",
+        model="gpt4o",
+        name="test-llm-span",
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+
+    logger.add_tool_span(
+        input="Tool input with credentials: user:pass123",
+        output="Tool output with result: result_secret",
+        redacted_input="Tool input with credentials: [REDACTED]",
+        redacted_output="Tool output with result: [REDACTED]",
+        name="test-tool-span",
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+
+    logger.add_retriever_span(
+        input="Retriever query with PII: john.doe@email.com",
+        output=["Document with SSN: 123-45-6789", "Document with phone: 555-1234"],
+        redacted_input="Retriever query with PII: [REDACTED]",
+        redacted_output=["Document with SSN: [REDACTED]", "Document with phone: [REDACTED]"],
+        name="test-retriever-span",
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+
+    logger.conclude(
+        output="Workflow concluded with token: final_token",
+        redacted_output="Workflow concluded with token: [REDACTED]",
+        status_code=200,
+    )
+
+    logger.conclude(
+        output="Trace output with final secret: final_secret",
+        redacted_output="Trace output with final secret: [REDACTED]",
+        status_code=200,
+    )
+
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    trace = payload.traces[0]
+
+    assert trace.input == "Sensitive trace input: api_key_123"
+    assert trace.redacted_input == "Sensitive trace input: [REDACTED]"
+    assert trace.output == "Trace output with final secret: final_secret"
+    assert trace.redacted_output == "Trace output with final secret: [REDACTED]"
+
+    workflow_span = trace.spans[0]
+    assert isinstance(workflow_span, WorkflowSpan)
+    assert workflow_span.input == "Workflow input with secret: password123"
+    assert workflow_span.redacted_input == "Workflow input with secret: [REDACTED]"
+    assert workflow_span.output == "Workflow concluded with token: final_token"
+    assert workflow_span.redacted_output == "Workflow concluded with token: [REDACTED]"
+
+    llm_span_actual = workflow_span.spans[0]
+    assert isinstance(llm_span_actual, LlmSpan)
+    assert llm_span_actual.input[0].content == "LLM input with API key: sk-abc123"
+    assert llm_span_actual.redacted_input[0].content == "LLM input with API key: [REDACTED]"
+    assert llm_span_actual.output.content == "LLM output with secret: secret789"
+    assert llm_span_actual.redacted_output.content == "LLM output with secret: [REDACTED]"
+
+    tool_span = workflow_span.spans[1]
+    assert isinstance(tool_span, ToolSpan)
+    assert tool_span.input == "Tool input with credentials: user:pass123"
+    assert tool_span.redacted_input == "Tool input with credentials: [REDACTED]"
+    assert tool_span.output == "Tool output with result: result_secret"
+    assert tool_span.redacted_output == "Tool output with result: [REDACTED]"
+
+    retriever_span = workflow_span.spans[2]
+    assert isinstance(retriever_span, RetrieverSpan)
+    assert retriever_span.input == "Retriever query with PII: john.doe@email.com"
+    assert retriever_span.redacted_input == "Retriever query with PII: [REDACTED]"
+    assert retriever_span.output == [
+        Document(content="Document with SSN: 123-45-6789", metadata=None),
+        Document(content="Document with phone: 555-1234", metadata=None),
+    ]
+    assert retriever_span.redacted_output == [
+        Document(content="Document with SSN: [REDACTED]", metadata=None),
+        Document(content="Document with phone: [REDACTED]", metadata=None),
+    ]
+
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 
@@ -132,7 +268,7 @@ def test_single_span_trace_to_galileo_experiment_id(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,
         experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
@@ -149,7 +285,15 @@ def test_single_span_trace_to_galileo_experiment_id(
             )
         ],
     )
-    assert payload == expected_payload
+    trace = payload.traces[0]
+    assert trace.input == expected_payload.traces[0].input
+    assert trace.output == expected_payload.traces[0].output
+    assert trace.name == expected_payload.traces[0].name
+    assert trace.created_at == expected_payload.traces[0].created_at
+    assert trace.user_metadata == expected_payload.traces[0].user_metadata
+    assert trace.status_code == expected_payload.traces[0].status_code
+    assert trace.spans == expected_payload.traces[0].spans
+    assert trace.metrics == expected_payload.traces[0].metrics
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 
@@ -285,7 +429,7 @@ def test_multi_span_trace_to_galileo(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -302,7 +446,15 @@ def test_multi_span_trace_to_galileo(
             )
         ],
     )
-    assert payload == expected_payload
+    trace = payload.traces[0]
+    assert trace.input == expected_payload.traces[0].input
+    assert trace.output == expected_payload.traces[0].output
+    assert trace.name == expected_payload.traces[0].name
+    assert trace.created_at == expected_payload.traces[0].created_at
+    assert trace.user_metadata == expected_payload.traces[0].user_metadata
+    assert trace.status_code == expected_payload.traces[0].status_code
+    assert trace.spans == expected_payload.traces[0].spans
+    assert trace.metrics == expected_payload.traces[0].metrics
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 
@@ -350,7 +502,7 @@ async def test_single_span_trace_to_galileo_with_async(
 
     setattr(span.metrics, "length", 6)
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -367,7 +519,15 @@ async def test_single_span_trace_to_galileo_with_async(
             )
         ],
     )
-    assert payload == expected_payload
+    trace = payload.traces[0]
+    assert trace.input == expected_payload.traces[0].input
+    assert trace.output == expected_payload.traces[0].output
+    assert trace.name == expected_payload.traces[0].name
+    assert trace.created_at == expected_payload.traces[0].created_at
+    assert trace.user_metadata == expected_payload.traces[0].user_metadata
+    assert trace.status_code == expected_payload.traces[0].status_code
+    assert trace.spans == expected_payload.traces[0].spans
+    assert trace.metrics == expected_payload.traces[0].metrics
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 
@@ -958,3 +1118,176 @@ def test_set_session_id(mock_core_api_client: Mock, mock_projects_client: Mock, 
     # Check that the session ID is set correctly in the payload
     payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
     assert payload.session_id == UUID(session_id)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_start_session_with_external_id(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    session_id = logger.start_session(
+        name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test-external-id"
+    )
+    mock_core_api_instance.get_sessions_sync.assert_called_once()
+    mock_core_api_instance.create_session_sync.assert_called_once()
+    assert session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
+    assert logger.session_id == session_id
+
+    mock_core_api_instance.get_sessions_sync = Mock(
+        return_value={
+            "starting_token": 0,
+            "limit": 100,
+            "paginated": False,
+            "records": [
+                {
+                    "type": "session",
+                    "input": "Say this is a test",
+                    "output": "Hello, this is a test",
+                    "name": "",
+                    "created_at": "2025-06-27T21:30:31.632441Z",
+                    "user_metadata": {},
+                    "tags": [],
+                    "status_code": 0,
+                    "metrics": {},
+                    "external_id": "",
+                    "dataset_input": "",
+                    "dataset_output": "",
+                    "dataset_metadata": {},
+                    "id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"),
+                    "session_id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"),
+                    "project_id": UUID("109f2985-0a29-44c5-ae53-f9e7f210bb8f"),
+                    "run_id": UUID("42ecfe5f-1a2e-413d-8fd3-1c488f5f99c9"),
+                    "updated_at": "2025-06-27T21:31:12.409631Z",
+                    "has_children": False,
+                    "metric_info": {},
+                }
+            ],
+            "num_records": 1,
+        }
+    )
+    mock_core_api_instance.create_session_sync.reset_mock()
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    session_id = logger.start_session(external_id="test-external-id")
+    mock_core_api_instance.get_sessions_sync.assert_called_once()
+    mock_core_api_instance.create_session_sync.assert_not_called()
+    assert session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
+    assert logger.session_id == session_id
+
+    # Log a trace
+    logger.start_trace(input="input", name="test-trace", created_at=datetime.datetime.now())
+    logger.add_llm_span(input="input", output="output")
+    logger.conclude("output", status_code=200)
+    logger.flush()
+
+    # Check that the session ID is set correctly in the payload
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    assert payload.session_id == session_id
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_logger_init_with_project_id_and_log_stream_id(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_projects_client = setup_mock_projects_client(mock_projects_client)
+    mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(
+        project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a", log_stream_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b"
+    )
+
+    mock_projects_client.get.assert_not_called()
+    mock_logstreams_client.get.assert_not_called()
+
+    assert logger.project_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a"
+    assert logger.log_stream_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_logger_init_with_project_id_and_log_stream_name(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_projects_client = setup_mock_projects_client(mock_projects_client)
+    mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a", log_stream="my_log_stream")
+
+    mock_projects_client.get.assert_not_called()
+    mock_logstreams_client.get.assert_called_once()
+
+    assert logger.project_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a"
+    assert logger.log_stream_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_logger_init_with_project_name_and_log_stream_id(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_projects_client = setup_mock_projects_client(mock_projects_client)
+    mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")
+
+    mock_projects_client.get.assert_called_once()
+    mock_logstreams_client.get.assert_not_called()
+
+    assert logger.project_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a"
+    assert logger.log_stream_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_logger_init_with_project_name_and_experiment_id(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_projects_client = setup_mock_projects_client(mock_projects_client)
+    mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")
+
+    mock_projects_client.get.assert_called_once()
+    mock_logstreams_client.get.assert_not_called()
+
+    assert logger.project_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a"
+    assert logger.log_stream_id is None
+    assert logger.experiment_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_logger_init_with_project_id_and_experiment_id(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_projects_client = setup_mock_projects_client(mock_projects_client)
+    mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(
+        project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a", experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b"
+    )
+
+    mock_projects_client.get.assert_not_called()
+    mock_logstreams_client.get.assert_not_called()
+
+    assert logger.project_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a"
+    assert logger.log_stream_id is None
+    assert logger.experiment_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b"

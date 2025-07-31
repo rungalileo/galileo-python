@@ -27,8 +27,7 @@ class ToolSpanRecord:
         parent_id (str): Galileo ID of the parent of this span
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
-        session_id (str): Galileo ID of the session
-        trace_id (str): Galileo ID of the trace containing the span (or the same value as id for a trace)
+        session_id (str): Galileo ID of the session containing the trace (or the same value as id for a trace)
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, ToolSpanRecordDatasetMetadata]): Metadata from the dataset associated with this
@@ -43,12 +42,16 @@ class ToolSpanRecord:
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
+        redacted_input (Union[None, Unset, str]): Redacted input of the trace or span.
+        redacted_output (Union[None, Unset, str]): Redacted output of the trace or span.
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         step_number (Union[None, Unset, int]): Topological step number of the span.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
         tool_call_id (Union[None, Unset, str]): ID of the tool call.
+        trace_id (Union[None, Unset, str]): Galileo ID of the trace containing the span (or the same value as id for a
+            trace)
         type_ (Union[Literal['tool'], Unset]): Type of the trace, span or session. Default: 'tool'.
         updated_at (Union[None, Unset, datetime.datetime]): Timestamp of the session or trace or span's last update
         user_metadata (Union[Unset, ToolSpanRecordUserMetadata]): Metadata associated with this trace or span.
@@ -60,7 +63,6 @@ class ToolSpanRecord:
     project_id: str
     run_id: str
     session_id: str
-    trace_id: str
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "ToolSpanRecordDatasetMetadata"] = UNSET
@@ -73,11 +75,14 @@ class ToolSpanRecord:
     metrics_batch_id: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
+    redacted_input: Union[None, Unset, str] = UNSET
+    redacted_output: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     step_number: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     tool_call_id: Union[None, Unset, str] = UNSET
+    trace_id: Union[None, Unset, str] = UNSET
     type_: Union[Literal["tool"], Unset] = "tool"
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
     user_metadata: Union[Unset, "ToolSpanRecordUserMetadata"] = UNSET
@@ -97,8 +102,6 @@ class ToolSpanRecord:
         run_id = self.run_id
 
         session_id = self.session_id
-
-        trace_id = self.trace_id
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -160,6 +163,18 @@ class ToolSpanRecord:
         else:
             output = self.output
 
+        redacted_input: Union[None, Unset, str]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        else:
+            redacted_input = self.redacted_input
+
+        redacted_output: Union[None, Unset, str]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        else:
+            redacted_output = self.redacted_output
+
         session_batch_id: Union[None, Unset, str]
         if isinstance(self.session_batch_id, Unset):
             session_batch_id = UNSET
@@ -188,6 +203,12 @@ class ToolSpanRecord:
         else:
             tool_call_id = self.tool_call_id
 
+        trace_id: Union[None, Unset, str]
+        if isinstance(self.trace_id, Unset):
+            trace_id = UNSET
+        else:
+            trace_id = self.trace_id
+
         type_ = self.type_
 
         updated_at: Union[None, Unset, str]
@@ -212,7 +233,6 @@ class ToolSpanRecord:
                 "project_id": project_id,
                 "run_id": run_id,
                 "session_id": session_id,
-                "trace_id": trace_id,
             }
         )
         if created_at is not UNSET:
@@ -239,6 +259,10 @@ class ToolSpanRecord:
             field_dict["name"] = name
         if output is not UNSET:
             field_dict["output"] = output
+        if redacted_input is not UNSET:
+            field_dict["redacted_input"] = redacted_input
+        if redacted_output is not UNSET:
+            field_dict["redacted_output"] = redacted_output
         if session_batch_id is not UNSET:
             field_dict["session_batch_id"] = session_batch_id
         if status_code is not UNSET:
@@ -249,6 +273,8 @@ class ToolSpanRecord:
             field_dict["tags"] = tags
         if tool_call_id is not UNSET:
             field_dict["tool_call_id"] = tool_call_id
+        if trace_id is not UNSET:
+            field_dict["trace_id"] = trace_id
         if type_ is not UNSET:
             field_dict["type"] = type_
         if updated_at is not UNSET:
@@ -277,8 +303,6 @@ class ToolSpanRecord:
         run_id = d.pop("run_id")
 
         session_id = d.pop("session_id")
-
-        trace_id = d.pop("trace_id")
 
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
@@ -376,6 +400,24 @@ class ToolSpanRecord:
 
         output = _parse_output(d.pop("output", UNSET))
 
+        def _parse_redacted_input(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
+
+        def _parse_redacted_output(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
+
         def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -414,6 +456,15 @@ class ToolSpanRecord:
 
         tool_call_id = _parse_tool_call_id(d.pop("tool_call_id", UNSET))
 
+        def _parse_trace_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
+
         type_ = cast(Union[Literal["tool"], Unset], d.pop("type", UNSET))
         if type_ != "tool" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'tool', got '{type_}'")
@@ -449,7 +500,6 @@ class ToolSpanRecord:
             project_id=project_id,
             run_id=run_id,
             session_id=session_id,
-            trace_id=trace_id,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
@@ -462,11 +512,14 @@ class ToolSpanRecord:
             metrics_batch_id=metrics_batch_id,
             name=name,
             output=output,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             session_batch_id=session_batch_id,
             status_code=status_code,
             step_number=step_number,
             tags=tags,
             tool_call_id=tool_call_id,
+            trace_id=trace_id,
             type_=type_,
             updated_at=updated_at,
             user_metadata=user_metadata,

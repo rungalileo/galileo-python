@@ -36,24 +36,26 @@ jobs:
       - name: Install PyDoc
         run: pipx install pydoc-markdown
 
-      # Generate the docs using PyDoc
+      # Generate the docs using PyDoc. We have to run two configurations as the handlers module isn't generated
+      # by default for some reason, so we have to run a second configuration for that
       # Then convert from md to mdx, and do some other tweaks to make them work with our docs
       - name: Build Docs
         working-directory: ./galileo-python
         run: |
           pydoc-markdown
+          pydoc-markdown pydoc-markdown-handlers.yml
           python ./scripts/convert-md-to-mdx.py
 
-      # Create a branch in the docs-official repo using the current branch name
+      # Create a branch in the docs-official repo using the current branch name and the current date
       - name: Create a branch
         working-directory: ./docs-official
-        run: git checkout -b feat/update-docs-${GITHUB_REF_NAME}
+        run: git checkout -b feat/update-docs-${GITHUB_REF_NAME}-${{ github.run_id }}
 
       # Copy the generated docs from the Python SDK repo to the docs repo
       - name: Update SDK docs
         run: |
           rm -rf ./docs-official/sdk-api/python/reference
-          rm ./galileo-python/.generated_docs/reference/sidebar.json
+          rm -f ./galileo-python/.generated_docs/reference/sidebar.json
           cp -r ./galileo-python/.generated_docs/reference ./docs-official/sdk-api/python/
 
       # Commit the changes to the branch, and push
@@ -63,8 +65,8 @@ jobs:
           git config --global user.email "info@galileo.com"
           git config --global user.name "Galileo"
           git add .
-          git commit -m "Updating docs from ${GITHUB_REF_NAME}"
-          git push -u origin feat/update-docs-${GITHUB_REF_NAME}
+          git commit -m "Updating docs from ${GITHUB_REF_NAME}-${{ github.run_id }}"
+          git push -u origin feat/update-docs-${GITHUB_REF_NAME}-${{ github.run_id }}
 
       # Create a PR against the docs repo with the new changes
       - name: Create PR

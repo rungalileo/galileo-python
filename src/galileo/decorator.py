@@ -82,6 +82,7 @@ _project_context: ContextVar[Optional[str]] = ContextVar("project_context", defa
 _log_stream_context: ContextVar[Optional[str]] = ContextVar("log_stream_context", default=None)
 _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
 _experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_context", default=None)
+_mode_context: ContextVar[Optional[str]] = ContextVar("mode_context", default="batch")
 _span_stack_context: ContextVar[list[WorkflowSpan]] = ContextVar("span_stack_context", default=[])
 
 # Stack variables for storing previous values (for proper nesting)
@@ -89,6 +90,7 @@ _project_stack: ContextVar[list[Optional[str]]] = ContextVar("project_stack", de
 _log_stream_stack: ContextVar[list[Optional[str]]] = ContextVar("log_stream_stack", default=[])
 _trace_stack: ContextVar[list[Optional[Trace]]] = ContextVar("trace_stack", default=[])
 _experiment_id_stack: ContextVar[list[Optional[str]]] = ContextVar("experiment_id_stack", default=[])
+_mode_stack: ContextVar[list[Optional[str]]] = ContextVar("mode_stack", default=[])
 _span_stack_stack: ContextVar[list[list[WorkflowSpan]]] = ContextVar("span_stack_stack", default=[])
 
 
@@ -513,7 +515,7 @@ class GalileoDecorator:
 
         if not _trace_context.get():
             # If the singleton logger has an active trace, use it
-            if client_instance.current_parent():
+            if client_instance.has_active_trace():
                 trace = client_instance.traces[-1]
             else:
                 # If no trace is available, start a new one
@@ -747,7 +749,11 @@ class GalileoDecorator:
             self._handle_call_result(span_type, span_params, output)
 
     def get_logger_instance(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        mode: Optional[str] = None,
     ) -> GalileoLogger:
         """
         Get the Galileo Logger instance for the current decorator context.
@@ -764,6 +770,7 @@ class GalileoDecorator:
             project=project or _project_context.get(),
             log_stream=log_stream or _log_stream_context.get(),
             experiment_id=experiment_id or _experiment_id_context.get(),
+            mode=mode or _mode_context.get(),
         )
 
     def get_current_project(self) -> Optional[str]:
@@ -806,8 +813,21 @@ class GalileoDecorator:
         """
         return _trace_context.get()
 
+    def get_current_mode(self) -> Optional[str]:
+        """
+        Retrieve the current mode from context.
+
+        Returns:
+            str
+        """
+        return _mode_context.get()
+
     def flush(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        mode: Optional[str] = None,
     ) -> None:
         """
         Upload all captured traces under a project and log stream context to Galileo.
@@ -818,7 +838,7 @@ class GalileoDecorator:
             project: The project name. Defaults to None.
             log_stream: The log stream name. Defaults to None.
         """
-        self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id).flush()
+        self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode).flush()
 
         if project == _project_context.get() and log_stream == _log_stream_context.get():
             _span_stack_context.set([])
@@ -848,11 +868,13 @@ class GalileoDecorator:
             project=_project_context.get(),
             log_stream=_log_stream_context.get(),
             experiment_id=_experiment_id_context.get(),
+            mode=_mode_context.get(),
         )
         # Reset current context values
         _project_context.set(None)
         _log_stream_context.set(None)
         _experiment_id_context.set(None)
+        _mode_context.set(None)
         _span_stack_context.set([])
         _trace_context.set(None)
 
@@ -861,6 +883,7 @@ class GalileoDecorator:
         _log_stream_stack.get().clear()
         _trace_stack.get().clear()
         _experiment_id_stack.get().clear()
+        _mode_stack.get().clear()
         _span_stack_stack.get().clear()
 
     def reset_trace_context(self) -> None:
@@ -873,6 +896,7 @@ class GalileoDecorator:
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
+        mode: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
     ) -> None:
         """
@@ -888,9 +912,9 @@ class GalileoDecorator:
             experiment_id: The experiment id. Defaults to None.
             local_metrics: Local metrics configs to run on the traces/spans before submitting them for ingestion.  Defaults to None.
         """
-        GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
+        GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode)
         GalileoLoggerSingleton().get(
-            project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics
+            project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode, local_metrics=local_metrics
         )
 
         _project_context.set(project)

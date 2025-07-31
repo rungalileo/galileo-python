@@ -6,6 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..models.project_labels import ProjectLabels
 from ..models.project_type import ProjectType
 from ..types import UNSET, Unset
 
@@ -20,6 +21,8 @@ class ProjectUpdateResponse:
         id (str):
         updated_at (datetime.datetime):
         created_by (Union[None, Unset, str]):
+        description (Union[None, Unset, str]):
+        labels (Union[Unset, list[ProjectLabels]]):
         name (Union[None, Unset, str]):
         type_ (Union[None, ProjectType, Unset]):
     """
@@ -28,6 +31,8 @@ class ProjectUpdateResponse:
     id: str
     updated_at: datetime.datetime
     created_by: Union[None, Unset, str] = UNSET
+    description: Union[None, Unset, str] = UNSET
+    labels: Union[Unset, list[ProjectLabels]] = UNSET
     name: Union[None, Unset, str] = UNSET
     type_: Union[None, ProjectType, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -44,6 +49,19 @@ class ProjectUpdateResponse:
             created_by = UNSET
         else:
             created_by = self.created_by
+
+        description: Union[None, Unset, str]
+        if isinstance(self.description, Unset):
+            description = UNSET
+        else:
+            description = self.description
+
+        labels: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.labels, Unset):
+            labels = []
+            for labels_item_data in self.labels:
+                labels_item = labels_item_data.value
+                labels.append(labels_item)
 
         name: Union[None, Unset, str]
         if isinstance(self.name, Unset):
@@ -64,6 +82,10 @@ class ProjectUpdateResponse:
         field_dict.update({"created_at": created_at, "id": id, "updated_at": updated_at})
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
+        if description is not UNSET:
+            field_dict["description"] = description
+        if labels is not UNSET:
+            field_dict["labels"] = labels
         if name is not UNSET:
             field_dict["name"] = name
         if type_ is not UNSET:
@@ -88,6 +110,22 @@ class ProjectUpdateResponse:
             return cast(Union[None, Unset, str], data)
 
         created_by = _parse_created_by(d.pop("created_by", UNSET))
+
+        def _parse_description(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        description = _parse_description(d.pop("description", UNSET))
+
+        labels = []
+        _labels = d.pop("labels", UNSET)
+        for labels_item_data in _labels or []:
+            labels_item = ProjectLabels(labels_item_data)
+
+            labels.append(labels_item)
 
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -116,7 +154,14 @@ class ProjectUpdateResponse:
         type_ = _parse_type_(d.pop("type", UNSET))
 
         project_update_response = cls(
-            created_at=created_at, id=id, updated_at=updated_at, created_by=created_by, name=name, type_=type_
+            created_at=created_at,
+            id=id,
+            updated_at=updated_at,
+            created_by=created_by,
+            description=description,
+            labels=labels,
+            name=name,
+            type_=type_,
         )
 
         project_update_response.additional_properties = d

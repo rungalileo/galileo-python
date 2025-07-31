@@ -27,7 +27,6 @@ class SessionRecord:
         id (str): Galileo ID of the session
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
-        session_id (str): Galileo ID of the session
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, SessionRecordDatasetMetadata]): Metadata from the dataset associated with this
@@ -43,7 +42,10 @@ class SessionRecord:
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
         previous_session_id (Union[None, Unset, str]):
+        redacted_input (Union[None, Unset, list['Message'], str]): Redacted input of the trace or span.
+        redacted_output (Union['Message', None, Unset, list['Document'], str]): Redacted output of the trace or span.
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
+        session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
@@ -57,7 +59,6 @@ class SessionRecord:
     id: str
     project_id: str
     run_id: str
-    session_id: str
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "SessionRecordDatasetMetadata"] = UNSET
@@ -71,7 +72,10 @@ class SessionRecord:
     name: Union[Unset, str] = ""
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
     previous_session_id: Union[None, Unset, str] = UNSET
+    redacted_input: Union[None, Unset, list["Message"], str] = UNSET
+    redacted_output: Union["Message", None, Unset, list["Document"], str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
+    session_id: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     tags: Union[Unset, list[str]] = UNSET
     trace_id: Union[None, Unset, str] = UNSET
@@ -89,8 +93,6 @@ class SessionRecord:
         project_id = self.project_id
 
         run_id = self.run_id
-
-        session_id = self.session_id
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -176,11 +178,43 @@ class SessionRecord:
         else:
             previous_session_id = self.previous_session_id
 
+        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        elif isinstance(self.redacted_input, list):
+            redacted_input = []
+            for redacted_input_type_1_item_data in self.redacted_input:
+                redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
+                redacted_input.append(redacted_input_type_1_item)
+
+        else:
+            redacted_input = self.redacted_input
+
+        redacted_output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        elif isinstance(self.redacted_output, Message):
+            redacted_output = self.redacted_output.to_dict()
+        elif isinstance(self.redacted_output, list):
+            redacted_output = []
+            for redacted_output_type_2_item_data in self.redacted_output:
+                redacted_output_type_2_item = redacted_output_type_2_item_data.to_dict()
+                redacted_output.append(redacted_output_type_2_item)
+
+        else:
+            redacted_output = self.redacted_output
+
         session_batch_id: Union[None, Unset, str]
         if isinstance(self.session_batch_id, Unset):
             session_batch_id = UNSET
         else:
             session_batch_id = self.session_batch_id
+
+        session_id: Union[None, Unset, str]
+        if isinstance(self.session_id, Unset):
+            session_id = UNSET
+        else:
+            session_id = self.session_id
 
         status_code: Union[None, Unset, int]
         if isinstance(self.status_code, Unset):
@@ -214,7 +248,7 @@ class SessionRecord:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"id": id, "project_id": project_id, "run_id": run_id, "session_id": session_id})
+        field_dict.update({"id": id, "project_id": project_id, "run_id": run_id})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -241,8 +275,14 @@ class SessionRecord:
             field_dict["output"] = output
         if previous_session_id is not UNSET:
             field_dict["previous_session_id"] = previous_session_id
+        if redacted_input is not UNSET:
+            field_dict["redacted_input"] = redacted_input
+        if redacted_output is not UNSET:
+            field_dict["redacted_output"] = redacted_output
         if session_batch_id is not UNSET:
             field_dict["session_batch_id"] = session_batch_id
+        if session_id is not UNSET:
+            field_dict["session_id"] = session_id
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
         if tags is not UNSET:
@@ -273,8 +313,6 @@ class SessionRecord:
         project_id = d.pop("project_id")
 
         run_id = d.pop("run_id")
-
-        session_id = d.pop("session_id")
 
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
@@ -420,6 +458,58 @@ class SessionRecord:
 
         previous_session_id = _parse_previous_session_id(d.pop("previous_session_id", UNSET))
 
+        def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"], str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_input_type_1 = []
+                _redacted_input_type_1 = data
+                for redacted_input_type_1_item_data in _redacted_input_type_1:
+                    redacted_input_type_1_item = Message.from_dict(redacted_input_type_1_item_data)
+
+                    redacted_input_type_1.append(redacted_input_type_1_item)
+
+                return redacted_input_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["Message"], str], data)
+
+        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
+
+        def _parse_redacted_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                redacted_output_type_1 = Message.from_dict(data)
+
+                return redacted_output_type_1
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                redacted_output_type_2 = []
+                _redacted_output_type_2 = data
+                for redacted_output_type_2_item_data in _redacted_output_type_2:
+                    redacted_output_type_2_item = Document.from_dict(redacted_output_type_2_item_data)
+
+                    redacted_output_type_2.append(redacted_output_type_2_item)
+
+                return redacted_output_type_2
+            except:  # noqa: E722
+                pass
+            return cast(Union["Message", None, Unset, list["Document"], str], data)
+
+        redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
+
         def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -428,6 +518,15 @@ class SessionRecord:
             return cast(Union[None, Unset, str], data)
 
         session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
+
+        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_id = _parse_session_id(d.pop("session_id", UNSET))
 
         def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -481,7 +580,6 @@ class SessionRecord:
             id=id,
             project_id=project_id,
             run_id=run_id,
-            session_id=session_id,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
@@ -495,7 +593,10 @@ class SessionRecord:
             name=name,
             output=output,
             previous_session_id=previous_session_id,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             session_batch_id=session_batch_id,
+            session_id=session_id,
             status_code=status_code,
             tags=tags,
             trace_id=trace_id,

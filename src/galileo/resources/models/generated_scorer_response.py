@@ -7,6 +7,7 @@ from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
 from ..models.node_type import NodeType
+from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.chain_poll_template import ChainPollTemplate
@@ -25,22 +26,24 @@ class GeneratedScorerResponse:
         created_at (datetime.datetime):
         created_by (str):
         id (str):
-        instructions (str):
         name (str):
         scoreable_node_types (Union[None, list[NodeType]]):
         scorer_configuration (GeneratedScorerConfiguration):
         updated_at (datetime.datetime):
+        instructions (Union[None, Unset, str]):
+        user_prompt (Union[None, Unset, str]):
     """
 
     chain_poll_template: "ChainPollTemplate"
     created_at: datetime.datetime
     created_by: str
     id: str
-    instructions: str
     name: str
     scoreable_node_types: Union[None, list[NodeType]]
     scorer_configuration: "GeneratedScorerConfiguration"
     updated_at: datetime.datetime
+    instructions: Union[None, Unset, str] = UNSET
+    user_prompt: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -51,8 +54,6 @@ class GeneratedScorerResponse:
         created_by = self.created_by
 
         id = self.id
-
-        instructions = self.instructions
 
         name = self.name
 
@@ -70,6 +71,18 @@ class GeneratedScorerResponse:
 
         updated_at = self.updated_at.isoformat()
 
+        instructions: Union[None, Unset, str]
+        if isinstance(self.instructions, Unset):
+            instructions = UNSET
+        else:
+            instructions = self.instructions
+
+        user_prompt: Union[None, Unset, str]
+        if isinstance(self.user_prompt, Unset):
+            user_prompt = UNSET
+        else:
+            user_prompt = self.user_prompt
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -78,13 +91,16 @@ class GeneratedScorerResponse:
                 "created_at": created_at,
                 "created_by": created_by,
                 "id": id,
-                "instructions": instructions,
                 "name": name,
                 "scoreable_node_types": scoreable_node_types,
                 "scorer_configuration": scorer_configuration,
                 "updated_at": updated_at,
             }
         )
+        if instructions is not UNSET:
+            field_dict["instructions"] = instructions
+        if user_prompt is not UNSET:
+            field_dict["user_prompt"] = user_prompt
 
         return field_dict
 
@@ -101,8 +117,6 @@ class GeneratedScorerResponse:
         created_by = d.pop("created_by")
 
         id = d.pop("id")
-
-        instructions = d.pop("instructions")
 
         name = d.pop("name")
 
@@ -130,16 +144,35 @@ class GeneratedScorerResponse:
 
         updated_at = isoparse(d.pop("updated_at"))
 
+        def _parse_instructions(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        instructions = _parse_instructions(d.pop("instructions", UNSET))
+
+        def _parse_user_prompt(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        user_prompt = _parse_user_prompt(d.pop("user_prompt", UNSET))
+
         generated_scorer_response = cls(
             chain_poll_template=chain_poll_template,
             created_at=created_at,
             created_by=created_by,
             id=id,
-            instructions=instructions,
             name=name,
             scoreable_node_types=scoreable_node_types,
             scorer_configuration=scorer_configuration,
             updated_at=updated_at,
+            instructions=instructions,
+            user_prompt=user_prompt,
         )
 
         generated_scorer_response.additional_properties = d

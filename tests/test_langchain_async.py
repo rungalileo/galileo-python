@@ -5,7 +5,8 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from langchain_core.agents import AgentFinish
 from langchain_core.documents import Document
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain_core.outputs import ChatGeneration, LLMResult
 from pytest import mark
 
 from galileo import Message, MessageRole
@@ -170,9 +171,9 @@ class TestGalileoAsyncCallback:
         run_id = uuid.uuid4()
 
         # Start agent chain
-        await callback.on_chain_start(serialized={"name": "agent"}, inputs={"input": "test input"}, run_id=run_id)
+        await callback.on_chain_start(serialized={"name": "Agent"}, inputs={"input": "test input"}, run_id=run_id)
 
-        assert callback._nodes[str(run_id)].node_type == "chain"
+        assert callback._nodes[str(run_id)].node_type == "agent"
 
         # End with agent finish
         finish = AgentFinish(return_values={"output": "test result"}, log="log message")
@@ -182,8 +183,8 @@ class TestGalileoAsyncCallback:
         traces = galileo_logger.traces
         assert len(traces) == 1
         assert len(traces[0].spans) == 1
-        assert traces[0].spans[0].name == "agent"
-        assert traces[0].spans[0].type == "workflow"
+        assert traces[0].spans[0].name == "Agent"
+        assert traces[0].spans[0].type == "agent"
         assert traces[0].spans[0].input == '{"input": "test input"}'
         assert traces[0].spans[0].output == '{"return_values": {"output": "test result"}, "log": "log message"}'
         assert traces[0].spans[0].step_number is None
@@ -216,12 +217,10 @@ class TestGalileoAsyncCallback:
         await callback.on_llm_new_token("AI", run_id=run_id)
 
         # End LLM
-        llm_response = MagicMock()
-        llm_response.generations = [[MagicMock()]]
-        llm_response.llm_output = {"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}}
-
-        # Mock dict method on the generation
-        llm_response.generations[0][0].dict.return_value = {"text": "AI is a technology..."}
+        llm_response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="AI is a technology..."))]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
 
         await callback.on_llm_end(response=llm_response, run_id=run_id, parent_run_id=parent_id)
 
@@ -241,9 +240,10 @@ class TestGalileoAsyncCallback:
         await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
 
         # Start chat model
+        system_message = SystemMessage(content="You are a helpful assistant.")
         human_message = HumanMessage(content="Tell me about AI")
         ai_message = AIMessage(content="AI is a technology...")
-        messages = [[human_message, ai_message]]
+        messages = [[system_message, human_message, ai_message]]
 
         await callback.on_chat_model_start(
             serialized={},
@@ -261,9 +261,13 @@ class TestGalileoAsyncCallback:
         # Check that message serialization worked
         input_data = callback._nodes[str(run_id)].span_params["input"]
         assert isinstance(input_data, list)
-        assert len(input_data) == 2  # Two messages
-        assert input_data[0]["content"] == "Tell me about AI"
-        assert input_data[1]["content"] == "AI is a technology..."
+        assert len(input_data) == 3  # Two messages
+        assert input_data[0]["content"] == "You are a helpful assistant."
+        assert input_data[1]["content"] == "Tell me about AI"
+        assert input_data[2]["content"] == "AI is a technology..."
+        assert input_data[0]["role"] == "system"
+        assert input_data[1]["role"] == "user"
+        assert input_data[2]["role"] == "assistant"
 
     @mark.asyncio
     async def test_on_chat_model_start_end_with_tools(
@@ -318,10 +322,10 @@ class TestGalileoAsyncCallback:
         ]
 
         # End chat model (llm)
-        llm_response = MagicMock()
-        llm_response.generations = [[MagicMock()]]
-        llm_response.llm_output = {"token_usage": {"total_tokens": 100}}
-        llm_response.generations[0][0].dict.return_value = "The sine of 90 degrees is 0.9999999999999999"
+        llm_response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="The sine of 90 degrees is 0.9999999999999999"))]],
+            llm_output={"token_usage": {"total_tokens": 100}},
+        )
 
         await callback.on_llm_end(response=llm_response, run_id=run_id, parent_run_id=chain_id)
 
@@ -400,7 +404,9 @@ class TestGalileoAsyncCallback:
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "tool"
         assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
-        assert callback._nodes[str(run_id)].span_params["output"] == "tool response"
+        assert callback._nodes[str(run_id)].span_params["output"] == (
+            '{"content": "tool response", "tool_call_id": "1", "status": "success", "role": "tool"}'
+        )
 
         # Start tool
         await callback.on_tool_start(
@@ -456,7 +462,9 @@ class TestGalileoAsyncCallback:
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "tool"
         assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
-        assert callback._nodes[str(run_id)].span_params["output"] == "tool response"
+        assert callback._nodes[str(run_id)].span_params["output"] == (
+            '{"content": "tool response", "tool_call_id": "1", "status": "success", "role": "tool"}'
+        )
 
         # Start tool
         await callback.on_tool_start(
@@ -497,6 +505,40 @@ class TestGalileoAsyncCallback:
         assert len(callback._nodes[str(run_id)].span_params["output"]) == 1
 
     @mark.asyncio
+    async def test_extracting_chain_names_from_metadata(
+        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+    ):
+        """Test extracting chain names from metadata kwarg, with two nested chains"""
+        chain_id = uuid.uuid4()
+        chain_id2 = uuid.uuid4()
+
+        await callback.on_chain_start(
+            serialized={}, inputs={"query": "test"}, run_id=chain_id, metadata={"name": "Test Chain"}
+        )
+
+        await callback.on_chain_start(
+            serialized={},
+            inputs={"query": "test"},
+            run_id=chain_id2,
+            parent_run_id=chain_id,
+            metadata={"name": "Test Chain 2"},
+        )
+
+        await callback.on_chain_end(outputs={"result": "test"}, run_id=chain_id)
+
+        await callback.on_chain_end(outputs={"result": "test"}, run_id=chain_id2)
+
+        traces = galileo_logger.traces
+
+        assert len(traces) == 1
+
+        assert len(traces[0].spans) == 1
+        assert traces[0].spans[0].name == "Test Chain"
+
+        assert len(traces[0].spans[0].spans) == 1
+        assert traces[0].spans[0].spans[0].name == "Test Chain 2"
+
+    @mark.asyncio
     async def test_complex_execution_flow(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
         """Test a complex execution flow with multiple component types"""
         # Create UUIDs for different components
@@ -530,10 +572,16 @@ class TestGalileoAsyncCallback:
         )
 
         # End LLM
-        llm_response = MagicMock()
-        llm_response.generations = [[MagicMock()]]
-        llm_response.llm_output = {"token_usage": {"total_tokens": 100}}
-        llm_response.generations[0][0].dict.return_value = {"text": "LLMs have seen significant progress..."}
+        llm_response = LLMResult(
+            generations=[
+                [
+                    ChatGeneration(
+                        message=AIMessage(content="LLMs have seen significant progress..."),
+                        generation_info={"token_usage": {"total_tokens": 100}},
+                    )
+                ]
+            ]
+        )
 
         await callback.on_llm_end(response=llm_response, run_id=llm_id, parent_run_id=chain_id)
 
@@ -548,7 +596,9 @@ class TestGalileoAsyncCallback:
 
         # End tool
         await callback.on_tool_end(
-            output="Verification complete: accurate statement", run_id=tool_id, parent_run_id=chain_id
+            output=ToolMessage(content="Verification complete: accurate statement", tool_call_id="1"),
+            run_id=tool_id,
+            parent_run_id=chain_id,
         )
 
         # End chain
@@ -582,7 +632,7 @@ class TestGalileoAsyncCallback:
             )
         ]
         assert traces[0].spans[0].spans[1].output == Message(
-            content='{"text": "LLMs have seen significant progress..."}',
+            content="LLMs have seen significant progress...",
             role=MessageRole.assistant,
             tool_call_id=None,
             tool_calls=None,
@@ -712,12 +762,10 @@ class TestGalileoAsyncCallback:
         await callback.on_llm_new_token("AI", run_id=llm_run_id)
 
         # End LLM
-        llm_response = MagicMock()
-        llm_response.generations = [[MagicMock()]]
-        llm_response.llm_output = {"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}}
-
-        # Mock dict method on the generation
-        llm_response.generations[0][0].dict.return_value = {"text": "AI is a technology..."}
+        llm_response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="AI is a technology..."))]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
 
         await callback.on_llm_end(response=llm_response, run_id=llm_run_id, parent_run_id=parent_id)
 
@@ -732,7 +780,7 @@ class TestGalileoAsyncCallback:
         retriever_span = traces[0].spans[0].spans[0]
         llm_span = traces[0].spans[0].spans[1]
 
-        time_diff_ms = (llm_span.created_at - retriever_span.created_at).total_seconds() * 1000
+        time_diff_ms = round((llm_span.created_at - retriever_span.created_at).total_seconds() * 1000)
         assert time_diff_ms >= delay_ms
 
     @pytest.mark.parametrize(
@@ -776,7 +824,7 @@ class TestGalileoAsyncCallback:
                 "on_chain_end",
                 {"serialized": {"name": "Agent"}, "inputs": {"query": "test"}},
                 {"outputs": {"result": "answer"}},
-                "workflow",
+                "agent",
             ),
         ],
     )
@@ -829,3 +877,36 @@ class TestGalileoAsyncCallback:
             root_span = traces[0].spans[0]
             assert root_span.type == expected_type
             assert root_span.step_number == step_number
+
+    @mark.asyncio
+    async def test_on_nested_agent_chains(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
+        """Test nested agent chain handling and name change"""
+        outer_run_id = uuid.uuid4()
+        inner_run_id = uuid.uuid4()
+
+        # Start outer agent chain, then inner agent chain
+        await callback.on_chain_start(
+            serialized={"name": "OuterChain"}, inputs={"input": "outer input"}, run_id=outer_run_id
+        )
+        await callback.on_chain_start(
+            serialized={"name": "LangGraph"},
+            inputs={"input": "inner input"},
+            run_id=inner_run_id,
+            parent_run_id=outer_run_id,
+        )
+
+        # End inner agent chain, then outer agent chain
+        inner_finish = AgentFinish(return_values={"output": "inner result"}, log="inner log")
+        await callback.on_agent_finish(finish=inner_finish, run_id=inner_run_id)
+        await callback.on_chain_end(outputs={"output": "outer result"}, run_id=outer_run_id)
+
+        traces = galileo_logger.traces
+        assert len(traces) == 1
+        assert len(traces[0].spans) == 1
+        outer_span = traces[0].spans[0]
+        assert outer_span.type == "workflow"
+        assert outer_span.name == "OuterChain"
+        assert len(outer_span.spans) == 1
+        inner_span = outer_span.spans[0]
+        assert inner_span.type == "agent"
+        assert inner_span.name == "OuterChain:Agent"

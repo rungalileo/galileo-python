@@ -46,6 +46,17 @@ def process_markdown_files():
         # Remove the sidebar_label: line
         # This handles both "sidebar_label:" and "sidebar_label: value" patterns
         lines = content.split("\n")
+
+        # If we only have 6 lines then this is an empty file, so delete it and continue
+        if len(lines) <= 6:
+            try:
+                md_file.unlink()
+                print(f"Deleted empty file: {relative_path}")
+                continue
+            except Exception as e:
+                print(f"Error deleting empty file {relative_path}: {e}")
+                continue
+
         filtered_lines = []
 
         for line in lines:
