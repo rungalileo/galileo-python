@@ -1,0 +1,19 @@
+# Special PyDoc markdown configuration for the Galileo handlers module as this isn't created by default for some reason
+loaders:
+  - type: python
+    search_path: [./src/galileo/handlers]
+    ignore_when_discovered: ["__pycache__", "constants", "resources", "schema"]
+
+processors:
+  - type: sphinx
+  - type: filter
+    documented_only: true
+  - type: filter
+    expression: "not name.startswith('_')"
+  - type: smart
+  - type: crossref
+
+renderer:
+  type: docusaurus
+  docs_base_path: ./.generated_docs/reference
+  relative_output_path: handlers

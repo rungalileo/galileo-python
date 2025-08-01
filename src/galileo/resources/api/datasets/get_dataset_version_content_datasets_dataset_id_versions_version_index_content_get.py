@@ -3,8 +3,10 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.dataset_content import DatasetContent
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
@@ -22,8 +24,9 @@ def _get_kwargs(
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
     _kwargs: dict[str, Any] = {
-        "method": "get",
-        "url": f"/datasets/{dataset_id}/versions/{version_index}/content",
+        "method": RequestMethod.GET,
+        "return_raw_response": True,
+        "path": f"/datasets/{dataset_id}/versions/{version_index}/content",
         "params": params,
     }
 
@@ -31,7 +34,7 @@ def _get_kwargs(
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[DatasetContent, HTTPValidationError]]:
     if response.status_code == 200:
         response_200 = DatasetContent.from_dict(response.json())
@@ -48,7 +51,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[Union[DatasetContent, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -62,7 +65,7 @@ def sync_detailed(
     dataset_id: str,
     version_index: int,
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[DatasetContent, HTTPValidationError]]:
@@ -84,7 +87,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, starting_token=starting_token, limit=limit)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -93,7 +96,7 @@ def sync(
     dataset_id: str,
     version_index: int,
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[DatasetContent, HTTPValidationError]]:
@@ -122,7 +125,7 @@ async def asyncio_detailed(
     dataset_id: str,
     version_index: int,
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[DatasetContent, HTTPValidationError]]:
@@ -144,7 +147,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, starting_token=starting_token, limit=limit)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
@@ -153,7 +156,7 @@ async def asyncio(
     dataset_id: str,
     version_index: int,
     *,
-    client: AuthenticatedClient,
+    client: ApiClient,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[DatasetContent, HTTPValidationError]]:

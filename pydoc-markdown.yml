@@ -9,13 +9,6 @@ processors:
     documented_only: true
   - type: filter
     expression: "not name.startswith('_')"
-  - type: filter
-    expression: "not (name == 'utils') and
-      not name.startswith('utils.catch_log') and
-      not name.startswith('utils.dependencies') and
-      not name.startswith('utils.nop_logger') and
-      not name.startswith('utils.openai_agents') and
-      not name.startswith('utils.request')"
   - type: smart
   - type: crossref
 

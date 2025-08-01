@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
     from ..models.scorer_creator_filter import ScorerCreatorFilter
+    from ..models.scorer_model_type_filter import ScorerModelTypeFilter
     from ..models.scorer_name_filter import ScorerNameFilter
     from ..models.scorer_tags_filter import ScorerTagsFilter
     from ..models.scorer_type_filter import ScorerTypeFilter
@@ -22,8 +23,8 @@ T = TypeVar("T", bound="ListScorersRequest")
 class ListScorersRequest:
     """
     Attributes:
-        filters (Union[Unset, list[Union['ScorerCreatedAtFilter', 'ScorerCreatorFilter', 'ScorerNameFilter',
-            'ScorerTagsFilter', 'ScorerTypeFilter', 'ScorerUpdatedAtFilter']]]):
+        filters (Union[Unset, list[Union['ScorerCreatedAtFilter', 'ScorerCreatorFilter', 'ScorerModelTypeFilter',
+            'ScorerNameFilter', 'ScorerTagsFilter', 'ScorerTypeFilter', 'ScorerUpdatedAtFilter']]]):
     """
 
     filters: Union[
@@ -32,6 +33,7 @@ class ListScorersRequest:
             Union[
                 "ScorerCreatedAtFilter",
                 "ScorerCreatorFilter",
+                "ScorerModelTypeFilter",
                 "ScorerNameFilter",
                 "ScorerTagsFilter",
                 "ScorerTypeFilter",
@@ -44,6 +46,7 @@ class ListScorersRequest:
     def to_dict(self) -> dict[str, Any]:
         from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
         from ..models.scorer_creator_filter import ScorerCreatorFilter
+        from ..models.scorer_model_type_filter import ScorerModelTypeFilter
         from ..models.scorer_name_filter import ScorerNameFilter
         from ..models.scorer_tags_filter import ScorerTagsFilter
         from ..models.scorer_type_filter import ScorerTypeFilter
@@ -56,6 +59,8 @@ class ListScorersRequest:
                 if isinstance(filters_item_data, ScorerNameFilter):
                     filters_item = filters_item_data.to_dict()
                 elif isinstance(filters_item_data, ScorerTypeFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, ScorerModelTypeFilter):
                     filters_item = filters_item_data.to_dict()
                 elif isinstance(filters_item_data, ScorerTagsFilter):
                     filters_item = filters_item_data.to_dict()
@@ -80,6 +85,7 @@ class ListScorersRequest:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.scorer_created_at_filter import ScorerCreatedAtFilter
         from ..models.scorer_creator_filter import ScorerCreatorFilter
+        from ..models.scorer_model_type_filter import ScorerModelTypeFilter
         from ..models.scorer_name_filter import ScorerNameFilter
         from ..models.scorer_tags_filter import ScorerTagsFilter
         from ..models.scorer_type_filter import ScorerTypeFilter
@@ -95,6 +101,7 @@ class ListScorersRequest:
             ) -> Union[
                 "ScorerCreatedAtFilter",
                 "ScorerCreatorFilter",
+                "ScorerModelTypeFilter",
                 "ScorerNameFilter",
                 "ScorerTagsFilter",
                 "ScorerTypeFilter",
@@ -119,7 +126,7 @@ class ListScorersRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_2 = ScorerTagsFilter.from_dict(data)
+                    filters_item_type_2 = ScorerModelTypeFilter.from_dict(data)
 
                     return filters_item_type_2
                 except:  # noqa: E722
@@ -127,7 +134,7 @@ class ListScorersRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_3 = ScorerCreatorFilter.from_dict(data)
+                    filters_item_type_3 = ScorerTagsFilter.from_dict(data)
 
                     return filters_item_type_3
                 except:  # noqa: E722
@@ -135,16 +142,24 @@ class ListScorersRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_4 = ScorerCreatedAtFilter.from_dict(data)
+                    filters_item_type_4 = ScorerCreatorFilter.from_dict(data)
 
                     return filters_item_type_4
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    filters_item_type_5 = ScorerCreatedAtFilter.from_dict(data)
+
+                    return filters_item_type_5
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                filters_item_type_5 = ScorerUpdatedAtFilter.from_dict(data)
+                filters_item_type_6 = ScorerUpdatedAtFilter.from_dict(data)
 
-                return filters_item_type_5
+                return filters_item_type_6
 
             filters_item = _parse_filters_item(filters_item_data)
 

@@ -133,7 +133,7 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
                 client=self.client, project_id=project_id
             )
         else:
-            project = Projects(client=self.client).get(name=project_name)
+            project = Projects(config=self.config).get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
             log_streams = list_log_streams_projects_project_id_log_streams_get.sync(
@@ -193,7 +193,7 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
             raise ValueError("Exactly one of 'project_id' or 'project_name' must be provided")
 
         if not project_id:
-            project = Projects(client=self.client).get(name=project_name)
+            project = Projects(config=self.config).get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
             project_id = project.id
@@ -256,7 +256,7 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
             raise ValueError("Exactly one of 'project_id' or 'project_name' must be provided")
 
         if not project_id:
-            project = Projects(client=self.client).get(name=project_name)
+            project = Projects(config=self.config).get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
             project_id = project.id
@@ -326,7 +326,7 @@ def list_log_streams(*, project_id: Optional[str] = None, project_name: Optional
     Returns
     -------
     list[LogStream]
-        A list of projects.
+        A list of Log streams.
 
     Raises
     ------

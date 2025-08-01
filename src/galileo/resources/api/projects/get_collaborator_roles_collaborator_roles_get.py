@@ -1,23 +1,23 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.collaborator_role_info import CollaboratorRoleInfo
 from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": "/collaborator_roles"}
+    _kwargs: dict[str, Any] = {"method": RequestMethod.GET, "return_raw_response": True, "path": "/collaborator_roles"}
 
     return _kwargs
 
 
-def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[list["CollaboratorRoleInfo"]]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[list["CollaboratorRoleInfo"]]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
@@ -33,9 +33,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[list["CollaboratorRoleInfo"]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[list["CollaboratorRoleInfo"]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -44,7 +42,7 @@ def _build_response(
     )
 
 
-def sync_detailed(*, client: AuthenticatedClient) -> Response[list["CollaboratorRoleInfo"]]:
+def sync_detailed(*, client: ApiClient) -> Response[list["CollaboratorRoleInfo"]]:
     """Get Collaborator Roles
 
     Raises:
@@ -57,12 +55,12 @@ def sync_detailed(*, client: AuthenticatedClient) -> Response[list["Collaborator
 
     kwargs = _get_kwargs()
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: AuthenticatedClient) -> Optional[list["CollaboratorRoleInfo"]]:
+def sync(*, client: ApiClient) -> Optional[list["CollaboratorRoleInfo"]]:
     """Get Collaborator Roles
 
     Raises:
@@ -76,7 +74,7 @@ def sync(*, client: AuthenticatedClient) -> Optional[list["CollaboratorRoleInfo"
     return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[list["CollaboratorRoleInfo"]]:
+async def asyncio_detailed(*, client: ApiClient) -> Response[list["CollaboratorRoleInfo"]]:
     """Get Collaborator Roles
 
     Raises:
@@ -89,12 +87,12 @@ async def asyncio_detailed(*, client: AuthenticatedClient) -> Response[list["Col
 
     kwargs = _get_kwargs()
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: AuthenticatedClient) -> Optional[list["CollaboratorRoleInfo"]]:
+async def asyncio(*, client: ApiClient) -> Optional[list["CollaboratorRoleInfo"]]:
     """Get Collaborator Roles
 
     Raises:

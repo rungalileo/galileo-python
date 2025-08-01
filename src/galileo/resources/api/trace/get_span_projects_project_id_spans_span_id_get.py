@@ -3,33 +3,39 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.agent_span_record_with_children import AgentSpanRecordWithChildren
 from ...models.http_validation_error import HTTPValidationError
 from ...models.llm_span_record import LlmSpanRecord
-from ...models.retriever_span_record import RetrieverSpanRecord
-from ...models.tool_span_record import ToolSpanRecord
+from ...models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+from ...models.tool_span_record_with_children import ToolSpanRecordWithChildren
 from ...models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
 from ...types import Response
 
 
 def _get_kwargs(project_id: str, span_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/spans/{span_id}"}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.GET,
+        "return_raw_response": True,
+        "path": f"/projects/{project_id}/spans/{span_id}",
+    }
 
     return _kwargs
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[
     Union[
         HTTPValidationError,
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -41,8 +47,8 @@ def _parse_response(
         ) -> Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ]:
             try:
@@ -72,14 +78,14 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_3 = ToolSpanRecord.from_dict(data)
+                response_200_type_3 = ToolSpanRecordWithChildren.from_dict(data)
 
                 return response_200_type_3
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            response_200_type_4 = RetrieverSpanRecord.from_dict(data)
+            response_200_type_4 = RetrieverSpanRecordWithChildren.from_dict(data)
 
             return response_200_type_4
 
@@ -97,15 +103,15 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[
     Union[
         HTTPValidationError,
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -119,15 +125,15 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, span_id: str, *, client: AuthenticatedClient
+    project_id: str, span_id: str, *, client: ApiClient
 ) -> Response[
     Union[
         HTTPValidationError,
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -143,26 +149,26 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]
+        Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, span_id: str, *, client: AuthenticatedClient
+    project_id: str, span_id: str, *, client: ApiClient
 ) -> Optional[
     Union[
         HTTPValidationError,
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -178,22 +184,22 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]
+        Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]
     """
 
     return sync_detailed(project_id=project_id, span_id=span_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, span_id: str, *, client: AuthenticatedClient
+    project_id: str, span_id: str, *, client: ApiClient
 ) -> Response[
     Union[
         HTTPValidationError,
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -209,26 +215,26 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]
+        Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    project_id: str, span_id: str, *, client: AuthenticatedClient
+    project_id: str, span_id: str, *, client: ApiClient
 ) -> Optional[
     Union[
         HTTPValidationError,
         Union[
             "AgentSpanRecordWithChildren",
             "LlmSpanRecord",
-            "RetrieverSpanRecord",
-            "ToolSpanRecord",
+            "RetrieverSpanRecordWithChildren",
+            "ToolSpanRecordWithChildren",
             "WorkflowSpanRecordWithChildren",
         ],
     ]
@@ -244,7 +250,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord', 'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]
+        Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]
     """
 
     return (await asyncio_detailed(project_id=project_id, span_id=span_id, client=client)).parsed

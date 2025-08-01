@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
     from ..models.llm_span_record import LlmSpanRecord
     from ..models.metrics import Metrics
-    from ..models.retriever_span_record import RetrieverSpanRecord
-    from ..models.tool_span_record import ToolSpanRecord
+    from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+    from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
     from ..models.trace_record_with_children_dataset_metadata import TraceRecordWithChildrenDatasetMetadata
     from ..models.trace_record_with_children_feedback_rating_info import TraceRecordWithChildrenFeedbackRatingInfo
     from ..models.trace_record_with_children_metric_info_type_0 import TraceRecordWithChildrenMetricInfoType0
@@ -32,7 +32,7 @@ class TraceRecordWithChildren:
         input_ (str): Input to the trace or span.
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
-        session_id (str): Galileo ID of the session
+        session_id (str): Galileo ID of the session containing the trace (or the same value as id for a trace)
         trace_id (str): Galileo ID of the trace containing the span (or the same value as id for a trace)
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
@@ -50,9 +50,11 @@ class TraceRecordWithChildren:
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
+        redacted_input (Union[None, Unset, str]): Redacted input of the trace or span.
+        redacted_output (Union[None, Unset, str]): Redacted output of the trace or span.
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
-        spans (Union[Unset, list[Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecord',
-            'ToolSpanRecord', 'WorkflowSpanRecordWithChildren']]]):
+        spans (Union[Unset, list[Union['AgentSpanRecordWithChildren', 'LlmSpanRecord',
+            'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]]):
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
         tags (Union[Unset, list[str]]): Tags associated with this trace or span.
@@ -80,6 +82,8 @@ class TraceRecordWithChildren:
     metrics_batch_id: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
+    redacted_input: Union[None, Unset, str] = UNSET
+    redacted_output: Union[None, Unset, str] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
     spans: Union[
         Unset,
@@ -87,8 +91,8 @@ class TraceRecordWithChildren:
             Union[
                 "AgentSpanRecordWithChildren",
                 "LlmSpanRecord",
-                "RetrieverSpanRecord",
-                "ToolSpanRecord",
+                "RetrieverSpanRecordWithChildren",
+                "ToolSpanRecordWithChildren",
                 "WorkflowSpanRecordWithChildren",
             ]
         ],
@@ -103,7 +107,7 @@ class TraceRecordWithChildren:
     def to_dict(self) -> dict[str, Any]:
         from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.llm_span_record import LlmSpanRecord
-        from ..models.tool_span_record import ToolSpanRecord
+        from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
         from ..models.trace_record_with_children_metric_info_type_0 import TraceRecordWithChildrenMetricInfoType0
         from ..models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
 
@@ -183,6 +187,18 @@ class TraceRecordWithChildren:
         else:
             output = self.output
 
+        redacted_input: Union[None, Unset, str]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        else:
+            redacted_input = self.redacted_input
+
+        redacted_output: Union[None, Unset, str]
+        if isinstance(self.redacted_output, Unset):
+            redacted_output = UNSET
+        else:
+            redacted_output = self.redacted_output
+
         session_batch_id: Union[None, Unset, str]
         if isinstance(self.session_batch_id, Unset):
             session_batch_id = UNSET
@@ -200,7 +216,7 @@ class TraceRecordWithChildren:
                     spans_item = spans_item_data.to_dict()
                 elif isinstance(spans_item_data, LlmSpanRecord):
                     spans_item = spans_item_data.to_dict()
-                elif isinstance(spans_item_data, ToolSpanRecord):
+                elif isinstance(spans_item_data, ToolSpanRecordWithChildren):
                     spans_item = spans_item_data.to_dict()
                 else:
                     spans_item = spans_item_data.to_dict()
@@ -269,6 +285,10 @@ class TraceRecordWithChildren:
             field_dict["name"] = name
         if output is not UNSET:
             field_dict["output"] = output
+        if redacted_input is not UNSET:
+            field_dict["redacted_input"] = redacted_input
+        if redacted_output is not UNSET:
+            field_dict["redacted_output"] = redacted_output
         if session_batch_id is not UNSET:
             field_dict["session_batch_id"] = session_batch_id
         if spans is not UNSET:
@@ -291,8 +311,8 @@ class TraceRecordWithChildren:
         from ..models.agent_span_record_with_children import AgentSpanRecordWithChildren
         from ..models.llm_span_record import LlmSpanRecord
         from ..models.metrics import Metrics
-        from ..models.retriever_span_record import RetrieverSpanRecord
-        from ..models.tool_span_record import ToolSpanRecord
+        from ..models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
+        from ..models.tool_span_record_with_children import ToolSpanRecordWithChildren
         from ..models.trace_record_with_children_dataset_metadata import TraceRecordWithChildrenDatasetMetadata
         from ..models.trace_record_with_children_feedback_rating_info import TraceRecordWithChildrenFeedbackRatingInfo
         from ..models.trace_record_with_children_metric_info_type_0 import TraceRecordWithChildrenMetricInfoType0
@@ -415,6 +435,24 @@ class TraceRecordWithChildren:
 
         output = _parse_output(d.pop("output", UNSET))
 
+        def _parse_redacted_input(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
+
+        def _parse_redacted_output(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
+
         def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -433,8 +471,8 @@ class TraceRecordWithChildren:
             ) -> Union[
                 "AgentSpanRecordWithChildren",
                 "LlmSpanRecord",
-                "RetrieverSpanRecord",
-                "ToolSpanRecord",
+                "RetrieverSpanRecordWithChildren",
+                "ToolSpanRecordWithChildren",
                 "WorkflowSpanRecordWithChildren",
             ]:
                 try:
@@ -464,14 +502,14 @@ class TraceRecordWithChildren:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_3 = ToolSpanRecord.from_dict(data)
+                    spans_item_type_3 = ToolSpanRecordWithChildren.from_dict(data)
 
                     return spans_item_type_3
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                spans_item_type_4 = RetrieverSpanRecord.from_dict(data)
+                spans_item_type_4 = RetrieverSpanRecordWithChildren.from_dict(data)
 
                 return spans_item_type_4
 
@@ -538,6 +576,8 @@ class TraceRecordWithChildren:
             metrics_batch_id=metrics_batch_id,
             name=name,
             output=output,
+            redacted_input=redacted_input,
+            redacted_output=redacted_output,
             session_batch_id=session_batch_id,
             spans=spans,
             status_code=status_code,

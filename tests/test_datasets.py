@@ -392,8 +392,7 @@ def test_convert_dataset_row_to_record():
 
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
-    mock_client = Mock()
-    dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
+    dataset = Dataset(dataset_db=dataset_db())
 
     expected_etag: str = str(uuid4())
     mock_response = Mock()
@@ -402,7 +401,7 @@ def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
 
     assert expected_etag == dataset._get_etag()
     get_dataset_content_by_id_patch.sync_detailed.assert_called_once_with(
-        client=mock_client, dataset_id=dataset.dataset.id
+        client=dataset.client, dataset_id=dataset.dataset.id
     )
 
 
@@ -410,8 +409,7 @@ def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 @patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
 def test_dataset_add_rows_success(update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock):
-    mock_client = Mock()
-    dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
+    dataset = Dataset(dataset_db=dataset_db())
 
     dataset.add_rows([{"input": "b"}, {"input": "c"}])
 
@@ -420,7 +418,7 @@ def test_dataset_add_rows_success(update_dataset_patch: Mock, get_dataset_conten
     expected_append_row_c = DatasetAppendRowValues()
     expected_append_row_c.additional_properties = {"input": "c"}
     update_dataset_patch.sync.assert_called_once_with(
-        client=mock_client,
+        client=dataset.client,
         dataset_id="78e8035d-c429-47f2-8971-68f10e7e91c9",
         body=UpdateDatasetContentRequest(
             edits=[
@@ -440,8 +438,7 @@ def test_dataset_add_rows_success(update_dataset_patch: Mock, get_dataset_conten
 def test_dataset_add_rows_failure(update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock):
     update_dataset_patch.sync.return_value = HTTPValidationError()
 
-    mock_client = Mock()
-    dataset = Dataset(dataset_db=dataset_db(), client=mock_client)
+    dataset = Dataset(dataset_db=dataset_db())
 
     # NOTE: This method raises an exception. The reason we don't see one here is we catch all
     # exceptions and log them as errors in error log.
