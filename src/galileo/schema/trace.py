@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional, Union
+from typing import Literal, Optional, Union
 
 from pydantic import UUID4, BaseModel, Field
 
@@ -7,6 +7,8 @@ from galileo.resources.models import Document
 from galileo_core.schemas.logging.span import Span
 from galileo_core.schemas.logging.step import StepAllowedInputType, StepAllowedOutputType
 from galileo_core.schemas.logging.trace import Trace
+
+SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow", "agent"]
 
 
 class LoggingMethod(str, Enum):
