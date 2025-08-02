@@ -46,5 +46,5 @@
 
 ## Auto-generating the API client
 
-1. Run `./scripts/import-openapi-yaml.sh <HOST_URL>` to update the openapi.yml file with the latest
+1. Run `./scripts/import-openapi-yaml.sh https://api.galileo.ai/client` to update the openapi.yml file with the latest client spec
 2. Run `./scripts/auto-generate-api-client.sh` to generate the API client

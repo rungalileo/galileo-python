@@ -4,14 +4,6 @@ from .action_result import ActionResult
 from .action_type import ActionType
 from .agent_span import AgentSpan
 from .agent_span_dataset_metadata import AgentSpanDatasetMetadata
-from .agent_span_record import AgentSpanRecord
-from .agent_span_record_dataset_metadata import AgentSpanRecordDatasetMetadata
-from .agent_span_record_metric_info_type_0 import AgentSpanRecordMetricInfoType0
-from .agent_span_record_user_metadata import AgentSpanRecordUserMetadata
-from .agent_span_record_with_children import AgentSpanRecordWithChildren
-from .agent_span_record_with_children_dataset_metadata import AgentSpanRecordWithChildrenDatasetMetadata
-from .agent_span_record_with_children_metric_info_type_0 import AgentSpanRecordWithChildrenMetricInfoType0
-from .agent_span_record_with_children_user_metadata import AgentSpanRecordWithChildrenUserMetadata
 from .agent_span_user_metadata import AgentSpanUserMetadata
 from .agent_type import AgentType
 from .agentic_session_success_scorer import AgenticSessionSuccessScorer
@@ -75,6 +67,7 @@ from .context_relevance_scorer import ContextRelevanceScorer
 from .correctness_scorer import CorrectnessScorer
 from .create_job_request import CreateJobRequest
 from .create_job_response import CreateJobResponse
+from .create_llm_scorer_autogen_request import CreateLLMScorerAutogenRequest
 from .create_llm_scorer_version_request import CreateLLMScorerVersionRequest
 from .create_prompt_template_with_version_request_body import CreatePromptTemplateWithVersionRequestBody
 from .create_scorer_request import CreateScorerRequest
@@ -161,10 +154,14 @@ from .dataset_draft_filter import DatasetDraftFilter
 from .dataset_draft_filter_operator import DatasetDraftFilterOperator
 from .dataset_filter_rows import DatasetFilterRows
 from .dataset_format import DatasetFormat
+from .dataset_id_filter import DatasetIDFilter
+from .dataset_id_filter_operator import DatasetIDFilterOperator
 from .dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
 from .dataset_name_filter import DatasetNameFilter
 from .dataset_name_filter_operator import DatasetNameFilterOperator
 from .dataset_name_sort import DatasetNameSort
+from .dataset_prepend_row import DatasetPrependRow
+from .dataset_prepend_row_values import DatasetPrependRowValues
 from .dataset_project import DatasetProject
 from .dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
 from .dataset_projects_sort import DatasetProjectsSort
@@ -188,11 +185,86 @@ from .experiment_dataset import ExperimentDataset
 from .experiment_dataset_request import ExperimentDatasetRequest
 from .experiment_metrics_request import ExperimentMetricsRequest
 from .experiment_metrics_response import ExperimentMetricsResponse
+from .experiment_playground import ExperimentPlayground
+from .experiment_prompt import ExperimentPrompt
 from .experiment_response import ExperimentResponse
 from .experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
 from .experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
 from .experiment_update_request import ExperimentUpdateRequest
 from .experiments_available_columns_response import ExperimentsAvailableColumnsResponse
+from .extended_agent_span_record import ExtendedAgentSpanRecord
+from .extended_agent_span_record_dataset_metadata import ExtendedAgentSpanRecordDatasetMetadata
+from .extended_agent_span_record_metric_info_type_0 import ExtendedAgentSpanRecordMetricInfoType0
+from .extended_agent_span_record_user_metadata import ExtendedAgentSpanRecordUserMetadata
+from .extended_agent_span_record_with_children import ExtendedAgentSpanRecordWithChildren
+from .extended_agent_span_record_with_children_dataset_metadata import (
+    ExtendedAgentSpanRecordWithChildrenDatasetMetadata,
+)
+from .extended_agent_span_record_with_children_metric_info_type_0 import (
+    ExtendedAgentSpanRecordWithChildrenMetricInfoType0,
+)
+from .extended_agent_span_record_with_children_user_metadata import ExtendedAgentSpanRecordWithChildrenUserMetadata
+from .extended_llm_span_record import ExtendedLlmSpanRecord
+from .extended_llm_span_record_dataset_metadata import ExtendedLlmSpanRecordDatasetMetadata
+from .extended_llm_span_record_metric_info_type_0 import ExtendedLlmSpanRecordMetricInfoType0
+from .extended_llm_span_record_tools_type_0_item import ExtendedLlmSpanRecordToolsType0Item
+from .extended_llm_span_record_user_metadata import ExtendedLlmSpanRecordUserMetadata
+from .extended_retriever_span_record import ExtendedRetrieverSpanRecord
+from .extended_retriever_span_record_dataset_metadata import ExtendedRetrieverSpanRecordDatasetMetadata
+from .extended_retriever_span_record_metric_info_type_0 import ExtendedRetrieverSpanRecordMetricInfoType0
+from .extended_retriever_span_record_user_metadata import ExtendedRetrieverSpanRecordUserMetadata
+from .extended_retriever_span_record_with_children import ExtendedRetrieverSpanRecordWithChildren
+from .extended_retriever_span_record_with_children_dataset_metadata import (
+    ExtendedRetrieverSpanRecordWithChildrenDatasetMetadata,
+)
+from .extended_retriever_span_record_with_children_metric_info_type_0 import (
+    ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0,
+)
+from .extended_retriever_span_record_with_children_user_metadata import (
+    ExtendedRetrieverSpanRecordWithChildrenUserMetadata,
+)
+from .extended_session_record import ExtendedSessionRecord
+from .extended_session_record_dataset_metadata import ExtendedSessionRecordDatasetMetadata
+from .extended_session_record_metric_info_type_0 import ExtendedSessionRecordMetricInfoType0
+from .extended_session_record_user_metadata import ExtendedSessionRecordUserMetadata
+from .extended_session_record_with_children import ExtendedSessionRecordWithChildren
+from .extended_session_record_with_children_dataset_metadata import ExtendedSessionRecordWithChildrenDatasetMetadata
+from .extended_session_record_with_children_metric_info_type_0 import ExtendedSessionRecordWithChildrenMetricInfoType0
+from .extended_session_record_with_children_user_metadata import ExtendedSessionRecordWithChildrenUserMetadata
+from .extended_tool_span_record import ExtendedToolSpanRecord
+from .extended_tool_span_record_dataset_metadata import ExtendedToolSpanRecordDatasetMetadata
+from .extended_tool_span_record_metric_info_type_0 import ExtendedToolSpanRecordMetricInfoType0
+from .extended_tool_span_record_user_metadata import ExtendedToolSpanRecordUserMetadata
+from .extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
+from .extended_tool_span_record_with_children_dataset_metadata import ExtendedToolSpanRecordWithChildrenDatasetMetadata
+from .extended_tool_span_record_with_children_metric_info_type_0 import (
+    ExtendedToolSpanRecordWithChildrenMetricInfoType0,
+)
+from .extended_tool_span_record_with_children_user_metadata import ExtendedToolSpanRecordWithChildrenUserMetadata
+from .extended_trace_record import ExtendedTraceRecord
+from .extended_trace_record_dataset_metadata import ExtendedTraceRecordDatasetMetadata
+from .extended_trace_record_feedback_rating_info import ExtendedTraceRecordFeedbackRatingInfo
+from .extended_trace_record_metric_info_type_0 import ExtendedTraceRecordMetricInfoType0
+from .extended_trace_record_user_metadata import ExtendedTraceRecordUserMetadata
+from .extended_trace_record_with_children import ExtendedTraceRecordWithChildren
+from .extended_trace_record_with_children_dataset_metadata import ExtendedTraceRecordWithChildrenDatasetMetadata
+from .extended_trace_record_with_children_feedback_rating_info import ExtendedTraceRecordWithChildrenFeedbackRatingInfo
+from .extended_trace_record_with_children_metric_info_type_0 import ExtendedTraceRecordWithChildrenMetricInfoType0
+from .extended_trace_record_with_children_user_metadata import ExtendedTraceRecordWithChildrenUserMetadata
+from .extended_workflow_span_record import ExtendedWorkflowSpanRecord
+from .extended_workflow_span_record_dataset_metadata import ExtendedWorkflowSpanRecordDatasetMetadata
+from .extended_workflow_span_record_metric_info_type_0 import ExtendedWorkflowSpanRecordMetricInfoType0
+from .extended_workflow_span_record_user_metadata import ExtendedWorkflowSpanRecordUserMetadata
+from .extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
+from .extended_workflow_span_record_with_children_dataset_metadata import (
+    ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata,
+)
+from .extended_workflow_span_record_with_children_metric_info_type_0 import (
+    ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0,
+)
+from .extended_workflow_span_record_with_children_user_metadata import (
+    ExtendedWorkflowSpanRecordWithChildrenUserMetadata,
+)
 from .factuality_template import FactualityTemplate
 from .feedback_aggregate import FeedbackAggregate
 from .feedback_rating_db import FeedbackRatingDB
@@ -204,6 +276,7 @@ from .fine_tuned_scorer_action import FineTunedScorerAction
 from .generated_scorer_action import GeneratedScorerAction
 from .generated_scorer_configuration import GeneratedScorerConfiguration
 from .generated_scorer_response import GeneratedScorerResponse
+from .generation_response import GenerationResponse
 from .get_projects_paginated_response import GetProjectsPaginatedResponse
 from .get_projects_paginated_response_v2 import GetProjectsPaginatedResponseV2
 from .ground_truth_adherence_scorer import GroundTruthAdherenceScorer
@@ -215,6 +288,9 @@ from .group_collaborator_create import GroupCollaboratorCreate
 from .group_member_action import GroupMemberAction
 from .hallucination_segment import HallucinationSegment
 from .healthcheck_response import HealthcheckResponse
+from .histogram import Histogram
+from .histogram_bucket import HistogramBucket
+from .histogram_strategy import HistogramStrategy
 from .http_validation_error import HTTPValidationError
 from .input_map import InputMap
 from .input_pii_scorer import InputPIIScorer
@@ -225,6 +301,7 @@ from .input_tone_scorer import InputToneScorer
 from .input_toxicity_scorer import InputToxicityScorer
 from .input_toxicity_scorer_type import InputToxicityScorerType
 from .input_toxicity_template import InputToxicityTemplate
+from .input_type_enum import InputTypeEnum
 from .insight_type import InsightType
 from .instruction_adherence_scorer import InstructionAdherenceScorer
 from .instruction_adherence_template import InstructionAdherenceTemplate
@@ -258,11 +335,6 @@ from .llm_integration import LLMIntegration
 from .llm_metrics import LlmMetrics
 from .llm_span import LlmSpan
 from .llm_span_dataset_metadata import LlmSpanDatasetMetadata
-from .llm_span_record import LlmSpanRecord
-from .llm_span_record_dataset_metadata import LlmSpanRecordDatasetMetadata
-from .llm_span_record_metric_info_type_0 import LlmSpanRecordMetricInfoType0
-from .llm_span_record_tools_type_0_item import LlmSpanRecordToolsType0Item
-from .llm_span_record_user_metadata import LlmSpanRecordUserMetadata
 from .llm_span_tools_type_0_item import LlmSpanToolsType0Item
 from .llm_span_user_metadata import LlmSpanUserMetadata
 from .log_records_available_columns_request import LogRecordsAvailableColumnsRequest
@@ -296,9 +368,9 @@ from .log_traces_ingest_request import LogTracesIngestRequest
 from .log_traces_ingest_response import LogTracesIngestResponse
 from .logging_method import LoggingMethod
 from .message import Message
-from .message_list_item_role import MessageListItemRole
 from .message_role import MessageRole
 from .messages_list_item import MessagesListItem
+from .messages_list_item_role import MessagesListItemRole
 from .metadata_filter import MetadataFilter
 from .metadata_filter_operator import MetadataFilterOperator
 from .metric_computation import MetricComputation
@@ -348,10 +420,12 @@ from .project_created_at_filter import ProjectCreatedAtFilter
 from .project_created_at_filter_operator import ProjectCreatedAtFilterOperator
 from .project_created_at_sort import ProjectCreatedAtSort
 from .project_creator_filter import ProjectCreatorFilter
+from .project_creator_filter_operator import ProjectCreatorFilterOperator
 from .project_db import ProjectDB
 from .project_db_thin import ProjectDBThin
 from .project_delete_response import ProjectDeleteResponse
 from .project_id_filter import ProjectIDFilter
+from .project_id_filter_operator import ProjectIDFilterOperator
 from .project_item import ProjectItem
 from .project_labels import ProjectLabels
 from .project_name_filter import ProjectNameFilter
@@ -380,6 +454,7 @@ from .prompt_run_settings_response_format_type_0 import PromptRunSettingsRespons
 from .prompt_run_settings_tools_type_0_item import PromptRunSettingsToolsType0Item
 from .prompt_template_created_at_sort import PromptTemplateCreatedAtSort
 from .prompt_template_created_by_filter import PromptTemplateCreatedByFilter
+from .prompt_template_created_by_filter_operator import PromptTemplateCreatedByFilterOperator
 from .prompt_template_name_filter import PromptTemplateNameFilter
 from .prompt_template_name_filter_operator import PromptTemplateNameFilterOperator
 from .prompt_template_name_sort import PromptTemplateNameSort
@@ -388,6 +463,10 @@ from .prompt_template_used_in_project_filter import PromptTemplateUsedInProjectF
 from .prompt_template_version_created_at_sort import PromptTemplateVersionCreatedAtSort
 from .prompt_template_version_number_sort import PromptTemplateVersionNumberSort
 from .prompt_template_version_updated_at_sort import PromptTemplateVersionUpdatedAtSort
+from .protect_request import ProtectRequest
+from .protect_request_headers_type_0 import ProtectRequestHeadersType0
+from .protect_request_metadata_type_0 import ProtectRequestMetadataType0
+from .protect_response import ProtectResponse
 from .query_dataset_params import QueryDatasetParams
 from .recompute_settings_log_stream import RecomputeSettingsLogStream
 from .recompute_settings_observe import RecomputeSettingsObserve
@@ -398,20 +477,8 @@ from .registered_scorer_action import RegisteredScorerAction
 from .render_template_request import RenderTemplateRequest
 from .render_template_response import RenderTemplateResponse
 from .rendered_template import RenderedTemplate
-from .request import Request
-from .request_headers_type_0 import RequestHeadersType0
-from .request_metadata_type_0 import RequestMetadataType0
-from .response import Response
 from .retriever_span import RetrieverSpan
 from .retriever_span_dataset_metadata import RetrieverSpanDatasetMetadata
-from .retriever_span_record import RetrieverSpanRecord
-from .retriever_span_record_dataset_metadata import RetrieverSpanRecordDatasetMetadata
-from .retriever_span_record_metric_info_type_0 import RetrieverSpanRecordMetricInfoType0
-from .retriever_span_record_user_metadata import RetrieverSpanRecordUserMetadata
-from .retriever_span_record_with_children import RetrieverSpanRecordWithChildren
-from .retriever_span_record_with_children_dataset_metadata import RetrieverSpanRecordWithChildrenDatasetMetadata
-from .retriever_span_record_with_children_metric_info_type_0 import RetrieverSpanRecordWithChildrenMetricInfoType0
-from .retriever_span_record_with_children_user_metadata import RetrieverSpanRecordWithChildrenUserMetadata
 from .retriever_span_user_metadata import RetrieverSpanUserMetadata
 from .rollback_request import RollbackRequest
 from .root_type import RootType
@@ -434,11 +501,14 @@ from .scorer_config import ScorerConfig
 from .scorer_created_at_filter import ScorerCreatedAtFilter
 from .scorer_created_at_filter_operator import ScorerCreatedAtFilterOperator
 from .scorer_creator_filter import ScorerCreatorFilter
+from .scorer_creator_filter_operator import ScorerCreatorFilterOperator
 from .scorer_defaults import ScorerDefaults
+from .scorer_enabled_in_run_sort import ScorerEnabledInRunSort
 from .scorer_model_type_filter import ScorerModelTypeFilter
 from .scorer_name import ScorerName
 from .scorer_name_filter import ScorerNameFilter
 from .scorer_name_filter_operator import ScorerNameFilterOperator
+from .scorer_name_sort import ScorerNameSort
 from .scorer_response import ScorerResponse
 from .scorer_tags_filter import ScorerTagsFilter
 from .scorer_tags_filter_operator import ScorerTagsFilterOperator
@@ -453,14 +523,6 @@ from .segment import Segment
 from .segment_filter import SegmentFilter
 from .session_create_request import SessionCreateRequest
 from .session_create_response import SessionCreateResponse
-from .session_record import SessionRecord
-from .session_record_dataset_metadata import SessionRecordDatasetMetadata
-from .session_record_metric_info_type_0 import SessionRecordMetricInfoType0
-from .session_record_user_metadata import SessionRecordUserMetadata
-from .session_record_with_children import SessionRecordWithChildren
-from .session_record_with_children_dataset_metadata import SessionRecordWithChildrenDatasetMetadata
-from .session_record_with_children_metric_info_type_0 import SessionRecordWithChildrenMetricInfoType0
-from .session_record_with_children_user_metadata import SessionRecordWithChildrenUserMetadata
 from .sexist_template import SexistTemplate
 from .stage_db import StageDB
 from .stage_metadata import StageMetadata
@@ -495,29 +557,11 @@ from .tool_selection_quality_scorer_type import ToolSelectionQualityScorerType
 from .tool_selection_quality_template import ToolSelectionQualityTemplate
 from .tool_span import ToolSpan
 from .tool_span_dataset_metadata import ToolSpanDatasetMetadata
-from .tool_span_record import ToolSpanRecord
-from .tool_span_record_dataset_metadata import ToolSpanRecordDatasetMetadata
-from .tool_span_record_metric_info_type_0 import ToolSpanRecordMetricInfoType0
-from .tool_span_record_user_metadata import ToolSpanRecordUserMetadata
-from .tool_span_record_with_children import ToolSpanRecordWithChildren
-from .tool_span_record_with_children_dataset_metadata import ToolSpanRecordWithChildrenDatasetMetadata
-from .tool_span_record_with_children_metric_info_type_0 import ToolSpanRecordWithChildrenMetricInfoType0
-from .tool_span_record_with_children_user_metadata import ToolSpanRecordWithChildrenUserMetadata
 from .tool_span_user_metadata import ToolSpanUserMetadata
 from .toxicity_template import ToxicityTemplate
 from .trace import Trace
 from .trace_dataset_metadata import TraceDatasetMetadata
 from .trace_metadata import TraceMetadata
-from .trace_record import TraceRecord
-from .trace_record_dataset_metadata import TraceRecordDatasetMetadata
-from .trace_record_feedback_rating_info import TraceRecordFeedbackRatingInfo
-from .trace_record_metric_info_type_0 import TraceRecordMetricInfoType0
-from .trace_record_user_metadata import TraceRecordUserMetadata
-from .trace_record_with_children import TraceRecordWithChildren
-from .trace_record_with_children_dataset_metadata import TraceRecordWithChildrenDatasetMetadata
-from .trace_record_with_children_feedback_rating_info import TraceRecordWithChildrenFeedbackRatingInfo
-from .trace_record_with_children_metric_info_type_0 import TraceRecordWithChildrenMetricInfoType0
-from .trace_record_with_children_user_metadata import TraceRecordWithChildrenUserMetadata
 from .trace_user_metadata import TraceUserMetadata
 from .uncertainty_scorer import UncertaintyScorer
 from .update_dataset_content_request import UpdateDatasetContentRequest
@@ -535,14 +579,6 @@ from .user_role import UserRole
 from .validation_error import ValidationError
 from .workflow_span import WorkflowSpan
 from .workflow_span_dataset_metadata import WorkflowSpanDatasetMetadata
-from .workflow_span_record import WorkflowSpanRecord
-from .workflow_span_record_dataset_metadata import WorkflowSpanRecordDatasetMetadata
-from .workflow_span_record_metric_info_type_0 import WorkflowSpanRecordMetricInfoType0
-from .workflow_span_record_user_metadata import WorkflowSpanRecordUserMetadata
-from .workflow_span_record_with_children import WorkflowSpanRecordWithChildren
-from .workflow_span_record_with_children_dataset_metadata import WorkflowSpanRecordWithChildrenDatasetMetadata
-from .workflow_span_record_with_children_metric_info_type_0 import WorkflowSpanRecordWithChildrenMetricInfoType0
-from .workflow_span_record_with_children_user_metadata import WorkflowSpanRecordWithChildrenUserMetadata
 from .workflow_span_user_metadata import WorkflowSpanUserMetadata
 
 __all__ = (
@@ -556,14 +592,6 @@ __all__ = (
     "AgenticWorkflowSuccessTemplate",
     "AgentSpan",
     "AgentSpanDatasetMetadata",
-    "AgentSpanRecord",
-    "AgentSpanRecordDatasetMetadata",
-    "AgentSpanRecordMetricInfoType0",
-    "AgentSpanRecordUserMetadata",
-    "AgentSpanRecordWithChildren",
-    "AgentSpanRecordWithChildrenDatasetMetadata",
-    "AgentSpanRecordWithChildrenMetricInfoType0",
-    "AgentSpanRecordWithChildrenUserMetadata",
     "AgentSpanUserMetadata",
     "AgentType",
     "AggregatedTraceViewEdge",
@@ -615,6 +643,7 @@ __all__ = (
     "CorrectnessScorer",
     "CreateJobRequest",
     "CreateJobResponse",
+    "CreateLLMScorerAutogenRequest",
     "CreateLLMScorerVersionRequest",
     "CreatePromptTemplateWithVersionRequestBody",
     "CreateScorerRequest",
@@ -680,10 +709,14 @@ __all__ = (
     "DatasetDraftFilterOperator",
     "DatasetFilterRows",
     "DatasetFormat",
+    "DatasetIDFilter",
+    "DatasetIDFilterOperator",
     "DatasetLastEditedByUserAtSort",
     "DatasetNameFilter",
     "DatasetNameFilterOperator",
     "DatasetNameSort",
+    "DatasetPrependRow",
+    "DatasetPrependRowValues",
     "DatasetProject",
     "DatasetProjectLastUsedAtSort",
     "DatasetProjectsSort",
@@ -710,11 +743,68 @@ __all__ = (
     "ExperimentDatasetRequest",
     "ExperimentMetricsRequest",
     "ExperimentMetricsResponse",
+    "ExperimentPlayground",
+    "ExperimentPrompt",
     "ExperimentResponse",
     "ExperimentResponseAggregateFeedback",
     "ExperimentResponseAggregateMetrics",
     "ExperimentsAvailableColumnsResponse",
     "ExperimentUpdateRequest",
+    "ExtendedAgentSpanRecord",
+    "ExtendedAgentSpanRecordDatasetMetadata",
+    "ExtendedAgentSpanRecordMetricInfoType0",
+    "ExtendedAgentSpanRecordUserMetadata",
+    "ExtendedAgentSpanRecordWithChildren",
+    "ExtendedAgentSpanRecordWithChildrenDatasetMetadata",
+    "ExtendedAgentSpanRecordWithChildrenMetricInfoType0",
+    "ExtendedAgentSpanRecordWithChildrenUserMetadata",
+    "ExtendedLlmSpanRecord",
+    "ExtendedLlmSpanRecordDatasetMetadata",
+    "ExtendedLlmSpanRecordMetricInfoType0",
+    "ExtendedLlmSpanRecordToolsType0Item",
+    "ExtendedLlmSpanRecordUserMetadata",
+    "ExtendedRetrieverSpanRecord",
+    "ExtendedRetrieverSpanRecordDatasetMetadata",
+    "ExtendedRetrieverSpanRecordMetricInfoType0",
+    "ExtendedRetrieverSpanRecordUserMetadata",
+    "ExtendedRetrieverSpanRecordWithChildren",
+    "ExtendedRetrieverSpanRecordWithChildrenDatasetMetadata",
+    "ExtendedRetrieverSpanRecordWithChildrenMetricInfoType0",
+    "ExtendedRetrieverSpanRecordWithChildrenUserMetadata",
+    "ExtendedSessionRecord",
+    "ExtendedSessionRecordDatasetMetadata",
+    "ExtendedSessionRecordMetricInfoType0",
+    "ExtendedSessionRecordUserMetadata",
+    "ExtendedSessionRecordWithChildren",
+    "ExtendedSessionRecordWithChildrenDatasetMetadata",
+    "ExtendedSessionRecordWithChildrenMetricInfoType0",
+    "ExtendedSessionRecordWithChildrenUserMetadata",
+    "ExtendedToolSpanRecord",
+    "ExtendedToolSpanRecordDatasetMetadata",
+    "ExtendedToolSpanRecordMetricInfoType0",
+    "ExtendedToolSpanRecordUserMetadata",
+    "ExtendedToolSpanRecordWithChildren",
+    "ExtendedToolSpanRecordWithChildrenDatasetMetadata",
+    "ExtendedToolSpanRecordWithChildrenMetricInfoType0",
+    "ExtendedToolSpanRecordWithChildrenUserMetadata",
+    "ExtendedTraceRecord",
+    "ExtendedTraceRecordDatasetMetadata",
+    "ExtendedTraceRecordFeedbackRatingInfo",
+    "ExtendedTraceRecordMetricInfoType0",
+    "ExtendedTraceRecordUserMetadata",
+    "ExtendedTraceRecordWithChildren",
+    "ExtendedTraceRecordWithChildrenDatasetMetadata",
+    "ExtendedTraceRecordWithChildrenFeedbackRatingInfo",
+    "ExtendedTraceRecordWithChildrenMetricInfoType0",
+    "ExtendedTraceRecordWithChildrenUserMetadata",
+    "ExtendedWorkflowSpanRecord",
+    "ExtendedWorkflowSpanRecordDatasetMetadata",
+    "ExtendedWorkflowSpanRecordMetricInfoType0",
+    "ExtendedWorkflowSpanRecordUserMetadata",
+    "ExtendedWorkflowSpanRecordWithChildren",
+    "ExtendedWorkflowSpanRecordWithChildrenDatasetMetadata",
+    "ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0",
+    "ExtendedWorkflowSpanRecordWithChildrenUserMetadata",
     "FactualityTemplate",
     "FeedbackAggregate",
     "FeedbackRatingDB",
@@ -726,6 +816,7 @@ __all__ = (
     "GeneratedScorerAction",
     "GeneratedScorerConfiguration",
     "GeneratedScorerResponse",
+    "GenerationResponse",
     "GetProjectsPaginatedResponse",
     "GetProjectsPaginatedResponseV2",
     "GroundednessTemplate",
@@ -737,6 +828,9 @@ __all__ = (
     "GroupMemberAction",
     "HallucinationSegment",
     "HealthcheckResponse",
+    "Histogram",
+    "HistogramBucket",
+    "HistogramStrategy",
     "HTTPValidationError",
     "InputMap",
     "InputPIIScorer",
@@ -747,6 +841,7 @@ __all__ = (
     "InputToxicityScorer",
     "InputToxicityScorerType",
     "InputToxicityTemplate",
+    "InputTypeEnum",
     "InsightType",
     "InstructionAdherenceScorer",
     "InstructionAdherenceTemplate",
@@ -780,11 +875,6 @@ __all__ = (
     "LlmMetrics",
     "LlmSpan",
     "LlmSpanDatasetMetadata",
-    "LlmSpanRecord",
-    "LlmSpanRecordDatasetMetadata",
-    "LlmSpanRecordMetricInfoType0",
-    "LlmSpanRecordToolsType0Item",
-    "LlmSpanRecordUserMetadata",
     "LlmSpanToolsType0Item",
     "LlmSpanUserMetadata",
     "LoggingMethod",
@@ -818,9 +908,9 @@ __all__ = (
     "LogTraceUpdateRequest",
     "LogTraceUpdateResponse",
     "Message",
-    "MessageListItemRole",
     "MessageRole",
     "MessagesListItem",
+    "MessagesListItemRole",
     "MetadataFilter",
     "MetadataFilterOperator",
     "MetricComputation",
@@ -870,10 +960,12 @@ __all__ = (
     "ProjectCreatedAtSort",
     "ProjectCreateResponse",
     "ProjectCreatorFilter",
+    "ProjectCreatorFilterOperator",
     "ProjectDB",
     "ProjectDBThin",
     "ProjectDeleteResponse",
     "ProjectIDFilter",
+    "ProjectIDFilterOperator",
     "ProjectItem",
     "ProjectLabels",
     "ProjectNameFilter",
@@ -902,6 +994,7 @@ __all__ = (
     "PromptRunSettingsToolsType0Item",
     "PromptTemplateCreatedAtSort",
     "PromptTemplateCreatedByFilter",
+    "PromptTemplateCreatedByFilterOperator",
     "PromptTemplateNameFilter",
     "PromptTemplateNameFilterOperator",
     "PromptTemplateNameSort",
@@ -910,6 +1003,10 @@ __all__ = (
     "PromptTemplateVersionCreatedAtSort",
     "PromptTemplateVersionNumberSort",
     "PromptTemplateVersionUpdatedAtSort",
+    "ProtectRequest",
+    "ProtectRequestHeadersType0",
+    "ProtectRequestMetadataType0",
+    "ProtectResponse",
     "QueryDatasetParams",
     "RecomputeSettingsLogStream",
     "RecomputeSettingsObserve",
@@ -920,20 +1017,8 @@ __all__ = (
     "RenderedTemplate",
     "RenderTemplateRequest",
     "RenderTemplateResponse",
-    "Request",
-    "RequestHeadersType0",
-    "RequestMetadataType0",
-    "Response",
     "RetrieverSpan",
     "RetrieverSpanDatasetMetadata",
-    "RetrieverSpanRecord",
-    "RetrieverSpanRecordDatasetMetadata",
-    "RetrieverSpanRecordMetricInfoType0",
-    "RetrieverSpanRecordUserMetadata",
-    "RetrieverSpanRecordWithChildren",
-    "RetrieverSpanRecordWithChildrenDatasetMetadata",
-    "RetrieverSpanRecordWithChildrenMetricInfoType0",
-    "RetrieverSpanRecordWithChildrenUserMetadata",
     "RetrieverSpanUserMetadata",
     "RollbackRequest",
     "RootType",
@@ -956,11 +1041,14 @@ __all__ = (
     "ScorerCreatedAtFilter",
     "ScorerCreatedAtFilterOperator",
     "ScorerCreatorFilter",
+    "ScorerCreatorFilterOperator",
     "ScorerDefaults",
+    "ScorerEnabledInRunSort",
     "ScorerModelTypeFilter",
     "ScorerName",
     "ScorerNameFilter",
     "ScorerNameFilterOperator",
+    "ScorerNameSort",
     "ScorerResponse",
     "ScorersConfiguration",
     "ScorerTagsFilter",
@@ -975,14 +1063,6 @@ __all__ = (
     "SegmentFilter",
     "SessionCreateRequest",
     "SessionCreateResponse",
-    "SessionRecord",
-    "SessionRecordDatasetMetadata",
-    "SessionRecordMetricInfoType0",
-    "SessionRecordUserMetadata",
-    "SessionRecordWithChildren",
-    "SessionRecordWithChildrenDatasetMetadata",
-    "SessionRecordWithChildrenMetricInfoType0",
-    "SessionRecordWithChildrenUserMetadata",
     "SexistTemplate",
     "StageDB",
     "StageMetadata",
@@ -1017,29 +1097,11 @@ __all__ = (
     "ToolSelectionQualityTemplate",
     "ToolSpan",
     "ToolSpanDatasetMetadata",
-    "ToolSpanRecord",
-    "ToolSpanRecordDatasetMetadata",
-    "ToolSpanRecordMetricInfoType0",
-    "ToolSpanRecordUserMetadata",
-    "ToolSpanRecordWithChildren",
-    "ToolSpanRecordWithChildrenDatasetMetadata",
-    "ToolSpanRecordWithChildrenMetricInfoType0",
-    "ToolSpanRecordWithChildrenUserMetadata",
     "ToolSpanUserMetadata",
     "ToxicityTemplate",
     "Trace",
     "TraceDatasetMetadata",
     "TraceMetadata",
-    "TraceRecord",
-    "TraceRecordDatasetMetadata",
-    "TraceRecordFeedbackRatingInfo",
-    "TraceRecordMetricInfoType0",
-    "TraceRecordUserMetadata",
-    "TraceRecordWithChildren",
-    "TraceRecordWithChildrenDatasetMetadata",
-    "TraceRecordWithChildrenFeedbackRatingInfo",
-    "TraceRecordWithChildrenMetricInfoType0",
-    "TraceRecordWithChildrenUserMetadata",
     "TraceUserMetadata",
     "UncertaintyScorer",
     "UpdateDatasetContentRequest",
@@ -1057,13 +1119,5 @@ __all__ = (
     "ValidationError",
     "WorkflowSpan",
     "WorkflowSpanDatasetMetadata",
-    "WorkflowSpanRecord",
-    "WorkflowSpanRecordDatasetMetadata",
-    "WorkflowSpanRecordMetricInfoType0",
-    "WorkflowSpanRecordUserMetadata",
-    "WorkflowSpanRecordWithChildren",
-    "WorkflowSpanRecordWithChildrenDatasetMetadata",
-    "WorkflowSpanRecordWithChildrenMetricInfoType0",
-    "WorkflowSpanRecordWithChildrenUserMetadata",
     "WorkflowSpanUserMetadata",
 )

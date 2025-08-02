@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.input_type_enum import InputTypeEnum
 from ..models.node_type import NodeType
 from ..models.output_type_enum import OutputTypeEnum
 from ..models.scorer_name import ScorerName
@@ -38,6 +39,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
         generated_scorer_id (Union[None, Unset, str]):
         indices (Union[None, Unset, list[int]]):
+        input_type (Union[InputTypeEnum, None, Unset]):
         lora_task_id (Union[None, Unset, int]):
         metric_name (Union[None, Unset, str]):
         model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
@@ -63,6 +65,7 @@ class CustomizedToolSelectionQualityGPTScorer:
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     generated_scorer_id: Union[None, Unset, str] = UNSET
     indices: Union[None, Unset, list[int]] = UNSET
+    input_type: Union[InputTypeEnum, None, Unset] = UNSET
     lora_task_id: Union[None, Unset, int] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
     model_alias: Union[Unset, str] = "gpt-4.1-mini"
@@ -155,6 +158,14 @@ class CustomizedToolSelectionQualityGPTScorer:
         else:
             indices = self.indices
 
+        input_type: Union[None, Unset, str]
+        if isinstance(self.input_type, Unset):
+            input_type = UNSET
+        elif isinstance(self.input_type, InputTypeEnum):
+            input_type = self.input_type.value
+        else:
+            input_type = self.input_type
+
         lora_task_id: Union[None, Unset, int]
         if isinstance(self.lora_task_id, Unset):
             lora_task_id = UNSET
@@ -246,6 +257,8 @@ class CustomizedToolSelectionQualityGPTScorer:
             field_dict["generated_scorer_id"] = generated_scorer_id
         if indices is not UNSET:
             field_dict["indices"] = indices
+        if input_type is not UNSET:
+            field_dict["input_type"] = input_type
         if lora_task_id is not UNSET:
             field_dict["lora_task_id"] = lora_task_id
         if metric_name is not UNSET:
@@ -415,6 +428,23 @@ class CustomizedToolSelectionQualityGPTScorer:
 
         indices = _parse_indices(d.pop("indices", UNSET))
 
+        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                input_type_type_0 = InputTypeEnum(data)
+
+                return input_type_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[InputTypeEnum, None, Unset], data)
+
+        input_type = _parse_input_type(d.pop("input_type", UNSET))
+
         def _parse_lora_task_id(data: object) -> Union[None, Unset, int]:
             if data is None:
                 return data
@@ -538,6 +568,7 @@ class CustomizedToolSelectionQualityGPTScorer:
             filters=filters,
             generated_scorer_id=generated_scorer_id,
             indices=indices,
+            input_type=input_type,
             lora_task_id=lora_task_id,
             metric_name=metric_name,
             model_alias=model_alias,

@@ -7,13 +7,13 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.agent_span_record import AgentSpanRecord
-    from ..models.llm_span_record import LlmSpanRecord
-    from ..models.retriever_span_record import RetrieverSpanRecord
-    from ..models.session_record import SessionRecord
-    from ..models.tool_span_record import ToolSpanRecord
-    from ..models.trace_record import TraceRecord
-    from ..models.workflow_span_record import WorkflowSpanRecord
+    from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+    from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+    from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
+    from ..models.extended_session_record import ExtendedSessionRecord
+    from ..models.extended_tool_span_record import ExtendedToolSpanRecord
+    from ..models.extended_trace_record import ExtendedTraceRecord
+    from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
 
 
 T = TypeVar("T", bound="LogRecordsQueryResponse")
@@ -26,8 +26,9 @@ class LogRecordsQueryResponse:
         limit (Union[Unset, int]):  Default: 100.
         next_starting_token (Union[None, Unset, int]):
         paginated (Union[Unset, bool]):  Default: False.
-        records (Union[Unset, list[Union['AgentSpanRecord', 'LlmSpanRecord', 'RetrieverSpanRecord', 'SessionRecord',
-            'ToolSpanRecord', 'TraceRecord', 'WorkflowSpanRecord']]]): records matching the query
+        records (Union[Unset, list[Union['ExtendedAgentSpanRecord', 'ExtendedLlmSpanRecord',
+            'ExtendedRetrieverSpanRecord', 'ExtendedSessionRecord', 'ExtendedToolSpanRecord', 'ExtendedTraceRecord',
+            'ExtendedWorkflowSpanRecord']]]): records matching the query
         starting_token (Union[Unset, int]):  Default: 0.
     """
 
@@ -38,13 +39,13 @@ class LogRecordsQueryResponse:
         Unset,
         list[
             Union[
-                "AgentSpanRecord",
-                "LlmSpanRecord",
-                "RetrieverSpanRecord",
-                "SessionRecord",
-                "ToolSpanRecord",
-                "TraceRecord",
-                "WorkflowSpanRecord",
+                "ExtendedAgentSpanRecord",
+                "ExtendedLlmSpanRecord",
+                "ExtendedRetrieverSpanRecord",
+                "ExtendedSessionRecord",
+                "ExtendedToolSpanRecord",
+                "ExtendedTraceRecord",
+                "ExtendedWorkflowSpanRecord",
             ]
         ],
     ] = UNSET
@@ -52,12 +53,12 @@ class LogRecordsQueryResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        from ..models.agent_span_record import AgentSpanRecord
-        from ..models.llm_span_record import LlmSpanRecord
-        from ..models.retriever_span_record import RetrieverSpanRecord
-        from ..models.tool_span_record import ToolSpanRecord
-        from ..models.trace_record import TraceRecord
-        from ..models.workflow_span_record import WorkflowSpanRecord
+        from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+        from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+        from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
+        from ..models.extended_tool_span_record import ExtendedToolSpanRecord
+        from ..models.extended_trace_record import ExtendedTraceRecord
+        from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
 
         limit = self.limit
 
@@ -74,17 +75,17 @@ class LogRecordsQueryResponse:
             records = []
             for records_item_data in self.records:
                 records_item: dict[str, Any]
-                if isinstance(records_item_data, TraceRecord):
+                if isinstance(records_item_data, ExtendedTraceRecord):
                     records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, AgentSpanRecord):
+                elif isinstance(records_item_data, ExtendedAgentSpanRecord):
                     records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, WorkflowSpanRecord):
+                elif isinstance(records_item_data, ExtendedWorkflowSpanRecord):
                     records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, LlmSpanRecord):
+                elif isinstance(records_item_data, ExtendedLlmSpanRecord):
                     records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ToolSpanRecord):
+                elif isinstance(records_item_data, ExtendedToolSpanRecord):
                     records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, RetrieverSpanRecord):
+                elif isinstance(records_item_data, ExtendedRetrieverSpanRecord):
                     records_item = records_item_data.to_dict()
                 else:
                     records_item = records_item_data.to_dict()
@@ -111,13 +112,13 @@ class LogRecordsQueryResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.agent_span_record import AgentSpanRecord
-        from ..models.llm_span_record import LlmSpanRecord
-        from ..models.retriever_span_record import RetrieverSpanRecord
-        from ..models.session_record import SessionRecord
-        from ..models.tool_span_record import ToolSpanRecord
-        from ..models.trace_record import TraceRecord
-        from ..models.workflow_span_record import WorkflowSpanRecord
+        from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+        from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+        from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
+        from ..models.extended_session_record import ExtendedSessionRecord
+        from ..models.extended_tool_span_record import ExtendedToolSpanRecord
+        from ..models.extended_trace_record import ExtendedTraceRecord
+        from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
 
         d = dict(src_dict)
         limit = d.pop("limit", UNSET)
@@ -140,18 +141,18 @@ class LogRecordsQueryResponse:
             def _parse_records_item(
                 data: object,
             ) -> Union[
-                "AgentSpanRecord",
-                "LlmSpanRecord",
-                "RetrieverSpanRecord",
-                "SessionRecord",
-                "ToolSpanRecord",
-                "TraceRecord",
-                "WorkflowSpanRecord",
+                "ExtendedAgentSpanRecord",
+                "ExtendedLlmSpanRecord",
+                "ExtendedRetrieverSpanRecord",
+                "ExtendedSessionRecord",
+                "ExtendedToolSpanRecord",
+                "ExtendedTraceRecord",
+                "ExtendedWorkflowSpanRecord",
             ]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_0 = TraceRecord.from_dict(data)
+                    records_item_type_0 = ExtendedTraceRecord.from_dict(data)
 
                     return records_item_type_0
                 except:  # noqa: E722
@@ -159,48 +160,48 @@ class LogRecordsQueryResponse:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_1_type_0 = AgentSpanRecord.from_dict(data)
+                    records_item_type_1 = ExtendedAgentSpanRecord.from_dict(data)
 
-                    return records_item_type_1_type_0
+                    return records_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_1_type_1 = WorkflowSpanRecord.from_dict(data)
+                    records_item_type_2 = ExtendedWorkflowSpanRecord.from_dict(data)
 
-                    return records_item_type_1_type_1
+                    return records_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_1_type_2 = LlmSpanRecord.from_dict(data)
+                    records_item_type_3 = ExtendedLlmSpanRecord.from_dict(data)
 
-                    return records_item_type_1_type_2
+                    return records_item_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_1_type_3 = ToolSpanRecord.from_dict(data)
+                    records_item_type_4 = ExtendedToolSpanRecord.from_dict(data)
 
-                    return records_item_type_1_type_3
+                    return records_item_type_4
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_1_type_4 = RetrieverSpanRecord.from_dict(data)
+                    records_item_type_5 = ExtendedRetrieverSpanRecord.from_dict(data)
 
-                    return records_item_type_1_type_4
+                    return records_item_type_5
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                records_item_type_2 = SessionRecord.from_dict(data)
+                records_item_type_6 = ExtendedSessionRecord.from_dict(data)
 
-                return records_item_type_2
+                return records_item_type_6
 
             records_item = _parse_records_item(records_item_data)
 

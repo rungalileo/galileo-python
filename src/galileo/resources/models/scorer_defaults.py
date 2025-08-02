@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.input_type_enum import InputTypeEnum
 from ..models.output_type_enum import OutputTypeEnum
 from ..types import UNSET, Unset
 
@@ -23,16 +24,19 @@ class ScorerDefaults:
             for llm scorers.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
+        input_type (Union[InputTypeEnum, None, Unset]): What type of input to use for model-based scorers
+            (sessions_normalized, trace_io_only, etc..).
         model_name (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
-        output_type (Union[None, OutputTypeEnum, Unset]): What type of output to use for model-based scorers (llm or
-            slm).
+        output_type (Union[None, OutputTypeEnum, Unset]): What type of output to use for model-based scorers (boolean,
+            categorical, etc.).
         scoreable_node_types (Union[None, Unset, list[str]]): List of node types that can be scored by this scorer.
             Defaults to llm/chat.
     """
 
     cot_enabled: Union[None, Unset, bool] = UNSET
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
+    input_type: Union[InputTypeEnum, None, Unset] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
     output_type: Union[None, OutputTypeEnum, Unset] = UNSET
@@ -64,6 +68,14 @@ class ScorerDefaults:
 
         else:
             filters = self.filters
+
+        input_type: Union[None, Unset, str]
+        if isinstance(self.input_type, Unset):
+            input_type = UNSET
+        elif isinstance(self.input_type, InputTypeEnum):
+            input_type = self.input_type.value
+        else:
+            input_type = self.input_type
 
         model_name: Union[None, Unset, str]
         if isinstance(self.model_name, Unset):
@@ -101,6 +113,8 @@ class ScorerDefaults:
             field_dict["cot_enabled"] = cot_enabled
         if filters is not UNSET:
             field_dict["filters"] = filters
+        if input_type is not UNSET:
+            field_dict["input_type"] = input_type
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if num_judges is not UNSET:
@@ -166,6 +180,23 @@ class ScorerDefaults:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
+        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                input_type_type_0 = InputTypeEnum(data)
+
+                return input_type_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[InputTypeEnum, None, Unset], data)
+
+        input_type = _parse_input_type(d.pop("input_type", UNSET))
+
         def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -221,6 +252,7 @@ class ScorerDefaults:
         scorer_defaults = cls(
             cot_enabled=cot_enabled,
             filters=filters,
+            input_type=input_type,
             model_name=model_name,
             num_judges=num_judges,
             output_type=output_type,

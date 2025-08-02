@@ -6,6 +6,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..models.input_type_enum import InputTypeEnum
 from ..models.output_type_enum import OutputTypeEnum
 from ..types import UNSET, Unset
 
@@ -27,6 +28,8 @@ class BaseScorerVersionResponse:
         version (int):
         cot_enabled (Union[None, Unset, bool]):
         generated_scorer (Union['GeneratedScorerResponse', None, Unset]):
+        input_type (Union[InputTypeEnum, None, Unset]): What type of input to use for model-based scorers
+            (sessions_normalized, trace_io_only, etc.).
         model_name (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
         output_type (Union[None, OutputTypeEnum, Unset]):
@@ -40,6 +43,7 @@ class BaseScorerVersionResponse:
     version: int
     cot_enabled: Union[None, Unset, bool] = UNSET
     generated_scorer: Union["GeneratedScorerResponse", None, Unset] = UNSET
+    input_type: Union[InputTypeEnum, None, Unset] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
     output_type: Union[None, OutputTypeEnum, Unset] = UNSET
@@ -72,6 +76,14 @@ class BaseScorerVersionResponse:
             generated_scorer = self.generated_scorer.to_dict()
         else:
             generated_scorer = self.generated_scorer
+
+        input_type: Union[None, Unset, str]
+        if isinstance(self.input_type, Unset):
+            input_type = UNSET
+        elif isinstance(self.input_type, InputTypeEnum):
+            input_type = self.input_type.value
+        else:
+            input_type = self.input_type
 
         model_name: Union[None, Unset, str]
         if isinstance(self.model_name, Unset):
@@ -117,6 +129,8 @@ class BaseScorerVersionResponse:
             field_dict["cot_enabled"] = cot_enabled
         if generated_scorer is not UNSET:
             field_dict["generated_scorer"] = generated_scorer
+        if input_type is not UNSET:
+            field_dict["input_type"] = input_type
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if num_judges is not UNSET:
@@ -169,6 +183,23 @@ class BaseScorerVersionResponse:
             return cast(Union["GeneratedScorerResponse", None, Unset], data)
 
         generated_scorer = _parse_generated_scorer(d.pop("generated_scorer", UNSET))
+
+        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                input_type_type_0 = InputTypeEnum(data)
+
+                return input_type_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[InputTypeEnum, None, Unset], data)
+
+        input_type = _parse_input_type(d.pop("input_type", UNSET))
 
         def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -246,6 +277,7 @@ class BaseScorerVersionResponse:
             version=version,
             cot_enabled=cot_enabled,
             generated_scorer=generated_scorer,
+            input_type=input_type,
             model_name=model_name,
             num_judges=num_judges,
             output_type=output_type,

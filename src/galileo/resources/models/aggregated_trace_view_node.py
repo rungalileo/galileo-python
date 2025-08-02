@@ -23,7 +23,9 @@ class AggregatedTraceViewNode:
         name (Union[None, str]):
         occurrences (int):
         parent_id (Union[None, str]):
+        trace_count (int):
         type_ (StepType):
+        weight (float):
     """
 
     has_children: bool
@@ -32,7 +34,9 @@ class AggregatedTraceViewNode:
     name: Union[None, str]
     occurrences: int
     parent_id: Union[None, str]
+    trace_count: int
     type_: StepType
+    weight: float
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -50,7 +54,11 @@ class AggregatedTraceViewNode:
         parent_id: Union[None, str]
         parent_id = self.parent_id
 
+        trace_count = self.trace_count
+
         type_ = self.type_.value
+
+        weight = self.weight
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -62,7 +70,9 @@ class AggregatedTraceViewNode:
                 "name": name,
                 "occurrences": occurrences,
                 "parent_id": parent_id,
+                "trace_count": trace_count,
                 "type": type_,
+                "weight": weight,
             }
         )
 
@@ -95,7 +105,11 @@ class AggregatedTraceViewNode:
 
         parent_id = _parse_parent_id(d.pop("parent_id"))
 
+        trace_count = d.pop("trace_count")
+
         type_ = StepType(d.pop("type"))
+
+        weight = d.pop("weight")
 
         aggregated_trace_view_node = cls(
             has_children=has_children,
@@ -104,7 +118,9 @@ class AggregatedTraceViewNode:
             name=name,
             occurrences=occurrences,
             parent_id=parent_id,
+            trace_count=trace_count,
             type_=type_,
+            weight=weight,
         )
 
         aggregated_trace_view_node.additional_properties = d

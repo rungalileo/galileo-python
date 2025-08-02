@@ -7,8 +7,8 @@ from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
 
 from ... import errors
+from ...models.extended_session_record_with_children import ExtendedSessionRecordWithChildren
 from ...models.http_validation_error import HTTPValidationError
-from ...models.session_record_with_children import SessionRecordWithChildren
 from ...types import Response
 
 
@@ -24,9 +24,9 @@ def _get_kwargs(project_id: str, session_id: str) -> dict[str, Any]:
 
 def _parse_response(
     *, client: ApiClient, response: httpx.Response
-) -> Optional[Union[HTTPValidationError, SessionRecordWithChildren]]:
+) -> Optional[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = SessionRecordWithChildren.from_dict(response.json())
+        response_200 = ExtendedSessionRecordWithChildren.from_dict(response.json())
 
         return response_200
     if response.status_code == 422:
@@ -41,7 +41,7 @@ def _parse_response(
 
 def _build_response(
     *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, SessionRecordWithChildren]]:
+) -> Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -52,7 +52,7 @@ def _build_response(
 
 def sync_detailed(
     project_id: str, session_id: str, *, client: ApiClient
-) -> Response[Union[HTTPValidationError, SessionRecordWithChildren]]:
+) -> Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
     """Get Session
 
     Args:
@@ -64,7 +64,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, SessionRecordWithChildren]]
+        Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, session_id=session_id)
@@ -76,7 +76,7 @@ def sync_detailed(
 
 def sync(
     project_id: str, session_id: str, *, client: ApiClient
-) -> Optional[Union[HTTPValidationError, SessionRecordWithChildren]]:
+) -> Optional[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
     """Get Session
 
     Args:
@@ -88,7 +88,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, SessionRecordWithChildren]
+        Union[ExtendedSessionRecordWithChildren, HTTPValidationError]
     """
 
     return sync_detailed(project_id=project_id, session_id=session_id, client=client).parsed
@@ -96,7 +96,7 @@ def sync(
 
 async def asyncio_detailed(
     project_id: str, session_id: str, *, client: ApiClient
-) -> Response[Union[HTTPValidationError, SessionRecordWithChildren]]:
+) -> Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
     """Get Session
 
     Args:
@@ -108,7 +108,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, SessionRecordWithChildren]]
+        Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, session_id=session_id)
@@ -120,7 +120,7 @@ async def asyncio_detailed(
 
 async def asyncio(
     project_id: str, session_id: str, *, client: ApiClient
-) -> Optional[Union[HTTPValidationError, SessionRecordWithChildren]]:
+) -> Optional[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
     """Get Session
 
     Args:
@@ -132,7 +132,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, SessionRecordWithChildren]
+        Union[ExtendedSessionRecordWithChildren, HTTPValidationError]
     """
 
     return (await asyncio_detailed(project_id=project_id, session_id=session_id, client=client)).parsed

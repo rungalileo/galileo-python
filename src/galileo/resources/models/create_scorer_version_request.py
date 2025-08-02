@@ -4,6 +4,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.input_type_enum import InputTypeEnum
 from ..models.output_type_enum import OutputTypeEnum
 from ..types import UNSET, Unset
 
@@ -15,6 +16,7 @@ class CreateScorerVersionRequest:
     """
     Attributes:
         cot_enabled (Union[None, Unset, bool]):
+        input_type (Union[InputTypeEnum, None, Unset]):
         model_name (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
         output_type (Union[None, OutputTypeEnum, Unset]):
@@ -22,6 +24,7 @@ class CreateScorerVersionRequest:
     """
 
     cot_enabled: Union[None, Unset, bool] = UNSET
+    input_type: Union[InputTypeEnum, None, Unset] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
     output_type: Union[None, OutputTypeEnum, Unset] = UNSET
@@ -34,6 +37,14 @@ class CreateScorerVersionRequest:
             cot_enabled = UNSET
         else:
             cot_enabled = self.cot_enabled
+
+        input_type: Union[None, Unset, str]
+        if isinstance(self.input_type, Unset):
+            input_type = UNSET
+        elif isinstance(self.input_type, InputTypeEnum):
+            input_type = self.input_type.value
+        else:
+            input_type = self.input_type
 
         model_name: Union[None, Unset, str]
         if isinstance(self.model_name, Unset):
@@ -69,6 +80,8 @@ class CreateScorerVersionRequest:
         field_dict.update({})
         if cot_enabled is not UNSET:
             field_dict["cot_enabled"] = cot_enabled
+        if input_type is not UNSET:
+            field_dict["input_type"] = input_type
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if num_judges is not UNSET:
@@ -92,6 +105,23 @@ class CreateScorerVersionRequest:
             return cast(Union[None, Unset, bool], data)
 
         cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
+
+        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                input_type_type_0 = InputTypeEnum(data)
+
+                return input_type_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[InputTypeEnum, None, Unset], data)
+
+        input_type = _parse_input_type(d.pop("input_type", UNSET))
 
         def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -147,6 +177,7 @@ class CreateScorerVersionRequest:
 
         create_scorer_version_request = cls(
             cot_enabled=cot_enabled,
+            input_type=input_type,
             model_name=model_name,
             num_judges=num_judges,
             output_type=output_type,

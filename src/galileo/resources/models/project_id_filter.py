@@ -4,6 +4,7 @@ from typing import Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.project_id_filter_operator import ProjectIDFilterOperator
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="ProjectIDFilter")
@@ -15,10 +16,12 @@ class ProjectIDFilter:
     Attributes:
         value (str):
         name (Union[Literal['id'], Unset]):  Default: 'id'.
+        operator (Union[Unset, ProjectIDFilterOperator]):  Default: ProjectIDFilterOperator.EQ.
     """
 
     value: str
     name: Union[Literal["id"], Unset] = "id"
+    operator: Union[Unset, ProjectIDFilterOperator] = ProjectIDFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -26,11 +29,17 @@ class ProjectIDFilter:
 
         name = self.name
 
+        operator: Union[Unset, str] = UNSET
+        if not isinstance(self.operator, Unset):
+            operator = self.operator.value
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"value": value})
         if name is not UNSET:
             field_dict["name"] = name
+        if operator is not UNSET:
+            field_dict["operator"] = operator
 
         return field_dict
 
@@ -43,7 +52,14 @@ class ProjectIDFilter:
         if name != "id" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'id', got '{name}'")
 
-        project_id_filter = cls(value=value, name=name)
+        _operator = d.pop("operator", UNSET)
+        operator: Union[Unset, ProjectIDFilterOperator]
+        if isinstance(_operator, Unset):
+            operator = UNSET
+        else:
+            operator = ProjectIDFilterOperator(_operator)
+
+        project_id_filter = cls(value=value, name=name, operator=operator)
 
         project_id_filter.additional_properties = d
         return project_id_filter
