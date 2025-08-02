@@ -341,8 +341,33 @@ def create_experiment(
 
 
 def get_experiment(project_id: str, experiment_name: str) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
+    """
+    Get an experiment with the specified parameters.
+
+    Args:
+        project_id: Galileo ID of the project associated with this experiment
+        experiment_name: Name of the experiment
+
+    Returns:
+        ExperimentResponse results
+
+    Raises:
+        HTTPValidationError: If there's a validation error in returning a ExperimentResponse
+    """
     return Experiments().get(project_id, experiment_name)
 
 
 def get_experiments(project_id: str) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:
+    """
+    Get an experiments with the specified Project ID.
+
+    Args:
+        project_id: Galileo ID of the project associated with this experiment
+
+    Returns:
+        List of ExperimentResponse results
+
+    Raises:
+        HTTPValidationError: If there's a validation error in returning a list of ExperimentResponse
+    """
     return Experiments().list(project_id=project_id)
