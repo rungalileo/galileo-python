@@ -5,12 +5,10 @@ from pydantic import UUID4, BaseModel, Field
 
 from galileo.resources.models import Document
 from galileo_core.schemas.logging.span import Span
-from galileo_core.schemas.logging.step import StepAllowedInputType, StepAllowedOutputType, StepType
+from galileo_core.schemas.logging.step import StepAllowedInputType, StepAllowedOutputType
 from galileo_core.schemas.logging.trace import Trace
 
-SPAN_TYPE = Literal[
-    StepType.llm.value, StepType.retriever.value, StepType.tool.value, StepType.workflow.value, StepType.agent.value
-]
+SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow", "agent"]
 
 
 class LoggingMethod(str, Enum):
