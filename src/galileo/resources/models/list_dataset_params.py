@@ -9,6 +9,7 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.dataset_created_at_sort import DatasetCreatedAtSort
     from ..models.dataset_draft_filter import DatasetDraftFilter
+    from ..models.dataset_id_filter import DatasetIDFilter
     from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
     from ..models.dataset_name_filter import DatasetNameFilter
     from ..models.dataset_name_sort import DatasetNameSort
@@ -26,13 +27,16 @@ T = TypeVar("T", bound="ListDatasetParams")
 class ListDatasetParams:
     """
     Attributes:
-        filters (Union[Unset, list[Union['DatasetDraftFilter', 'DatasetNameFilter', 'DatasetUsedInProjectFilter']]]):
+        filters (Union[Unset, list[Union['DatasetDraftFilter', 'DatasetIDFilter', 'DatasetNameFilter',
+            'DatasetUsedInProjectFilter']]]):
         sort (Union['DatasetCreatedAtSort', 'DatasetLastEditedByUserAtSort', 'DatasetNameSort',
             'DatasetProjectLastUsedAtSort', 'DatasetProjectsSort', 'DatasetRowsSort', 'DatasetUpdatedAtSort', None, Unset]):
             Default: None.
     """
 
-    filters: Union[Unset, list[Union["DatasetDraftFilter", "DatasetNameFilter", "DatasetUsedInProjectFilter"]]] = UNSET
+    filters: Union[
+        Unset, list[Union["DatasetDraftFilter", "DatasetIDFilter", "DatasetNameFilter", "DatasetUsedInProjectFilter"]]
+    ] = UNSET
     sort: Union[
         "DatasetCreatedAtSort",
         "DatasetLastEditedByUserAtSort",
@@ -56,6 +60,7 @@ class ListDatasetParams:
         from ..models.dataset_projects_sort import DatasetProjectsSort
         from ..models.dataset_rows_sort import DatasetRowsSort
         from ..models.dataset_updated_at_sort import DatasetUpdatedAtSort
+        from ..models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -65,6 +70,8 @@ class ListDatasetParams:
                 if isinstance(filters_item_data, DatasetNameFilter):
                     filters_item = filters_item_data.to_dict()
                 elif isinstance(filters_item_data, DatasetDraftFilter):
+                    filters_item = filters_item_data.to_dict()
+                elif isinstance(filters_item_data, DatasetUsedInProjectFilter):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
@@ -105,6 +112,7 @@ class ListDatasetParams:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_created_at_sort import DatasetCreatedAtSort
         from ..models.dataset_draft_filter import DatasetDraftFilter
+        from ..models.dataset_id_filter import DatasetIDFilter
         from ..models.dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
         from ..models.dataset_name_filter import DatasetNameFilter
         from ..models.dataset_name_sort import DatasetNameSort
@@ -121,7 +129,7 @@ class ListDatasetParams:
 
             def _parse_filters_item(
                 data: object,
-            ) -> Union["DatasetDraftFilter", "DatasetNameFilter", "DatasetUsedInProjectFilter"]:
+            ) -> Union["DatasetDraftFilter", "DatasetIDFilter", "DatasetNameFilter", "DatasetUsedInProjectFilter"]:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
@@ -138,11 +146,19 @@ class ListDatasetParams:
                     return filters_item_type_1
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    filters_item_type_2 = DatasetUsedInProjectFilter.from_dict(data)
+
+                    return filters_item_type_2
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                filters_item_type_2 = DatasetUsedInProjectFilter.from_dict(data)
+                filters_item_type_3 = DatasetIDFilter.from_dict(data)
 
-                return filters_item_type_2
+                return filters_item_type_3
 
             filters_item = _parse_filters_item(filters_item_data)
 

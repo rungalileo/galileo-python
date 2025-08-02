@@ -27,6 +27,8 @@ class ColumnInfo:
         id (str): Column id.  Must be universally unique.
         allowed_values (Union[None, Unset, list[Any]]): Allowed values for this column.
         applicable_types (Union[Unset, list[StepType]]): List of types applicable for this column.
+        complex_ (Union[Unset, bool]): Whether the column requires special handling in the UI. Setting this to True will
+            hide the column in the UI until the UI adds support for it. Default: False.
         data_type (Union[DataType, None, Unset]): Data type of the column. This is used to determine how to format the
             data on the UI.
         data_unit (Union[DataUnit, None, Unset]): Data unit of the column (optional).
@@ -49,6 +51,7 @@ class ColumnInfo:
     id: str
     allowed_values: Union[None, Unset, list[Any]] = UNSET
     applicable_types: Union[Unset, list[StepType]] = UNSET
+    complex_: Union[Unset, bool] = False
     data_type: Union[DataType, None, Unset] = UNSET
     data_unit: Union[DataUnit, None, Unset] = UNSET
     description: Union[None, Unset, str] = UNSET
@@ -87,6 +90,8 @@ class ColumnInfo:
             for applicable_types_item_data in self.applicable_types:
                 applicable_types_item = applicable_types_item_data.value
                 applicable_types.append(applicable_types_item)
+
+        complex_ = self.complex_
 
         data_type: Union[None, Unset, str]
         if isinstance(self.data_type, Unset):
@@ -167,6 +172,8 @@ class ColumnInfo:
             field_dict["allowed_values"] = allowed_values
         if applicable_types is not UNSET:
             field_dict["applicable_types"] = applicable_types
+        if complex_ is not UNSET:
+            field_dict["complex"] = complex_
         if data_type is not UNSET:
             field_dict["data_type"] = data_type
         if data_unit is not UNSET:
@@ -229,6 +236,8 @@ class ColumnInfo:
             applicable_types_item = StepType(applicable_types_item_data)
 
             applicable_types.append(applicable_types_item)
+
+        complex_ = d.pop("complex", UNSET)
 
         def _parse_data_type(data: object) -> Union[DataType, None, Unset]:
             if data is None:
@@ -364,6 +373,7 @@ class ColumnInfo:
             id=id,
             allowed_values=allowed_values,
             applicable_types=applicable_types,
+            complex_=complex_,
             data_type=data_type,
             data_unit=data_unit,
             description=description,
