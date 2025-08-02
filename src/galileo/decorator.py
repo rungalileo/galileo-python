@@ -639,7 +639,7 @@ class GalileoDecorator:
 
             # If the span type is a workflow or agent, conclude it
             _logger.debug(f"{span_type=} {stack=} {span_params=}")
-            if is_concludable_span_type(span_type) or not span_type:
+            if not span_type or is_concludable_span_type(span_type):
                 if stack:
                     stack.pop()
                     _span_stack_context.set(stack)
