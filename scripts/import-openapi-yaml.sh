@@ -19,11 +19,12 @@ HOME_DIR="$(pwd)"
 curl -s "${HOST_URL}/openapi.json" | python3 -c 'import sys, json, yaml; yaml.safe_dump(json.load(sys.stdin), sys.stdout)' > "$HOME_DIR/openapi.yaml"
 
 # **Patch the OpenAPI YAML to fix some schema issues**
-# OpenAPI doesn't respect aliases in the router code specifically for Pydantic-based models. 
-#   So if two models have the same name but one is aliased as something else on import, the OpenAPI spec 
+# OpenAPI doesn't respect aliases in the router code specifically for Pydantic-based models.
+#   So if two models have the same name but one is aliased as something else on import, the OpenAPI spec
 #   will create two schemas with the same title, which will make client generation fail. It also doesn't handle
 #   default values for query parameters in some cases.
-#   
+#
+#
 #   The following patches fix these issues:
 #   - api__schemas__project_v2__GetProjectsPaginatedResponse.title = "GetProjectsPaginatedResponseV2"
 #   - galileo_core__schemas__shared__message__Message.title = "MessagesListItem"
