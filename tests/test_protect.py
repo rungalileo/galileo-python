@@ -8,8 +8,8 @@ from galileo.handlers.langchain.tool import ProtectTool
 from galileo.protect import Protect, ainvoke, invoke
 from galileo.resources.models.execution_status import ExecutionStatus as APIExecutionStatus
 from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.models.request import Request as APIRequest
-from galileo.resources.models.response import Response as APIResponse
+from galileo.resources.models.protect_request import ProtectRequest as APIRequest
+from galileo.resources.models.protect_response import ProtectResponse as APIResponse
 from galileo.resources.models.validation_error import ValidationError
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload

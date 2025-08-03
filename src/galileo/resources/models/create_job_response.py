@@ -7,7 +7,7 @@ from attrs import field as _attrs_field
 
 from ..models.scorer_name import ScorerName
 from ..models.task_type import TaskType
-from ..types import UNSET, File, FileJsonType, Unset
+from ..types import UNSET, File, FileTypes, Unset
 
 if TYPE_CHECKING:
     from ..models.agentic_session_success_scorer import AgenticSessionSuccessScorer
@@ -537,7 +537,7 @@ class CreateJobResponse:
         else:
             prompt_template_version_id = self.prompt_template_version_id
 
-        protect_scorer_payload: Union[FileJsonType, None, Unset]
+        protect_scorer_payload: Union[FileTypes, None, Unset]
         if isinstance(self.protect_scorer_payload, Unset):
             protect_scorer_payload = UNSET
         elif isinstance(self.protect_scorer_payload, File):

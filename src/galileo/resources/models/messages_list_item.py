@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.message_list_item_role import MessageListItemRole
+from ..models.messages_list_item_role import MessagesListItemRole
 
 T = TypeVar("T", bound="MessagesListItem")
 
@@ -14,18 +14,18 @@ class MessagesListItem:
     """
     Attributes:
         content (str):
-        role (Union[MessageListItemRole, str]):
+        role (Union[MessagesListItemRole, str]):
     """
 
     content: str
-    role: Union[MessageListItemRole, str]
+    role: Union[MessagesListItemRole, str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         content = self.content
 
         role: str
-        if isinstance(self.role, MessageListItemRole):
+        if isinstance(self.role, MessagesListItemRole):
             role = self.role.value
         else:
             role = self.role
@@ -41,16 +41,16 @@ class MessagesListItem:
         d = dict(src_dict)
         content = d.pop("content")
 
-        def _parse_role(data: object) -> Union[MessageListItemRole, str]:
+        def _parse_role(data: object) -> Union[MessagesListItemRole, str]:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                role_type_1 = MessageListItemRole(data)
+                role_type_1 = MessagesListItemRole(data)
 
                 return role_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union[MessageListItemRole, str], data)
+            return cast(Union[MessagesListItemRole, str], data)
 
         role = _parse_role(d.pop("role"))
 
