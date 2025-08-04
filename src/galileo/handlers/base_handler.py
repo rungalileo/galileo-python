@@ -108,7 +108,7 @@ class GalileoBaseHandler:
             metadata = convert_to_string_dict(metadata)
 
         step_number = None
-        if metadata_step_number := metadata.get("langgraph_step"):
+        if metadata and (metadata_step_number := metadata.get("langgraph_step")):
             try:
                 step_number = int(metadata_step_number)
             except Exception as e:

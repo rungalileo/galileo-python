@@ -612,7 +612,7 @@ class TestGalileoAsyncCallback:
         child_id = uuid.uuid4()
 
         # Start child with non-existent parent
-        await callback._handler.start_node(
+        await callback._handler.async_start_node(
             node_type="llm",
             parent_run_id=parent_id,  # This parent doesn't exist
             run_id=child_id,
@@ -663,7 +663,7 @@ class TestGalileoAsyncCallback:
         callback = GalileoAsyncCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
 
         # Start a chain (creates a workflow span)
-        await callback._handler.start_node("chain", None, run_id, name="Test Chain", input='{"query": "test"}')
+        await callback._handler.async_start_node("chain", None, run_id, name="Test Chain", input='{"query": "test"}')
 
         # Add a retriever span
         retriever_id = uuid.uuid4()
@@ -673,7 +673,7 @@ class TestGalileoAsyncCallback:
         )
 
         # End the chain (ends the workflow span)
-        await callback._handler.end_node(run_id, output='{"result": "test result"}')
+        await callback._handler.async_end_node(run_id, output='{"result": "test result"}')
 
         galileo_logger.conclude(output="test output", status_code=200)
 
