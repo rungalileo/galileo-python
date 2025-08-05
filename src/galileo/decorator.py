@@ -749,11 +749,7 @@ class GalileoDecorator:
             self._handle_call_result(span_type, span_params, output)
 
     def get_logger_instance(
-        self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        mode: Optional[str] = None,
+        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
     ) -> GalileoLogger:
         """
         Get the Galileo Logger instance for the current decorator context.
@@ -770,7 +766,6 @@ class GalileoDecorator:
             project=project or _project_context.get(),
             log_stream=log_stream or _log_stream_context.get(),
             experiment_id=experiment_id or _experiment_id_context.get(),
-            mode=mode or _mode_context.get(),
         )
 
     def get_current_project(self) -> Optional[str]:
@@ -823,11 +818,7 @@ class GalileoDecorator:
         return _mode_context.get()
 
     def flush(
-        self,
-        project: Optional[str] = None,
-        log_stream: Optional[str] = None,
-        experiment_id: Optional[str] = None,
-        mode: Optional[str] = None,
+        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
     ) -> None:
         """
         Upload all captured traces under a project and log stream context to Galileo.
@@ -838,7 +829,7 @@ class GalileoDecorator:
             project: The project name. Defaults to None.
             log_stream: The log stream name. Defaults to None.
         """
-        self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode).flush()
+        self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id).flush()
 
         if project == _project_context.get() and log_stream == _log_stream_context.get():
             _span_stack_context.set([])
@@ -868,7 +859,6 @@ class GalileoDecorator:
             project=_project_context.get(),
             log_stream=_log_stream_context.get(),
             experiment_id=_experiment_id_context.get(),
-            mode=_mode_context.get(),
         )
         # Reset current context values
         _project_context.set(None)
@@ -896,7 +886,6 @@ class GalileoDecorator:
         project: Optional[str] = None,
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
-        mode: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
     ) -> None:
         """
@@ -912,9 +901,9 @@ class GalileoDecorator:
             experiment_id: The experiment id. Defaults to None.
             local_metrics: Local metrics configs to run on the traces/spans before submitting them for ingestion.  Defaults to None.
         """
-        GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode)
+        GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
         GalileoLoggerSingleton().get(
-            project=project, log_stream=log_stream, experiment_id=experiment_id, mode=mode, local_metrics=local_metrics
+            project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics
         )
 
         _project_context.set(project)
