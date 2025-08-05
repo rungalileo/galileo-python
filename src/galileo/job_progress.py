@@ -28,7 +28,7 @@ class Jobs(BaseClientModel):  # , DecorateAllMethods):
         response = get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync(
             client=self.client, project_id=str(project_id), run_id=str(run_id)
         )
-        print(f"get_scorer_jobs response: {response}")
+        # print(f"get_scorer_jobs response: {response}")
         if not isinstance(response, list):
             _logger.warning(f"Failed to get scorer jobs for project {project_id}, run {run_id}. Response: {response}")
             return []
@@ -38,7 +38,15 @@ class Jobs(BaseClientModel):  # , DecorateAllMethods):
         return [job for job in response if job.job_name == "log_stream_scorer"]  # RunDefaults.prompt_scorer_job_name]
 
 
+# TODO why status on javascript version but not here?
 def scorer_jobs_status(project_id: Optional[UUID4] = None, run_id: Optional[UUID4] = None) -> None:
+    """Gets the status of all scorer jobs for a given project and run.
+
+    Parameters
+    ----------
+    project_id: The unique identifier of the project.
+    run_id: The unique identifier of the run.
+    """
     jobs_client = Jobs()
     scorer_jobs = jobs_client.get_scorer_jobs(project_id=project_id, run_id=run_id)
     for job in scorer_jobs:
@@ -61,6 +69,18 @@ def scorer_jobs_status(project_id: Optional[UUID4] = None, run_id: Optional[UUID
 
 
 def job_progress(job_id: UUID4, project_id: UUID4, run_id: UUID4) -> UUID4:
+    """Monitors the progress of a job and displays a progress bar.
+
+    Parameters
+    ----------
+    job_id: The unique identifier of the job to monitor.
+    project_id: The unique identifier of the project.
+    run_id: The unique identifier of the run.
+
+    Returns
+    -------
+    The unique identifier of the completed job.
+    """
     jobs_client = Jobs()
     job_status = jobs_client.get(job_id)
     backoff = random.random()

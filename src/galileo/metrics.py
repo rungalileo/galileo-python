@@ -159,8 +159,22 @@ def get_metrics(
     group_by: Optional[str] = None,
     interval: int = 5,
 ) -> Optional[LogRecordsMetricsResponse]:
-    """
-    A helper function to query for metrics in a project.
+    """Queries for metrics in a project.
+
+    Parameters
+    ----------
+    project_id: The unique identifier of the project.
+    start_time: The start of the time range for the query.
+    end_time: The end of the time range for the query.
+    experiment_id: Filter records by a specific experiment ID.
+    log_stream_id: Filter records by a specific run ID.
+    filters: A list of filters to apply to the query.
+    group_by: The field to group the results by.
+    interval: The time interval for the query in seconds.
+
+    Returns
+    -------
+    A LogRecordsMetricsResponse object containing the query results, or None if the query fails.
     """
     metrics_client = Metrics()
     return metrics_client.query(

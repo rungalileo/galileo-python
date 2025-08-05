@@ -50,8 +50,18 @@ class Runs(BaseClientModel, DecorateAllMethods):
 def update_scorer_settings(
     project_id: UUID4, run_id: UUID4, scorers: list[ScorerConfig], segment_filters: Optional[list[SegmentFilter]] = None
 ) -> Optional[RunScorerSettingsResponse]:
-    """
-    A helper function to update the scorer settings for a specific run.
+    """Updates the scorer settings for a specific run.
+
+    Parameters
+    ----------
+    project_id: The unique identifier of the project.
+    run_id: The unique identifier of the run.
+    scorers: A list of scorer configurations to apply to the run.
+    segment_filters: A list of segment filters to apply to the run.
+
+    Returns
+    -------
+    A RunScorerSettingsResponse object containing the updated settings, or None if the update fails.
     """
     runs_client = Runs()
     return runs_client.update_scorer_settings(

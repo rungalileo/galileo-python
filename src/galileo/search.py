@@ -91,8 +91,21 @@ def get_spans(
     limit: int = 100,
     starting_token: int = 0,
 ) -> LogRecordsQueryResponse:
-    """
-    A helper function to query for spans in a project.
+    """Queries for spans in a project.
+
+    Parameters
+    ----------
+    project_id: The unique identifier of the project.
+    experiment_id: Filter records by a specific experiment ID.
+    log_stream_id: Filter records by a specific run ID.
+    filters: A list of filters to apply to the query.
+    sort: A sort clause to order the query results.
+    limit: The maximum number of records to return.
+    starting_token: The token for the next page of results.
+
+    Returns
+    -------
+    A LogRecordsQueryResponse object containing the query results.
     """
     search_client = Search()
     return search_client.query(
@@ -116,8 +129,21 @@ def get_traces(
     limit: int = 100,
     starting_token: int = 0,
 ) -> LogRecordsQueryResponse:
-    """
-    A helper function to query for traces in a project.
+    """Queries for traces in a project.
+
+    Parameters
+    ----------
+    project_id: The unique identifier of the project.
+    experiment_id: Filter records by a specific experiment ID.
+    log_stream_id: Filter records by a specific run ID.
+    filters: A list of filters to apply to the query.
+    sort: A sort clause to order the query results.
+    limit: The maximum number of records to return.
+    starting_token: The token for the next page of results.
+
+    Returns
+    -------
+    A LogRecordsQueryResponse object containing the query results.
     """
     search_client = Search()
     return search_client.query(
@@ -141,8 +167,21 @@ def get_sessions(
     limit: int = 100,
     starting_token: int = 0,
 ) -> LogRecordsQueryResponse:
-    """
-    A helper function to query for sessions in a project.
+    """Queries for sessions in a project.
+
+    Parameters
+    ----------
+    project_id: The unique identifier of the project.
+    experiment_id: Filter records by a specific experiment ID.
+    log_stream_id: Filter records by a specific run ID.
+    filters: A list of filters to apply to the query.
+    sort: A sort clause to order the query results.
+    limit: The maximum number of records to return.
+    starting_token: The token for the next page of results.
+
+    Returns
+    -------
+    A LogRecordsQueryResponse object containing the query results.
     """
     search_client = Search()
     return search_client.query(

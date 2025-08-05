@@ -94,6 +94,23 @@ def export_records(
     column_ids: Optional[list[str]] = None,
     sort: Optional[LogRecordsSortClause] = None,
 ) -> Iterator[dict[str, Any]]:
+    """Exports records from a Galileo project.
+
+    Parameters
+    ----------
+    project_id: The unique identifier of the project.
+    root_type: The type of records to export.
+    export_format: The desired format for the exported data.
+    log_stream_id: Filter records by a specific run ID.
+    experiment_id: Filter records by a specific experiment ID.
+    filters: A list of filters to apply to the export.
+    column_ids: A list of column IDs to include in the export.
+    sort: A sort clause to order the exported records.
+
+    Returns
+    -------
+    An iterator that yields each record as a dictionary.
+    """
     client = ExportClient()
     return client.records(
         project_id=project_id,
