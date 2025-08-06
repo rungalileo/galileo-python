@@ -1,5 +1,7 @@
 import datetime
+import json
 import logging
+import uuid
 from collections import deque
 from typing import Union
 from unittest.mock import Mock, patch
@@ -14,6 +16,9 @@ from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.protect.execution_status import ExecutionStatus
+from galileo_core.schemas.protect.payload import Payload
+from galileo_core.schemas.protect.response import Response, TraceMetadata
 from galileo_core.schemas.shared.document import Document
 from tests.testutils.setup import (
     setup_mock_core_api_client,
@@ -178,6 +183,33 @@ def test_all_span_types_with_redacted_fields(
         status_code=200,
     )
 
+    received_at = int(datetime.datetime(2025, 8, 6, 12, 41, 44).timestamp() * 1_000_000_000)
+    response_at = int(datetime.datetime(2025, 8, 6, 12, 41, 45).timestamp() * 1_000_000_000)
+    execution_time = 1000.0
+    trace_metadata_id = uuid.uuid4()
+
+    logger.add_protect_span(
+        payload=Payload(input="Protect input", output="Protect output"),
+        redacted_payload=Payload(input="Protect redacted input", output="Protect redacted output"),
+        response=Response(
+            status=ExecutionStatus.triggered,
+            text="Protect text",
+            trace_metadata=TraceMetadata(
+                id=trace_metadata_id, received_at=received_at, response_at=response_at, execution_time=execution_time
+            ),
+        ),
+        redacted_response=Response(
+            status=ExecutionStatus.triggered,
+            text="Protect redacted text",
+            trace_metadata=TraceMetadata(
+                id=trace_metadata_id, received_at=received_at, response_at=response_at, execution_time=execution_time
+            ),
+        ),
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+
     logger.add_retriever_span(
         input="Retriever query with PII: john.doe@email.com",
         output=["Document with SSN: 123-45-6789", "Document with phone: 555-1234"],
@@ -232,7 +264,35 @@ def test_all_span_types_with_redacted_fields(
     assert tool_span.output == "Tool output with result: result_secret"
     assert tool_span.redacted_output == "Tool output with result: [REDACTED]"
 
-    retriever_span = workflow_span.spans[2]
+    protect_span = workflow_span.spans[2]
+    assert isinstance(protect_span, ToolSpan)
+    assert json.loads(protect_span.input) == {"input": "Protect input", "output": "Protect output"}
+    assert json.loads(protect_span.redacted_input) == {
+        "input": "Protect redacted input",
+        "output": "Protect redacted output",
+    }
+    assert json.loads(protect_span.output) == {
+        "status": "TRIGGERED",
+        "text": "Protect text",
+        "trace_metadata": {
+            "id": str(trace_metadata_id),
+            "received_at": received_at,
+            "response_at": response_at,
+            "execution_time": execution_time,
+        },
+    }
+    assert json.loads(protect_span.redacted_output) == {
+        "status": "TRIGGERED",
+        "text": "Protect redacted text",
+        "trace_metadata": {
+            "id": str(trace_metadata_id),
+            "received_at": received_at,
+            "response_at": response_at,
+            "execution_time": execution_time,
+        },
+    }
+
+    retriever_span = workflow_span.spans[3]
     assert isinstance(retriever_span, RetrieverSpan)
     assert retriever_span.input == "Retriever query with PII: john.doe@email.com"
     assert retriever_span.redacted_input == "Retriever query with PII: [REDACTED]"
