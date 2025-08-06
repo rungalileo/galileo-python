@@ -1,6 +1,7 @@
 import hashlib
 import json
 import logging
+from datetime import datetime
 from typing import Any, Optional
 from uuid import UUID
 
@@ -53,6 +54,15 @@ except ImportError:
 
     CREWAI_AVAILABLE = False
 
+try:
+    import litellm
+
+    LITE_LLM_AVAILABLE = True
+except ImportError:
+    _logger.warning("LiteLLM not available, using stubs")
+    litellm = None
+    LITE_LLM_AVAILABLE = False
+
 
 class CrewAICallback(BaseEventListener):
     """
@@ -80,6 +90,11 @@ class CrewAICallback(BaseEventListener):
         # Only call super().__init__() if CrewAI is available
         if CREWAI_AVAILABLE:
             super().__init__()
+
+        if LITE_LLM_AVAILABLE and litellm is not None:
+            if not litellm.success_callback:
+                litellm.success_callback = []
+            litellm.success_callback.append(self.lite_llm_usage_callback)
 
     def setup_listeners(self, crewai_event_bus: Any) -> None:
         """Setup event listeners for CrewAI events."""
@@ -174,6 +189,13 @@ class CrewAICallback(BaseEventListener):
                 else:
                     tool_args = str(event.tool_args)
             hash_obj = hashlib.md5(tool_args.encode())
+            digest = hash_obj.hexdigest()
+            return UUID(digest)
+
+        if isinstance(event, dict) and "messages" in event:
+            # If event is a string, use it directly
+            messages = json.dumps(event["messages"])
+            hash_obj = hashlib.md5(messages.encode())
             digest = hash_obj.hexdigest()
             return UUID(digest)
 
@@ -437,18 +459,8 @@ class CrewAICallback(BaseEventListener):
         """Handle LLM call completion."""
         run_id = self._generate_run_id(source, event)
 
-        # Extract token usage if available
-        num_input_tokens = getattr(event, "input_tokens", None)
-        num_output_tokens = getattr(event, "output_tokens", None)
-        total_tokens = getattr(event, "total_tokens", None)
-
         self._handler.end_node(
-            run_id=run_id,
-            output=serialize_to_str(getattr(event, "response", "")),
-            num_input_tokens=num_input_tokens,
-            num_output_tokens=num_output_tokens,
-            total_tokens=total_tokens,
-            event_type=event.type,
+            run_id=run_id, output=serialize_to_str(getattr(event, "response", "")), event_type=event.type
         )
 
     def _handle_llm_call_failed(self, source: Any, event: Any) -> None:
@@ -463,3 +475,22 @@ class CrewAICallback(BaseEventListener):
             metadata=metadata,
             event_type=event.type,
         )
+
+    def lite_llm_usage_callback(
+        self,
+        kwargs: dict,  # kwargs to completion
+        completion_response: Any,  # response from completion
+        start_time: datetime,
+        end_time: datetime,
+    ) -> None:
+        node_id = self._generate_run_id(kwargs, kwargs)
+
+        node = self._handler.get_node(node_id)
+        if not node:
+            _logger.debug(f"No node exists for run_id {node_id}")
+            return
+        usage = completion_response.model_extra["usage"]
+        node.span_params["usage"] = usage.model_dump() if hasattr(usage, "model_dump") else usage
+        node.span_params["num_input_tokens"] = getattr(usage, "prompt_tokens", 0)
+        node.span_params["num_output_tokens"] = getattr(usage, "completion_tokens", 0)
+        node.span_params["total_tokens"] = getattr(usage, "total_tokens", 0)
