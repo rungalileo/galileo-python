@@ -245,8 +245,6 @@ class GalileoBaseHandler:
         if parent_run_id:
             parent = self._nodes.get(str(parent_run_id))
             if parent:
-                if node.node_type == "agent":
-                    node.span_params["name"] = parent.span_params["name"] + ":" + node.span_params["name"]
                 parent.children.append(node_id)
             else:
                 _logger.debug(f"Parent node {parent_node_id} not found for {node_id}")

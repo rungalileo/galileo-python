@@ -6,6 +6,7 @@ from uuid import UUID
 
 from galileo.handlers.base_async_handler import GalileoAsyncBaseHandler
 from galileo.handlers.langchain.handler import GalileoCallback
+from galileo.handlers.langchain.utils import get_agent_name, is_agent_node
 from galileo.logger import GalileoLogger
 from galileo.schema.handlers import NODE_TYPE
 from galileo.utils.serialization import EventSerializer, serialize_to_str
@@ -70,12 +71,11 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         node_name = GalileoCallback._get_node_name(node_type, serialized, kwargs)
 
         # If the `name` is `LangGraph` or `Agent`, set the node type to `agent`.
-        if node_name in ["LangGraph", "Agent"]:
+        if is_agent_node(node_name):
             node_type = "agent"
-            node_name = "Agent"
+            node_name = get_agent_name(parent_run_id, "Agent", self._handler.get_nodes())
 
         kwargs["name"] = node_name
-
         await self._handler.async_start_node(
             node_type, parent_run_id, run_id, input=serialize_to_str(inputs), tags=tags, **kwargs
         )

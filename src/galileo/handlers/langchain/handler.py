@@ -5,6 +5,7 @@ from typing import Any, Optional
 from uuid import UUID
 
 from galileo.handlers.base_handler import GalileoBaseHandler
+from galileo.handlers.langchain.utils import get_agent_name, is_agent_node
 from galileo.logger import GalileoLogger
 from galileo.schema.handlers import LANGCHAIN_NODE_TYPE, NODE_TYPE
 from galileo.utils.serialization import EventSerializer, serialize_to_str
@@ -98,12 +99,10 @@ class GalileoCallback(BaseCallbackHandler):
         node_name = self._get_node_name(node_type, serialized, kwargs)
 
         # If the `name` is `LangGraph` or `Agent`, set the node type to `agent`.
-        if node_name in ["LangGraph", "Agent"]:
+        if is_agent_node(node_name):
             node_type = "agent"
-            node_name = "Agent"
-
+            node_name = get_agent_name(parent_run_id, "Agent", self._handler.get_nodes())
         kwargs["name"] = node_name
-
         self._handler.start_node(node_type, parent_run_id, run_id, input=serialize_to_str(inputs), tags=tags, **kwargs)
 
     def on_chain_end(
@@ -334,3 +333,10 @@ class GalileoCallback(BaseCallbackHandler):
             serialized_response = str(documents)
 
         self._handler.end_node(run_id, output=serialized_response)
+
+    def _get_agent_name(self, parent_run_id: Optional[UUID], node_name: str) -> str:
+        if parent_run_id is not None:
+            parent = self._handler.get_node(parent_run_id)
+            if parent:
+                return parent.span_params["name"] + ":" + node_name
+        return node_name
