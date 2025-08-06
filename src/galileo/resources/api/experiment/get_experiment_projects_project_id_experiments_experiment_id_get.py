@@ -3,21 +3,27 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.experiment_response import ExperimentResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
 
 def _get_kwargs(project_id: str, experiment_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/experiments/{experiment_id}"}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.GET,
+        "return_raw_response": True,
+        "path": f"/projects/{project_id}/experiments/{experiment_id}",
+    }
 
     return _kwargs
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
     if response.status_code == 200:
         response_200 = ExperimentResponse.from_dict(response.json())
@@ -34,7 +40,7 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[Union[ExperimentResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
@@ -45,7 +51,7 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, experiment_id: str, *, client: AuthenticatedClient
+    project_id: str, experiment_id: str, *, client: ApiClient
 ) -> Response[Union[ExperimentResponse, HTTPValidationError]]:
     """Get Experiment
 
@@ -65,13 +71,13 @@ def sync_detailed(
 
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, experiment_id: str, *, client: AuthenticatedClient
+    project_id: str, experiment_id: str, *, client: ApiClient
 ) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
     """Get Experiment
 
@@ -93,7 +99,7 @@ def sync(
 
 
 async def asyncio_detailed(
-    project_id: str, experiment_id: str, *, client: AuthenticatedClient
+    project_id: str, experiment_id: str, *, client: ApiClient
 ) -> Response[Union[ExperimentResponse, HTTPValidationError]]:
     """Get Experiment
 
@@ -113,13 +119,13 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    project_id: str, experiment_id: str, *, client: AuthenticatedClient
+    project_id: str, experiment_id: str, *, client: ApiClient
 ) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
     """Get Experiment
 

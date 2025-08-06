@@ -1,9 +1,11 @@
+from collections.abc import Sequence
+from os import getenv
 from typing import Optional, Union
 
 from pydantic import UUID4
 
-from galileo.api_client import GalileoApiClient
 from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
 from galileo.resources.api.protect import (
     create_stage_projects_project_id_stages_post,
@@ -16,7 +18,6 @@ from galileo.resources.models.stage_db import StageDB as APIStageDB
 from galileo.resources.models.stage_with_rulesets import StageWithRulesets as APIStageWithRulesets
 from galileo.resources.types import UNSET
 from galileo.utils.catch_log import DecorateAllMethods
-from galileo_core.schemas.protect.rule import Rule
 from galileo_core.schemas.protect.ruleset import Ruleset, RulesetsMixin
 from galileo_core.schemas.protect.stage import StageDB, StageType, StageWithRulesets
 from galileo_core.utils.name import ts_name
@@ -25,28 +26,32 @@ from galileo_core.utils.name import ts_name
 def _get_project_id(
     project_id: Optional[Union[str, UUID4]] = None,
     project_name: Optional[str] = None,
-    client: Optional[GalileoApiClient] = None,
-) -> Optional[str]:
+    config: Optional[GalileoPythonConfig] = None,
+) -> str:
     """
     Resolves project ID from either project_id or project_name.
     """
     if project_id:
         return str(project_id)
-    elif project_name:
-        project = Projects(client=client).get(name=project_name)
+
+    # Load the project name from environment variable if not provided
+    project_name = project_name if project_name else getenv("GALILEO_PROJECT")
+
+    if project_name:
+        project = Projects(config=config).get(name=project_name)
         if not project:
             raise ValueError(f"Project with name '{project_name}' not found.")
         return str(project.id)
-    else:
-        raise ValueError("Either project_id or project_name must be provided.")
+
+    raise ValueError("Either project_id or project_name must be provided.")
 
 
 def _get_stage_id(
     stage_id: Optional[Union[str, UUID4]] = None,
     stage_name: Optional[str] = None,
     project_id: Optional[Union[str, UUID4]] = None,
-    client: Optional[GalileoApiClient] = None,
-) -> Optional[str]:
+    config: Optional[GalileoPythonConfig] = None,
+) -> str:
     """
     Resolves stage ID from either stage_id or stage_name.
     If stage_name is provided, it will look up the stage within the specified project.
@@ -54,7 +59,7 @@ def _get_stage_id(
     if stage_id:
         return str(stage_id)
     elif stage_name:
-        stage = Stages(client=client).get(project_id=project_id, stage_name=stage_name)
+        stage = Stages(config=config).get(project_id=project_id, stage_name=stage_name)
         if not stage:
             raise ValueError(f"Stage with name '{stage_name}' not found.")
         return str(stage.id)
@@ -65,24 +70,25 @@ def _get_stage_id(
 class Stages(BaseClientModel, DecorateAllMethods):
     def create(
         self,
-        project_id: Union[str, UUID4],
+        project_id: Optional[Union[str, UUID4]] = None,
+        project_name: Optional[str] = None,
         name: Optional[str] = None,
         stage_type: StageType = StageType.local,
         pause: bool = False,
-        rulesets: Optional[list[Rule]] = None,
+        prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
         description: Optional[str] = None,
     ) -> StageDB:
-        if not project_id:
-            raise ValueError("project_id must be provided for creating a stage.")
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self.config)
+
         actual_name = name or ts_name("stage")
 
         request = StageWithRulesets(
             name=actual_name,
-            project_id=str(project_id),
+            project_id=str(actual_project_id),
             type=stage_type,
             paused=pause,
             description=description,
-            prioritized_rulesets=[Ruleset(rules=rulesets)] if rulesets else [],
+            prioritized_rulesets=prioritized_rulesets or [],
         )
 
         request_dict = request.model_dump(mode="json")
@@ -90,7 +96,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         body = APIStageWithRulesets.from_dict(request_dict)
 
         response = create_stage_projects_project_id_stages_post.sync(
-            project_id=str(project_id), client=self.client, body=body
+            project_id=str(actual_project_id), client=self.client, body=body
         )
 
         if isinstance(response, APIStageDB):
@@ -104,9 +110,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: Optional[str] = _get_project_id(
-            project_id=project_id, project_name=project_name, client=self.client
-        )
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self.config)
 
         if not stage_id and not stage_name:
             raise ValueError("Either stage_id or stage_name must be provided.")
@@ -127,18 +131,15 @@ class Stages(BaseClientModel, DecorateAllMethods):
         project_name: Optional[str] = None,
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
-        prioritized_rulesets: Optional[list[Rule]] = None,
+        prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     ) -> StageDB:
-        actual_project_id: Optional[str] = _get_project_id(
-            project_id=project_id, project_name=project_name, client=self.client
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self.config)
+
+        actual_stage_id: str = _get_stage_id(
+            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, config=self.config
         )
 
-        actual_stage_id: Optional[str] = _get_stage_id(
-            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, client=self.client
-        )
-
-        rulesets = [Ruleset(rules=prioritized_rulesets)] if prioritized_rulesets else []
-        request = RulesetsMixin(prioritized_rulesets=rulesets)
+        request = RulesetsMixin(prioritized_rulesets=prioritized_rulesets or [])
         request_dict = request.model_dump()
         request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
         body = APIRulesetsMixin.from_dict(request_dict)
@@ -159,12 +160,10 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
     ) -> StageDB:
         """Sets the pause state of a stage."""
-        actual_project_id: Optional[str] = _get_project_id(
-            project_id=project_id, project_name=project_name, client=self.client
-        )
+        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name, config=self.config)
 
-        actual_stage_id: Optional[str] = _get_stage_id(
-            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, client=self.client
+        actual_stage_id: str = _get_stage_id(
+            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, config=self.config
         )
 
         response = pause_stage_projects_project_id_stages_stage_id_put.sync(
@@ -198,28 +197,37 @@ class Stages(BaseClientModel, DecorateAllMethods):
 
 
 def create_stage(
-    project_id: Union[str, UUID4],
+    project_id: Optional[Union[str, UUID4]] = None,
+    project_name: Optional[str] = None,
     name: Optional[str] = None,
     stage_type: StageType = StageType.local,
     pause: bool = False,
-    rulesets: Optional[list[Rule]] = None,
+    prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     description: Optional[str] = None,
 ) -> Optional[StageDB]:
     """Creates a new stage.
 
     Args:
         project_id: The ID of the project.
+        project_name: Name of the project. If `project_id` is not provided,
+                      this will be used to look up the project.
         name: Name of the stage. Defaults to a generated name.
         stage_type: Type of the stage.
         pause: Whether the stage should be created in a paused state.
-        rulesets: List of rules for the stage.
+        prioritized_rulesets: List of rulesets for the stage.
         description: Description for the stage.
 
     Returns:
         The newly created Stage.
     """
     return Stages().create(
-        project_id=project_id, name=name, stage_type=stage_type, pause=pause, rulesets=rulesets, description=description
+        project_id=project_id,
+        project_name=project_name,
+        name=name,
+        stage_type=stage_type,
+        pause=pause,
+        prioritized_rulesets=prioritized_rulesets,
+        description=description,
     )
 
 
@@ -250,7 +258,7 @@ def update_stage(
     project_name: Optional[str] = None,
     stage_id: Optional[Union[str, UUID4]] = None,
     stage_name: Optional[str] = None,
-    prioritized_rulesets: Optional[list[Rule]] = None,
+    prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
 ) -> Optional[StageDB]:
     """Updates a stage's rulesets, creating a new version.
 

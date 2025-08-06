@@ -178,7 +178,7 @@ class Experiments(BaseClientModel):
 
         _logger.debug(f"job: {job}")
 
-        link = f"{self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {link}"
         print(message)
 
@@ -208,7 +208,7 @@ class Experiments(BaseClientModel):
 
         _logger.info(f" {len(results)} rows processed for experiment {experiment_obj.name}.")
 
-        link = f"{self.client.get_console_url()}/project/{project_obj.id}/experiments/{experiment_obj.id}"
+        link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has completed and results are available at {link}"
         print(message)
 
@@ -341,8 +341,33 @@ def create_experiment(
 
 
 def get_experiment(project_id: str, experiment_name: str) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
+    """
+    Get an experiment with the specified parameters.
+
+    Args:
+        project_id: Galileo ID of the project associated with this experiment
+        experiment_name: Name of the experiment
+
+    Returns:
+        ExperimentResponse results
+
+    Raises:
+        HTTPValidationError: If there's a validation error in returning a ExperimentResponse
+    """
     return Experiments().get(project_id, experiment_name)
 
 
 def get_experiments(project_id: str) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:
+    """
+    Get an experiments with the specified Project ID.
+
+    Args:
+        project_id: Galileo ID of the project associated with this experiment
+
+    Returns:
+        List of ExperimentResponse results
+
+    Raises:
+        HTTPValidationError: If there's a validation error in returning a list of ExperimentResponse
+    """
     return Experiments().list(project_id=project_id)

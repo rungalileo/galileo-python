@@ -1,23 +1,23 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
 from ...models.healthcheck_response import HealthcheckResponse
 from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": "/healthcheck"}
+    _kwargs: dict[str, Any] = {"method": RequestMethod.GET, "return_raw_response": True, "path": "/healthcheck"}
 
     return _kwargs
 
 
-def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[HealthcheckResponse]:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[HealthcheckResponse]:
     if response.status_code == 200:
         response_200 = HealthcheckResponse.from_dict(response.json())
 
@@ -28,9 +28,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[HealthcheckResponse]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HealthcheckResponse]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -39,7 +37,7 @@ def _build_response(
     )
 
 
-def sync_detailed(*, client: Union[AuthenticatedClient, Client]) -> Response[HealthcheckResponse]:
+def sync_detailed(*, client: ApiClient) -> Response[HealthcheckResponse]:
     """Healthcheck
 
     Raises:
@@ -52,12 +50,12 @@ def sync_detailed(*, client: Union[AuthenticatedClient, Client]) -> Response[Hea
 
     kwargs = _get_kwargs()
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-def sync(*, client: Union[AuthenticatedClient, Client]) -> Optional[HealthcheckResponse]:
+def sync(*, client: ApiClient) -> Optional[HealthcheckResponse]:
     """Healthcheck
 
     Raises:
@@ -71,7 +69,7 @@ def sync(*, client: Union[AuthenticatedClient, Client]) -> Optional[HealthcheckR
     return sync_detailed(client=client).parsed
 
 
-async def asyncio_detailed(*, client: Union[AuthenticatedClient, Client]) -> Response[HealthcheckResponse]:
+async def asyncio_detailed(*, client: ApiClient) -> Response[HealthcheckResponse]:
     """Healthcheck
 
     Raises:
@@ -84,12 +82,12 @@ async def asyncio_detailed(*, client: Union[AuthenticatedClient, Client]) -> Res
 
     kwargs = _get_kwargs()
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
-async def asyncio(*, client: Union[AuthenticatedClient, Client]) -> Optional[HealthcheckResponse]:
+async def asyncio(*, client: ApiClient) -> Optional[HealthcheckResponse]:
     """Healthcheck
 
     Raises:

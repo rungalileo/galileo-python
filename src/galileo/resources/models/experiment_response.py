@@ -11,6 +11,8 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.experiment_dataset import ExperimentDataset
+    from ..models.experiment_playground import ExperimentPlayground
+    from ..models.experiment_prompt import ExperimentPrompt
     from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
     from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
     from ..models.prompt_run_settings import PromptRunSettings
@@ -28,25 +30,6 @@ class ExperimentResponse:
         task_type (TaskType): Valid task types for modeling.
 
             We store these as ints instead of strings because we will be looking this up in the database frequently.
-
-            text_classification = 0
-            text_multi_label = 1
-            text_ner = 2
-            image_classification = 3
-            tabular_classification = 4
-            object_detection = 5
-            semantic_segmentation = 6
-            prompt_evaluation = 7
-            seq2seq = 8
-            llm_monitor = 9
-            seq2seq_completion = 10
-            seq2seq_chat = 11
-            prompt_chain = 12
-            protect = 13
-            prompt_optimization = 14
-            log_stream = 15
-            experiment = 16
-            playground = 17
         aggregate_feedback (Union[Unset, ExperimentResponseAggregateFeedback]): Aggregate feedback information related
             to the experiment
         aggregate_metrics (Union[Unset, ExperimentResponseAggregateMetrics]):
@@ -54,7 +37,10 @@ class ExperimentResponse:
         created_by (Union[None, Unset, str]):
         dataset (Union['ExperimentDataset', None, Unset]):
         name (Union[Unset, str]): Name of the experiment Default: ''.
+        playground (Union['ExperimentPlayground', None, Unset]):
         playground_id (Union[None, Unset, str]):
+        prompt (Union['ExperimentPrompt', None, Unset]):
+        prompt_model (Union[None, Unset, str]):
         prompt_run_settings (Union['PromptRunSettings', None, Unset]):
         rank (Union[None, Unset, int]):
         ranking_score (Union[None, Unset, float]):
@@ -71,7 +57,10 @@ class ExperimentResponse:
     created_by: Union[None, Unset, str] = UNSET
     dataset: Union["ExperimentDataset", None, Unset] = UNSET
     name: Union[Unset, str] = ""
+    playground: Union["ExperimentPlayground", None, Unset] = UNSET
     playground_id: Union[None, Unset, str] = UNSET
+    prompt: Union["ExperimentPrompt", None, Unset] = UNSET
+    prompt_model: Union[None, Unset, str] = UNSET
     prompt_run_settings: Union["PromptRunSettings", None, Unset] = UNSET
     rank: Union[None, Unset, int] = UNSET
     ranking_score: Union[None, Unset, float] = UNSET
@@ -81,6 +70,8 @@ class ExperimentResponse:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.experiment_dataset import ExperimentDataset
+        from ..models.experiment_playground import ExperimentPlayground
+        from ..models.experiment_prompt import ExperimentPrompt
         from ..models.prompt_run_settings import PromptRunSettings
 
         id = self.id
@@ -117,11 +108,33 @@ class ExperimentResponse:
 
         name = self.name
 
+        playground: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.playground, Unset):
+            playground = UNSET
+        elif isinstance(self.playground, ExperimentPlayground):
+            playground = self.playground.to_dict()
+        else:
+            playground = self.playground
+
         playground_id: Union[None, Unset, str]
         if isinstance(self.playground_id, Unset):
             playground_id = UNSET
         else:
             playground_id = self.playground_id
+
+        prompt: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.prompt, Unset):
+            prompt = UNSET
+        elif isinstance(self.prompt, ExperimentPrompt):
+            prompt = self.prompt.to_dict()
+        else:
+            prompt = self.prompt
+
+        prompt_model: Union[None, Unset, str]
+        if isinstance(self.prompt_model, Unset):
+            prompt_model = UNSET
+        else:
+            prompt_model = self.prompt_model
 
         prompt_run_settings: Union[None, Unset, dict[str, Any]]
         if isinstance(self.prompt_run_settings, Unset):
@@ -172,8 +185,14 @@ class ExperimentResponse:
             field_dict["dataset"] = dataset
         if name is not UNSET:
             field_dict["name"] = name
+        if playground is not UNSET:
+            field_dict["playground"] = playground
         if playground_id is not UNSET:
             field_dict["playground_id"] = playground_id
+        if prompt is not UNSET:
+            field_dict["prompt"] = prompt
+        if prompt_model is not UNSET:
+            field_dict["prompt_model"] = prompt_model
         if prompt_run_settings is not UNSET:
             field_dict["prompt_run_settings"] = prompt_run_settings
         if rank is not UNSET:
@@ -190,6 +209,8 @@ class ExperimentResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.experiment_dataset import ExperimentDataset
+        from ..models.experiment_playground import ExperimentPlayground
+        from ..models.experiment_prompt import ExperimentPrompt
         from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
         from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
         from ..models.prompt_run_settings import PromptRunSettings
@@ -250,6 +271,23 @@ class ExperimentResponse:
 
         name = d.pop("name", UNSET)
 
+        def _parse_playground(data: object) -> Union["ExperimentPlayground", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                playground_type_0 = ExperimentPlayground.from_dict(data)
+
+                return playground_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["ExperimentPlayground", None, Unset], data)
+
+        playground = _parse_playground(d.pop("playground", UNSET))
+
         def _parse_playground_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -258,6 +296,32 @@ class ExperimentResponse:
             return cast(Union[None, Unset, str], data)
 
         playground_id = _parse_playground_id(d.pop("playground_id", UNSET))
+
+        def _parse_prompt(data: object) -> Union["ExperimentPrompt", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                prompt_type_0 = ExperimentPrompt.from_dict(data)
+
+                return prompt_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["ExperimentPrompt", None, Unset], data)
+
+        prompt = _parse_prompt(d.pop("prompt", UNSET))
+
+        def _parse_prompt_model(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        prompt_model = _parse_prompt_model(d.pop("prompt_model", UNSET))
 
         def _parse_prompt_run_settings(data: object) -> Union["PromptRunSettings", None, Unset]:
             if data is None:
@@ -330,7 +394,10 @@ class ExperimentResponse:
             created_by=created_by,
             dataset=dataset,
             name=name,
+            playground=playground,
             playground_id=playground_id,
+            prompt=prompt,
+            prompt_model=prompt_model,
             prompt_run_settings=prompt_run_settings,
             rank=rank,
             ranking_score=ranking_score,

@@ -3,34 +3,40 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
 from ... import errors
-from ...client import AuthenticatedClient, Client
-from ...models.agent_span_record_with_children import AgentSpanRecordWithChildren
+from ...models.extended_agent_span_record_with_children import ExtendedAgentSpanRecordWithChildren
+from ...models.extended_llm_span_record import ExtendedLlmSpanRecord
+from ...models.extended_retriever_span_record_with_children import ExtendedRetrieverSpanRecordWithChildren
+from ...models.extended_tool_span_record_with_children import ExtendedToolSpanRecordWithChildren
+from ...models.extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
 from ...models.http_validation_error import HTTPValidationError
-from ...models.llm_span_record import LlmSpanRecord
-from ...models.retriever_span_record_with_children import RetrieverSpanRecordWithChildren
-from ...models.tool_span_record_with_children import ToolSpanRecordWithChildren
-from ...models.workflow_span_record_with_children import WorkflowSpanRecordWithChildren
 from ...types import Response
 
 
 def _get_kwargs(project_id: str, span_id: str) -> dict[str, Any]:
-    _kwargs: dict[str, Any] = {"method": "get", "url": f"/projects/{project_id}/spans/{span_id}"}
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.GET,
+        "return_raw_response": True,
+        "path": f"/projects/{project_id}/spans/{span_id}",
+    }
 
     return _kwargs
 
 
 def _parse_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Optional[
     Union[
         HTTPValidationError,
         Union[
-            "AgentSpanRecordWithChildren",
-            "LlmSpanRecord",
-            "RetrieverSpanRecordWithChildren",
-            "ToolSpanRecordWithChildren",
-            "WorkflowSpanRecordWithChildren",
+            "ExtendedAgentSpanRecordWithChildren",
+            "ExtendedLlmSpanRecord",
+            "ExtendedRetrieverSpanRecordWithChildren",
+            "ExtendedToolSpanRecordWithChildren",
+            "ExtendedWorkflowSpanRecordWithChildren",
         ],
     ]
 ]:
@@ -39,16 +45,16 @@ def _parse_response(
         def _parse_response_200(
             data: object,
         ) -> Union[
-            "AgentSpanRecordWithChildren",
-            "LlmSpanRecord",
-            "RetrieverSpanRecordWithChildren",
-            "ToolSpanRecordWithChildren",
-            "WorkflowSpanRecordWithChildren",
+            "ExtendedAgentSpanRecordWithChildren",
+            "ExtendedLlmSpanRecord",
+            "ExtendedRetrieverSpanRecordWithChildren",
+            "ExtendedToolSpanRecordWithChildren",
+            "ExtendedWorkflowSpanRecordWithChildren",
         ]:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_0 = AgentSpanRecordWithChildren.from_dict(data)
+                response_200_type_0 = ExtendedAgentSpanRecordWithChildren.from_dict(data)
 
                 return response_200_type_0
             except:  # noqa: E722
@@ -56,7 +62,7 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_1 = WorkflowSpanRecordWithChildren.from_dict(data)
+                response_200_type_1 = ExtendedWorkflowSpanRecordWithChildren.from_dict(data)
 
                 return response_200_type_1
             except:  # noqa: E722
@@ -64,7 +70,7 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_2 = LlmSpanRecord.from_dict(data)
+                response_200_type_2 = ExtendedLlmSpanRecord.from_dict(data)
 
                 return response_200_type_2
             except:  # noqa: E722
@@ -72,14 +78,14 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_3 = ToolSpanRecordWithChildren.from_dict(data)
+                response_200_type_3 = ExtendedToolSpanRecordWithChildren.from_dict(data)
 
                 return response_200_type_3
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            response_200_type_4 = RetrieverSpanRecordWithChildren.from_dict(data)
+            response_200_type_4 = ExtendedRetrieverSpanRecordWithChildren.from_dict(data)
 
             return response_200_type_4
 
@@ -97,16 +103,16 @@ def _parse_response(
 
 
 def _build_response(
-    *, client: Union[AuthenticatedClient, Client], response: httpx.Response
+    *, client: ApiClient, response: httpx.Response
 ) -> Response[
     Union[
         HTTPValidationError,
         Union[
-            "AgentSpanRecordWithChildren",
-            "LlmSpanRecord",
-            "RetrieverSpanRecordWithChildren",
-            "ToolSpanRecordWithChildren",
-            "WorkflowSpanRecordWithChildren",
+            "ExtendedAgentSpanRecordWithChildren",
+            "ExtendedLlmSpanRecord",
+            "ExtendedRetrieverSpanRecordWithChildren",
+            "ExtendedToolSpanRecordWithChildren",
+            "ExtendedWorkflowSpanRecordWithChildren",
         ],
     ]
 ]:
@@ -119,16 +125,16 @@ def _build_response(
 
 
 def sync_detailed(
-    project_id: str, span_id: str, *, client: AuthenticatedClient
+    project_id: str, span_id: str, *, client: ApiClient
 ) -> Response[
     Union[
         HTTPValidationError,
         Union[
-            "AgentSpanRecordWithChildren",
-            "LlmSpanRecord",
-            "RetrieverSpanRecordWithChildren",
-            "ToolSpanRecordWithChildren",
-            "WorkflowSpanRecordWithChildren",
+            "ExtendedAgentSpanRecordWithChildren",
+            "ExtendedLlmSpanRecord",
+            "ExtendedRetrieverSpanRecordWithChildren",
+            "ExtendedToolSpanRecordWithChildren",
+            "ExtendedWorkflowSpanRecordWithChildren",
         ],
     ]
 ]:
@@ -143,27 +149,27 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]]
+        Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
 
-    response = client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 def sync(
-    project_id: str, span_id: str, *, client: AuthenticatedClient
+    project_id: str, span_id: str, *, client: ApiClient
 ) -> Optional[
     Union[
         HTTPValidationError,
         Union[
-            "AgentSpanRecordWithChildren",
-            "LlmSpanRecord",
-            "RetrieverSpanRecordWithChildren",
-            "ToolSpanRecordWithChildren",
-            "WorkflowSpanRecordWithChildren",
+            "ExtendedAgentSpanRecordWithChildren",
+            "ExtendedLlmSpanRecord",
+            "ExtendedRetrieverSpanRecordWithChildren",
+            "ExtendedToolSpanRecordWithChildren",
+            "ExtendedWorkflowSpanRecordWithChildren",
         ],
     ]
 ]:
@@ -178,23 +184,23 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]
+        Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
     """
 
     return sync_detailed(project_id=project_id, span_id=span_id, client=client).parsed
 
 
 async def asyncio_detailed(
-    project_id: str, span_id: str, *, client: AuthenticatedClient
+    project_id: str, span_id: str, *, client: ApiClient
 ) -> Response[
     Union[
         HTTPValidationError,
         Union[
-            "AgentSpanRecordWithChildren",
-            "LlmSpanRecord",
-            "RetrieverSpanRecordWithChildren",
-            "ToolSpanRecordWithChildren",
-            "WorkflowSpanRecordWithChildren",
+            "ExtendedAgentSpanRecordWithChildren",
+            "ExtendedLlmSpanRecord",
+            "ExtendedRetrieverSpanRecordWithChildren",
+            "ExtendedToolSpanRecordWithChildren",
+            "ExtendedWorkflowSpanRecordWithChildren",
         ],
     ]
 ]:
@@ -209,27 +215,27 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]]
+        Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
     """
 
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
 
-    response = await client.get_async_httpx_client().request(**kwargs)
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
 
 
 async def asyncio(
-    project_id: str, span_id: str, *, client: AuthenticatedClient
+    project_id: str, span_id: str, *, client: ApiClient
 ) -> Optional[
     Union[
         HTTPValidationError,
         Union[
-            "AgentSpanRecordWithChildren",
-            "LlmSpanRecord",
-            "RetrieverSpanRecordWithChildren",
-            "ToolSpanRecordWithChildren",
-            "WorkflowSpanRecordWithChildren",
+            "ExtendedAgentSpanRecordWithChildren",
+            "ExtendedLlmSpanRecord",
+            "ExtendedRetrieverSpanRecordWithChildren",
+            "ExtendedToolSpanRecordWithChildren",
+            "ExtendedWorkflowSpanRecordWithChildren",
         ],
     ]
 ]:
@@ -244,7 +250,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Union['AgentSpanRecordWithChildren', 'LlmSpanRecord', 'RetrieverSpanRecordWithChildren', 'ToolSpanRecordWithChildren', 'WorkflowSpanRecordWithChildren']]
+        Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
     """
 
     return (await asyncio_detailed(project_id=project_id, span_id=span_id, client=client)).parsed

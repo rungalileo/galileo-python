@@ -5,7 +5,8 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from langchain_core.agents import AgentFinish
 from langchain_core.documents import Document
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain_core.outputs import ChatGeneration, LLMResult
 
 from galileo import Message, MessageRole
 from galileo.handlers.langchain import GalileoCallback
@@ -150,7 +151,7 @@ class TestGalileoCallback:
         assert callback._nodes[str(run_id)].node_type == "agent"
         assert (
             callback._nodes[str(run_id)].span_params["input"]
-            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?"}]}'
+            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?", "role": "user"}]}'
         )
 
         # End chain
@@ -163,7 +164,7 @@ class TestGalileoCallback:
         assert traces[0].spans[0].type == "agent"
         assert (
             traces[0].spans[0].input
-            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?"}]}'
+            == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?", "role": "user"}]}'
         )
         assert traces[0].spans[0].output == '{"result": "test answer"}'
         assert traces[0].spans[0].step_number is None
@@ -218,12 +219,10 @@ class TestGalileoCallback:
         callback.on_llm_new_token("AI", run_id=run_id)
 
         # End LLM
-        llm_response = MagicMock()
-        llm_response.generations = [[MagicMock()]]
-        llm_response.llm_output = {"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}}
-
-        # Mock dict method on the generation
-        llm_response.generations[0][0].dict.return_value = {"text": "AI is a technology..."}
+        llm_response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="AI is a technology..."))]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
 
         callback.on_llm_end(response=llm_response, run_id=run_id, parent_run_id=parent_id)
 
@@ -242,9 +241,10 @@ class TestGalileoCallback:
         callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
 
         # Start chat model (llm)
+        system_message = SystemMessage(content="You are a helpful assistant.")
         human_message = HumanMessage(content="Tell me about AI")
         ai_message = AIMessage(content="AI is a technology...")
-        messages = [[human_message, ai_message]]
+        messages = [[system_message, human_message, ai_message]]
 
         callback.on_chat_model_start(
             serialized={},
@@ -263,9 +263,13 @@ class TestGalileoCallback:
         # Check that message serialization worked
         input_data = callback._nodes[str(run_id)].span_params["input"]
         assert isinstance(input_data, list)
-        assert len(input_data) == 2  # Two messages
-        assert input_data[0]["content"] == "Tell me about AI"
-        assert input_data[1]["content"] == "AI is a technology..."
+        assert len(input_data) == 3  # Two messages
+        assert input_data[0]["content"] == "You are a helpful assistant."
+        assert input_data[1]["content"] == "Tell me about AI"
+        assert input_data[2]["content"] == "AI is a technology..."
+        assert input_data[0]["role"] == "system"
+        assert input_data[1]["role"] == "user"
+        assert input_data[2]["role"] == "assistant"
 
     def test_on_chat_model_start_end_with_tools(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
         """Test chat model start and end callbacks with tools"""
@@ -399,7 +403,9 @@ class TestGalileoCallback:
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "tool"
         assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
-        assert callback._nodes[str(run_id)].span_params["output"] == "tool response"
+        assert callback._nodes[str(run_id)].span_params["output"] == (
+            '{"content": "tool response", "tool_call_id": "1", "status": "success", "role": "tool"}'
+        )
 
         # Start tool
         callback.on_tool_start(
@@ -454,7 +460,9 @@ class TestGalileoCallback:
         assert str(run_id) in callback._nodes
         assert callback._nodes[str(run_id)].node_type == "tool"
         assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
-        assert callback._nodes[str(run_id)].span_params["output"] == "tool response"
+        assert callback._nodes[str(run_id)].span_params["output"] == (
+            '{"content": "tool response", "tool_call_id": "1", "status": "success", "role": "tool"}'
+        )
 
         # Start tool
         callback.on_tool_start(
@@ -493,6 +501,37 @@ class TestGalileoCallback:
         assert isinstance(callback._nodes[str(run_id)].span_params["output"], list)
         assert len(callback._nodes[str(run_id)].span_params["output"]) == 1
 
+    def test_extracting_chain_names_from_metadata(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
+        """Test extracting chain names from metadata kwarg, with two nested chains"""
+        chain_id = uuid.uuid4()
+        chain_id2 = uuid.uuid4()
+
+        callback.on_chain_start(
+            serialized={}, inputs={"query": "test"}, run_id=chain_id, metadata={"name": "Test Chain"}
+        )
+
+        callback.on_chain_start(
+            serialized={},
+            inputs={"query": "test"},
+            run_id=chain_id2,
+            parent_run_id=chain_id,
+            metadata={"name": "Test Chain 2"},
+        )
+
+        callback.on_chain_end(outputs={"result": "test"}, run_id=chain_id)
+
+        callback.on_chain_end(outputs={"result": "test"}, run_id=chain_id2)
+
+        traces = galileo_logger.traces
+
+        assert len(traces) == 1
+
+        assert len(traces[0].spans) == 1
+        assert traces[0].spans[0].name == "Test Chain"
+
+        assert len(traces[0].spans[0].spans) == 1
+        assert traces[0].spans[0].spans[0].name == "Test Chain 2"
+
     def test_complex_execution_flow(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
         """Test a complex execution flow with multiple component types"""
         # Create UUIDs for different components
@@ -526,10 +565,16 @@ class TestGalileoCallback:
         )
 
         # End LLM
-        llm_response = MagicMock()
-        llm_response.generations = [[MagicMock()]]
-        llm_response.llm_output = {"token_usage": {"total_tokens": 100}}
-        llm_response.generations[0][0].model_dump.return_value = {"text": "LLMs have seen significant progress..."}
+        llm_response = LLMResult(
+            generations=[
+                [
+                    ChatGeneration(
+                        message=AIMessage(content="LLMs have seen significant progress..."),
+                        generation_info={"token_usage": {"total_tokens": 100}},
+                    )
+                ]
+            ]
+        )
 
         callback.on_llm_end(response=llm_response, run_id=llm_id, parent_run_id=chain_id)
 
@@ -543,7 +588,11 @@ class TestGalileoCallback:
         )
 
         # End tool
-        callback.on_tool_end(output="Verification complete: accurate statement", run_id=tool_id, parent_run_id=chain_id)
+        callback.on_tool_end(
+            output=ToolMessage(content="Verification complete: accurate statement", tool_call_id="1"),
+            run_id=tool_id,
+            parent_run_id=chain_id,
+        )
 
         # End chain
         callback.on_chain_end(
@@ -579,7 +628,7 @@ class TestGalileoCallback:
             )
         ]
         assert traces[0].spans[0].spans[1].output == Message(
-            content='{"text": "LLMs have seen significant progress..."}',
+            content="LLMs have seen significant progress...",
             role=MessageRole.assistant,
             tool_call_id=None,
             tool_calls=None,
@@ -735,12 +784,10 @@ class TestGalileoCallback:
         callback.on_llm_new_token("AI", run_id=llm_run_id)
 
         # End LLM
-        llm_response = MagicMock()
-        llm_response.generations = [[MagicMock()]]
-        llm_response.llm_output = {"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}}
-
-        # Mock dict method on the generation
-        llm_response.generations[0][0].dict.return_value = {"text": "AI is a technology..."}
+        llm_response = LLMResult(
+            generations=[[ChatGeneration(message=AIMessage(content="AI is a technology..."))]],
+            llm_output={"token_usage": {"prompt_tokens": 10, "completion_tokens": 20, "total_tokens": 30}},
+        )
 
         callback.on_llm_end(response=llm_response, run_id=llm_run_id, parent_run_id=parent_id)
 
