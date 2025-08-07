@@ -49,6 +49,8 @@ from galileo_core.schemas.logging.span import (
 )
 from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType, StepType
 from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.protect.payload import Payload
+from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
@@ -502,7 +504,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         name: Optional[str]: Name of the trace.
         duration_ns: Optional[int]: Duration of the trace in nanoseconds.
         created_at: Optional[datetime]: Timestamp of the trace's creation.
-        metadata: Optional[Dict[str, str]]: Metadata associated with this trace.
+        metadata: Optional[dict[str, str]]: Metadata associated with this trace.
         tags: Optional[list[str]]: Tags associated with this trace.
         external_id: Optional[str]: External ID for this trace to connect to external systems.
 
@@ -569,11 +571,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             model: Optional[str]: Model used for this span. Feedback from April: Good docs about what model names we use.
             redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
             redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
-            tools: Optional[List[Dict]]: List of available tools passed to LLM on invocation.
+            tools: Optional[List[dict]]: List of available tools passed to LLM on invocation.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            user_metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             num_input_tokens: Optional[int]: Number of input tokens.
             num_output_tokens: Optional[int]: Number of output tokens.
             total_tokens: Optional[int]: Total number of tokens.
@@ -650,11 +652,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             model: str: Model used for this span.
             redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
             redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
-            tools: Optional[List[Dict]]: List of available tools passed to LLM on invocation.
+            tools: Optional[list[dict]]: List of available tools passed to LLM on invocation.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             num_input_tokens: Optional[int]: Number of input tokens.
             num_output_tokens: Optional[int]: Number of output tokens.
             total_tokens: Optional[int]: Total number of tokens.
@@ -724,7 +726,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             status_code: Optional[int]: Status code of the node execution.
             step_number: Optional[int]: Step number of the span.
         Returns:
@@ -815,7 +817,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            user_metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             status_code: Optional[int]: Status code of the node execution.
             tool_call_id: Optional[str]: Tool call ID.
             step_number: Optional[int]: Step number of the span.
@@ -835,6 +837,58 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             tags=tags,
             status_code=status_code,
             tool_call_id=tool_call_id,
+            step_number=step_number,
+            id=uuid.uuid4(),
+        )
+        span = super().add_tool_span(**kwargs)
+
+        if self.mode == "streaming":
+            self._ingest_step_streaming(span)
+
+        return span
+
+    @nop_sync
+    def add_protect_span(
+        self,
+        payload: Payload,
+        redacted_payload: Optional[Payload] = None,
+        response: Optional[Response] = None,
+        redacted_response: Optional[Response] = None,
+        created_at: Optional[datetime] = None,
+        metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        status_code: Optional[int] = None,
+        step_number: Optional[int] = None,
+    ) -> ToolSpan:
+        """
+        Add a new Protect tool span to the current parent.
+
+        Parameters:
+        ----------
+            payload: Payload: Input to the node. This is the input to the Protect `invoke` method.
+            redacted_payload: Optional[Payload]: Redacted input to the node.
+            response: Response: Output of the node. This is the output from the Protect `invoke` method.
+            redacted_response: Optional[Response]: Redacted output to the node.
+            created_at: Optional[datetime]: Timestamp of the span's creation.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
+            tags: Optional[list[str]]: Tags associated with this span.
+            status_code: Optional[int]: Status code of the node execution.
+            step_number: Optional[int]: Step number of the span.
+        Returns:
+        -------
+            ToolSpan: The created Protect tool span.
+        """
+        kwargs = dict(
+            input=json.dumps(payload.model_dump(mode="json")),
+            redacted_input=json.dumps(redacted_payload.model_dump(mode="json")) if redacted_payload else None,
+            output=json.dumps(response.model_dump(mode="json")) if response else None,
+            redacted_output=json.dumps(redacted_response.model_dump(mode="json")) if redacted_response else None,
+            name="GalileoProtect",
+            duration_ns=response.trace_metadata.response_at - response.trace_metadata.received_at if response else None,
+            created_at=created_at,
+            user_metadata=metadata,
+            tags=tags,
+            status_code=status_code,
             step_number=step_number,
             id=uuid.uuid4(),
         )
@@ -873,7 +927,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             step_number: Optional[int]: Step number of the span.
         Returns:
         -------
@@ -926,7 +980,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             agent_type: Optional[AgentType]: Agent type of the span.
             step_number: Optional[int]: Step number of the span.
 
