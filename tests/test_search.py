@@ -42,8 +42,7 @@ class TestSearchHelpers:
             response = test_function(project_id=FIXED_PROJECT_ID)
 
             mock_api_call.assert_called_once()
-            assert isinstance(response, LogRecordsQueryResponse)
-            assert response.records == []
+            assert response is None
 
     def test_passes_all_parameters_correctly(self, test_function, patch_target):
         experiment_id = uuid4()

@@ -77,10 +77,12 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def stream_detailed(project_id: str, *, client: AuthenticatedClient, body: LogRecordsExportRequest) -> httpx.Response:
+def stream_detailed(project_id: str, *, client: ApiClient, body: LogRecordsExportRequest) -> httpx.Response:
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    return client.get_httpx_client().request(**kwargs)
+    response = client.request(**kwargs)
+
+    return response
 
 
 def sync(

@@ -97,6 +97,20 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
         parsed=_parse_response(client=client, response=response),
     )
 
+{% if "export_records" in endpoint.path %}
+def stream_detailed(
+    {{ arguments(endpoint) | indent(4) }}
+) -> httpx.Response:
+    kwargs = _get_kwargs(
+        {{ kwargs(endpoint, include_client=False) }}
+    )
+
+    response = client.request(
+        **kwargs,
+    )
+
+    return response
+{% endif %}
 
 def sync_detailed(
     {{ arguments(endpoint) | indent(4) }}

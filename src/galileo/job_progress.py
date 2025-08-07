@@ -6,90 +6,95 @@ from typing import Optional
 from pydantic import UUID4
 from tqdm.auto import tqdm
 
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.resources.api.jobs import (
     get_job_jobs_job_id_get,
     get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get,
 )
 from galileo.resources.models import JobDB
 from galileo_core.constants.job import JobStatus
+from galileo_core.constants.run import RunDefaults
+from galileo_core.constants.scorers import Scorers
 
 _logger = logging.getLogger(__name__)
 
 
-class Jobs(BaseClientModel):  # , DecorateAllMethods):
-    def get(self, job_id: UUID4) -> JobDB:
-        response = get_job_jobs_job_id_get.sync(client=self.client, job_id=str(job_id))
-        if not isinstance(response, JobDB):
-            raise ValueError(f"Failed to get job status for job {job_id}. Response: {response}")
-        return response
+def get_job(job_id: UUID4) -> JobDB:
+    config = GalileoPythonConfig.get()
 
-    def get_scorer_jobs(self, project_id: UUID4, run_id: UUID4) -> list[JobDB]:
-        response = get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync(
-            client=self.client, project_id=str(project_id), run_id=str(run_id)
-        )
-        # print(f"get_scorer_jobs response: {response}")
-        if not isinstance(response, list):
-            _logger.warning(f"Failed to get scorer jobs for project {project_id}, run {run_id}. Response: {response}")
-            return []
-        # TODO keep the same enum filter for RunDefaults?
-        # from rungalileo.schemas.content.jobs import JobName
-        # JobName.log_stream_scorer / JobName.log_stream_run
-        return [job for job in response if job.job_name == "log_stream_scorer"]  # RunDefaults.prompt_scorer_job_name]
+    response = get_job_jobs_job_id_get.sync(client=config.api_client, job_id=str(job_id))
+
+    if not isinstance(response, JobDB):
+        raise ValueError(f"Failed to get job status for job {job_id}. Response: {response}")
+    return response
 
 
-# TODO why status on javascript version but not here?
+def get_run_scorer_jobs(project_id: UUID4, run_id: UUID4) -> list[JobDB]:
+    config = GalileoPythonConfig.get()
+
+    response = get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync(
+        client=config.api_client, project_id=str(project_id), run_id=str(run_id)
+    )
+    if not isinstance(response, list):
+        raise ValueError(f"Failed to get scorer jobs for project {project_id}, run {run_id}. Response: {response}")
+
+    # TODO Source (rungalileo-dev): Authorization error accessing https://us-python.pkg.dev/rungalileo-dev/rungalileo/simple/rungalileo/
+    # from rungalileo.schemas.content.jobs import JobName
+    # JobName.log_stream_scorer or JobName.log_stream_run?
+    # return [job for job in response if job.job_name == "log_stream_scorer"]
+
+    # Use this or the one above?
+    return [job for job in response if job.job_name == RunDefaults.prompt_scorer_job_name]
+
+
 def scorer_jobs_status(project_id: Optional[UUID4] = None, run_id: Optional[UUID4] = None) -> None:
     """Gets the status of all scorer jobs for a given project and run.
 
-    Parameters
-    ----------
-    project_id: The unique identifier of the project.
-    run_id: The unique identifier of the run.
+    Args:
+        project_id: The unique identifier of the project.
+        run_id: The unique identifier of the run.
     """
-    jobs_client = Jobs()
-    scorer_jobs = jobs_client.get_scorer_jobs(project_id=project_id, run_id=run_id)
+    scorer_jobs = get_run_scorer_jobs(project_id, run_id)
     for job in scorer_jobs:
-        scorer_name = "scorer"
-        # TODO No request data in the job? PQ expected it always
-        if (
-            "request_data" in job
-            and "prompt_scorer_settings" in job.request_data
-            and "scorer_name" in job.request_data["prompt_scorer_settings"]
-        ):
-            scorer_name = job.request_data["prompt_scorer_settings"]["scorer_name"]
+        if "prompt_scorer_settings" not in job.request_data:
+            _logger.debug(f"Scorer job {job.id} has no scorer settings.")
+            continue
+
+        scorer_name = job.request_data["prompt_scorer_settings"]["scorer_name"]
+        try:
+            scorer_name = Scorers(scorer_name).name
+        except ValueError:
+            pass
+
+        _logger.debug(f"Scorer job {job.id} has scorer {scorer_name}.")
 
         if JobStatus.is_incomplete(job.status):
             print(f"{scorer_name.lstrip('_')}: Computing 🚧")
         elif JobStatus.is_failed(job.status):
             print(f"{scorer_name.lstrip('_')}: Failed ❌, error was: {job.error_message}")
         else:
-            # TODO do we expect scorer_name to be "scorer"?
             print(f"{scorer_name.lstrip('_')}: Done ✅")
 
 
 def job_progress(job_id: UUID4, project_id: UUID4, run_id: UUID4) -> UUID4:
     """Monitors the progress of a job and displays a progress bar.
 
-    Parameters
-    ----------
-    job_id: The unique identifier of the job to monitor.
-    project_id: The unique identifier of the project.
-    run_id: The unique identifier of the run.
+    Args:
+        job_id: The unique identifier of the job to monitor.
+        project_id: The unique identifier of the project.
+        run_id: The unique identifier of the run.
 
-    Returns
-    -------
-    The unique identifier of the completed job.
+    Returns:
+        The unique identifier of the completed job.
     """
-    jobs_client = Jobs()
-    job_status = jobs_client.get(job_id)
+    job_status = get_job(job_id)
     backoff = random.random()
 
     if JobStatus.is_incomplete(job_status.status):
         job_progress_bar = tqdm(total=job_status.steps_total, position=0, leave=True, desc=job_status.progress_message)
         while JobStatus.is_incomplete(job_status.status):
             sleep(backoff)
-            job_status = jobs_client.get(job_id)
+            job_status = get_job(job_id)
             job_progress_bar.set_description(job_status.progress_message)
             job_progress_bar.update(job_status.steps_completed - job_progress_bar.n)
             backoff = random.random()

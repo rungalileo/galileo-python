@@ -24,7 +24,7 @@ from galileo_core.schemas.logging.step import StepType
 _logger = logging.getLogger(__name__)
 
 
-class Metrics(BaseClientModel):  # , DecorateAllMethods):
+class Metrics(BaseClientModel):
     def create_custom_llm_metric(
         self,
         name: str,
@@ -93,9 +93,6 @@ class Metrics(BaseClientModel):  # , DecorateAllMethods):
         group_by: Optional[str] = None,
         interval: int = 5,
     ) -> Optional[LogRecordsMetricsResponse]:
-        """
-        Queries for metrics in a project.
-        """
         body = LogRecordsMetricsQueryRequest(
             start_time=start_time,
             end_time=end_time,
@@ -109,7 +106,6 @@ class Metrics(BaseClientModel):  # , DecorateAllMethods):
         response = query_metrics_projects_project_id_metrics_search_post.sync(
             client=self.client, project_id=str(project_id), body=body
         )
-        _logger.debug(f"Query metrics response: {response}")
 
         if not isinstance(response, LogRecordsMetricsResponse):
             if isinstance(response, HTTPValidationError):
@@ -167,23 +163,20 @@ def get_metrics(
 ) -> Optional[LogRecordsMetricsResponse]:
     """Queries for metrics in a project.
 
-    Parameters
-    ----------
-    project_id: The unique identifier of the project.
-    start_time: The start of the time range for the query.
-    end_time: The end of the time range for the query.
-    experiment_id: Filter records by a specific experiment ID.
-    log_stream_id: Filter records by a specific run ID.
-    filters: A list of filters to apply to the query.
-    group_by: The field to group the results by.
-    interval: The time interval for the query in seconds.
+    Args:
+        project_id: The unique identifier of the project.
+        start_time: The start of the time range for the query.
+        end_time: The end of the time range for the query.
+        experiment_id: Filter records by a specific experiment ID.
+        log_stream_id: Filter records by a specific run ID.
+        filters: A list of filters to apply to the query.
+        group_by: The field to group the results by.
+        interval: The time interval for the query in seconds.
 
-    Returns
-    -------
-    A LogRecordsMetricsResponse object containing the query results, or None if the query fails.
+    Returns:
+        A LogRecordsMetricsResponse object containing the query results, or None if the query fails.
     """
-    metrics_client = Metrics()
-    return metrics_client.query(
+    return Metrics().query(
         project_id=project_id,
         start_time=start_time,
         end_time=end_time,

@@ -27,9 +27,6 @@ class Runs(BaseClientModel, DecorateAllMethods):
         scorers: list[ScorerConfig],
         segment_filters: Optional[list[SegmentFilter]] = None,
     ) -> Optional[RunScorerSettingsResponse]:
-        """
-        Updates the scorer settings for a specific run.
-        """
         body = RunScorerSettingsPatchRequest(run_id=str(run_id), scorers=scorers, segment_filters=segment_filters)
 
         response = upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_patch.sync(
@@ -37,12 +34,10 @@ class Runs(BaseClientModel, DecorateAllMethods):
         )
         logger.debug(f"Update scorer settings response: {response}")
 
-        if not isinstance(response, RunScorerSettingsResponse):
-            if isinstance(response, HTTPValidationError):
-                logger.error(f"Validation error updating scorer settings: {response}")
-            else:
-                logger.error(f"Failed to update scorer settings. Response: {response}")
-            return None
+        if isinstance(response, HTTPValidationError):
+            raise response
+        if not response:
+            raise ValueError("Failed to update scorer settings")
 
         return response
 
@@ -52,18 +47,15 @@ def update_scorer_settings(
 ) -> Optional[RunScorerSettingsResponse]:
     """Updates the scorer settings for a specific run.
 
-    Parameters
-    ----------
-    project_id: The unique identifier of the project.
-    run_id: The unique identifier of the run.
-    scorers: A list of scorer configurations to apply to the run.
-    segment_filters: A list of segment filters to apply to the run.
+    Args:
+        project_id: The unique identifier of the project.
+        run_id: The unique identifier of the run.
+        scorers: A list of scorer configurations to apply to the run.
+        segment_filters: A list of segment filters to apply to the run.
 
-    Returns
-    -------
-    A RunScorerSettingsResponse object containing the updated settings, or None if the update fails.
+    Returns:
+        A RunScorerSettingsResponse object containing the updated settings.
     """
-    runs_client = Runs()
-    return runs_client.update_scorer_settings(
+    return Runs().update_scorer_settings(
         project_id=project_id, run_id=run_id, scorers=scorers, segment_filters=segment_filters
     )

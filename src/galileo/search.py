@@ -21,6 +21,7 @@ from galileo.resources.models import (
     LogRecordsSortClause,
     LogRecordsTextFilter,
 )
+from galileo.utils.catch_log import DecorateAllMethods
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +37,7 @@ FilterType = Union[
 ]
 
 
-class Search(BaseClientModel):  # , DecorateAllMethods):
+class Search(BaseClientModel, DecorateAllMethods):
     def query(
         self,
         project_id: UUID4,
@@ -48,9 +49,6 @@ class Search(BaseClientModel):  # , DecorateAllMethods):
         limit: int = 100,
         starting_token: int = 0,
     ) -> LogRecordsQueryResponse:
-        """
-        Queries for spans, traces, or sessions in a project.
-        """
         body = LogRecordsQueryRequest(
             experiment_id=experiment_id,
             log_stream_id=log_stream_id,
@@ -69,15 +67,11 @@ class Search(BaseClientModel):  # , DecorateAllMethods):
         api_function = api_function_map[record_type]
 
         response = api_function.sync(client=self.client, project_id=str(project_id), body=body)
-        logger.debug(f"Query {record_type.value} response: {response}")
 
-        if not isinstance(response, LogRecordsQueryResponse):
-            if isinstance(response, HTTPValidationError):
-                logger.error(f"Validation error when querying for {record_type.value}: {response}")
-            else:
-                logger.error(f"Failed to query for {record_type.value}. Response: {response}")
-            # Return an empty response on failure to avoid TypeErrors downstream
-            return LogRecordsQueryResponse(records=[])
+        if isinstance(response, HTTPValidationError):
+            raise response
+        if not response:
+            raise ValueError(f"Failed to query for {record_type.value}")
 
         return response
 
@@ -93,22 +87,19 @@ def get_spans(
 ) -> LogRecordsQueryResponse:
     """Queries for spans in a project.
 
-    Parameters
-    ----------
-    project_id: The unique identifier of the project.
-    experiment_id: Filter records by a specific experiment ID.
-    log_stream_id: Filter records by a specific run ID.
-    filters: A list of filters to apply to the query.
-    sort: A sort clause to order the query results.
-    limit: The maximum number of records to return.
-    starting_token: The token for the next page of results.
+    Args:
+        project_id: The unique identifier of the project.
+        experiment_id: Filter records by a specific experiment ID.
+        log_stream_id: Filter records by a specific run ID.
+        filters: A list of filters to apply to the query.
+        sort: A sort clause to order the query results.
+        limit: The maximum number of records to return.
+        starting_token: The token for the next page of results.
 
-    Returns
-    -------
-    A LogRecordsQueryResponse object containing the query results.
+    Returns:
+        A LogRecordsQueryResponse object containing the query results.
     """
-    search_client = Search()
-    return search_client.query(
+    return Search().query(
         project_id=project_id,
         record_type=RecordType.SPAN,
         experiment_id=experiment_id,
@@ -131,22 +122,19 @@ def get_traces(
 ) -> LogRecordsQueryResponse:
     """Queries for traces in a project.
 
-    Parameters
-    ----------
-    project_id: The unique identifier of the project.
-    experiment_id: Filter records by a specific experiment ID.
-    log_stream_id: Filter records by a specific run ID.
-    filters: A list of filters to apply to the query.
-    sort: A sort clause to order the query results.
-    limit: The maximum number of records to return.
-    starting_token: The token for the next page of results.
+    Args:
+        project_id: The unique identifier of the project.
+        experiment_id: Filter records by a specific experiment ID.
+        log_stream_id: Filter records by a specific run ID.
+        filters: A list of filters to apply to the query.
+        sort: A sort clause to order the query results.
+        limit: The maximum number of records to return.
+        starting_token: The token for the next page of results.
 
-    Returns
-    -------
-    A LogRecordsQueryResponse object containing the query results.
+    Returns:
+        A LogRecordsQueryResponse object containing the query results.
     """
-    search_client = Search()
-    return search_client.query(
+    return Search().query(
         project_id=project_id,
         record_type=RecordType.TRACE,
         experiment_id=experiment_id,
@@ -169,22 +157,19 @@ def get_sessions(
 ) -> LogRecordsQueryResponse:
     """Queries for sessions in a project.
 
-    Parameters
-    ----------
-    project_id: The unique identifier of the project.
-    experiment_id: Filter records by a specific experiment ID.
-    log_stream_id: Filter records by a specific run ID.
-    filters: A list of filters to apply to the query.
-    sort: A sort clause to order the query results.
-    limit: The maximum number of records to return.
-    starting_token: The token for the next page of results.
+    Args:
+        project_id: The unique identifier of the project.
+        experiment_id: Filter records by a specific experiment ID.
+        log_stream_id: Filter records by a specific run ID.
+        filters: A list of filters to apply to the query.
+        sort: A sort clause to order the query results.
+        limit: The maximum number of records to return.
+        starting_token: The token for the next page of results.
 
-    Returns
-    -------
-    A LogRecordsQueryResponse object containing the query results.
+    Returns:
+        A LogRecordsQueryResponse object containing the query results.
     """
-    search_client = Search()
-    return search_client.query(
+    return Search().query(
         project_id=project_id,
         record_type=RecordType.SESSION,
         experiment_id=experiment_id,
