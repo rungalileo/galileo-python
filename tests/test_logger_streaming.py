@@ -184,8 +184,8 @@ def test_add_protect_tool_span(
         input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
     )
 
-    received_at = int(datetime.datetime(2025, 8, 6, 12, 41, 44).timestamp() * 1_000_000_000)
-    response_at = int(datetime.datetime(2025, 8, 6, 12, 41, 45).timestamp() * 1_000_000_000)
+    received_at = int(created_at.timestamp() * 1_000_000_000)
+    response_at = int((created_at + datetime.timedelta(seconds=1)).timestamp() * 1_000_000_000)
     execution_time = 1000.0
     trace_metadata_id = uuid.uuid4()
 
@@ -978,8 +978,8 @@ def test_trace_with_multiple_nested_spans(
         metadata=metadata,
     )
 
-    received_at = int(datetime.datetime(2025, 8, 6, 12, 41, 44).timestamp() * 1_000_000_000)
-    response_at = int(datetime.datetime(2025, 8, 6, 12, 41, 45).timestamp() * 1_000_000_000)
+    received_at = int(created_at.timestamp() * 1_000_000_000)
+    response_at = int((created_at + datetime.timedelta(seconds=1)).timestamp() * 1_000_000_000)
     execution_time = 1000.0
     trace_metadata_id = uuid.uuid4()
 
