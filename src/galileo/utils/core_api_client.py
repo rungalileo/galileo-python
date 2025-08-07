@@ -79,8 +79,6 @@ class GalileoCoreApiClient:
 
         json = traces_ingest_request.model_dump(mode="json")
 
-        print(f"calling ingest traces for {traces_ingest_request.traces[0].id}")
-
         return await self._make_async_request(
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
         )
@@ -105,8 +103,6 @@ class GalileoCoreApiClient:
 
         json = spans_ingest_request.model_dump(mode="json")
 
-        print(f"calling ingest spans for {spans_ingest_request.spans[0].id}")
-
         return await self._make_async_request(
             RequestMethod.POST, endpoint=Routes.spans.format(project_id=self.project_id), json=json
         )
@@ -130,8 +126,6 @@ class GalileoCoreApiClient:
             trace_update_request.log_stream_id = UUID(self.log_stream_id)
 
         json = trace_update_request.model_dump(mode="json")
-
-        print(f"calling update trace for {trace_update_request.trace_id}")
 
         return await self._make_async_request(
             RequestMethod.PATCH,
@@ -160,8 +154,6 @@ class GalileoCoreApiClient:
             span_update_request.log_stream_id = UUID(self.log_stream_id)
 
         json = span_update_request.model_dump(mode="json")
-
-        print(f"calling update span for {span_update_request.span_id}")
 
         return await self._make_async_request(
             RequestMethod.PATCH,
