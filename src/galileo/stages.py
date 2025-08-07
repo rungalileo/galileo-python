@@ -196,7 +196,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         )
 
 
-def create_stage(
+def create_protect_stage(
     project_id: Optional[Union[str, UUID4]] = None,
     project_name: Optional[str] = None,
     name: Optional[str] = None,
@@ -231,7 +231,7 @@ def create_stage(
     )
 
 
-def get_stage(
+def get_protect_stage(
     project_id: Optional[Union[str, UUID4]] = None,
     project_name: Optional[str] = None,
     stage_id: Optional[Union[str, UUID4]] = None,
@@ -253,7 +253,7 @@ def get_stage(
     return Stages().get(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
 
 
-def update_stage(
+def update_protect_stage(
     project_id: Optional[Union[str, UUID4]] = None,
     project_name: Optional[str] = None,
     stage_id: Optional[Union[str, UUID4]] = None,
@@ -284,7 +284,7 @@ def update_stage(
     )
 
 
-def pause_stage(
+def pause_protect_stage(
     project_id: Optional[Union[str, UUID4]] = None,
     project_name: Optional[str] = None,
     stage_id: Optional[Union[str, UUID4]] = None,
@@ -308,7 +308,7 @@ def pause_stage(
     return Stages().pause(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
 
 
-def resume_stage(
+def resume_protect_stage(
     project_id: Optional[Union[str, UUID4]] = None,
     project_name: Optional[str] = None,
     stage_id: Optional[Union[str, UUID4]] = None,

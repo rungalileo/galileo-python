@@ -5,7 +5,7 @@ from uuid import uuid4
 from pytest import mark
 
 from galileo.handlers.langchain.tool import ProtectTool
-from galileo.protect import Protect, ainvoke, invoke
+from galileo.protect import Protect, ainvoke_protect, invoke_protect
 from galileo.resources.models.execution_status import ExecutionStatus as APIExecutionStatus
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.protect_request import ProtectRequest as APIRequest
@@ -114,7 +114,7 @@ class TestAInvoke:
         current_stage_id = uuid4() if include_stage_id else None
         current_stage_name = A_STAGE_NAME if include_stage_name else None
 
-        result = await ainvoke(
+        result = await ainvoke_protect(
             payload=payload,
             prioritized_rulesets=None,
             project_id=current_project_id,
@@ -189,10 +189,10 @@ class TestAInvoke:
 @mark.parametrize("headers", [None, {"key": "value"}])
 @mark.parametrize("stage_version", [None, 1, 2])
 class TestInvoke:
-    @patch("galileo.protect.ainvoke")
+    @patch("galileo.protect.ainvoke_protect")
     def test_invoke_success(
         self,
-        mock_ainvoke: Mock,
+        mock_ainvoke_protect: Mock,
         include_project_id: bool,
         include_project_name: bool,
         include_stage_name: bool,
@@ -209,7 +209,7 @@ class TestInvoke:
             stage_id = uuid4() if include_stage_id else None
             stage_name = A_STAGE_NAME if include_stage_name else None
 
-            invoke(
+            invoke_protect(
                 payload=payload,
                 prioritized_rulesets=None,
                 project_id=project_id,
@@ -222,7 +222,7 @@ class TestInvoke:
                 headers=headers,
             )
             mock_async_run.assert_called_once()
-            mock_ainvoke.assert_called_once_with(
+            mock_ainvoke_protect.assert_called_once_with(
                 payload=payload,
                 prioritized_rulesets=None,
                 project_id=project_id,
@@ -294,7 +294,7 @@ async def test_invoke_with_rulesets(mock_invoke_post_async: Mock):
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
     rulesets = [Ruleset(rules=rules)]
 
-    await ainvoke(payload=Payload(input="test input"), prioritized_rulesets=rulesets, stage_id=uuid4())
+    await ainvoke_protect(payload=Payload(input="test input"), prioritized_rulesets=rulesets, stage_id=uuid4())
 
     mock_invoke_post_async.assert_called_once()
     api_call_args = mock_invoke_post_async.call_args.kwargs
@@ -320,7 +320,7 @@ async def test_invoke_api_validation_error(mock_invoke_post_async: Mock):
 
     payload = Payload(input="Test input")
 
-    result = await ainvoke(payload=payload, stage_id=uuid4())
+    result = await ainvoke_protect(payload=payload, stage_id=uuid4())
     assert isinstance(result, HTTPValidationError)
     assert result.detail[0]["msg"] == "Field required"
 
