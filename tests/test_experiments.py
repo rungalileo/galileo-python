@@ -412,7 +412,7 @@ class TestExperiments:
         mock_get_dataset_instance.get_content.assert_called()
 
         # check galileo_logger
-        payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+        payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
         assert len(payload.traces) == 1
         trace = payload.traces[0]
@@ -594,7 +594,7 @@ class TestExperiments:
         mock_get_dataset_instance.get_content.assert_called()
 
         # check galileo_logger
-        payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+        payload = mock_core_api_instance.ingest_traces.call_args[0][0]
         assert len(payload.traces) == 1
         assert (
             payload.traces[0].input == '{"input": {"question": "Which continent is Spain in?", "expected": "Europe"}}'

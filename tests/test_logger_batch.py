@@ -57,7 +57,7 @@ def test_disable_galileo_logger(mock_core_api_client: Mock, monkeypatch, caplog)
         assert "Bypassing logging for conclude. Logging is currently disabled." in caplog.text
         assert "Bypassing logging for flush. Logging is currently disabled." in caplog.text
     mock_core_api_client.assert_not_called()
-    mock_core_api_client.ingest_traces_sync.assert_not_called()
+    mock_core_api_client.ingest_traces.assert_not_called()
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -91,7 +91,7 @@ def test_single_span_trace_to_galileo(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -203,7 +203,7 @@ def test_all_span_types_with_redacted_fields(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     trace = payload.traces[0]
 
     assert trace.input == "Sensitive trace input: api_key_123"
@@ -268,7 +268,7 @@ def test_single_span_trace_to_galileo_experiment_id(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,
         experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
@@ -337,7 +337,7 @@ def test_nested_span_trace_to_galileo(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -368,7 +368,7 @@ def test_add_agent_span(mock_core_api_client: Mock, mock_projects_client: Mock, 
     logger.conclude(output="response", duration_ns=1_000_000, status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(log_stream_id=None, experiment_id=None, traces=[trace])
     assert payload == expected_payload
     assert isinstance(payload.traces[0].spans[0], AgentSpan)
@@ -429,7 +429,7 @@ def test_multi_span_trace_to_galileo(
 
     logger.flush()
 
-    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -551,7 +551,7 @@ def test_retriever_span_str_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -577,7 +577,7 @@ def test_retriever_span_list_str_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -613,7 +613,7 @@ def test_retriever_span_dict_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -655,7 +655,7 @@ def test_retriever_span_list_dict_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -692,7 +692,7 @@ def test_retriever_span_document_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -722,7 +722,7 @@ def test_retriever_span_list_document_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -749,7 +749,7 @@ def test_retriever_span_none_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -830,7 +830,7 @@ def test_flush_with_conclude_all_spans(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -1090,7 +1090,7 @@ def test_session_id_on_flush(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     assert str(payload.session_id) == session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
 
 
@@ -1116,7 +1116,7 @@ def test_set_session_id(mock_core_api_client: Mock, mock_projects_client: Mock, 
     logger.flush()
 
     # Check that the session ID is set correctly in the payload
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     assert payload.session_id == UUID(session_id)
 
 
@@ -1188,7 +1188,7 @@ def test_start_session_with_external_id(
     logger.flush()
 
     # Check that the session ID is set correctly in the payload
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     assert payload.session_id == session_id
 
 

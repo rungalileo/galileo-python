@@ -930,6 +930,24 @@ class GalileoDecorator:
             name=name, previous_session_id=previous_session_id, external_id=external_id
         )
 
+    async def async_start_session(
+        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> str:
+        """
+        Async start a session in the active context logger instance.
+
+        Args:
+            name: The name of the session. If not provided, a session name will be generated automatically.
+            previous_session_id: The id of the previous session. Defaults to None.
+            external_id: The external id of the session. Defaults to None.
+
+        Returns:
+            str: The id of the newly created session.
+        """
+        return await self.get_logger_instance().async_start_session(
+            name=name, previous_session_id=previous_session_id, external_id=external_id
+        )
+
     def clear_session(self) -> None:
         """Clear the session in the active context logger instance."""
         self.get_logger_instance().clear_session()
