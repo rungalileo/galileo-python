@@ -266,6 +266,7 @@ def test_all_span_types_with_redacted_fields(
 
     protect_span = workflow_span.spans[2]
     assert isinstance(protect_span, ToolSpan)
+    assert protect_span.name == "GalileoProtect"
     assert json.loads(protect_span.input) == {"input": "Protect input", "output": "Protect output"}
     assert json.loads(protect_span.redacted_input) == {
         "input": "Protect redacted input",
@@ -433,6 +434,88 @@ def test_add_agent_span(mock_core_api_client: Mock, mock_projects_client: Mock, 
     assert payload == expected_payload
     assert isinstance(payload.traces[0].spans[0], AgentSpan)
     assert payload.traces[0].spans[0].agent_type == AgentType.default
+    assert logger.traces == list()
+    assert logger._parent_stack == deque()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_add_protect_tool_span(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    metadata = {"key": "value"}
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    trace = logger.start_trace(
+        input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
+    )
+
+    received_at = int(datetime.datetime(2025, 8, 6, 12, 41, 44).timestamp() * 1_000_000_000)
+    response_at = int(datetime.datetime(2025, 8, 6, 12, 41, 45).timestamp() * 1_000_000_000)
+    execution_time = 1000.0
+    trace_metadata_id = uuid.uuid4()
+
+    logger.add_protect_span(
+        payload=Payload(input="Protect input", output="Protect output"),
+        redacted_payload=Payload(input="Protect redacted input", output="Protect redacted output"),
+        response=Response(
+            status=ExecutionStatus.not_triggered,
+            text="Protect text",
+            trace_metadata=TraceMetadata(
+                id=trace_metadata_id, received_at=received_at, response_at=response_at, execution_time=execution_time
+            ),
+        ),
+        redacted_response=Response(
+            status=ExecutionStatus.not_triggered,
+            text="Protect redacted text",
+            trace_metadata=TraceMetadata(
+                id=trace_metadata_id, received_at=received_at, response_at=response_at, execution_time=execution_time
+            ),
+        ),
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+
+    logger.conclude(output="response", duration_ns=1_000_000, status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    expected_payload = TracesIngestRequest(log_stream_id=None, experiment_id=None, traces=[trace])
+    assert payload == expected_payload
+    protect_span = payload.traces[0].spans[0]
+    assert isinstance(protect_span, ToolSpan)
+    assert protect_span.name == "GalileoProtect"
+    assert json.loads(protect_span.input) == {"input": "Protect input", "output": "Protect output"}
+    assert json.loads(protect_span.redacted_input) == {
+        "input": "Protect redacted input",
+        "output": "Protect redacted output",
+    }
+    assert json.loads(protect_span.output) == {
+        "status": "NOT_TRIGGERED",
+        "text": "Protect text",
+        "trace_metadata": {
+            "id": str(trace_metadata_id),
+            "received_at": received_at,
+            "response_at": response_at,
+            "execution_time": execution_time,
+        },
+    }
+    assert json.loads(protect_span.redacted_output) == {
+        "status": "NOT_TRIGGERED",
+        "text": "Protect redacted text",
+        "trace_metadata": {
+            "id": str(trace_metadata_id),
+            "received_at": received_at,
+            "response_at": response_at,
+            "execution_time": execution_time,
+        },
+    }
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 
