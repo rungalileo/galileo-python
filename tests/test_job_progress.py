@@ -9,7 +9,6 @@ from pytest import CaptureFixture
 from galileo.job_progress import job_progress, scorer_jobs_status
 from galileo.resources.models import JobDB
 from galileo_core.constants.job import JobStatus
-from galileo_core.constants.run import RunDefaults
 
 FIXED_PROJECT_ID = uuid4()
 FIXED_RUN_ID = uuid4()
@@ -71,7 +70,7 @@ class TestScorerJobsStatus:
     def test_simple(self, mock_get_jobs: Mock, capsys: CaptureFixture[str]):
         mock_get_jobs.return_value = [
             _job_db_factory(
-                job_name=RunDefaults.prompt_scorer_job_name,
+                job_name="log_stream_scorer",
                 status=JobStatus.in_progress,
                 request_data={"prompt_scorer_settings": {"scorer_name": "pii"}},
             )
@@ -84,9 +83,9 @@ class TestScorerJobsStatus:
     @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
     def test_skips_prompt_run(self, mock_get_jobs: Mock, capsys: CaptureFixture[str]):
         mock_get_jobs.return_value = [
-            _job_db_factory(job_name=RunDefaults.prompt_run_job_name),
+            _job_db_factory(job_name="log_stream_run"),
             _job_db_factory(
-                job_name=RunDefaults.prompt_scorer_job_name,
+                job_name="log_stream_scorer",
                 status=JobStatus.in_progress,
                 request_data={"prompt_scorer_settings": {"scorer_name": "pii"}},
             ),
@@ -98,7 +97,7 @@ class TestScorerJobsStatus:
 
     @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
     def test_no_scorer_jobs(self, mock_get_jobs: Mock, capsys: CaptureFixture[str]):
-        mock_get_jobs.return_value = [_job_db_factory(job_name=RunDefaults.prompt_run_job_name)]
+        mock_get_jobs.return_value = [_job_db_factory(job_name="log_stream_run")]
 
         scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
         captured = capsys.readouterr()
@@ -107,20 +106,20 @@ class TestScorerJobsStatus:
     @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
     def test_one_of_each(self, mock_get_jobs: Mock, capsys: CaptureFixture[str]):
         mock_get_jobs.return_value = [
-            _job_db_factory(job_name=RunDefaults.prompt_run_job_name),
+            _job_db_factory(job_name="log_stream_run"),
             _job_db_factory(
-                job_name=RunDefaults.prompt_scorer_job_name,
+                job_name="log_stream_scorer",
                 status=JobStatus.in_progress,
                 request_data={"prompt_scorer_settings": {"scorer_name": "pii"}},
             ),
             _job_db_factory(
-                job_name=RunDefaults.prompt_scorer_job_name,
+                job_name="log_stream_scorer",
                 status=JobStatus.error,
                 error_message="An error occurred.",
                 request_data={"prompt_scorer_settings": {"scorer_name": "toxicity"}},
             ),
             _job_db_factory(
-                job_name=RunDefaults.prompt_scorer_job_name,
+                job_name="log_stream_scorer",
                 status=JobStatus.completed,
                 request_data={"prompt_scorer_settings": {"scorer_name": "chunk_attribution_utilization_plus"}},
             ),
@@ -138,9 +137,9 @@ class TestScorerJobsStatus:
     @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
     def test_unknown_scorer_name(self, mock_get_jobs: Mock, capsys: CaptureFixture[str]):
         mock_get_jobs.return_value = [
-            _job_db_factory(job_name=RunDefaults.prompt_run_job_name),
+            _job_db_factory(job_name="log_stream_run"),
             _job_db_factory(
-                job_name=RunDefaults.prompt_scorer_job_name,
+                job_name="log_stream_scorer",
                 status=JobStatus.in_progress,
                 request_data={"prompt_scorer_settings": {"scorer_name": "abc"}},
             ),

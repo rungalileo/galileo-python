@@ -13,7 +13,6 @@ from galileo.resources.api.jobs import (
 )
 from galileo.resources.models import JobDB
 from galileo_core.constants.job import JobStatus
-from galileo_core.constants.run import RunDefaults
 from galileo_core.constants.scorers import Scorers
 
 _logger = logging.getLogger(__name__)
@@ -38,13 +37,11 @@ def get_run_scorer_jobs(project_id: UUID4, run_id: UUID4) -> list[JobDB]:
     if not isinstance(response, list):
         raise ValueError(f"Failed to get scorer jobs for project {project_id}, run {run_id}. Response: {response}")
 
+    _logger.info(f"Scorer jobs: {response}")
+
     # TODO Source (rungalileo-dev): Authorization error accessing https://us-python.pkg.dev/rungalileo-dev/rungalileo/simple/rungalileo/
     # from rungalileo.schemas.content.jobs import JobName
-    # JobName.log_stream_scorer or JobName.log_stream_run?
-    # return [job for job in response if job.job_name == "log_stream_scorer"]
-
-    # Use this or the one above?
-    return [job for job in response if job.job_name == RunDefaults.prompt_scorer_job_name]
+    return [job for job in response if job.job_name == "log_stream_scorer"]
 
 
 def scorer_jobs_status(project_id: Optional[UUID4] = None, run_id: Optional[UUID4] = None) -> None:
@@ -56,11 +53,16 @@ def scorer_jobs_status(project_id: Optional[UUID4] = None, run_id: Optional[UUID
     """
     scorer_jobs = get_run_scorer_jobs(project_id, run_id)
     for job in scorer_jobs:
-        if "prompt_scorer_settings" not in job.request_data:
-            _logger.debug(f"Scorer job {job.id} has no scorer settings.")
+        scorer_name = None
+        if "prompt_scorer_settings" in job.request_data and job.request_data["prompt_scorer_settings"]:
+            scorer_name = job.request_data["prompt_scorer_settings"]["scorer_name"]
+        elif "scorer_config" in job.request_data and job.request_data["scorer_config"]:
+            scorer_name = job.request_data["scorer_config"]["name"]
+
+        if not scorer_name:
+            _logger.debug(f"Scorer job {job.id} has no scorer name.")
             continue
 
-        scorer_name = job.request_data["prompt_scorer_settings"]["scorer_name"]
         try:
             scorer_name = Scorers(scorer_name).name
         except ValueError:
