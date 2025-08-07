@@ -1070,22 +1070,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         return current_parent
 
-    @nop_sync
-    def flush(self) -> list[Trace]:
-        """
-        Upload all traces to Galileo.
-
-        Returns:
-        -------
-            List[Trace]: The list of uploaded traces.
-        """
-        if self.mode == "batch":
-            return self._flush_batch()
-        else:
-            self._logger.warning("Flushing in streaming mode is not supported.")
-            return list()
-
-    def _flush_batch(self):
+    async def _flush_batch(self, is_async: bool = False) -> list[Trace]:
+        # import pdb; pdb.set_trace()
         if not self.traces:
             self._logger.info("No traces to flush.")
             return list()
@@ -1098,7 +1084,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         if self.local_metrics:
             self._logger.info("Computing local metrics...")
-            # TODO: parallelize, possibly with ThreadPoolExecutor
+            # TODO: parallelize, possibly with ThreadPoolExecutor/asyncio
             for trace in self.traces:
                 populate_local_metrics(trace, self.local_metrics)
 
@@ -1107,7 +1093,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         traces_ingest_request = TracesIngestRequest(
             traces=self.traces, experiment_id=self.experiment_id, session_id=self.session_id
         )
-        self._client.ingest_traces_sync(traces_ingest_request)
+
+        if is_async:
+            await self._client.ingest_traces(traces_ingest_request)
+        else:
+            # Use async_run() instead of asyncio.run() to work in all environments
+            # (Jupyter notebooks, pytest-asyncio, FastAPI, etc.)
+            from galileo_core.helpers.execution import async_run
+
+            async_run(self._client.ingest_traces(traces_ingest_request))
+
         logged_traces = self.traces
 
         self._logger.info("Successfully flushed %d traces.", len(logged_traces))
@@ -1126,39 +1121,39 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             List[Trace]: The list of uploaded workflows.
         """
         if self.mode == "batch":
-            return await self._async_flush_batch()
+            return await self._flush_batch(is_async=True)
         else:
             self._logger.warning("Flushing in streaming mode is not supported.")
             return list()
 
-    async def _async_flush_batch(self) -> list[Trace]:
-        if not self.traces:
-            self._logger.info("No traces to flush.")
+    @nop_sync
+    def flush(self) -> list[Trace]:
+        """
+        Upload all traces to Galileo.
+
+        Returns:
+        -------
+            List[Trace]: The list of uploaded traces.
+        """
+        if self.mode == "batch":
+            # This is bad because asyncio.run() fails in environments with existing event loops
+            # (e.g. jupyter notebooks, FastAPI, etc. would fail with "cannot be called from a running event loop"
+            # Even though flush() is sync, it can be called from async contexts like:
+            # - Jupyter notebooks (which have their own event loop)
+            # - pytest-asyncio tests (where @mark.asyncio creates an event loop)
+            # - FastAPI/Django async views (where the web framework has an event loop)
+            # - Any async function that calls sync code
+            # The EventLoopThreadPool approach works in ALL environments by using dedicated threads
+            # return asyncio.run(self._flush_batch(is_async=False))
+
+            # This is good because async_run() uses EventLoopThreadPool which works in all environments
+            # by running async code in dedicated threads with their own event loops
+            from galileo_core.helpers.execution import async_run
+
+            return async_run(self._flush_batch(is_async=False))
+        else:
+            self._logger.warning("Flushing in streaming mode is not supported.")
             return list()
-
-        current_parent = self.current_parent()
-        if current_parent is not None:
-            self._logger.info("Concluding the active trace...")
-            last_output = get_last_output(current_parent)
-            self.conclude(output=last_output, conclude_all=True)
-
-        if self.local_metrics:
-            self._logger.info("Computing metrics for local scorers...")
-            # TODO: parallelize, possibly with asyncio to_thread/gather
-            for trace in self.traces:
-                populate_local_metrics(trace, self.local_metrics)
-
-        self._logger.info("Flushing %d traces...", len(self.traces))
-
-        traces_ingest_request = TracesIngestRequest(traces=self.traces, session_id=self.session_id)
-        await self._client.ingest_traces(traces_ingest_request)
-        logged_traces = self.traces
-
-        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
-
-        self.traces = list()
-        self._parent_stack = deque()
-        return logged_traces
 
     @nop_sync
     def terminate(self) -> None:

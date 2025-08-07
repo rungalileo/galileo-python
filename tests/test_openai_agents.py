@@ -127,7 +127,47 @@ async def test_simple_agent(
         assert span.metrics.duration_ns
         assert span.metrics.duration_ns > 0
 
+    await galileo_logger.async_flush()
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    assert len(payload.traces) == 1
+    assert len(payload.traces[0].spans) == 1
+
+
+@vcr.use_cassette(
+    "tests/fixtures/openai_agents.yaml",
+    filter_headers=["authorization"],
+    decode_compressed_response=True,
+    record_mode=vcr.mode.NEW_EPISODES,
+)
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_simple_agent_sync_flush(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: MonkeyPatch
+) -> None:
+    """Test sync flush() method - this test is NOT async"""
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    galileo_logger = GalileoLogger(project="test", log_stream="test")
+
+    # Add a simple trace manually (no async Runner.run)
+    galileo_logger.start_trace(input="Test input")
+    galileo_logger.add_llm_span(
+        input="Test input",
+        output="Test output",
+        model="gpt-4o",
+        num_input_tokens=5,
+        num_output_tokens=5,
+        total_tokens=10,
+    )
+    galileo_logger.conclude(output="Test output")
+
+    # This should work since we're NOT in an async context
     galileo_logger.flush()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+
+    # Check that sync method was called
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1

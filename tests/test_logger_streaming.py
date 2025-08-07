@@ -58,7 +58,7 @@ def test_disable_galileo_logger(mock_core_api_client: Mock, monkeypatch, caplog)
         assert len(captured_tasks) == 0
 
         mock_core_api_client.assert_not_called()
-        mock_core_api_client.ingest_traces_sync.assert_not_called()
+        mock_core_api_client.ingest_traces.assert_not_called()
         mock_core_api_client.ingest_spans_sync.assert_not_called()
         mock_core_api_client.update_trace_sync.assert_not_called()
         mock_core_api_client.update_span_sync.assert_not_called()
@@ -86,7 +86,9 @@ def test_start_trace(mock_core_api_client: Mock, mock_projects_client: Mock, moc
     request = captured_task.request
     assert isinstance(request, TracesIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].input == "input"
@@ -133,7 +135,9 @@ def test_add_llm_span(mock_core_api_client: Mock, mock_projects_client: Mock, mo
     request = captured_task.request
     assert isinstance(request, TracesIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].input == "input"
@@ -148,7 +152,9 @@ def test_add_llm_span(mock_core_api_client: Mock, mock_projects_client: Mock, mo
     request = captured_task.request
     assert isinstance(request, SpansIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -295,7 +301,9 @@ def test_conclude_trace(mock_core_api_client: Mock, mock_projects_client: Mock, 
     request = captured_task.request
     assert isinstance(request, TracesIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
@@ -313,7 +321,9 @@ def test_conclude_trace(mock_core_api_client: Mock, mock_projects_client: Mock, 
     request = captured_task.request
     assert isinstance(request, TraceUpdateRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -363,7 +373,9 @@ def test_conclude_trace_with_span(
     request = captured_task.request
     assert isinstance(request, TracesIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
@@ -381,7 +393,9 @@ def test_conclude_trace_with_span(
     request = captured_task.request
     assert isinstance(request, SpansIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -400,7 +414,9 @@ def test_conclude_trace_with_span(
     request = captured_task.request
     assert isinstance(request, TraceUpdateRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -462,7 +478,9 @@ def test_conclude_trace_and_start_new_trace(
     request = captured_task.request
     assert isinstance(request, TracesIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
@@ -481,7 +499,9 @@ def test_conclude_trace_and_start_new_trace(
     request = captured_task.request
     assert isinstance(request, SpansIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -501,7 +521,9 @@ def test_conclude_trace_and_start_new_trace(
     request = captured_task.request
     assert isinstance(request, TraceUpdateRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -514,7 +536,9 @@ def test_conclude_trace_and_start_new_trace(
     request = captured_task.request
     assert isinstance(request, TracesIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
@@ -578,7 +602,9 @@ def test_conclude_trace_with_nested_span(
     request = captured_task.request
     assert isinstance(request, TracesIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
@@ -597,7 +623,9 @@ def test_conclude_trace_with_nested_span(
     request = captured_task.request
     assert isinstance(request, SpansIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -618,7 +646,9 @@ def test_conclude_trace_with_nested_span(
     request = captured_task.request
     assert isinstance(request, SpansIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -639,7 +669,9 @@ def test_conclude_trace_with_nested_span(
     request = captured_task.request
     assert isinstance(request, SpanUpdateRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == workflow_span_id
@@ -651,7 +683,9 @@ def test_conclude_trace_with_nested_span(
     request = captured_task.request
     assert isinstance(request, TraceUpdateRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -705,7 +739,9 @@ def test_conclude_all_with_nested_span(
     request = captured_task.request
     assert isinstance(request, TracesIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
@@ -723,7 +759,9 @@ def test_conclude_all_with_nested_span(
     request = captured_task.request
     assert isinstance(request, SpansIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -742,7 +780,9 @@ def test_conclude_all_with_nested_span(
     request = captured_task.request
     assert isinstance(request, SpansIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -762,7 +802,9 @@ def test_conclude_all_with_nested_span(
     request = captured_task.request
     assert isinstance(request, SpanUpdateRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == workflow_span_id
@@ -774,7 +816,9 @@ def test_conclude_all_with_nested_span(
     request = captured_task.request
     assert isinstance(request, TraceUpdateRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -838,7 +882,9 @@ def test_conclude_trace_with_agent_span(
     request = captured_task.request
     assert isinstance(request, TracesIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
@@ -856,7 +902,9 @@ def test_conclude_trace_with_agent_span(
     request = captured_task.request
     assert isinstance(request, SpansIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -877,7 +925,9 @@ def test_conclude_trace_with_agent_span(
     request = captured_task.request
     assert isinstance(request, SpansIngestRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
@@ -898,7 +948,9 @@ def test_conclude_trace_with_agent_span(
     request = captured_task.request
     assert isinstance(request, SpanUpdateRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == agent_span_id
@@ -910,7 +962,9 @@ def test_conclude_trace_with_agent_span(
     request = captured_task.request
     assert isinstance(request, TraceUpdateRequest)
 
-    asyncio.run(captured_task.task_func())
+    from galileo_core.helpers.execution import async_run
+
+    async_run(captured_task.task_func())
     mock_core_api_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id

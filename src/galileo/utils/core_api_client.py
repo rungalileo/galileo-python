@@ -83,18 +83,6 @@ class GalileoCoreApiClient:
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
         )
 
-    def ingest_traces_sync(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
-        if self.experiment_id:
-            traces_ingest_request.experiment_id = UUID(self.experiment_id)
-        elif self.log_stream_id:
-            traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
-
-        json = traces_ingest_request.model_dump(mode="json")
-
-        return self._make_request(
-            RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
-        )
-
     async def ingest_spans(self, spans_ingest_request: SpansIngestRequest) -> dict[str, str]:
         if self.experiment_id:
             spans_ingest_request.experiment_id = UUID(self.experiment_id)
