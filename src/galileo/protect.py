@@ -56,7 +56,7 @@ class Protect(BaseClientModel, DecorateAllMethods):
         return response
 
 
-async def ainvoke(
+async def ainvoke_protect(
     payload: Payload,
     prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     project_id: Optional[UUID4] = None,
@@ -107,7 +107,7 @@ async def ainvoke(
     )
 
 
-def invoke(
+def invoke_protect(
     payload: Payload,
     prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     project_id: Optional[UUID4] = None,
@@ -145,7 +145,7 @@ def invoke(
         Protect invoke results.
     """
     return async_run(
-        ainvoke(
+        ainvoke_protect(
             payload=payload,
             prioritized_rulesets=prioritized_rulesets,
             project_id=project_id,
