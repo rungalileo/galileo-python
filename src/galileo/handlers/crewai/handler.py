@@ -434,7 +434,7 @@ class CrewAICallback(BaseEventListener):
     def _handle_llm_call_started(self, source: Any, event: Any) -> None:
         """Handle LLM call start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = event.agent_id
+        parent_run_id = event.agent_id if hasattr(event, "agent_id") else None
         node_type: NODE_TYPE = "llm"
         llm_name = getattr(source, "model", "Unknown Model")
 
