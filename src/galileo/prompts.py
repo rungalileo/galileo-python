@@ -362,33 +362,31 @@ def list_prompt_templates(project: str) -> list[PromptTemplate]:
 
 
 @overload
-def get_prompt(*, id: str) -> Optional[PromptTemplateVersion]: ...
+def get_prompt(*, id: str) -> Optional[PromptTemplate]: ...
 
 
 @overload
-def get_prompt(*, name: str) -> Optional[PromptTemplateVersion]: ...
+def get_prompt(*, name: str) -> Optional[PromptTemplate]: ...
 
 
-def get_prompt(
-    *, id: Optional[str] = None, name: Optional[str] = None, version: Optional[int] = None
-) -> Optional[PromptTemplateVersion]:
+def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optional[PromptTemplate]:
     """
-    Retrieves a specific global prompt template version.
+    Retrieves a global prompt template.
 
     You must provide either 'id' or 'name', but not both.
-    If 'version' is not provided, the currently selected version is returned.
+
     Parameters
     ----------
     id : str, optional
         The unique identifier of the template to retrieve. Defaults to None.
     name : str, optional
         The name of the template to retrieve. Defaults to None.
-    version : int, optional
-        The version number to retrieve. If not provided, the currently selected version is returned. Defaults to None.
+
     Returns
     -------
-    Optional[PromptTemplateVersion]
-        The template version if found, None otherwise.
+    Optional[PromptTemplate]
+        The template if found, None otherwise.
+
     Raises
     ------
     ValueError
@@ -400,25 +398,12 @@ def get_prompt(
     if (id is not None) and (name is not None):
         raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
-    if version is not None:
-        target_id = id
-        if name:
-            prompt_template = GlobalPromptTemplates().get(name=name)
-            if not prompt_template:
-                return None
-            target_id = prompt_template.id
-
-        if not target_id:
-            raise ValueError("A template id is required to fetch a specific version.")
-
-        return GlobalPromptTemplates().get_version(template_id=target_id, version=version)
-
     prompt_template = GlobalPromptTemplates().get(template_id=id) if id else GlobalPromptTemplates().get(name=name)  # type: ignore[arg-type]
 
-    if not prompt_template or isinstance(prompt_template.selected_version, Unset):
+    if not prompt_template:
         return None
 
-    return PromptTemplateVersion(prompt_template_version=prompt_template.selected_version)
+    return PromptTemplate(prompt_template=prompt_template)
 
 
 @overload
