@@ -4,7 +4,7 @@ import logging
 import uuid
 from collections import deque
 from typing import Union
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 from uuid import UUID, uuid4
 
 import pytest
@@ -1160,7 +1160,7 @@ def test_session_create(mock_core_api_client: Mock, mock_projects_client: Mock, 
         name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
     )
 
-    payload = mock_core_api_instance.create_session_sync.call_args[0][0]
+    payload = mock_core_api_instance.create_session.call_args[0][0]
 
     assert payload.name == "test-session"
     assert payload.previous_session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
@@ -1182,7 +1182,7 @@ def test_session_create_empty_values(
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     session_id = logger.start_session()
 
-    payload = mock_core_api_instance.create_session_sync.call_args[0][0]
+    payload = mock_core_api_instance.create_session.call_args[0][0]
 
     assert payload.name is None
     assert payload.previous_session_id is None
@@ -1278,12 +1278,12 @@ def test_start_session_with_external_id(
     session_id = logger.start_session(
         name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test-external-id"
     )
-    mock_core_api_instance.get_sessions_sync.assert_called_once()
-    mock_core_api_instance.create_session_sync.assert_called_once()
+    mock_core_api_instance.get_sessions.assert_called_once()
+    mock_core_api_instance.create_session.assert_called_once()
     assert session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
     assert logger.session_id == session_id
 
-    mock_core_api_instance.get_sessions_sync = Mock(
+    mock_core_api_instance.get_sessions = AsyncMock(
         return_value={
             "starting_token": 0,
             "limit": 100,
@@ -1315,12 +1315,12 @@ def test_start_session_with_external_id(
             "num_records": 1,
         }
     )
-    mock_core_api_instance.create_session_sync.reset_mock()
+    mock_core_api_instance.create_session.reset_mock()
 
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     session_id = logger.start_session(external_id="test-external-id")
-    mock_core_api_instance.get_sessions_sync.assert_called_once()
-    mock_core_api_instance.create_session_sync.assert_not_called()
+    mock_core_api_instance.get_sessions.assert_called_once()
+    mock_core_api_instance.create_session.assert_not_called()
     assert session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
     assert logger.session_id == session_id
 

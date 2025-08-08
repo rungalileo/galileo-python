@@ -123,20 +123,6 @@ class GalileoCoreApiClient:
             json=json,
         )
 
-    def create_session_sync(self, session_create_request: SessionCreateRequest) -> dict[str, str]:
-        if self.experiment_id:
-            session_create_request.experiment_id = UUID(self.experiment_id)
-        elif self.log_stream_id:
-            session_create_request.log_stream_id = UUID(self.log_stream_id)
-
-        json = session_create_request.model_dump(mode="json")
-
-        response = self._make_request(
-            RequestMethod.POST, endpoint=Routes.sessions.format(project_id=self.project_id), json=json
-        )
-
-        return response
-
     async def create_session(self, session_create_request: SessionCreateRequest) -> dict[str, str]:
         if self.experiment_id:
             session_create_request.experiment_id = UUID(self.experiment_id)
@@ -158,18 +144,6 @@ class GalileoCoreApiClient:
         json = session_search_request.model_dump(mode="json")
 
         return await self._make_async_request(
-            RequestMethod.POST, endpoint=Routes.sessions_search.format(project_id=self.project_id), json=json
-        )
-
-    def get_sessions_sync(self, session_search_request: LogRecordsSearchRequest) -> dict[str, str]:
-        if self.experiment_id:
-            session_search_request.experiment_id = UUID(self.experiment_id)
-        elif self.log_stream_id:
-            session_search_request.log_stream_id = UUID(self.log_stream_id)
-
-        json = session_search_request.model_dump(mode="json")
-
-        return self._make_request(
             RequestMethod.POST, endpoint=Routes.sessions_search.format(project_id=self.project_id), json=json
         )
 

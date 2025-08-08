@@ -1174,16 +1174,18 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if external_id and external_id.strip() != "":
             self._logger.info(f"Searching for session with external ID: {external_id} ...")
             try:
-                sessions = self._client.get_sessions_sync(
-                    LogRecordsSearchRequest(
-                        filters=[
-                            LogRecordsSearchFilter(
-                                type=LogRecordsSearchFilterType.text,
-                                column_id="external_id",
-                                value=external_id,
-                                operator=LogRecordsSearchFilterOperator.eq,
-                            )
-                        ]
+                sessions = async_run(
+                    self._client.get_sessions(
+                        LogRecordsSearchRequest(
+                            filters=[
+                                LogRecordsSearchFilter(
+                                    type=LogRecordsSearchFilterType.text,
+                                    column_id="external_id",
+                                    value=external_id,
+                                    operator=LogRecordsSearchFilterOperator.eq,
+                                )
+                            ]
+                        )
                     )
                 )
 
@@ -1196,9 +1198,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 self._logger.error("Failed to search for session with external ID %s", external_id, exc_info=True)
 
         self._logger.info("Starting a new session...")
-
-        session = self._client.create_session_sync(
-            SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
+        session = async_run(
+            self._client.create_session(
+                SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
+            )
         )
 
         self._logger.info("Session started with ID: %s", session["id"])
