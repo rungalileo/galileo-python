@@ -45,19 +45,6 @@ class GalileoCoreApiClient:
         if self.log_stream_id is None and self.experiment_id is None:
             raise ValueError("log_stream_id or experiment_id must be set")
 
-    def _make_request(
-        self,
-        request_method: RequestMethod,
-        endpoint: str,
-        json: Optional[dict] = None,
-        data: Optional[dict] = None,
-        files: Optional[dict] = None,
-        params: Optional[dict] = None,
-    ) -> Any:
-        return self.config.api_client.request(
-            method=request_method, path=endpoint, json=json, data=data, files=files, params=params
-        )
-
     async def _make_async_request(
         self,
         request_method: RequestMethod,
@@ -83,18 +70,6 @@ class GalileoCoreApiClient:
             RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
         )
 
-    def ingest_traces_sync(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
-        if self.experiment_id:
-            traces_ingest_request.experiment_id = UUID(self.experiment_id)
-        elif self.log_stream_id:
-            traces_ingest_request.log_stream_id = UUID(self.log_stream_id)
-
-        json = traces_ingest_request.model_dump(mode="json")
-
-        return self._make_request(
-            RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
-        )
-
     async def ingest_spans(self, spans_ingest_request: SpansIngestRequest) -> dict[str, str]:
         if self.experiment_id:
             spans_ingest_request.experiment_id = UUID(self.experiment_id)
@@ -107,18 +82,6 @@ class GalileoCoreApiClient:
             RequestMethod.POST, endpoint=Routes.spans.format(project_id=self.project_id), json=json
         )
 
-    def ingest_spans_sync(self, spans_ingest_request: SpansIngestRequest) -> dict[str, str]:
-        if self.experiment_id:
-            spans_ingest_request.experiment_id = UUID(self.experiment_id)
-        elif self.log_stream_id:
-            spans_ingest_request.log_stream_id = UUID(self.log_stream_id)
-
-        json = spans_ingest_request.model_dump(mode="json")
-
-        return self._make_request(
-            RequestMethod.POST, endpoint=Routes.spans.format(project_id=self.project_id), json=json
-        )
-
     async def update_trace(self, trace_update_request: TraceUpdateRequest) -> dict[str, str]:
         if self.experiment_id:
             trace_update_request.experiment_id = UUID(self.experiment_id)
@@ -128,20 +91,6 @@ class GalileoCoreApiClient:
         json = trace_update_request.model_dump(mode="json")
 
         return await self._make_async_request(
-            RequestMethod.PATCH,
-            endpoint=Routes.trace.format(project_id=self.project_id, trace_id=trace_update_request.trace_id),
-            json=json,
-        )
-
-    def update_trace_sync(self, trace_update_request: TraceUpdateRequest) -> dict[str, str]:
-        if self.experiment_id:
-            trace_update_request.experiment_id = UUID(self.experiment_id)
-        elif self.log_stream_id:
-            trace_update_request.log_stream_id = UUID(self.log_stream_id)
-
-        json = trace_update_request.model_dump(mode="json")
-
-        return self._make_request(
             RequestMethod.PATCH,
             endpoint=Routes.trace.format(project_id=self.project_id, trace_id=trace_update_request.trace_id),
             json=json,
@@ -160,34 +109,6 @@ class GalileoCoreApiClient:
             endpoint=Routes.span.format(project_id=self.project_id, span_id=span_update_request.span_id),
             json=json,
         )
-
-    def update_span_sync(self, span_update_request: SpanUpdateRequest) -> dict[str, str]:
-        if self.experiment_id:
-            span_update_request.experiment_id = UUID(self.experiment_id)
-        elif self.log_stream_id:
-            span_update_request.log_stream_id = UUID(self.log_stream_id)
-
-        json = span_update_request.model_dump(mode="json")
-
-        return self._make_request(
-            RequestMethod.PATCH,
-            endpoint=Routes.span.format(project_id=self.project_id, span_id=span_update_request.span_id),
-            json=json,
-        )
-
-    def create_session_sync(self, session_create_request: SessionCreateRequest) -> dict[str, str]:
-        if self.experiment_id:
-            session_create_request.experiment_id = UUID(self.experiment_id)
-        elif self.log_stream_id:
-            session_create_request.log_stream_id = UUID(self.log_stream_id)
-
-        json = session_create_request.model_dump(mode="json")
-
-        response = self._make_request(
-            RequestMethod.POST, endpoint=Routes.sessions.format(project_id=self.project_id), json=json
-        )
-
-        return response
 
     async def create_session(self, session_create_request: SessionCreateRequest) -> dict[str, str]:
         if self.experiment_id:
@@ -213,24 +134,12 @@ class GalileoCoreApiClient:
             RequestMethod.POST, endpoint=Routes.sessions_search.format(project_id=self.project_id), json=json
         )
 
-    def get_sessions_sync(self, session_search_request: LogRecordsSearchRequest) -> dict[str, str]:
-        if self.experiment_id:
-            session_search_request.experiment_id = UUID(self.experiment_id)
-        elif self.log_stream_id:
-            session_search_request.log_stream_id = UUID(self.log_stream_id)
-
-        json = session_search_request.model_dump(mode="json")
-
-        return self._make_request(
-            RequestMethod.POST, endpoint=Routes.sessions_search.format(project_id=self.project_id), json=json
-        )
-
-    def get_trace_sync(self, trace_id: str) -> dict[str, str]:
-        return self._make_request(
+    async def get_trace(self, trace_id: str) -> dict[str, str]:
+        return await self._make_async_request(
             RequestMethod.GET, endpoint=Routes.trace.format(project_id=self.project_id, trace_id=trace_id)
         )
 
-    def get_span_sync(self, span_id: str) -> dict[str, str]:
-        return self._make_request(
+    async def get_span(self, span_id: str) -> dict[str, str]:
+        return await self._make_async_request(
             RequestMethod.GET, endpoint=Routes.span.format(project_id=self.project_id, span_id=span_id)
         )
