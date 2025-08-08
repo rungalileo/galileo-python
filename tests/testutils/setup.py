@@ -278,7 +278,7 @@ def setup_mock_core_api_client(mock_core_api_client: Mock):
     mock_instance.get_sessions = AsyncMock(
         return_value={"starting_token": 0, "limit": 100, "paginated": False, "records": [], "num_records": 0}
     )
-    mock_instance.get_trace_sync = Mock(
+    mock_instance.get_trace = AsyncMock(
         return_value={
             "id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d"),
             "name": "test-trace",
@@ -292,7 +292,7 @@ def setup_mock_core_api_client(mock_core_api_client: Mock):
             "metrics": {},
         }
     )
-    mock_instance.get_span_sync = Mock(
+    mock_instance.get_span = AsyncMock(
         return_value={
             "id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e"),
             "name": "test-workflow-span",

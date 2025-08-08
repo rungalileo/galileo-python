@@ -1361,7 +1361,7 @@ def test_add_llm_span_and_conclude_existing_trace(
         experimental={"mode": "streaming"},
     )
 
-    mock_core_api_client_instance.get_trace_sync.assert_called_once()
+    mock_core_api_client_instance.get_trace.assert_called_once()
 
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
@@ -1437,7 +1437,7 @@ def test_add_nested_span_and_conclude_existing_trace(
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
     )
 
-    mock_core_api_client_instance.get_trace_sync.assert_called_once()
+    mock_core_api_client_instance.get_trace.assert_called_once()
 
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
@@ -1559,7 +1559,7 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
 
-    mock_core_api_client_instance.get_span_sync.assert_called_once()
+    mock_core_api_client_instance.get_span.assert_called_once()
 
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
@@ -1634,7 +1634,7 @@ def test_add_nested_span_and_conclude_existing_span(
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
 
-    mock_core_api_client_instance.get_span_sync.assert_called_once()
+    mock_core_api_client_instance.get_span.assert_called_once()
 
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1

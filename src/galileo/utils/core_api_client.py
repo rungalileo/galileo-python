@@ -45,19 +45,6 @@ class GalileoCoreApiClient:
         if self.log_stream_id is None and self.experiment_id is None:
             raise ValueError("log_stream_id or experiment_id must be set")
 
-    def _make_request(
-        self,
-        request_method: RequestMethod,
-        endpoint: str,
-        json: Optional[dict] = None,
-        data: Optional[dict] = None,
-        files: Optional[dict] = None,
-        params: Optional[dict] = None,
-    ) -> Any:
-        return self.config.api_client.request(
-            method=request_method, path=endpoint, json=json, data=data, files=files, params=params
-        )
-
     async def _make_async_request(
         self,
         request_method: RequestMethod,
@@ -147,12 +134,12 @@ class GalileoCoreApiClient:
             RequestMethod.POST, endpoint=Routes.sessions_search.format(project_id=self.project_id), json=json
         )
 
-    def get_trace_sync(self, trace_id: str) -> dict[str, str]:
-        return self._make_request(
+    async def get_trace(self, trace_id: str) -> dict[str, str]:
+        return await self._make_async_request(
             RequestMethod.GET, endpoint=Routes.trace.format(project_id=self.project_id, trace_id=trace_id)
         )
 
-    def get_span_sync(self, span_id: str) -> dict[str, str]:
-        return self._make_request(
+    async def get_span(self, span_id: str) -> dict[str, str]:
+        return await self._make_async_request(
             RequestMethod.GET, endpoint=Routes.span.format(project_id=self.project_id, span_id=span_id)
         )

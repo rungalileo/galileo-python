@@ -265,7 +265,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Initializes the trace
         """
-        trace_obj = self._client.get_trace_sync(trace_id=self.trace_id)
+        trace_obj = async_run(self._client.get_trace(trace_id=self.trace_id))
         if trace_obj is None:
             raise GalileoLoggerException(f"Trace {self.trace_id} not found")
 
@@ -280,7 +280,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Initializes the span
         """
-        span_obj = self._client.get_span_sync(span_id=self.span_id)
+        span_obj = async_run(self._client.get_span(span_id=self.span_id))
         if span_obj is None:
             raise GalileoLoggerException(f"Span {self.span_id} not found")
 
