@@ -35,6 +35,7 @@ from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
+from galileo_core.helpers.execution import async_run
 from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.span import (
     AgentSpan,
@@ -1079,42 +1080,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             List[Trace]: The list of uploaded traces.
         """
-        if self.mode == "batch":
-            return self._flush_batch()
-        else:
-            self._logger.warning("Flushing in streaming mode is not supported.")
-            return list()
-
-    def _flush_batch(self):
-        if not self.traces:
-            self._logger.info("No traces to flush.")
-            return list()
-
-        current_parent = self.current_parent()
-        if current_parent is not None:
-            self._logger.info("Concluding the active trace...")
-            last_output = get_last_output(current_parent)
-            self.conclude(output=last_output, conclude_all=True)
-
-        if self.local_metrics:
-            self._logger.info("Computing local metrics...")
-            # TODO: parallelize, possibly with ThreadPoolExecutor
-            for trace in self.traces:
-                populate_local_metrics(trace, self.local_metrics)
-
-        self._logger.info("Flushing %d traces...", len(self.traces))
-
-        traces_ingest_request = TracesIngestRequest(
-            traces=self.traces, experiment_id=self.experiment_id, session_id=self.session_id
-        )
-        self._client.ingest_traces_sync(traces_ingest_request)
-        logged_traces = self.traces
-
-        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
-
-        self.traces = list()
-        self._parent_stack = deque()
-        return logged_traces
+        return async_run(self._flush_batch())
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
@@ -1125,13 +1091,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             List[Trace]: The list of uploaded workflows.
         """
-        if self.mode == "batch":
-            return await self._async_flush_batch()
-        else:
+        return await self._flush_batch()
+
+    async def _flush_batch(self) -> list[Trace]:
+        if self.mode != "batch":
             self._logger.warning("Flushing in streaming mode is not supported.")
             return list()
 
-    async def _async_flush_batch(self) -> list[Trace]:
         if not self.traces:
             self._logger.info("No traces to flush.")
             return list()

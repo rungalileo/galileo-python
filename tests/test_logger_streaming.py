@@ -58,10 +58,10 @@ def test_disable_galileo_logger(mock_core_api_client: Mock, monkeypatch, caplog)
         assert len(captured_tasks) == 0
 
         mock_core_api_client.assert_not_called()
-        mock_core_api_client.ingest_traces_sync.assert_not_called()
-        mock_core_api_client.ingest_spans_sync.assert_not_called()
-        mock_core_api_client.update_trace_sync.assert_not_called()
-        mock_core_api_client.update_span_sync.assert_not_called()
+        mock_core_api_client.ingest_traces.assert_not_called()
+        mock_core_api_client.ingest_spans.assert_not_called()
+        mock_core_api_client.update_trace.assert_not_called()
+        mock_core_api_client.update_span.assert_not_called()
 
 
 @patch("galileo.logger.logger.LogStreams")

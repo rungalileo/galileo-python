@@ -55,7 +55,7 @@ def test_basic_openai_call(
     assert response == "The mock is working! ;)"
 
     galileo_context.flush()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert payload.traces[0].status_code == 200
@@ -108,7 +108,7 @@ def test_streamed_openai_call(
     assert chunk_count == 3
 
     galileo_context.flush()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert payload.traces[0].status_code == 200
@@ -154,7 +154,7 @@ def test_openai_api_calls_as_parent_span(
 
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -202,8 +202,8 @@ def test_openai_error_trace(
     galileo_context.flush()
 
     openai_create.assert_called_once()
-    mock_core_api_instance.ingest_traces_sync.assert_called()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_core_api_instance.ingest_traces.assert_called()
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     assert len(payload.traces) == 1
 
 
@@ -239,8 +239,8 @@ def test_openai_error_trace_(
     galileo_context.flush()
 
     openai_create.assert_called_once()
-    mock_core_api_instance.ingest_traces_sync.assert_called()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_core_api_instance.ingest_traces.assert_called()
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     assert len(payload.traces) == 1
     assert payload.traces[0].status_code == 401
     assert payload.traces[0].output == "<NoneType response returned from OpenAI>"
@@ -278,8 +278,8 @@ def test_client_fails_because_openai_error_trace_no_exp(
 
     mock_projects_client.assert_called_once()
     openai_create.assert_called_once()
-    mock_core_api_instance.ingest_traces_sync.assert_called()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_core_api_instance.ingest_traces.assert_called()
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -299,7 +299,7 @@ def test_galileo_api_client_transport_error_not_blocking_user_code(
     m = mock_core_api_client.return_value
     m.get_project_by_name = AsyncMock(side_effect=httpx.HTTPError("http error"))
     m.get_log_stream_by_name = AsyncMock(side_effect=httpx.HTTPError("http error"))
-    m.ingest_traces_sync = AsyncMock(side_effect=httpx.HTTPError("http error"))
+    m.ingest_traces = AsyncMock(side_effect=httpx.HTTPError("http error"))
     m.ingest_traces = AsyncMock(side_effect=httpx.HTTPError("http error"))
 
     setup_mock_projects_client(mock_projects_client)
@@ -353,7 +353,7 @@ def test_openai_calls_in_active_trace(
     logger.conclude(output="trace completed", duration_ns=1000)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 2
