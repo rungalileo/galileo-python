@@ -8,7 +8,7 @@ requires-python = ">=3.9,<3.14"
 dynamic = ["dependencies"]
 
 [tool.poetry.dependencies]
-python = "^3.10,<3.14"
+python = "^3.9,<3.14"
 pydantic = "^2.11.7"
 pyjwt = "^2.8.0"
 wrapt = "^1.14"
@@ -17,7 +17,7 @@ python-dateutil = "^2.8.0"
 langchain-core = { version = "^0.3.68", optional = true }
 openai = { version = "<1.96.0", optional = true }
 openai-agents = { version = "<0.2.1", optional = true }
-crewai = { version = ">=0.152.0,<0.153.0", optional = true }
+crewai = { version = ">=0.152.0,<0.153.0", optional = true, python = ">=3.10,<3.14" }
 
 galileo-core = "~=3.62.0"
 
