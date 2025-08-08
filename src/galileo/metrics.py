@@ -92,7 +92,7 @@ class Metrics(BaseClientModel):
         filters: Optional[list[FilterType]] = None,
         group_by: Optional[str] = None,
         interval: int = 5,
-    ) -> Optional[LogRecordsMetricsResponse]:
+    ) -> LogRecordsMetricsResponse:
         body = LogRecordsMetricsQueryRequest(
             start_time=start_time,
             end_time=end_time,
@@ -107,12 +107,10 @@ class Metrics(BaseClientModel):
             client=self.client, project_id=str(project_id), body=body
         )
 
-        if not isinstance(response, LogRecordsMetricsResponse):
-            if isinstance(response, HTTPValidationError):
-                _logger.error(f"Validation error when querying for metrics: {response}")
-            else:
-                _logger.error(f"Failed to query for metrics. Response: {response}")
-            return None
+        if isinstance(response, HTTPValidationError):
+            raise ValueError(response.detail)
+        if response is None:
+            raise ValueError("Failed to query for metrics.")
 
         return response
 
@@ -160,7 +158,7 @@ def get_metrics(
     filters: Optional[list[FilterType]] = None,
     group_by: Optional[str] = None,
     interval: int = 5,
-) -> Optional[LogRecordsMetricsResponse]:
+) -> LogRecordsMetricsResponse:
     """Queries for metrics in a project.
 
     Args:

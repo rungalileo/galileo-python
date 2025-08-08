@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
@@ -7,7 +8,7 @@ from pydantic import UUID4
 from pytest import CaptureFixture
 
 from galileo.job_progress import job_progress, scorer_jobs_status
-from galileo.resources.models import JobDB
+from galileo.resources.models import HTTPValidationError, JobDB, ValidationError
 from galileo_core.constants.job import JobStatus
 
 FIXED_PROJECT_ID = uuid4()
@@ -63,6 +64,22 @@ class TestJobProgress:
         with pytest.raises(ValueError, match="Job failed with error message Test error."):
             job_progress(job_id=FIXED_JOB_ID, project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
         mock_get_job.assert_called_with(client=ANY, job_id=str(FIXED_JOB_ID))
+
+    @patch("galileo.job_progress.get_job_jobs_job_id_get.sync")
+    def test_get_job_fails(self, mock_get_job: Mock):
+        mock_get_job.return_value = None
+
+        with pytest.raises(ValueError, match=f"Failed to get job status for job {FIXED_JOB_ID}"):
+            job_progress(job_id=FIXED_JOB_ID, project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
+        mock_get_job.assert_called_with(client=ANY, job_id=str(FIXED_JOB_ID))
+
+    @patch("galileo.job_progress.get_job_jobs_job_id_get.sync")
+    def test_get_job_http_validation_error(self, mock_get_job: Mock):
+        detail = [ValidationError(loc=["path", "job_id"], msg="value is not a valid uuid", type_="type_error.uuid")]
+        mock_get_job.return_value = HTTPValidationError(detail=detail)
+
+        with pytest.raises(ValueError, match=re.escape(str(detail))):
+            job_progress(job_id=FIXED_JOB_ID, project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
 
 
 class TestScorerJobsStatus:
@@ -148,3 +165,20 @@ class TestScorerJobsStatus:
         scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
         captured = capsys.readouterr()
         assert captured.out == "abc: Computing 🚧\n"
+
+    @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
+    def test_get_run_scorer_jobs_fails(self, mock_get_jobs: Mock):
+        mock_get_jobs.return_value = None
+
+        with pytest.raises(
+            ValueError, match=f"Failed to get scorer jobs for project {FIXED_PROJECT_ID}, run {FIXED_RUN_ID}"
+        ):
+            scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
+
+    @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
+    def test_get_run_scorer_jobs_http_validation_error(self, mock_get_jobs: Mock):
+        detail = [ValidationError(loc=["path", "project_id"], msg="value is not a valid uuid", type_="type_error.uuid")]
+        mock_get_jobs.return_value = HTTPValidationError(detail=detail)
+
+        with pytest.raises(ValueError, match=re.escape(str(detail))):
+            scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)

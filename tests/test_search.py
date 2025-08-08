@@ -1,9 +1,10 @@
+import re
 from unittest.mock import Mock, patch
 from uuid import uuid4
 
 import pytest
 
-from galileo.resources.models import LogRecordsQueryResponse
+from galileo.resources.models import HTTPValidationError, LogRecordsQueryResponse, ValidationError
 from galileo.search import get_sessions, get_spans, get_traces
 
 FIXED_PROJECT_ID = uuid4()
@@ -31,25 +32,32 @@ class TestSearchHelpers:
             response = test_function(project_id=FIXED_PROJECT_ID)
 
             mock_api_call.assert_called_once()
-            # Basic check to ensure project_id is passed correctly
             assert str(FIXED_PROJECT_ID) in mock_api_call.call_args[1]["project_id"]
             assert response == mock_response
             assert response.records == mock_records
 
-    def test_api_failure_returns_empty_response(self, test_function, patch_target):
+    def test_api_failure_raises_value_error(self, test_function, patch_target):
         with patch(patch_target) as mock_api_call:
-            mock_api_call.return_value = None  # Simulate API failure
-            response = test_function(project_id=FIXED_PROJECT_ID)
+            mock_api_call.return_value = None
+            with pytest.raises(ValueError):
+                test_function(project_id=FIXED_PROJECT_ID)
 
             mock_api_call.assert_called_once()
-            assert response is None
+
+    def test_http_validation_error_raises_exception(self, test_function, patch_target):
+        with patch(patch_target) as mock_api_call:
+            detail = [
+                ValidationError(loc=["body", "project_id"], msg="value is not a valid uuid", type_="type_error.uuid")
+            ]
+            mock_api_call.return_value = HTTPValidationError(detail=detail)
+            with pytest.raises(ValueError, match=re.escape(str(detail))):
+                test_function(project_id=FIXED_PROJECT_ID)
 
     def test_passes_all_parameters_correctly(self, test_function, patch_target):
         experiment_id = uuid4()
         log_stream_id = "test_stream"
         limit = 50
         starting_token = 10
-        # These would be more complex in a real scenario
         filters = [Mock()]
         sort = Mock()
 

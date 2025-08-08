@@ -14,28 +14,26 @@ from galileo.resources.models import (
     ScorerConfig,
     SegmentFilter,
 )
-from galileo.utils.catch_log import DecorateAllMethods
 
 logger = logging.getLogger(__name__)
 
 
-class Runs(BaseClientModel, DecorateAllMethods):
+class Runs(BaseClientModel):
     def update_scorer_settings(
         self,
         project_id: UUID4,
         run_id: UUID4,
         scorers: list[ScorerConfig],
         segment_filters: Optional[list[SegmentFilter]] = None,
-    ) -> Optional[RunScorerSettingsResponse]:
+    ) -> RunScorerSettingsResponse:
         body = RunScorerSettingsPatchRequest(run_id=str(run_id), scorers=scorers, segment_filters=segment_filters)
 
         response = upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_patch.sync(
             client=self.client, project_id=str(project_id), run_id=str(run_id), body=body
         )
-        logger.debug(f"Update scorer settings response: {response}")
 
         if isinstance(response, HTTPValidationError):
-            raise response
+            raise ValueError(response.detail)
         if not response:
             raise ValueError("Failed to update scorer settings")
 
@@ -44,7 +42,7 @@ class Runs(BaseClientModel, DecorateAllMethods):
 
 def update_scorer_settings(
     project_id: UUID4, run_id: UUID4, scorers: list[ScorerConfig], segment_filters: Optional[list[SegmentFilter]] = None
-) -> Optional[RunScorerSettingsResponse]:
+) -> RunScorerSettingsResponse:
     """Updates the scorer settings for a specific run.
 
     Args:

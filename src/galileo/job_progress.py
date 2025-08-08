@@ -11,7 +11,7 @@ from galileo.resources.api.jobs import (
     get_job_jobs_job_id_get,
     get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get,
 )
-from galileo.resources.models import JobDB
+from galileo.resources.models import HTTPValidationError, JobDB
 from galileo_core.constants.job import JobStatus
 from galileo_core.constants.scorers import Scorers
 
@@ -23,8 +23,10 @@ def get_job(job_id: UUID4) -> JobDB:
 
     response = get_job_jobs_job_id_get.sync(client=config.api_client, job_id=str(job_id))
 
-    if not isinstance(response, JobDB):
-        raise ValueError(f"Failed to get job status for job {job_id}. Response: {response}")
+    if isinstance(response, HTTPValidationError):
+        raise ValueError(response.detail)
+    if not response:
+        raise ValueError(f"Failed to get job status for job {job_id}")
     return response
 
 
@@ -34,8 +36,10 @@ def get_run_scorer_jobs(project_id: UUID4, run_id: UUID4) -> list[JobDB]:
     response = get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync(
         client=config.api_client, project_id=str(project_id), run_id=str(run_id)
     )
-    if not isinstance(response, list):
-        raise ValueError(f"Failed to get scorer jobs for project {project_id}, run {run_id}. Response: {response}")
+    if isinstance(response, HTTPValidationError):
+        raise ValueError(response.detail)
+    if response is None:
+        raise ValueError(f"Failed to get scorer jobs for project {project_id}, run {run_id}")
 
     _logger.info(f"Scorer jobs: {response}")
 

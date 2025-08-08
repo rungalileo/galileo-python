@@ -21,7 +21,6 @@ from galileo.resources.models import (
     LogRecordsSortClause,
     LogRecordsTextFilter,
 )
-from galileo.utils.catch_log import DecorateAllMethods
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +36,7 @@ FilterType = Union[
 ]
 
 
-class Search(BaseClientModel, DecorateAllMethods):
+class Search(BaseClientModel):
     def query(
         self,
         project_id: UUID4,
@@ -69,7 +68,7 @@ class Search(BaseClientModel, DecorateAllMethods):
         response = api_function.sync(client=self.client, project_id=str(project_id), body=body)
 
         if isinstance(response, HTTPValidationError):
-            raise response
+            raise ValueError(response.detail)
         if not response:
             raise ValueError(f"Failed to query for {record_type.value}")
 
