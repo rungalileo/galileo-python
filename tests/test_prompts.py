@@ -533,11 +533,14 @@ def test_create_global_prompt_template_error_scenarios(create_global_prompt_temp
 def test_get_global_prompt_template_by_id(get_global_template_mock: Mock):
     get_global_template_mock.sync.return_value = global_prompt_template()
 
-    version = get_prompt(id="global-template-id-123")
+    template = get_prompt(id="global-template-id-123")
 
-    assert version is not None
-    assert version.id == "global-version-id-456"
-    assert version.version == 1
+    assert template is not None
+    assert template.id == "global-template-id-123"
+    assert template.name == "global-helpful-assistant"
+    assert template.selected_version is not None
+    assert template.selected_version.id == "global-version-id-456"
+    assert template.selected_version.version == 1
     get_global_template_mock.sync.assert_called_once_with(template_id="global-template-id-123", client=ANY)
 
 
@@ -545,11 +548,14 @@ def test_get_global_prompt_template_by_id(get_global_template_mock: Mock):
 def test_get_global_prompt_template_by_name(query_templates_mock: Mock):
     query_templates_mock.sync.return_value = global_templates_list_response()
 
-    version = get_prompt(name="global-helpful-assistant")
+    template = get_prompt(name="global-helpful-assistant")
 
-    assert version is not None
-    assert version.id == "global-version-id-456"
-    assert version.version == 1
+    assert template is not None
+    assert template.id == "global-template-id-123"
+    assert template.name == "global-helpful-assistant"
+    assert template.selected_version is not None
+    assert template.selected_version.id == "global-version-id-456"
+    assert template.selected_version.version == 1
     query_templates_mock.sync.assert_called_once()
 
 
@@ -581,31 +587,6 @@ def test_get_global_prompt_template_validation_errors():
     with pytest.raises(ValueError) as exc_info:
         get_prompt(id="id", name="name")
     assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
-
-
-@patch("galileo.prompts.get_global_template_version_templates_template_id_versions_version_get")
-def test_get_global_prompt_template_version(get_global_template_version_mock: Mock):
-    get_global_template_version_mock.sync.return_value = global_prompt_template_version()
-
-    version = get_prompt(id="global-template-id-123", version=0)
-
-    assert version is not None
-    assert version.id == "global-version-id-123"
-    assert version.version == 0
-    assert version.template == '[{"content":"you are a helpful assistant","role":"system"}]'
-    get_global_template_version_mock.sync.assert_called_once_with(
-        template_id="global-template-id-123", version=0, client=ANY
-    )
-
-
-@patch("galileo.prompts.get_global_template_version_templates_template_id_versions_version_get")
-def test_get_global_prompt_template_version_not_found(get_global_template_version_mock: Mock):
-    get_global_template_version_mock.sync.return_value = None
-
-    version = get_prompt(id="global-template-id-123", version=99)
-
-    assert version is None
-    get_global_template_version_mock.sync.assert_called_once()
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")
