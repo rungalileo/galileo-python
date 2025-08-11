@@ -845,23 +845,19 @@ colorama = ">=0.4"
 
 [[package]]
 name = "griffe-fieldz"
-version = "0.2.1"
+version = "0.3.0"
 description = "Griffe extension adding support for data-class like things (pydantic, attrs, etc...)"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 groups = ["docs"]
 files = [
-    {file = "griffe_fieldz-0.2.1-py3-none-any.whl", hash = "sha256:04ae78b487c832a38b0495f971784d513da413b867c51e429f39d74f76d4f941"},
-    {file = "griffe_fieldz-0.2.1.tar.gz", hash = "sha256:7371693cdd045ac95aaebd16a81586d8dfa72c30e2d4519e0dde0d80f8ef0dc7"},
+    {file = "griffe_fieldz-0.3.0-py3-none-any.whl", hash = "sha256:52e02fdcbdf6dea3c8c95756d1e0b30861569f871d19437fda702776fde4e64d"},
+    {file = "griffe_fieldz-0.3.0.tar.gz", hash = "sha256:42e7707dac51d38e26fb7f3f7f51429da9b47e98060bfeb81a4287456d5b8a89"},
 ]
 
 [package.dependencies]
 fieldz = ">=0.1.0"
 griffe = ">=1.0"
-
-[package.extras]
-dev = ["ipython", "mypy", "pdbpp", "pre-commit", "rich", "ruff"]
-test = ["pytest", "pytest-cov"]
 
 [[package]]
 name = "h11"
@@ -4635,4 +4631,4 @@ openai = ["openai", "openai-agents", "packaging"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "9931b14ef2f7bbca6cc29732c214d0ed1961fbf15308627557204381af781f95"
+content-hash = "388f9de3d3c82e10ecd1200a1ef186b800a751062fa32dea78287af60a6ca17b"
