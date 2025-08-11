@@ -87,6 +87,5 @@ jobs:
             - [ ] For added docs, check they are correct (e.g. match the function signature)
 
             **DO NOT** approve this PR until you have completed these checks.
-
         run: |
           gh pr create --title "Updated Python SDK docs" --body "${{ env.PR_BODY }}"
