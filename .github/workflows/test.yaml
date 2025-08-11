@@ -21,7 +21,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install poetry
-        run: pipx install poetry==${{ vars.POETRY_V2_VERSION }}
+        run: |
+          printenv
+          echo "${{vars.POETRY_V2_VERSION}}"
+          pipx install poetry==${{ vars.POETRY_V2_VERSION }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
