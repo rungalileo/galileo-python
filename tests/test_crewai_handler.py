@@ -215,6 +215,24 @@ def test_crew_kickoff_started(crewai_callback):
         assert call_args[1]["name"] == "Test Crew"
 
 
+def test_crew_kickoff_started_empty_inputs(crewai_callback):
+    """Test crew kickoff started event handling."""
+    crew_id = uuid.uuid4()
+    source = MockSource(id=crew_id)
+    event = MockEvent(crew_name="Test Crew")
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        crewai_callback._handle_crew_kickoff_started(source, event)
+
+        mock_start_node.assert_called_once()
+        call_args = mock_start_node.call_args
+        assert call_args[1]["node_type"] == NodeType.CHAIN.value
+        assert call_args[1]["parent_run_id"] is None
+        assert call_args[1]["run_id"] == crew_id
+        assert call_args[1]["name"] == "Test Crew"
+        assert call_args[1]["input"] == "-"
+
+
 def test_crew_kickoff_completed(crewai_callback):
     """Test crew kickoff completed event handling."""
     crew_id = uuid.uuid4()
@@ -271,6 +289,29 @@ def test_agent_execution_started(crewai_callback):
         assert call_args[1]["input"] == "Research the topic"
 
 
+def test_agent_execution_started_no_input(crewai_callback):
+    """Test agent execution started event handling."""
+    agent_id = uuid.uuid4()
+    task_id = uuid.uuid4()
+    crew = MockCrew()
+    agent = MockAgent(agent_id=agent_id, role="Research Agent", crew=crew)
+    task = MockTask(task_id=task_id, agent=agent)
+
+    source = MockSource(id=agent_id)
+    event = MockEvent(agent=agent, task=task, tools=["search_tool", "analysis_tool"])
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        crewai_callback._handle_agent_execution_started(source, event)
+
+        mock_start_node.assert_called_once()
+        call_args = mock_start_node.call_args
+        assert call_args[1]["node_type"] == NodeType.AGENT.value
+        assert call_args[1]["parent_run_id"] == task_id
+        assert call_args[1]["run_id"] == agent_id
+        assert call_args[1]["name"] == "Research Agent"
+        assert call_args[1]["input"] == "-"
+
+
 def test_agent_execution_completed(crewai_callback):
     """Test agent execution completed event handling."""
     agent_id = uuid.uuid4()
@@ -322,6 +363,52 @@ def test_task_started(crewai_callback):
         assert call_args[1]["input"] == "Previous research context"
 
 
+def test_task_started_no_context(crewai_callback):
+    """Test task started event handling."""
+    task_id = uuid.uuid4()
+    crew_id = uuid.uuid4()
+    crew = MockCrew(crew_id=crew_id)
+    agent = MockAgent(crew=crew)
+    task = MockTask(task_id=task_id, description="Research market trends", agent=agent)
+
+    source = MockSource(id=task_id)
+    event = MockEvent(task=task)
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        crewai_callback._handle_task_started(source, event)
+
+        mock_start_node.assert_called_once()
+        call_args = mock_start_node.call_args
+        assert call_args[1]["node_type"] == NodeType.CHAIN.value
+        assert call_args[1]["parent_run_id"] == crew_id
+        assert call_args[1]["run_id"] == task_id
+        assert call_args[1]["name"] == "Research market trends"
+        assert call_args[1]["input"] == task.description
+
+
+def test_task_started_no_description(crewai_callback):
+    """Test task started event handling."""
+    task_id = uuid.uuid4()
+    crew_id = uuid.uuid4()
+    crew = MockCrew(crew_id=crew_id)
+    agent = MockAgent(crew=crew)
+    task = MockTask(task_id=task_id, description="", agent=agent)
+
+    source = MockSource(id=task_id)
+    event = MockEvent(task=task)
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        crewai_callback._handle_task_started(source, event)
+
+        mock_start_node.assert_called_once()
+        call_args = mock_start_node.call_args
+        assert call_args[1]["node_type"] == NodeType.CHAIN.value
+        assert call_args[1]["parent_run_id"] == crew_id
+        assert call_args[1]["run_id"] == task_id
+        assert call_args[1]["name"] == ""
+        assert call_args[1]["input"] == "-"
+
+
 def test_task_completed(crewai_callback):
     """Test task completed event handling."""
     task_id = uuid.uuid4()
@@ -369,6 +456,27 @@ def test_tool_usage_started(crewai_callback):
         assert call_args[1]["parent_run_id"] == agent_id
         assert call_args[1]["run_id"] == tool_id
         assert call_args[1]["name"] == "search_tool"
+
+
+def test_tool_usage_started_no_input(crewai_callback):
+    """Test tool usage started event handling."""
+    tool_id = uuid.uuid4()
+    agent_id = uuid.uuid4()
+    agent = MockAgent(agent_id=agent_id)
+
+    source = MockSource(id=tool_id)
+    event = MockEvent(agent=agent, tool_name="search_tool")
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        crewai_callback._handle_tool_usage_started(source, event)
+
+        mock_start_node.assert_called_once()
+        call_args = mock_start_node.call_args
+        assert call_args[1]["node_type"] == NodeType.TOOL.value
+        assert call_args[1]["parent_run_id"] == agent_id
+        assert call_args[1]["run_id"] == tool_id
+        assert call_args[1]["name"] == "search_tool"
+        assert call_args[1]["input"] == "-"
 
 
 def test_tool_usage_finished(crewai_callback):
