@@ -35,6 +35,7 @@ try:
     CREWAI_AVAILABLE = True
 except ImportError:
     _logger.warning("CrewAI not available, using stubs")
+    BaseEventListener = object
     CREWAI_AVAILABLE = False
 
 try:
