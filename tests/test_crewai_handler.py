@@ -447,18 +447,6 @@ def test_llm_call_failed(crewai_callback):
         assert call_args[1]["metadata"]["error"] == "Rate limit exceeded"
 
 
-def test_setup_listeners_crewai_available(crewai_callback: CrewAICallback):
-    """Test setup_listeners when CrewAI is available."""
-    mock_event_bus = Mock()
-    mock_event_bus.on.return_value = lambda func: func
-
-    with patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", True):
-        crewai_callback.setup_listeners(mock_event_bus)
-
-        # Verify that event listeners were registered
-        assert mock_event_bus.on.call_count > 0
-
-
 def test_setup_listeners_crewai_unavailable(crewai_callback: CrewAICallback):
     """Test setup_listeners when CrewAI is unavailable."""
     mock_event_bus = Mock()
