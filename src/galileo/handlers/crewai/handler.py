@@ -7,7 +7,7 @@ from uuid import UUID
 
 from galileo.handlers.base_handler import GalileoBaseHandler
 from galileo.logger import GalileoLogger
-from galileo.schema.handlers import NODE_TYPE
+from galileo.schema.handlers import NodeType
 from galileo.utils.serialization import serialize_to_str
 
 _logger = logging.getLogger(__name__)
@@ -35,23 +35,6 @@ try:
     CREWAI_AVAILABLE = True
 except ImportError:
     _logger.warning("CrewAI not available, using stubs")
-    BaseEventListener = object
-    CrewKickoffStartedEvent = object
-    CrewKickoffCompletedEvent = object
-    CrewKickoffFailedEvent = object
-    AgentExecutionStartedEvent = object
-    AgentExecutionCompletedEvent = object
-    AgentExecutionErrorEvent = object
-    TaskStartedEvent = object
-    TaskCompletedEvent = object
-    TaskFailedEvent = object
-    ToolUsageStartedEvent = object
-    ToolUsageFinishedEvent = object
-    ToolUsageErrorEvent = object
-    LLMCallStartedEvent = object
-    LLMCallCompletedEvent = object
-    LLMCallFailedEvent = object
-
     CREWAI_AVAILABLE = False
 
 try:
@@ -104,67 +87,67 @@ class CrewAICallback(BaseEventListener):
 
         # Crew event handlers
         @crewai_event_bus.on(CrewKickoffStartedEvent)
-        def on_crew_kickoff_started(source: Any, event: Any) -> None:
+        def on_crew_kickoff_started(source: Any, event: CrewKickoffStartedEvent) -> None:
             self._handle_crew_kickoff_started(source, event)
 
         @crewai_event_bus.on(CrewKickoffCompletedEvent)
-        def on_crew_kickoff_completed(source: Any, event: Any) -> None:
+        def on_crew_kickoff_completed(source: Any, event: CrewKickoffCompletedEvent) -> None:
             self._handle_crew_kickoff_completed(source, event)
 
         @crewai_event_bus.on(CrewKickoffFailedEvent)
-        def on_crew_kickoff_failed(source: Any, event: Any) -> None:
+        def on_crew_kickoff_failed(source: Any, event: CrewKickoffFailedEvent) -> None:
             self._handle_crew_kickoff_failed(source, event)
 
         # Agent event handlers
         @crewai_event_bus.on(AgentExecutionStartedEvent)
-        def on_agent_execution_started(source: Any, event: Any) -> None:
+        def on_agent_execution_started(source: Any, event: AgentExecutionStartedEvent) -> None:
             self._handle_agent_execution_started(source, event)
 
         @crewai_event_bus.on(AgentExecutionCompletedEvent)
-        def on_agent_execution_completed(source: Any, event: Any) -> None:
+        def on_agent_execution_completed(source: Any, event: AgentExecutionCompletedEvent) -> None:
             self._handle_agent_execution_completed(source, event)
 
         @crewai_event_bus.on(AgentExecutionErrorEvent)
-        def on_agent_execution_error(source: Any, event: Any) -> None:
+        def on_agent_execution_error(source: Any, event: AgentExecutionErrorEvent) -> None:
             self._handle_agent_execution_error(source, event)
 
         # Task event handlers
         @crewai_event_bus.on(TaskStartedEvent)
-        def on_task_started(source: Any, event: Any) -> None:
+        def on_task_started(source: Any, event: TaskStartedEvent) -> None:
             self._handle_task_started(source, event)
 
         @crewai_event_bus.on(TaskCompletedEvent)
-        def on_task_completed(source: Any, event: Any) -> None:
+        def on_task_completed(source: Any, event: TaskCompletedEvent) -> None:
             self._handle_task_completed(source, event)
 
         @crewai_event_bus.on(TaskFailedEvent)
-        def on_task_failed(source: Any, event: Any) -> None:
+        def on_task_failed(source: Any, event: TaskFailedEvent) -> None:
             self._handle_task_failed(source, event)
 
         # Tool event handlers
         @crewai_event_bus.on(ToolUsageStartedEvent)
-        def on_tool_usage_started(source: Any, event: Any) -> None:
+        def on_tool_usage_started(source: Any, event: ToolUsageStartedEvent) -> None:
             self._handle_tool_usage_started(source, event)
 
         @crewai_event_bus.on(ToolUsageFinishedEvent)
-        def on_tool_usage_finished(source: Any, event: Any) -> None:
+        def on_tool_usage_finished(source: Any, event: ToolUsageFinishedEvent) -> None:
             self._handle_tool_usage_finished(source, event)
 
         @crewai_event_bus.on(ToolUsageErrorEvent)
-        def on_tool_usage_error(source: Any, event: Any) -> None:
+        def on_tool_usage_error(source: Any, event: ToolUsageErrorEvent) -> None:
             self._handle_tool_usage_error(source, event)
 
         # LLM event handlers
         @crewai_event_bus.on(LLMCallStartedEvent)
-        def on_llm_call_started(source: Any, event: Any) -> None:
+        def on_llm_call_started(source: Any, event: LLMCallStartedEvent) -> None:
             self._handle_llm_call_started(source, event)
 
         @crewai_event_bus.on(LLMCallCompletedEvent)
-        def on_llm_call_completed(source: Any, event: Any) -> None:
+        def on_llm_call_completed(source: Any, event: LLMCallCompletedEvent) -> None:
             self._handle_llm_call_completed(source, event)
 
         @crewai_event_bus.on(LLMCallFailedEvent)
-        def on_llm_call_failed(source: Any, event: Any) -> None:
+        def on_llm_call_failed(source: Any, event: LLMCallFailedEvent) -> None:
             self._handle_llm_call_failed(source, event)
 
     def _generate_run_id(self, source: Any, event: Any) -> UUID:
@@ -208,10 +191,7 @@ class CrewAICallback(BaseEventListener):
     def _extract_metadata(self, event: Any) -> dict:
         """Extract metadata from event for span attributes."""
         metadata = {}
-
-        # Add timestamp
         metadata["timestamp"] = event.timestamp.isoformat()
-        metadata["event_type"] = event.type
 
         # Add source information
         if hasattr(event, "source_type") and event.source_type:
@@ -223,10 +203,9 @@ class CrewAICallback(BaseEventListener):
         return metadata
 
     # Crew event handlers
-    def _handle_crew_kickoff_started(self, source: Any, event: Any) -> None:
+    def _handle_crew_kickoff_started(self, source: Any, event: "CrewKickoffStartedEvent") -> None:
         """Handle crew execution start."""
         run_id = self._generate_run_id(source, event)
-        node_type: NODE_TYPE = "chain"
         crew_name = event.crew_name if hasattr(event, "crew_name") else "Crew"
 
         metadata = self._extract_metadata(event)
@@ -235,13 +214,12 @@ class CrewAICallback(BaseEventListener):
         input = getattr(event, "inputs", {})
 
         self._handler.start_node(
-            node_type=node_type,
+            node_type=NodeType.CHAIN.value,
             parent_run_id=None,  # Root node
             run_id=run_id,
             name=crew_name,
             input=serialize_to_str(input) if input else "-",
             metadata=metadata,
-            event_type=event.type,
         )
 
     def _update_crew_input(self, run_id: str) -> None:
@@ -265,29 +243,26 @@ class CrewAICallback(BaseEventListener):
             input = f"Tasks: {tasks}" if tasks else "-"
             root_node.span_params["input"] = input
 
-    def _handle_crew_kickoff_completed(self, source: Any, event: Any) -> None:
+    def _handle_crew_kickoff_completed(self, source: Any, event: "CrewKickoffCompletedEvent") -> None:
         """Handle crew execution completion."""
         run_id = self._generate_run_id(source, event)
         output = getattr(event, "output", {})
         self._update_crew_input(str(run_id))
-        self._handler.end_node(
-            run_id=run_id, output=serialize_to_str(getattr(output, "raw", output)), event_type=event.type
-        )
+        self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(output, "raw", output)))
 
-    def _handle_crew_kickoff_failed(self, source: Any, event: Any) -> None:
+    def _handle_crew_kickoff_failed(self, source: Any, event: "CrewKickoffFailedEvent") -> None:
         """Handle crew execution failure."""
         run_id = self._generate_run_id(source, event)
         metadata = self._extract_metadata(event)
         metadata["error"] = event.error
 
-        self._handler.end_node(run_id=run_id, output=f"Error: {event.error}", metadata=metadata, event_type=event.type)
+        self._handler.end_node(run_id=run_id, output=f"Error: {event.error}", metadata=metadata)
 
     # Agent event handlers
-    def _handle_agent_execution_started(self, source: Any, event: Any) -> None:
+    def _handle_agent_execution_started(self, source: Any, event: "AgentExecutionStartedEvent") -> None:
         """Handle agent execution start."""
         run_id = self._generate_run_id(source, event)
         parent_run_id = event.task.id
-        node_type: NODE_TYPE = "agent"
         role = "Unknown Agent"
         metadata = self._extract_metadata(event)
 
@@ -302,71 +277,62 @@ class CrewAICallback(BaseEventListener):
             metadata["available_tools"] = [str(getattr(tool, "name", tool)) for tool in event.tools]
 
         self._handler.start_node(
-            node_type=node_type,
+            node_type=NodeType.AGENT.value,
             parent_run_id=parent_run_id,
             run_id=run_id,
             name=role,
             input=serialize_to_str(getattr(event, "task_prompt", "-")),
             metadata=metadata,
-            event_type=event.type,
         )
 
-    def _handle_agent_execution_completed(self, source: Any, event: Any) -> None:
+    def _handle_agent_execution_completed(self, source: Any, event: "AgentExecutionCompletedEvent") -> None:
         """Handle agent execution completion."""
         run_id = self._generate_run_id(source, event)
-        self._handler.end_node(
-            run_id=run_id, output=serialize_to_str(getattr(event, "output", "")), event_type=event.type
-        )
+        self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(event, "output", "")))
 
-    def _handle_agent_execution_error(self, source: Any, event: Any) -> None:
+    def _handle_agent_execution_error(self, source: Any, event: "AgentExecutionErrorEvent") -> None:
         """Handle agent execution error."""
         run_id = self._generate_run_id(source, event)
         metadata = self._extract_metadata(event)
         metadata["error"] = getattr(event, "error", "Unknown error")
 
         self._handler.end_node(
-            run_id=run_id,
-            output=f"Error: {getattr(event, 'error', 'Unknown error')}",
-            metadata=metadata,
-            event_type=event.type,
+            run_id=run_id, output=f"Error: {getattr(event, 'error', 'Unknown error')}", metadata=metadata
         )
 
     # Task event handlers
-    def _handle_task_started(self, source: Any, event: Any) -> None:
+    def _handle_task_started(self, source: Any, event: "TaskStartedEvent") -> None:
         """Handle task start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = event.task.agent.crew.id
-        node_type: NODE_TYPE = "chain"
+        task = event.task if hasattr(event, "task") else None
+        parent_run_id = task.agent.crew.id if task else None
 
         metadata = self._extract_metadata(event)
-        if hasattr(event, "task") and event.task:
-            if hasattr(event.task, "description"):
-                metadata["task_description"] = event.task.description
-            if hasattr(event.task, "id"):
-                metadata["task_id"] = str(event.task.id)
+        if task:
+            if hasattr(task, "description"):
+                metadata["task_description"] = task.description
+            if hasattr(task, "id"):
+                metadata["task_id"] = str(task.id)
 
         task_name = "Unknown Task"
-        if hasattr(event, "task") and event.task and hasattr(event.task, "description"):
+        if task and hasattr(task, "description"):
             # Use first 50 chars of description as name
-            task_name = (
-                event.task.description[:50] + "..." if len(event.task.description) > 50 else event.task.description
-            )
+            task_name = task.description[:50] + "..." if len(task.description) > 50 else task.description
 
         input = getattr(event, "context", "")
         if not input:
-            input = event.task.description if hasattr(event.task, "description") else ""
+            input = task.description if task and hasattr(task, "description") else ""
 
         self._handler.start_node(
-            node_type=node_type,
+            node_type=NodeType.CHAIN.value,
             parent_run_id=parent_run_id,
             run_id=run_id,
             name=task_name,
             input=serialize_to_str(input) if input else "-",
             metadata=metadata,
-            event_type=event.type,
         )
 
-    def _handle_task_completed(self, source: Any, event: Any) -> None:
+    def _handle_task_completed(self, source: Any, event: "TaskCompletedEvent") -> None:
         """Handle task completion."""
         run_id = self._generate_run_id(source, event)
         output = ""
@@ -376,22 +342,21 @@ class CrewAICallback(BaseEventListener):
             else:
                 output = str(event.output)
 
-        self._handler.end_node(run_id=run_id, output=serialize_to_str(output), event_type=event.type)
+        self._handler.end_node(run_id=run_id, output=serialize_to_str(output))
 
-    def _handle_task_failed(self, source: Any, event: Any) -> None:
+    def _handle_task_failed(self, source: Any, event: "TaskFailedEvent") -> None:
         """Handle task failure."""
         run_id = self._generate_run_id(source, event)
         metadata = self._extract_metadata(event)
         metadata["error"] = event.error
 
-        self._handler.end_node(run_id=run_id, output=f"Error: {event.error}", metadata=metadata, event_type=event.type)
+        self._handler.end_node(run_id=run_id, output=f"Error: {event.error}", metadata=metadata)
 
     # Tool event handlers
-    def _handle_tool_usage_started(self, source: Any, event: Any) -> None:
+    def _handle_tool_usage_started(self, source: Any, event: "ToolUsageStartedEvent") -> None:
         """Handle tool usage start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = event.agent.id
-        node_type: NODE_TYPE = "tool"
+        parent_run_id = event.agent.id if event.agent else None
         input = getattr(event, "tool_args", {})
         tool_name = getattr(event, "tool_name", "Unknown Tool")
 
@@ -401,41 +366,34 @@ class CrewAICallback(BaseEventListener):
             metadata["tool_args"] = str(input)
 
         self._handler.start_node(
-            node_type=node_type,
+            node_type=NodeType.TOOL.value,
             parent_run_id=parent_run_id,
             run_id=run_id,
             name=tool_name,
             input=serialize_to_str(input) if input else "-",
             metadata=metadata,
-            event_type=event.type,
         )
 
-    def _handle_tool_usage_finished(self, source: Any, event: Any) -> None:
+    def _handle_tool_usage_finished(self, source: Any, event: "ToolUsageFinishedEvent") -> None:
         """Handle tool usage completion."""
         run_id = self._generate_run_id(source, event)
-        self._handler.end_node(
-            run_id=run_id, output=serialize_to_str(getattr(event, "output", "")), event_type=event.type
-        )
+        self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(event, "output", "")))
 
-    def _handle_tool_usage_error(self, source: Any, event: Any) -> None:
+    def _handle_tool_usage_error(self, source: Any, event: "ToolUsageErrorEvent") -> None:
         """Handle tool usage error."""
         run_id = self._generate_run_id(source, event)
         metadata = self._extract_metadata(event)
         metadata["error"] = getattr(event, "error", "Unknown error")
 
         self._handler.end_node(
-            run_id=run_id,
-            output=f"Error: {getattr(event, 'error', 'Unknown error')}",
-            metadata=metadata,
-            event_type=event.type,
+            run_id=run_id, output=f"Error: {getattr(event, 'error', 'Unknown error')}", metadata=metadata
         )
 
     # LLM event handlers
-    def _handle_llm_call_started(self, source: Any, event: Any) -> None:
+    def _handle_llm_call_started(self, source: Any, event: "LLMCallStartedEvent") -> None:
         """Handle LLM call start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = event.agent_id if hasattr(event, "agent_id") else None
-        node_type: NODE_TYPE = "llm"
+        parent_run_id = UUID(event.agent_id, version=4) if hasattr(event, "agent_id") else None
         llm_name = getattr(source, "model", "Unknown Model")
 
         metadata = self._extract_metadata(event)
@@ -444,7 +402,7 @@ class CrewAICallback(BaseEventListener):
             metadata["temperature"] = str(source.temperature)
 
         self._handler.start_node(
-            node_type=node_type,
+            node_type=NodeType.LLM.value,
             parent_run_id=parent_run_id,
             run_id=run_id,
             name=llm_name,
@@ -452,28 +410,22 @@ class CrewAICallback(BaseEventListener):
             model=llm_name,
             temperature=getattr(source, "temperature", None),
             metadata=metadata,
-            event_type=event.type,
         )
 
-    def _handle_llm_call_completed(self, source: Any, event: Any) -> None:
+    def _handle_llm_call_completed(self, source: Any, event: "LLMCallCompletedEvent") -> None:
         """Handle LLM call completion."""
         run_id = self._generate_run_id(source, event)
 
-        self._handler.end_node(
-            run_id=run_id, output=serialize_to_str(getattr(event, "response", "")), event_type=event.type
-        )
+        self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(event, "response", "")))
 
-    def _handle_llm_call_failed(self, source: Any, event: Any) -> None:
+    def _handle_llm_call_failed(self, source: Any, event: "LLMCallFailedEvent") -> None:
         """Handle LLM call failure."""
         run_id = self._generate_run_id(source, event)
         metadata = self._extract_metadata(event)
         metadata["error"] = getattr(event, "error", "Unknown error")
 
         self._handler.end_node(
-            run_id=run_id,
-            output=f"Error: {getattr(event, 'error', 'Unknown error')}",
-            metadata=metadata,
-            event_type=event.type,
+            run_id=run_id, output=f"Error: {getattr(event, 'error', 'Unknown error')}", metadata=metadata
         )
 
     def lite_llm_usage_callback(

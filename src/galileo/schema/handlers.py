@@ -1,3 +1,4 @@
+from enum import StrEnum
 from typing import Any, Literal, Optional
 from uuid import UUID
 
@@ -5,6 +6,15 @@ SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow"]
 LANGCHAIN_NODE_TYPE = Literal["agent", "chain", "chat", "llm", "retriever", "tool"]
 NODE_TYPE = LANGCHAIN_NODE_TYPE
 INTEGRATION = Literal["langchain", "crewai"]
+
+
+class NodeType(StrEnum):
+    AGENT = "agent"
+    CHAIN = "chain"
+    CHAT = "chat"
+    LLM = "llm"
+    RETRIEVER = "retriever"
+    TOOL = "tool"
 
 
 class Node:
