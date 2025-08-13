@@ -339,7 +339,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         @handle_galileo_http_exceptions_for_retry
         async def ingest_traces_with_backoff(request):
-            await self._client.ingest_traces(request)
+            is_last_attempt = (self._task_handler.get_retry_count(task_id) + 1) >= self._max_retries
+            if is_last_attempt:
+                await self._client.ingest_traces(request, log_debug=False)
+            else:
+                await self._client.ingest_traces(request)
 
         self._task_handler.submit_task(
             task_id, lambda: ingest_traces_with_backoff(traces_ingest_request), dependent_on_prev=False
@@ -379,7 +383,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         @handle_galileo_http_exceptions_for_retry
         async def ingest_spans_with_backoff(request):
-            await self._client.ingest_spans(request)
+            is_last_attempt = (self._task_handler.get_retry_count(task_id) + 1) >= self._max_retries
+            if is_last_attempt:
+                await self._client.ingest_spans(request, log_debug=False)
+            else:
+                await self._client.ingest_spans(request)
 
         self._task_handler.submit_task(
             task_id, lambda: ingest_spans_with_backoff(spans_ingest_request), dependent_on_prev=False
@@ -413,7 +421,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             )
             @handle_galileo_http_exceptions_for_retry
             async def update_trace_with_backoff(request):
-                await self._client.update_trace(request)
+                is_last_attempt = (self._task_handler.get_retry_count(task_id) + 1) >= self._max_retries
+                if is_last_attempt:
+                    await self._client.update_trace(request, log_debug=False)
+                else:
+                    await self._client.update_trace(request)
 
             self._task_handler.submit_task(
                 task_id, lambda: update_trace_with_backoff(trace_update_request), dependent_on_prev=True
@@ -447,7 +459,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         @handle_galileo_http_exceptions_for_retry
         async def update_span_with_backoff(request):
-            await self._client.update_span(request)
+            is_last_attempt = (self._task_handler.get_retry_count(task_id) + 1) >= self._max_retries
+            if is_last_attempt:
+                await self._client.update_span(request, log_debug=False)
+            else:
+                await self._client.update_span(request)
 
         self._task_handler.submit_task(
             task_id, lambda: update_span_with_backoff(span_update_request), dependent_on_prev=True
