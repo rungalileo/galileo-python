@@ -17,11 +17,9 @@ python-dateutil = "^2.8.0"
 langchain-core = { version = "^0.3.68", optional = true }
 openai = { version = "<1.96.0", optional = true }
 openai-agents = { version = "<0.2.1", optional = true }
-crewai = { version = ">=0.152.0,<0.153.0", optional = true, python = ">=3.10,<3.14" }
-
 galileo-core = "~=3.62.0"
-
 backoff = "^2.2.1"
+crewai = { version = ">=0.152.0,<0.153.0", optional = true, python = ">=3.10,<3.14" }
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.0"
@@ -47,14 +45,6 @@ codeflash = ">=0.12.3"
 ruff = "^0.12.3"
 openapi-python-client = "^0.25.3"
 yq = "^3.4.3"
-
-[tool.poetry.group.docs.dependencies]
-mkdocs = "^1.6.0"
-mkdocs-material = "^9.6.15"
-mkdocstrings = "^0.29"
-mkdocstrings-python = "^1.16.12"
-griffe-fieldz = "^0.2.0"
-
 
 
 [tool.pytest.ini_options]

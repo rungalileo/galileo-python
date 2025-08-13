@@ -10,7 +10,7 @@ COMMON_PARAMS = dict(echo=True, pty=not system().lower().startswith("win"))
 
 @task
 def install(ctx: Context) -> None:
-    ctx.run("poetry install --all-extras --without docs --no-root", **COMMON_PARAMS)
+    ctx.run("poetry install --all-extras --no-root", **COMMON_PARAMS)
 
 
 @task
