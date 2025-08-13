@@ -1155,37 +1155,22 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 self._logger.info("All requests are complete.")
             self._task_handler.terminate()
 
-    @nop_sync
-    def start_session(
+    async def _start_or_get_session_async(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
-        """
-        Start a new session or use an existing session if an external ID is provided.
-
-        Parameters:
-        ----------
-            name: Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
-            previous_session_id: Optional[str]: ID of the previous session.
-            external_id: Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
-        Returns:
-        -------
-            str: The ID of the newly created session.
-        """
         if external_id and external_id.strip() != "":
             self._logger.info(f"Searching for session with external ID: {external_id} ...")
             try:
-                sessions = async_run(
-                    self._client.get_sessions(
-                        LogRecordsSearchRequest(
-                            filters=[
-                                LogRecordsSearchFilter(
-                                    type=LogRecordsSearchFilterType.text,
-                                    column_id="external_id",
-                                    value=external_id,
-                                    operator=LogRecordsSearchFilterOperator.eq,
-                                )
-                            ]
-                        )
+                sessions = await self._client.get_sessions(
+                    LogRecordsSearchRequest(
+                        filters=[
+                            LogRecordsSearchFilter(
+                                type=LogRecordsSearchFilterType.text,
+                                column_id="external_id",
+                                value=external_id,
+                                operator=LogRecordsSearchFilterOperator.eq,
+                            )
+                        ]
                     )
                 )
 
@@ -1198,16 +1183,58 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 self._logger.error("Failed to search for session with external ID %s", external_id, exc_info=True)
 
         self._logger.info("Starting a new session...")
-        session = async_run(
-            self._client.create_session(
-                SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
-            )
+
+        session = await self._client.create_session(
+            SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
         )
 
         self._logger.info("Session started with ID: %s", session["id"])
-
         self.session_id = str(session["id"])
         return self.session_id
+
+    @nop_async
+    async def async_start_session(
+        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> str:
+        """
+        Async start a new session or use an existing session if an external ID is provided.
+
+        Parameters:
+        ----------
+            name: Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
+            previous_session_id: Optional[str]: ID of the previous session.
+            external_id: Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
+        Returns:
+        -------
+            str: The ID of the session (existing or newly created).
+        """
+        return await self._start_or_get_session_async(
+            name=name, previous_session_id=previous_session_id, external_id=external_id
+        )
+
+    @nop_sync
+    def start_session(
+        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> str:
+        """
+        Start a new session or use an existing session if an external ID is provided.
+
+        Parameters:
+        ----------
+            name: Optional[str]: Name of the session. If omitted, the server will assign a name.
+            previous_session_id: Optional[str]: UUID string of a prior session to link to.
+            external_id: Optional[str]: External identifier to dedupe against existing sessions within the same
+                project/log stream or experiment; if found, that session will be reused instead of creating a new one.
+
+        Returns:
+        -------
+            str: The ID of the session (existing or newly created).
+        """
+        return async_run(
+            self._start_or_get_session_async(
+                name=name, previous_session_id=previous_session_id, external_id=external_id
+            )
+        )
 
     @nop_sync
     def set_session(self, session_id: str) -> None:
