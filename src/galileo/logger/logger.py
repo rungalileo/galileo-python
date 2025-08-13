@@ -1116,7 +1116,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
-        traces_ingest_request = TracesIngestRequest(traces=self.traces, session_id=self.session_id)
+        traces_ingest_request = TracesIngestRequest(
+            traces=self.traces, session_id=self.session_id, experiment_id=self.experiment_id
+        )
         await self._client.ingest_traces(traces_ingest_request)
         logged_traces = self.traces
 
