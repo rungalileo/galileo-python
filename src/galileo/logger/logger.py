@@ -35,6 +35,7 @@ from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
+from galileo_core.helpers.execution import async_run
 from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.span import (
     AgentSpan,
@@ -264,7 +265,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Initializes the trace
         """
-        trace_obj = self._client.get_trace_sync(trace_id=self.trace_id)
+        trace_obj = async_run(self._client.get_trace(trace_id=self.trace_id))
         if trace_obj is None:
             raise GalileoLoggerException(f"Trace {self.trace_id} not found")
 
@@ -279,7 +280,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Initializes the span
         """
-        span_obj = self._client.get_span_sync(span_id=self.span_id)
+        span_obj = async_run(self._client.get_span(span_id=self.span_id))
         if span_obj is None:
             raise GalileoLoggerException(f"Span {self.span_id} not found")
 
@@ -1079,42 +1080,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             List[Trace]: The list of uploaded traces.
         """
-        if self.mode == "batch":
-            return self._flush_batch()
-        else:
-            self._logger.warning("Flushing in streaming mode is not supported.")
-            return list()
-
-    def _flush_batch(self):
-        if not self.traces:
-            self._logger.info("No traces to flush.")
-            return list()
-
-        current_parent = self.current_parent()
-        if current_parent is not None:
-            self._logger.info("Concluding the active trace...")
-            last_output = get_last_output(current_parent)
-            self.conclude(output=last_output, conclude_all=True)
-
-        if self.local_metrics:
-            self._logger.info("Computing local metrics...")
-            # TODO: parallelize, possibly with ThreadPoolExecutor
-            for trace in self.traces:
-                populate_local_metrics(trace, self.local_metrics)
-
-        self._logger.info("Flushing %d traces...", len(self.traces))
-
-        traces_ingest_request = TracesIngestRequest(
-            traces=self.traces, experiment_id=self.experiment_id, session_id=self.session_id
-        )
-        self._client.ingest_traces_sync(traces_ingest_request)
-        logged_traces = self.traces
-
-        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
-
-        self.traces = list()
-        self._parent_stack = deque()
-        return logged_traces
+        return async_run(self._flush_batch())
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
@@ -1125,13 +1091,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             List[Trace]: The list of uploaded workflows.
         """
-        if self.mode == "batch":
-            return await self._async_flush_batch()
-        else:
+        return await self._flush_batch()
+
+    async def _flush_batch(self) -> list[Trace]:
+        if self.mode != "batch":
             self._logger.warning("Flushing in streaming mode is not supported.")
             return list()
 
-    async def _async_flush_batch(self) -> list[Trace]:
         if not self.traces:
             self._logger.info("No traces to flush.")
             return list()
@@ -1150,7 +1116,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._logger.info("Flushing %d traces...", len(self.traces))
 
-        traces_ingest_request = TracesIngestRequest(traces=self.traces, session_id=self.session_id)
+        traces_ingest_request = TracesIngestRequest(
+            traces=self.traces, session_id=self.session_id, experiment_id=self.experiment_id
+        )
         await self._client.ingest_traces(traces_ingest_request)
         logged_traces = self.traces
 
@@ -1189,26 +1157,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 self._logger.info("All requests are complete.")
             self._task_handler.terminate()
 
-    @nop_sync
-    def start_session(
+    async def _start_or_get_session_async(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
-        """
-        Start a new session or use an existing session if an external ID is provided.
-
-        Parameters:
-        ----------
-            name: Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
-            previous_session_id: Optional[str]: ID of the previous session.
-            external_id: Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
-        Returns:
-        -------
-            str: The ID of the newly created session.
-        """
         if external_id and external_id.strip() != "":
             self._logger.info(f"Searching for session with external ID: {external_id} ...")
             try:
-                sessions = self._client.get_sessions_sync(
+                sessions = await self._client.get_sessions(
                     LogRecordsSearchRequest(
                         filters=[
                             LogRecordsSearchFilter(
@@ -1231,14 +1186,57 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._logger.info("Starting a new session...")
 
-        session = self._client.create_session_sync(
+        session = await self._client.create_session(
             SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
         )
 
         self._logger.info("Session started with ID: %s", session["id"])
-
         self.session_id = str(session["id"])
         return self.session_id
+
+    @nop_async
+    async def async_start_session(
+        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> str:
+        """
+        Async start a new session or use an existing session if an external ID is provided.
+
+        Parameters:
+        ----------
+            name: Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
+            previous_session_id: Optional[str]: ID of the previous session.
+            external_id: Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
+        Returns:
+        -------
+            str: The ID of the session (existing or newly created).
+        """
+        return await self._start_or_get_session_async(
+            name=name, previous_session_id=previous_session_id, external_id=external_id
+        )
+
+    @nop_sync
+    def start_session(
+        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> str:
+        """
+        Start a new session or use an existing session if an external ID is provided.
+
+        Parameters:
+        ----------
+            name: Optional[str]: Name of the session. If omitted, the server will assign a name.
+            previous_session_id: Optional[str]: UUID string of a prior session to link to.
+            external_id: Optional[str]: External identifier to dedupe against existing sessions within the same
+                project/log stream or experiment; if found, that session will be reused instead of creating a new one.
+
+        Returns:
+        -------
+            str: The ID of the session (existing or newly created).
+        """
+        return async_run(
+            self._start_or_get_session_async(
+                name=name, previous_session_id=previous_session_id, external_id=external_id
+            )
+        )
 
     @nop_sync
     def set_session(self, session_id: str) -> None:
