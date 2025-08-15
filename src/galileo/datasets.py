@@ -1,7 +1,6 @@
 import mimetypes
 from typing import Any, Optional, Union, overload
 
-from galileo.base import BaseClientModel
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.datasets import (
     create_dataset_datasets_post,
@@ -38,12 +37,13 @@ class DatasetAPIException(APIException):
     pass
 
 
-class Dataset(BaseClientModel, DecorateAllMethods):
+class Dataset(DecorateAllMethods):
     content: Optional[DatasetContent] = None
+    config: GalileoPythonConfig
 
-    def __init__(self, dataset_db: DatasetDB, config: Optional[GalileoPythonConfig] = None) -> None:
+    def __init__(self, dataset_db: DatasetDB) -> None:
         self.dataset = dataset_db
-        super().__init__(config=config)
+        self.config = GalileoPythonConfig.get()
 
     def get_content(self) -> Union[None, DatasetContent]:
         """
@@ -67,7 +67,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
             return None
 
         content: DatasetContent = get_dataset_content_datasets_dataset_id_content_get.sync(
-            client=self.client, dataset_id=self.dataset.id
+            client=self.config.api_client, dataset_id=self.dataset.id
         )
 
         self.content = content
@@ -85,7 +85,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
             return None
 
         response = get_dataset_content_datasets_dataset_id_content_get.sync_detailed(
-            client=self.client, dataset_id=self.dataset.id
+            client=self.config.api_client, dataset_id=self.dataset.id
         )
 
         return response.headers.get("ETag")
@@ -117,7 +117,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
         ]
         request = UpdateDatasetContentRequest(edits=append_rows)
         response = update_dataset_content_datasets_dataset_id_content_patch.sync(
-            client=self.client, dataset_id=self.dataset.id, body=request, if_match=self._get_etag()
+            client=self.config.api_client, dataset_id=self.dataset.id, body=request, if_match=self._get_etag()
         )
         if isinstance(response, HTTPValidationError):
             raise DatasetAPIException("Request to add new rows to dataset failed.")
@@ -129,13 +129,13 @@ class Dataset(BaseClientModel, DecorateAllMethods):
 
     def get_version_history(self) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
         list_dataset = query_dataset_versions_datasets_dataset_id_versions_query_post.sync(
-            dataset_id=self.dataset.id, client=self.client, body=ListDatasetVersionParams()
+            dataset_id=self.dataset.id, client=self.config.api_client, body=ListDatasetVersionParams()
         )
         return list_dataset
 
     def load_version(self, version_index: int) -> DatasetContent:
         return get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get.sync(
-            dataset_id=self.dataset.id, version_index=version_index, client=self.client
+            dataset_id=self.dataset.id, version_index=version_index, client=self.config.api_client
         )
 
     def __getattr__(self, attr: str) -> Any:
@@ -145,7 +145,12 @@ class Dataset(BaseClientModel, DecorateAllMethods):
         return getattr(self.dataset, attr)
 
 
-class Datasets(BaseClientModel):
+class Datasets:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def list(self, limit: Union[Unset, int] = 100) -> list[Dataset]:
         """
         Lists all datasets.
@@ -168,8 +173,8 @@ class Datasets(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
-        datasets: ListDatasetResponse = list_datasets_datasets_get.sync(client=self.client, limit=limit)
-        return [Dataset(dataset_db=dataset, config=self.config) for dataset in datasets.datasets] if datasets else []
+        datasets: ListDatasetResponse = list_datasets_datasets_get.sync(client=self.config.api_client, limit=limit)
+        return [Dataset(dataset_db=dataset) for dataset in datasets.datasets] if datasets else []
 
     @overload
     def get(self, *, id: str, with_content: bool = False) -> Optional[Dataset]: ...
@@ -210,22 +215,22 @@ class Datasets(BaseClientModel):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
         if id:
-            dataset_response = get_dataset_datasets_dataset_id_get.sync(client=self.client, dataset_id=id)
+            dataset_response = get_dataset_datasets_dataset_id_get.sync(client=self.config.api_client, dataset_id=id)
             if not dataset_response:
                 return None
-            dataset = Dataset(dataset_db=dataset_response, config=self.config)
+            dataset = Dataset(dataset_db=dataset_response)
 
         elif name:
             filter = DatasetNameFilter(operator=DatasetNameFilterOperator.EQ, value=name)
             params = ListDatasetParams(filters=[filter], sort=DatasetUpdatedAtSort(ascending=False))
             datasets_response: ListDatasetResponse = query_datasets_datasets_query_post.sync(
-                client=self.client, body=params, limit=1
+                client=self.config.api_client, body=params, limit=1
             )
 
             if not datasets_response or len(datasets_response.datasets) == 0:
                 return None
 
-            dataset = Dataset(dataset_db=datasets_response.datasets[0], config=self.config)
+            dataset = Dataset(dataset_db=datasets_response.datasets[0])
 
         if with_content:
             dataset.get_content()
@@ -261,7 +266,7 @@ class Datasets(BaseClientModel):
 
         if not dataset:
             raise ValueError(f"Dataset {name} not found")
-        return delete_dataset_datasets_dataset_id_delete.sync(client=self.client, dataset_id=dataset.id)
+        return delete_dataset_datasets_dataset_id_delete.sync(client=self.config.api_client, dataset_id=dataset.id)
 
     def create(self, name: str, content: DatasetType) -> Dataset:
         """
@@ -301,13 +306,13 @@ class Datasets(BaseClientModel):
         body = BodyCreateDatasetDatasetsPost(file=file, name=name)
 
         detailed_response = create_dataset_datasets_post.sync_detailed(
-            client=self.client, body=body, format_=dataset_format
+            client=self.config.api_client, body=body, format_=dataset_format
         )
 
         if not detailed_response.parsed or isinstance(detailed_response.parsed, HTTPValidationError):
             raise DatasetAPIException(detailed_response.content)
 
-        return Dataset(dataset_db=detailed_response.parsed, config=self.config)
+        return Dataset(dataset_db=detailed_response.parsed)
 
 
 #

@@ -3,7 +3,7 @@ from typing import Optional, Union
 
 from pydantic import UUID4
 
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.constants.protect import TIMEOUT_SECS
 from galileo.resources.api.protect import invoke_protect_invoke_post
 from galileo.resources.models.http_validation_error import HTTPValidationError
@@ -17,7 +17,12 @@ from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
 
 
-class Protect(BaseClientModel, DecorateAllMethods):
+class Protect(DecorateAllMethods):
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     async def ainvoke(
         self,
         payload: Payload,
@@ -48,7 +53,7 @@ class Protect(BaseClientModel, DecorateAllMethods):
         body = APIRequest.from_dict(request_dict)
 
         response: Optional[Union[APIResponse, HTTPValidationError]] = await invoke_protect_invoke_post.asyncio(
-            client=self.client, body=body
+            client=self.config.api_client, body=body
         )
 
         if isinstance(response, APIResponse):

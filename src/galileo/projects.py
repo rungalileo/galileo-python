@@ -4,7 +4,7 @@ from typing import Optional, Union, overload
 
 import httpx
 
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.resources.api.projects import (
     create_project_projects_post,
     get_all_projects_projects_all_get,
@@ -97,7 +97,12 @@ class Project:
             self.permissions = project.permissions
 
 
-class Projects(BaseClientModel, DecorateAllMethods):
+class Projects(DecorateAllMethods):
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def list(self) -> list[Project]:
         """
         Lists all projects.
@@ -116,7 +121,7 @@ class Projects(BaseClientModel, DecorateAllMethods):
 
         """
         projects: list[ProjectDBThin] = get_all_projects_projects_all_get.sync(
-            client=self.client, type_=ProjectType.GEN_AI
+            client=self.config.api_client, type_=ProjectType.GEN_AI
         )
         return [Project(project=project) for project in projects] if projects else []
 
@@ -153,7 +158,9 @@ class Projects(BaseClientModel, DecorateAllMethods):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
         if id:
-            detailed_response = get_project_projects_project_id_get.sync_detailed(project_id=id, client=self.client)
+            detailed_response = get_project_projects_project_id_get.sync_detailed(
+                project_id=id, client=self.config.api_client
+            )
             if detailed_response.status_code != httpx.codes.OK:
                 raise ProjectsAPIException(detailed_response.content)
 
@@ -164,7 +171,7 @@ class Projects(BaseClientModel, DecorateAllMethods):
 
         elif name:
             detailed_response = get_projects_projects_get.sync_detailed(
-                client=self.client, project_name=name, type_=ProjectType.GEN_AI
+                client=self.config.api_client, project_name=name, type_=ProjectType.GEN_AI
             )
 
             if detailed_response.status_code != httpx.codes.OK:
@@ -203,7 +210,7 @@ class Projects(BaseClientModel, DecorateAllMethods):
         """
         body = ProjectCreate(name=name, type_=ProjectType.GEN_AI, create_example_templates=False, created_by=None)
 
-        detailed_response = create_project_projects_post.sync_detailed(client=self.client, body=body)
+        detailed_response = create_project_projects_post.sync_detailed(client=self.config.api_client, body=body)
 
         if detailed_response.status_code != httpx.codes.OK:
             raise ProjectsAPIException(detailed_response.content)

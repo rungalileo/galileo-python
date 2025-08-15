@@ -1,6 +1,6 @@
 import logging
 
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.resources.api.data import create_llm_scorer_version_scorers_scorer_id_version_llm_post, create_scorers_post
 from galileo.resources.models import ScorerTypes
 from galileo.resources.models.base_scorer_version_response import BaseScorerVersionResponse
@@ -13,7 +13,12 @@ from galileo_core.schemas.logging.step import StepType
 _logger = logging.getLogger(__name__)
 
 
-class Metrics(BaseClientModel):
+class Metrics:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def create_custom_llm_metric(
         self,
         name: str,
@@ -52,7 +57,7 @@ class Metrics(BaseClientModel):
             defaults=ScorerDefaults(model_name=model_name, num_judges=num_judges),
         )
 
-        scorer = create_scorers_post.sync(body=create_scorer_request, client=self.client)
+        scorer = create_scorers_post.sync(body=create_scorer_request, client=self.config.api_client)
 
         scoreable_node_types = [node_level]
         version_req = CreateLLMScorerVersionRequest(
@@ -64,7 +69,7 @@ class Metrics(BaseClientModel):
             num_judges=num_judges,
         )
         version_resp = create_llm_scorer_version_scorers_scorer_id_version_llm_post.sync(
-            scorer_id=scorer.id, body=version_req, client=self.client
+            scorer_id=scorer.id, body=version_req, client=self.config.api_client
         )
 
         _logger.info("Created custom LLM metric: %s", name)

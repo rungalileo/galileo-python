@@ -7,7 +7,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from galileo import galileo_context, log
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset
 from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
@@ -45,7 +45,12 @@ class ExperimentCreateRequest:
         return field_dict
 
 
-class Experiments(BaseClientModel):
+class Experiments:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def create(self, project_id: str, name: str, dataset_obj: Optional[Dataset] = None) -> ExperimentResponse:
         body = ExperimentCreateRequest(name=name, task_type=EXPERIMENT_TASK_TYPE)
         if dataset_obj is not None:
@@ -54,7 +59,7 @@ class Experiments(BaseClientModel):
 
         experiment = create_experiment_projects_project_id_experiments_post.sync(
             project_id=project_id,
-            client=self.client,
+            client=self.config.api_client,
             body=body,  # type: ignore[arg-type]
         )
         if experiment is None:
@@ -87,7 +92,9 @@ class Experiments(BaseClientModel):
         return experiment
 
     def list(self, project_id: str) -> Optional[Union[HTTPValidationError, list["ExperimentResponse"]]]:
-        return list_experiments_projects_project_id_experiments_get.sync(project_id=project_id, client=self.client)
+        return list_experiments_projects_project_id_experiments_get.sync(
+            project_id=project_id, client=self.config.api_client
+        )
 
     @staticmethod
     def create_metric_configs(
