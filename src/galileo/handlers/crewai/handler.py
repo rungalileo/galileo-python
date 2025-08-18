@@ -2,7 +2,7 @@ import hashlib
 import json
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from uuid import UUID
 
 from galileo.handlers.base_handler import GalileoBaseHandler
@@ -390,7 +390,7 @@ class CrewAICallback(BaseEventListener):
             run_id=run_id, output=f"Error: {getattr(event, 'error', 'Unknown error')}", metadata=metadata
         )
 
-    def _to_uuid(self, id: str | None | UUID) -> UUID | None:
+    def _to_uuid(self, id: Union[str, None, UUID]) -> Union[UUID, None]:
         if isinstance(id, UUID):
             return id
         if isinstance(id, str):
