@@ -198,9 +198,10 @@ def test_extract_metadata(crewai_callback):
     assert metadata["key2"] == "value2"
 
 
-def test_crew_kickoff_started(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_crew_kickoff_started(crewai_callback, generated_id):
     """Test crew kickoff started event handling."""
-    crew_id = uuid.uuid4()
+    crew_id = generated_id()
     source = MockSource(id=crew_id)
     event = MockEvent(crew_name="Test Crew", inputs={"input1": "value1"})
 
@@ -215,9 +216,10 @@ def test_crew_kickoff_started(crewai_callback):
         assert call_args[1]["name"] == "Test Crew"
 
 
-def test_crew_kickoff_started_empty_inputs(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_crew_kickoff_started_empty_inputs(crewai_callback, generated_id):
     """Test crew kickoff started event handling."""
-    crew_id = uuid.uuid4()
+    crew_id = generated_id()
     source = MockSource(id=crew_id)
     event = MockEvent(crew_name="Test Crew")
 
@@ -233,9 +235,10 @@ def test_crew_kickoff_started_empty_inputs(crewai_callback):
         assert call_args[1]["input"] == "-"
 
 
-def test_crew_kickoff_completed(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_crew_kickoff_completed(crewai_callback, generated_id):
     """Test crew kickoff completed event handling."""
-    crew_id = uuid.uuid4()
+    crew_id = generated_id()
     source = MockSource(id=crew_id)
     output = MockOutput(raw="Crew completed successfully")
     event = MockEvent(output=output)
@@ -250,9 +253,10 @@ def test_crew_kickoff_completed(crewai_callback):
         mock_end_node.assert_called_once_with(run_id=crew_id, output="Crew completed successfully")
 
 
-def test_crew_kickoff_failed(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_crew_kickoff_failed(crewai_callback, generated_id):
     """Test crew kickoff failed event handling."""
-    crew_id = uuid.uuid4()
+    crew_id = generated_id()
     source = MockSource(id=crew_id)
     event = MockEvent(error="Something went wrong")
 
@@ -266,14 +270,14 @@ def test_crew_kickoff_failed(crewai_callback):
         assert call_args[1]["metadata"]["error"] == "Something went wrong"
 
 
-def test_agent_execution_started(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_agent_execution_started(crewai_callback, generated_id):
     """Test agent execution started event handling."""
-    agent_id = uuid.uuid4()
-    task_id = uuid.uuid4()
+    agent_id = generated_id()
+    task_id = generated_id()
     crew = MockCrew()
     agent = MockAgent(agent_id=agent_id, role="Research Agent", crew=crew)
     task = MockTask(task_id=task_id, agent=agent)
-
     source = MockSource(id=agent_id)
     event = MockEvent(agent=agent, task=task, task_prompt="Research the topic", tools=["search_tool", "analysis_tool"])
 
@@ -283,20 +287,20 @@ def test_agent_execution_started(crewai_callback):
         mock_start_node.assert_called_once()
         call_args = mock_start_node.call_args
         assert call_args[1]["node_type"] == NodeType.AGENT.value
-        assert call_args[1]["parent_run_id"] == task_id
+        assert str(call_args[1]["parent_run_id"]) == str(task_id)
         assert call_args[1]["run_id"] == agent_id
         assert call_args[1]["name"] == "Research Agent"
         assert call_args[1]["input"] == "Research the topic"
 
 
-def test_agent_execution_started_no_input(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_agent_execution_started_no_input(crewai_callback, generated_id):
     """Test agent execution started event handling."""
-    agent_id = uuid.uuid4()
-    task_id = uuid.uuid4()
+    agent_id = generated_id()
+    task_id = generated_id()
     crew = MockCrew()
     agent = MockAgent(agent_id=agent_id, role="Research Agent", crew=crew)
     task = MockTask(task_id=task_id, agent=agent)
-
     source = MockSource(id=agent_id)
     event = MockEvent(agent=agent, task=task, tools=["search_tool", "analysis_tool"])
 
@@ -306,15 +310,16 @@ def test_agent_execution_started_no_input(crewai_callback):
         mock_start_node.assert_called_once()
         call_args = mock_start_node.call_args
         assert call_args[1]["node_type"] == NodeType.AGENT.value
-        assert call_args[1]["parent_run_id"] == task_id
+        assert str(call_args[1]["parent_run_id"]) == str(task_id)
         assert call_args[1]["run_id"] == agent_id
         assert call_args[1]["name"] == "Research Agent"
         assert call_args[1]["input"] == "-"
 
 
-def test_agent_execution_completed(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_agent_execution_completed(crewai_callback, generated_id):
     """Test agent execution completed event handling."""
-    agent_id = uuid.uuid4()
+    agent_id = generated_id()
     source = MockSource(id=agent_id)
     event = MockEvent(output="Agent task completed")
 
@@ -324,9 +329,10 @@ def test_agent_execution_completed(crewai_callback):
         mock_end_node.assert_called_once_with(run_id=agent_id, output="Agent task completed")
 
 
-def test_agent_execution_error(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_agent_execution_error(crewai_callback, generated_id):
     """Test agent execution error event handling."""
-    agent_id = uuid.uuid4()
+    agent_id = generated_id()
     source = MockSource(id=agent_id)
     event = MockEvent(error="Agent failed")
 
@@ -340,14 +346,14 @@ def test_agent_execution_error(crewai_callback):
         assert call_args[1]["metadata"]["error"] == "Agent failed"
 
 
-def test_task_started(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_task_started(crewai_callback, generated_id):
     """Test task started event handling."""
-    task_id = uuid.uuid4()
-    crew_id = uuid.uuid4()
+    task_id = generated_id()
+    crew_id = generated_id()
     crew = MockCrew(crew_id=crew_id)
     agent = MockAgent(crew=crew)
     task = MockTask(task_id=task_id, description="Research market trends", agent=agent)
-
     source = MockSource(id=task_id)
     event = MockEvent(task=task, context="Previous research context")
 
@@ -357,20 +363,20 @@ def test_task_started(crewai_callback):
         mock_start_node.assert_called_once()
         call_args = mock_start_node.call_args
         assert call_args[1]["node_type"] == NodeType.CHAIN.value
-        assert call_args[1]["parent_run_id"] == crew_id
+        assert str(call_args[1]["parent_run_id"]) == str(crew_id)
         assert call_args[1]["run_id"] == task_id
         assert call_args[1]["name"] == "Research market trends"
         assert call_args[1]["input"] == "Previous research context"
 
 
-def test_task_started_no_context(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_task_started_no_context(crewai_callback, generated_id):
     """Test task started event handling."""
-    task_id = uuid.uuid4()
-    crew_id = uuid.uuid4()
+    task_id = generated_id()
+    crew_id = generated_id()
     crew = MockCrew(crew_id=crew_id)
     agent = MockAgent(crew=crew)
     task = MockTask(task_id=task_id, description="Research market trends", agent=agent)
-
     source = MockSource(id=task_id)
     event = MockEvent(task=task)
 
@@ -380,20 +386,20 @@ def test_task_started_no_context(crewai_callback):
         mock_start_node.assert_called_once()
         call_args = mock_start_node.call_args
         assert call_args[1]["node_type"] == NodeType.CHAIN.value
-        assert call_args[1]["parent_run_id"] == crew_id
+        assert str(call_args[1]["parent_run_id"]) == str(crew_id)
         assert call_args[1]["run_id"] == task_id
         assert call_args[1]["name"] == "Research market trends"
         assert call_args[1]["input"] == task.description
 
 
-def test_task_started_no_description(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_task_started_no_description(crewai_callback, generated_id):
     """Test task started event handling."""
-    task_id = uuid.uuid4()
-    crew_id = uuid.uuid4()
+    task_id = generated_id()
+    crew_id = generated_id()
     crew = MockCrew(crew_id=crew_id)
     agent = MockAgent(crew=crew)
     task = MockTask(task_id=task_id, description="", agent=agent)
-
     source = MockSource(id=task_id)
     event = MockEvent(task=task)
 
@@ -403,15 +409,16 @@ def test_task_started_no_description(crewai_callback):
         mock_start_node.assert_called_once()
         call_args = mock_start_node.call_args
         assert call_args[1]["node_type"] == NodeType.CHAIN.value
-        assert call_args[1]["parent_run_id"] == crew_id
+        assert str(call_args[1]["parent_run_id"]) == str(crew_id)
         assert call_args[1]["run_id"] == task_id
         assert call_args[1]["name"] == ""
         assert call_args[1]["input"] == "-"
 
 
-def test_task_completed(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_task_completed(crewai_callback, generated_id):
     """Test task completed event handling."""
-    task_id = uuid.uuid4()
+    task_id = generated_id()
     source = MockSource(id=task_id)
     output = MockOutput(raw="Task completed successfully")
     event = MockEvent(output=output)
@@ -422,15 +429,15 @@ def test_task_completed(crewai_callback):
         mock_end_node.assert_called_once_with(run_id=task_id, output="Task completed successfully")
 
 
-def test_task_failed(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_task_failed(crewai_callback, generated_id):
     """Test task failed event handling."""
-    task_id = uuid.uuid4()
+    task_id = generated_id()
     source = MockSource(id=task_id)
     event = MockEvent(error="Task execution failed")
 
     with patch.object(crewai_callback._handler, "end_node") as mock_end_node:
         crewai_callback._handle_task_failed(source, event)
-
         mock_end_node.assert_called_once()
         call_args = mock_end_node.call_args
         assert call_args[1]["run_id"] == task_id
@@ -438,12 +445,12 @@ def test_task_failed(crewai_callback):
         assert call_args[1]["metadata"]["error"] == "Task execution failed"
 
 
-def test_tool_usage_started(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_tool_usage_started(crewai_callback, generated_id):
     """Test tool usage started event handling."""
-    tool_id = uuid.uuid4()
-    agent_id = uuid.uuid4()
+    tool_id = generated_id()
+    agent_id = generated_id()
     agent = MockAgent(agent_id=agent_id)
-
     source = MockSource(id=tool_id)
     event = MockEvent(agent=agent, tool_name="search_tool", tool_args={"query": "market research"})
 
@@ -453,15 +460,16 @@ def test_tool_usage_started(crewai_callback):
         mock_start_node.assert_called_once()
         call_args = mock_start_node.call_args
         assert call_args[1]["node_type"] == NodeType.TOOL.value
-        assert call_args[1]["parent_run_id"] == agent_id
+        assert str(call_args[1]["parent_run_id"]) == str(agent_id)
         assert call_args[1]["run_id"] == tool_id
         assert call_args[1]["name"] == "search_tool"
 
 
-def test_tool_usage_started_no_input(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_tool_usage_started_no_input(crewai_callback, generated_id):
     """Test tool usage started event handling."""
-    tool_id = uuid.uuid4()
-    agent_id = uuid.uuid4()
+    tool_id = generated_id()
+    agent_id = generated_id()
     agent = MockAgent(agent_id=agent_id)
 
     source = MockSource(id=tool_id)
@@ -473,15 +481,16 @@ def test_tool_usage_started_no_input(crewai_callback):
         mock_start_node.assert_called_once()
         call_args = mock_start_node.call_args
         assert call_args[1]["node_type"] == NodeType.TOOL.value
-        assert call_args[1]["parent_run_id"] == agent_id
+        assert str(call_args[1]["parent_run_id"]) == str(agent_id)
         assert call_args[1]["run_id"] == tool_id
         assert call_args[1]["name"] == "search_tool"
         assert call_args[1]["input"] == "-"
 
 
-def test_tool_usage_finished(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_tool_usage_finished(crewai_callback, generated_id):
     """Test tool usage finished event handling."""
-    tool_id = uuid.uuid4()
+    tool_id = generated_id()
     source = MockSource(id=tool_id)
     event = MockEvent(output="Tool execution completed")
 
@@ -491,9 +500,10 @@ def test_tool_usage_finished(crewai_callback):
         mock_end_node.assert_called_once_with(run_id=tool_id, output="Tool execution completed")
 
 
-def test_tool_usage_error(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_tool_usage_error(crewai_callback, generated_id):
     """Test tool usage error event handling."""
-    tool_id = uuid.uuid4()
+    tool_id = generated_id()
     source = MockSource(id=tool_id)
     event = MockEvent(error="Tool execution failed")
 
@@ -507,13 +517,12 @@ def test_tool_usage_error(crewai_callback):
         assert call_args[1]["metadata"]["error"] == "Tool execution failed"
 
 
-def test_llm_call_started(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_llm_call_started(crewai_callback, generated_id):
     """Test LLM call started event handling."""
-    llm_id = uuid.uuid4()
-    agent_id = uuid.uuid4()
-
+    llm_id = generated_id()
     source = MockSource(id=llm_id, model="gpt-4", temperature=0.7)
-    event = MockEvent(agent_id=str(agent_id), messages=[{"role": "user", "content": "Hello"}])
+    event = MockEvent(agent_id=generated_id(), messages=[{"role": "user", "content": "Hello"}])
 
     with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
         crewai_callback._handle_llm_call_started(source, event)
@@ -527,9 +536,10 @@ def test_llm_call_started(crewai_callback):
         assert call_args[1]["temperature"] == 0.7
 
 
-def test_llm_call_completed(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_llm_call_completed(crewai_callback, generated_id):
     """Test LLM call completed event handling."""
-    llm_id = uuid.uuid4()
+    llm_id = generated_id()
     source = MockSource(id=llm_id)
     event = MockEvent(response="Hello! How can I help you?")
 
@@ -539,9 +549,10 @@ def test_llm_call_completed(crewai_callback):
         mock_end_node.assert_called_once_with(run_id=llm_id, output="Hello! How can I help you?")
 
 
-def test_llm_call_failed(crewai_callback):
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_llm_call_failed(crewai_callback, generated_id):
     """Test LLM call failed event handling."""
-    llm_id = uuid.uuid4()
+    llm_id = generated_id()
     source = MockSource(id=llm_id)
     event = MockEvent(error="Rate limit exceeded")
 
