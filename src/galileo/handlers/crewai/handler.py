@@ -48,7 +48,7 @@ except ImportError:
     LITE_LLM_AVAILABLE = False
 
 
-class CrewAICallback(BaseEventListener):
+class CrewAIEventListener(BaseEventListener):
     """
     CrewAI event listener for logging traces to the Galileo platform.
 
@@ -62,10 +62,10 @@ class CrewAICallback(BaseEventListener):
         self,
         galileo_logger: Optional[GalileoLogger] = None,
         start_new_trace: bool = True,
-        flush_on_chain_end: bool = True,
+        flush_on_crew_completed: bool = True,
     ):
         self._handler = GalileoBaseHandler(
-            flush_on_chain_end=flush_on_chain_end,
+            flush_on_chain_end=flush_on_crew_completed,
             start_new_trace=start_new_trace,
             galileo_logger=galileo_logger,
             integration="crewai",

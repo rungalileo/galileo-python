@@ -1,5 +1,5 @@
 """CrewAI integration for Galileo tracing."""
 
-from .handler import CrewAICallback
+from .handler import CrewAIEventListener
 
-__all__ = ["CrewAICallback"]
+__all__ = ["CrewAIEventListener"]

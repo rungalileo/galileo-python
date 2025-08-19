@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from galileo.handlers.crewai.handler import CrewAICallback
+from galileo.handlers.crewai.handler import CrewAIEventListener
 from galileo.schema.handlers import NodeType
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
 
@@ -88,27 +88,31 @@ def mock_galileo_logger():
 
 @pytest.fixture
 def crewai_callback(mock_galileo_logger):
-    """Creates a CrewAICallback instance for testing."""
+    """Creates a CrewAIEventListener instance for testing."""
     with (
         patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", False),
         patch("galileo.handlers.crewai.handler.LITE_LLM_AVAILABLE", False),
     ):
-        from galileo.handlers.crewai.handler import CrewAICallback
+        from galileo.handlers.crewai.handler import CrewAIEventListener
 
-        callback = CrewAICallback(galileo_logger=mock_galileo_logger, start_new_trace=True, flush_on_chain_end=False)
+        callback = CrewAIEventListener(
+            galileo_logger=mock_galileo_logger, start_new_trace=True, flush_on_crew_completed=False
+        )
         return callback
 
 
 def test_initialization_with_crewai_available(mock_galileo_logger):
-    """Test CrewAICallback initialization when CrewAI is available."""
+    """Test CrewAIEventListener initialization when CrewAI is available."""
     with (
         patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", True),
         patch("galileo.handlers.crewai.handler.LITE_LLM_AVAILABLE", True),
         patch("galileo.handlers.crewai.handler.BaseEventListener"),
     ):
-        from galileo.handlers.crewai.handler import CrewAICallback
+        from galileo.handlers.crewai.handler import CrewAIEventListener
 
-        callback = CrewAICallback(galileo_logger=mock_galileo_logger, start_new_trace=False, flush_on_chain_end=True)
+        callback = CrewAIEventListener(
+            galileo_logger=mock_galileo_logger, start_new_trace=False, flush_on_crew_completed=True
+        )
 
         assert callback._handler._galileo_logger == mock_galileo_logger
         assert callback._handler._start_new_trace is False
@@ -116,14 +120,14 @@ def test_initialization_with_crewai_available(mock_galileo_logger):
 
 
 def test_initialization_with_crewai_unavailable(mock_galileo_logger):
-    """Test CrewAICallback initialization when CrewAI is unavailable."""
+    """Test CrewAIEventListener initialization when CrewAI is unavailable."""
     with (
         patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", False),
         patch("galileo.handlers.crewai.handler.LITE_LLM_AVAILABLE", False),
     ):
-        from galileo.handlers.crewai.handler import CrewAICallback
+        from galileo.handlers.crewai.handler import CrewAIEventListener
 
-        callback = CrewAICallback(galileo_logger=mock_galileo_logger)
+        callback = CrewAIEventListener(galileo_logger=mock_galileo_logger)
 
         assert callback._handler._galileo_logger == mock_galileo_logger
 
@@ -566,7 +570,7 @@ def test_llm_call_failed(crewai_callback, generated_id):
         assert call_args[1]["metadata"]["error"] == "Rate limit exceeded"
 
 
-def test_setup_listeners_crewai_unavailable(crewai_callback: CrewAICallback):
+def test_setup_listeners_crewai_unavailable(crewai_callback: CrewAIEventListener):
     """Test setup_listeners when CrewAI is unavailable."""
     mock_event_bus = Mock()
 
@@ -577,7 +581,7 @@ def test_setup_listeners_crewai_unavailable(crewai_callback: CrewAICallback):
         mock_event_bus.on.assert_not_called()
 
 
-def test_update_crew_input(crewai_callback: CrewAICallback):
+def test_update_crew_input(crewai_callback: CrewAIEventListener):
     """Test crew input update functionality."""
     crew_id = uuid.uuid4()
 
@@ -597,7 +601,7 @@ def test_update_crew_input(crewai_callback: CrewAICallback):
         assert "Research market trends" in mock_root_node.span_params["input"]
 
 
-def test_lite_llm_usage_callback(crewai_callback: CrewAICallback):
+def test_lite_llm_usage_callback(crewai_callback: CrewAIEventListener):
     """Test LiteLLM usage callback."""
     node_id = uuid.uuid4()
 
