@@ -336,6 +336,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 self._task_handler.increment_retry(task_id),
                 self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
             ),
+            on_giveup=lambda details: self._logger.error(
+                f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}", exc_info=False
+            ),
         )
         @handle_galileo_http_exceptions_for_retry
         async def ingest_traces_with_backoff(request):
@@ -376,6 +379,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 self._task_handler.increment_retry(task_id),
                 self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
             ),
+            on_giveup=lambda details: self._logger.error(
+                f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}", exc_info=False
+            ),
         )
         @handle_galileo_http_exceptions_for_retry
         async def ingest_spans_with_backoff(request):
@@ -410,6 +416,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                     self._task_handler.increment_retry(task_id),
                     self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
                 ),
+                on_giveup=lambda details: self._logger.error(
+                    f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}",
+                    exc_info=False,
+                ),
             )
             @handle_galileo_http_exceptions_for_retry
             async def update_trace_with_backoff(request):
@@ -443,6 +453,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             on_backoff=lambda details: (
                 self._task_handler.increment_retry(task_id),
                 self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
+            ),
+            on_giveup=lambda details: self._logger.error(
+                f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}", exc_info=False
             ),
         )
         @handle_galileo_http_exceptions_for_retry
