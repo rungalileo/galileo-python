@@ -7,7 +7,7 @@ import pytest
 
 from galileo.handlers.crewai.handler import CrewAICallback
 from galileo.schema.handlers import NodeType
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
 class MockEvent:
@@ -74,9 +74,9 @@ def mock_galileo_logger():
     with (
         patch("galileo.logger.logger.LogStreams") as mock_logstreams,
         patch("galileo.logger.logger.Projects") as mock_projects,
-        patch("galileo.logger.logger.GalileoCoreApiClient") as mock_core_api_client,
+        patch("galileo.logger.logger.Traces") as mock_traces_client,
     ):
-        setup_mock_core_api_client(mock_core_api_client)
+        setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects)
         setup_mock_logstreams_client(mock_logstreams)
 
