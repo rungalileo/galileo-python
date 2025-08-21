@@ -63,11 +63,6 @@ def set_validated_config(
     config.reset()
 
 
-@pytest.fixture(autouse=True)
-def env_setup(monkeypatch):
-    monkeypatch.setenv("OPENAI_API_KEY", "local")
-
-
 @pytest.fixture
 def create_chat_completion() -> ChatCompletion:
     return ChatCompletion(
