@@ -401,7 +401,7 @@ def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
 
     assert expected_etag == dataset._get_etag()
     get_dataset_content_by_id_patch.sync_detailed.assert_called_once_with(
-        client=dataset.client, dataset_id=dataset.dataset.id
+        client=dataset.config.api_client, dataset_id=dataset.dataset.id
     )
 
 
@@ -418,7 +418,7 @@ def test_dataset_add_rows_success(update_dataset_patch: Mock, get_dataset_conten
     expected_append_row_c = DatasetAppendRowValues()
     expected_append_row_c.additional_properties = {"input": "c"}
     update_dataset_patch.sync.assert_called_once_with(
-        client=dataset.client,
+        client=dataset.config.api_client,
         dataset_id="78e8035d-c429-47f2-8971-68f10e7e91c9",
         body=UpdateDatasetContentRequest(
             edits=[

@@ -4,7 +4,7 @@ import warnings
 from typing import Optional, Union, overload
 
 from galileo import Message
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
 from galileo.resources.api.prompts import (
     create_global_prompt_template_templates_post,
@@ -95,7 +95,12 @@ class PromptTemplateVersion(BasePromptTemplateVersionResponse):
             self.additional_properties = prompt_template_version.additional_properties.copy()
 
 
-class PromptTemplates(BaseClientModel):
+class PromptTemplates:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def list(self, project_name: str) -> list[PromptTemplate]:
         project = Projects().get(name=project_name)
         if not project:
@@ -104,7 +109,7 @@ class PromptTemplates(BaseClientModel):
         templates = get_project_templates_projects_project_id_templates_get.sync(
             # TODO: remove type ignore, when migrated to proper AuthenticatedClient
             project_id=project.id,
-            client=self.client,  # type: ignore[arg-type]
+            client=self.config.api_client,  # type: ignore[arg-type]
         )
 
         if not templates or isinstance(templates, HTTPValidationError):
@@ -122,7 +127,7 @@ class PromptTemplates(BaseClientModel):
             # TODO: remove type ignore, when migrated to proper AuthenticatedClient
             project_id=project.id,
             template_id=template_id,
-            client=self.client,  # type: ignore[arg-type]
+            client=self.config.api_client,  # type: ignore[arg-type]
         )
 
         if not template or isinstance(template, HTTPValidationError):
@@ -142,7 +147,7 @@ class PromptTemplates(BaseClientModel):
         _logger.debug(f"{body}")
         response = create_prompt_template_with_version_projects_project_id_templates_post.sync_detailed(
             project_id=project.id,
-            client=self.client,  # type: ignore[arg-type]
+            client=self.config.api_client,  # type: ignore[arg-type]
             body=body,  # type: ignore[arg-type]
         )
 
@@ -156,7 +161,12 @@ class PromptTemplates(BaseClientModel):
         return PromptTemplate(prompt_template=response.parsed)
 
 
-class GlobalPromptTemplates(BaseClientModel):
+class GlobalPromptTemplates:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def list(
         self, *, name_filter: Optional[str] = None, limit: Union[Unset, int] = 100, starting_token: int = 0
     ) -> list[PromptTemplate]:
@@ -167,7 +177,7 @@ class GlobalPromptTemplates(BaseClientModel):
             ]
 
         response = query_templates_templates_query_post.sync(
-            client=self.client, body=params, limit=limit, starting_token=starting_token
+            client=self.config.api_client, body=params, limit=limit, starting_token=starting_token
         )
 
         if not response or isinstance(response, HTTPValidationError):
@@ -193,7 +203,9 @@ class GlobalPromptTemplates(BaseClientModel):
 
         if template_id:
             _logger.debug(f"Get global template {template_id}")
-            template = get_global_template_templates_template_id_get.sync(template_id=template_id, client=self.client)
+            template = get_global_template_templates_template_id_get.sync(
+                template_id=template_id, client=self.config.api_client
+            )
 
             if not template or isinstance(template, HTTPValidationError):
                 return None
@@ -226,12 +238,14 @@ class GlobalPromptTemplates(BaseClientModel):
             template_id = template.id
 
         if template_id:
-            delete_global_template_templates_template_id_delete.sync(client=self.client, template_id=template_id)
+            delete_global_template_templates_template_id_delete.sync(
+                client=self.config.api_client, template_id=template_id
+            )
 
     def get_version(self, *, template_id: str, version: int) -> Optional[PromptTemplateVersion]:
         _logger.debug(f"Get global template {template_id} version {version}")
         template_version = get_global_template_version_templates_template_id_versions_version_get.sync(
-            template_id=template_id, version=version, client=self.client
+            template_id=template_id, version=version, client=self.config.api_client
         )
 
         if not template_version or isinstance(template_version, HTTPValidationError):
@@ -243,7 +257,7 @@ class GlobalPromptTemplates(BaseClientModel):
         body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
 
         _logger.debug(f"Creating global template: {body}")
-        response = create_global_prompt_template_templates_post.sync_detailed(client=self.client, body=body)
+        response = create_global_prompt_template_templates_post.sync_detailed(client=self.config.api_client, body=body)
 
         if response.status_code != 200:
             raise PromptTemplateAPIException(response.content.decode("utf-8"))
@@ -279,7 +293,7 @@ class GlobalPromptTemplates(BaseClientModel):
 
         _logger.debug(f"Updating global template {template_id}: {body}")
         response = update_global_template_templates_template_id_patch.sync_detailed(
-            template_id=template_id, client=self.client, body=body
+            template_id=template_id, client=self.config.api_client, body=body
         )
 
         if response.status_code != 200:
@@ -327,7 +341,7 @@ class GlobalPromptTemplates(BaseClientModel):
 
         _logger.debug(f"Rendering template: {template}")
         response = render_template_render_template_post.sync_detailed(
-            client=self.client, body=body, starting_token=starting_token, limit=limit
+            client=self.config.api_client, body=body, starting_token=starting_token, limit=limit
         )
 
         if response.status_code != 200:
