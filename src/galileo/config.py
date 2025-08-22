@@ -2,12 +2,15 @@
 # We need to ignore syntax errors until https://github.com/python/mypy/issues/17535 is resolved.
 from typing import Any, Optional
 
+from pydantic_core import Url
+
 from galileo_core.schemas.base_config import GalileoConfig
 
 
 class GalileoPythonConfig(GalileoConfig):
     # Config file for this project.
     config_filename: str = "galileo-python-config.json"
+    console_url: Url = "https://app.galileo.ai"
 
     def reset(self) -> None:
         global _galileo_config
