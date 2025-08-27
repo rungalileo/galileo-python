@@ -4,6 +4,8 @@ from typing import Any, Optional, Union
 import httpx
 from attrs import define, evolve, field
 
+from galileo.utils.user_agent import get_default_user_agent
+
 
 @define
 class Client:
@@ -80,10 +82,15 @@ class Client:
     def get_httpx_client(self) -> httpx.Client:
         """Get the underlying httpx.Client, constructing a new one if not previously set"""
         if self._client is None:
+            # Add default User-Agent if not already set
+            headers = self._headers.copy()
+            if "User-Agent" not in headers:
+                headers["User-Agent"] = get_default_user_agent()
+
             self._client = httpx.Client(
                 base_url=self._base_url,
                 cookies=self._cookies,
-                headers=self._headers,
+                headers=headers,
                 timeout=self._timeout,
                 verify=self._verify_ssl,
                 follow_redirects=self._follow_redirects,
@@ -111,10 +118,15 @@ class Client:
     def get_async_httpx_client(self) -> httpx.AsyncClient:
         """Get the underlying httpx.AsyncClient, constructing a new one if not previously set"""
         if self._async_client is None:
+            # Add default User-Agent if not already set
+            headers = self._headers.copy()
+            if "User-Agent" not in headers:
+                headers["User-Agent"] = get_default_user_agent()
+
             self._async_client = httpx.AsyncClient(
                 base_url=self._base_url,
                 cookies=self._cookies,
-                headers=self._headers,
+                headers=headers,
                 timeout=self._timeout,
                 verify=self._verify_ssl,
                 follow_redirects=self._follow_redirects,
@@ -214,11 +226,18 @@ class AuthenticatedClient:
     def get_httpx_client(self) -> httpx.Client:
         """Get the underlying httpx.Client, constructing a new one if not previously set"""
         if self._client is None:
-            self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
+            # Add authentication header
+            headers = self._headers.copy()
+            headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
+
+            # Add default User-Agent if not already set
+            if "User-Agent" not in headers:
+                headers["User-Agent"] = get_default_user_agent()
+
             self._client = httpx.Client(
                 base_url=self._base_url,
                 cookies=self._cookies,
-                headers=self._headers,
+                headers=headers,
                 timeout=self._timeout,
                 verify=self._verify_ssl,
                 follow_redirects=self._follow_redirects,
@@ -246,11 +265,18 @@ class AuthenticatedClient:
     def get_async_httpx_client(self) -> httpx.AsyncClient:
         """Get the underlying httpx.AsyncClient, constructing a new one if not previously set"""
         if self._async_client is None:
-            self._headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
+            # Add authentication header
+            headers = self._headers.copy()
+            headers[self.auth_header_name] = f"{self.prefix} {self.token}" if self.prefix else self.token
+
+            # Add default User-Agent if not already set
+            if "User-Agent" not in headers:
+                headers["User-Agent"] = get_default_user_agent()
+
             self._async_client = httpx.AsyncClient(
                 base_url=self._base_url,
                 cookies=self._cookies,
-                headers=self._headers,
+                headers=headers,
                 timeout=self._timeout,
                 verify=self._verify_ssl,
                 follow_redirects=self._follow_redirects,
