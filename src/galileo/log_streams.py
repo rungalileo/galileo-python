@@ -52,6 +52,14 @@ class LogStream(LogStreamResponse):
     # Create by project name
     log_stream = create_log_stream(name="Production Logs", project_name="My AI Project")
 
+    # Create with metrics enabled
+    from galileo.schema.metrics import GalileoScorers
+    log_stream = create_log_stream(
+        name="Production Logs",
+        project_name="My AI Project",
+        metrics=[GalileoScorers.correctness, "toxicity"]
+    )
+
     # Get a log stream by name
     from galileo.log_streams import get_log_stream
     log_stream = get_log_stream(name="Production Logs", project_name="My AI Project")
@@ -240,11 +248,30 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
         return None
 
     @overload
-    def create(self, name: str, *, project_id: Optional[str] = None) -> LogStream: ...
+    def create(
+        self,
+        name: str,
+        *,
+        project_id: Optional[str] = None,
+        metrics: Optional[builtins.list[Union[GalileoScorers, Metric, str]]] = None,
+    ) -> LogStream: ...
     @overload
-    def create(self, name: str, *, project_name: str) -> LogStream: ...
+    def create(
+        self,
+        name: str,
+        *,
+        project_name: str,
+        metrics: Optional[builtins.list[Union[GalileoScorers, Metric, str]]] = None,
+    ) -> LogStream: ...
 
-    def create(self, name: str, *, project_id: Optional[str] = None, project_name: Optional[str] = None) -> LogStream:
+    def create(
+        self,
+        name: str,
+        *,
+        project_id: Optional[str] = None,
+        project_name: Optional[str] = None,
+        metrics: Optional[builtins.list[Union[GalileoScorers, Metric, str]]] = None,
+    ) -> LogStream:
         """
         Creates a new log stream. Exactly one of `project_id` or `project_name` must be provided.
 
@@ -256,6 +283,8 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
             The ID of the project to create the log stream in. Defaults to None.
         project_name : Optional[str], optional
             The name of the project to create the log stream in. Defaults to None.
+        metrics : Optional[builtins.list[Union[GalileoScorers, Metric, str]]], optional
+            List of metrics to enable for the log stream. Defaults to None.
 
         Returns
         -------
@@ -294,7 +323,13 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
         if not response:
             raise ValueError("Unable to create log stream")
 
-        return LogStream(log_stream=response)
+        log_stream = LogStream(log_stream=response)
+
+        # Configure metrics if provided
+        if metrics is not None:
+            self.configure_metrics(log_stream_id=log_stream.id, project_id=project_id, metrics=metrics)
+
+        return log_stream
 
     def configure_metrics(
         self, log_stream_id: str, project_id: str, metrics: builtins.list[Union[GalileoScorers, Metric, str]]
@@ -457,7 +492,12 @@ def list_log_streams(*, project_id: Optional[str] = None, project_name: Optional
     return LogStreams().list(project_id=project_id, project_name=project_name)
 
 
-def create_log_stream(name: str, project_id: Optional[str] = None, project_name: Optional[str] = None) -> LogStream:
+def create_log_stream(
+    name: str,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+    metrics: Optional[builtins.list[Union[GalileoScorers, Metric, str]]] = None,
+) -> LogStream:
     """
     Creates a new log stream. Exactly one of `project_id` or `project_name` must be provided.
 
@@ -465,11 +505,17 @@ def create_log_stream(name: str, project_id: Optional[str] = None, project_name:
     ----------
     name : str
         The name of the log stream.
+    project_id : Optional[str], optional
+        The ID of the project to create the log stream in. Defaults to None.
+    project_name : Optional[str], optional
+        The name of the project to create the log stream in. Defaults to None.
+    metrics : Optional[builtins.list[Union[GalileoScorers, Metric, str]]], optional
+        List of metrics to enable for the log stream. Defaults to None.
 
     Returns
     -------
     LogStream
-        The created project.
+        The created log stream.
 
     Raises
     ------
@@ -479,7 +525,7 @@ def create_log_stream(name: str, project_id: Optional[str] = None, project_name:
         If the request takes longer than Client.timeout.
 
     """
-    return LogStreams().create(name=name, project_id=project_id, project_name=project_name)
+    return LogStreams().create(name=name, project_id=project_id, project_name=project_name, metrics=metrics)
 
 
 def configure_log_stream_metrics(
