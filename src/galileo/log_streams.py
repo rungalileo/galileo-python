@@ -11,6 +11,9 @@ from galileo.resources.api.log_stream import (
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
 from galileo.resources.models.log_stream_response import LogStreamResponse
+from galileo.resources.models.scorer_config import ScorerConfig
+from galileo.schema.metrics import GalileoScorers, Metric
+from galileo.scorers import Scorers, ScorerSettings
 from galileo.utils.catch_log import DecorateAllMethods
 
 
@@ -68,6 +71,25 @@ class LogStream(LogStreamResponse):
             model="gpt-4o",
             messages=[{"role": "user", "content": "Hello, world!"}]
         )
+
+    # Configure metrics for an existing log stream
+    from galileo.log_streams import configure_log_stream_metrics
+    from galileo.schema.metrics import GalileoScorers
+
+    configure_log_stream_metrics(
+        log_stream="Production Logs",
+        metrics=[GalileoScorers.correctness, GalileoScorers.groundedness, "toxicity"],
+        project_name="My AI Project"
+    )
+
+    # Create a new log stream with metrics enabled
+    from galileo.log_streams import create_log_stream_with_metrics
+
+    log_stream, scorers = create_log_stream_with_metrics(
+        name="Analytics Stream",
+        metrics=[GalileoScorers.factuality, "bleu", "rouge"],
+        project_name="My AI Project"
+    )
     """
 
     def __init__(self, log_stream: Union[None, LogStreamResponse] = None):
@@ -274,6 +296,102 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
 
         return LogStream(log_stream=response)
 
+    def configure_metrics(
+        self, log_stream_id: str, project_id: str, metrics: builtins.list[Union[GalileoScorers, Metric, str]]
+    ) -> builtins.list[ScorerConfig]:
+        """
+        Configure metrics for an existing log stream.
+
+        Parameters
+        ----------
+        log_stream_id : str
+            The ID of the log stream to configure metrics for.
+        project_id : str
+            The ID of the project containing the log stream.
+        metrics : builtins.list[Union[GalileoScorers, Metric, str]]
+            List of metrics to enable for the log stream.
+
+        Returns
+        -------
+        builtins.list[ScorerConfig]
+            List of configured scorer configs.
+
+        Raises
+        ------
+        ValueError
+            If one or more non-existent metrics are specified.
+        """
+        scorer_configs = LogStreams._create_scorer_configs_for_log_stream(project_id, log_stream_id, metrics)
+        return scorer_configs
+
+    @staticmethod
+    def _create_scorer_configs_for_log_stream(
+        project_id: str, log_stream_id: str, metrics: builtins.list[Union[GalileoScorers, Metric, str]]
+    ) -> builtins.list[ScorerConfig]:
+        """
+        Create scorer configurations for log stream metrics.
+
+        Parameters
+        ----------
+        project_id : str
+            The ID of the project.
+        log_stream_id : str
+            The ID of the log stream.
+        metrics : builtins.list[Union[GalileoScorers, Metric, str]]
+            List of metrics to configure.
+
+        Returns
+        -------
+        builtins.list[ScorerConfig]
+            List of configured scorer configs.
+
+        Raises
+        ------
+        ValueError
+            If one or more non-existent metrics are specified.
+        """
+        scorer_name_versions: list[tuple[str, Optional[int]]] = []
+        for metric in metrics:
+            if isinstance(metric, GalileoScorers):
+                scorer_name_versions.append((metric.value, None))
+            elif isinstance(metric, Metric):
+                scorer_name_versions.append((metric.name, metric.version))
+            elif isinstance(metric, str):
+                scorer_name_versions.append((metric, None))
+            else:
+                raise ValueError(f"Unknown metric type: {type(metric)}")
+
+        scorers: list[ScorerConfig] = []
+        if scorer_name_versions:
+            all_scorers = Scorers().list()
+            known_metrics = {metric.name: metric for metric in all_scorers}
+            unknown_metrics = []
+
+            for scorer_name, scorer_version in scorer_name_versions:
+                if scorer_name in known_metrics:
+                    raw_metric_dict = known_metrics[scorer_name].to_dict()
+
+                    # Set the version on the ScorerConfig if provided
+                    if scorer_version is not None:
+                        raw_version = Scorers().get_scorer_version(
+                            scorer_id=raw_metric_dict["id"], version=scorer_version
+                        )
+                        raw_metric_dict["scorer_version"] = raw_version.to_dict()
+                    scorers.append(ScorerConfig.from_dict(raw_metric_dict))
+                else:
+                    unknown_metrics.append(scorer_name)
+
+            if unknown_metrics:
+                raise ValueError(
+                    "One or more non-existent metrics are specified: "
+                    + ", ".join(f"'{metric}'" for metric in unknown_metrics)
+                )
+
+            # Configure the scorers for the log stream (using log_stream_id as run_id)
+            ScorerSettings().create(project_id=project_id, run_id=log_stream_id, scorers=scorers)
+
+        return scorers
+
 
 #
 # Convenience methods
@@ -362,3 +480,138 @@ def create_log_stream(name: str, project_id: Optional[str] = None, project_name:
 
     """
     return LogStreams().create(name=name, project_id=project_id, project_name=project_name)
+
+
+def configure_log_stream_metrics(
+    log_stream: Union[LogStream, str],
+    metrics: builtins.list[Union[GalileoScorers, Metric, str]],
+    *,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> builtins.list[ScorerConfig]:
+    """
+    Configure metrics for a log stream. Exactly one of `project_id` or `project_name` must be provided.
+
+    Parameters
+    ----------
+    log_stream : Union[LogStream, str]
+        The log stream object or name to configure metrics for.
+    metrics : builtins.list[Union[GalileoScorers, Metric, str]]
+        List of metrics to enable for the log stream.
+    project_id : Optional[str], optional
+        The ID of the project containing the log stream. Defaults to None.
+    project_name : Optional[str], optional
+        The name of the project containing the log stream. Defaults to None.
+
+    Returns
+    -------
+    builtins.list[ScorerConfig]
+        List of configured scorer configs.
+
+    Raises
+    ------
+    ValueError
+        If neither or both `project_id` and `project_name` are provided,
+        if the project is not found, if the log stream is not found,
+        or if one or more non-existent metrics are specified.
+
+    Examples
+    --------
+    # Configure metrics for a log stream by name
+    from galileo.log_streams import configure_log_stream_metrics
+    from galileo.schema.metrics import GalileoScorers
+
+    configure_log_stream_metrics(
+        log_stream="Production Logs",
+        metrics=[GalileoScorers.correctness, GalileoScorers.groundedness, "toxicity"],
+        project_name="My AI Project"
+    )
+
+    # Configure metrics for an existing LogStream object
+    log_stream = get_log_stream(name="Production Logs", project_name="My AI Project")
+    if log_stream:
+        configure_log_stream_metrics(
+            log_stream=log_stream,
+            metrics=[GalileoScorers.factuality, "bleu"],
+            project_name="My AI Project"
+        )
+    """
+    if (project_id is None) == (project_name is None):
+        raise ValueError("Exactly one of 'project_id' or 'project_name' must be provided")
+
+    # Resolve project_id if needed
+    if not project_id:
+        project = Projects().get(name=project_name)
+        if not project:
+            raise ValueError(f"Project {project_name} not found")
+        project_id = project.id
+
+    # Get log stream ID
+    if isinstance(log_stream, str):
+        log_stream_obj = get_log_stream(name=log_stream, project_id=project_id)
+        if not log_stream_obj:
+            raise ValueError(f"Log stream '{log_stream}' not found in project")
+        log_stream_id = log_stream_obj.id
+    else:
+        log_stream_id = log_stream.id
+
+    return LogStreams().configure_metrics(log_stream_id=log_stream_id, project_id=project_id, metrics=metrics)
+
+
+def create_log_stream_with_metrics(
+    name: str,
+    metrics: builtins.list[Union[GalileoScorers, Metric, str]],
+    *,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> tuple[LogStream, builtins.list[ScorerConfig]]:
+    """
+    Creates a new log stream and configures metrics for it in one step.
+    Exactly one of `project_id` or `project_name` must be provided.
+
+    Parameters
+    ----------
+    name : str
+        The name of the log stream.
+    metrics : builtins.list[Union[GalileoScorers, Metric, str]]
+        List of metrics to enable for the log stream.
+    project_id : Optional[str], optional
+        The ID of the project to create the log stream in. Defaults to None.
+    project_name : Optional[str], optional
+        The name of the project to create the log stream in. Defaults to None.
+
+    Returns
+    -------
+    tuple[LogStream, builtins.list[ScorerConfig]]
+        A tuple containing the created log stream and the configured scorer configs.
+
+    Raises
+    ------
+    ValueError
+        If neither or both `project_id` and `project_name` are provided,
+        if the project is not found, or if one or more non-existent metrics are specified.
+
+    Examples
+    --------
+    from galileo.log_streams import create_log_stream_with_metrics
+    from galileo.schema.metrics import GalileoScorers
+
+    # Create a log stream with metrics
+    log_stream, scorers = create_log_stream_with_metrics(
+        name="Production Logs with Metrics",
+        metrics=[GalileoScorers.correctness, GalileoScorers.groundedness, "toxicity"],
+        project_name="My AI Project"
+    )
+
+    print(f"Created log stream: {log_stream.name}")
+    print(f"Configured {len(scorers)} metrics")
+    """
+    # Create the log stream first
+    log_stream = create_log_stream(name=name, project_id=project_id, project_name=project_name)
+
+    # Configure metrics for the created log stream
+    scorers = configure_log_stream_metrics(
+        log_stream=log_stream, metrics=metrics, project_id=project_id, project_name=project_name
+    )
+
+    return log_stream, scorers
