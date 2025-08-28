@@ -660,9 +660,8 @@ class GalileoDecorator:
                     valid_params = sig.parameters.keys()
 
                     kwargs = {"output": output, **span_params}
-
-                    if span_type != "llm":
-                        kwargs["input"] = kwargs.get("input_serialized", "")
+                    kwargs["input"] = kwargs.get("input_serialized", "")
+                    # kwargs["output"] = json.dumps(kwargs["output"], cls=EventSerializer) when the output is an list/tuple it also breaks the add_llm_span
 
                     if span_type == "llm" and "model" not in kwargs:
                         # TODO: Allow a model to be parsed from the span_params
