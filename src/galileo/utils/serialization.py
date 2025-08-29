@@ -133,6 +133,16 @@ class EventSerializer(JSONEncoder):
             if is_dataclass(obj):
                 return {self.default(k): self.default(v) for k, v in obj.__dict__.items()}
 
+            # Handle Pydantic model classes (not instances)
+            if isinstance(obj, type) and issubclass(obj, BaseModel):
+                if hasattr(obj, "model_json_schema") and callable(getattr(obj, "model_json_schema")):
+                    try:
+                        return obj.model_json_schema()
+                    except Exception:
+                        # If schema generation fails, return class name
+                        return f"<{obj.__name__}>"
+                return f"<{obj.__name__}>"
+
             if isinstance(obj, BaseModel):
                 return self.default(
                     obj.model_dump(mode="json", exclude_none=True, exclude_unset=True, exclude_defaults=True)
