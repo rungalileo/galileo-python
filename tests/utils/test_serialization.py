@@ -515,3 +515,55 @@ class TestConvertToStringDict:
         assert "large_int" in result
         # Should be converted to string directly, not via JSON serialization
         assert result["large_int"] == str(large_int)
+
+
+class TestPydanticModelClassSerialization:
+    """Test serialization of Pydantic model classes (not instances)."""
+
+    def test_pydantic_model_class_with_schema(self) -> None:
+        """Test serialization of a Pydantic model class that has a schema method."""
+
+        class TestModel(BaseModel):
+            name: str
+            value: int = 42
+
+        serializer = EventSerializer()
+        result = serializer.default(TestModel)
+
+        # Should return the JSON schema of the model
+        assert isinstance(result, dict)
+        assert "properties" in result
+        assert "name" in result["properties"]
+        assert "value" in result["properties"]
+
+    def test_pydantic_model_class_schema_failure(self) -> None:
+        """Test serialization when schema generation fails."""
+
+        class ProblematicModel(BaseModel):
+            name: str
+
+            @classmethod
+            def model_json_schema(cls):
+                raise Exception("Schema generation failed")
+
+        serializer = EventSerializer()
+        result = serializer.default(ProblematicModel)
+
+        # Should return class name when schema generation fails
+        assert result == "<ProblematicModel>"
+
+    def test_pydantic_model_class_no_schema_method(self) -> None:
+        """Test serialization of a Pydantic model class when not callable."""
+
+        class ModelWithoutSchema(BaseModel):
+            name: str
+
+        # Mock the hasattr check to return False for model_json_schema being callable
+        with patch("galileo.utils.serialization.callable") as mock_callable:
+            mock_callable.return_value = False
+
+            serializer = EventSerializer()
+            result = serializer.default(ModelWithoutSchema)
+
+            # Should return class name when schema method is not callable
+            assert result == "<ModelWithoutSchema>"
