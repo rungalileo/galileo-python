@@ -1,8 +1,10 @@
 import datetime
+import json
 import logging
+import uuid
 from collections import deque
 from typing import Union
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 from uuid import UUID, uuid4
 
 import pytest
@@ -14,6 +16,9 @@ from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, Span, ToolSpan, WorkflowSpan
 from galileo_core.schemas.logging.step import Metrics
 from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.protect.execution_status import ExecutionStatus
+from galileo_core.schemas.protect.payload import Payload
+from galileo_core.schemas.protect.response import Response, TraceMetadata
 from galileo_core.schemas.shared.document import Document
 from tests.testutils.setup import (
     setup_mock_core_api_client,
@@ -57,7 +62,7 @@ def test_disable_galileo_logger(mock_core_api_client: Mock, monkeypatch, caplog)
         assert "Bypassing logging for conclude. Logging is currently disabled." in caplog.text
         assert "Bypassing logging for flush. Logging is currently disabled." in caplog.text
     mock_core_api_client.assert_not_called()
-    mock_core_api_client.ingest_traces_sync.assert_not_called()
+    mock_core_api_client.ingest_traces.assert_not_called()
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -91,7 +96,7 @@ def test_single_span_trace_to_galileo(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -178,6 +183,33 @@ def test_all_span_types_with_redacted_fields(
         status_code=200,
     )
 
+    received_at = int(created_at.timestamp() * 1_000_000_000)
+    response_at = int((created_at + datetime.timedelta(seconds=1)).timestamp() * 1_000_000_000)
+    execution_time = 1000.0
+    trace_metadata_id = uuid.uuid4()
+
+    logger.add_protect_span(
+        payload=Payload(input="Protect input", output="Protect output"),
+        redacted_payload=Payload(input="Protect redacted input", output="Protect redacted output"),
+        response=Response(
+            status=ExecutionStatus.triggered,
+            text="Protect text",
+            trace_metadata=TraceMetadata(
+                id=trace_metadata_id, received_at=received_at, response_at=response_at, execution_time=execution_time
+            ),
+        ),
+        redacted_response=Response(
+            status=ExecutionStatus.triggered,
+            text="Protect redacted text",
+            trace_metadata=TraceMetadata(
+                id=trace_metadata_id, received_at=received_at, response_at=response_at, execution_time=execution_time
+            ),
+        ),
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+
     logger.add_retriever_span(
         input="Retriever query with PII: john.doe@email.com",
         output=["Document with SSN: 123-45-6789", "Document with phone: 555-1234"],
@@ -203,7 +235,7 @@ def test_all_span_types_with_redacted_fields(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     trace = payload.traces[0]
 
     assert trace.input == "Sensitive trace input: api_key_123"
@@ -232,7 +264,36 @@ def test_all_span_types_with_redacted_fields(
     assert tool_span.output == "Tool output with result: result_secret"
     assert tool_span.redacted_output == "Tool output with result: [REDACTED]"
 
-    retriever_span = workflow_span.spans[2]
+    protect_span = workflow_span.spans[2]
+    assert isinstance(protect_span, ToolSpan)
+    assert protect_span.name == "GalileoProtect"
+    assert json.loads(protect_span.input) == {"input": "Protect input", "output": "Protect output"}
+    assert json.loads(protect_span.redacted_input) == {
+        "input": "Protect redacted input",
+        "output": "Protect redacted output",
+    }
+    assert json.loads(protect_span.output) == {
+        "status": "TRIGGERED",
+        "text": "Protect text",
+        "trace_metadata": {
+            "id": str(trace_metadata_id),
+            "received_at": received_at,
+            "response_at": response_at,
+            "execution_time": execution_time,
+        },
+    }
+    assert json.loads(protect_span.redacted_output) == {
+        "status": "TRIGGERED",
+        "text": "Protect redacted text",
+        "trace_metadata": {
+            "id": str(trace_metadata_id),
+            "received_at": received_at,
+            "response_at": response_at,
+            "execution_time": execution_time,
+        },
+    }
+
+    retriever_span = workflow_span.spans[3]
     assert isinstance(retriever_span, RetrieverSpan)
     assert retriever_span.input == "Retriever query with PII: john.doe@email.com"
     assert retriever_span.redacted_input == "Retriever query with PII: [REDACTED]"
@@ -268,7 +329,7 @@ def test_single_span_trace_to_galileo_experiment_id(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,
         experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
@@ -337,7 +398,7 @@ def test_nested_span_trace_to_galileo(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -368,11 +429,93 @@ def test_add_agent_span(mock_core_api_client: Mock, mock_projects_client: Mock, 
     logger.conclude(output="response", duration_ns=1_000_000, status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(log_stream_id=None, experiment_id=None, traces=[trace])
     assert payload == expected_payload
     assert isinstance(payload.traces[0].spans[0], AgentSpan)
     assert payload.traces[0].spans[0].agent_type == AgentType.default
+    assert logger.traces == list()
+    assert logger._parent_stack == deque()
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.GalileoCoreApiClient")
+def test_add_protect_tool_span(
+    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    created_at = datetime.datetime.now()
+    metadata = {"key": "value"}
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    trace = logger.start_trace(
+        input="input", name="test-trace", duration_ns=1_000_000, created_at=created_at, metadata=metadata
+    )
+
+    received_at = int(created_at.timestamp() * 1_000_000_000)
+    response_at = int((created_at + datetime.timedelta(seconds=1)).timestamp() * 1_000_000_000)
+    execution_time = 1000.0
+    trace_metadata_id = uuid.uuid4()
+
+    logger.add_protect_span(
+        payload=Payload(input="Protect input", output="Protect output"),
+        redacted_payload=Payload(input="Protect redacted input", output="Protect redacted output"),
+        response=Response(
+            status=ExecutionStatus.not_triggered,
+            text="Protect text",
+            trace_metadata=TraceMetadata(
+                id=trace_metadata_id, received_at=received_at, response_at=response_at, execution_time=execution_time
+            ),
+        ),
+        redacted_response=Response(
+            status=ExecutionStatus.not_triggered,
+            text="Protect redacted text",
+            trace_metadata=TraceMetadata(
+                id=trace_metadata_id, received_at=received_at, response_at=response_at, execution_time=execution_time
+            ),
+        ),
+        created_at=created_at,
+        metadata=metadata,
+        status_code=200,
+    )
+
+    logger.conclude(output="response", duration_ns=1_000_000, status_code=200)
+    logger.flush()
+
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    expected_payload = TracesIngestRequest(log_stream_id=None, experiment_id=None, traces=[trace])
+    assert payload == expected_payload
+    protect_span = payload.traces[0].spans[0]
+    assert isinstance(protect_span, ToolSpan)
+    assert protect_span.name == "GalileoProtect"
+    assert json.loads(protect_span.input) == {"input": "Protect input", "output": "Protect output"}
+    assert json.loads(protect_span.redacted_input) == {
+        "input": "Protect redacted input",
+        "output": "Protect redacted output",
+    }
+    assert json.loads(protect_span.output) == {
+        "status": "NOT_TRIGGERED",
+        "text": "Protect text",
+        "trace_metadata": {
+            "id": str(trace_metadata_id),
+            "received_at": received_at,
+            "response_at": response_at,
+            "execution_time": execution_time,
+        },
+    }
+    assert json.loads(protect_span.redacted_output) == {
+        "status": "NOT_TRIGGERED",
+        "text": "Protect redacted text",
+        "trace_metadata": {
+            "id": str(trace_metadata_id),
+            "received_at": received_at,
+            "response_at": response_at,
+            "execution_time": execution_time,
+        },
+    }
     assert logger.traces == list()
     assert logger._parent_stack == deque()
 
@@ -429,7 +572,7 @@ def test_multi_span_trace_to_galileo(
 
     logger.flush()
 
-    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -551,7 +694,7 @@ def test_retriever_span_str_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -577,7 +720,7 @@ def test_retriever_span_list_str_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -613,7 +756,7 @@ def test_retriever_span_dict_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -655,7 +798,7 @@ def test_retriever_span_list_dict_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -692,7 +835,7 @@ def test_retriever_span_document_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -722,7 +865,7 @@ def test_retriever_span_list_document_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -749,7 +892,7 @@ def test_retriever_span_none_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -830,7 +973,7 @@ def test_flush_with_conclude_all_spans(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -1017,7 +1160,7 @@ def test_session_create(mock_core_api_client: Mock, mock_projects_client: Mock, 
         name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
     )
 
-    payload = mock_core_api_instance.create_session_sync.call_args[0][0]
+    payload = mock_core_api_instance.create_session.call_args[0][0]
 
     assert payload.name == "test-session"
     assert payload.previous_session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
@@ -1039,7 +1182,7 @@ def test_session_create_empty_values(
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     session_id = logger.start_session()
 
-    payload = mock_core_api_instance.create_session_sync.call_args[0][0]
+    payload = mock_core_api_instance.create_session.call_args[0][0]
 
     assert payload.name is None
     assert payload.previous_session_id is None
@@ -1090,7 +1233,7 @@ def test_session_id_on_flush(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     assert str(payload.session_id) == session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
 
 
@@ -1116,7 +1259,7 @@ def test_set_session_id(mock_core_api_client: Mock, mock_projects_client: Mock, 
     logger.flush()
 
     # Check that the session ID is set correctly in the payload
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     assert payload.session_id == UUID(session_id)
 
 
@@ -1135,12 +1278,12 @@ def test_start_session_with_external_id(
     session_id = logger.start_session(
         name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test-external-id"
     )
-    mock_core_api_instance.get_sessions_sync.assert_called_once()
-    mock_core_api_instance.create_session_sync.assert_called_once()
+    mock_core_api_instance.get_sessions.assert_called_once()
+    mock_core_api_instance.create_session.assert_called_once()
     assert session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
     assert logger.session_id == session_id
 
-    mock_core_api_instance.get_sessions_sync = Mock(
+    mock_core_api_instance.get_sessions = AsyncMock(
         return_value={
             "starting_token": 0,
             "limit": 100,
@@ -1172,12 +1315,12 @@ def test_start_session_with_external_id(
             "num_records": 1,
         }
     )
-    mock_core_api_instance.create_session_sync.reset_mock()
+    mock_core_api_instance.create_session.reset_mock()
 
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     session_id = logger.start_session(external_id="test-external-id")
-    mock_core_api_instance.get_sessions_sync.assert_called_once()
-    mock_core_api_instance.create_session_sync.assert_not_called()
+    mock_core_api_instance.get_sessions.assert_called_once()
+    mock_core_api_instance.create_session.assert_not_called()
     assert session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
     assert logger.session_id == session_id
 
@@ -1188,7 +1331,7 @@ def test_start_session_with_external_id(
     logger.flush()
 
     # Check that the session ID is set correctly in the payload
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
     assert payload.session_id == session_id
 
 

@@ -7,8 +7,8 @@ from galileo.base import BaseClientModel
 from galileo.constants.protect import TIMEOUT_SECS
 from galileo.resources.api.protect import invoke_protect_invoke_post
 from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.models.request import Request as APIRequest
-from galileo.resources.models.response import Response as APIResponse
+from galileo.resources.models.protect_request import ProtectRequest as APIRequest
+from galileo.resources.models.protect_response import ProtectResponse as APIResponse
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo_core.helpers.execution import async_run
 from galileo_core.schemas.protect.payload import Payload
@@ -56,7 +56,7 @@ class Protect(BaseClientModel, DecorateAllMethods):
         return response
 
 
-async def ainvoke(
+async def ainvoke_protect(
     payload: Payload,
     prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     project_id: Optional[UUID4] = None,
@@ -107,7 +107,7 @@ async def ainvoke(
     )
 
 
-def invoke(
+def invoke_protect(
     payload: Payload,
     prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     project_id: Optional[UUID4] = None,
@@ -145,7 +145,7 @@ def invoke(
         Protect invoke results.
     """
     return async_run(
-        ainvoke(
+        ainvoke_protect(
             payload=payload,
             prioritized_rulesets=prioritized_rulesets,
             project_id=project_id,

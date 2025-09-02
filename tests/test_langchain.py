@@ -1,5 +1,6 @@
 import time
 import uuid
+from collections.abc import Generator
 from unittest.mock import MagicMock, Mock, patch
 
 import pytest
@@ -10,7 +11,6 @@ from langchain_core.outputs import ChatGeneration, LLMResult
 
 from galileo import Message, MessageRole
 from galileo.handlers.langchain import GalileoCallback
-from galileo.handlers.langchain.handler import _root_node
 from galileo.logger.logger import GalileoLogger
 from galileo_core.schemas.shared.document import Document as GalileoDocument
 from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
@@ -30,79 +30,26 @@ class TestGalileoCallback:
         return logger
 
     @pytest.fixture
-    def callback(self, galileo_logger: GalileoLogger) -> GalileoCallback:
+    def callback(self, galileo_logger: GalileoLogger) -> Generator[GalileoCallback, None, None]:
         """Creates a GalileoCallback with a mock logger"""
         callback = GalileoCallback(galileo_logger=galileo_logger, flush_on_chain_end=False)
         # Reset the root node before each test
-        _root_node.set(None)
         yield callback
         # Clean up after each test
-        _root_node.set(None)
 
     def test_initialization(self, galileo_logger: GalileoLogger):
         """Test callback initialization with various parameters"""
         # Default initialization
         callback = GalileoCallback(galileo_logger=galileo_logger)
-        assert callback._galileo_logger == galileo_logger
-        assert callback._start_new_trace is True
-        assert callback._flush_on_chain_end is True
-        assert callback._nodes == {}
+        assert callback._handler._galileo_logger == galileo_logger
+        assert callback._handler._start_new_trace is True
+        assert callback._handler._flush_on_chain_end is True
+        assert callback._handler._nodes == {}
 
         # Custom initialization
         callback = GalileoCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
-        assert callback._start_new_trace is False
-        assert callback._flush_on_chain_end is False
-
-    def test_start_node(self, callback: GalileoCallback):
-        """Test creating a node and establishing parent-child relationships"""
-        # Create a parent node
-        parent_id = uuid.uuid4()
-        node = callback._start_node(
-            node_type="chain", parent_run_id=None, run_id=parent_id, name="Parent Chain", input={"query": "test"}
-        )
-
-        assert node.node_type == "chain"
-        assert node.run_id == parent_id
-        assert node.parent_run_id is None
-        assert "name" in node.span_params
-        assert node.span_params["name"] == "Parent Chain"
-        assert str(parent_id) in callback._nodes
-        assert "start_time" in node.span_params
-
-        # Create a child node
-        child_id = uuid.uuid4()
-        child_node = callback._start_node(
-            node_type="llm", parent_run_id=parent_id, run_id=child_id, name="Child LLM", input="test prompt"
-        )
-
-        assert child_node.node_type == "llm"
-        assert child_node.parent_run_id == parent_id
-        assert str(child_id) in callback._nodes
-
-        # Verify parent-child relationship was established
-        assert str(child_id) in callback._nodes[str(parent_id)].children
-
-        # Verify root node was set properly
-        assert _root_node.get().run_id == parent_id
-
-    def test_end_node(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
-        """Test ending a node and updating its parameters"""
-        # Create a node
-        run_id = uuid.uuid4()
-        callback._start_node(
-            node_type="chain", parent_run_id=None, run_id=run_id, name="Test Chain", input='{"query": "test"}'
-        )
-
-        # End the node and commit the trace
-        callback._end_node(run_id, output='{"result": "test result"}')
-
-        traces = galileo_logger.traces
-        assert len(traces) == 1
-        assert len(traces[0].spans) == 1
-        assert traces[0].spans[0].name == "Test Chain"
-        assert traces[0].spans[0].type == "workflow"
-        assert traces[0].spans[0].input == '{"query": "test"}'
-        assert traces[0].spans[0].output == '{"result": "test result"}'
+        assert callback._handler._start_new_trace is False
+        assert callback._handler._flush_on_chain_end is False
 
     def test_on_chain_start_end(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
         """Test chain start and end callbacks"""
@@ -111,10 +58,11 @@ class TestGalileoCallback:
         # Start chain
         callback.on_chain_start(serialized={"name": "TestChain"}, inputs='{"query": "test question"}', run_id=run_id)
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "chain"
-        assert callback._nodes[str(run_id)].span_params["input"] == '{"query": "test question"}'
-        assert callback._nodes[str(run_id)].span_params["start_time"] > 0
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "chain"
+        assert node.span_params["input"] == '{"query": "test question"}'
+        assert node.span_params["start_time"] > 0
 
         # End chain
         callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
@@ -147,10 +95,11 @@ class TestGalileoCallback:
             name="LangGraph",
         )
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "agent"
+        nodes = callback._handler.get_nodes()
+        assert str(run_id) in nodes
+        assert nodes[str(run_id)].node_type == "agent"
         assert (
-            callback._nodes[str(run_id)].span_params["input"]
+            nodes[str(run_id)].span_params["input"]
             == '{"messages": [{"content": "What does Lilian Weng say about the types of agent memory?", "role": "user"}]}'
         )
 
@@ -176,7 +125,9 @@ class TestGalileoCallback:
         # Start agent chain
         callback.on_chain_start(serialized={"name": "Agent"}, inputs={"input": "test input"}, run_id=run_id)
 
-        assert callback._nodes[str(run_id)].node_type == "agent"
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "agent"
 
         # End with agent finish
         finish = AgentFinish(return_values={"output": "test result"}, log="log message")
@@ -209,11 +160,12 @@ class TestGalileoCallback:
             invocation_params={"model_name": "gpt-4", "temperature": 0.7},
         )
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "llm"
-        assert callback._nodes[str(run_id)].span_params["model"] == "gpt-4"
-        assert callback._nodes[str(run_id)].span_params["temperature"] == 0.7
-        assert callback._nodes[str(run_id)].span_params["input"] == [{"content": "Tell me about AI", "role": "user"}]
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "llm"
+        assert node.span_params["model"] == "gpt-4"
+        assert node.span_params["temperature"] == 0.7
+        assert node.span_params["input"] == [{"content": "Tell me about AI", "role": "user"}]
 
         # Add a token to test token timing
         callback.on_llm_new_token("AI", run_id=run_id)
@@ -227,10 +179,12 @@ class TestGalileoCallback:
         callback.on_llm_end(response=llm_response, run_id=run_id, parent_run_id=parent_id)
 
         # Verify token counts were set
-        assert callback._nodes[str(run_id)].span_params["num_input_tokens"] == 10
-        assert callback._nodes[str(run_id)].span_params["num_output_tokens"] == 20
-        assert callback._nodes[str(run_id)].span_params["total_tokens"] == 30
-        assert callback._nodes[str(run_id)].span_params["duration_ns"] > 0
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.span_params["num_input_tokens"] == 10
+        assert node.span_params["num_output_tokens"] == 20
+        assert node.span_params["total_tokens"] == 30
+        assert node.span_params["duration_ns"] > 0
 
     def test_on_chat_model_start(self, callback: GalileoCallback):
         """Test chat model start callback"""
@@ -254,14 +208,15 @@ class TestGalileoCallback:
             invocation_params={"model": "gpt-4o", "temperature": 0.7},
         )
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "chat"
-        assert callback._nodes[str(run_id)].span_params["model"] == "gpt-4o"
-        assert callback._nodes[str(run_id)].span_params["temperature"] == 0.7
-        assert callback._nodes[str(run_id)].span_params["start_time"] > 0
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "chat"
+        assert node.span_params["model"] == "gpt-4o"
+        assert node.span_params["temperature"] == 0.7
+        assert node.span_params["start_time"] > 0
 
         # Check that message serialization worked
-        input_data = callback._nodes[str(run_id)].span_params["input"]
+        input_data = node.span_params["input"]
         assert isinstance(input_data, list)
         assert len(input_data) == 3  # Two messages
         assert input_data[0]["content"] == "You are a helpful assistant."
@@ -305,11 +260,12 @@ class TestGalileoCallback:
             },
         )
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "chat"
-        assert callback._nodes[str(run_id)].span_params["model"] == "gpt-4o"
-        assert callback._nodes[str(run_id)].span_params["temperature"] == 0.7
-        assert callback._nodes[str(run_id)].span_params["tools"] == [
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "chat"
+        assert node.span_params["model"] == "gpt-4o"
+        assert node.span_params["temperature"] == 0.7
+        assert node.span_params["tools"] == [
             {
                 "type": "function",
                 "function": {
@@ -358,16 +314,17 @@ class TestGalileoCallback:
             serialized={"name": "calculator"}, input_str="2+2", run_id=run_id, parent_run_id=parent_id
         )
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "tool"
-        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
-        assert callback._nodes[str(run_id)].span_params.get("step_number") is None
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "tool"
+        assert node.span_params["input"] == "2+2"
+        assert node.span_params.get("step_number") is None
 
         # End tool with a string output
         callback.on_tool_end(output="4", run_id=run_id, parent_run_id=parent_id)
 
-        assert callback._nodes[str(run_id)].span_params["duration_ns"] > 0
-        assert callback._nodes[str(run_id)].span_params["output"] == "4"
+        assert node.span_params["duration_ns"] > 0
+        assert node.span_params["output"] == "4"
 
     def test_on_tool_start_end_with_object_output(self, callback: GalileoCallback):
         """Test tool start and end callbacks"""
@@ -382,9 +339,10 @@ class TestGalileoCallback:
             serialized={"name": "calculator"}, input_str="2+2", run_id=run_id, parent_run_id=parent_id
         )
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "tool"
-        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "tool"
+        assert node.span_params["input"] == "2+2"
 
         class ToolResponseWithContent:
             def __init__(self, content, tool_call_id, status, role):
@@ -400,10 +358,11 @@ class TestGalileoCallback:
             parent_run_id=parent_id,
         )
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "tool"
-        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
-        assert callback._nodes[str(run_id)].span_params["output"] == (
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "tool"
+        assert node.span_params["input"] == "2+2"
+        assert node.span_params["output"] == (
             '{"content": "tool response", "tool_call_id": "1", "status": "success", "role": "tool"}'
         )
 
@@ -425,13 +384,11 @@ class TestGalileoCallback:
             parent_run_id=parent_id,
         )
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "tool"
-        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
-        assert (
-            callback._nodes[str(run_id)].span_params["output"]
-            == '{"tool_call_id": "1", "status": "success", "role": "tool"}'
-        )
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "tool"
+        assert node.span_params["input"] == "2+2"
+        assert node.span_params["output"] == '{"tool_call_id": "1", "status": "success", "role": "tool"}'
 
     def test_on_tool_start_end_with_dict_output(self, callback: GalileoCallback):
         """Test tool start and end callbacks"""
@@ -446,9 +403,10 @@ class TestGalileoCallback:
             serialized={"name": "calculator"}, input_str="2+2", run_id=run_id, parent_run_id=parent_id
         )
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "tool"
-        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "tool"
+        assert node.span_params["input"] == "2+2"
 
         # End tool with a dict output with a content field
         callback.on_tool_end(
@@ -457,10 +415,11 @@ class TestGalileoCallback:
             parent_run_id=parent_id,
         )
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "tool"
-        assert callback._nodes[str(run_id)].span_params["input"] == "2+2"
-        assert callback._nodes[str(run_id)].span_params["output"] == (
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "tool"
+        assert node.span_params["input"] == "2+2"
+        assert node.span_params["output"] == (
             '{"content": "tool response", "tool_call_id": "1", "status": "success", "role": "tool"}'
         )
 
@@ -474,10 +433,9 @@ class TestGalileoCallback:
             output={"tool_call_id": "1", "status": "success", "role": "tool"}, run_id=run_id, parent_run_id=parent_id
         )
 
-        assert (
-            callback._nodes[str(run_id)].span_params["output"]
-            == '{"tool_call_id": "1", "status": "success", "role": "tool"}'
-        )
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.span_params["output"] == '{"tool_call_id": "1", "status": "success", "role": "tool"}'
 
     def test_on_retriever_start_end(self, callback: GalileoCallback):
         """Test retriever start and end callbacks"""
@@ -490,16 +448,19 @@ class TestGalileoCallback:
         # Start retriever
         callback.on_retriever_start(serialized={}, query="AI development", run_id=run_id, parent_run_id=parent_id)
 
-        assert str(run_id) in callback._nodes
-        assert callback._nodes[str(run_id)].node_type == "retriever"
-        assert callback._nodes[str(run_id)].span_params["input"] == "AI development"
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "retriever"
+        assert node.span_params["input"] == "AI development"
 
         # End retriever
         document = Document(page_content="AI is advancing rapidly", metadata={"source": "textbook"})
         callback.on_retriever_end(documents=[document], run_id=run_id, parent_run_id=parent_id)
 
-        assert isinstance(callback._nodes[str(run_id)].span_params["output"], list)
-        assert len(callback._nodes[str(run_id)].span_params["output"]) == 1
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert isinstance(node.span_params["output"], list)
+        assert len(node.span_params["output"]) == 1
 
     def test_extracting_chain_names_from_metadata(self, callback: GalileoCallback, galileo_logger: GalileoLogger):
         """Test extracting chain names from metadata kwarg, with two nested chains"""
@@ -648,7 +609,7 @@ class TestGalileoCallback:
         child_id = uuid.uuid4()
 
         # Start child with non-existent parent
-        callback._start_node(
+        callback._handler.start_node(
             node_type="llm",
             parent_run_id=parent_id,  # This parent doesn't exist
             run_id=child_id,
@@ -657,8 +618,10 @@ class TestGalileoCallback:
         )
 
         # Child should still be created
-        assert str(child_id) in callback._nodes
-        assert callback._nodes[str(child_id)].parent_run_id == parent_id
+        node = callback._handler.get_node(child_id)
+        assert node is not None
+        assert node.node_type == "llm"
+        assert node.parent_run_id == parent_id
 
     def test_serialization_error_handling(self, callback: GalileoCallback):
         """Test handling of serialization errors"""
@@ -682,8 +645,9 @@ class TestGalileoCallback:
             callback.on_retriever_end(documents=[unserializable], run_id=retriever_id, parent_run_id=run_id)
 
         # Node should still exist and output should be a string
-        assert str(retriever_id) in callback._nodes
-        assert isinstance(callback._nodes[str(retriever_id)].span_params["output"], str)
+        node = callback._handler.get_node(retriever_id)
+        assert node is not None
+        assert isinstance(node.span_params["output"], str)
 
     def test_get_node_name(self, callback: GalileoCallback):
         """Test the _get_node_name method to ensure it correctly extracts names from serialized data"""
@@ -725,7 +689,7 @@ class TestGalileoCallback:
         callback = GalileoCallback(galileo_logger=galileo_logger, start_new_trace=False, flush_on_chain_end=False)
 
         # Start a chain (creates a workflow span)
-        callback._start_node("chain", None, run_id, name="Test Chain", input='{"query": "test"}')
+        callback._handler.start_node("chain", None, run_id, name="Test Chain", input='{"query": "test"}')
 
         # Add a retriever span
         retriever_id = uuid.uuid4()
@@ -735,7 +699,7 @@ class TestGalileoCallback:
         )
 
         # End the chain (ends the workflow span)
-        callback._end_node(run_id, output='{"result": "test result"}')
+        callback._handler.end_node(run_id, output='{"result": "test result"}')
 
         galileo_logger.conclude(output="test output", status_code=200)
 

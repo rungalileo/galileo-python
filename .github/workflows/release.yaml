@@ -25,6 +25,7 @@ jobs:
           github_token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
           ssh_public_signing_key: ${{ secrets.GALILEO_AUTOMATION_SSH_PUBLIC_KEY }}
           ssh_private_signing_key: ${{ secrets.GALILEO_AUTOMATION_SSH_PRIVATE_KEY }}
+          vcs_release: true
 
       - name: Build Package
         if: steps.release.outputs.released == 'true'
@@ -38,9 +39,3 @@ jobs:
         with:
           verbose: true
           print-hash: true
-
-      - name: Publish to GitHub Releases
-        uses: python-semantic-release/upload-to-gh-release@main
-        if: steps.release.outputs.released == 'true'
-        with:
-          github_token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}

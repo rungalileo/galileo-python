@@ -35,6 +35,7 @@ from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
+from galileo_core.helpers.execution import async_run
 from galileo_core.schemas.logging.agent import AgentType
 from galileo_core.schemas.logging.span import (
     AgentSpan,
@@ -49,6 +50,8 @@ from galileo_core.schemas.logging.span import (
 )
 from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType, StepType
 from galileo_core.schemas.logging.trace import Trace
+from galileo_core.schemas.protect.payload import Payload
+from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
@@ -262,7 +265,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Initializes the trace
         """
-        trace_obj = self._client.get_trace_sync(trace_id=self.trace_id)
+        trace_obj = async_run(self._client.get_trace(trace_id=self.trace_id))
         if trace_obj is None:
             raise GalileoLoggerException(f"Trace {self.trace_id} not found")
 
@@ -277,7 +280,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Initializes the span
         """
-        span_obj = self._client.get_span_sync(span_id=self.span_id)
+        span_obj = async_run(self._client.get_span(span_id=self.span_id))
         if span_obj is None:
             raise GalileoLoggerException(f"Span {self.span_id} not found")
 
@@ -333,6 +336,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 self._task_handler.increment_retry(task_id),
                 self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
             ),
+            on_giveup=lambda details: self._logger.error(
+                f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}", exc_info=False
+            ),
         )
         @handle_galileo_http_exceptions_for_retry
         async def ingest_traces_with_backoff(request):
@@ -373,6 +379,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 self._task_handler.increment_retry(task_id),
                 self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
             ),
+            on_giveup=lambda details: self._logger.error(
+                f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}", exc_info=False
+            ),
         )
         @handle_galileo_http_exceptions_for_retry
         async def ingest_spans_with_backoff(request):
@@ -407,6 +416,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                     self._task_handler.increment_retry(task_id),
                     self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
                 ),
+                on_giveup=lambda details: self._logger.error(
+                    f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}",
+                    exc_info=False,
+                ),
             )
             @handle_galileo_http_exceptions_for_retry
             async def update_trace_with_backoff(request):
@@ -440,6 +453,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             on_backoff=lambda details: (
                 self._task_handler.increment_retry(task_id),
                 self._logger.info(f"Retry #{self._task_handler.get_retry_count(task_id)} for task {task_id}"),
+            ),
+            on_giveup=lambda details: self._logger.error(
+                f"Task {task_id} failed after {details['tries']} attempts: {details.get('exception')}", exc_info=False
             ),
         )
         @handle_galileo_http_exceptions_for_retry
@@ -502,7 +518,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         name: Optional[str]: Name of the trace.
         duration_ns: Optional[int]: Duration of the trace in nanoseconds.
         created_at: Optional[datetime]: Timestamp of the trace's creation.
-        metadata: Optional[Dict[str, str]]: Metadata associated with this trace.
+        metadata: Optional[dict[str, str]]: Metadata associated with this trace.
         tags: Optional[list[str]]: Tags associated with this trace.
         external_id: Optional[str]: External ID for this trace to connect to external systems.
 
@@ -569,11 +585,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             model: Optional[str]: Model used for this span. Feedback from April: Good docs about what model names we use.
             redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
             redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
-            tools: Optional[List[Dict]]: List of available tools passed to LLM on invocation.
+            tools: Optional[List[dict]]: List of available tools passed to LLM on invocation.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            user_metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             num_input_tokens: Optional[int]: Number of input tokens.
             num_output_tokens: Optional[int]: Number of output tokens.
             total_tokens: Optional[int]: Total number of tokens.
@@ -650,11 +666,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             model: str: Model used for this span.
             redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
             redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
-            tools: Optional[List[Dict]]: List of available tools passed to LLM on invocation.
+            tools: Optional[list[dict]]: List of available tools passed to LLM on invocation.
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             num_input_tokens: Optional[int]: Number of input tokens.
             num_output_tokens: Optional[int]: Number of output tokens.
             total_tokens: Optional[int]: Total number of tokens.
@@ -724,7 +740,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             status_code: Optional[int]: Status code of the node execution.
             step_number: Optional[int]: Step number of the span.
         Returns:
@@ -815,7 +831,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            user_metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             status_code: Optional[int]: Status code of the node execution.
             tool_call_id: Optional[str]: Tool call ID.
             step_number: Optional[int]: Step number of the span.
@@ -835,6 +851,58 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             tags=tags,
             status_code=status_code,
             tool_call_id=tool_call_id,
+            step_number=step_number,
+            id=uuid.uuid4(),
+        )
+        span = super().add_tool_span(**kwargs)
+
+        if self.mode == "streaming":
+            self._ingest_step_streaming(span)
+
+        return span
+
+    @nop_sync
+    def add_protect_span(
+        self,
+        payload: Payload,
+        redacted_payload: Optional[Payload] = None,
+        response: Optional[Response] = None,
+        redacted_response: Optional[Response] = None,
+        created_at: Optional[datetime] = None,
+        metadata: Optional[dict[str, str]] = None,
+        tags: Optional[list[str]] = None,
+        status_code: Optional[int] = None,
+        step_number: Optional[int] = None,
+    ) -> ToolSpan:
+        """
+        Add a new Protect tool span to the current parent.
+
+        Parameters:
+        ----------
+            payload: Payload: Input to the node. This is the input to the Protect `invoke` method.
+            redacted_payload: Optional[Payload]: Redacted input to the node.
+            response: Response: Output of the node. This is the output from the Protect `invoke` method.
+            redacted_response: Optional[Response]: Redacted output to the node.
+            created_at: Optional[datetime]: Timestamp of the span's creation.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
+            tags: Optional[list[str]]: Tags associated with this span.
+            status_code: Optional[int]: Status code of the node execution.
+            step_number: Optional[int]: Step number of the span.
+        Returns:
+        -------
+            ToolSpan: The created Protect tool span.
+        """
+        kwargs = dict(
+            input=json.dumps(payload.model_dump(mode="json")),
+            redacted_input=json.dumps(redacted_payload.model_dump(mode="json")) if redacted_payload else None,
+            output=json.dumps(response.model_dump(mode="json")) if response else None,
+            redacted_output=json.dumps(redacted_response.model_dump(mode="json")) if redacted_response else None,
+            name="GalileoProtect",
+            duration_ns=response.trace_metadata.response_at - response.trace_metadata.received_at if response else None,
+            created_at=created_at,
+            user_metadata=metadata,
+            tags=tags,
+            status_code=status_code,
             step_number=step_number,
             id=uuid.uuid4(),
         )
@@ -873,7 +941,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             step_number: Optional[int]: Step number of the span.
         Returns:
         -------
@@ -926,7 +994,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
-            metadata: Optional[Dict[str, str]]: Metadata associated with this span.
+            metadata: Optional[dict[str, str]]: Metadata associated with this span.
             agent_type: Optional[AgentType]: Agent type of the span.
             step_number: Optional[int]: Step number of the span.
 
@@ -1025,42 +1093,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             List[Trace]: The list of uploaded traces.
         """
-        if self.mode == "batch":
-            return self._flush_batch()
-        else:
-            self._logger.warning("Flushing in streaming mode is not supported.")
-            return list()
-
-    def _flush_batch(self):
-        if not self.traces:
-            self._logger.info("No traces to flush.")
-            return list()
-
-        current_parent = self.current_parent()
-        if current_parent is not None:
-            self._logger.info("Concluding the active trace...")
-            last_output = get_last_output(current_parent)
-            self.conclude(output=last_output, conclude_all=True)
-
-        if self.local_metrics:
-            self._logger.info("Computing local metrics...")
-            # TODO: parallelize, possibly with ThreadPoolExecutor
-            for trace in self.traces:
-                populate_local_metrics(trace, self.local_metrics)
-
-        self._logger.info("Flushing %d traces...", len(self.traces))
-
-        traces_ingest_request = TracesIngestRequest(
-            traces=self.traces, experiment_id=self.experiment_id, session_id=self.session_id
-        )
-        self._client.ingest_traces_sync(traces_ingest_request)
-        logged_traces = self.traces
-
-        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
-
-        self.traces = list()
-        self._parent_stack = deque()
-        return logged_traces
+        return async_run(self._flush_batch())
 
     @nop_async
     async def async_flush(self) -> list[Trace]:
@@ -1071,13 +1104,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             List[Trace]: The list of uploaded workflows.
         """
-        if self.mode == "batch":
-            return await self._async_flush_batch()
-        else:
+        return await self._flush_batch()
+
+    async def _flush_batch(self) -> list[Trace]:
+        if self.mode != "batch":
             self._logger.warning("Flushing in streaming mode is not supported.")
             return list()
 
-    async def _async_flush_batch(self) -> list[Trace]:
         if not self.traces:
             self._logger.info("No traces to flush.")
             return list()
@@ -1094,13 +1127,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             for trace in self.traces:
                 populate_local_metrics(trace, self.local_metrics)
 
-        self._logger.info("Flushing %d traces...", len(self.traces))
-
-        traces_ingest_request = TracesIngestRequest(traces=self.traces, session_id=self.session_id)
-        await self._client.ingest_traces(traces_ingest_request)
         logged_traces = self.traces
+        trace_count = len(logged_traces)
+        self._logger.info(f"Flushing {trace_count} {'trace' if trace_count == 1 else 'traces'}...")
 
-        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
+        traces_ingest_request = TracesIngestRequest(
+            traces=logged_traces, session_id=self.session_id, experiment_id=self.experiment_id
+        )
+        await self._client.ingest_traces(traces_ingest_request)
+
+        self._logger.info(f"Successfully flushed {trace_count} {'trace' if trace_count == 1 else 'traces'}.")
 
         self.traces = list()
         self._parent_stack = deque()
@@ -1135,26 +1171,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 self._logger.info("All requests are complete.")
             self._task_handler.terminate()
 
-    @nop_sync
-    def start_session(
+    async def _start_or_get_session_async(
         self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
     ) -> str:
-        """
-        Start a new session or use an existing session if an external ID is provided.
-
-        Parameters:
-        ----------
-            name: Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
-            previous_session_id: Optional[str]: ID of the previous session.
-            external_id: Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
-        Returns:
-        -------
-            str: The ID of the newly created session.
-        """
         if external_id and external_id.strip() != "":
             self._logger.info(f"Searching for session with external ID: {external_id} ...")
             try:
-                sessions = self._client.get_sessions_sync(
+                sessions = await self._client.get_sessions(
                     LogRecordsSearchRequest(
                         filters=[
                             LogRecordsSearchFilter(
@@ -1177,14 +1200,57 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._logger.info("Starting a new session...")
 
-        session = self._client.create_session_sync(
+        session = await self._client.create_session(
             SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
         )
 
         self._logger.info("Session started with ID: %s", session["id"])
-
         self.session_id = str(session["id"])
         return self.session_id
+
+    @nop_async
+    async def async_start_session(
+        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> str:
+        """
+        Async start a new session or use an existing session if an external ID is provided.
+
+        Parameters:
+        ----------
+            name: Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
+            previous_session_id: Optional[str]: ID of the previous session.
+            external_id: Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
+        Returns:
+        -------
+            str: The ID of the session (existing or newly created).
+        """
+        return await self._start_or_get_session_async(
+            name=name, previous_session_id=previous_session_id, external_id=external_id
+        )
+
+    @nop_sync
+    def start_session(
+        self, name: Optional[str] = None, previous_session_id: Optional[str] = None, external_id: Optional[str] = None
+    ) -> str:
+        """
+        Start a new session or use an existing session if an external ID is provided.
+
+        Parameters:
+        ----------
+            name: Optional[str]: Name of the session. If omitted, the server will assign a name.
+            previous_session_id: Optional[str]: UUID string of a prior session to link to.
+            external_id: Optional[str]: External identifier to dedupe against existing sessions within the same
+                project/log stream or experiment; if found, that session will be reused instead of creating a new one.
+
+        Returns:
+        -------
+            str: The ID of the session (existing or newly created).
+        """
+        return async_run(
+            self._start_or_get_session_async(
+                name=name, previous_session_id=previous_session_id, external_id=external_id
+            )
+        )
 
     @nop_sync
     def set_session(self, session_id: str) -> None:
