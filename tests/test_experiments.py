@@ -602,9 +602,14 @@ class TestExperiments:
         assert payload.traces[0].output == "Say hello: Which continent is Spain in?"
 
     @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
     def test_run_experiment_with_prompt_template_and_function(
-        self, mock_get_dataset: Mock, dataset_content: DatasetContent
+        self, mock_get_dataset: Mock,
+        mock_projects_client: Mock,
+        dataset_content: DatasetContent
     ):
+        setup_mock_projects_client(mock_projects_client)
+
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
@@ -622,7 +627,14 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000001", name=None)
         mock_get_dataset_instance.get_content.assert_called()
 
-    def test_run_experiment_with_prompt_template_and_local_dataset(self, local_dataset: list[dict[str, str]]):
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_prompt_template_and_local_dataset(
+        self,
+        mock_projects_client: Mock,
+        local_dataset: list[dict[str, str]],
+    ):
+        setup_mock_projects_client(mock_projects_client)
+
         with pytest.raises(ValueError) as exc_info:
             run_experiment(
                 "test_experiment",
