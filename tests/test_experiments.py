@@ -602,14 +602,11 @@ class TestExperiments:
         assert payload.traces[0].output == "Say hello: Which continent is Spain in?"
 
     @patch.object(galileo.datasets.Datasets, "get")
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
     def test_run_experiment_with_prompt_template_and_function(
-        self, mock_get_dataset: Mock,
-        mock_projects_client: Mock,
+        self,
+        mock_get_dataset: Mock,
         dataset_content: DatasetContent
     ):
-        setup_mock_projects_client(mock_projects_client)
-
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)

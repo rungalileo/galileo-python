@@ -268,6 +268,21 @@ def run_experiment(
     Raises:
         ValueError: If required parameters are missing or invalid
     """
+    # Load dataset and records
+    dataset_obj, records = load_dataset_and_records(dataset, dataset_id, dataset_name)
+
+    # Validate experiment configuration
+    if prompt_template and not dataset_obj:
+        raise ValueError("A dataset record, id, or name of a dataset must be provided when a prompt_template is used")
+
+    if function and not records:
+        raise ValueError(
+            "A dataset record, id or name of a dataset, or list of records must be provided when a function is used"
+        )
+
+    if function and prompt_template:
+        raise ValueError("A function or prompt_template should be provided, but not both")
+
     # Get the project
     # If the name or Id is set, then use these to get the project. Only one can be provided
     # If neither are set, use the environment variables to get the project name or Id
@@ -288,21 +303,6 @@ def run_experiment(
         if project_id:
             raise ValueError(f"Project with Id {project_id} does not exist")
         raise ValueError(f"Project {project_name} does not exist")
-
-    # Load dataset and records
-    dataset_obj, records = load_dataset_and_records(dataset, dataset_id, dataset_name)
-
-    # Validate experiment configuration
-    if prompt_template and not dataset_obj:
-        raise ValueError("A dataset record, id, or name of a dataset must be provided when a prompt_template is used")
-
-    if function and not records:
-        raise ValueError(
-            "A dataset record, id or name of a dataset, or list of records must be provided when a function is used"
-        )
-
-    if function and prompt_template:
-        raise ValueError("A function or prompt_template should be provided, but not both")
 
     # Create or get experiment
     existing_experiment = Experiments().get(project_obj.id, experiment_name)
