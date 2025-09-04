@@ -445,6 +445,70 @@ class TestExperiments:
 
         assert str(exc_info.value) == "A project name or Id must be provided"
 
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=None)
+    def test_run_experiment_with_invalid_project_id_gives_error(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ):
+        mock_create_job.return_value = MagicMock()
+
+        # mock dataset.get_content
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        dataset_id = str(UUID(int=0))
+        with pytest.raises(ValueError) as exc_info:
+            with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
+                with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
+                    run_experiment(
+                        "test_experiment",
+                        project_id="awesome-new-project",
+                        dataset_id=dataset_id,
+                        prompt_template=prompt_template(),
+                    )
+
+        assert str(exc_info.value) == "Project with Id awesome-new-project does not exist"
+
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=None)
+    def test_run_experiment_with_invalid_project_name_gives_error(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ):
+        mock_create_job.return_value = MagicMock()
+
+        # mock dataset.get_content
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        dataset_id = str(UUID(int=0))
+        with pytest.raises(ValueError) as exc_info:
+            with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
+                with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
+                    run_experiment(
+                        "test_experiment",
+                        project="awesome-new-project",
+                        dataset_id=dataset_id,
+                        prompt_template=prompt_template(),
+                    )
+
+        assert str(exc_info.value) == "Project awesome-new-project does not exist"
+
     @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
