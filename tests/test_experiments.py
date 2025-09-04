@@ -267,10 +267,10 @@ class TestExperiments:
         with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
             with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
                 run_experiment(
-                    "test_experiment", 
+                    "test_experiment",
                     project="awesome-new-project",
                     dataset_id=dataset_id,
-                    prompt_template=prompt_template()
+                    prompt_template=prompt_template(),
                 )
 
         mock_get_project.assert_called_once_with(name="awesome-new-project")
@@ -298,10 +298,10 @@ class TestExperiments:
         with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
             with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
                 run_experiment(
-                    "test_experiment", 
+                    "test_experiment",
                     project_id="awesome-new-project",
                     dataset_id=dataset_id,
-                    prompt_template=prompt_template()
+                    prompt_template=prompt_template(),
                 )
 
         mock_get_project.assert_called_once_with(id="awesome-new-project")
@@ -328,11 +328,7 @@ class TestExperiments:
         dataset_id = str(UUID(int=0))
         with patch.dict("os.environ", {"GALILEO_PROJECT": "awesome-new-project"}):
             with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
-                run_experiment(
-                    "test_experiment",
-                    dataset_id=dataset_id,
-                    prompt_template=prompt_template()
-                )
+                run_experiment("test_experiment", dataset_id=dataset_id, prompt_template=prompt_template())
 
         mock_get_project.assert_called_once_with(name="awesome-new-project")
 
@@ -358,11 +354,7 @@ class TestExperiments:
         dataset_id = str(UUID(int=0))
         with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
             with patch.dict("os.environ", {"GALILEO_PROJECT_ID": "awesome-new-project"}):
-                run_experiment(
-                    "test_experiment",
-                    dataset_id=dataset_id,
-                    prompt_template=prompt_template()
-                )
+                run_experiment("test_experiment", dataset_id=dataset_id, prompt_template=prompt_template())
 
         mock_get_project.assert_called_once_with(id="awesome-new-project")
 
@@ -390,11 +382,11 @@ class TestExperiments:
             with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
                 with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
                     run_experiment(
-                        "test_experiment", 
+                        "test_experiment",
                         project_id="awesome-new-project",
                         project="awesome-new-project",
                         dataset_id=dataset_id,
-                        prompt_template=prompt_template()
+                        prompt_template=prompt_template(),
                     )
 
         assert str(exc_info.value) == "Only one of project name or Id should be provided"
@@ -422,11 +414,7 @@ class TestExperiments:
         with pytest.raises(ValueError) as exc_info:
             with patch.dict("os.environ", {"GALILEO_PROJECT": "awesome-new-project"}):
                 with patch.dict("os.environ", {"GALILEO_PROJECT_ID": "awesome-new-project"}):
-                    run_experiment(
-                        "test_experiment",
-                        dataset_id=dataset_id,
-                        prompt_template=prompt_template()
-                    )
+                    run_experiment("test_experiment", dataset_id=dataset_id, prompt_template=prompt_template())
 
         assert str(exc_info.value) == "Only one of project name or Id should be provided"
 
@@ -453,11 +441,7 @@ class TestExperiments:
         with pytest.raises(ValueError) as exc_info:
             with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
                 with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
-                    run_experiment(
-                        "test_experiment",
-                        dataset_id=dataset_id,
-                        prompt_template=prompt_template()
-                    )
+                    run_experiment("test_experiment", dataset_id=dataset_id, prompt_template=prompt_template())
 
         assert str(exc_info.value) == "A project name or Id must be provided"
 
@@ -820,9 +804,7 @@ class TestExperiments:
 
     @patch.object(galileo.datasets.Datasets, "get")
     def test_run_experiment_with_prompt_template_and_function(
-        self,
-        mock_get_dataset: Mock,
-        dataset_content: DatasetContent
+        self, mock_get_dataset: Mock, dataset_content: DatasetContent
     ):
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
@@ -843,9 +825,7 @@ class TestExperiments:
 
     @patch.object(galileo.experiments.Projects, "get", return_value=project())
     def test_run_experiment_with_prompt_template_and_local_dataset(
-        self,
-        mock_projects_client: Mock,
-        local_dataset: list[dict[str, str]],
+        self, mock_projects_client: Mock, local_dataset: list[dict[str, str]]
     ):
         setup_mock_projects_client(mock_projects_client)
 
