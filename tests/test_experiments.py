@@ -244,6 +244,223 @@ class TestExperiments:
             load_dataset_and_records(dataset=None, dataset_name=None, dataset_id=None)
         assert str(exc_info.value) == "To load dataset records, dataset, dataset_name, or dataset_id must be provided"
 
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_project_name_loads_project(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ):
+        mock_create_job.return_value = MagicMock()
+
+        # mock dataset.get_content
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        dataset_id = str(UUID(int=0))
+        with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
+            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
+                run_experiment(
+                    "test_experiment", 
+                    project="awesome-new-project",
+                    dataset_id=dataset_id,
+                    prompt_template=prompt_template()
+                )
+
+        mock_get_project.assert_called_once_with(name="awesome-new-project")
+
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_project_id_loads_project(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ):
+        mock_create_job.return_value = MagicMock()
+
+        # mock dataset.get_content
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        dataset_id = str(UUID(int=0))
+        with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
+            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
+                run_experiment(
+                    "test_experiment", 
+                    project_id="awesome-new-project",
+                    dataset_id=dataset_id,
+                    prompt_template=prompt_template()
+                )
+
+        mock_get_project.assert_called_once_with(id="awesome-new-project")
+
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_project_name_from_env_var_loads_project(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ):
+        mock_create_job.return_value = MagicMock()
+
+        # mock dataset.get_content
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        dataset_id = str(UUID(int=0))
+        with patch.dict("os.environ", {"GALILEO_PROJECT": "awesome-new-project"}):
+            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
+                run_experiment(
+                    "test_experiment",
+                    dataset_id=dataset_id,
+                    prompt_template=prompt_template()
+                )
+
+        mock_get_project.assert_called_once_with(name="awesome-new-project")
+
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_project_id_from_env_var_loads_project(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ):
+        mock_create_job.return_value = MagicMock()
+
+        # mock dataset.get_content
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        dataset_id = str(UUID(int=0))
+        with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
+            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": "awesome-new-project"}):
+                run_experiment(
+                    "test_experiment",
+                    dataset_id=dataset_id,
+                    prompt_template=prompt_template()
+                )
+
+        mock_get_project.assert_called_once_with(id="awesome-new-project")
+
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_project_id_and_name_gives_error(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ):
+        mock_create_job.return_value = MagicMock()
+
+        # mock dataset.get_content
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        dataset_id = str(UUID(int=0))
+        with pytest.raises(ValueError) as exc_info:
+            with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
+                with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
+                    run_experiment(
+                        "test_experiment", 
+                        project_id="awesome-new-project",
+                        project="awesome-new-project",
+                        dataset_id=dataset_id,
+                        prompt_template=prompt_template()
+                    )
+
+        assert str(exc_info.value) == "Only one of project name or Id should be provided"
+
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_project_id_and_name_from_env_var_gives_error(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ):
+        mock_create_job.return_value = MagicMock()
+
+        # mock dataset.get_content
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        dataset_id = str(UUID(int=0))
+        with pytest.raises(ValueError) as exc_info:
+            with patch.dict("os.environ", {"GALILEO_PROJECT": "awesome-new-project"}):
+                with patch.dict("os.environ", {"GALILEO_PROJECT_ID": "awesome-new-project"}):
+                    run_experiment(
+                        "test_experiment",
+                        dataset_id=dataset_id,
+                        prompt_template=prompt_template()
+                    )
+
+        assert str(exc_info.value) == "Only one of project name or Id should be provided"
+
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    def test_run_experiment_with_no_project_id_or_name_gives_error(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        dataset_content: DatasetContent,
+    ):
+        mock_create_job.return_value = MagicMock()
+
+        # mock dataset.get_content
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        dataset_id = str(UUID(int=0))
+        with pytest.raises(ValueError) as exc_info:
+            with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
+                with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
+                    run_experiment(
+                        "test_experiment",
+                        dataset_id=dataset_id,
+                        prompt_template=prompt_template()
+                    )
+
+        assert str(exc_info.value) == "A project name or Id must be provided"
+
     @travel(datetime(2012, 1, 1), tick=False)
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")

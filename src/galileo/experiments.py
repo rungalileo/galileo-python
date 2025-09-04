@@ -286,8 +286,13 @@ def run_experiment(
     # Get the project
     # If the name or Id is set, then use these to get the project. Only one can be provided
     # If neither are set, use the environment variables to get the project name or Id
-    project_name = project or os.getenv("GALILEO_PROJECT_NAME", os.getenv("GALILEO_PROJECT"))
+    project_name = project or os.getenv("GALILEO_PROJECT")
     project_id = project_id or os.getenv("GALILEO_PROJECT_ID")
+
+    if project_name == "":
+        project_name = None
+    if project_id == "":
+        project_id = None
 
     # Check we only have one of project name or Id.
     if project_name is None and project_id is None:
