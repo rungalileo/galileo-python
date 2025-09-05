@@ -34,7 +34,7 @@ def _get_project_id(
     if project_id is not None and type(project_id).__name__ == "UUID":
         project_id = str(project_id)
 
-    project = Projects(config=config).get_with_env_fallbacks(name=project_name, id=project_id)  # type: ignore
+    project = Projects(config=config).get_with_env_fallbacks(name=project_name, id=project_id)
     if not project:
         raise ValueError(f"Project with name '{project_name}' not found.")
     return str(project.id)
