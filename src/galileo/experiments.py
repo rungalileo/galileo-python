@@ -250,12 +250,16 @@ def run_experiment(
 
     When using a runner function, you can also pass a list of dictionaries to the function to act as a dataset.
 
+    To define the project to use, either set the project or project_id parameters, or set the GALILEO_PROJECT or GALILEO_PROJECT_ID.
+    If you pass the project in the parameters, then only one of project or project_id should be provided. Setting both with give an error.
+    If you don't set either the project or project_id parameters, then only one of GALILEO_PROJECT or GALILEO_PROJECT_ID should be set in the environment variables. Setting both with give an error.
+
     Args:
         experiment_name: Name of the experiment
         prompt_template: Template for prompts
         prompt_settings: Settings for prompt runs
-        project: Project name. If neither project name nor project_id is provided, the GALILEO_PROJECT environment variable will be used
-        project_id: Project Id. If neither project name nor project_id is provided, the GALILEO_PROJECT environment variable will be used
+        project: Project name. Pass either only one of project or project_id, or pass nothing and the GALILEO_PROJECT or GALILEO_PROJECT_ID environment variables will be used.
+        project_id: Project Id. Pass either only one of project or project_id, or pass nothing and the GALILEO_PROJECT or GALILEO_PROJECT_ID environment variables will be used.
         dataset: Dataset object, list of records, or dataset name
         dataset_id: ID of the dataset
         dataset_name: Name of the dataset
@@ -286,30 +290,25 @@ def run_experiment(
     # Get the project
     # If the name or Id is set, then use these to get the project. Only one can be provided
     # If neither are set, use the environment variables to get the project name or Id
-    project_name = project or os.getenv("GALILEO_PROJECT")
-    project_id = project_id or os.getenv("GALILEO_PROJECT_ID")
-
-    if project_name == "":
-        project_name = None
-    if project_id == "":
-        project_id = None
+    project = (project or os.getenv("GALILEO_PROJECT") or "").strip() or None
+    project_id = (project_id or os.getenv("GALILEO_PROJECT_ID") or "").strip() or None
 
     # Check we only have one of project name or Id.
-    if project_name is None and project_id is None:
+    if not project and not project_id:
         raise ValueError("A project name or Id must be provided")
-    if project_name is not None and project_id is not None:
+    if project and project_id:
         raise ValueError("Only one of project name or Id should be provided")
 
     # Get the project from the name or Id
     project_obj = (
-        Projects().get(id=project_id) if project_id else (Projects().get(name=project_name) if project_name else None)
+        Projects().get(id=project_id) if project_id else (Projects().get(name=project) if project else None)
     )
 
     # Ensure we have a valid project
     if not project_obj:
         if project_id:
             raise ValueError(f"Project with Id {project_id} does not exist")
-        raise ValueError(f"Project {project_name} does not exist")
+        raise ValueError(f"Project {project} does not exist")
 
     # Create or get experiment
     existing_experiment = Experiments().get(project_obj.id, experiment_name)
