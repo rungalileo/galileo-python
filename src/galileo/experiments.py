@@ -300,9 +300,7 @@ def run_experiment(
         raise ValueError("Only one of project name or Id should be provided")
 
     # Get the project from the name or Id
-    project_obj = (
-        Projects().get(id=project_id) if project_id else (Projects().get(name=project) if project else None)
-    )
+    project_obj = Projects().get(id=project_id) if project_id else (Projects().get(name=project) if project else None)
 
     # Ensure we have a valid project
     if not project_obj:
