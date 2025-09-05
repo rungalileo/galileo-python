@@ -233,6 +233,7 @@ def run_experiment(
     prompt_template: Optional[PromptTemplate] = None,
     prompt_settings: Optional[PromptRunSettings] = None,
     project: Optional[str] = None,
+    project_id: Optional[str] = None,
     dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
@@ -248,11 +249,14 @@ def run_experiment(
 
     When using a runner function, you can also pass a list of dictionaries to the function to act as a dataset.
 
+    The project can be specified by providing exactly one of the project name (via the 'project' parameter or the GALILEO_PROJECT environment variable) or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
+
     Args:
         experiment_name: Name of the experiment
         prompt_template: Template for prompts
         prompt_settings: Settings for prompt runs
-        project: Project name
+        project: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
+        project_id: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
         dataset: Dataset object, list of records, or dataset name
         dataset_id: ID of the dataset
         dataset_name: Name of the dataset
@@ -265,10 +269,6 @@ def run_experiment(
     Raises:
         ValueError: If required parameters are missing or invalid
     """
-    # Get project
-    if project is None:
-        raise ValueError("A project name must be provided")
-
     # Load dataset and records
     dataset_obj, records = load_dataset_and_records(dataset, dataset_id, dataset_name)
 
@@ -284,9 +284,13 @@ def run_experiment(
     if function and prompt_template:
         raise ValueError("A function or prompt_template should be provided, but not both")
 
-    # Get project
-    project_obj = Projects().get(name=project)
+    # Get the project from the name or Id
+    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project)
+
+    # Ensure we have a valid project
     if not project_obj:
+        if project_id:
+            raise ValueError(f"Project with Id {project_id} does not exist")
         raise ValueError(f"Project {project} does not exist")
 
     # Create or get experiment
