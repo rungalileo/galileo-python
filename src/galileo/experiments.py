@@ -228,6 +228,46 @@ def process_row(row: DatasetRecord, process_func: Callable) -> str:
     return output
 
 
+def _get_project(project_name: Optional[str] = None, project_id: Optional[str] = None) -> Project:
+    """
+    Gets a project by name or Id, using environment variables if neither are provided.
+
+    Logic flow:
+    1. If project_name or project_id parameters are provided, use these to load the project.
+    2. If neither are provided, use the GALILEO_PROJECT or GALILEO_PROJECT_ID environment variables.
+    3. If both project_name and project_id are provided, raise an error.
+    4. If the project name and Id are not passed, and both GALILEO_PROJECT and GALILEO_PROJECT_ID are provided, raise an error.
+    5. Use the provided or environment variable value to load the project. If the project does not exist, raise an error.
+
+    Args:
+        project_name: Name of the project
+        project_id: Id of the project
+    """
+    # Get the project name or Id from parameters or environment variables, stripping whitespace and converting empty strings to None
+    project_name = (project_name or os.getenv("GALILEO_PROJECT") or "").strip() or None
+    project_id = (project_id or os.getenv("GALILEO_PROJECT_ID") or "").strip() or None
+
+    # Check we have one and only one of project name or Id.
+    if not project_name and not project_id:
+        raise ValueError("A project name or Id must be provided")
+    if project_name and project_id:
+        raise ValueError("Only one of project name or Id should be provided")
+
+    # Get the project from the name or Id
+    project = (
+        Projects().get(id=project_id) if project_id else (Projects().get(name=project_name) if project_name else None)
+    )
+
+    # Ensure we have a valid project
+    if not project:
+        if project_id:
+            raise ValueError(f"Project with Id {project_id} does not exist")
+        raise ValueError(f"Project {project_name} does not exist")
+
+    # Return the project
+    return project
+
+
 def run_experiment(
     experiment_name: str,
     *,
@@ -287,26 +327,8 @@ def run_experiment(
     if function and prompt_template:
         raise ValueError("A function or prompt_template should be provided, but not both")
 
-    # Get the project
-    # If the name or Id is set, then use these to get the project. Only one can be provided
-    # If neither are set, use the environment variables to get the project name or Id
-    project = (project or os.getenv("GALILEO_PROJECT") or "").strip() or None
-    project_id = (project_id or os.getenv("GALILEO_PROJECT_ID") or "").strip() or None
-
-    # Check we only have one of project name or Id.
-    if not project and not project_id:
-        raise ValueError("A project name or Id must be provided")
-    if project and project_id:
-        raise ValueError("Only one of project name or Id should be provided")
-
     # Get the project from the name or Id
-    project_obj = Projects().get(id=project_id) if project_id else (Projects().get(name=project) if project else None)
-
-    # Ensure we have a valid project
-    if not project_obj:
-        if project_id:
-            raise ValueError(f"Project with Id {project_id} does not exist")
-        raise ValueError(f"Project {project} does not exist")
+    project_obj = _get_project(project, project_id)
 
     # Create or get experiment
     existing_experiment = Experiments().get(project_obj.id, experiment_name)
