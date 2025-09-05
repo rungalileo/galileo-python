@@ -249,16 +249,14 @@ def run_experiment(
 
     When using a runner function, you can also pass a list of dictionaries to the function to act as a dataset.
 
-    To define the project to use, either set the project or project_id parameters, or set the GALILEO_PROJECT or GALILEO_PROJECT_ID.
-    If you pass the project in the parameters, then only one of project or project_id should be provided. Setting both with give an error.
-    If you don't set either the project or project_id parameters, then only one of GALILEO_PROJECT or GALILEO_PROJECT_ID should be set in the environment variables. Setting both with give an error.
+    The project can be specified by providing exactly one of the project name (via the 'project' parameter or the GALILEO_PROJECT environment variable) or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
 
     Args:
         experiment_name: Name of the experiment
         prompt_template: Template for prompts
         prompt_settings: Settings for prompt runs
-        project: Project name. Pass either only one of project or project_id, or pass nothing and the GALILEO_PROJECT or GALILEO_PROJECT_ID environment variables will be used.
-        project_id: Project Id. Pass either only one of project or project_id, or pass nothing and the GALILEO_PROJECT or GALILEO_PROJECT_ID environment variables will be used.
+        project: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
+        project_id: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
         dataset: Dataset object, list of records, or dataset name
         dataset_id: ID of the dataset
         dataset_name: Name of the dataset
