@@ -151,7 +151,7 @@ class Projects(BaseClientModel, DecorateAllMethods):
 
         # Check we have one and only one of project name or Id.
         if (not name and not id) or (name and id):
-            raise ValueError("Exactly one of 'id' or 'name' must be provided")
+            raise ValueError("Exactly one of 'id' or 'name' must be provided, or set in the environment variables GALILEO_PROJECT_ID or GALILEO_PROJECT")
 
         project: Optional[Project] = None
 
