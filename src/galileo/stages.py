@@ -72,7 +72,9 @@ class Stages(BaseClientModel, DecorateAllMethods):
         prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
         description: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name, config=self.config)
+        actual_project_id: str = _get_validated_project_id(
+            project_id=project_id, project_name=project_name, config=self.config
+        )
 
         actual_name = name or ts_name("stage")
 
@@ -104,7 +106,9 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name, config=self.config)
+        actual_project_id: str = _get_validated_project_id(
+            project_id=project_id, project_name=project_name, config=self.config
+        )
 
         if not stage_id and not stage_name:
             raise ValueError("Either stage_id or stage_name must be provided.")
@@ -127,7 +131,9 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
         prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name, config=self.config)
+        actual_project_id: str = _get_validated_project_id(
+            project_id=project_id, project_name=project_name, config=self.config
+        )
 
         actual_stage_id: str = _get_stage_id(
             stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, config=self.config
@@ -154,7 +160,9 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
     ) -> StageDB:
         """Sets the pause state of a stage."""
-        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name, config=self.config)
+        actual_project_id: str = _get_validated_project_id(
+            project_id=project_id, project_name=project_name, config=self.config
+        )
 
         actual_stage_id: str = _get_stage_id(
             stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, config=self.config
