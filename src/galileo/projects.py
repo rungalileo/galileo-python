@@ -1,5 +1,6 @@
 import datetime
 import logging
+import os
 from typing import Optional, Union, overload
 
 import httpx
@@ -120,10 +121,6 @@ class Projects(BaseClientModel, DecorateAllMethods):
         )
         return [Project(project=project) for project in projects] if projects else []
 
-    @overload
-    def get(self, *, id: str) -> Optional[Project]: ...
-    @overload
-    def get(self, *, name: str) -> Optional[Project]: ...
     def get(self, *, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Project]:
         """
         Retrieves a project by id or name (exactly one of `id` or `name` must be provided).
@@ -149,8 +146,14 @@ class Projects(BaseClientModel, DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        if (id is None) and (name is None):
+        name = (name or os.getenv("GALILEO_PROJECT") or "").strip() or None
+        id = (id or os.getenv("GALILEO_PROJECT_ID") or "").strip() or None
+
+        # Check we have one and only one of project name or Id.
+        if (not name and not id) or (name and id):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
+
+        project: Optional[Project] = None
 
         if id:
             detailed_response = get_project_projects_project_id_get.sync_detailed(project_id=id, client=self.client)
