@@ -1,7 +1,7 @@
 import datetime
 import logging
 import os
-from typing import Optional, Union, overload
+from typing import Optional, Union
 
 import httpx
 

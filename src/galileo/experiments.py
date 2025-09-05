@@ -1,7 +1,6 @@
 import builtins
 import datetime
 import logging
-import os
 from typing import Any, Callable, Optional, Union
 
 from attrs import define as _attrs_define
@@ -226,6 +225,7 @@ def process_row(row: DatasetRecord, process_func: Callable) -> str:
         output = f"error during executing: {process_func.__name__}: {exc}"
         _logger.error(output)
     return output
+
 
 def run_experiment(
     experiment_name: str,

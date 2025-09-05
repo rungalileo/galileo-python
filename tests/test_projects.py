@@ -1,25 +1,8 @@
-from ctypes import Union
-from datetime import datetime
-from http import HTTPStatus
 import logging
 from unittest.mock import ANY, Mock, patch
-from uuid import UUID
 
-from galileo.projects import Project, Projects
-from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.models.project_create_response import ProjectCreateResponse
-from galileo.resources.models.project_db import ProjectDB
-from galileo.resources.models.project_type import ProjectType
-from galileo.resources.types import Response
+from galileo.projects import Projects
 
-# def detailed_project_response() -> Response[Union[HTTPValidationError, ProjectDB]]:
-#     now = datetime.now()
-#     return Response(
-#         status_code=HTTPStatus.OK,
-#         content=response.content,
-#         headers=response.headers,
-#         parsed=_parse_response(client=client, response=response),
-#     )
 
 class TestProjects:
     @patch("galileo.projects.get_all_projects_projects_all_get")
@@ -66,7 +49,9 @@ class TestProjects:
                 get_project_projects_project_id_get.assert_called_once_with(project_id="123", client=ANY)
 
     @patch("galileo.projects.get_project_projects_project_id_get.sync_detailed", return_value=None)
-    def test_get_project_with_id_with_whitespace_env_vars_gets_project_by_id(self, get_project_projects_project_id_get: Mock):
+    def test_get_project_with_id_with_whitespace_env_vars_gets_project_by_id(
+        self, get_project_projects_project_id_get: Mock
+    ):
         with patch.dict("os.environ", {"GALILEO_PROJECT": "  "}):
             with patch.dict("os.environ", {"GALILEO_PROJECT_ID": "  "}):
                 Projects().get(id="123")
