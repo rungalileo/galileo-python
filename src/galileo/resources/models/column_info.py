@@ -37,6 +37,7 @@ class ColumnInfo:
         group_label (Union[None, Unset, str]): Display label of the column group.
         insight_type (Union[InsightType, None, Unset]): Insight type.
         is_empty (Union[Unset, bool]): Indicates whether the column is empty and should be hidden. Default: False.
+        is_optional (Union[Unset, bool]): Whether the column is optional. Default: False.
         label (Union[None, Unset, str]): Display label of the column in the UI.
         multi_valued (Union[Unset, bool]): Whether the column is multi-valued. Default: False.
         scorer_config (Union['ScorerConfig', None, Unset]): For metric columns only: Scorer config that produced the
@@ -59,6 +60,7 @@ class ColumnInfo:
     group_label: Union[None, Unset, str] = UNSET
     insight_type: Union[InsightType, None, Unset] = UNSET
     is_empty: Union[Unset, bool] = False
+    is_optional: Union[Unset, bool] = False
     label: Union[None, Unset, str] = UNSET
     multi_valued: Union[Unset, bool] = False
     scorer_config: Union["ScorerConfig", None, Unset] = UNSET
@@ -133,6 +135,8 @@ class ColumnInfo:
 
         is_empty = self.is_empty
 
+        is_optional = self.is_optional
+
         label: Union[None, Unset, str]
         if isinstance(self.label, Unset):
             label = UNSET
@@ -188,6 +192,8 @@ class ColumnInfo:
             field_dict["insight_type"] = insight_type
         if is_empty is not UNSET:
             field_dict["is_empty"] = is_empty
+        if is_optional is not UNSET:
+            field_dict["is_optional"] = is_optional
         if label is not UNSET:
             field_dict["label"] = label
         if multi_valued is not UNSET:
@@ -312,6 +318,8 @@ class ColumnInfo:
 
         is_empty = d.pop("is_empty", UNSET)
 
+        is_optional = d.pop("is_optional", UNSET)
+
         def _parse_label(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -381,6 +389,7 @@ class ColumnInfo:
             group_label=group_label,
             insight_type=insight_type,
             is_empty=is_empty,
+            is_optional=is_optional,
             label=label,
             multi_valued=multi_valued,
             scorer_config=scorer_config,

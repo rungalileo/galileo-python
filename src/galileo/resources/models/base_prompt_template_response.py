@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.base_prompt_template_version_response import BasePromptTemplateVersionResponse
+    from ..models.name import Name
     from ..models.permission import Permission
     from ..models.user_info import UserInfo
 
@@ -27,7 +28,7 @@ class BasePromptTemplateResponse:
         created_by_user (Union['UserInfo', None]):
         id (str):
         max_version (int):
-        name (str):
+        name (Union['Name', str]):
         selected_version (BasePromptTemplateVersionResponse): Base response from API for a prompt template version.
         selected_version_id (str):
         template (str):
@@ -42,7 +43,7 @@ class BasePromptTemplateResponse:
     created_by_user: Union["UserInfo", None]
     id: str
     max_version: int
-    name: str
+    name: Union["Name", str]
     selected_version: "BasePromptTemplateVersionResponse"
     selected_version_id: str
     template: str
@@ -53,6 +54,7 @@ class BasePromptTemplateResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.name import Name
         from ..models.user_info import UserInfo
 
         all_available_versions = self.all_available_versions
@@ -69,7 +71,11 @@ class BasePromptTemplateResponse:
 
         max_version = self.max_version
 
-        name = self.name
+        name: Union[dict[str, Any], str]
+        if isinstance(self.name, Name):
+            name = self.name.to_dict()
+        else:
+            name = self.name
 
         selected_version = self.selected_version.to_dict()
 
@@ -122,6 +128,7 @@ class BasePromptTemplateResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.base_prompt_template_version_response import BasePromptTemplateVersionResponse
+        from ..models.name import Name
         from ..models.permission import Permission
         from ..models.user_info import UserInfo
 
@@ -149,7 +156,18 @@ class BasePromptTemplateResponse:
 
         max_version = d.pop("max_version")
 
-        name = d.pop("name")
+        def _parse_name(data: object) -> Union["Name", str]:
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                name_type_1 = Name.from_dict(data)
+
+                return name_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union["Name", str], data)
+
+        name = _parse_name(d.pop("name"))
 
         selected_version = BasePromptTemplateVersionResponse.from_dict(d.pop("selected_version"))
 

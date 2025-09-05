@@ -25,13 +25,13 @@ T = TypeVar("T", bound="ToolSpan")
 class ToolSpan:
     """
     Attributes:
-        input_ (str): Input to the trace or span.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, ToolSpanDatasetMetadata]): Metadata from the dataset associated with this trace
         dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         id (Union[None, Unset, str]): Galileo ID of the session, trace or span
+        input_ (Union[Unset, str]): Input to the trace or span. Default: ''.
         metrics (Union[Unset, Metrics]):
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union[None, Unset, str]): Output of the trace or span.
@@ -52,13 +52,13 @@ class ToolSpan:
         user_metadata (Union[Unset, ToolSpanUserMetadata]): Metadata associated with this trace or span.
     """
 
-    input_: str
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "ToolSpanDatasetMetadata"] = UNSET
     dataset_output: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
     id: Union[None, Unset, str] = UNSET
+    input_: Union[Unset, str] = ""
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
     output: Union[None, Unset, str] = UNSET
@@ -81,8 +81,6 @@ class ToolSpan:
         from ..models.llm_span import LlmSpan
         from ..models.retriever_span import RetrieverSpan
         from ..models.workflow_span import WorkflowSpan
-
-        input_ = self.input_
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -115,6 +113,8 @@ class ToolSpan:
             id = UNSET
         else:
             id = self.id
+
+        input_ = self.input_
 
         metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metrics, Unset):
@@ -206,7 +206,7 @@ class ToolSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"input": input_})
+        field_dict.update({})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -219,6 +219,8 @@ class ToolSpan:
             field_dict["external_id"] = external_id
         if id is not UNSET:
             field_dict["id"] = id
+        if input_ is not UNSET:
+            field_dict["input"] = input_
         if metrics is not UNSET:
             field_dict["metrics"] = metrics
         if name is not UNSET:
@@ -263,8 +265,6 @@ class ToolSpan:
         from ..models.workflow_span import WorkflowSpan
 
         d = dict(src_dict)
-        input_ = d.pop("input")
-
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
         if isinstance(_created_at, Unset):
@@ -314,6 +314,8 @@ class ToolSpan:
             return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
+
+        input_ = d.pop("input", UNSET)
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Union[Unset, Metrics]
@@ -468,13 +470,13 @@ class ToolSpan:
             user_metadata = ToolSpanUserMetadata.from_dict(_user_metadata)
 
         tool_span = cls(
-            input_=input_,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
             dataset_output=dataset_output,
             external_id=external_id,
             id=id,
+            input_=input_,
             metrics=metrics,
             name=name,
             output=output,

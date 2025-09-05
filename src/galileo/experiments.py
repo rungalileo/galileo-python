@@ -24,7 +24,7 @@ from galileo.utils.datasets import load_dataset_and_records
 
 _logger = logging.getLogger(__name__)
 
-EXPERIMENT_TASK_TYPE = TaskType.VALUE_16
+EXPERIMENT_TASK_TYPE: TaskType = 16
 
 
 @_attrs_define

@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from ..models.experiment_prompt import ExperimentPrompt
     from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
     from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
+    from ..models.experiment_response_tags import ExperimentResponseTags
     from ..models.prompt_run_settings import PromptRunSettings
 
 
@@ -44,6 +45,7 @@ class ExperimentResponse:
         prompt_run_settings (Union['PromptRunSettings', None, Unset]):
         rank (Union[None, Unset, int]):
         ranking_score (Union[None, Unset, float]):
+        tags (Union[Unset, ExperimentResponseTags]):
         updated_at (Union[None, Unset, datetime.datetime]): Timestamp of the trace or span's last update
         winner (Union[None, Unset, bool]):
     """
@@ -64,6 +66,7 @@ class ExperimentResponse:
     prompt_run_settings: Union["PromptRunSettings", None, Unset] = UNSET
     rank: Union[None, Unset, int] = UNSET
     ranking_score: Union[None, Unset, float] = UNSET
+    tags: Union[Unset, "ExperimentResponseTags"] = UNSET
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
     winner: Union[None, Unset, bool] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -156,6 +159,10 @@ class ExperimentResponse:
         else:
             ranking_score = self.ranking_score
 
+        tags: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.tags, Unset):
+            tags = self.tags.to_dict()
+
         updated_at: Union[None, Unset, str]
         if isinstance(self.updated_at, Unset):
             updated_at = UNSET
@@ -199,6 +206,8 @@ class ExperimentResponse:
             field_dict["rank"] = rank
         if ranking_score is not UNSET:
             field_dict["ranking_score"] = ranking_score
+        if tags is not UNSET:
+            field_dict["tags"] = tags
         if updated_at is not UNSET:
             field_dict["updated_at"] = updated_at
         if winner is not UNSET:
@@ -213,6 +222,7 @@ class ExperimentResponse:
         from ..models.experiment_prompt import ExperimentPrompt
         from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
         from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
+        from ..models.experiment_response_tags import ExperimentResponseTags
         from ..models.prompt_run_settings import PromptRunSettings
 
         d = dict(src_dict)
@@ -358,6 +368,13 @@ class ExperimentResponse:
 
         ranking_score = _parse_ranking_score(d.pop("ranking_score", UNSET))
 
+        _tags = d.pop("tags", UNSET)
+        tags: Union[Unset, ExperimentResponseTags]
+        if isinstance(_tags, Unset):
+            tags = UNSET
+        else:
+            tags = ExperimentResponseTags.from_dict(_tags)
+
         def _parse_updated_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
@@ -401,6 +418,7 @@ class ExperimentResponse:
             prompt_run_settings=prompt_run_settings,
             rank=rank,
             ranking_score=ranking_score,
+            tags=tags,
             updated_at=updated_at,
             winner=winner,
         )
