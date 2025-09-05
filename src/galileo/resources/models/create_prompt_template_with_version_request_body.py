@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.messages_list_item import MessagesListItem
+    from ..models.name import Name
     from ..models.prompt_run_settings import PromptRunSettings
 
 
@@ -21,7 +22,7 @@ class CreatePromptTemplateWithVersionRequestBody:
     This is only used for parsing the body from the request.
 
         Attributes:
-            name (str):
+            name (Union['Name', str]):
             template (Union[list['MessagesListItem'], str]):
             hidden (Union[Unset, bool]):  Default: False.
             output_type (Union[None, Unset, str]):
@@ -30,7 +31,7 @@ class CreatePromptTemplateWithVersionRequestBody:
             version (Union[None, Unset, int]):
     """
 
-    name: str
+    name: Union["Name", str]
     template: Union[list["MessagesListItem"], str]
     hidden: Union[Unset, bool] = False
     output_type: Union[None, Unset, str] = UNSET
@@ -40,7 +41,13 @@ class CreatePromptTemplateWithVersionRequestBody:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name = self.name
+        from ..models.name import Name
+
+        name: Union[dict[str, Any], str]
+        if isinstance(self.name, Name):
+            name = self.name.to_dict()
+        else:
+            name = self.name
 
         template: Union[list[dict[str, Any]], str]
         if isinstance(self.template, list):
@@ -91,10 +98,23 @@ class CreatePromptTemplateWithVersionRequestBody:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.messages_list_item import MessagesListItem
+        from ..models.name import Name
         from ..models.prompt_run_settings import PromptRunSettings
 
         d = dict(src_dict)
-        name = d.pop("name")
+
+        def _parse_name(data: object) -> Union["Name", str]:
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                name_type_1 = Name.from_dict(data)
+
+                return name_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union["Name", str], data)
+
+        name = _parse_name(d.pop("name"))
 
         def _parse_template(data: object) -> Union[list["MessagesListItem"], str]:
             try:

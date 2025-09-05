@@ -24,6 +24,7 @@ class RunParamsMap:
             model (Union[None, Unset, str]):
             n (Union[None, Unset, str]):
             presence_penalty (Union[None, Unset, str]):
+            reasoning_effort (Union[None, Unset, str]):
             response_format (Union[None, Unset, str]):
             stop_sequences (Union[None, Unset, str]):
             temperature (Union[None, Unset, str]):
@@ -32,6 +33,7 @@ class RunParamsMap:
             top_k (Union[None, Unset, str]):
             top_logprobs (Union[None, Unset, str]):
             top_p (Union[None, Unset, str]):
+            verbosity (Union[None, Unset, str]):
     """
 
     api_version: Union[None, Unset, str] = UNSET
@@ -43,6 +45,7 @@ class RunParamsMap:
     model: Union[None, Unset, str] = UNSET
     n: Union[None, Unset, str] = UNSET
     presence_penalty: Union[None, Unset, str] = UNSET
+    reasoning_effort: Union[None, Unset, str] = UNSET
     response_format: Union[None, Unset, str] = UNSET
     stop_sequences: Union[None, Unset, str] = UNSET
     temperature: Union[None, Unset, str] = UNSET
@@ -51,6 +54,7 @@ class RunParamsMap:
     top_k: Union[None, Unset, str] = UNSET
     top_logprobs: Union[None, Unset, str] = UNSET
     top_p: Union[None, Unset, str] = UNSET
+    verbosity: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -108,6 +112,12 @@ class RunParamsMap:
         else:
             presence_penalty = self.presence_penalty
 
+        reasoning_effort: Union[None, Unset, str]
+        if isinstance(self.reasoning_effort, Unset):
+            reasoning_effort = UNSET
+        else:
+            reasoning_effort = self.reasoning_effort
+
         response_format: Union[None, Unset, str]
         if isinstance(self.response_format, Unset):
             response_format = UNSET
@@ -156,6 +166,12 @@ class RunParamsMap:
         else:
             top_p = self.top_p
 
+        verbosity: Union[None, Unset, str]
+        if isinstance(self.verbosity, Unset):
+            verbosity = UNSET
+        else:
+            verbosity = self.verbosity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -177,6 +193,8 @@ class RunParamsMap:
             field_dict["n"] = n
         if presence_penalty is not UNSET:
             field_dict["presence_penalty"] = presence_penalty
+        if reasoning_effort is not UNSET:
+            field_dict["reasoning_effort"] = reasoning_effort
         if response_format is not UNSET:
             field_dict["response_format"] = response_format
         if stop_sequences is not UNSET:
@@ -193,6 +211,8 @@ class RunParamsMap:
             field_dict["top_logprobs"] = top_logprobs
         if top_p is not UNSET:
             field_dict["top_p"] = top_p
+        if verbosity is not UNSET:
+            field_dict["verbosity"] = verbosity
 
         return field_dict
 
@@ -281,6 +301,15 @@ class RunParamsMap:
 
         presence_penalty = _parse_presence_penalty(d.pop("presence_penalty", UNSET))
 
+        def _parse_reasoning_effort(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        reasoning_effort = _parse_reasoning_effort(d.pop("reasoning_effort", UNSET))
+
         def _parse_response_format(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -353,6 +382,15 @@ class RunParamsMap:
 
         top_p = _parse_top_p(d.pop("top_p", UNSET))
 
+        def _parse_verbosity(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        verbosity = _parse_verbosity(d.pop("verbosity", UNSET))
+
         run_params_map = cls(
             api_version=api_version,
             deployment_name=deployment_name,
@@ -363,6 +401,7 @@ class RunParamsMap:
             model=model,
             n=n,
             presence_penalty=presence_penalty,
+            reasoning_effort=reasoning_effort,
             response_format=response_format,
             stop_sequences=stop_sequences,
             temperature=temperature,
@@ -371,6 +410,7 @@ class RunParamsMap:
             top_k=top_k,
             top_logprobs=top_logprobs,
             top_p=top_p,
+            verbosity=verbosity,
         )
 
         run_params_map.additional_properties = d

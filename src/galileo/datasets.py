@@ -693,7 +693,7 @@ def extend_dataset(
 
 
 def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
-    values_dict = dataset_row.values_dict
+    values_dict = dataset_row.values_dict.to_dict()
 
     if "input" not in values_dict or not values_dict["input"]:
         raise ValueError("Dataset row must have input field")

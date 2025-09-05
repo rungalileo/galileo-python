@@ -23,8 +23,6 @@ T = TypeVar("T", bound="LlmSpan")
 class LlmSpan:
     """
     Attributes:
-        input_ (list['Message']): Input to the trace or span.
-        output (Message):
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, LlmSpanDatasetMetadata]): Metadata from the dataset associated with this trace
@@ -32,9 +30,11 @@ class LlmSpan:
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         finish_reason (Union[None, Unset, str]): Reason for finishing.
         id (Union[None, Unset, str]): Galileo ID of the session, trace or span
+        input_ (Union[Unset, list['Message']]): Input to the trace or span.
         metrics (Union[Unset, LlmMetrics]):
         model (Union[None, Unset, str]): Model used for this span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
+        output (Union[Unset, Message]):
         parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
         redacted_input (Union[None, Unset, list['Message']]): Redacted input of the trace or span.
         redacted_output (Union['Message', None, Unset]): Redacted output of the trace or span.
@@ -52,8 +52,6 @@ class LlmSpan:
         user_metadata (Union[Unset, LlmSpanUserMetadata]): Metadata associated with this trace or span.
     """
 
-    input_: list["Message"]
-    output: "Message"
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "LlmSpanDatasetMetadata"] = UNSET
@@ -61,9 +59,11 @@ class LlmSpan:
     external_id: Union[None, Unset, str] = UNSET
     finish_reason: Union[None, Unset, str] = UNSET
     id: Union[None, Unset, str] = UNSET
+    input_: Union[Unset, list["Message"]] = UNSET
     metrics: Union[Unset, "LlmMetrics"] = UNSET
     model: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
+    output: Union[Unset, "Message"] = UNSET
     parent_id: Union[None, Unset, str] = UNSET
     redacted_input: Union[None, Unset, list["Message"]] = UNSET
     redacted_output: Union["Message", None, Unset] = UNSET
@@ -80,13 +80,6 @@ class LlmSpan:
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.message import Message
-
-        input_ = []
-        for input_item_data in self.input_:
-            input_item = input_item_data.to_dict()
-            input_.append(input_item)
-
-        output = self.output.to_dict()
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -126,6 +119,13 @@ class LlmSpan:
         else:
             id = self.id
 
+        input_: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.input_, Unset):
+            input_ = []
+            for input_item_data in self.input_:
+                input_item = input_item_data.to_dict()
+                input_.append(input_item)
+
         metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
@@ -137,6 +137,10 @@ class LlmSpan:
             model = self.model
 
         name = self.name
+
+        output: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.output, Unset):
+            output = self.output.to_dict()
 
         parent_id: Union[None, Unset, str]
         if isinstance(self.parent_id, Unset):
@@ -218,7 +222,7 @@ class LlmSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"input": input_, "output": output})
+        field_dict.update({})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -233,12 +237,16 @@ class LlmSpan:
             field_dict["finish_reason"] = finish_reason
         if id is not UNSET:
             field_dict["id"] = id
+        if input_ is not UNSET:
+            field_dict["input"] = input_
         if metrics is not UNSET:
             field_dict["metrics"] = metrics
         if model is not UNSET:
             field_dict["model"] = model
         if name is not UNSET:
             field_dict["name"] = name
+        if output is not UNSET:
+            field_dict["output"] = output
         if parent_id is not UNSET:
             field_dict["parent_id"] = parent_id
         if redacted_input is not UNSET:
@@ -275,15 +283,6 @@ class LlmSpan:
         from ..models.message import Message
 
         d = dict(src_dict)
-        input_ = []
-        _input_ = d.pop("input")
-        for input_item_data in _input_:
-            input_item = Message.from_dict(input_item_data)
-
-            input_.append(input_item)
-
-        output = Message.from_dict(d.pop("output"))
-
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
         if isinstance(_created_at, Unset):
@@ -343,6 +342,13 @@ class LlmSpan:
 
         id = _parse_id(d.pop("id", UNSET))
 
+        input_ = []
+        _input_ = d.pop("input", UNSET)
+        for input_item_data in _input_ or []:
+            input_item = Message.from_dict(input_item_data)
+
+            input_.append(input_item)
+
         _metrics = d.pop("metrics", UNSET)
         metrics: Union[Unset, LlmMetrics]
         if isinstance(_metrics, Unset):
@@ -360,6 +366,13 @@ class LlmSpan:
         model = _parse_model(d.pop("model", UNSET))
 
         name = d.pop("name", UNSET)
+
+        _output = d.pop("output", UNSET)
+        output: Union[Unset, Message]
+        if isinstance(_output, Unset):
+            output = UNSET
+        else:
+            output = Message.from_dict(_output)
 
         def _parse_parent_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -490,8 +503,6 @@ class LlmSpan:
             user_metadata = LlmSpanUserMetadata.from_dict(_user_metadata)
 
         llm_span = cls(
-            input_=input_,
-            output=output,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
@@ -499,9 +510,11 @@ class LlmSpan:
             external_id=external_id,
             finish_reason=finish_reason,
             id=id,
+            input_=input_,
             metrics=metrics,
             model=model,
             name=name,
+            output=output,
             parent_id=parent_id,
             redacted_input=redacted_input,
             redacted_output=redacted_output,

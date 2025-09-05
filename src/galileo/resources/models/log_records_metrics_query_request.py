@@ -31,6 +31,7 @@ class LogRecordsMetricsQueryRequest:
         group_by (Union[None, Unset, str]):
         interval (Union[Unset, int]):  Default: 5.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
     """
 
     end_time: datetime.datetime
@@ -51,6 +52,7 @@ class LogRecordsMetricsQueryRequest:
     group_by: Union[None, Unset, str] = UNSET
     interval: Union[Unset, int] = 5
     log_stream_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -101,6 +103,12 @@ class LogRecordsMetricsQueryRequest:
         else:
             log_stream_id = self.log_stream_id
 
+        metrics_testing_id: Union[None, Unset, str]
+        if isinstance(self.metrics_testing_id, Unset):
+            metrics_testing_id = UNSET
+        else:
+            metrics_testing_id = self.metrics_testing_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"end_time": end_time, "start_time": start_time})
@@ -114,6 +122,8 @@ class LogRecordsMetricsQueryRequest:
             field_dict["interval"] = interval
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
+        if metrics_testing_id is not UNSET:
+            field_dict["metrics_testing_id"] = metrics_testing_id
 
         return field_dict
 
@@ -214,6 +224,15 @@ class LogRecordsMetricsQueryRequest:
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
+
         log_records_metrics_query_request = cls(
             end_time=end_time,
             start_time=start_time,
@@ -222,6 +241,7 @@ class LogRecordsMetricsQueryRequest:
             group_by=group_by,
             interval=interval,
             log_stream_id=log_stream_id,
+            metrics_testing_id=metrics_testing_id,
         )
 
         log_records_metrics_query_request.additional_properties = d
