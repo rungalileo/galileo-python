@@ -265,10 +265,7 @@ class TestExperiments:
 
         dataset_id = str(UUID(int=0))
         run_experiment(
-            "test_experiment",
-            project="awesome-new-project",
-            dataset_id=dataset_id,
-            prompt_template=prompt_template(),
+            "test_experiment", project="awesome-new-project", dataset_id=dataset_id, prompt_template=prompt_template()
         )
 
         mock_get_project.assert_called_once_with(id=None, name="awesome-new-project")
