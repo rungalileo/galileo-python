@@ -264,14 +264,12 @@ class TestExperiments:
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         dataset_id = str(UUID(int=0))
-        with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
-            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
-                run_experiment(
-                    "test_experiment",
-                    project="awesome-new-project",
-                    dataset_id=dataset_id,
-                    prompt_template=prompt_template(),
-                )
+        run_experiment(
+            "test_experiment",
+            project="awesome-new-project",
+            dataset_id=dataset_id,
+            prompt_template=prompt_template(),
+        )
 
         mock_get_project.assert_called_once_with(id=None, name="awesome-new-project")
 
@@ -295,14 +293,12 @@ class TestExperiments:
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
 
         dataset_id = str(UUID(int=0))
-        with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
-            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
-                run_experiment(
-                    "test_experiment",
-                    project_id="awesome-new-project",
-                    dataset_id=dataset_id,
-                    prompt_template=prompt_template(),
-                )
+        run_experiment(
+            "test_experiment",
+            project_id="awesome-new-project",
+            dataset_id=dataset_id,
+            prompt_template=prompt_template(),
+        )
 
         mock_get_project.assert_called_once_with(id="awesome-new-project", name=None)
 
@@ -327,14 +323,12 @@ class TestExperiments:
 
         dataset_id = str(UUID(int=0))
         with pytest.raises(ValueError) as exc_info:
-            with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
-                with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
-                    run_experiment(
-                        "test_experiment",
-                        project_id="awesome-new-project",
-                        dataset_id=dataset_id,
-                        prompt_template=prompt_template(),
-                    )
+            run_experiment(
+                "test_experiment",
+                project_id="awesome-new-project",
+                dataset_id=dataset_id,
+                prompt_template=prompt_template(),
+            )
 
         assert str(exc_info.value) == "Project with Id awesome-new-project does not exist"
 
@@ -359,14 +353,12 @@ class TestExperiments:
 
         dataset_id = str(UUID(int=0))
         with pytest.raises(ValueError) as exc_info:
-            with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
-                with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
-                    run_experiment(
-                        "test_experiment",
-                        project="awesome-new-project",
-                        dataset_id=dataset_id,
-                        prompt_template=prompt_template(),
-                    )
+            run_experiment(
+                "test_experiment",
+                project="awesome-new-project",
+                dataset_id=dataset_id,
+                prompt_template=prompt_template(),
+            )
 
         assert str(exc_info.value) == "Project awesome-new-project does not exist"
 

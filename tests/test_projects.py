@@ -1,8 +1,15 @@
 import logging
+import os
 from unittest.mock import ANY, Mock, patch
+
+import pytest
 
 from galileo.projects import Projects
 
+@pytest.fixture(autouse=True)
+def reset_env_vars():
+    os.environ.pop('GALILEO_PROJECT', None)
+    os.environ.pop('GALILEO_PROJECT_ID', None)
 
 class TestProjects:
     @patch("galileo.projects.get_all_projects_projects_all_get")
@@ -43,10 +50,8 @@ class TestProjects:
 
     @patch("galileo.projects.get_project_projects_project_id_get.sync_detailed", return_value=None)
     def test_get_project_with_id_gets_project_by_id(self, get_project_projects_project_id_get: Mock):
-        with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
-            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
-                Projects().get(id="123")
-                get_project_projects_project_id_get.assert_called_once_with(project_id="123", client=ANY)
+        Projects().get(id="123")
+        get_project_projects_project_id_get.assert_called_once_with(project_id="123", client=ANY)
 
     @patch("galileo.projects.get_project_projects_project_id_get.sync_detailed", return_value=None)
     def test_get_project_with_id_with_whitespace_env_vars_gets_project_by_id(
@@ -58,18 +63,15 @@ class TestProjects:
                 get_project_projects_project_id_get.assert_called_once_with(project_id="123", client=ANY)
 
     @patch("galileo.projects.get_project_projects_project_id_get.sync_detailed", return_value=None)
-    def test_get_project_with_id_from_env_var_gets_project_by_id(self, get_project_projects_project_id_get: Mock):
-        with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
-            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": "123"}):
-                Projects().get()
-                get_project_projects_project_id_get.assert_called_once_with(project_id="123", client=ANY)
+    def test_get_project_with_id_from_env_var_gets_project_by_id(self, get_project_projects_project_id_get: Mock):        
+        with patch.dict("os.environ", {"GALILEO_PROJECT_ID": "123"}):
+            Projects().get()
+            get_project_projects_project_id_get.assert_called_once_with(project_id="123", client=ANY)
 
     @patch("galileo.projects.get_projects_projects_get.sync_detailed", return_value=None)
     def test_get_project_with_name_gets_project_by_name(self, get_projects_projects_get: Mock):
-        with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
-            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
-                Projects().get(name="my_project")
-                get_projects_projects_get.assert_called_once_with(project_name="my_project", client=ANY, type_=ANY)
+        Projects().get(name="my_project")
+        get_projects_projects_get.assert_called_once_with(project_name="my_project", client=ANY, type_=ANY)
 
     @patch("galileo.projects.get_projects_projects_get.sync_detailed", return_value=None)
     def test_get_project_with_name_with_whitespace_env_vars_gets_project_by_name(self, get_projects_projects_get: Mock):
@@ -80,7 +82,8 @@ class TestProjects:
 
     @patch("galileo.projects.get_projects_projects_get.sync_detailed", return_value=None)
     def test_get_project_with_name_from_env_var_gets_project_by_name(self, get_projects_projects_get: Mock):
+        os.environ.pop('GALILEO_PROJECT_ID', None)
+
         with patch.dict("os.environ", {"GALILEO_PROJECT": "my_project"}):
-            with patch.dict("os.environ", {"GALILEO_PROJECT_ID": ""}):
-                Projects().get()
-                get_projects_projects_get.assert_called_once_with(project_name="my_project", client=ANY, type_=ANY)
+            Projects().get()
+            get_projects_projects_get.assert_called_once_with(project_name="my_project", client=ANY, type_=ANY)
