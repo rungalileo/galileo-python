@@ -285,7 +285,7 @@ def run_experiment(
         raise ValueError("A function or prompt_template should be provided, but not both")
 
     # Get the project from the name or Id
-    project_obj = Projects().get(id=project_id, name=project)
+    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project)
 
     # Ensure we have a valid project
     if not project_obj:

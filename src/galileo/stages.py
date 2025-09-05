@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from os import getenv
 from typing import Optional, Union
 
 from pydantic import UUID4
@@ -31,19 +30,14 @@ def _get_project_id(
     """
     Resolves project ID from either project_id or project_name.
     """
-    if project_id:
-        return str(project_id)
+    # If the project Id is a UUID4, convert to string.
+    if project_id is not None and type(project_id).__name__ == "UUID":
+        project_id = str(project_id)
 
-    # Load the project name from environment variable if not provided
-    project_name = project_name if project_name else getenv("GALILEO_PROJECT")
-
-    if project_name:
-        project = Projects(config=config).get(name=project_name)
-        if not project:
-            raise ValueError(f"Project with name '{project_name}' not found.")
-        return str(project.id)
-
-    raise ValueError("Either project_id or project_name must be provided.")
+    project = Projects(config=config).get_with_env_fallbacks(name=project_name, id=project_id)  # type: ignore
+    if not project:
+        raise ValueError(f"Project with name '{project_name}' not found.")
+    return str(project.id)
 
 
 def _get_stage_id(

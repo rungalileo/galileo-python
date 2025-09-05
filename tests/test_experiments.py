@@ -1,4 +1,5 @@
 import operator
+import os
 from datetime import datetime
 from functools import reduce
 from statistics import mean
@@ -39,8 +40,10 @@ from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstre
 
 
 @pytest.fixture
-def reset_context():
+def reset_context(auto_use=True):
     galileo_context.reset()
+    os.environ.pop("GALILEO_PROJECT", None)
+    os.environ.pop("GALILEO_PROJECT_ID", None)
 
 
 def project():
@@ -248,7 +251,7 @@ class TestExperiments:
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_with_project_name_loads_project(
         self,
         mock_get_project: Mock,
@@ -274,7 +277,7 @@ class TestExperiments:
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_with_project_id_loads_project(
         self,
         mock_get_project: Mock,
@@ -303,7 +306,7 @@ class TestExperiments:
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=None)
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=None)
     def test_run_experiment_with_invalid_project_id_gives_error(
         self,
         mock_get_project: Mock,
@@ -333,7 +336,7 @@ class TestExperiments:
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=None)
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=None)
     def test_run_experiment_with_invalid_project_name_gives_error(
         self,
         mock_get_project: Mock,
@@ -364,7 +367,7 @@ class TestExperiments:
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_without_metrics(
         self,
         mock_get_project: Mock,
@@ -411,7 +414,7 @@ class TestExperiments:
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
     @patch.object(galileo.experiments.Scorers, "get_scorer_version", return_value=mock_scorer_version_response())
     @patch.object(galileo.experiments.ScorerSettings, "create")
@@ -567,7 +570,7 @@ class TestExperiments:
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_w_prompt_template_and_metrics(
         self,
         mock_get_project: Mock,
@@ -613,7 +616,7 @@ class TestExperiments:
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_w_prompt_template_and_prompt_settings(
         self,
         mock_get_project: Mock,
@@ -665,7 +668,7 @@ class TestExperiments:
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_with_runner_and_dataset(
         self,
         mock_get_project: Mock,
@@ -737,7 +740,7 @@ class TestExperiments:
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000001", name=None)
         mock_get_dataset_instance.get_content.assert_called()
 
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_with_prompt_template_and_local_dataset(
         self, mock_projects_client: Mock, local_dataset: list[dict[str, str]]
     ):
@@ -759,7 +762,7 @@ class TestExperiments:
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
     @patch.object(galileo.experiments.Scorers, "get_scorer_version", return_value=mock_scorer_version_response())
     @patch.object(galileo.experiments.ScorerSettings, "create", return_value=None)
@@ -875,7 +878,7 @@ class TestExperiments:
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=None)
-    @patch.object(galileo.experiments.Projects, "get", return_value=project())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_job_creation_failure(
         self,
         mock_get_project: Mock,

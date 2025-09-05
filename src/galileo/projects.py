@@ -121,6 +121,40 @@ class Projects(BaseClientModel, DecorateAllMethods):
         )
         return [Project(project=project) for project in projects] if projects else []
 
+    def get_with_env_fallbacks(self, *, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Project]:
+        """
+        Retrieves a project by id or name.
+
+        Either `id` or `name` must be provided, but not both. If neither is provided,
+        the method will attempt to read from the environment variables `GALILEO_PROJECT_ID`
+        and `GALILEO_PROJECT`. If both environment variables are set, a ValueError is raised.
+
+        Parameters
+        ----------
+        id : str
+            The id of the project.
+        name : str
+            The name of the project.
+        Returns
+        -------
+        Project
+            The project.
+
+        Raises
+        ------
+        ValueError
+            If neither or both `id` and `name` are provided.
+        errors.UnexpectedStatus
+            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException
+            If the request takes longer than Client.timeout.
+
+        """
+        name = name or os.getenv("GALILEO_PROJECT")
+        id = id or os.getenv("GALILEO_PROJECT_ID")
+
+        return self.get(id=id, name=name)
+
     def get(self, *, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Project]:
         """
         Retrieves a project by id or name (exactly one of `id` or `name` must be provided).
@@ -146,12 +180,12 @@ class Projects(BaseClientModel, DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        name = (name or os.getenv("GALILEO_PROJECT") or "").strip() or None
-        id = (id or os.getenv("GALILEO_PROJECT_ID") or "").strip() or None
+        name = name.strip() if name else None
+        id = id.strip() if id else None
 
         # Check we have one and only one of project name or Id.
         if (not name and not id) or (name and id):
-            raise ValueError("Exactly one of 'id' or 'name' must be provided, or set in the environment variables GALILEO_PROJECT_ID or GALILEO_PROJECT")
+            raise ValueError("Exactly one of 'id' or 'name' must be provided.")
 
         project: Optional[Project] = None
 
