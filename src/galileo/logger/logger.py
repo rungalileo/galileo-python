@@ -54,6 +54,7 @@ from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
+from pydantic.types import UUID4
 
 STREAMING_MAX_RETRIES = 3
 
@@ -506,6 +507,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         dataset_output: Optional[str] = None,
         dataset_metadata: Optional[dict[str, str]] = None,
         external_id: Optional[str] = None,
+        external_trace_id: Optional[UUID4] = None,
     ) -> Trace:
         """
         Create a new trace and add it to the list of traces.
@@ -521,11 +523,15 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         metadata: Optional[dict[str, str]]: Metadata associated with this trace.
         tags: Optional[list[str]]: Tags associated with this trace.
         external_id: Optional[str]: External ID for this trace to connect to external systems.
+        external_trace_id: Optional[UUID4]: Trace ID from external systems to be used as trace ID in Galileo.
 
         Returns:
         -------
             Trace: The created trace.
         """
+        if external_trace_id is not None and not isinstance(external_trace_id, UUID4):
+            raise TypeError("external_trace_id must be a UUID4")
+
         kwargs = dict(
             input=input,
             redacted_input=redacted_input,
@@ -538,7 +544,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             dataset_output=dataset_output,
             dataset_metadata=dataset_metadata,
             external_id=external_id,
-            id=uuid.uuid4(),
+            id=external_trace_id or uuid.uuid4(),
         )
         trace = self.add_trace(**kwargs)
 
@@ -573,6 +579,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         dataset_output: Optional[str] = None,
         dataset_metadata: Optional[dict[str, str]] = None,
         span_step_number: Optional[int] = None,
+        external_trace_id: Optional[UUID4] = None,
+        external_span_id: Optional[UUID4] = None,
     ) -> Trace:
         """
         Create a new trace with a single span and add it to the list of traces.
@@ -598,10 +606,18 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             status_code: Optional[int]: Status code of the node execution.
             time_to_first_token_ns: Optional[int]: Time until the first token was returned.
             span_step_number: Optional[int]: Step number of the span.
+            external_trace_id: Optional[UUID4]: Trace ID from external systems to be used as trace ID in Galileo.
+            external_span_id: Optional[UUID4]: Span ID from external systems to be used as span ID in Galileo.
         Returns:
         -------
             Trace: The created trace.
         """
+        if external_trace_id is not None and not isinstance(external_trace_id, UUID4):
+            raise TypeError("external_trace_id must be a UUID4")
+
+        if external_span_id is not None and not isinstance(external_span_id, UUID4):
+          raise TypeError("external_span_id must be a UUID4")
+
         trace = super().add_single_llm_span_trace(
             input=input,
             output=output,
@@ -624,8 +640,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             dataset_output=dataset_output,
             dataset_metadata=dataset_metadata,
             span_step_number=span_step_number,
-            trace_id=uuid.uuid4(),
-            span_id=uuid.uuid4(),
+            trace_id=external_trace_id or uuid.uuid4(),
+            span_id=external_span_id or uuid.uuid4(),
         )
 
         if self.mode == "streaming":
@@ -655,6 +671,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         status_code: Optional[int] = None,
         time_to_first_token_ns: Optional[int] = None,
         step_number: Optional[int] = None,
+        external_span_id: Optional[UUID4] = None,
     ) -> LlmSpan:
         """
         Add a new llm span to the current parent.
@@ -678,10 +695,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             status_code: Optional[int]: Status code of the node execution.
             time_to_first_token_ns: Optional[int]: Time until the first token was returned.
             step_number: Optional[int]: Step number of the span.
+            external_span_id: Optional[UUID4]: Span ID from external systems to be used as span ID in Galileo.
         Returns:
         -------
             LlmSpan: The created span.
         """
+        if external_span_id is not None and not isinstance(external_span_id, UUID4):
+            raise TypeError("external_span_id must be a UUID4")
+
         kwargs = dict(
             input=input,
             output=output,
@@ -701,7 +722,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             status_code=status_code,
             time_to_first_token_ns=time_to_first_token_ns,
             step_number=step_number,
-            id=uuid.uuid4(),
+            id=external_span_id or uuid.uuid4(),
         )
 
         span = super().add_llm_span(**kwargs)
