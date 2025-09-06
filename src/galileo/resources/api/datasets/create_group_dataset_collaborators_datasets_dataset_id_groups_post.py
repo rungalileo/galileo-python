@@ -3,6 +3,7 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
 
@@ -28,6 +29,9 @@ def _get_kwargs(dataset_id: str, *, body: list["GroupCollaboratorCreate"]) -> di
         _kwargs["json"].append(body_item)
 
     headers["Content-Type"] = "application/json"
+
+    headers["x-sdk-name"] = "python-sdk"
+    headers["x-sdk-version"] = get_package_version()
 
     _kwargs["content_headers"] = headers
     return _kwargs
