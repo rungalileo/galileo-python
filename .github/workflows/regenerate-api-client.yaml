@@ -1,0 +1,73 @@
+name: Update API Client
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 13 * * 1-5" # Runs at 9am ET M-F
+
+jobs:
+  update_api_client:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: "read"
+      id-token: "write"
+
+    env:
+      CI_ENV: dev
+
+    steps:
+      - name: update ubuntu, install dependencies
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install socat wget jq -y
+
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: set up python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - name: install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install poetry
+          poetry install --all-extras
+
+      - name: create SSH key
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.GALILEO_AUTOMATION_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+
+      - name: set up ssh-agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.GALILEO_AUTOMATION_SSH_PRIVATE_KEY }}
+
+      - name: get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+
+      - name: fetch api types and regenerate
+        run: |
+          git config --global gpg.format ssh
+          git config --global user.signingKey ~/.ssh/id_rsa
+          git config --global commit.gpgsign true
+          git config --global user.email ci@rungalileo.io
+          git config --global user.name "galileo-automation"
+          git checkout -b $BRANCH_NAME
+          ./scripts/import-openapi-yaml.sh https://api.galileo.ai/client
+          ./scripts/auto-generate-api-client.sh
+          git add .
+          git commit -m "Update API Client"
+          git push --force origin $BRANCH_NAME --no-verify
+        env:
+          BRANCH_NAME: chore/galileo-automation/update-api-client-${{ steps.date.outputs.date }}
+
+      - name: create pull request
+        run: gh pr create -B main -H $BRANCH_NAME --label 'dependencies' --title 'Update API Client' --body 'Fix any breaking changes if this pull request fails to deploy'
+        env:
+          BRANCH_NAME: chore/galileo-automation/update-api-client-${{ steps.date.outputs.date }}
+          GITHUB_TOKEN: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
