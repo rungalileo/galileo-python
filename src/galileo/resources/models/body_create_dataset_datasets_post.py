@@ -15,6 +15,7 @@ T = TypeVar("T", bound="BodyCreateDatasetDatasetsPost")
 class BodyCreateDatasetDatasetsPost:
     """
     Attributes:
+        append_suffix_if_duplicate (Union[Unset, bool]):  Default: False.
         copy_from_dataset_id (Union[None, Unset, str]):
         copy_from_dataset_version_index (Union[None, Unset, int]):
         draft (Union[Unset, bool]):  Default: False.
@@ -23,6 +24,7 @@ class BodyCreateDatasetDatasetsPost:
         name (Union[None, Unset, str]):
     """
 
+    append_suffix_if_duplicate: Union[Unset, bool] = False
     copy_from_dataset_id: Union[None, Unset, str] = UNSET
     copy_from_dataset_version_index: Union[None, Unset, int] = UNSET
     draft: Union[Unset, bool] = False
@@ -32,6 +34,8 @@ class BodyCreateDatasetDatasetsPost:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        append_suffix_if_duplicate = self.append_suffix_if_duplicate
+
         copy_from_dataset_id: Union[None, Unset, str]
         if isinstance(self.copy_from_dataset_id, Unset):
             copy_from_dataset_id = UNSET
@@ -66,6 +70,8 @@ class BodyCreateDatasetDatasetsPost:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if append_suffix_if_duplicate is not UNSET:
+            field_dict["append_suffix_if_duplicate"] = append_suffix_if_duplicate
         if copy_from_dataset_id is not UNSET:
             field_dict["copy_from_dataset_id"] = copy_from_dataset_id
         if copy_from_dataset_version_index is not UNSET:
@@ -83,6 +89,11 @@ class BodyCreateDatasetDatasetsPost:
 
     def to_multipart(self) -> types.RequestFiles:
         files: types.RequestFiles = []
+
+        if not isinstance(self.append_suffix_if_duplicate, Unset):
+            files.append(
+                ("append_suffix_if_duplicate", (None, str(self.append_suffix_if_duplicate).encode(), "text/plain"))
+            )
 
         if not isinstance(self.copy_from_dataset_id, Unset):
             if isinstance(self.copy_from_dataset_id, str):
@@ -132,6 +143,7 @@ class BodyCreateDatasetDatasetsPost:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        append_suffix_if_duplicate = d.pop("append_suffix_if_duplicate", UNSET)
 
         def _parse_copy_from_dataset_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -184,6 +196,7 @@ class BodyCreateDatasetDatasetsPost:
         name = _parse_name(d.pop("name", UNSET))
 
         body_create_dataset_datasets_post = cls(
+            append_suffix_if_duplicate=append_suffix_if_duplicate,
             copy_from_dataset_id=copy_from_dataset_id,
             copy_from_dataset_version_index=copy_from_dataset_version_index,
             draft=draft,

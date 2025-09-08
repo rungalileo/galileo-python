@@ -16,6 +16,7 @@ class SessionCreateRequest:
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         external_id (Union[None, Unset, str]): External id of the session.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         name (Union[None, Unset, str]): Name of the session.
         previous_session_id (Union[None, Unset, str]): Id of the previous session.
     """
@@ -23,6 +24,7 @@ class SessionCreateRequest:
     experiment_id: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
     log_stream_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
     name: Union[None, Unset, str] = UNSET
     previous_session_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -46,6 +48,12 @@ class SessionCreateRequest:
         else:
             log_stream_id = self.log_stream_id
 
+        metrics_testing_id: Union[None, Unset, str]
+        if isinstance(self.metrics_testing_id, Unset):
+            metrics_testing_id = UNSET
+        else:
+            metrics_testing_id = self.metrics_testing_id
+
         name: Union[None, Unset, str]
         if isinstance(self.name, Unset):
             name = UNSET
@@ -67,6 +75,8 @@ class SessionCreateRequest:
             field_dict["external_id"] = external_id
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
+        if metrics_testing_id is not UNSET:
+            field_dict["metrics_testing_id"] = metrics_testing_id
         if name is not UNSET:
             field_dict["name"] = name
         if previous_session_id is not UNSET:
@@ -105,6 +115,15 @@ class SessionCreateRequest:
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
+
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -127,6 +146,7 @@ class SessionCreateRequest:
             experiment_id=experiment_id,
             external_id=external_id,
             log_stream_id=log_stream_id,
+            metrics_testing_id=metrics_testing_id,
             name=name,
             previous_session_id=previous_session_id,
         )

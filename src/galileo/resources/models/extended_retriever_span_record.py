@@ -24,8 +24,6 @@ class ExtendedRetrieverSpanRecord:
     """
     Attributes:
         id (str): Galileo ID of the session, trace or span
-        input_ (str): Input to the trace or span.
-        output (list['Document']): Output of the trace or span.
         parent_id (str): Galileo ID of the parent of this span
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
@@ -37,12 +35,14 @@ class ExtendedRetrieverSpanRecord:
         dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
+        input_ (Union[Unset, str]): Input to the trace or span. Default: ''.
         is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
         metric_info (Union['ExtendedRetrieverSpanRecordMetricInfoType0', None, Unset]): Detailed information about the
             metrics associated with this trace or span
         metrics (Union[Unset, Metrics]):
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
+        output (Union[Unset, list['Document']]): Output of the trace or span.
         redacted_input (Union[None, Unset, str]): Redacted input of the trace or span.
         redacted_output (Union[None, Unset, list['Document']]): Redacted output of the trace or span.
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
@@ -59,8 +59,6 @@ class ExtendedRetrieverSpanRecord:
     """
 
     id: str
-    input_: str
-    output: list["Document"]
     parent_id: str
     project_id: str
     run_id: str
@@ -71,11 +69,13 @@ class ExtendedRetrieverSpanRecord:
     dataset_output: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
     has_children: Union[None, Unset, bool] = UNSET
+    input_: Union[Unset, str] = ""
     is_complete: Union[Unset, bool] = True
     metric_info: Union["ExtendedRetrieverSpanRecordMetricInfoType0", None, Unset] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
     metrics_batch_id: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
+    output: Union[Unset, list["Document"]] = UNSET
     redacted_input: Union[None, Unset, str] = UNSET
     redacted_output: Union[None, Unset, list["Document"]] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
@@ -94,13 +94,6 @@ class ExtendedRetrieverSpanRecord:
         )
 
         id = self.id
-
-        input_ = self.input_
-
-        output = []
-        for output_item_data in self.output:
-            output_item = output_item_data.to_dict()
-            output.append(output_item)
 
         parent_id = self.parent_id
 
@@ -142,6 +135,8 @@ class ExtendedRetrieverSpanRecord:
         else:
             has_children = self.has_children
 
+        input_ = self.input_
+
         is_complete = self.is_complete
 
         metric_info: Union[None, Unset, dict[str, Any]]
@@ -163,6 +158,13 @@ class ExtendedRetrieverSpanRecord:
             metrics_batch_id = self.metrics_batch_id
 
         name = self.name
+
+        output: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.output, Unset):
+            output = []
+            for output_item_data in self.output:
+                output_item = output_item_data.to_dict()
+                output.append(output_item)
 
         redacted_input: Union[None, Unset, str]
         if isinstance(self.redacted_input, Unset):
@@ -227,15 +229,7 @@ class ExtendedRetrieverSpanRecord:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "id": id,
-                "input": input_,
-                "output": output,
-                "parent_id": parent_id,
-                "project_id": project_id,
-                "run_id": run_id,
-                "session_id": session_id,
-            }
+            {"id": id, "parent_id": parent_id, "project_id": project_id, "run_id": run_id, "session_id": session_id}
         )
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
@@ -249,6 +243,8 @@ class ExtendedRetrieverSpanRecord:
             field_dict["external_id"] = external_id
         if has_children is not UNSET:
             field_dict["has_children"] = has_children
+        if input_ is not UNSET:
+            field_dict["input"] = input_
         if is_complete is not UNSET:
             field_dict["is_complete"] = is_complete
         if metric_info is not UNSET:
@@ -259,6 +255,8 @@ class ExtendedRetrieverSpanRecord:
             field_dict["metrics_batch_id"] = metrics_batch_id
         if name is not UNSET:
             field_dict["name"] = name
+        if output is not UNSET:
+            field_dict["output"] = output
         if redacted_input is not UNSET:
             field_dict["redacted_input"] = redacted_input
         if redacted_output is not UNSET:
@@ -294,15 +292,6 @@ class ExtendedRetrieverSpanRecord:
 
         d = dict(src_dict)
         id = d.pop("id")
-
-        input_ = d.pop("input")
-
-        output = []
-        _output = d.pop("output")
-        for output_item_data in _output:
-            output_item = Document.from_dict(output_item_data)
-
-            output.append(output_item)
 
         parent_id = d.pop("parent_id")
 
@@ -362,6 +351,8 @@ class ExtendedRetrieverSpanRecord:
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
 
+        input_ = d.pop("input", UNSET)
+
         is_complete = d.pop("is_complete", UNSET)
 
         def _parse_metric_info(data: object) -> Union["ExtendedRetrieverSpanRecordMetricInfoType0", None, Unset]:
@@ -398,6 +389,13 @@ class ExtendedRetrieverSpanRecord:
         metrics_batch_id = _parse_metrics_batch_id(d.pop("metrics_batch_id", UNSET))
 
         name = d.pop("name", UNSET)
+
+        output = []
+        _output = d.pop("output", UNSET)
+        for output_item_data in _output or []:
+            output_item = Document.from_dict(output_item_data)
+
+            output.append(output_item)
 
         def _parse_redacted_input(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -498,8 +496,6 @@ class ExtendedRetrieverSpanRecord:
 
         extended_retriever_span_record = cls(
             id=id,
-            input_=input_,
-            output=output,
             parent_id=parent_id,
             project_id=project_id,
             run_id=run_id,
@@ -510,11 +506,13 @@ class ExtendedRetrieverSpanRecord:
             dataset_output=dataset_output,
             external_id=external_id,
             has_children=has_children,
+            input_=input_,
             is_complete=is_complete,
             metric_info=metric_info,
             metrics=metrics,
             metrics_batch_id=metrics_batch_id,
             name=name,
+            output=output,
             redacted_input=redacted_input,
             redacted_output=redacted_output,
             session_batch_id=session_batch_id,

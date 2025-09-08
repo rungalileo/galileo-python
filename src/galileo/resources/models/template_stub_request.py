@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -11,27 +11,27 @@ T = TypeVar("T", bound="TemplateStubRequest")
 class TemplateStubRequest:
     """
     Attributes:
-        template (str):
+        templates (list[str]):
     """
 
-    template: str
+    templates: list[str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        template = self.template
+        templates = self.templates
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"template": template})
+        field_dict.update({"templates": templates})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        template = d.pop("template")
+        templates = cast(list[str], d.pop("templates"))
 
-        template_stub_request = cls(template=template)
+        template_stub_request = cls(templates=templates)
 
         template_stub_request.additional_properties = d
         return template_stub_request

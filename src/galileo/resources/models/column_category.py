@@ -7,6 +7,7 @@ class ColumnCategory(str, Enum):
     FEEDBACK = "feedback"
     METRIC = "metric"
     STANDARD = "standard"
+    TAGS = "tags"
     USER_METADATA = "user_metadata"
 
     def __str__(self) -> str:

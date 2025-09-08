@@ -36,7 +36,6 @@ class ExtendedAgentSpanRecordWithChildren:
     """
     Attributes:
         id (str): Galileo ID of the session, trace or span
-        input_ (Union[list['Message'], str]): Input to the trace or span.
         parent_id (str): Galileo ID of the parent of this span
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
@@ -49,6 +48,7 @@ class ExtendedAgentSpanRecordWithChildren:
         dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
+        input_ (Union[Unset, list['Message'], str]): Input to the trace or span. Default: ''.
         is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
         metric_info (Union['ExtendedAgentSpanRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information
             about the metrics associated with this trace or span
@@ -75,7 +75,6 @@ class ExtendedAgentSpanRecordWithChildren:
     """
 
     id: str
-    input_: Union[list["Message"], str]
     parent_id: str
     project_id: str
     run_id: str
@@ -87,6 +86,7 @@ class ExtendedAgentSpanRecordWithChildren:
     dataset_output: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
     has_children: Union[None, Unset, bool] = UNSET
+    input_: Union[Unset, list["Message"], str] = ""
     is_complete: Union[Unset, bool] = True
     metric_info: Union["ExtendedAgentSpanRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
@@ -127,16 +127,6 @@ class ExtendedAgentSpanRecordWithChildren:
         from ..models.message import Message
 
         id = self.id
-
-        input_: Union[list[dict[str, Any]], str]
-        if isinstance(self.input_, list):
-            input_ = []
-            for input_type_1_item_data in self.input_:
-                input_type_1_item = input_type_1_item_data.to_dict()
-                input_.append(input_type_1_item)
-
-        else:
-            input_ = self.input_
 
         parent_id = self.parent_id
 
@@ -181,6 +171,18 @@ class ExtendedAgentSpanRecordWithChildren:
             has_children = UNSET
         else:
             has_children = self.has_children
+
+        input_: Union[Unset, list[dict[str, Any]], str]
+        if isinstance(self.input_, Unset):
+            input_ = UNSET
+        elif isinstance(self.input_, list):
+            input_ = []
+            for input_type_1_item_data in self.input_:
+                input_type_1_item = input_type_1_item_data.to_dict()
+                input_.append(input_type_1_item)
+
+        else:
+            input_ = self.input_
 
         is_complete = self.is_complete
 
@@ -307,14 +309,7 @@ class ExtendedAgentSpanRecordWithChildren:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "id": id,
-                "input": input_,
-                "parent_id": parent_id,
-                "project_id": project_id,
-                "run_id": run_id,
-                "session_id": session_id,
-            }
+            {"id": id, "parent_id": parent_id, "project_id": project_id, "run_id": run_id, "session_id": session_id}
         )
         if agent_type is not UNSET:
             field_dict["agent_type"] = agent_type
@@ -330,6 +325,8 @@ class ExtendedAgentSpanRecordWithChildren:
             field_dict["external_id"] = external_id
         if has_children is not UNSET:
             field_dict["has_children"] = has_children
+        if input_ is not UNSET:
+            field_dict["input"] = input_
         if is_complete is not UNSET:
             field_dict["is_complete"] = is_complete
         if metric_info is not UNSET:
@@ -388,24 +385,6 @@ class ExtendedAgentSpanRecordWithChildren:
 
         d = dict(src_dict)
         id = d.pop("id")
-
-        def _parse_input_(data: object) -> Union[list["Message"], str]:
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                input_type_1 = []
-                _input_type_1 = data
-                for input_type_1_item_data in _input_type_1:
-                    input_type_1_item = Message.from_dict(input_type_1_item_data)
-
-                    input_type_1.append(input_type_1_item)
-
-                return input_type_1
-            except:  # noqa: E722
-                pass
-            return cast(Union[list["Message"], str], data)
-
-        input_ = _parse_input_(d.pop("input"))
 
         parent_id = d.pop("parent_id")
 
@@ -471,6 +450,26 @@ class ExtendedAgentSpanRecordWithChildren:
             return cast(Union[None, Unset, bool], data)
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
+
+        def _parse_input_(data: object) -> Union[Unset, list["Message"], str]:
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                input_type_1 = []
+                _input_type_1 = data
+                for input_type_1_item_data in _input_type_1:
+                    input_type_1_item = Message.from_dict(input_type_1_item_data)
+
+                    input_type_1.append(input_type_1_item)
+
+                return input_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[Unset, list["Message"], str], data)
+
+        input_ = _parse_input_(d.pop("input", UNSET))
 
         is_complete = d.pop("is_complete", UNSET)
 
@@ -716,7 +715,6 @@ class ExtendedAgentSpanRecordWithChildren:
 
         extended_agent_span_record_with_children = cls(
             id=id,
-            input_=input_,
             parent_id=parent_id,
             project_id=project_id,
             run_id=run_id,
@@ -728,6 +726,7 @@ class ExtendedAgentSpanRecordWithChildren:
             dataset_output=dataset_output,
             external_id=external_id,
             has_children=has_children,
+            input_=input_,
             is_complete=is_complete,
             metric_info=metric_info,
             metrics=metrics,

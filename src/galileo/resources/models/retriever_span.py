@@ -26,8 +26,6 @@ T = TypeVar("T", bound="RetrieverSpan")
 class RetrieverSpan:
     """
     Attributes:
-        input_ (str): Input to the trace or span.
-        output (list['Document']): Output of the trace or span.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, RetrieverSpanDatasetMetadata]): Metadata from the dataset associated with this
@@ -35,8 +33,10 @@ class RetrieverSpan:
         dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         id (Union[None, Unset, str]): Galileo ID of the session, trace or span
+        input_ (Union[Unset, str]): Input to the trace or span. Default: ''.
         metrics (Union[Unset, Metrics]):
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
+        output (Union[Unset, list['Document']]): Output of the trace or span.
         parent_id (Union[None, Unset, str]): Galileo ID of the parent of this span
         redacted_input (Union[None, Unset, str]): Redacted input of the trace or span.
         redacted_output (Union[None, Unset, list['Document']]): Redacted output of the trace or span.
@@ -53,16 +53,16 @@ class RetrieverSpan:
         user_metadata (Union[Unset, RetrieverSpanUserMetadata]): Metadata associated with this trace or span.
     """
 
-    input_: str
-    output: list["Document"]
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "RetrieverSpanDatasetMetadata"] = UNSET
     dataset_output: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
     id: Union[None, Unset, str] = UNSET
+    input_: Union[Unset, str] = ""
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
+    output: Union[Unset, list["Document"]] = UNSET
     parent_id: Union[None, Unset, str] = UNSET
     redacted_input: Union[None, Unset, str] = UNSET
     redacted_output: Union[None, Unset, list["Document"]] = UNSET
@@ -80,13 +80,6 @@ class RetrieverSpan:
         from ..models.agent_span import AgentSpan
         from ..models.llm_span import LlmSpan
         from ..models.workflow_span import WorkflowSpan
-
-        input_ = self.input_
-
-        output = []
-        for output_item_data in self.output:
-            output_item = output_item_data.to_dict()
-            output.append(output_item)
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -120,11 +113,20 @@ class RetrieverSpan:
         else:
             id = self.id
 
+        input_ = self.input_
+
         metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = self.metrics.to_dict()
 
         name = self.name
+
+        output: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.output, Unset):
+            output = []
+            for output_item_data in self.output:
+                output_item = output_item_data.to_dict()
+                output.append(output_item)
 
         parent_id: Union[None, Unset, str]
         if isinstance(self.parent_id, Unset):
@@ -204,7 +206,7 @@ class RetrieverSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"input": input_, "output": output})
+        field_dict.update({})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -217,10 +219,14 @@ class RetrieverSpan:
             field_dict["external_id"] = external_id
         if id is not UNSET:
             field_dict["id"] = id
+        if input_ is not UNSET:
+            field_dict["input"] = input_
         if metrics is not UNSET:
             field_dict["metrics"] = metrics
         if name is not UNSET:
             field_dict["name"] = name
+        if output is not UNSET:
+            field_dict["output"] = output
         if parent_id is not UNSET:
             field_dict["parent_id"] = parent_id
         if redacted_input is not UNSET:
@@ -258,15 +264,6 @@ class RetrieverSpan:
         from ..models.workflow_span import WorkflowSpan
 
         d = dict(src_dict)
-        input_ = d.pop("input")
-
-        output = []
-        _output = d.pop("output")
-        for output_item_data in _output:
-            output_item = Document.from_dict(output_item_data)
-
-            output.append(output_item)
-
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
         if isinstance(_created_at, Unset):
@@ -317,6 +314,8 @@ class RetrieverSpan:
 
         id = _parse_id(d.pop("id", UNSET))
 
+        input_ = d.pop("input", UNSET)
+
         _metrics = d.pop("metrics", UNSET)
         metrics: Union[Unset, Metrics]
         if isinstance(_metrics, Unset):
@@ -325,6 +324,13 @@ class RetrieverSpan:
             metrics = Metrics.from_dict(_metrics)
 
         name = d.pop("name", UNSET)
+
+        output = []
+        _output = d.pop("output", UNSET)
+        for output_item_data in _output or []:
+            output_item = Document.from_dict(output_item_data)
+
+            output.append(output_item)
 
         def _parse_parent_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -465,16 +471,16 @@ class RetrieverSpan:
             user_metadata = RetrieverSpanUserMetadata.from_dict(_user_metadata)
 
         retriever_span = cls(
-            input_=input_,
-            output=output,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
             dataset_output=dataset_output,
             external_id=external_id,
             id=id,
+            input_=input_,
             metrics=metrics,
             name=name,
+            output=output,
             parent_id=parent_id,
             redacted_input=redacted_input,
             redacted_output=redacted_output,

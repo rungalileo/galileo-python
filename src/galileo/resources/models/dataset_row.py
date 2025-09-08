@@ -7,6 +7,7 @@ from attrs import field as _attrs_field
 if TYPE_CHECKING:
     from ..models.dataset_row_metadata import DatasetRowMetadata
     from ..models.dataset_row_values_dict import DatasetRowValuesDict
+    from ..models.dataset_row_values_item_type_3 import DatasetRowValuesItemType3
 
 
 T = TypeVar("T", bound="DatasetRow")
@@ -19,19 +20,20 @@ class DatasetRow:
         index (int):
         metadata (Union['DatasetRowMetadata', None]):
         row_id (str):
-        values (list[Union[None, float, int, str]]):
+        values (list[Union['DatasetRowValuesItemType3', None, float, int, str]]):
         values_dict (DatasetRowValuesDict):
     """
 
     index: int
     metadata: Union["DatasetRowMetadata", None]
     row_id: str
-    values: list[Union[None, float, int, str]]
+    values: list[Union["DatasetRowValuesItemType3", None, float, int, str]]
     values_dict: "DatasetRowValuesDict"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_row_metadata import DatasetRowMetadata
+        from ..models.dataset_row_values_item_type_3 import DatasetRowValuesItemType3
 
         index = self.index
 
@@ -45,8 +47,11 @@ class DatasetRow:
 
         values = []
         for values_item_data in self.values:
-            values_item: Union[None, float, int, str]
-            values_item = values_item_data
+            values_item: Union[None, dict[str, Any], float, int, str]
+            if isinstance(values_item_data, DatasetRowValuesItemType3):
+                values_item = values_item_data.to_dict()
+            else:
+                values_item = values_item_data
             values.append(values_item)
 
         values_dict = self.values_dict.to_dict()
@@ -63,6 +68,7 @@ class DatasetRow:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_row_metadata import DatasetRowMetadata
         from ..models.dataset_row_values_dict import DatasetRowValuesDict
+        from ..models.dataset_row_values_item_type_3 import DatasetRowValuesItemType3
 
         d = dict(src_dict)
         index = d.pop("index")
@@ -88,10 +94,18 @@ class DatasetRow:
         _values = d.pop("values")
         for values_item_data in _values:
 
-            def _parse_values_item(data: object) -> Union[None, float, int, str]:
+            def _parse_values_item(data: object) -> Union["DatasetRowValuesItemType3", None, float, int, str]:
                 if data is None:
                     return data
-                return cast(Union[None, float, int, str], data)
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    values_item_type_3 = DatasetRowValuesItemType3.from_dict(data)
+
+                    return values_item_type_3
+                except:  # noqa: E722
+                    pass
+                return cast(Union["DatasetRowValuesItemType3", None, float, int, str], data)
 
             values_item = _parse_values_item(values_item_data)
 

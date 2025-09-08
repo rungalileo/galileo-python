@@ -1,0 +1,43 @@
+from enum import Enum
+
+
+class CoreScorerName(str, Enum):
+    ACTION_ADVANCEMENT_LUNA = "action_advancement_luna"
+    ACTION_COMPLETION_LUNA = "action_completion_luna"
+    AGENTIC_SESSION_SUCCESS = "agentic_session_success"
+    AGENTIC_WORKFLOW_SUCCESS = "agentic_workflow_success"
+    BLEU = "bleu"
+    CHUNK_ATTRIBUTION_UTILIZATION = "chunk_attribution_utilization"
+    CHUNK_ATTRIBUTION_UTILIZATION_LUNA = "chunk_attribution_utilization_luna"
+    COMPLETENESS = "completeness"
+    COMPLETENESS_LUNA = "completeness_luna"
+    CONTEXT_ADHERENCE = "context_adherence"
+    CONTEXT_ADHERENCE_LUNA = "context_adherence_luna"
+    CONTEXT_RELEVANCE = "context_relevance"
+    CORRECTNESS = "correctness"
+    GROUND_TRUTH_ADHERENCE = "ground_truth_adherence"
+    INPUT_PII = "input_pii"
+    INPUT_SEXIST = "input_sexist"
+    INPUT_SEXIST_LUNA = "input_sexist_luna"
+    INPUT_TONE = "input_tone"
+    INPUT_TOXICITY = "input_toxicity"
+    INPUT_TOXICITY_LUNA = "input_toxicity_luna"
+    INSTRUCTION_ADHERENCE = "instruction_adherence"
+    OUTPUT_PII = "output_pii"
+    OUTPUT_SEXIST = "output_sexist"
+    OUTPUT_SEXIST_LUNA = "output_sexist_luna"
+    OUTPUT_TONE = "output_tone"
+    OUTPUT_TOXICITY = "output_toxicity"
+    OUTPUT_TOXICITY_LUNA = "output_toxicity_luna"
+    PROMPT_INJECTION = "prompt_injection"
+    PROMPT_INJECTION_LUNA = "prompt_injection_luna"
+    PROMPT_PERPLEXITY = "prompt_perplexity"
+    ROUGE = "rouge"
+    TOOL_ERROR_RATE = "tool_error_rate"
+    TOOL_ERROR_RATE_LUNA = "tool_error_rate_luna"
+    TOOL_SELECTION_QUALITY = "tool_selection_quality"
+    TOOL_SELECTION_QUALITY_LUNA = "tool_selection_quality_luna"
+    UNCERTAINTY = "uncertainty"
+
+    def __str__(self) -> str:
+        return str(self.value)

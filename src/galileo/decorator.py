@@ -425,7 +425,9 @@ class GalileoDecorator:
             if "input" not in span_params:
                 span_params["input"] = input_
 
-            span_params["input_serialized"] = serialize_to_str(span_params["input"])
+            input_serialized = serialize_to_str(span_params["input"])
+            span_params["input_serialized"] = input_serialized
+            span_params["input"] = json.loads(input_serialized)
 
             span_params["created_at"] = start_time
 
@@ -498,7 +500,7 @@ class GalileoDecorator:
         return span_params.get(span_type, common_params)
 
     def _prepare_call(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], dataset_record: Optional[DatasetRecord]
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], dataset_record: Optional[DatasetRecord]
     ) -> None:
         """
         Prepare the call for logging by setting up trace and span contexts.
@@ -565,7 +567,7 @@ class GalileoDecorator:
         return json.loads(json.dumps(raw_input, cls=EventSerializer))
 
     def _finalize_call(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], result: Any
     ) -> Union[Generator, AsyncGenerator, Any]:
         """
         Finalize the call logging by handling the result appropriately.
@@ -589,7 +591,7 @@ class GalileoDecorator:
         else:
             return self._handle_call_result(span_type, span_params, result)
 
-    def _handle_call_result(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], result: Any) -> Any:
+    def _handle_call_result(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], result: Any) -> Any:
         """
         Handle the result of a function call for logging.
 
@@ -609,20 +611,21 @@ class GalileoDecorator:
             output = span_params.get("output", None)
 
             if output is None:
-                # Process result when no output is provided
-                if result is not None:
-                    if not span_type or is_textual_span_type(span_type):
-                        # For workflow/tool/agent spans, directly convert to string
-                        output = serialize_to_str(result)
-                    else:
-                        # Serialize and deserialize to ensure proper JSON serialization.
-                        # Objects are later serialized again so deserialization is necessary here to avoid unnecessary escaping of quotes.
-                        output = json.loads(json.dumps(result, cls=EventSerializer))
-                else:
-                    output = ""
-            elif not isinstance(output, str) and (not span_type or is_textual_span_type(span_type)):
+                output = result if result is not None else ""
+
+            if not isinstance(output, str) and (
+                # an empty span_type means it's a workflow span
+                not span_type
+                # textual spans are spans with string-based input and output
+                or is_textual_span_type(span_type)
+                # llm spans don't accept list or tuple types as output
+                or (span_type == "llm" and (isinstance(output, list) or isinstance(output, tuple)))
+            ):
                 # Convert output to string if needed for workflow/tool/agent spans
                 output = serialize_to_str(output)
+            else:
+                # Serialize and deserialize to ensure proper JSON serialization.
+                output = json.loads(json.dumps(output, cls=EventSerializer))
 
             stack = _span_stack_context.get()
 
@@ -679,7 +682,7 @@ class GalileoDecorator:
         return result
 
     def _wrap_sync_generator_result(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], generator: Generator
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], generator: Generator
     ) -> Generator:
         """
         Wrap a synchronous generator to log its results.
@@ -714,7 +717,7 @@ class GalileoDecorator:
             self._handle_call_result(span_type, span_params, output)
 
     async def _wrap_async_generator_result(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, str], generator: AsyncGenerator
+        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], generator: AsyncGenerator
     ) -> AsyncGenerator:
         """
         Wrap an asynchronous generator to log its results.

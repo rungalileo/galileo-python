@@ -68,6 +68,7 @@ components:
             - items:
                 $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
               type: array
+          default: ''
           description: Input to the trace or span.
           title: Input
         metrics:
@@ -179,8 +180,6 @@ components:
           description: Metadata associated with this trace or span.
           title: User Metadata
           type: object
-      required:
-        - input
       title: AgentSpan
       type: object
     AgentType:
@@ -1074,6 +1073,34 @@ components:
         - custom
       title: AuthMethod
       type: string
+    BaseFinetunedScorerDB:
+      properties:
+        executor:
+          anyOf:
+            - $ref: '#/components/schemas/galileo_core__schemas__shared__scorers__scorer_name__ScorerName'
+            - type: 'null'
+          description: Executor pipeline. Defaults to finetuned scorer pipeline but
+            can run custom galileo score pipelines.
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        lora_task_id:
+          title: Lora Task Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        prompt:
+          title: Prompt
+          type: string
+      required:
+        - id
+        - name
+        - lora_task_id
+        - prompt
+      title: BaseFinetunedScorerDB
+      type: object
     BaseGeneratedScorerDB:
       properties:
         chain_poll_template:
@@ -1130,9 +1157,11 @@ components:
           title: Max Version
           type: integer
         name:
-          minLength: 1
+          anyOf:
+            - minLength: 1
+              type: string
+            - $ref: '#/components/schemas/Name'
           title: Name
-          type: string
         permissions:
           default: []
           items:
@@ -1302,6 +1331,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           anyOf:
             - $ref: '#/components/schemas/ChainPollTemplate'
@@ -1342,6 +1376,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -1415,7 +1454,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: BaseScorer
@@ -1430,6 +1469,10 @@ components:
           description: Whether to enable chain of thought for this scorer. Defaults
             to False for llm scorers.
           title: Cot Enabled
+        finetuned_scorer:
+          anyOf:
+            - $ref: '#/components/schemas/BaseFinetunedScorerDB'
+            - type: 'null'
         generated_scorer:
           anyOf:
             - $ref: '#/components/schemas/BaseGeneratedScorerDB'
@@ -1483,6 +1526,10 @@ components:
       type: object
     BaseScorerVersionResponse:
       properties:
+        chain_poll_template:
+          anyOf:
+            - $ref: '#/components/schemas/ChainPollTemplate'
+            - type: 'null'
         cot_enabled:
           anyOf:
             - type: boolean
@@ -1492,6 +1539,10 @@ components:
           format: date-time
           title: Created At
           type: string
+        finetuned_scorer:
+          anyOf:
+            - $ref: '#/components/schemas/FineTunedScorerResponse'
+            - type: 'null'
         generated_scorer:
           anyOf:
             - $ref: '#/components/schemas/GeneratedScorerResponse'
@@ -1581,6 +1632,10 @@ components:
       type: object
     Body_create_dataset_datasets_post:
       properties:
+        append_suffix_if_duplicate:
+          default: false
+          title: Append Suffix If Duplicate
+          type: boolean
         copy_from_dataset_id:
           anyOf:
             - format: uuid4
@@ -1903,6 +1958,7 @@ components:
         - dataset_metadata
         - dataset
         - feedback
+        - tags
       title: ColumnCategory
       type: string
     ColumnInfo:
@@ -1972,6 +2028,11 @@ components:
           default: false
           description: Indicates whether the column is empty and should be hidden.
           title: Is Empty
+          type: boolean
+        is_optional:
+          default: false
+          description: Whether the column is optional.
+          title: Is Optional
           type: boolean
         label:
           anyOf:
@@ -2267,6 +2328,25 @@ components:
           type: string
       title: CorrectnessScorer
       type: object
+    CreateCustomLunaScorerVersionRequest:
+      properties:
+        executor:
+          anyOf:
+            - $ref: '#/components/schemas/galileo_core__schemas__shared__scorers__scorer_name__ScorerName'
+            - type: 'null'
+          description: Executor pipeline. Defaults to finetuned scorer pipeline but
+            can run custom galileo score pipelines.
+        lora_task_id:
+          title: Lora Task Id
+          type: integer
+        prompt:
+          title: Prompt
+          type: string
+      required:
+        - lora_task_id
+        - prompt
+      title: CreateCustomLunaScorerVersionRequest
+      type: object
     CreateJobRequest:
       properties:
         dataset_id:
@@ -2535,7 +2615,7 @@ components:
           type: boolean
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
         task_type:
@@ -2842,7 +2922,7 @@ components:
           type: boolean
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
         task_type:
@@ -2962,9 +3042,11 @@ components:
           title: Hidden
           type: boolean
         name:
-          minLength: 1
+          anyOf:
+            - minLength: 1
+              type: string
+            - $ref: '#/components/schemas/Name'
           title: Name
-          type: string
         output_type:
           anyOf:
             - type: string
@@ -3008,6 +3090,11 @@ components:
           default: ''
           title: Description
           type: string
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         model_type:
           anyOf:
             - $ref: '#/components/schemas/ModelType'
@@ -3124,6 +3211,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/AgenticSessionSuccessTemplate'
           default:
@@ -3512,6 +3604,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -3585,7 +3682,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedAgenticSessionSuccessGPTScorer
@@ -3605,6 +3702,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/AgenticWorkflowSuccessTemplate'
           default:
@@ -3871,6 +3973,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -3944,7 +4051,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedAgenticWorkflowSuccessGPTScorer
@@ -3965,6 +4072,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/ChunkAttributionUtilizationTemplate'
           default:
@@ -4024,6 +4136,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -4097,7 +4214,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedChunkAttributionUtilizationGPTScorer
@@ -4117,6 +4234,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/CompletenessTemplate'
           default:
@@ -4178,6 +4300,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -4251,7 +4378,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedCompletenessGPTScorer
@@ -4271,6 +4398,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/FactualityTemplate'
           default:
@@ -4530,6 +4662,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -4603,7 +4740,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedFactualityGPTScorer
@@ -4623,6 +4760,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/GroundTruthAdherenceTemplate'
           default:
@@ -4708,6 +4850,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -4781,7 +4928,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedGroundTruthAdherenceGPTScorer
@@ -4801,6 +4948,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/GroundednessTemplate'
           default:
@@ -4915,6 +5067,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -4988,7 +5145,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedGroundednessGPTScorer
@@ -5008,6 +5165,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/InputSexistTemplate'
           default:
@@ -5088,6 +5250,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -5161,7 +5328,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedInputSexistGPTScorer
@@ -5181,6 +5348,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/InputToxicityTemplate'
           default:
@@ -5269,6 +5441,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -5342,7 +5519,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedInputToxicityGPTScorer
@@ -5362,6 +5539,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/InstructionAdherenceTemplate'
           default:
@@ -5501,6 +5683,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -5574,7 +5761,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedInstructionAdherenceGPTScorer
@@ -5594,6 +5781,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/PromptInjectionTemplate'
           default:
@@ -5671,6 +5863,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -5744,7 +5941,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedPromptInjectionGPTScorer
@@ -5764,6 +5961,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/SexistTemplate'
           default:
@@ -5844,6 +6046,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -5917,7 +6124,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedSexistGPTScorer
@@ -5937,6 +6144,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/ToolErrorRateTemplate'
           default:
@@ -6024,6 +6236,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -6097,7 +6314,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedToolErrorRateGPTScorer
@@ -6117,6 +6334,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/ToolSelectionQualityTemplate'
           default:
@@ -6239,6 +6461,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -6312,7 +6539,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedToolSelectionQualityGPTScorer
@@ -6332,6 +6559,11 @@ components:
               type: object
             - type: 'null'
           title: Aggregates
+        can_copy_to_llm:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Can Copy To Llm
         chainpoll_template:
           $ref: '#/components/schemas/ToxicityTemplate'
           default:
@@ -6420,6 +6652,11 @@ components:
               type: string
             - type: 'null'
           title: Generated Scorer Id
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         indices:
           anyOf:
             - items:
@@ -6493,7 +6730,7 @@ components:
           title: Scores
         sub_scorers:
           items:
-            $ref: '#/components/schemas/ScorerName'
+            $ref: '#/components/schemas/promptgalileo__schemas__scorer_name__ScorerName'
           title: Sub Scorers
           type: array
       title: CustomizedToxicityGPTScorer
@@ -6507,6 +6744,11 @@ components:
         - boolean
         - timestamp
         - string_list
+        - tag
+        - dataset
+        - prompt
+        - playground
+        - rank
       title: DataType
       type: string
     DataTypeOptions:
@@ -6574,8 +6816,15 @@ components:
           additionalProperties:
             anyOf:
               - type: string
-              - type: number
               - type: integer
+              - type: number
+              - additionalProperties:
+                  anyOf:
+                    - type: string
+                    - type: integer
+                    - type: number
+                    - type: 'null'
+                type: object
               - type: 'null'
           title: Values
           type: object
@@ -6781,8 +7030,8 @@ components:
           title: Value
           type: boolean
       required:
-        - value
         - operator
+        - value
       title: DatasetDraftFilter
       type: object
     DatasetFilterRows:
@@ -6824,12 +7073,19 @@ components:
           enum:
             - eq
             - ne
+            - one_of
+            - not_in
           title: Operator
           type: string
         value:
-          format: uuid4
+          anyOf:
+            - format: uuid4
+              type: string
+            - items:
+                format: uuid4
+                type: string
+              type: array
           title: Value
-          type: string
       required:
         - value
       title: DatasetIDFilter
@@ -6925,8 +7181,15 @@ components:
           additionalProperties:
             anyOf:
               - type: string
-              - type: number
               - type: integer
+              - type: number
+              - additionalProperties:
+                  anyOf:
+                    - type: string
+                    - type: integer
+                    - type: number
+                    - type: 'null'
+                type: object
               - type: 'null'
           title: Values
           type: object
@@ -7022,8 +7285,15 @@ components:
           items:
             anyOf:
               - type: string
-              - type: number
               - type: integer
+              - type: number
+              - additionalProperties:
+                  anyOf:
+                    - type: string
+                    - type: integer
+                    - type: number
+                    - type: 'null'
+                type: object
               - type: 'null'
           title: Values
           type: array
@@ -7031,8 +7301,15 @@ components:
           additionalProperties:
             anyOf:
               - type: string
-              - type: number
               - type: integer
+              - type: number
+              - additionalProperties:
+                  anyOf:
+                    - type: string
+                    - type: integer
+                    - type: number
+                    - type: 'null'
+                type: object
               - type: 'null'
           title: Values Dict
           type: object
@@ -7110,8 +7387,15 @@ components:
           additionalProperties:
             anyOf:
               - type: string
-              - type: number
               - type: integer
+              - type: number
+              - additionalProperties:
+                  anyOf:
+                    - type: string
+                    - type: integer
+                    - type: number
+                    - type: 'null'
+                type: object
               - type: 'null'
           title: Values
           type: object
@@ -7504,6 +7788,13 @@ components:
             - type: number
             - type: 'null'
           title: Ranking Score
+        tags:
+          additionalProperties:
+            items:
+              $ref: '#/components/schemas/RunTagDB'
+            type: array
+          title: Tags
+          type: object
         task_type:
           $ref: '#/components/schemas/TaskType'
         updated_at:
@@ -7554,6 +7845,7 @@ components:
               group_label: Standard
               id: id
               is_empty: false
+              is_optional: false
               label: ID
               multi_valued: false
               sortable: true
@@ -7566,6 +7858,7 @@ components:
               group_label: Standard
               id: created_at
               is_empty: false
+              is_optional: false
               label: Created
               multi_valued: false
               sortable: true
@@ -7578,6 +7871,7 @@ components:
               group_label: Standard
               id: updated_at
               is_empty: false
+              is_optional: true
               label: Last Updated
               multi_valued: false
               sortable: true
@@ -7590,6 +7884,7 @@ components:
               group_label: Standard
               id: name
               is_empty: false
+              is_optional: false
               label: Name
               multi_valued: false
               sortable: true
@@ -7602,6 +7897,7 @@ components:
               group_label: Standard
               id: project_id
               is_empty: false
+              is_optional: false
               label: Project ID
               multi_valued: false
               sortable: true
@@ -7613,18 +7909,8 @@ components:
               group_label: Standard
               id: ranking_score
               is_empty: false
+              is_optional: true
               label: Ranking Score
-              multi_valued: false
-              sortable: true
-            - applicable_types: []
-              category: standard
-              complex: false
-              data_type: integer
-              filterable: true
-              group_label: Standard
-              id: rank
-              is_empty: false
-              label: Rank
               multi_valued: false
               sortable: true
             - applicable_types: []
@@ -7635,34 +7921,41 @@ components:
               group_label: Standard
               id: playground_id
               is_empty: false
+              is_optional: true
               label: Playground Id
               multi_valued: false
               sortable: true
             - applicable_types: []
               category: metric
               complex: false
+              data_type: floating_point
               filterable: true
               id: metrics/average_cost
               is_empty: false
-              label: average_cost
+              is_optional: false
+              label: Average Cost
               multi_valued: false
               sortable: true
             - applicable_types: []
               category: metric
               complex: false
+              data_type: floating_point
               filterable: true
               id: metrics/average_bleu
               is_empty: false
-              label: average_bleu
+              is_optional: false
+              label: Average Bleu
               multi_valued: false
               sortable: true
             - applicable_types: []
               category: metric
               complex: false
+              data_type: integer
               filterable: true
               id: metrics/total_responses
               is_empty: false
-              label: total_responses
+              is_optional: false
+              label: Total Responses
               multi_valued: false
               sortable: true
       properties:
@@ -7725,6 +8018,7 @@ components:
             - items:
                 $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
               type: array
+          default: ''
           description: Input to the trace or span.
           title: Input
         is_complete:
@@ -7880,7 +8174,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
         - id
         - session_id
         - project_id
@@ -7940,6 +8233,7 @@ components:
             - items:
                 $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
               type: array
+          default: ''
           description: Input to the trace or span.
           title: Input
         is_complete:
@@ -8113,7 +8407,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
         - id
         - session_id
         - project_id
@@ -8336,8 +8629,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
-        - output
         - id
         - session_id
         - project_id
@@ -8388,6 +8679,7 @@ components:
           title: ID
           type: string
         input:
+          default: ''
           description: Input to the trace or span.
           title: Input
           type: string
@@ -8535,8 +8827,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
-        - output
         - id
         - session_id
         - project_id
@@ -8587,6 +8877,7 @@ components:
           title: ID
           type: string
         input:
+          default: ''
           description: Input to the trace or span.
           title: Input
           type: string
@@ -8752,8 +9043,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
-        - output
         - id
         - session_id
         - project_id
@@ -9207,6 +9496,7 @@ components:
           title: ID
           type: string
         input:
+          default: ''
           description: Input to the trace or span.
           title: Input
           type: string
@@ -9358,7 +9648,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
         - id
         - session_id
         - project_id
@@ -9409,6 +9698,7 @@ components:
           title: ID
           type: string
         input:
+          default: ''
           description: Input to the trace or span.
           title: Input
           type: string
@@ -9578,7 +9868,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
         - id
         - session_id
         - project_id
@@ -9635,6 +9924,7 @@ components:
           title: ID
           type: string
         input:
+          default: ''
           description: Input to the trace or span.
           title: Input
           type: string
@@ -9767,7 +10057,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
         - id
         - session_id
         - trace_id
@@ -9824,6 +10113,7 @@ components:
           title: ID
           type: string
         input:
+          default: ''
           description: Input to the trace or span.
           title: Input
           type: string
@@ -9974,7 +10264,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
         - id
         - session_id
         - trace_id
@@ -10030,6 +10319,7 @@ components:
             - items:
                 $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
               type: array
+          default: ''
           description: Input to the trace or span.
           title: Input
         is_complete:
@@ -10185,7 +10475,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
         - id
         - session_id
         - project_id
@@ -10241,6 +10530,7 @@ components:
             - items:
                 $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
               type: array
+          default: ''
           description: Input to the trace or span.
           title: Input
         is_complete:
@@ -10414,7 +10704,6 @@ components:
           title: User Metadata
           type: object
       required:
-        - input
         - id
         - session_id
         - project_id
@@ -10802,6 +11091,49 @@ components:
         - delete
       title: FineTunedScorerAction
       type: string
+    FineTunedScorerResponse:
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          format: uuid4
+          title: Created By
+          type: string
+        executor:
+          anyOf:
+            - $ref: '#/components/schemas/galileo_core__schemas__shared__scorers__scorer_name__ScorerName'
+            - type: 'null'
+          description: Executor pipeline. Defaults to finetuned scorer pipeline but
+            can run custom galileo score pipelines.
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        lora_task_id:
+          title: Lora Task Id
+          type: integer
+        name:
+          title: Name
+          type: string
+        prompt:
+          title: Prompt
+          type: string
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+        - id
+        - name
+        - lora_task_id
+        - prompt
+        - created_at
+        - updated_at
+        - created_by
+      title: FineTunedScorerResponse
+      type: object
     GeneratedScorerAction:
       enum:
         - update
@@ -10810,6 +11142,11 @@ components:
       type: string
     GeneratedScorerConfiguration:
       properties:
+        cot_enabled:
+          default: false
+          description: Whether chain of thought is enabled for this scorer.
+          title: Cot Enabled
+          type: boolean
         model_alias:
           default: gpt-4.1-mini
           title: Model Alias
@@ -10820,6 +11157,16 @@ components:
           minimum: 1.0
           title: Num Judges
           type: integer
+        output_type:
+          $ref: '#/components/schemas/OutputTypeEnum'
+          default: boolean
+          description: Output type of the generated scorer.
+        scoreable_node_types:
+          description: Types of nodes that can be scored by this scorer.
+          items:
+            type: string
+          title: Scoreable Node Types
+          type: array
       title: GeneratedScorerConfiguration
       type: object
     GeneratedScorerResponse:
@@ -10874,6 +11221,16 @@ components:
         - scoreable_node_types
         - scorer_configuration
       title: GeneratedScorerResponse
+      type: object
+    GeneratedScorerValidationResponse:
+      properties:
+        task_result_id:
+          format: uuid4
+          title: Task Result Id
+          type: string
+      required:
+        - task_result_id
+      title: GeneratedScorerValidationResponse
       type: object
     GenerationResponse:
       properties:
@@ -11937,6 +12294,7 @@ components:
         - aws_bedrock
         - aws_sagemaker
         - azure
+        - custom
         - databricks
         - mistral
         - nvidia
@@ -12578,9 +12936,6 @@ components:
           description: Metadata associated with this trace or span.
           title: User Metadata
           type: object
-      required:
-        - input
-        - output
       title: LlmSpan
       type: object
     LogRecordsAvailableColumnsRequest:
@@ -12601,19 +12956,26 @@ components:
             - type: 'null'
           description: Log stream id associated with the traces.
           title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
       title: LogRecordsAvailableColumnsRequest
       type: object
     LogRecordsAvailableColumnsResponse:
       examples:
         - columns:
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - session
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -12622,17 +12984,18 @@ components:
               group_label: Standard
               id: input
               is_empty: false
+              is_optional: false
               label: Input
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - session
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -12641,17 +13004,18 @@ components:
               group_label: Standard
               id: output
               is_empty: false
+              is_optional: false
               label: Output
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - session
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -12660,17 +13024,18 @@ components:
               group_label: Standard
               id: name
               is_empty: false
+              is_optional: false
               label: Name
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - session
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: timestamp
@@ -12679,16 +13044,17 @@ components:
               group_label: Standard
               id: created_at
               is_empty: false
+              is_optional: false
               label: Created
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -12697,16 +13063,17 @@ components:
               group_label: Standard
               id: tags
               is_empty: false
+              is_optional: false
               label: Tags
               multi_valued: true
               sortable: false
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: integer
@@ -12716,17 +13083,18 @@ components:
               group_label: Standard
               id: status_code
               is_empty: false
+              is_optional: true
               label: Status Code
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - session
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -12735,16 +13103,17 @@ components:
               group_label: Standard
               id: external_id
               is_empty: false
+              is_optional: true
               label: External Id
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -12753,16 +13122,17 @@ components:
               group_label: Standard
               id: dataset_input
               is_empty: false
+              is_optional: false
               label: Dataset Input
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -12771,17 +13141,18 @@ components:
               group_label: Standard
               id: dataset_output
               is_empty: false
+              is_optional: false
               label: Dataset Output
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - session
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -12790,16 +13161,17 @@ components:
               group_label: Standard
               id: id
               is_empty: false
+              is_optional: false
               label: ID
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -12809,16 +13181,17 @@ components:
               group_label: Standard
               id: session_id
               is_empty: false
+              is_optional: false
               label: Session ID
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -12828,16 +13201,17 @@ components:
               group_label: Standard
               id: project_id
               is_empty: false
+              is_optional: false
               label: Project ID
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -12847,16 +13221,17 @@ components:
               group_label: Standard
               id: run_id
               is_empty: false
+              is_optional: false
               label: Run ID
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: timestamp
@@ -12865,16 +13240,17 @@ components:
               group_label: Standard
               id: updated_at
               is_empty: false
+              is_optional: true
               label: Last Updated
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: boolean
@@ -12883,16 +13259,17 @@ components:
               group_label: Standard
               id: has_children
               is_empty: false
+              is_optional: true
               label: Has Children
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: boolean
@@ -12901,23 +13278,24 @@ components:
               group_label: Standard
               id: is_complete
               is_empty: false
+              is_optional: false
               label: Is Complete
               multi_valued: false
               sortable: true
             - allowed_values:
-                - workflow
-                - tool
                 - trace
-                - llm
+                - workflow
                 - agent
                 - session
                 - retriever
-              applicable_types:
-                - workflow
                 - tool
                 - llm
+              applicable_types:
+                - workflow
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -12926,15 +13304,16 @@ components:
               group_label: Standard
               id: type
               is_empty: false
+              is_optional: false
               label: Type
               multi_valued: false
               sortable: true
             - applicable_types:
                 - workflow
-                - tool
-                - llm
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -12944,15 +13323,16 @@ components:
               group_label: Standard
               id: trace_id
               is_empty: false
+              is_optional: false
               label: Trace ID
               multi_valued: false
               sortable: true
             - applicable_types:
                 - workflow
-                - tool
-                - llm
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -12961,15 +13341,16 @@ components:
               group_label: Standard
               id: parent_id
               is_empty: false
+              is_optional: false
               label: Parent ID
               multi_valued: false
               sortable: true
             - applicable_types:
                 - workflow
-                - tool
-                - llm
                 - agent
                 - retriever
+                - tool
+                - llm
               category: standard
               complex: false
               data_type: integer
@@ -12978,18 +13359,19 @@ components:
               group_label: Standard
               id: step_number
               is_empty: false
+              is_optional: true
               label: Step Number
               multi_valued: false
               sortable: true
             - allowed_values:
-                - react
-                - classifier
-                - router
+                - reflection
                 - planner
                 - supervisor
+                - react
+                - router
+                - classifier
                 - default
                 - judge
-                - reflection
               applicable_types:
                 - agent
               category: standard
@@ -13000,6 +13382,7 @@ components:
               group_label: Standard
               id: agent_type
               is_empty: false
+              is_optional: false
               label: Agent Type
               multi_valued: false
               sortable: true
@@ -13013,6 +13396,7 @@ components:
               group_label: Standard
               id: tools
               is_empty: false
+              is_optional: false
               label: Tools
               multi_valued: false
               sortable: true
@@ -13026,6 +13410,7 @@ components:
               group_label: Standard
               id: model
               is_empty: false
+              is_optional: true
               label: Model
               multi_valued: false
               sortable: true
@@ -13039,6 +13424,7 @@ components:
               group_label: Standard
               id: temperature
               is_empty: false
+              is_optional: true
               label: Temperature
               multi_valued: false
               sortable: true
@@ -13052,6 +13438,7 @@ components:
               group_label: Standard
               id: finish_reason
               is_empty: false
+              is_optional: true
               label: Finish Reason
               multi_valued: false
               sortable: true
@@ -13065,6 +13452,7 @@ components:
               group_label: Standard
               id: tool_call_id
               is_empty: false
+              is_optional: true
               label: Tool Call Id
               multi_valued: false
               sortable: true
@@ -13079,6 +13467,7 @@ components:
               group_label: Safety Metrics
               id: metrics/toxicity
               is_empty: false
+              is_optional: false
               label: Output Toxicity (SLM)
               multi_valued: false
               sortable: true
@@ -13092,6 +13481,7 @@ components:
               group_label: Output Quality
               id: metrics/bleu
               is_empty: false
+              is_optional: false
               label: BLEU
               multi_valued: false
               sortable: true
@@ -13149,8 +13539,8 @@ components:
           type: string
       required:
         - column_id
-        - value
         - operator
+        - value
       title: LogRecordsDateFilter
       type: object
     LogRecordsExportRequest:
@@ -13219,6 +13609,13 @@ components:
             - type: 'null'
           description: Log stream id associated with the traces.
           title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         root_type:
           $ref: '#/components/schemas/RootType'
         sort:
@@ -13238,15 +13635,29 @@ components:
           description: ID of the column to filter.
           title: Column Id
           type: string
+        operator:
+          default: eq
+          enum:
+            - eq
+            - ne
+            - one_of
+            - not_in
+          title: Operator
+          type: string
         type:
           const: id
           default: id
           title: Type
           type: string
         value:
-          format: uuid4
+          anyOf:
+            - format: uuid4
+              type: string
+            - items:
+                format: uuid4
+                type: string
+              type: array
           title: Value
-          type: string
       required:
         - column_id
         - value
@@ -13312,6 +13723,13 @@ components:
             - type: 'null'
           description: Log stream id associated with the traces.
           title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         start_time:
           description: Include traces from this time onward.
           format: date-time
@@ -13384,8 +13802,8 @@ components:
           title: Value
       required:
         - column_id
-        - value
         - operator
+        - value
       title: LogRecordsNumberFilter
       type: object
     LogRecordsQueryRequest:
@@ -13441,6 +13859,13 @@ components:
             - type: 'null'
           description: Log stream id associated with the traces.
           title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         sort:
           $ref: '#/components/schemas/LogRecordsSortClause'
           default:
@@ -13463,7 +13888,7 @@ components:
           num_rows: 2
           paginated: true
           records:
-            - created_at: '2025-08-01T15:20:29.290981Z'
+            - created_at: '2025-09-04T23:59:25.923814Z'
               dataset_metadata: {}
               feedback_rating_info: {}
               id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
@@ -13480,7 +13905,7 @@ components:
               trace_id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               type: trace
               user_metadata: {}
-            - created_at: '2025-08-01T15:20:29.291133Z'
+            - created_at: '2025-09-04T23:59:25.924048Z'
               dataset_metadata: {}
               id: 1edc2401-24b4-448c-a392-b36932293061
               input:
@@ -13637,6 +14062,13 @@ components:
         logging_method:
           $ref: '#/components/schemas/LoggingMethod'
           default: api_direct
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         output:
           anyOf:
             - type: string
@@ -13695,6 +14127,13 @@ components:
             - type: 'null'
           description: Log stream id associated with the traces.
           title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         project_id:
           description: Project id associated with the traces.
           format: uuid4
@@ -13732,14 +14171,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           parent_id: 11000011-0000-0000-0000-110000110000
           spans:
-            - created_at: '2025-08-01T15:20:29.269455Z'
+            - created_at: '2025-09-04T23:59:25.885822Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-08-01T15:20:29.255045Z'
+                - created_at: '2025-09-04T23:59:25.861579Z'
                   dataset_metadata: {}
                   id: 22222222-2222-4222-a222-222222222222
                   input:
@@ -13780,6 +14219,13 @@ components:
         logging_method:
           $ref: '#/components/schemas/LoggingMethod'
           default: api_direct
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         parent_id:
           description: Parent trace or span id.
           format: uuid4
@@ -13841,6 +14287,13 @@ components:
             - type: 'null'
           description: Log stream id associated with the traces.
           title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         parent_id:
           description: Parent trace or span id.
           format: uuid4
@@ -13975,6 +14428,13 @@ components:
         logging_method:
           $ref: '#/components/schemas/LoggingMethod'
           default: api_direct
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         output:
           anyOf:
             - type: string
@@ -14029,6 +14489,13 @@ components:
             - type: 'null'
           description: Log stream id associated with the traces.
           title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         project_id:
           description: Project id associated with the traces.
           format: uuid4
@@ -14066,14 +14533,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           session_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-08-01T15:20:29.250269Z'
+            - created_at: '2025-09-04T23:59:25.851577Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-08-01T15:20:29.250236Z'
+                - created_at: '2025-09-04T23:59:25.851522Z'
                   dataset_metadata: {}
                   input:
                     - content: 'Question: who is a smart LLM?'
@@ -14091,14 +14558,14 @@ components:
               user_metadata: {}
         - experiment_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-08-01T15:20:29.250695Z'
+            - created_at: '2025-09-04T23:59:25.852372Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-08-01T15:20:29.250670Z'
+                - created_at: '2025-09-04T23:59:25.852327Z'
                   dataset_metadata: {}
                   id: 11111111-1111-4111-a111-111111111111
                   input:
@@ -14143,6 +14610,13 @@ components:
         logging_method:
           $ref: '#/components/schemas/LoggingMethod'
           default: api_direct
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         reliable:
           default: false
           description: Whether or not to use reliable logging.  If set to False, the
@@ -14186,6 +14660,13 @@ components:
             - type: 'null'
           description: Log stream id associated with the traces.
           title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         project_id:
           description: Project id associated with the traces.
           format: uuid4
@@ -14665,6 +15146,50 @@ components:
           title: Duration Ns
       title: Metrics
       type: object
+    MetricsTestingAvailableColumnsRequest:
+      description: Request to get the available columns for the metrics testing table.
+      properties:
+        cot_enabled:
+          default: false
+          description: Whether the metrics testing table is using chain of thought
+            (CoT) enabled scorers. If True, the columns will be generated for CoT
+            enabled scorers.
+          title: Cot Enabled
+          type: boolean
+        experiment_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Experiment id associated with the traces.
+          title: Experiment Id
+        log_stream_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Log stream id associated with the traces.
+          title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
+        name:
+          description: Name of the metric that we are testing.
+          title: Name
+          type: string
+        output_type:
+          $ref: '#/components/schemas/OutputTypeEnum'
+          default: boolean
+          description: Output type of the metrics testing table. If not provided,
+            all columns are returned.
+      required:
+        - name
+      title: MetricsTestingAvailableColumnsRequest
+      type: object
     Model:
       properties:
         alias:
@@ -14772,6 +15297,20 @@ components:
         - code
       title: ModelType
       type: string
+    Name:
+      description: Global name class for handling unique naming across the application.
+      properties:
+        append_suffix_if_duplicate:
+          default: false
+          title: Append Suffix If Duplicate
+          type: boolean
+        value:
+          title: Value
+          type: string
+      required:
+        - value
+      title: Name
+      type: object
     NodeNameFilter:
       description: Filters on node names in scorer jobs.
       properties:
@@ -15305,8 +15844,8 @@ components:
           title: Value
           type: string
       required:
-        - value
         - operator
+        - value
       title: ProjectCreatedAtFilter
       type: object
     ProjectCreatedAtSort:
@@ -15339,12 +15878,19 @@ components:
           enum:
             - eq
             - ne
+            - one_of
+            - not_in
           title: Operator
           type: string
         value:
-          format: uuid4
+          anyOf:
+            - format: uuid4
+              type: string
+            - items:
+                format: uuid4
+                type: string
+              type: array
           title: Value
-          type: string
       required:
         - value
       title: ProjectCreatorFilter
@@ -15483,12 +16029,19 @@ components:
           enum:
             - eq
             - ne
+            - one_of
+            - not_in
           title: Operator
           type: string
         value:
-          format: uuid4
+          anyOf:
+            - format: uuid4
+              type: string
+            - items:
+                format: uuid4
+                type: string
+              type: array
           title: Value
-          type: string
       required:
         - value
       title: ProjectIDFilter
@@ -15641,8 +16194,8 @@ components:
               type: array
           title: Value
       required:
-        - value
         - operator
+        - value
       title: ProjectRunsFilter
       type: object
     ProjectRunsSort:
@@ -15695,8 +16248,8 @@ components:
               type: array
           title: Value
       required:
-        - value
         - operator
+        - value
       title: ProjectTypeFilter
       type: object
     ProjectTypeSort:
@@ -15815,8 +16368,8 @@ components:
           title: Value
           type: string
       required:
-        - value
         - operator
+        - value
       title: ProjectUpdatedAtFilter
       type: object
     ProjectUpdatedAtSort:
@@ -16014,12 +16567,22 @@ components:
         prompt:
           title: Prompt
           type: string
+        reasoning_effort:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Reasoning Effort
         task_description:
           title: Task Description
           type: string
         temperature:
           title: Temperature
           type: number
+        verbosity:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Verbosity
       required:
         - prompt
         - evaluation_criteria
@@ -16087,7 +16650,7 @@ components:
           title: Max Tokens
           type: integer
         model_alias:
-          default: gpt-4.1-mini
+          default: gpt-5-mini
           title: Model Alias
           type: string
         n:
@@ -16098,6 +16661,10 @@ components:
           default: 0.0
           title: Presence Penalty
           type: number
+        reasoning_effort:
+          default: medium
+          title: Reasoning Effort
+          type: string
         response_format:
           anyOf:
             - additionalProperties:
@@ -16142,6 +16709,10 @@ components:
           default: 1.0
           title: Top P
           type: number
+        verbosity:
+          default: medium
+          title: Verbosity
+          type: string
       title: PromptRunSettings
       type: object
     PromptTemplateCreatedAtSort:
@@ -16174,12 +16745,19 @@ components:
           enum:
             - eq
             - ne
+            - one_of
+            - not_in
           title: Operator
           type: string
         value:
-          format: uuid4
+          anyOf:
+            - format: uuid4
+              type: string
+            - items:
+                format: uuid4
+                type: string
+              type: array
           title: Value
-          type: string
       required:
         - value
       title: PromptTemplateCreatedByFilter
@@ -16427,6 +17005,96 @@ components:
             - type: 'null'
       title: QueryDatasetParams
       type: object
+    RecomputeLogRecordsMetricsRequest:
+      description: 'Request to recompute metrics for a genai project run (log stream
+        or experiment).
+
+        This request is used to trigger recomputation of metrics based on the provided
+        filters and scorer IDs.'
+      examples:
+        - filters:
+            - case_sensitive: true
+              name: input
+              operator: eq
+              type: text
+              value: example input
+          log_stream_id: 00000000-0000-0000-0000-000000000000
+          pagination:
+            limit: 5
+            starting_token: 0
+          sort:
+            ascending: false
+            name: updated_at
+            sort_type: column
+      properties:
+        experiment_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Experiment id associated with the traces.
+          title: Experiment Id
+        filters:
+          items:
+            discriminator:
+              mapping:
+                boolean: '#/components/schemas/LogRecordsBooleanFilter'
+                date: '#/components/schemas/LogRecordsDateFilter'
+                id: '#/components/schemas/LogRecordsIDFilter'
+                number: '#/components/schemas/LogRecordsNumberFilter'
+                text: '#/components/schemas/LogRecordsTextFilter'
+              propertyName: type
+            oneOf:
+              - $ref: '#/components/schemas/LogRecordsIDFilter'
+              - $ref: '#/components/schemas/LogRecordsDateFilter'
+              - $ref: '#/components/schemas/LogRecordsNumberFilter'
+              - $ref: '#/components/schemas/LogRecordsBooleanFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
+          title: Filters
+          type: array
+        limit:
+          default: 100
+          title: Limit
+          type: integer
+        log_stream_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Log stream id associated with the traces.
+          title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
+        scorer_ids:
+          description: List of scorer IDs for which metrics should be recomputed.
+          items:
+            format: uuid4
+            type: string
+          title: Scorer Ids
+          type: array
+        sort:
+          $ref: '#/components/schemas/LogRecordsSortClause'
+          default:
+            ascending: false
+            column_id: created_at
+            sort_type: column
+        starting_token:
+          default: 0
+          title: Starting Token
+          type: integer
+        truncate_fields:
+          default: false
+          title: Truncate Fields
+          type: boolean
+      required:
+        - scorer_ids
+      title: RecomputeLogRecordsMetricsRequest
+      type: object
     RecomputeSettingsLogStream:
       properties:
         filters:
@@ -16620,6 +17288,7 @@ components:
           description: Galileo ID of the session, trace or span
           title: ID
         input:
+          default: ''
           description: Input to the trace or span.
           title: Input
           type: string
@@ -16723,9 +17392,6 @@ components:
           description: Metadata associated with this trace or span.
           title: User Metadata
           type: object
-      required:
-        - input
-        - output
       title: RetrieverSpan
       type: object
     RollbackRequest:
@@ -17142,6 +17808,11 @@ components:
             - type: string
             - type: 'null'
           title: Presence Penalty
+        reasoning_effort:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Reasoning Effort
         response_format:
           anyOf:
             - type: string
@@ -17182,6 +17853,11 @@ components:
             - type: string
             - type: 'null'
           title: Top P
+        verbosity:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Verbosity
       title: RunParamsMap
       type: object
     RunScorerSettingsPatchRequest:
@@ -17423,8 +18099,8 @@ components:
           title: Value
           type: string
       required:
-        - value
         - operator
+        - value
       title: ScorerCreatedAtFilter
       type: object
     ScorerCreatorFilter:
@@ -17439,12 +18115,19 @@ components:
           enum:
             - eq
             - ne
+            - one_of
+            - not_in
           title: Operator
           type: string
         value:
-          format: uuid4
+          anyOf:
+            - format: uuid4
+              type: string
+            - items:
+                format: uuid4
+                type: string
+              type: array
           title: Value
-          type: string
       required:
         - value
       title: ScorerCreatorFilter
@@ -17539,71 +18222,6 @@ components:
           type: string
       title: ScorerModelTypeFilter
       type: object
-    ScorerName:
-      enum:
-        - _completeness_gpt
-        - _context_adherence_luna
-        - _context_relevance
-        - _chunk_attribution_utilization_gpt
-        - _factuality
-        - _groundedness
-        - _latency
-        - _prompt_perplexity
-        - _protect_status
-        - _pii
-        - _input_pii
-        - _sexist
-        - _input_sexist
-        - _sexist_gpt
-        - _input_sexist_gpt
-        - _tone
-        - _input_tone
-        - _toxicity
-        - _toxicity_gpt
-        - _input_toxicity
-        - _input_toxicity_gpt
-        - _user_registered
-        - _user_submitted
-        - _user_generated
-        - _user_finetuned
-        - _uncertainty
-        - _bleu
-        - _cost
-        - _rouge
-        - _prompt_injection_gpt
-        - _prompt_injection
-        - _rag_nli
-        - _adherence_nli
-        - _completeness_nli
-        - _chunk_attribution_utilization_nli
-        - _instruction_adherence
-        - _ground_truth_adherence
-        - _tool_selection_quality
-        - _tool_selection_quality_luna
-        - _tool_error_rate
-        - _tool_error_rate_luna
-        - _action_completion_luna
-        - _agentic_session_success
-        - _action_advancement_luna
-        - _agentic_workflow_success
-        - _generic_wizard
-        - _customized_completeness_gpt
-        - _customized_factuality
-        - _customized_groundedness
-        - _customized_chunk_attribution_utilization_gpt
-        - _customized_instruction_adherence
-        - _customized_ground_truth_adherence
-        - _customized_prompt_injection_gpt
-        - _customized_tool_selection_quality
-        - _customized_tool_error_rate
-        - _customized_agentic_session_success
-        - _customized_agentic_workflow_success
-        - _customized_sexist_gpt
-        - _customized_input_sexist_gpt
-        - _customized_toxicity_gpt
-        - _customized_input_toxicity_gpt
-      title: ScorerName
-      type: string
     ScorerNameFilter:
       properties:
         case_sensitive:
@@ -17656,6 +18274,10 @@ components:
       type: object
     ScorerResponse:
       properties:
+        chain_poll_template:
+          anyOf:
+            - $ref: '#/components/schemas/ChainPollTemplate'
+            - type: 'null'
         created_at:
           anyOf:
             - format: date-time
@@ -17687,6 +18309,11 @@ components:
             - type: string
             - type: 'null'
           title: Description
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         id:
           format: uuid4
           title: Id
@@ -17707,6 +18334,11 @@ components:
           anyOf:
             - $ref: '#/components/schemas/BaseScorerVersionDB'
             - type: 'null'
+        metric_name:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Metric Name
         model_type:
           anyOf:
             - $ref: '#/components/schemas/ModelType'
@@ -17751,8 +18383,8 @@ components:
           title: Value
           type: string
       required:
-        - value
         - operator
+        - value
       title: ScorerTagsFilter
       type: object
     ScorerType:
@@ -17784,14 +18416,15 @@ components:
               type: array
           title: Value
       required:
-        - value
         - operator
+        - value
       title: ScorerTypeFilter
       type: object
     ScorerTypes:
       enum:
         - llm
         - code
+        - luna
         - preset
       title: ScorerTypes
       type: string
@@ -17817,8 +18450,8 @@ components:
           title: Value
           type: string
       required:
-        - value
         - operator
+        - value
       title: ScorerUpdatedAtFilter
       type: object
     ScorersConfiguration:
@@ -18070,6 +18703,13 @@ components:
             - type: 'null'
           description: Log stream id associated with the traces.
           title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
         name:
           anyOf:
             - type: string
@@ -18635,15 +19275,18 @@ components:
         - 15
         - 16
         - 17
+        - 18
       title: TaskType
       type: integer
     TemplateStubRequest:
       properties:
-        template:
-          title: Template
-          type: string
+        templates:
+          items:
+            type: string
+          title: Templates
+          type: array
       required:
-        - template
+        - templates
       title: TemplateStubRequest
       type: object
     TextRating:
@@ -19005,6 +19648,7 @@ components:
           description: Galileo ID of the session, trace or span
           title: ID
         input:
+          default: ''
           description: Input to the trace or span.
           title: Input
           type: string
@@ -19112,8 +19756,6 @@ components:
           description: Metadata associated with this trace or span.
           title: User Metadata
           type: object
-      required:
-        - input
       title: ToolSpan
       type: object
     ToxicityTemplate:
@@ -19231,6 +19873,7 @@ components:
           description: Galileo ID of the session, trace or span
           title: ID
         input:
+          default: ''
           description: Input to the trace or span.
           title: Input
           type: string
@@ -19332,8 +19975,6 @@ components:
           description: Metadata associated with this trace or span.
           title: User Metadata
           type: object
-      required:
-        - input
       title: Trace
       type: object
     TraceMetadata:
@@ -19430,6 +20071,7 @@ components:
         name:
           anyOf:
             - type: string
+            - $ref: '#/components/schemas/Name'
             - type: 'null'
           title: Name
       title: UpdateDatasetRequest
@@ -19449,6 +20091,7 @@ components:
           anyOf:
             - minLength: 1
               type: string
+            - $ref: '#/components/schemas/Name'
             - type: 'null'
           title: Name
       title: UpdatePromptTemplateRequest
@@ -19470,6 +20113,11 @@ components:
             - type: string
             - type: 'null'
           title: Description
+        ground_truth:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Ground Truth
         model_type:
           anyOf:
             - $ref: '#/components/schemas/ModelType'
@@ -19666,6 +20314,121 @@ components:
         - read_only
       title: UserRole
       type: string
+    ValidateLLMScorerLogRecordRequest:
+      description: 'Request to validate a new LLM scorer based on a log record.
+
+        This is used to create a new experiment with the copied log records to store
+        the metric testing results.'
+      examples:
+        - filters:
+            - case_sensitive: true
+              name: input
+              operator: eq
+              type: text
+              value: example input
+          log_stream_id: 00000000-0000-0000-0000-000000000000
+          pagination:
+            limit: 5
+            starting_token: 0
+          sort:
+            ascending: false
+            name: updated_at
+            sort_type: column
+      properties:
+        chain_poll_template:
+          $ref: '#/components/schemas/ChainPollTemplate'
+        experiment_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Experiment id associated with the traces.
+          title: Experiment Id
+        filters:
+          items:
+            discriminator:
+              mapping:
+                boolean: '#/components/schemas/LogRecordsBooleanFilter'
+                date: '#/components/schemas/LogRecordsDateFilter'
+                id: '#/components/schemas/LogRecordsIDFilter'
+                number: '#/components/schemas/LogRecordsNumberFilter'
+                text: '#/components/schemas/LogRecordsTextFilter'
+              propertyName: type
+            oneOf:
+              - $ref: '#/components/schemas/LogRecordsIDFilter'
+              - $ref: '#/components/schemas/LogRecordsDateFilter'
+              - $ref: '#/components/schemas/LogRecordsNumberFilter'
+              - $ref: '#/components/schemas/LogRecordsBooleanFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
+          title: Filters
+          type: array
+        limit:
+          default: 100
+          title: Limit
+          type: integer
+        log_stream_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Log stream id associated with the traces.
+          title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
+        query:
+          title: Query
+          type: string
+        response:
+          title: Response
+          type: string
+        scorer_configuration:
+          $ref: '#/components/schemas/GeneratedScorerConfiguration'
+        sort:
+          $ref: '#/components/schemas/LogRecordsSortClause'
+          default:
+            ascending: false
+            column_id: created_at
+            sort_type: column
+        starting_token:
+          default: 0
+          title: Starting Token
+          type: integer
+        truncate_fields:
+          default: false
+          title: Truncate Fields
+          type: boolean
+        user_prompt:
+          title: User Prompt
+          type: string
+      required:
+        - query
+        - response
+        - chain_poll_template
+        - scorer_configuration
+        - user_prompt
+      title: ValidateLLMScorerLogRecordRequest
+      type: object
+    ValidateLLMScorerLogRecordResponse:
+      description: 'Response model for validating a new LLM scorer based on a log
+        record.
+
+
+        Returns the uuid of the experiment created with the copied log records to
+        store the metric testing results.'
+      properties:
+        metrics_experiment_id:
+          format: uuid4
+          title: Metrics Experiment Id
+          type: string
+      required:
+        - metrics_experiment_id
+      title: ValidateLLMScorerLogRecordResponse
+      type: object
     ValidationError:
       properties:
         loc:
@@ -19731,6 +20494,7 @@ components:
             - items:
                 $ref: '#/components/schemas/galileo_core__schemas__logging__llm__Message'
               type: array
+          default: ''
           description: Input to the trace or span.
           title: Input
         metrics:
@@ -19842,8 +20606,6 @@ components:
           description: Metadata associated with this trace or span.
           title: User Metadata
           type: object
-      required:
-        - input
       title: WorkflowSpan
       type: object
     api__schemas__project__GetProjectsPaginatedResponse:
@@ -19968,6 +20730,111 @@ components:
         - tool
         - user
       title: MessagesListItemRole
+      type: string
+    galileo_core__schemas__shared__scorers__scorer_name__ScorerName:
+      enum:
+        - action_advancement_luna
+        - action_completion_luna
+        - agentic_session_success
+        - agentic_workflow_success
+        - bleu
+        - chunk_attribution_utilization
+        - chunk_attribution_utilization_luna
+        - completeness
+        - completeness_luna
+        - context_adherence
+        - context_adherence_luna
+        - context_relevance
+        - correctness
+        - ground_truth_adherence
+        - input_pii
+        - input_sexist
+        - input_sexist_luna
+        - input_tone
+        - input_toxicity
+        - input_toxicity_luna
+        - instruction_adherence
+        - output_pii
+        - output_sexist
+        - output_sexist_luna
+        - output_tone
+        - output_toxicity
+        - output_toxicity_luna
+        - prompt_injection
+        - prompt_injection_luna
+        - prompt_perplexity
+        - rouge
+        - tool_error_rate
+        - tool_error_rate_luna
+        - tool_selection_quality
+        - tool_selection_quality_luna
+        - uncertainty
+      title: CoreScorerName
+      type: string
+    promptgalileo__schemas__scorer_name__ScorerName:
+      enum:
+        - _completeness_gpt
+        - _context_adherence_luna
+        - _context_relevance
+        - _chunk_attribution_utilization_gpt
+        - _factuality
+        - _groundedness
+        - _latency
+        - _prompt_perplexity
+        - _protect_status
+        - _pii
+        - _input_pii
+        - _sexist
+        - _input_sexist
+        - _sexist_gpt
+        - _input_sexist_gpt
+        - _tone
+        - _input_tone
+        - _toxicity
+        - _toxicity_gpt
+        - _input_toxicity
+        - _input_toxicity_gpt
+        - _user_registered
+        - _user_submitted
+        - _user_generated
+        - _user_finetuned
+        - _uncertainty
+        - _bleu
+        - _cost
+        - _rouge
+        - _prompt_injection_gpt
+        - _prompt_injection
+        - _rag_nli
+        - _adherence_nli
+        - _completeness_nli
+        - _chunk_attribution_utilization_nli
+        - _instruction_adherence
+        - _ground_truth_adherence
+        - _tool_selection_quality
+        - _tool_selection_quality_luna
+        - _tool_error_rate
+        - _tool_error_rate_luna
+        - _action_completion_luna
+        - _agentic_session_success
+        - _action_advancement_luna
+        - _agentic_workflow_success
+        - _generic_wizard
+        - _customized_completeness_gpt
+        - _customized_factuality
+        - _customized_groundedness
+        - _customized_chunk_attribution_utilization_gpt
+        - _customized_instruction_adherence
+        - _customized_ground_truth_adherence
+        - _customized_prompt_injection_gpt
+        - _customized_tool_selection_quality
+        - _customized_tool_error_rate
+        - _customized_agentic_session_success
+        - _customized_agentic_workflow_success
+        - _customized_sexist_gpt
+        - _customized_input_sexist_gpt
+        - _customized_toxicity_gpt
+        - _customized_input_toxicity_gpt
+      title: ScorerName
       type: string
   securitySchemes:
     APIKeyHeader:
@@ -22325,6 +23192,43 @@ paths:
       summary: Update Log Stream
       tags:
         - log_stream
+  /projects/{project_id}/metrics-testing/available_columns:
+    post:
+      operationId: metrics_testing_available_columns_projects__project_id__metrics_testing_available_columns_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MetricsTestingAvailableColumnsRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogRecordsAvailableColumnsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Metrics Testing Available Columns
+      tags:
+        - trace
   /projects/{project_id}/metrics/search:
     post:
       operationId: query_metrics_projects__project_id__metrics_search_post
@@ -22602,6 +23506,42 @@ paths:
       summary: Update Prompt Dataset
       tags:
         - datasets
+  /projects/{project_id}/recompute-metrics:
+    post:
+      operationId: recompute_metrics_projects__project_id__recompute_metrics_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecomputeLogRecordsMetricsRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Recompute Metrics
+      tags:
+        - trace
   /projects/{project_id}/runs/{run_id}/jobs:
     get:
       description: 'Get all jobs by for a project and run.
@@ -24351,6 +25291,70 @@ paths:
         - data
         - prompts
         - rows
+  /scorers/llm/validate:
+    post:
+      operationId: manual_llm_validate_scorers_llm_validate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              additionalProperties: true
+              title: Body
+              type: object
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneratedScorerValidationResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Manual Llm Validate
+      tags:
+        - data
+        - prompts
+        - rows
+  /scorers/llm/validate/log_record:
+    post:
+      operationId: validate_llm_scorer_log_record_scorers_llm_validate_log_record_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateLLMScorerLogRecordRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateLLMScorerLogRecordResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Validate Llm Scorer Log Record
+      tags:
+        - data
+        - prompts
+        - rows
   /scorers/tags:
     get:
       operationId: list_tags_scorers_tags_get
@@ -24733,6 +25737,45 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Create Llm Scorer Version
+      tags:
+        - data
+        - prompts
+        - rows
+  /scorers/{scorer_id}/version/luna:
+    post:
+      operationId: create_luna_scorer_version_scorers__scorer_id__version_luna_post
+      parameters:
+        - in: path
+          name: scorer_id
+          required: true
+          schema:
+            format: uuid4
+            title: Scorer Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomLunaScorerVersionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BaseScorerVersionResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Luna Scorer Version
       tags:
         - data
         - prompts
