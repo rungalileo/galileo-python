@@ -422,8 +422,7 @@ class GalileoDecorator:
             if "name" not in span_params:
                 span_params["name"] = name
 
-            if "input" not in span_params:
-                span_params["input"] = input_
+            span_params["input"] = input_
 
             input_serialized = serialize_to_str(span_params["input"])
             span_params["input_serialized"] = input_serialized
