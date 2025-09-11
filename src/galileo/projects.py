@@ -150,8 +150,8 @@ class Projects(BaseClientModel, DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        name = name or os.getenv("GALILEO_PROJECT")
-        id = id or os.getenv("GALILEO_PROJECT_ID")
+        id = id or (None if name else os.getenv("GALILEO_PROJECT_ID")) or None
+        name = name or (None if id else os.getenv("GALILEO_PROJECT")) or None
 
         return self.get(id=id, name=name)
 
