@@ -245,3 +245,99 @@ def test_pause_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api:
         project_id=str(FIXED_PROJECT_ID), stage_id=str(FIXED_STAGE_ID), pause=True, client=ANY
     )
     assert stage.paused is True
+
+
+@patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
+def test_stage_creation_with_project_id_and_project_name_env_var(mock_api: Mock, monkeypatch):
+    monkeypatch.setenv("GALILEO_PROJECT", "proj")
+
+    rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+    rulesets = [Ruleset(rules=rules)]
+    stage_name = "test-central-stage-with-rules"
+    mock_api.return_value = _api_stage_db_factory(name=stage_name, stage_type=StageType.central)
+
+    # The project_id passed here should override the GALILEO_PROJECT env var
+    stage_response = create_protect_stage(
+        project_id=FIXED_PROJECT_ID, name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central
+    )
+
+    mock_api.assert_called_once()
+    api_call_args = mock_api.call_args.kwargs
+    body = api_call_args["body"]
+
+    assert stage_response.project_id == FIXED_PROJECT_ID
+    assert body.name == stage_name
+    assert body.type_ == StageType.central.value
+
+    assert len(body.prioritized_rulesets) == 1
+    api_ruleset = body.prioritized_rulesets[0]
+    for i, api_rule in enumerate(api_ruleset.rules):
+        rule = rules[i]
+        assert api_rule.metric == rule.metric
+        assert api_rule.operator.lower() == rule.operator.value.lower()
+        assert api_rule.target_value == rule.target_value
+    assert "rulesets" not in body.additional_properties
+
+
+@patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
+def test_stage_creation_with_project_id_and_project_id_env_var(mock_api: Mock, monkeypatch):
+    monkeypatch.setenv("GALILEO_PROJECT_ID", str(FIXED_PROJECT_ID))
+
+    rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+    rulesets = [Ruleset(rules=rules)]
+    stage_name = "test-central-stage-with-rules"
+    mock_api.return_value = _api_stage_db_factory(name=stage_name, stage_type=StageType.central)
+
+    # The project_id passed here should override the GALILEO_PROJECT_ID env var
+    stage_response = create_protect_stage(
+        project_id=FIXED_PROJECT_ID, name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central
+    )
+
+    mock_api.assert_called_once()
+    api_call_args = mock_api.call_args.kwargs
+    body = api_call_args["body"]
+
+    assert stage_response.project_id == FIXED_PROJECT_ID
+    assert body.name == stage_name
+    assert body.type_ == StageType.central.value
+
+    assert len(body.prioritized_rulesets) == 1
+    api_ruleset = body.prioritized_rulesets[0]
+    for i, api_rule in enumerate(api_ruleset.rules):
+        rule = rules[i]
+        assert api_rule.metric == rule.metric
+        assert api_rule.operator.lower() == rule.operator.value.lower()
+        assert api_rule.target_value == rule.target_value
+    assert "rulesets" not in body.additional_properties
+
+
+@patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
+def test_stage_creation_with_project_name_and_project_id_env_var(mock_api: Mock, monkeypatch):
+    monkeypatch.setenv("GALILEO_PROJECT_ID", "proj")
+
+    rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
+    rulesets = [Ruleset(rules=rules)]
+    stage_name = "test-central-stage-with-rules"
+    mock_api.return_value = _api_stage_db_factory(name=stage_name, stage_type=StageType.central)
+
+    # The project_name passed here should override the GALILEO_PROJECT_ID env var
+    stage_response = create_protect_stage(
+        project_name="project name", name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central
+    )
+
+    mock_api.assert_called_once()
+    api_call_args = mock_api.call_args.kwargs
+    body = api_call_args["body"]
+
+    assert stage_response.project_id == FIXED_PROJECT_ID
+    assert body.name == stage_name
+    assert body.type_ == StageType.central.value
+
+    assert len(body.prioritized_rulesets) == 1
+    api_ruleset = body.prioritized_rulesets[0]
+    for i, api_rule in enumerate(api_ruleset.rules):
+        rule = rules[i]
+        assert api_rule.metric == rule.metric
+        assert api_rule.operator.lower() == rule.operator.value.lower()
+        assert api_rule.target_value == rule.target_value
+    assert "rulesets" not in body.additional_properties
