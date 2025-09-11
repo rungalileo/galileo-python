@@ -3,6 +3,7 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
 
@@ -15,6 +16,8 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     scorer_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
     params: dict[str, Any] = {}
 
     params["starting_token"] = starting_token
@@ -30,6 +33,9 @@ def _get_kwargs(
         "params": params,
     }
 
+    headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
+
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 
