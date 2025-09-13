@@ -34,7 +34,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-          poetry install --all-extras
+          poetry install --all-extras --with dev
 
       - name: create SSH key
         run: |
@@ -58,8 +58,8 @@ jobs:
           git config --global user.email ci@rungalileo.io
           git config --global user.name "galileo-automation"
           git checkout -b $BRANCH_NAME
-          ./scripts/import-openapi-yaml.sh https://api.galileo.ai/client
-          ./scripts/auto-generate-api-client.sh
+          poetry run ./scripts/import-openapi-yaml.sh https://api.galileo.ai/client
+          poetry run ./scripts/auto-generate-api-client.sh
           git add .
           git commit -m "Update API Client"
           git push --force origin $BRANCH_NAME --no-verify
