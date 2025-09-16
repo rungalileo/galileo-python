@@ -3,6 +3,7 @@ from typing import Any, Optional, Union, cast
 
 import httpx
 
+from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
 from ...types import Response, UNSET
@@ -21,6 +22,7 @@ from ... import errors
 def _get_kwargs(
     {{ arguments(endpoint, include_client=False) | indent(4) }}
 ) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
     {{ header_params(endpoint) | indent(4) }}
 
     {{ cookie_params(endpoint) | indent(4) }}
@@ -61,9 +63,9 @@ def _get_kwargs(
     {% endif %}
 {% endif %}
 
-{% if endpoint.header_parameters or endpoint.bodies | length > 0 %}
+    headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
+
     _kwargs["content_headers"] = headers
-{% endif %}
     return _kwargs
 
 

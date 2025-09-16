@@ -3,6 +3,7 @@ from typing import Any, Optional, Union
 
 import httpx
 
+from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
 
@@ -13,12 +14,17 @@ from ...types import Response
 
 
 def _get_kwargs(project_id: str) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
         "path": f"/projects/{project_id}/experiments/available_columns",
     }
 
+    headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
+
+    _kwargs["content_headers"] = headers
     return _kwargs
 
 
