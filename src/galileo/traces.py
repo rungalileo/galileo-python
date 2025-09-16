@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Any, Optional
 from uuid import UUID
 
 from galileo.config import GalileoPythonConfig
@@ -49,17 +49,23 @@ class Traces:
 
     async def _make_async_request(
         self,
-        method: RequestMethod,
-        path: str,
+        request_method: RequestMethod,
+        endpoint: str,
         json: Optional[dict] = None,
         data: Optional[dict] = None,
         files: Optional[dict] = None,
         params: Optional[dict] = None,
-    ) -> dict:
+    ) -> Any:
         headers = {"X-Galileo-SDK": f"galileo-python/{get_package_version()} Traces"} | HttpHeaders.json()
 
         return await self.config.api_client.arequest(
-            method=method, path=path, content_headers=headers, json=json, data=data, files=files, params=params
+            method=request_method,
+            path=endpoint,
+            content_headers=headers,
+            json=json,
+            data=data,
+            files=files,
+            params=params,
         )
 
     async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
@@ -71,7 +77,7 @@ class Traces:
         json = traces_ingest_request.model_dump(mode="json")
 
         return await self._make_async_request(
-            method=RequestMethod.POST, path=Routes.traces.format(project_id=self.project_id), json=json
+            RequestMethod.POST, endpoint=Routes.traces.format(project_id=self.project_id), json=json
         )
 
     async def ingest_spans(self, spans_ingest_request: SpansIngestRequest) -> dict[str, str]:
@@ -83,7 +89,7 @@ class Traces:
         json = spans_ingest_request.model_dump(mode="json")
 
         return await self._make_async_request(
-            method=RequestMethod.POST, path=Routes.spans.format(project_id=self.project_id), json=json
+            RequestMethod.POST, endpoint=Routes.spans.format(project_id=self.project_id), json=json
         )
 
     async def update_trace(self, trace_update_request: TraceUpdateRequest) -> dict[str, str]:
@@ -95,8 +101,8 @@ class Traces:
         json = trace_update_request.model_dump(mode="json")
 
         return await self._make_async_request(
-            method=RequestMethod.PATCH,
-            path=Routes.trace.format(project_id=self.project_id, trace_id=trace_update_request.trace_id),
+            RequestMethod.PATCH,
+            endpoint=Routes.trace.format(project_id=self.project_id, trace_id=trace_update_request.trace_id),
             json=json,
         )
 
@@ -109,8 +115,8 @@ class Traces:
         json = span_update_request.model_dump(mode="json")
 
         return await self._make_async_request(
-            method=RequestMethod.PATCH,
-            path=Routes.span.format(project_id=self.project_id, span_id=span_update_request.span_id),
+            RequestMethod.PATCH,
+            endpoint=Routes.span.format(project_id=self.project_id, span_id=span_update_request.span_id),
             json=json,
         )
 
@@ -123,7 +129,7 @@ class Traces:
         json = session_create_request.model_dump(mode="json")
 
         return await self._make_async_request(
-            method=RequestMethod.POST, path=Routes.sessions.format(project_id=self.project_id), json=json
+            RequestMethod.POST, endpoint=Routes.sessions.format(project_id=self.project_id), json=json
         )
 
     async def get_sessions(self, session_search_request: LogRecordsSearchRequest) -> dict[str, str]:
@@ -135,15 +141,15 @@ class Traces:
         json = session_search_request.model_dump(mode="json")
 
         return await self._make_async_request(
-            method=RequestMethod.POST, path=Routes.sessions_search.format(project_id=self.project_id), json=json
+            RequestMethod.POST, endpoint=Routes.sessions_search.format(project_id=self.project_id), json=json
         )
 
     async def get_trace(self, trace_id: str) -> dict[str, str]:
         return await self._make_async_request(
-            method=RequestMethod.GET, path=Routes.trace.format(project_id=self.project_id, trace_id=trace_id)
+            RequestMethod.GET, endpoint=Routes.trace.format(project_id=self.project_id, trace_id=trace_id)
         )
 
     async def get_span(self, span_id: str) -> dict[str, str]:
         return await self._make_async_request(
-            method=RequestMethod.GET, path=Routes.span.format(project_id=self.project_id, span_id=span_id)
+            RequestMethod.GET, endpoint=Routes.span.format(project_id=self.project_id, span_id=span_id)
         )
