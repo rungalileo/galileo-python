@@ -1127,15 +1127,16 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             for trace in self.traces:
                 populate_local_metrics(trace, self.local_metrics)
 
-        self._logger.info("Flushing %d traces...", len(self.traces))
+        logged_traces = self.traces
+        trace_count = len(logged_traces)
+        self._logger.info(f"Flushing {trace_count} {'trace' if trace_count == 1 else 'traces'}...")
 
         traces_ingest_request = TracesIngestRequest(
-            traces=self.traces, session_id=self.session_id, experiment_id=self.experiment_id
+            traces=logged_traces, session_id=self.session_id, experiment_id=self.experiment_id
         )
         await self._traces_client.ingest_traces(traces_ingest_request)
-        logged_traces = self.traces
 
-        self._logger.info("Successfully flushed %d traces.", len(logged_traces))
+        self._logger.info(f"Successfully flushed {trace_count} {'trace' if trace_count == 1 else 'traces'}.")
 
         self.traces = list()
         self._parent_stack = deque()

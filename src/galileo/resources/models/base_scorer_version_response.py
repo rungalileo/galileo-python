@@ -11,7 +11,9 @@ from ..models.output_type_enum import OutputTypeEnum
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.chain_poll_template import ChainPollTemplate
     from ..models.create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
+    from ..models.fine_tuned_scorer_response import FineTunedScorerResponse
     from ..models.generated_scorer_response import GeneratedScorerResponse
 
 
@@ -26,7 +28,9 @@ class BaseScorerVersionResponse:
         id (str):
         updated_at (datetime.datetime):
         version (int):
+        chain_poll_template (Union['ChainPollTemplate', None, Unset]):
         cot_enabled (Union[None, Unset, bool]):
+        finetuned_scorer (Union['FineTunedScorerResponse', None, Unset]):
         generated_scorer (Union['GeneratedScorerResponse', None, Unset]):
         input_type (Union[InputTypeEnum, None, Unset]): What type of input to use for model-based scorers
             (sessions_normalized, trace_io_only, etc.).
@@ -41,7 +45,9 @@ class BaseScorerVersionResponse:
     id: str
     updated_at: datetime.datetime
     version: int
+    chain_poll_template: Union["ChainPollTemplate", None, Unset] = UNSET
     cot_enabled: Union[None, Unset, bool] = UNSET
+    finetuned_scorer: Union["FineTunedScorerResponse", None, Unset] = UNSET
     generated_scorer: Union["GeneratedScorerResponse", None, Unset] = UNSET
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
     model_name: Union[None, Unset, str] = UNSET
@@ -52,7 +58,9 @@ class BaseScorerVersionResponse:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.chain_poll_template import ChainPollTemplate
         from ..models.create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
+        from ..models.fine_tuned_scorer_response import FineTunedScorerResponse
         from ..models.generated_scorer_response import GeneratedScorerResponse
 
         created_at = self.created_at.isoformat()
@@ -63,11 +71,27 @@ class BaseScorerVersionResponse:
 
         version = self.version
 
+        chain_poll_template: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.chain_poll_template, Unset):
+            chain_poll_template = UNSET
+        elif isinstance(self.chain_poll_template, ChainPollTemplate):
+            chain_poll_template = self.chain_poll_template.to_dict()
+        else:
+            chain_poll_template = self.chain_poll_template
+
         cot_enabled: Union[None, Unset, bool]
         if isinstance(self.cot_enabled, Unset):
             cot_enabled = UNSET
         else:
             cot_enabled = self.cot_enabled
+
+        finetuned_scorer: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.finetuned_scorer, Unset):
+            finetuned_scorer = UNSET
+        elif isinstance(self.finetuned_scorer, FineTunedScorerResponse):
+            finetuned_scorer = self.finetuned_scorer.to_dict()
+        else:
+            finetuned_scorer = self.finetuned_scorer
 
         generated_scorer: Union[None, Unset, dict[str, Any]]
         if isinstance(self.generated_scorer, Unset):
@@ -125,8 +149,12 @@ class BaseScorerVersionResponse:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"created_at": created_at, "id": id, "updated_at": updated_at, "version": version})
+        if chain_poll_template is not UNSET:
+            field_dict["chain_poll_template"] = chain_poll_template
         if cot_enabled is not UNSET:
             field_dict["cot_enabled"] = cot_enabled
+        if finetuned_scorer is not UNSET:
+            field_dict["finetuned_scorer"] = finetuned_scorer
         if generated_scorer is not UNSET:
             field_dict["generated_scorer"] = generated_scorer
         if input_type is not UNSET:
@@ -146,7 +174,9 @@ class BaseScorerVersionResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.chain_poll_template import ChainPollTemplate
         from ..models.create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
+        from ..models.fine_tuned_scorer_response import FineTunedScorerResponse
         from ..models.generated_scorer_response import GeneratedScorerResponse
 
         d = dict(src_dict)
@@ -158,6 +188,23 @@ class BaseScorerVersionResponse:
 
         version = d.pop("version")
 
+        def _parse_chain_poll_template(data: object) -> Union["ChainPollTemplate", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                chain_poll_template_type_0 = ChainPollTemplate.from_dict(data)
+
+                return chain_poll_template_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["ChainPollTemplate", None, Unset], data)
+
+        chain_poll_template = _parse_chain_poll_template(d.pop("chain_poll_template", UNSET))
+
         def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
             if data is None:
                 return data
@@ -166,6 +213,23 @@ class BaseScorerVersionResponse:
             return cast(Union[None, Unset, bool], data)
 
         cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
+
+        def _parse_finetuned_scorer(data: object) -> Union["FineTunedScorerResponse", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                finetuned_scorer_type_0 = FineTunedScorerResponse.from_dict(data)
+
+                return finetuned_scorer_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["FineTunedScorerResponse", None, Unset], data)
+
+        finetuned_scorer = _parse_finetuned_scorer(d.pop("finetuned_scorer", UNSET))
 
         def _parse_generated_scorer(data: object) -> Union["GeneratedScorerResponse", None, Unset]:
             if data is None:
@@ -275,7 +339,9 @@ class BaseScorerVersionResponse:
             id=id,
             updated_at=updated_at,
             version=version,
+            chain_poll_template=chain_poll_template,
             cot_enabled=cot_enabled,
+            finetuned_scorer=finetuned_scorer,
             generated_scorer=generated_scorer,
             input_type=input_type,
             model_name=model_name,

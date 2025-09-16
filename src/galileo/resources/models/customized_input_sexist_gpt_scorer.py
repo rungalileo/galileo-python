@@ -29,6 +29,7 @@ class CustomizedInputSexistGPTScorer:
     Attributes:
         aggregate_keys (Union[Unset, list[str]]):
         aggregates (Union['CustomizedInputSexistGPTScorerAggregatesType0', None, Unset]):
+        can_copy_to_llm (Union[None, Unset, bool]):
         chainpoll_template (Union[Unset, InputSexistTemplate]): Template for the sexism metric,
             containing all the info necessary to send the sexism prompt.
         cot_enabled (Union[None, Unset, bool]):
@@ -36,6 +37,7 @@ class CustomizedInputSexistGPTScorer:
         extra (Union['CustomizedInputSexistGPTScorerExtraType0', None, Unset]):
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
         generated_scorer_id (Union[None, Unset, str]):
+        ground_truth (Union[None, Unset, bool]):
         indices (Union[None, Unset, list[int]]):
         input_type (Union[InputTypeEnum, None, Unset]):
         lora_task_id (Union[None, Unset, int]):
@@ -55,12 +57,14 @@ class CustomizedInputSexistGPTScorer:
 
     aggregate_keys: Union[Unset, list[str]] = UNSET
     aggregates: Union["CustomizedInputSexistGPTScorerAggregatesType0", None, Unset] = UNSET
+    can_copy_to_llm: Union[None, Unset, bool] = UNSET
     chainpoll_template: Union[Unset, "InputSexistTemplate"] = UNSET
     cot_enabled: Union[None, Unset, bool] = UNSET
     description: Union[None, Unset, str] = UNSET
     extra: Union["CustomizedInputSexistGPTScorerExtraType0", None, Unset] = UNSET
     filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     generated_scorer_id: Union[None, Unset, str] = UNSET
+    ground_truth: Union[None, Unset, bool] = UNSET
     indices: Union[None, Unset, list[int]] = UNSET
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
     lora_task_id: Union[None, Unset, int] = UNSET
@@ -96,6 +100,12 @@ class CustomizedInputSexistGPTScorer:
             aggregates = self.aggregates.to_dict()
         else:
             aggregates = self.aggregates
+
+        can_copy_to_llm: Union[None, Unset, bool]
+        if isinstance(self.can_copy_to_llm, Unset):
+            can_copy_to_llm = UNSET
+        else:
+            can_copy_to_llm = self.can_copy_to_llm
 
         chainpoll_template: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.chainpoll_template, Unset):
@@ -143,6 +153,12 @@ class CustomizedInputSexistGPTScorer:
             generated_scorer_id = UNSET
         else:
             generated_scorer_id = self.generated_scorer_id
+
+        ground_truth: Union[None, Unset, bool]
+        if isinstance(self.ground_truth, Unset):
+            ground_truth = UNSET
+        else:
+            ground_truth = self.ground_truth
 
         indices: Union[None, Unset, list[int]]
         if isinstance(self.indices, Unset):
@@ -238,6 +254,8 @@ class CustomizedInputSexistGPTScorer:
             field_dict["aggregate_keys"] = aggregate_keys
         if aggregates is not UNSET:
             field_dict["aggregates"] = aggregates
+        if can_copy_to_llm is not UNSET:
+            field_dict["can_copy_to_llm"] = can_copy_to_llm
         if chainpoll_template is not UNSET:
             field_dict["chainpoll_template"] = chainpoll_template
         if cot_enabled is not UNSET:
@@ -250,6 +268,8 @@ class CustomizedInputSexistGPTScorer:
             field_dict["filters"] = filters
         if generated_scorer_id is not UNSET:
             field_dict["generated_scorer_id"] = generated_scorer_id
+        if ground_truth is not UNSET:
+            field_dict["ground_truth"] = ground_truth
         if indices is not UNSET:
             field_dict["indices"] = indices
         if input_type is not UNSET:
@@ -312,6 +332,15 @@ class CustomizedInputSexistGPTScorer:
             return cast(Union["CustomizedInputSexistGPTScorerAggregatesType0", None, Unset], data)
 
         aggregates = _parse_aggregates(d.pop("aggregates", UNSET))
+
+        def _parse_can_copy_to_llm(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        can_copy_to_llm = _parse_can_copy_to_llm(d.pop("can_copy_to_llm", UNSET))
 
         _chainpoll_template = d.pop("chainpoll_template", UNSET)
         chainpoll_template: Union[Unset, InputSexistTemplate]
@@ -401,6 +430,15 @@ class CustomizedInputSexistGPTScorer:
             return cast(Union[None, Unset, str], data)
 
         generated_scorer_id = _parse_generated_scorer_id(d.pop("generated_scorer_id", UNSET))
+
+        def _parse_ground_truth(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        ground_truth = _parse_ground_truth(d.pop("ground_truth", UNSET))
 
         def _parse_indices(data: object) -> Union[None, Unset, list[int]]:
             if data is None:
@@ -552,12 +590,14 @@ class CustomizedInputSexistGPTScorer:
         customized_input_sexist_gpt_scorer = cls(
             aggregate_keys=aggregate_keys,
             aggregates=aggregates,
+            can_copy_to_llm=can_copy_to_llm,
             chainpoll_template=chainpoll_template,
             cot_enabled=cot_enabled,
             description=description,
             extra=extra,
             filters=filters,
             generated_scorer_id=generated_scorer_id,
+            ground_truth=ground_truth,
             indices=indices,
             input_type=input_type,
             lora_task_id=lora_task_id,

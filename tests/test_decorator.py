@@ -2,6 +2,7 @@ from unittest.mock import Mock, patch
 from uuid import UUID
 
 import pytest
+from pydantic import BaseModel
 
 from galileo import Message, MessageRole, galileo_context, log
 from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
@@ -763,3 +764,300 @@ def test_decorator_with_active_trace(
     assert payload.traces[0].spans[0].input == '{"input": "foo input"}'
     assert payload.traces[0].spans[0].output == "response"
     assert payload.traces[0].spans[0].type == "workflow"
+
+
+class TestPydanticModel(BaseModel):
+    """Test Pydantic model for serialization tests."""
+
+    name: str
+    value: int
+    optional_field: str = "default"
+
+
+class ComplexPydanticModel(BaseModel):
+    """More complex Pydantic model for testing."""
+
+    simple_field: str
+    nested_data: dict = {}
+    items: list = []
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_input_serialization_deserialization(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that input is properly serialized and then deserialized back to JSON."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="workflow")
+    def my_function(complex_input: dict):
+        return "response"
+
+    # Test with complex nested data
+    complex_input = {"nested": {"key": "value", "number": 42}, "list": [1, 2, 3], "string": "test"}
+
+    my_function(complex_input=complex_input)
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    span = payload.traces[0].spans[0]
+
+    # Input should be properly serialized and deserialized JSON
+    assert (
+        span.input
+        == '{"complex_input": {"nested": {"key": "value", "number": 42}, "list": [1, 2, 3], "string": "test"}}'
+    )
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_llm_span_list_output_serialization(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that LLM spans with list/tuple outputs are converted to string."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="llm")
+    def llm_call_returning_list(query: str):
+        return ["response1", "response2", "response3"]
+
+    llm_call_returning_list(query="input")
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    span = payload.traces[0].spans[0]
+
+    # For LLM spans, list outputs should be converted to string within a Message
+    assert hasattr(span.output, "content")
+    assert span.output.content == '["response1", "response2", "response3"]'
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_llm_span_tuple_output_serialization(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that LLM spans with tuple outputs are converted to string."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="llm")
+    def llm_call_returning_tuple(query: str):
+        return ("response1", "response2")
+
+    llm_call_returning_tuple(query="input")
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    span = payload.traces[0].spans[0]
+
+    # For LLM spans, tuple outputs should be converted to string
+    assert hasattr(span.output, "content")
+    # Note: Tuples are converted to lists during JSON serialization
+    assert span.output.content == '["response1", "response2"]'
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_llm_span_dict_output_preserved(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that LLM spans with dict outputs are preserved as JSON."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="llm")
+    def llm_call_returning_dict(query: str):
+        return {"response": "value", "number": 42}
+
+    llm_call_returning_dict(query="input")
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    span = payload.traces[0].spans[0]
+
+    # For LLM spans, dict outputs should be preserved as Message with JSON serialization
+    assert hasattr(span.output, "content")
+    # The output should be properly JSON serialized
+    assert '"response": "value"' in span.output.content
+    assert '"number": 42' in span.output.content
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_workflow_span_complex_output_serialization(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that workflow spans properly serialize complex outputs."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="workflow")
+    def workflow_with_complex_output(query: str):
+        return {
+            "result": ["item1", "item2"],
+            "metadata": {"count": 2, "processed": True},
+            "nested": {"deep": {"value": "test"}},
+        }
+
+    workflow_with_complex_output(query="input")
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    span = payload.traces[0].spans[0]
+
+    # Workflow spans should serialize complex outputs to string
+    assert isinstance(span.output, str)
+    expected_content = '{"result": ["item1", "item2"], "metadata": {"count": 2, "processed": true}, "nested": {"deep": {"value": "test"}}}'
+    assert span.output == expected_content
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_pydantic_model_input_serialization(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that Pydantic model inputs are properly serialized."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="workflow")
+    def process_model(model: TestPydanticModel):
+        return f"Processed {model.name}"
+
+    test_model = TestPydanticModel(name="test", value=42)
+    process_model(model=test_model)
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    span = payload.traces[0].spans[0]
+
+    # Pydantic model should be serialized in input
+    assert '"name": "test"' in span.input
+    assert '"value": 42' in span.input
+    # Default values should be excluded from serialization
+    assert '"optional_field"' not in span.input
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_pydantic_model_output_serialization(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that Pydantic model outputs are properly serialized."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="workflow")
+    def create_model(name: str, value: int):
+        return TestPydanticModel(name=name, value=value)
+
+    create_model(name="output_test", value=123)
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    span = payload.traces[0].spans[0]
+
+    # Pydantic model output should be serialized to string
+    assert isinstance(span.output, str)
+    assert '"name": "output_test"' in span.output
+    assert '"value": 123' in span.output
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_null_output_handling(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that None/null outputs are handled properly."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="workflow")
+    def function_returning_none(query: str):
+        return None
+
+    function_returning_none(query="input")
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    span = payload.traces[0].spans[0]
+
+    # None output should be converted to empty string or None (depending on implementation)
+    # In this case, the output is None because it wasn't processed through the serialization logic for None values
+    assert span.output is None or span.output == ""
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_tool_span_output_serialization(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that tool spans properly serialize outputs to string."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="tool")
+    def tool_with_complex_output(input_data: str):
+        return {"tool_result": input_data, "status": "success", "items": [1, 2, 3]}
+
+    tool_with_complex_output(input_data="test")
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    span = payload.traces[0].spans[0]
+
+    # Tool spans should serialize outputs to string (textual span type)
+    assert isinstance(span.output, str)
+    assert '"tool_result": "test"' in span.output
+    assert '"status": "success"' in span.output
+    assert '"items": [1, 2, 3]' in span.output
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_decorator_agent_span_output_serialization(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+) -> None:
+    """Test that agent spans properly serialize outputs to string."""
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    @log(span_type="agent")
+    def agent_with_complex_output(query: str):
+        return {"agent_response": query, "confidence": 0.95, "actions": ["analyze", "respond"]}
+
+    agent_with_complex_output(query="test query")
+    galileo_context.flush()
+
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+    span = payload.traces[0].spans[0]
+
+    # Agent spans should serialize outputs to string (textual span type)
+    assert isinstance(span.output, str)
+    assert '"agent_response": "test query"' in span.output
+    assert '"confidence": 0.95' in span.output
+    assert '"actions": ["analyze", "respond"]' in span.output

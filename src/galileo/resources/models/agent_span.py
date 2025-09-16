@@ -28,7 +28,6 @@ T = TypeVar("T", bound="AgentSpan")
 class AgentSpan:
     """
     Attributes:
-        input_ (Union[list['Message'], str]): Input to the trace or span.
         agent_type (Union[Unset, AgentType]):
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
@@ -36,6 +35,7 @@ class AgentSpan:
         dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         id (Union[None, Unset, str]): Galileo ID of the session, trace or span
+        input_ (Union[Unset, list['Message'], str]): Input to the trace or span. Default: ''.
         metrics (Union[Unset, Metrics]):
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
@@ -55,7 +55,6 @@ class AgentSpan:
         user_metadata (Union[Unset, AgentSpanUserMetadata]): Metadata associated with this trace or span.
     """
 
-    input_: Union[list["Message"], str]
     agent_type: Union[Unset, AgentType] = UNSET
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
@@ -63,6 +62,7 @@ class AgentSpan:
     dataset_output: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
     id: Union[None, Unset, str] = UNSET
+    input_: Union[Unset, list["Message"], str] = ""
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
@@ -84,16 +84,6 @@ class AgentSpan:
         from ..models.message import Message
         from ..models.retriever_span import RetrieverSpan
         from ..models.workflow_span import WorkflowSpan
-
-        input_: Union[list[dict[str, Any]], str]
-        if isinstance(self.input_, list):
-            input_ = []
-            for input_type_1_item_data in self.input_:
-                input_type_1_item = input_type_1_item_data.to_dict()
-                input_.append(input_type_1_item)
-
-        else:
-            input_ = self.input_
 
         agent_type: Union[Unset, str] = UNSET
         if not isinstance(self.agent_type, Unset):
@@ -130,6 +120,18 @@ class AgentSpan:
             id = UNSET
         else:
             id = self.id
+
+        input_: Union[Unset, list[dict[str, Any]], str]
+        if isinstance(self.input_, Unset):
+            input_ = UNSET
+        elif isinstance(self.input_, list):
+            input_ = []
+            for input_type_1_item_data in self.input_:
+                input_type_1_item = input_type_1_item_data.to_dict()
+                input_.append(input_type_1_item)
+
+        else:
+            input_ = self.input_
 
         metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metrics, Unset):
@@ -237,7 +239,7 @@ class AgentSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"input": input_})
+        field_dict.update({})
         if agent_type is not UNSET:
             field_dict["agent_type"] = agent_type
         if created_at is not UNSET:
@@ -252,6 +254,8 @@ class AgentSpan:
             field_dict["external_id"] = external_id
         if id is not UNSET:
             field_dict["id"] = id
+        if input_ is not UNSET:
+            field_dict["input"] = input_
         if metrics is not UNSET:
             field_dict["metrics"] = metrics
         if name is not UNSET:
@@ -296,25 +300,6 @@ class AgentSpan:
         from ..models.workflow_span import WorkflowSpan
 
         d = dict(src_dict)
-
-        def _parse_input_(data: object) -> Union[list["Message"], str]:
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                input_type_1 = []
-                _input_type_1 = data
-                for input_type_1_item_data in _input_type_1:
-                    input_type_1_item = Message.from_dict(input_type_1_item_data)
-
-                    input_type_1.append(input_type_1_item)
-
-                return input_type_1
-            except:  # noqa: E722
-                pass
-            return cast(Union[list["Message"], str], data)
-
-        input_ = _parse_input_(d.pop("input"))
-
         _agent_type = d.pop("agent_type", UNSET)
         agent_type: Union[Unset, AgentType]
         if isinstance(_agent_type, Unset):
@@ -371,6 +356,26 @@ class AgentSpan:
             return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
+
+        def _parse_input_(data: object) -> Union[Unset, list["Message"], str]:
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                input_type_1 = []
+                _input_type_1 = data
+                for input_type_1_item_data in _input_type_1:
+                    input_type_1_item = Message.from_dict(input_type_1_item_data)
+
+                    input_type_1.append(input_type_1_item)
+
+                return input_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[Unset, list["Message"], str], data)
+
+        input_ = _parse_input_(d.pop("input", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Union[Unset, Metrics]
@@ -571,7 +576,6 @@ class AgentSpan:
             user_metadata = AgentSpanUserMetadata.from_dict(_user_metadata)
 
         agent_span = cls(
-            input_=input_,
             agent_type=agent_type,
             created_at=created_at,
             dataset_input=dataset_input,
@@ -579,6 +583,7 @@ class AgentSpan:
             dataset_output=dataset_output,
             external_id=external_id,
             id=id,
+            input_=input_,
             metrics=metrics,
             name=name,
             output=output,

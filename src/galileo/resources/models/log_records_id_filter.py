@@ -4,6 +4,7 @@ from typing import Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.log_records_id_filter_operator import LogRecordsIDFilterOperator
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="LogRecordsIDFilter")
@@ -14,25 +15,38 @@ class LogRecordsIDFilter:
     """
     Attributes:
         column_id (str): ID of the column to filter.
-        value (str):
+        value (Union[list[str], str]):
+        operator (Union[Unset, LogRecordsIDFilterOperator]):  Default: LogRecordsIDFilterOperator.EQ.
         type_ (Union[Literal['id'], Unset]):  Default: 'id'.
     """
 
     column_id: str
-    value: str
+    value: Union[list[str], str]
+    operator: Union[Unset, LogRecordsIDFilterOperator] = LogRecordsIDFilterOperator.EQ
     type_: Union[Literal["id"], Unset] = "id"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         column_id = self.column_id
 
-        value = self.value
+        value: Union[list[str], str]
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
+
+        operator: Union[Unset, str] = UNSET
+        if not isinstance(self.operator, Unset):
+            operator = self.operator.value
 
         type_ = self.type_
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"column_id": column_id, "value": value})
+        if operator is not UNSET:
+            field_dict["operator"] = operator
         if type_ is not UNSET:
             field_dict["type"] = type_
 
@@ -43,13 +57,31 @@ class LogRecordsIDFilter:
         d = dict(src_dict)
         column_id = d.pop("column_id")
 
-        value = d.pop("value")
+        def _parse_value(data: object) -> Union[list[str], str]:
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                value_type_1 = cast(list[str], data)
+
+                return value_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[list[str], str], data)
+
+        value = _parse_value(d.pop("value"))
+
+        _operator = d.pop("operator", UNSET)
+        operator: Union[Unset, LogRecordsIDFilterOperator]
+        if isinstance(_operator, Unset):
+            operator = UNSET
+        else:
+            operator = LogRecordsIDFilterOperator(_operator)
 
         type_ = cast(Union[Literal["id"], Unset], d.pop("type", UNSET))
         if type_ != "id" and not isinstance(type_, Unset):
             raise ValueError(f"type must match const 'id', got '{type_}'")
 
-        log_records_id_filter = cls(column_id=column_id, value=value, type_=type_)
+        log_records_id_filter = cls(column_id=column_id, value=value, operator=operator, type_=type_)
 
         log_records_id_filter.additional_properties = d
         return log_records_id_filter
