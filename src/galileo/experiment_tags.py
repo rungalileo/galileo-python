@@ -78,7 +78,7 @@ class ExperimentTags(BaseClientModel, DecorateAllMethods):
         return response
 
     def upsert_experiment_tag(
-        self, project_id: str, experiment_id: str, key: str, value: str, tag_type: str = "user"
+        self, project_id: str, experiment_id: str, key: str, value: str, tag_type: str = "generic"
     ) -> ExperimentTag:
         """
         Upsert a tag for a specific experiment.
@@ -88,7 +88,7 @@ class ExperimentTags(BaseClientModel, DecorateAllMethods):
             experiment_id: The experiment ID
             key: The tag key
             value: The tag value
-            tag_type: The type of tag (default: "user")
+            tag_type: The type of tag (default: "generic")
 
         Returns:
             ExperimentTag: The created or updated tag
@@ -162,7 +162,7 @@ def get_experiment_tags(project_id: str, experiment_id: str) -> list[ExperimentT
 
 
 def upsert_experiment_tag(
-    project_id: str, experiment_id: str, key: str, value: str, tag_type: str = "user"
+    project_id: str, experiment_id: str, key: str, value: str, tag_type: str = "generic"
 ) -> ExperimentTag:
     """
     Upsert (create or update) a tag for a specific experiment.
@@ -172,7 +172,7 @@ def upsert_experiment_tag(
         experiment_id: The experiment ID
         key: The tag key
         value: The tag value
-        tag_type: The type of tag (default: "user")
+        tag_type: The type of tag (default: "generic")
 
     Returns:
         ExperimentTag: The created or updated tag

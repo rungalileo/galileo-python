@@ -19,7 +19,7 @@ def sample_run_tag():
         run_id="experiment_1",
         key="environment",
         value="production",
-        tag_type="user",
+        tag_type="generic",
         created_at=datetime.datetime.now(datetime.timezone.utc),
         updated_at=datetime.datetime.now(datetime.timezone.utc),
         created_by="test_user",
@@ -73,7 +73,7 @@ def test_upsert_experiment_tag_create_new(mock_set_tag, sample_run_tag):
 
     assert result.key == "environment"
     assert result.value == "production"
-    assert result.tag_type == "user"
+    assert result.tag_type == "generic"
     mock_set_tag.assert_called_once()
 
 
