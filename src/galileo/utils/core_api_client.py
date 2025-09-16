@@ -12,6 +12,7 @@ from galileo.schema.trace import (
     TracesIngestRequest,
     TraceUpdateRequest,
 )
+from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 
 _logger = logging.getLogger(__name__)
@@ -54,8 +55,16 @@ class GalileoCoreApiClient:
         files: Optional[dict] = None,
         params: Optional[dict] = None,
     ) -> Any:
+        headers = {"X-Galileo-SDK": f"galileo-python/{get_package_version()} GalileoCoreApiClient"}
+
         return await self.config.api_client.arequest(
-            method=request_method, path=endpoint, json=json, data=data, files=files, params=params
+            method=request_method,
+            path=endpoint,
+            content_headers=headers,
+            json=json,
+            data=data,
+            files=files,
+            params=params,
         )
 
     async def ingest_traces(self, traces_ingest_request: TracesIngestRequest) -> dict[str, str]:
