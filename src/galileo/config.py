@@ -22,7 +22,7 @@ class GalileoPythonConfig(GalileoConfig):
     def get(cls, **kwargs: Any) -> "GalileoPythonConfig":
         global _galileo_config
         _galileo_config = cls._get(_galileo_config, **kwargs)  # type: ignore[arg-type]
-        assert _galileo_config is not None  # _get should always return a non-None instance
+        assert _galileo_config is not None, "Failed to initialize GalileoPythonConfig"
         return _galileo_config
 
 
