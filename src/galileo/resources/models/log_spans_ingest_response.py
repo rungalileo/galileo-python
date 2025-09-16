@@ -21,6 +21,7 @@ class LogSpansIngestResponse:
         trace_id (str): Trace id associated with the spans.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
     """
 
     parent_id: str
@@ -31,6 +32,7 @@ class LogSpansIngestResponse:
     trace_id: str
     experiment_id: Union[None, Unset, str] = UNSET
     log_stream_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,6 +60,12 @@ class LogSpansIngestResponse:
         else:
             log_stream_id = self.log_stream_id
 
+        metrics_testing_id: Union[None, Unset, str]
+        if isinstance(self.metrics_testing_id, Unset):
+            metrics_testing_id = UNSET
+        else:
+            metrics_testing_id = self.metrics_testing_id
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -74,6 +82,8 @@ class LogSpansIngestResponse:
             field_dict["experiment_id"] = experiment_id
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
+        if metrics_testing_id is not UNSET:
+            field_dict["metrics_testing_id"] = metrics_testing_id
 
         return field_dict
 
@@ -110,6 +120,15 @@ class LogSpansIngestResponse:
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
+
         log_spans_ingest_response = cls(
             parent_id=parent_id,
             project_id=project_id,
@@ -119,6 +138,7 @@ class LogSpansIngestResponse:
             trace_id=trace_id,
             experiment_id=experiment_id,
             log_stream_id=log_stream_id,
+            metrics_testing_id=metrics_testing_id,
         )
 
         log_spans_ingest_response.additional_properties = d

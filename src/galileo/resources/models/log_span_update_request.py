@@ -26,6 +26,7 @@ class LogSpanUpdateRequest:
         input_ (Union[None, Unset, list['Message'], str]): Input of the span. Overwrites previous value if present.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         logging_method (Union[Unset, LoggingMethod]):
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         output (Union['Message', None, Unset, list['Document'], str]): Output of the trace. Overwrites previous value if
             present.
         reliable (Union[Unset, bool]): Whether or not to use reliable logging.  If set to False, the method will respond
@@ -42,6 +43,7 @@ class LogSpanUpdateRequest:
     input_: Union[None, Unset, list["Message"], str] = UNSET
     log_stream_id: Union[None, Unset, str] = UNSET
     logging_method: Union[Unset, LoggingMethod] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
     reliable: Union[Unset, bool] = False
     status_code: Union[None, Unset, int] = UNSET
@@ -87,6 +89,12 @@ class LogSpanUpdateRequest:
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
+        metrics_testing_id: Union[None, Unset, str]
+        if isinstance(self.metrics_testing_id, Unset):
+            metrics_testing_id = UNSET
+        else:
+            metrics_testing_id = self.metrics_testing_id
+
         output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
         if isinstance(self.output, Unset):
             output = UNSET
@@ -131,6 +139,8 @@ class LogSpanUpdateRequest:
             field_dict["log_stream_id"] = log_stream_id
         if logging_method is not UNSET:
             field_dict["logging_method"] = logging_method
+        if metrics_testing_id is not UNSET:
+            field_dict["metrics_testing_id"] = metrics_testing_id
         if output is not UNSET:
             field_dict["output"] = output
         if reliable is not UNSET:
@@ -206,6 +216,15 @@ class LogSpanUpdateRequest:
         else:
             logging_method = LoggingMethod(_logging_method)
 
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
+
         def _parse_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
             if data is None:
                 return data
@@ -271,6 +290,7 @@ class LogSpanUpdateRequest:
             input_=input_,
             log_stream_id=log_stream_id,
             logging_method=logging_method,
+            metrics_testing_id=metrics_testing_id,
             output=output,
             reliable=reliable,
             status_code=status_code,

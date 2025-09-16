@@ -2,7 +2,7 @@ import hashlib
 import json
 import logging
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from uuid import UUID
 
 from galileo.handlers.base_handler import GalileoBaseHandler
@@ -48,7 +48,7 @@ except ImportError:
     LITE_LLM_AVAILABLE = False
 
 
-class CrewAICallback(BaseEventListener):
+class CrewAIEventListener(BaseEventListener):
     """
     CrewAI event listener for logging traces to the Galileo platform.
 
@@ -62,10 +62,10 @@ class CrewAICallback(BaseEventListener):
         self,
         galileo_logger: Optional[GalileoLogger] = None,
         start_new_trace: bool = True,
-        flush_on_chain_end: bool = True,
+        flush_on_crew_completed: bool = True,
     ):
         self._handler = GalileoBaseHandler(
-            flush_on_chain_end=flush_on_chain_end,
+            flush_on_chain_end=flush_on_crew_completed,
             start_new_trace=start_new_trace,
             galileo_logger=galileo_logger,
             integration="crewai",
@@ -234,7 +234,7 @@ class CrewAICallback(BaseEventListener):
         tasks = ""
 
         if not input or input == "-":
-            tasks = ", ".join(
+            tasks = "\n".join(
                 [
                     str(node.span_params.get("metadata", {}).get("task_description"))
                     for node in nodes.values()
@@ -263,7 +263,7 @@ class CrewAICallback(BaseEventListener):
     def _handle_agent_execution_started(self, source: Any, event: "AgentExecutionStartedEvent") -> None:
         """Handle agent execution start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = event.task.id
+        parent_run_id = self._to_uuid(event.task.id)
         role = "Unknown Agent"
         metadata = self._extract_metadata(event)
 
@@ -306,7 +306,7 @@ class CrewAICallback(BaseEventListener):
         """Handle task start."""
         run_id = self._generate_run_id(source, event)
         task = event.task if hasattr(event, "task") else None
-        parent_run_id = task.agent.crew.id if task else None
+        parent_run_id = self._to_uuid(task.agent.crew.id) if task else None
 
         metadata = self._extract_metadata(event)
         if task:
@@ -357,7 +357,7 @@ class CrewAICallback(BaseEventListener):
     def _handle_tool_usage_started(self, source: Any, event: "ToolUsageStartedEvent") -> None:
         """Handle tool usage start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = event.agent.id if event.agent else None
+        parent_run_id = self._to_uuid(event.agent.id) if event.agent else None
         input = getattr(event, "tool_args", {})
         tool_name = getattr(event, "tool_name", "Unknown Tool")
 
@@ -390,11 +390,21 @@ class CrewAICallback(BaseEventListener):
             run_id=run_id, output=f"Error: {getattr(event, 'error', 'Unknown error')}", metadata=metadata
         )
 
+    def _to_uuid(self, id: Union[str, None, UUID]) -> Union[UUID, None]:
+        if isinstance(id, UUID):
+            return id
+        if isinstance(id, str):
+            try:
+                return UUID(id)
+            except ValueError:
+                return None
+        return None
+
     # LLM event handlers
     def _handle_llm_call_started(self, source: Any, event: "LLMCallStartedEvent") -> None:
         """Handle LLM call start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = UUID(event.agent_id, version=4) if hasattr(event, "agent_id") else None
+        parent_run_id = self._to_uuid(event.agent_id) if hasattr(event, "agent_id") else None
         llm_name = getattr(source, "model", "Unknown Model")
 
         metadata = self._extract_metadata(event)

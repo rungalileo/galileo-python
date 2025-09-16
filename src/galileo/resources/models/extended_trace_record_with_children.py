@@ -35,7 +35,6 @@ class ExtendedTraceRecordWithChildren:
     """
     Attributes:
         id (str): Galileo ID of the trace
-        input_ (str): Input to the trace or span.
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
         session_id (str): Galileo ID of the session containing the trace (or the same value as id for a trace)
@@ -49,6 +48,7 @@ class ExtendedTraceRecordWithChildren:
         feedback_rating_info (Union[Unset, ExtendedTraceRecordWithChildrenFeedbackRatingInfo]): Feedback information
             related to the trace
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
+        input_ (Union[Unset, str]): Input to the trace or span. Default: ''.
         is_complete (Union[Unset, bool]): Whether the trace is complete or not Default: True.
         metric_info (Union['ExtendedTraceRecordWithChildrenMetricInfoType0', None, Unset]): Detailed information about
             the metrics associated with this trace or span
@@ -72,7 +72,6 @@ class ExtendedTraceRecordWithChildren:
     """
 
     id: str
-    input_: str
     project_id: str
     run_id: str
     session_id: str
@@ -84,6 +83,7 @@ class ExtendedTraceRecordWithChildren:
     external_id: Union[None, Unset, str] = UNSET
     feedback_rating_info: Union[Unset, "ExtendedTraceRecordWithChildrenFeedbackRatingInfo"] = UNSET
     has_children: Union[None, Unset, bool] = UNSET
+    input_: Union[Unset, str] = ""
     is_complete: Union[Unset, bool] = True
     metric_info: Union["ExtendedTraceRecordWithChildrenMetricInfoType0", None, Unset] = UNSET
     metrics: Union[Unset, "Metrics"] = UNSET
@@ -122,8 +122,6 @@ class ExtendedTraceRecordWithChildren:
         from ..models.extended_workflow_span_record_with_children import ExtendedWorkflowSpanRecordWithChildren
 
         id = self.id
-
-        input_ = self.input_
 
         project_id = self.project_id
 
@@ -168,6 +166,8 @@ class ExtendedTraceRecordWithChildren:
             has_children = UNSET
         else:
             has_children = self.has_children
+
+        input_ = self.input_
 
         is_complete = self.is_complete
 
@@ -260,14 +260,7 @@ class ExtendedTraceRecordWithChildren:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "id": id,
-                "input": input_,
-                "project_id": project_id,
-                "run_id": run_id,
-                "session_id": session_id,
-                "trace_id": trace_id,
-            }
+            {"id": id, "project_id": project_id, "run_id": run_id, "session_id": session_id, "trace_id": trace_id}
         )
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
@@ -283,6 +276,8 @@ class ExtendedTraceRecordWithChildren:
             field_dict["feedback_rating_info"] = feedback_rating_info
         if has_children is not UNSET:
             field_dict["has_children"] = has_children
+        if input_ is not UNSET:
+            field_dict["input"] = input_
         if is_complete is not UNSET:
             field_dict["is_complete"] = is_complete
         if metric_info is not UNSET:
@@ -339,8 +334,6 @@ class ExtendedTraceRecordWithChildren:
 
         d = dict(src_dict)
         id = d.pop("id")
-
-        input_ = d.pop("input")
 
         project_id = d.pop("project_id")
 
@@ -406,6 +399,8 @@ class ExtendedTraceRecordWithChildren:
             return cast(Union[None, Unset, bool], data)
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
+
+        input_ = d.pop("input", UNSET)
 
         is_complete = d.pop("is_complete", UNSET)
 
@@ -576,7 +571,6 @@ class ExtendedTraceRecordWithChildren:
 
         extended_trace_record_with_children = cls(
             id=id,
-            input_=input_,
             project_id=project_id,
             run_id=run_id,
             session_id=session_id,
@@ -588,6 +582,7 @@ class ExtendedTraceRecordWithChildren:
             external_id=external_id,
             feedback_rating_info=feedback_rating_info,
             has_children=has_children,
+            input_=input_,
             is_complete=is_complete,
             metric_info=metric_info,
             metrics=metrics,

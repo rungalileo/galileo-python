@@ -27,9 +27,10 @@ class PromptRunSettings:
         known_models (Union[Unset, list['Model']]):
         logprobs (Union[Unset, bool]):  Default: True.
         max_tokens (Union[Unset, int]):  Default: 1024.
-        model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
+        model_alias (Union[Unset, str]):  Default: 'gpt-5-mini'.
         n (Union[Unset, int]):  Default: 1.
         presence_penalty (Union[Unset, float]):  Default: 0.0.
+        reasoning_effort (Union[Unset, str]):  Default: 'medium'.
         response_format (Union['PromptRunSettingsResponseFormatType0', None, Unset]):
         stop_sequences (Union[None, Unset, list[str]]):
         temperature (Union[Unset, float]):  Default: 1.0.
@@ -38,6 +39,7 @@ class PromptRunSettings:
         top_k (Union[Unset, int]):  Default: 40.
         top_logprobs (Union[Unset, int]):  Default: 5.
         top_p (Union[Unset, float]):  Default: 1.0.
+        verbosity (Union[Unset, str]):  Default: 'medium'.
     """
 
     deployment_name: Union[None, Unset, str] = UNSET
@@ -46,9 +48,10 @@ class PromptRunSettings:
     known_models: Union[Unset, list["Model"]] = UNSET
     logprobs: Union[Unset, bool] = True
     max_tokens: Union[Unset, int] = 1024
-    model_alias: Union[Unset, str] = "gpt-4.1-mini"
+    model_alias: Union[Unset, str] = "gpt-5-mini"
     n: Union[Unset, int] = 1
     presence_penalty: Union[Unset, float] = 0.0
+    reasoning_effort: Union[Unset, str] = "medium"
     response_format: Union["PromptRunSettingsResponseFormatType0", None, Unset] = UNSET
     stop_sequences: Union[None, Unset, list[str]] = UNSET
     temperature: Union[Unset, float] = 1.0
@@ -57,6 +60,7 @@ class PromptRunSettings:
     top_k: Union[Unset, int] = 40
     top_logprobs: Union[Unset, int] = 5
     top_p: Union[Unset, float] = 1.0
+    verbosity: Union[Unset, str] = "medium"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -89,6 +93,8 @@ class PromptRunSettings:
         n = self.n
 
         presence_penalty = self.presence_penalty
+
+        reasoning_effort = self.reasoning_effort
 
         response_format: Union[None, Unset, dict[str, Any]]
         if isinstance(self.response_format, Unset):
@@ -135,6 +141,8 @@ class PromptRunSettings:
 
         top_p = self.top_p
 
+        verbosity = self.verbosity
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -156,6 +164,8 @@ class PromptRunSettings:
             field_dict["n"] = n
         if presence_penalty is not UNSET:
             field_dict["presence_penalty"] = presence_penalty
+        if reasoning_effort is not UNSET:
+            field_dict["reasoning_effort"] = reasoning_effort
         if response_format is not UNSET:
             field_dict["response_format"] = response_format
         if stop_sequences is not UNSET:
@@ -172,6 +182,8 @@ class PromptRunSettings:
             field_dict["top_logprobs"] = top_logprobs
         if top_p is not UNSET:
             field_dict["top_p"] = top_p
+        if verbosity is not UNSET:
+            field_dict["verbosity"] = verbosity
 
         return field_dict
 
@@ -213,6 +225,8 @@ class PromptRunSettings:
         n = d.pop("n", UNSET)
 
         presence_penalty = d.pop("presence_penalty", UNSET)
+
+        reasoning_effort = d.pop("reasoning_effort", UNSET)
 
         def _parse_response_format(data: object) -> Union["PromptRunSettingsResponseFormatType0", None, Unset]:
             if data is None:
@@ -295,6 +309,8 @@ class PromptRunSettings:
 
         top_p = d.pop("top_p", UNSET)
 
+        verbosity = d.pop("verbosity", UNSET)
+
         prompt_run_settings = cls(
             deployment_name=deployment_name,
             echo=echo,
@@ -305,6 +321,7 @@ class PromptRunSettings:
             model_alias=model_alias,
             n=n,
             presence_penalty=presence_penalty,
+            reasoning_effort=reasoning_effort,
             response_format=response_format,
             stop_sequences=stop_sequences,
             temperature=temperature,
@@ -313,6 +330,7 @@ class PromptRunSettings:
             top_k=top_k,
             top_logprobs=top_logprobs,
             top_p=top_p,
+            verbosity=verbosity,
         )
 
         prompt_run_settings.additional_properties = d

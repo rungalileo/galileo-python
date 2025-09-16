@@ -9,6 +9,7 @@ from ..models.output_type_enum import OutputTypeEnum
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.base_finetuned_scorer_db import BaseFinetunedScorerDB
     from ..models.base_generated_scorer_db import BaseGeneratedScorerDB
     from ..models.base_registered_scorer_db import BaseRegisteredScorerDB
 
@@ -25,6 +26,7 @@ class BaseScorerVersionDB:
         version (int):
         cot_enabled (Union[None, Unset, bool]): Whether to enable chain of thought for this scorer. Defaults to False
             for llm scorers.
+        finetuned_scorer (Union['BaseFinetunedScorerDB', None, Unset]):
         generated_scorer (Union['BaseGeneratedScorerDB', None, Unset]):
         input_type (Union[InputTypeEnum, None, Unset]): What type of input to use for model-based scorers
             (sessions_normalized, trace_io_only, etc.).
@@ -40,6 +42,7 @@ class BaseScorerVersionDB:
     id: str
     version: int
     cot_enabled: Union[None, Unset, bool] = UNSET
+    finetuned_scorer: Union["BaseFinetunedScorerDB", None, Unset] = UNSET
     generated_scorer: Union["BaseGeneratedScorerDB", None, Unset] = UNSET
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
     model_name: Union[None, Unset, str] = UNSET
@@ -50,6 +53,7 @@ class BaseScorerVersionDB:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.base_finetuned_scorer_db import BaseFinetunedScorerDB
         from ..models.base_generated_scorer_db import BaseGeneratedScorerDB
         from ..models.base_registered_scorer_db import BaseRegisteredScorerDB
 
@@ -62,6 +66,14 @@ class BaseScorerVersionDB:
             cot_enabled = UNSET
         else:
             cot_enabled = self.cot_enabled
+
+        finetuned_scorer: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.finetuned_scorer, Unset):
+            finetuned_scorer = UNSET
+        elif isinstance(self.finetuned_scorer, BaseFinetunedScorerDB):
+            finetuned_scorer = self.finetuned_scorer.to_dict()
+        else:
+            finetuned_scorer = self.finetuned_scorer
 
         generated_scorer: Union[None, Unset, dict[str, Any]]
         if isinstance(self.generated_scorer, Unset):
@@ -121,6 +133,8 @@ class BaseScorerVersionDB:
         field_dict.update({"id": id, "version": version})
         if cot_enabled is not UNSET:
             field_dict["cot_enabled"] = cot_enabled
+        if finetuned_scorer is not UNSET:
+            field_dict["finetuned_scorer"] = finetuned_scorer
         if generated_scorer is not UNSET:
             field_dict["generated_scorer"] = generated_scorer
         if input_type is not UNSET:
@@ -140,6 +154,7 @@ class BaseScorerVersionDB:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.base_finetuned_scorer_db import BaseFinetunedScorerDB
         from ..models.base_generated_scorer_db import BaseGeneratedScorerDB
         from ..models.base_registered_scorer_db import BaseRegisteredScorerDB
 
@@ -156,6 +171,23 @@ class BaseScorerVersionDB:
             return cast(Union[None, Unset, bool], data)
 
         cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
+
+        def _parse_finetuned_scorer(data: object) -> Union["BaseFinetunedScorerDB", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                finetuned_scorer_type_0 = BaseFinetunedScorerDB.from_dict(data)
+
+                return finetuned_scorer_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["BaseFinetunedScorerDB", None, Unset], data)
+
+        finetuned_scorer = _parse_finetuned_scorer(d.pop("finetuned_scorer", UNSET))
 
         def _parse_generated_scorer(data: object) -> Union["BaseGeneratedScorerDB", None, Unset]:
             if data is None:
@@ -264,6 +296,7 @@ class BaseScorerVersionDB:
             id=id,
             version=version,
             cot_enabled=cot_enabled,
+            finetuned_scorer=finetuned_scorer,
             generated_scorer=generated_scorer,
             input_type=input_type,
             model_name=model_name,

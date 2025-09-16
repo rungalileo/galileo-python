@@ -2,8 +2,6 @@
 {% from "helpers.jinja" import safe_docstring %}
 
 {% macro header_params(endpoint) %}
-{% if endpoint.header_parameters or endpoint.bodies | length > 0 %}
-headers: dict[str, Any] = {}
 {% if endpoint.header_parameters %}
     {% for parameter in endpoint.header_parameters %}
         {% import "property_templates/" + parameter.template as param_template %}
@@ -15,7 +13,6 @@ headers: dict[str, Any] = {}
         {% set statement = 'headers["' +  parameter.name + '"]' + " = " + expression %}
 {{ guarded_statement(parameter, parameter.python_name, statement) }}
     {% endfor %}
-{% endif %}
 {% endif %}
 {% endmacro %}
 

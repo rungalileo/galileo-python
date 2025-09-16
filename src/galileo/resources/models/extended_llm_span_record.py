@@ -25,8 +25,6 @@ class ExtendedLlmSpanRecord:
     """
     Attributes:
         id (str): Galileo ID of the session, trace or span
-        input_ (list['Message']): Input to the trace or span.
-        output (Message):
         parent_id (str): Galileo ID of the parent of this span
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
@@ -39,6 +37,7 @@ class ExtendedLlmSpanRecord:
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         finish_reason (Union[None, Unset, str]): Reason for finishing.
         has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
+        input_ (Union[Unset, list['Message']]): Input to the trace or span.
         is_complete (Union[Unset, bool]): Whether the parent trace is complete or not Default: True.
         metric_info (Union['ExtendedLlmSpanRecordMetricInfoType0', None, Unset]): Detailed information about the metrics
             associated with this trace or span
@@ -46,6 +45,7 @@ class ExtendedLlmSpanRecord:
         metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
         model (Union[None, Unset, str]): Model used for this span.
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
+        output (Union[Unset, Message]):
         redacted_input (Union[None, Unset, list['Message']]): Redacted input of the trace or span.
         redacted_output (Union['Message', None, Unset]): Redacted output of the trace or span.
         session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
@@ -64,8 +64,6 @@ class ExtendedLlmSpanRecord:
     """
 
     id: str
-    input_: list["Message"]
-    output: "Message"
     parent_id: str
     project_id: str
     run_id: str
@@ -77,12 +75,14 @@ class ExtendedLlmSpanRecord:
     external_id: Union[None, Unset, str] = UNSET
     finish_reason: Union[None, Unset, str] = UNSET
     has_children: Union[None, Unset, bool] = UNSET
+    input_: Union[Unset, list["Message"]] = UNSET
     is_complete: Union[Unset, bool] = True
     metric_info: Union["ExtendedLlmSpanRecordMetricInfoType0", None, Unset] = UNSET
     metrics: Union[Unset, "LlmMetrics"] = UNSET
     metrics_batch_id: Union[None, Unset, str] = UNSET
     model: Union[None, Unset, str] = UNSET
     name: Union[Unset, str] = ""
+    output: Union[Unset, "Message"] = UNSET
     redacted_input: Union[None, Unset, list["Message"]] = UNSET
     redacted_output: Union["Message", None, Unset] = UNSET
     session_batch_id: Union[None, Unset, str] = UNSET
@@ -102,13 +102,6 @@ class ExtendedLlmSpanRecord:
         from ..models.message import Message
 
         id = self.id
-
-        input_ = []
-        for input_item_data in self.input_:
-            input_item = input_item_data.to_dict()
-            input_.append(input_item)
-
-        output = self.output.to_dict()
 
         parent_id = self.parent_id
 
@@ -156,6 +149,13 @@ class ExtendedLlmSpanRecord:
         else:
             has_children = self.has_children
 
+        input_: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.input_, Unset):
+            input_ = []
+            for input_item_data in self.input_:
+                input_item = input_item_data.to_dict()
+                input_.append(input_item)
+
         is_complete = self.is_complete
 
         metric_info: Union[None, Unset, dict[str, Any]]
@@ -183,6 +183,10 @@ class ExtendedLlmSpanRecord:
             model = self.model
 
         name = self.name
+
+        output: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.output, Unset):
+            output = self.output.to_dict()
 
         redacted_input: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.redacted_input, Unset):
@@ -267,15 +271,7 @@ class ExtendedLlmSpanRecord:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {
-                "id": id,
-                "input": input_,
-                "output": output,
-                "parent_id": parent_id,
-                "project_id": project_id,
-                "run_id": run_id,
-                "session_id": session_id,
-            }
+            {"id": id, "parent_id": parent_id, "project_id": project_id, "run_id": run_id, "session_id": session_id}
         )
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
@@ -291,6 +287,8 @@ class ExtendedLlmSpanRecord:
             field_dict["finish_reason"] = finish_reason
         if has_children is not UNSET:
             field_dict["has_children"] = has_children
+        if input_ is not UNSET:
+            field_dict["input"] = input_
         if is_complete is not UNSET:
             field_dict["is_complete"] = is_complete
         if metric_info is not UNSET:
@@ -303,6 +301,8 @@ class ExtendedLlmSpanRecord:
             field_dict["model"] = model
         if name is not UNSET:
             field_dict["name"] = name
+        if output is not UNSET:
+            field_dict["output"] = output
         if redacted_input is not UNSET:
             field_dict["redacted_input"] = redacted_input
         if redacted_output is not UNSET:
@@ -341,15 +341,6 @@ class ExtendedLlmSpanRecord:
 
         d = dict(src_dict)
         id = d.pop("id")
-
-        input_ = []
-        _input_ = d.pop("input")
-        for input_item_data in _input_:
-            input_item = Message.from_dict(input_item_data)
-
-            input_.append(input_item)
-
-        output = Message.from_dict(d.pop("output"))
 
         parent_id = d.pop("parent_id")
 
@@ -418,6 +409,13 @@ class ExtendedLlmSpanRecord:
 
         has_children = _parse_has_children(d.pop("has_children", UNSET))
 
+        input_ = []
+        _input_ = d.pop("input", UNSET)
+        for input_item_data in _input_ or []:
+            input_item = Message.from_dict(input_item_data)
+
+            input_.append(input_item)
+
         is_complete = d.pop("is_complete", UNSET)
 
         def _parse_metric_info(data: object) -> Union["ExtendedLlmSpanRecordMetricInfoType0", None, Unset]:
@@ -463,6 +461,13 @@ class ExtendedLlmSpanRecord:
         model = _parse_model(d.pop("model", UNSET))
 
         name = d.pop("name", UNSET)
+
+        _output = d.pop("output", UNSET)
+        output: Union[Unset, Message]
+        if isinstance(_output, Unset):
+            output = UNSET
+        else:
+            output = Message.from_dict(_output)
 
         def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"]]:
             if data is None:
@@ -602,8 +607,6 @@ class ExtendedLlmSpanRecord:
 
         extended_llm_span_record = cls(
             id=id,
-            input_=input_,
-            output=output,
             parent_id=parent_id,
             project_id=project_id,
             run_id=run_id,
@@ -615,12 +618,14 @@ class ExtendedLlmSpanRecord:
             external_id=external_id,
             finish_reason=finish_reason,
             has_children=has_children,
+            input_=input_,
             is_complete=is_complete,
             metric_info=metric_info,
             metrics=metrics,
             metrics_batch_id=metrics_batch_id,
             model=model,
             name=name,
+            output=output,
             redacted_input=redacted_input,
             redacted_output=redacted_output,
             session_batch_id=session_batch_id,

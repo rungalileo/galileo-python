@@ -14,18 +14,23 @@ T = TypeVar("T", bound="DatasetIDFilter")
 class DatasetIDFilter:
     """
     Attributes:
-        value (str):
+        value (Union[list[str], str]):
         name (Union[Literal['id'], Unset]):  Default: 'id'.
         operator (Union[Unset, DatasetIDFilterOperator]):  Default: DatasetIDFilterOperator.EQ.
     """
 
-    value: str
+    value: Union[list[str], str]
     name: Union[Literal["id"], Unset] = "id"
     operator: Union[Unset, DatasetIDFilterOperator] = DatasetIDFilterOperator.EQ
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        value = self.value
+        value: Union[list[str], str]
+        if isinstance(self.value, list):
+            value = self.value
+
+        else:
+            value = self.value
 
         name = self.name
 
@@ -46,7 +51,19 @@ class DatasetIDFilter:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        value = d.pop("value")
+
+        def _parse_value(data: object) -> Union[list[str], str]:
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                value_type_1 = cast(list[str], data)
+
+                return value_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[list[str], str], data)
+
+        value = _parse_value(d.pop("value"))
 
         name = cast(Union[Literal["id"], Unset], d.pop("name", UNSET))
         if name != "id" and not isinstance(name, Unset):

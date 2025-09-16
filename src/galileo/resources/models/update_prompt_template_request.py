@@ -1,10 +1,14 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
+
+if TYPE_CHECKING:
+    from ..models.name import Name
+
 
 T = TypeVar("T", bound="UpdatePromptTemplateRequest")
 
@@ -13,16 +17,20 @@ T = TypeVar("T", bound="UpdatePromptTemplateRequest")
 class UpdatePromptTemplateRequest:
     """
     Attributes:
-        name (Union[None, Unset, str]):
+        name (Union['Name', None, Unset, str]):
     """
 
-    name: Union[None, Unset, str] = UNSET
+    name: Union["Name", None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name: Union[None, Unset, str]
+        from ..models.name import Name
+
+        name: Union[None, Unset, dict[str, Any], str]
         if isinstance(self.name, Unset):
             name = UNSET
+        elif isinstance(self.name, Name):
+            name = self.name.to_dict()
         else:
             name = self.name
 
@@ -36,14 +44,24 @@ class UpdatePromptTemplateRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.name import Name
+
         d = dict(src_dict)
 
-        def _parse_name(data: object) -> Union[None, Unset, str]:
+        def _parse_name(data: object) -> Union["Name", None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                name_type_1 = Name.from_dict(data)
+
+                return name_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union["Name", None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
 

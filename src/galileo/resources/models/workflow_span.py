@@ -27,7 +27,6 @@ T = TypeVar("T", bound="WorkflowSpan")
 class WorkflowSpan:
     """
     Attributes:
-        input_ (Union[list['Message'], str]): Input to the trace or span.
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, WorkflowSpanDatasetMetadata]): Metadata from the dataset associated with this
@@ -35,6 +34,7 @@ class WorkflowSpan:
         dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
         external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
         id (Union[None, Unset, str]): Galileo ID of the session, trace or span
+        input_ (Union[Unset, list['Message'], str]): Input to the trace or span. Default: ''.
         metrics (Union[Unset, Metrics]):
         name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
         output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
@@ -54,13 +54,13 @@ class WorkflowSpan:
         user_metadata (Union[Unset, WorkflowSpanUserMetadata]): Metadata associated with this trace or span.
     """
 
-    input_: Union[list["Message"], str]
     created_at: Union[Unset, datetime.datetime] = UNSET
     dataset_input: Union[None, Unset, str] = UNSET
     dataset_metadata: Union[Unset, "WorkflowSpanDatasetMetadata"] = UNSET
     dataset_output: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
     id: Union[None, Unset, str] = UNSET
+    input_: Union[Unset, list["Message"], str] = ""
     metrics: Union[Unset, "Metrics"] = UNSET
     name: Union[Unset, str] = ""
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
@@ -82,16 +82,6 @@ class WorkflowSpan:
         from ..models.llm_span import LlmSpan
         from ..models.message import Message
         from ..models.retriever_span import RetrieverSpan
-
-        input_: Union[list[dict[str, Any]], str]
-        if isinstance(self.input_, list):
-            input_ = []
-            for input_type_1_item_data in self.input_:
-                input_type_1_item = input_type_1_item_data.to_dict()
-                input_.append(input_type_1_item)
-
-        else:
-            input_ = self.input_
 
         created_at: Union[Unset, str] = UNSET
         if not isinstance(self.created_at, Unset):
@@ -124,6 +114,18 @@ class WorkflowSpan:
             id = UNSET
         else:
             id = self.id
+
+        input_: Union[Unset, list[dict[str, Any]], str]
+        if isinstance(self.input_, Unset):
+            input_ = UNSET
+        elif isinstance(self.input_, list):
+            input_ = []
+            for input_type_1_item_data in self.input_:
+                input_type_1_item = input_type_1_item_data.to_dict()
+                input_.append(input_type_1_item)
+
+        else:
+            input_ = self.input_
 
         metrics: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.metrics, Unset):
@@ -231,7 +233,7 @@ class WorkflowSpan:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"input": input_})
+        field_dict.update({})
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if dataset_input is not UNSET:
@@ -244,6 +246,8 @@ class WorkflowSpan:
             field_dict["external_id"] = external_id
         if id is not UNSET:
             field_dict["id"] = id
+        if input_ is not UNSET:
+            field_dict["input"] = input_
         if metrics is not UNSET:
             field_dict["metrics"] = metrics
         if name is not UNSET:
@@ -288,25 +292,6 @@ class WorkflowSpan:
         from ..models.workflow_span_user_metadata import WorkflowSpanUserMetadata
 
         d = dict(src_dict)
-
-        def _parse_input_(data: object) -> Union[list["Message"], str]:
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                input_type_1 = []
-                _input_type_1 = data
-                for input_type_1_item_data in _input_type_1:
-                    input_type_1_item = Message.from_dict(input_type_1_item_data)
-
-                    input_type_1.append(input_type_1_item)
-
-                return input_type_1
-            except:  # noqa: E722
-                pass
-            return cast(Union[list["Message"], str], data)
-
-        input_ = _parse_input_(d.pop("input"))
-
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
         if isinstance(_created_at, Unset):
@@ -356,6 +341,26 @@ class WorkflowSpan:
             return cast(Union[None, Unset, str], data)
 
         id = _parse_id(d.pop("id", UNSET))
+
+        def _parse_input_(data: object) -> Union[Unset, list["Message"], str]:
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                input_type_1 = []
+                _input_type_1 = data
+                for input_type_1_item_data in _input_type_1:
+                    input_type_1_item = Message.from_dict(input_type_1_item_data)
+
+                    input_type_1.append(input_type_1_item)
+
+                return input_type_1
+            except:  # noqa: E722
+                pass
+            return cast(Union[Unset, list["Message"], str], data)
+
+        input_ = _parse_input_(d.pop("input", UNSET))
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Union[Unset, Metrics]
@@ -556,13 +561,13 @@ class WorkflowSpan:
             user_metadata = WorkflowSpanUserMetadata.from_dict(_user_metadata)
 
         workflow_span = cls(
-            input_=input_,
             created_at=created_at,
             dataset_input=dataset_input,
             dataset_metadata=dataset_metadata,
             dataset_output=dataset_output,
             external_id=external_id,
             id=id,
+            input_=input_,
             metrics=metrics,
             name=name,
             output=output,

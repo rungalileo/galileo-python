@@ -21,6 +21,7 @@ from .aggregated_trace_view_response import AggregatedTraceViewResponse
 from .api_key_action import ApiKeyAction
 from .api_key_login_request import ApiKeyLoginRequest
 from .auth_method import AuthMethod
+from .base_finetuned_scorer_db import BaseFinetunedScorerDB
 from .base_generated_scorer_db import BaseGeneratedScorerDB
 from .base_prompt_template_response import BasePromptTemplateResponse
 from .base_prompt_template_version import BasePromptTemplateVersion
@@ -64,7 +65,9 @@ from .completeness_template import CompletenessTemplate
 from .context_adherence_scorer import ContextAdherenceScorer
 from .context_adherence_scorer_type import ContextAdherenceScorerType
 from .context_relevance_scorer import ContextRelevanceScorer
+from .core_scorer_name import CoreScorerName
 from .correctness_scorer import CorrectnessScorer
+from .create_custom_luna_scorer_version_request import CreateCustomLunaScorerVersionRequest
 from .create_job_request import CreateJobRequest
 from .create_job_response import CreateJobResponse
 from .create_llm_scorer_autogen_request import CreateLLMScorerAutogenRequest
@@ -142,6 +145,7 @@ from .data_unit import DataUnit
 from .dataset_action import DatasetAction
 from .dataset_append_row import DatasetAppendRow
 from .dataset_append_row_values import DatasetAppendRowValues
+from .dataset_append_row_values_additional_property_type_3 import DatasetAppendRowValuesAdditionalPropertyType3
 from .dataset_content import DatasetContent
 from .dataset_content_filter import DatasetContentFilter
 from .dataset_content_filter_operator import DatasetContentFilterOperator
@@ -162,15 +166,19 @@ from .dataset_name_filter_operator import DatasetNameFilterOperator
 from .dataset_name_sort import DatasetNameSort
 from .dataset_prepend_row import DatasetPrependRow
 from .dataset_prepend_row_values import DatasetPrependRowValues
+from .dataset_prepend_row_values_additional_property_type_3 import DatasetPrependRowValuesAdditionalPropertyType3
 from .dataset_project import DatasetProject
 from .dataset_project_last_used_at_sort import DatasetProjectLastUsedAtSort
 from .dataset_projects_sort import DatasetProjectsSort
 from .dataset_row import DatasetRow
 from .dataset_row_metadata import DatasetRowMetadata
 from .dataset_row_values_dict import DatasetRowValuesDict
+from .dataset_row_values_dict_additional_property_type_3 import DatasetRowValuesDictAdditionalPropertyType3
+from .dataset_row_values_item_type_3 import DatasetRowValuesItemType3
 from .dataset_rows_sort import DatasetRowsSort
 from .dataset_update_row import DatasetUpdateRow
 from .dataset_update_row_values import DatasetUpdateRowValues
+from .dataset_update_row_values_additional_property_type_3 import DatasetUpdateRowValuesAdditionalPropertyType3
 from .dataset_updated_at_sort import DatasetUpdatedAtSort
 from .dataset_used_in_project_filter import DatasetUsedInProjectFilter
 from .dataset_version_db import DatasetVersionDB
@@ -190,6 +198,7 @@ from .experiment_prompt import ExperimentPrompt
 from .experiment_response import ExperimentResponse
 from .experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
 from .experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
+from .experiment_response_tags import ExperimentResponseTags
 from .experiment_update_request import ExperimentUpdateRequest
 from .experiments_available_columns_response import ExperimentsAvailableColumnsResponse
 from .extended_agent_span_record import ExtendedAgentSpanRecord
@@ -273,9 +282,11 @@ from .feedback_rating_info_feedback_type import FeedbackRatingInfoFeedbackType
 from .few_shot_example import FewShotExample
 from .fine_tuned_scorer import FineTunedScorer
 from .fine_tuned_scorer_action import FineTunedScorerAction
+from .fine_tuned_scorer_response import FineTunedScorerResponse
 from .generated_scorer_action import GeneratedScorerAction
 from .generated_scorer_configuration import GeneratedScorerConfiguration
 from .generated_scorer_response import GeneratedScorerResponse
+from .generated_scorer_validation_response import GeneratedScorerValidationResponse
 from .generation_response import GenerationResponse
 from .get_projects_paginated_response import GetProjectsPaginatedResponse
 from .get_projects_paginated_response_v2 import GetProjectsPaginatedResponseV2
@@ -344,6 +355,7 @@ from .log_records_date_filter import LogRecordsDateFilter
 from .log_records_date_filter_operator import LogRecordsDateFilterOperator
 from .log_records_export_request import LogRecordsExportRequest
 from .log_records_id_filter import LogRecordsIDFilter
+from .log_records_id_filter_operator import LogRecordsIDFilterOperator
 from .log_records_metrics_query_request import LogRecordsMetricsQueryRequest
 from .log_records_metrics_response import LogRecordsMetricsResponse
 from .log_records_metrics_response_aggregate_metrics import LogRecordsMetricsResponseAggregateMetrics
@@ -367,6 +379,7 @@ from .log_trace_update_response import LogTraceUpdateResponse
 from .log_traces_ingest_request import LogTracesIngestRequest
 from .log_traces_ingest_response import LogTracesIngestResponse
 from .logging_method import LoggingMethod
+from .manual_llm_validate_scorers_llm_validate_post_body import ManualLlmValidateScorersLlmValidatePostBody
 from .message import Message
 from .message_role import MessageRole
 from .messages_list_item import MessagesListItem
@@ -388,9 +401,11 @@ from .metric_pending import MetricPending
 from .metric_success import MetricSuccess
 from .metric_threshold import MetricThreshold
 from .metrics import Metrics
+from .metrics_testing_available_columns_request import MetricsTestingAvailableColumnsRequest
 from .model import Model
 from .model_cost_by import ModelCostBy
 from .model_type import ModelType
+from .name import Name
 from .node_name_filter import NodeNameFilter
 from .node_name_filter_operator import NodeNameFilterOperator
 from .node_type import NodeType
@@ -468,6 +483,7 @@ from .protect_request_headers_type_0 import ProtectRequestHeadersType0
 from .protect_request_metadata_type_0 import ProtectRequestMetadataType0
 from .protect_response import ProtectResponse
 from .query_dataset_params import QueryDatasetParams
+from .recompute_log_records_metrics_request import RecomputeLogRecordsMetricsRequest
 from .recompute_settings_log_stream import RecomputeSettingsLogStream
 from .recompute_settings_observe import RecomputeSettingsObserve
 from .recompute_settings_project import RecomputeSettingsProject
@@ -576,6 +592,8 @@ from .user_collaborator_create import UserCollaboratorCreate
 from .user_db import UserDB
 from .user_info import UserInfo
 from .user_role import UserRole
+from .validate_llm_scorer_log_record_request import ValidateLLMScorerLogRecordRequest
+from .validate_llm_scorer_log_record_response import ValidateLLMScorerLogRecordResponse
 from .validation_error import ValidationError
 from .workflow_span import WorkflowSpan
 from .workflow_span_dataset_metadata import WorkflowSpanDatasetMetadata
@@ -603,6 +621,7 @@ __all__ = (
     "ApiKeyAction",
     "ApiKeyLoginRequest",
     "AuthMethod",
+    "BaseFinetunedScorerDB",
     "BaseGeneratedScorerDB",
     "BasePromptTemplateResponse",
     "BasePromptTemplateVersion",
@@ -640,7 +659,9 @@ __all__ = (
     "ContextAdherenceScorer",
     "ContextAdherenceScorerType",
     "ContextRelevanceScorer",
+    "CoreScorerName",
     "CorrectnessScorer",
+    "CreateCustomLunaScorerVersionRequest",
     "CreateJobRequest",
     "CreateJobResponse",
     "CreateLLMScorerAutogenRequest",
@@ -697,6 +718,7 @@ __all__ = (
     "DatasetAction",
     "DatasetAppendRow",
     "DatasetAppendRowValues",
+    "DatasetAppendRowValuesAdditionalPropertyType3",
     "DatasetContent",
     "DatasetContentFilter",
     "DatasetContentFilterOperator",
@@ -717,6 +739,7 @@ __all__ = (
     "DatasetNameSort",
     "DatasetPrependRow",
     "DatasetPrependRowValues",
+    "DatasetPrependRowValuesAdditionalPropertyType3",
     "DatasetProject",
     "DatasetProjectLastUsedAtSort",
     "DatasetProjectsSort",
@@ -724,9 +747,12 @@ __all__ = (
     "DatasetRowMetadata",
     "DatasetRowsSort",
     "DatasetRowValuesDict",
+    "DatasetRowValuesDictAdditionalPropertyType3",
+    "DatasetRowValuesItemType3",
     "DatasetUpdatedAtSort",
     "DatasetUpdateRow",
     "DatasetUpdateRowValues",
+    "DatasetUpdateRowValuesAdditionalPropertyType3",
     "DatasetUsedInProjectFilter",
     "DatasetVersionDB",
     "DatasetVersionIndexSort",
@@ -748,6 +774,7 @@ __all__ = (
     "ExperimentResponse",
     "ExperimentResponseAggregateFeedback",
     "ExperimentResponseAggregateMetrics",
+    "ExperimentResponseTags",
     "ExperimentsAvailableColumnsResponse",
     "ExperimentUpdateRequest",
     "ExtendedAgentSpanRecord",
@@ -813,9 +840,11 @@ __all__ = (
     "FewShotExample",
     "FineTunedScorer",
     "FineTunedScorerAction",
+    "FineTunedScorerResponse",
     "GeneratedScorerAction",
     "GeneratedScorerConfiguration",
     "GeneratedScorerResponse",
+    "GeneratedScorerValidationResponse",
     "GenerationResponse",
     "GetProjectsPaginatedResponse",
     "GetProjectsPaginatedResponseV2",
@@ -885,6 +914,7 @@ __all__ = (
     "LogRecordsDateFilterOperator",
     "LogRecordsExportRequest",
     "LogRecordsIDFilter",
+    "LogRecordsIDFilterOperator",
     "LogRecordsMetricsQueryRequest",
     "LogRecordsMetricsResponse",
     "LogRecordsMetricsResponseAggregateMetrics",
@@ -907,6 +937,7 @@ __all__ = (
     "LogTracesIngestResponse",
     "LogTraceUpdateRequest",
     "LogTraceUpdateResponse",
+    "ManualLlmValidateScorersLlmValidatePostBody",
     "Message",
     "MessageRole",
     "MessagesListItem",
@@ -926,11 +957,13 @@ __all__ = (
     "MetricNotComputed",
     "MetricPending",
     "Metrics",
+    "MetricsTestingAvailableColumnsRequest",
     "MetricSuccess",
     "MetricThreshold",
     "Model",
     "ModelCostBy",
     "ModelType",
+    "Name",
     "NodeNameFilter",
     "NodeNameFilterOperator",
     "NodeType",
@@ -1008,6 +1041,7 @@ __all__ = (
     "ProtectRequestMetadataType0",
     "ProtectResponse",
     "QueryDatasetParams",
+    "RecomputeLogRecordsMetricsRequest",
     "RecomputeSettingsLogStream",
     "RecomputeSettingsObserve",
     "RecomputeSettingsProject",
@@ -1116,6 +1150,8 @@ __all__ = (
     "UserDB",
     "UserInfo",
     "UserRole",
+    "ValidateLLMScorerLogRecordRequest",
+    "ValidateLLMScorerLogRecordResponse",
     "ValidationError",
     "WorkflowSpan",
     "WorkflowSpanDatasetMetadata",

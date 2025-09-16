@@ -1,5 +1,4 @@
 from collections.abc import Sequence
-from os import getenv
 from typing import Optional, Union
 
 from pydantic import UUID4
@@ -22,34 +21,26 @@ from galileo_core.schemas.protect.stage import StageDB, StageType, StageWithRule
 from galileo_core.utils.name import ts_name
 
 
-def _get_project_id(
-    project_id: Optional[Union[str, UUID4]] = None,
-    project_name: Optional[str] = None,
-    config: Optional[GalileoPythonConfig] = None,
+def _get_validated_project_id(
+    project_id: Optional[Union[str, UUID4]] = None, project_name: Optional[str] = None
 ) -> str:
     """
     Resolves project ID from either project_id or project_name.
     """
-    if project_id:
-        return str(project_id)
+    # If the project Id is a UUID4, convert to string.
+    if project_id is not None and type(project_id).__name__ == "UUID":
+        project_id = str(project_id)
 
-    # Load the project name from environment variable if not provided
-    project_name = project_name if project_name else getenv("GALILEO_PROJECT")
-
-    if project_name:
-        project = Projects().get(name=project_name)
-        if not project:
-            raise ValueError(f"Project with name '{project_name}' not found.")
-        return str(project.id)
-
-    raise ValueError("Either project_id or project_name must be provided.")
+    project = Projects().get_with_env_fallbacks(name=project_name, id=project_id)
+    if not project:
+        raise ValueError(f"Project with name '{project_name}' not found.")
+    return str(project.id)
 
 
 def _get_stage_id(
     stage_id: Optional[Union[str, UUID4]] = None,
     stage_name: Optional[str] = None,
     project_id: Optional[Union[str, UUID4]] = None,
-    config: Optional[GalileoPythonConfig] = None,
 ) -> str:
     """
     Resolves stage ID from either stage_id or stage_name.
@@ -82,7 +73,7 @@ class Stages(DecorateAllMethods):
         prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
         description: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name)
+        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
         actual_name = name or ts_name("stage")
 
@@ -114,7 +105,7 @@ class Stages(DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name)
+        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
         if not stage_id and not stage_name:
             raise ValueError("Either stage_id or stage_name must be provided.")
@@ -137,7 +128,7 @@ class Stages(DecorateAllMethods):
         stage_name: Optional[str] = None,
         prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name)
+        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
         actual_stage_id: str = _get_stage_id(stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id)
 
@@ -162,7 +153,7 @@ class Stages(DecorateAllMethods):
         stage_name: Optional[str] = None,
     ) -> StageDB:
         """Sets the pause state of a stage."""
-        actual_project_id: str = _get_project_id(project_id=project_id, project_name=project_name)
+        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
         actual_stage_id: str = _get_stage_id(stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id)
 

@@ -1,4 +1,3 @@
-import logging
 import uuid
 from typing import Optional
 from unittest.mock import ANY, Mock, patch
@@ -6,7 +5,6 @@ from unittest.mock import ANY, Mock, patch
 import pytest
 from pydantic import UUID4
 
-from galileo.projects import Project
 from galileo.resources.models import HTTPValidationError
 from galileo.resources.models.stage_db import StageDB as APIStageDB
 from galileo.stages import (
@@ -70,14 +68,14 @@ def _core_stage_db_factory(
 def _patch_common_modules():
     """Patch common external deps once for the whole module."""
     with patch("galileo.stages.Projects") as proj_patch:
-        proj_patch.return_value.get.return_value.id = str(FIXED_PROJECT_ID)
+        proj_patch.return_value.get_with_env_fallbacks.return_value.id = str(FIXED_PROJECT_ID)
         yield
 
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 @patch("galileo.stages.ts_name", return_value="auto-name")
 def test_create_stage_happy_path(mock_ts_name: Mock, mock_api: Mock):
-    """Smoke‑test: minimal args produce StageDB and correct API call."""
+    """Smoke-test: minimal args produce StageDB and correct API call."""
     mock_api.return_value = _api_stage_db_factory(name="auto-name")
 
     stage = create_protect_stage(project_id=FIXED_PROJECT_ID, pause=False)
@@ -111,44 +109,6 @@ def test_create_stage_generates_name_and_type(mock_ts_name: Mock, mock_api: Mock
     assert body.type_ == StageType.central
     assert stage.type == StageType.central.value
     assert stage.paused is True
-
-
-@patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
-@patch("galileo.projects.get_projects_projects_get.sync_detailed")
-def test_create_stage_loads_project_from_env(mock_get_project: Mock, mock_api: Mock):
-    """If no project_id or name is provided, it should load the project name from env."""
-    with patch.dict("os.environ", {"GALILEO_PROJECT": "test_project"}):
-        mock_api.return_value = None
-
-        rulesets = [Ruleset(rules=[Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")])]
-        stage_name = "test-central-stage-with-rules"
-
-        project = Project()
-        project.id = str(FIXED_PROJECT_ID)
-        mock_get_project.return_value = project
-
-        _ = create_protect_stage(name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central)
-
-        mock_api.assert_called_once()
-        api_call_args = mock_api.call_args.kwargs
-        body = api_call_args["body"]
-
-        assert body.project_id == str(FIXED_PROJECT_ID)
-
-
-def test_create_stage_returns_none_if_no_project_id(caplog):
-    """If no project_id or name is provided, it should load the project name from env."""
-    # Clear the Galileo_PROJECT environment variable to avoid conflicts
-    with patch.dict("os.environ", {"GALILEO_PROJECT": ""}):
-        caplog.set_level(logging.WARNING)
-
-        rulesets = [Ruleset(rules=[Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")])]
-        stage_name = "test-central-stage-with-rules"
-
-        stage = create_protect_stage(name=stage_name, prioritized_rulesets=rulesets, stage_type=StageType.central)
-        assert stage is None, "Expected create_stage to return None when no project_id is provided."
-
-        assert "Either project_id or project_name must be provided." in caplog.text
 
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
@@ -197,14 +157,14 @@ def test_get_stage_by_id(mock_api: Mock):
 @patch("galileo.stages.Projects")
 def test_get_stage_by_names(mock_projects_cls: Mock, mock_api: Mock):
     proj_inst = Mock()
-    proj_inst.get.return_value.id = str(FIXED_PROJECT_ID)
+    proj_inst.get_with_env_fallbacks.return_value.id = str(FIXED_PROJECT_ID)
     mock_projects_cls.return_value = proj_inst
 
     mock_api.return_value = _api_stage_db_factory(stage_id=FIXED_STAGE_ID, name="named-stage")
 
     stage = get_protect_stage(project_name="proj", stage_name="named-stage")
 
-    proj_inst.get.assert_called_once_with(name="proj")
+    proj_inst.get_with_env_fallbacks.assert_called_once_with(id=None, name="proj")
     mock_api.assert_called_once_with(
         project_id=str(FIXED_PROJECT_ID), stage_name="named-stage", stage_id=ANY, client=ANY
     )
@@ -237,7 +197,7 @@ def test_update_stage_rulesets(mock_get: Mock, mock_api: Mock):
 @patch("galileo.stages.Projects")
 def test_update_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api: Mock):
     proj_inst = Mock()
-    proj_inst.get.return_value.id = str(FIXED_PROJECT_ID)
+    proj_inst.get_with_env_fallbacks.return_value.id = str(FIXED_PROJECT_ID)
     mock_projects_cls.return_value = proj_inst
 
     mock_get.return_value = _core_stage_db_factory(stage_id=FIXED_STAGE_ID, name="named-stage")
@@ -245,7 +205,7 @@ def test_update_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api
 
     stage = update_protect_stage(project_name="proj", stage_name="named-stage", prioritized_rulesets=[])
 
-    proj_inst.get.assert_called_once_with(name="proj")
+    proj_inst.get_with_env_fallbacks.assert_called_once_with(id=None, name="proj")
     mock_get.assert_called_once_with(project_id=str(FIXED_PROJECT_ID), stage_name="named-stage")
     mock_api.assert_called_once()
     assert stage.version == 3
@@ -271,7 +231,7 @@ def test_pause_and_resume_by_id(mock_get: Mock, mock_api: Mock, pause_flag, api_
 @patch("galileo.stages.Projects")
 def test_pause_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api: Mock):
     proj_inst = Mock()
-    proj_inst.get.return_value.id = str(FIXED_PROJECT_ID)
+    proj_inst.get_with_env_fallbacks.return_value.id = str(FIXED_PROJECT_ID)
     mock_projects_cls.return_value = proj_inst
 
     mock_get.return_value = _core_stage_db_factory(stage_id=FIXED_STAGE_ID, name="named-stage", paused=False)
@@ -279,7 +239,7 @@ def test_pause_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api:
 
     stage = pause_protect_stage(project_name="proj", stage_name="named-stage")
 
-    proj_inst.get.assert_called_once_with(name="proj")
+    proj_inst.get_with_env_fallbacks.assert_called_once_with(id=None, name="proj")
     mock_get.assert_called_once_with(project_id=str(FIXED_PROJECT_ID), stage_name="named-stage")
     mock_api.assert_called_once_with(
         project_id=str(FIXED_PROJECT_ID), stage_id=str(FIXED_STAGE_ID), pause=True, client=ANY
