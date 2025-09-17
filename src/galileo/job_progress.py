@@ -1,7 +1,6 @@
 import logging
 import random
 from time import sleep
-from typing import Optional
 
 from pydantic import UUID4
 from tqdm.auto import tqdm
@@ -12,7 +11,7 @@ from galileo.resources.api.jobs import (
     get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get,
 )
 from galileo.resources.models import HTTPValidationError, JobDB
-from galileo_core.constants.job import JobStatus
+from galileo_core.constants.job import JobName, JobStatus
 from galileo_core.constants.scorers import Scorers
 
 _logger = logging.getLogger(__name__)
@@ -43,12 +42,10 @@ def get_run_scorer_jobs(project_id: UUID4, run_id: UUID4) -> list[JobDB]:
 
     _logger.info(f"Scorer jobs: {response}")
 
-    # TODO Source (rungalileo-dev): Authorization error accessing https://us-python.pkg.dev/rungalileo-dev/rungalileo/simple/rungalileo/
-    # from rungalileo.schemas.content.jobs import JobName
-    return [job for job in response if job.job_name == "log_stream_scorer"]
+    return [job for job in response if job.job_name == JobName.log_stream_scorer]
 
 
-def scorer_jobs_status(project_id: Optional[UUID4] = None, run_id: Optional[UUID4] = None) -> None:
+def scorer_jobs_status(project_id: UUID4 = None, run_id: UUID4 = None) -> None:
     """Gets the status of all scorer jobs for a given project and run.
 
     Args:
