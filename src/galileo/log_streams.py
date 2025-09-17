@@ -14,8 +14,8 @@ from galileo.resources.models.log_stream_create_request import LogStreamCreateRe
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.resources.models.scorer_config import ScorerConfig
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
-from galileo.scorers import Scorers, ScorerSettings
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.metrics import create_metric_configs
 
 
 class LogStream(LogStreamResponse):
@@ -82,14 +82,14 @@ class LogStream(LogStreamResponse):
     # export GALILEO_PROJECT="My AI Project"
 
     # Clean and simple - just pass the metrics!
-    scorer_configs, local_metrics = enable_metrics([
+    local_metrics = enable_metrics([
         GalileoScorers.correctness,
         GalileoScorers.completeness,
         "context_relevance"
     ])
 
     # Alternative: Use explicit parameters
-    scorer_configs, local_metrics = enable_metrics(
+    local_metrics = enable_metrics(
         log_stream_name="Production Logs",
         project_name="My AI Project",
         metrics=["correctness", "completeness"]
@@ -120,7 +120,7 @@ class LogStream(LogStreamResponse):
 
     def enable_metrics(
         self, metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]
-    ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
+    ) -> builtins.list[LocalMetricConfig]:
         """
         Enable metrics directly on this log stream instance.
 
@@ -145,13 +145,10 @@ class LogStream(LogStreamResponse):
 
         Returns
         -------
-        tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]
-            A tuple containing two lists:
-
-            - **ScorerConfig list**: Server-side metrics registered with Galileo that will be
-              computed automatically on the platform
-            - **LocalMetricConfig list**: Client-side metrics that must be computed locally
-              and sent to Galileo separately
+        builtins.list[LocalMetricConfig]
+            List of local metric configurations that must be computed client-side.
+            Server-side metrics are automatically registered with Galileo and don't
+            need to be returned since users don't interact with them.
 
         Raises
         ------
@@ -176,14 +173,15 @@ class LogStream(LogStreamResponse):
             log_stream = log_streams.get(name="Production Logs", project_name="My AI Project")
 
             # Enable metrics directly - clean and intuitive!
-            scorer_configs, local_metrics = log_stream.enable_metrics([
+            local_metrics = log_stream.enable_metrics([
                 GalileoScorers.correctness,
                 GalileoScorers.completeness,
                 "context_relevance",
                 "toxicity"
             ])
 
-            print(f"Enabled {len(scorer_configs)} server-side metrics")
+            print(f"Server-side metrics enabled automatically")
+            print(f"Need to process {len(local_metrics)} local metrics")
 
         Advanced usage with custom metrics:
 
@@ -194,12 +192,16 @@ class LogStream(LogStreamResponse):
             def custom_scorer(trace_or_span):
                 return 0.75  # Your scoring logic
 
-            scorer_configs, local_metrics = log_stream.enable_metrics([
+            local_metrics = log_stream.enable_metrics([
                 GalileoScorers.correctness,
                 "completeness",
                 Metric(name="domain_relevance", version=3),
                 LocalMetricConfig(name="custom_metric", scorer_fn=custom_scorer)
             ])
+
+            # Process local metrics if any
+            for local_metric in local_metrics:
+                print(f"Need to process local metric: {local_metric.name}")
 
         Notes
         -----
@@ -217,7 +219,8 @@ class LogStream(LogStreamResponse):
         if not hasattr(self, "id") or not hasattr(self, "project_id"):
             raise ValueError("Log stream must have id and project_id to enable metrics")
 
-        return LogStreams.create_metric_configs(self.project_id, self.id, metrics)
+        _, local_metrics = LogStreams.create_metric_configs(self.project_id, self.id, metrics)
+        return local_metrics
 
 
 class LogStreams(BaseClientModel, DecorateAllMethods):
@@ -407,7 +410,7 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
         log_stream_name: Optional[str] = None,
         project_name: Optional[str] = None,
         metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]],
-    ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
+    ) -> builtins.list[LocalMetricConfig]:
         """
         Enable metrics for a log stream by configuring scorers.
 
@@ -495,7 +498,8 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
             raise ValueError(f"Log stream '{log_stream_name}' not found in project '{project_obj.name}'")
 
         # Use the same logic as experiments to create metric configurations
-        return self.create_metric_configs(project_obj.id, log_stream.id, metrics)
+        _, local_metrics = LogStreams.create_metric_configs(project_obj.id, log_stream.id, metrics)
+        return local_metrics
 
     @staticmethod
     def create_metric_configs(
@@ -503,189 +507,8 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
         log_stream_id: str,
         metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]],
     ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
-        """
-        Create and configure metric settings for a log stream.
-
-        This method processes a heterogeneous list of metrics and creates the appropriate
-        configurations for both server-side (Galileo-hosted) and client-side (local) metrics.
-        It handles the full spectrum of metric types supported by the Galileo platform and
-        automatically registers server-side metrics with the Galileo backend.
-
-        The method performs several key operations:
-        1. Categorizes metrics into server-side and client-side types
-        2. Validates that all specified metrics exist and are available
-        3. Retrieves metric definitions and versions from the Galileo platform
-        4. Creates scorer configurations and registers them with the log stream
-        5. Returns both server-side configs and local metric configs for processing
-
-        Parameters
-        ----------
-        project_id : str
-            The unique identifier of the Galileo project containing the target log stream.
-        log_stream_id : str
-            The unique identifier of the log stream to configure metrics for. This ID
-            is used as the run_id when creating scorer settings in Galileo.
-        metrics : builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]
-            A heterogeneous list of metrics to configure, supporting multiple input formats:
-
-            - **GalileoScorers enum values**: Built-in metrics like `GalileoScorers.correctness`
-            - **Metric objects**: Custom metrics with optional version specifications
-            - **LocalMetricConfig objects**: Client-side metrics with custom scoring functions
-            - **String names**: Built-in metric names like "correctness" or "toxicity"
-
-        Returns
-        -------
-        tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]
-            A tuple containing two lists:
-
-            - **ScorerConfig list**: Configurations for server-side metrics that have been
-              registered with Galileo and will be computed automatically on the platform
-            - **LocalMetricConfig list**: Configurations for client-side metrics that must
-              be computed locally using the provided scoring functions
-
-        Raises
-        ------
-        ValueError
-            - If any specified metrics are unknown or unavailable on the Galileo platform
-            - If there are issues with metric version specifications
-            - If scorer configuration or registration fails
-        TypeError
-            If any metrics in the input list are of an unsupported type
-        GalileoHTTPException
-            If there are network or API errors when communicating with Galileo services
-
-        Examples
-        --------
-        Basic usage with built-in metrics:
-
-        .. code-block:: python
-
-            from galileo.log_streams import LogStreams
-            from galileo.schema.metrics import GalileoScorers
-
-            scorers, locals = LogStreams.create_metric_configs(
-                project_id="proj-123",
-                log_stream_id="stream-456",
-                metrics=[
-                    GalileoScorers.correctness,
-                    GalileoScorers.completeness,
-                    "context_relevance"  # String format also supported
-                ]
-            )
-            print(f"Configured {len(scorers)} server-side metrics")
-
-        Advanced usage with mixed metric types:
-
-        .. code-block:: python
-
-            from galileo.schema.metrics import Metric, LocalMetricConfig
-            from galileo_core.schemas.logging.step import StepType
-
-            def response_quality_scorer(trace_or_span):
-                '''Custom metric evaluating response quality'''
-                # Custom scoring logic here
-                return 0.85
-
-            scorers, locals = LogStreams.create_metric_configs(
-                project_id="proj-123",
-                log_stream_id="stream-456",
-                metrics=[
-                    # Built-in Galileo metrics
-                    GalileoScorers.correctness,
-                    "toxicity",
-
-                    # Custom metric with specific version
-                    Metric(name="custom_relevance", version=2),
-
-                    # Local client-side metric
-                    LocalMetricConfig(
-                        name="response_quality",
-                        scorer_fn=response_quality_scorer,
-                        scorable_types=[StepType.llm],
-                        aggregatable_types=[StepType.trace]
-                    )
-                ]
-            )
-
-            print(f"Server-side metrics: {len(scorers)}")
-            print(f"Local metrics: {len(locals)}")
-
-            # Local metrics need to be processed by your application
-            for local_metric in locals:
-                print(f"Local metric '{local_metric.name}' ready for client-side processing")
-
-        Notes
-        -----
-        **Metric Processing Workflow:**
-
-        - **Server-side metrics** (GalileoScorers, Metric, strings) are automatically
-          processed by Galileo's infrastructure and results are available in the platform
-        - **Client-side metrics** (LocalMetricConfig) require local computation using
-          the provided scorer functions and must be sent to Galileo separately
-
-        **Version Handling:**
-
-        - Built-in metrics use their latest available version by default
-        - Custom Metric objects can specify explicit versions for reproducibility
-        - Version validation occurs against available scorer versions in Galileo
-
-        **Error Handling:**
-
-        - Unknown metric names are caught and reported with detailed error messages
-        - Network failures and API errors are propagated with full context
-        - Partial failures (some metrics succeed) are not supported - all must succeed
-
-        **Performance Considerations:**
-
-        - The method makes API calls to validate metrics and retrieve configurations
-        - Results are not cached - repeated calls will make fresh API requests
-        - For high-frequency usage, consider caching results at the application level
-        """
-        local_metric_configs: list[LocalMetricConfig] = []
-        scorer_name_versions: list[tuple[str, Optional[int]]] = []
-
-        for metric in metrics:
-            if isinstance(metric, GalileoScorers):
-                scorer_name_versions.append((metric.value, None))
-            elif isinstance(metric, Metric):
-                scorer_name_versions.append((metric.name, metric.version))
-            elif isinstance(metric, LocalMetricConfig):
-                local_metric_configs.append(metric)
-            elif isinstance(metric, str):
-                scorer_name_versions.append((metric, None))
-            else:
-                raise ValueError(f"Unknown metric type: {type(metric)}")
-
-        scorers: list[ScorerConfig] = []
-        if scorer_name_versions:
-            all_scorers = Scorers().list()
-            known_metrics = {metric.name: metric for metric in all_scorers}
-            unknown_metrics = []
-
-            for scorer_name, scorer_version in scorer_name_versions:
-                if scorer_name in known_metrics:
-                    raw_metric_dict = known_metrics[scorer_name].to_dict()
-
-                    # Set the version on the ScorerConfig if provided
-                    if scorer_version is not None:
-                        raw_version = Scorers().get_scorer_version(
-                            scorer_id=raw_metric_dict["id"], version=scorer_version
-                        )
-                        raw_metric_dict["scorer_version"] = raw_version.to_dict()
-                    scorers.append(ScorerConfig.from_dict(raw_metric_dict))
-                else:
-                    unknown_metrics.append(scorer_name)
-
-            if unknown_metrics:
-                raise ValueError(
-                    "One or more non-existent metrics are specified: "
-                    + ", ".join(f"'{metric}'" for metric in unknown_metrics)
-                )
-
-            # Configure the scorers for the log stream using the log_stream_id as run_id
-            ScorerSettings().create(project_id=project_id, run_id=log_stream_id, scorers=scorers)
-
-        return scorers, local_metric_configs
+        """Internal helper to process metrics and create scorer configurations using shared utility."""
+        return create_metric_configs(project_id, log_stream_id, metrics)
 
 
 #
@@ -782,7 +605,7 @@ def enable_metrics(
     log_stream_name: Optional[str] = None,
     project_name: Optional[str] = None,
     metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]],
-) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
+) -> builtins.list[LocalMetricConfig]:
     """
     Enable metrics for a log stream with flexible parameter and environment variable support.
 
@@ -818,10 +641,10 @@ def enable_metrics(
 
     Returns
     -------
-    tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]
-        A tuple containing:
-        - List of ScorerConfig objects for server-side metrics configured in Galileo
-        - List of LocalMetricConfig objects for client-side metrics to process locally
+    builtins.list[LocalMetricConfig]
+        List of local metric configurations that must be computed client-side.
+        Server-side metrics are automatically registered with Galileo and don't
+        need to be returned since users don't interact with them.
 
     Raises
     ------
@@ -838,25 +661,26 @@ def enable_metrics(
     from galileo.log_streams import enable_metrics
     from galileo.schema.metrics import GalileoScorers
 
-    scorer_configs, local_metrics = enable_metrics(
-        log_stream_name="Production Logs",
-        project_name="My AI Project",
-        metrics=[
-            GalileoScorers.correctness,
-            GalileoScorers.completeness,
-            "context_relevance",
-            "instruction_adherence"
-        ]
-    )
-    print(f"Enabled {len(scorer_configs)} server-side metrics")
-    print(f"Configured {len(local_metrics)} local metrics")
+        local_metrics = enable_metrics(
+            log_stream_name="Production Logs",
+            project_name="My AI Project",
+            metrics=[
+                GalileoScorers.correctness,
+                GalileoScorers.completeness,
+                "context_relevance",
+                "instruction_adherence"
+            ]
+        )
+        print("Server-side metrics enabled automatically")
+        print(f"Need to process {len(local_metrics)} local metrics")
 
     # Enable metrics using environment variables only
     # export GALILEO_LOG_STREAM="Production Logs"
     # export GALILEO_PROJECT="My AI Project"
-    scorer_configs, local_metrics = enable_metrics(
-        metrics=["correctness", "completeness", "toxicity"]
-    )
+        local_metrics = enable_metrics(
+            metrics=["correctness", "completeness", "toxicity"]
+        )
+        print(f"Need to process {len(local_metrics)} local metrics")
 
     # Enable custom and local metrics with environment variable fallbacks
     from galileo.schema.metrics import Metric, LocalMetricConfig
@@ -869,25 +693,29 @@ def enable_metrics(
         return 0.0
 
     # export GALILEO_PROJECT="My AI Project"
-    scorer_configs, local_metrics = enable_metrics(
-        log_stream_name="Development Logs",  # Explicit log stream name
-        # project_name automatically loaded from GALILEO_PROJECT env var
-        metrics=[
-            # Built-in metrics
-            GalileoScorers.correctness,
-            "toxicity",
+        local_metrics = enable_metrics(
+            log_stream_name="Development Logs",  # Explicit log stream name
+            # project_name automatically loaded from GALILEO_PROJECT env var
+            metrics=[
+                # Built-in metrics
+                GalileoScorers.correctness,
+                "toxicity",
 
-            # Custom metric with specific version
-            Metric(name="my_custom_metric", version=2),
+                # Custom metric with specific version
+                Metric(name="my_custom_metric", version=2),
 
-            # Local custom metric
-            LocalMetricConfig(
-                name="response_length",
-                scorer_fn=response_length_scorer,
-                scorable_types=[StepType.llm],
-                aggregatable_types=[StepType.trace]
-            )
-        ]
-    )
+                # Local custom metric
+                LocalMetricConfig(
+                    name="response_length",
+                    scorer_fn=response_length_scorer,
+                    scorable_types=[StepType.llm],
+                    aggregatable_types=[StepType.trace]
+                )
+            ]
+        )
+
+        # Process local metrics
+        for local_metric in local_metrics:
+            print(f"Process local metric: {local_metric.name}")
     """
     return LogStreams().enable_metrics(log_stream_name=log_stream_name, project_name=project_name, metrics=metrics)

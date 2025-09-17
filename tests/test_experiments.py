@@ -415,9 +415,8 @@ class TestExperiments:
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
-    @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
-    @patch.object(galileo.experiments.Scorers, "get_scorer_version", return_value=mock_scorer_version_response())
-    @patch.object(galileo.experiments.ScorerSettings, "create")
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
     @pytest.mark.parametrize("thread_pool", [True, False])
     @pytest.mark.parametrize(
         ["function", "metrics", "num_spans", "span_type", "results", "aggregate_results"],
@@ -564,8 +563,8 @@ class TestExperiments:
         assert num_spans == sum(check_span(span) for span in trace.spans)
 
     @travel(datetime(2012, 1, 1), tick=False)
-    @patch.object(galileo.experiments.ScorerSettings, "create")
-    @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
+    @patch("galileo.utils.metrics.ScorerSettings")
+    @patch("galileo.utils.metrics.Scorers")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -763,9 +762,9 @@ class TestExperiments:
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
-    @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
-    @patch.object(galileo.experiments.Scorers, "get_scorer_version", return_value=mock_scorer_version_response())
-    @patch.object(galileo.experiments.ScorerSettings, "create", return_value=None)
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
     def test_run_experiment_with_local_scorers_and_prompt_template(
         self,
         mock_scorer_settings_create: Mock,
@@ -798,7 +797,7 @@ class TestExperiments:
             == "Local metrics can only be used with a locally run experiment, not a prompt experiment."
         )
 
-    @patch("galileo.experiments.Scorers")
+    @patch("galileo.utils.metrics.Scorers")
     @patch("galileo.experiments.ScorerSettings")
     def test_create_scorer_configs(self, mock_scorer_settings, mock_scorers):
         # Setup mock return values
@@ -819,7 +818,7 @@ class TestExperiments:
         with pytest.raises(ValueError):
             Experiments.create_metric_configs("project_id", "experiment_id", ["unknown_metric"])
 
-    @patch("galileo.experiments.Scorers")
+    @patch("galileo.utils.metrics.Scorers")
     @patch("galileo.experiments.ScorerSettings")
     def test_create_scorer_configs_with_metric_objects(self, mock_scorer_settings, mock_scorers):
         # Setup mock return values

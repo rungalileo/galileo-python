@@ -69,13 +69,15 @@ def mock_scorers():
 class TestLogStreamMetrics:
     """Test cases for log stream metrics functionality."""
 
-    @patch("galileo.log_streams.Scorers")
-    @patch("galileo.log_streams.ScorerSettings")
-    def test_create_metric_configs_with_builtin_metrics(self, mock_scorer_settings, mock_scorers_class, mock_scorers):
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_create_metric_configs_with_builtin_metrics(
+        self, mock_scorer_settings_class, mock_scorers_class, mock_scorers
+    ):
         """Test create_metric_configs with built-in Galileo scorers."""
         # Setup mocks
         mock_scorers_class.return_value.list.return_value = mock_scorers
-        mock_scorer_settings.return_value.create.return_value = None
+        mock_scorer_settings_class.return_value.create.return_value = None
 
         # Test with built-in metrics
         scorers, local_metrics = LogStreams.create_metric_configs(
@@ -86,15 +88,15 @@ class TestLogStreamMetrics:
         mock_scorers_class.return_value.list.assert_called_once()
 
         # Verify scorer settings creation was called
-        mock_scorer_settings.return_value.create.assert_called_once_with(
+        mock_scorer_settings_class.return_value.create.assert_called_once_with(
             project_id="project-123", run_id="logstream-456", scorers=ANY
         )
 
         # Verify no local metrics
         assert len(local_metrics) == 0
 
-    @patch("galileo.log_streams.Scorers")
-    @patch("galileo.log_streams.ScorerSettings")
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
     def test_create_metric_configs_with_local_metrics(self, mock_scorer_settings, mock_scorers_class):
         """Test create_metric_configs with local metric configs."""
         # Setup mocks
@@ -117,13 +119,15 @@ class TestLogStreamMetrics:
         assert local_metrics[0].name == "custom_metric"
         assert len(scorers) == 0
 
-    @patch("galileo.log_streams.Scorers")
-    @patch("galileo.log_streams.ScorerSettings")
-    def test_create_metric_configs_with_mixed_metrics(self, mock_scorer_settings, mock_scorers_class, mock_scorers):
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_create_metric_configs_with_mixed_metrics(
+        self, mock_scorer_settings_class, mock_scorers_class, mock_scorers
+    ):
         """Test create_metric_configs with mixed metric types."""
         # Setup mocks
         mock_scorers_class.return_value.list.return_value = mock_scorers
-        mock_scorer_settings.return_value.create.return_value = None
+        mock_scorer_settings_class.return_value.create.return_value = None
 
         def custom_scorer(trace_or_span):
             return 0.9
@@ -140,7 +144,7 @@ class TestLogStreamMetrics:
         assert local_metrics[0].name == "local_metric"
 
         # Verify scorer settings was called
-        mock_scorer_settings.return_value.create.assert_called_once()
+        mock_scorer_settings_class.return_value.create.assert_called_once()
 
     def test_log_stream_enable_metrics_instance_method(self, mock_log_stream):
         """Test LogStream instance enable_metrics method."""
@@ -148,10 +152,13 @@ class TestLogStreamMetrics:
             mock_create_configs.return_value = ([], [])
 
             # Test instance method
-            scorer_configs, local_metrics = mock_log_stream.enable_metrics(["correctness"])
+            local_metrics = mock_log_stream.enable_metrics(["correctness"])
 
             # Verify create_metric_configs was called with correct parameters
             mock_create_configs.assert_called_once_with(mock_log_stream.project_id, mock_log_stream.id, ["correctness"])
+
+            # Verify return value is just local metrics
+            assert local_metrics == []
 
     def test_log_stream_enable_metrics_missing_ids(self):
         """Test LogStream enable_metrics raises error when IDs are missing."""
@@ -175,7 +182,7 @@ class TestLogStreamMetrics:
 
         # Test with explicit parameters
         log_streams = LogStreams()
-        scorer_configs, local_metrics = log_streams.enable_metrics(
+        local_metrics = log_streams.enable_metrics(
             log_stream_name="Test Log Stream", project_name="Test Project", metrics=["correctness"]
         )
 
@@ -187,6 +194,9 @@ class TestLogStreamMetrics:
 
         # Verify metric config creation
         mock_create_configs.assert_called_once_with(mock_project.id, mock_log_stream.id, ["correctness"])
+
+        # Verify return value is just local metrics
+        assert local_metrics == []
 
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
@@ -207,13 +217,16 @@ class TestLogStreamMetrics:
 
         # Test with environment variables
         log_streams = LogStreams()
-        scorer_configs, local_metrics = log_streams.enable_metrics(metrics=["correctness"])
+        local_metrics = log_streams.enable_metrics(metrics=["correctness"])
 
         # Verify project lookup used env var
         mock_projects_instance.get_with_env_fallbacks.assert_called_once_with(name="Test Project")
 
         # Verify log stream lookup used env var
         mock_get.assert_called_once_with(name="Test Log Stream", project_name=mock_project.name)
+
+        # Verify return value is just local metrics
+        assert local_metrics == []
 
     @patch("galileo.log_streams.Projects")
     def test_logstreams_enable_metrics_project_not_found(self, mock_projects_class):
@@ -252,10 +265,10 @@ class TestLogStreamMetrics:
     @patch.object(LogStreams, "enable_metrics")
     def test_enable_metrics_convenience_function_explicit(self, mock_enable_metrics):
         """Test enable_metrics convenience function with explicit parameters."""
-        mock_enable_metrics.return_value = ([], [])
+        mock_enable_metrics.return_value = []
 
         # Test convenience function with explicit parameters
-        scorer_configs, local_metrics = enable_metrics(
+        local_metrics = enable_metrics(
             log_stream_name="Test Stream", project_name="Test Project", metrics=["correctness"]
         )
 
@@ -264,16 +277,22 @@ class TestLogStreamMetrics:
             log_stream_name="Test Stream", project_name="Test Project", metrics=["correctness"]
         )
 
+        # Verify return value is just local metrics
+        assert local_metrics == []
+
     @patch.object(LogStreams, "enable_metrics")
     def test_enable_metrics_convenience_function_env_only(self, mock_enable_metrics):
         """Test enable_metrics convenience function with environment variables only."""
-        mock_enable_metrics.return_value = ([], [])
+        mock_enable_metrics.return_value = []
 
         # Test environment-only function (no explicit parameters)
-        scorer_configs, local_metrics = enable_metrics(metrics=["correctness"])
+        local_metrics = enable_metrics(metrics=["correctness"])
 
         # Verify it calls the instance method with no explicit params
         mock_enable_metrics.assert_called_once_with(log_stream_name=None, project_name=None, metrics=["correctness"])
+
+        # Verify return value is just local metrics
+        assert local_metrics == []
 
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
@@ -293,7 +312,7 @@ class TestLogStreamMetrics:
         mock_create_configs.return_value = ([], [])
 
         # Test the full integration
-        scorer_configs, local_metrics = enable_metrics(metrics=["correctness", "completeness"])
+        local_metrics = enable_metrics(metrics=["correctness", "completeness"])
 
         # Verify the entire chain was called correctly
         mock_projects_instance.get_with_env_fallbacks.assert_called_once_with(name="Integration Project")
@@ -301,6 +320,9 @@ class TestLogStreamMetrics:
         mock_create_configs.assert_called_once_with(
             mock_project.id, mock_log_stream.id, ["correctness", "completeness"]
         )
+
+        # Verify return value is just local metrics
+        assert local_metrics == []
 
     def test_enable_metrics_missing_env_vars(self):
         """Test enable_metrics handles error when environment variables are missing."""
