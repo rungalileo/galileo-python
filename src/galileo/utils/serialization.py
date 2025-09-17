@@ -113,6 +113,8 @@ class EventSerializer(JSONEncoder):
                     additional_kwargs = dumped.pop("additional_kwargs", {})
                     if "tool_calls" in additional_kwargs:
                         dumped["tool_calls"] = additional_kwargs.pop("tool_calls")
+                    if "reasoning" in additional_kwargs:
+                        dumped["reasoning"] = additional_kwargs.pop("reasoning")
                     return dumped
                 elif isinstance(obj, ToolMessage):
                     # Map the `type` to `role`.
