@@ -30,8 +30,8 @@ from galileo.schema.trace import (
     TracesIngestRequest,
     TraceUpdateRequest,
 )
+from galileo.traces import Traces
 from galileo.utils.catch_log import DecorateAllMethods
-from galileo.utils.core_api_client import GalileoCoreApiClient
 from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
@@ -215,9 +215,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             self._init_log_stream()
 
         if self.log_stream_id:
-            self._client = GalileoCoreApiClient(project_id=self.project_id, log_stream_id=self.log_stream_id)
+            self._traces_client = Traces(project_id=self.project_id, log_stream_id=self.log_stream_id)
         elif self.experiment_id:
-            self._client = GalileoCoreApiClient(project_id=self.project_id, experiment_id=self.experiment_id)
+            self._traces_client = Traces(project_id=self.project_id, experiment_id=self.experiment_id)
 
         if self.trace_id:
             self._init_trace()
@@ -265,7 +265,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Initializes the trace
         """
-        trace_obj = async_run(self._client.get_trace(trace_id=self.trace_id))
+        trace_obj = async_run(self._traces_client.get_trace(trace_id=self.trace_id))
         if trace_obj is None:
             raise GalileoLoggerException(f"Trace {self.trace_id} not found")
 
@@ -280,7 +280,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         """
         Initializes the span
         """
-        span_obj = async_run(self._client.get_span(span_id=self.span_id))
+        span_obj = async_run(self._traces_client.get_span(span_id=self.span_id))
         if span_obj is None:
             raise GalileoLoggerException(f"Span {self.span_id} not found")
 
@@ -342,7 +342,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         @handle_galileo_http_exceptions_for_retry
         async def ingest_traces_with_backoff(request):
-            await self._client.ingest_traces(request)
+            await self._traces_client.ingest_traces(request)
 
         self._task_handler.submit_task(
             task_id, lambda: ingest_traces_with_backoff(traces_ingest_request), dependent_on_prev=False
@@ -385,7 +385,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         @handle_galileo_http_exceptions_for_retry
         async def ingest_spans_with_backoff(request):
-            await self._client.ingest_spans(request)
+            await self._traces_client.ingest_spans(request)
 
         self._task_handler.submit_task(
             task_id, lambda: ingest_spans_with_backoff(spans_ingest_request), dependent_on_prev=False
@@ -423,7 +423,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             )
             @handle_galileo_http_exceptions_for_retry
             async def update_trace_with_backoff(request):
-                await self._client.update_trace(request)
+                await self._traces_client.update_trace(request)
 
             self._task_handler.submit_task(
                 task_id, lambda: update_trace_with_backoff(trace_update_request), dependent_on_prev=True
@@ -460,7 +460,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         @handle_galileo_http_exceptions_for_retry
         async def update_span_with_backoff(request):
-            await self._client.update_span(request)
+            await self._traces_client.update_span(request)
 
         self._task_handler.submit_task(
             task_id, lambda: update_span_with_backoff(span_update_request), dependent_on_prev=True
@@ -1134,7 +1134,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         traces_ingest_request = TracesIngestRequest(
             traces=logged_traces, session_id=self.session_id, experiment_id=self.experiment_id
         )
-        await self._client.ingest_traces(traces_ingest_request)
+        await self._traces_client.ingest_traces(traces_ingest_request)
 
         self._logger.info(f"Successfully flushed {trace_count} {'trace' if trace_count == 1 else 'traces'}.")
 
@@ -1177,7 +1177,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if external_id and external_id.strip() != "":
             self._logger.info(f"Searching for session with external ID: {external_id} ...")
             try:
-                sessions = await self._client.get_sessions(
+                sessions = await self._traces_client.get_sessions(
                     LogRecordsSearchRequest(
                         filters=[
                             LogRecordsSearchFilter(
@@ -1200,7 +1200,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._logger.info("Starting a new session...")
 
-        session = await self._client.create_session(
+        session = await self._traces_client.create_session(
             SessionCreateRequest(name=name, previous_session_id=previous_session_id, external_id=external_id)
         )
 

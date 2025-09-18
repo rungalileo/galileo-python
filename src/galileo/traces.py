@@ -13,12 +13,13 @@ from galileo.schema.trace import (
     TraceUpdateRequest,
 )
 from galileo.utils.headers_data import get_package_version
+from galileo_core.constants.http_headers import HttpHeaders
 from galileo_core.constants.request_method import RequestMethod
 
 _logger = logging.getLogger(__name__)
 
 
-class GalileoCoreApiClient:
+class Traces:
     """
     A class for interacting with the Galileo API using the galileo_core package.
     Currently used by the GalileoLogger to create and upload traces to Galileo.
@@ -55,7 +56,7 @@ class GalileoCoreApiClient:
         files: Optional[dict] = None,
         params: Optional[dict] = None,
     ) -> Any:
-        headers = {"X-Galileo-SDK": f"galileo-python/{get_package_version()} GalileoCoreApiClient"}
+        headers = {"X-Galileo-SDK": f"galileo-python/{get_package_version()} Traces"} | HttpHeaders.json()
 
         return await self.config.api_client.arequest(
             method=request_method,

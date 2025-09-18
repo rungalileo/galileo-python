@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from galileo import Message, MessageRole, galileo_context, log
 from galileo_core.schemas.logging.span import AgentSpan, LlmSpan, RetrieverSpan, ToolSpan, WorkflowSpan
 from galileo_core.schemas.shared.document import Document
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
 @pytest.fixture
@@ -17,11 +17,11 @@ def reset_context():
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_context_reset(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -50,11 +50,11 @@ def test_decorator_context_reset(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_context_init(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -71,11 +71,11 @@ def test_decorator_context_init(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_context_flush(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -92,10 +92,10 @@ def test_decorator_context_flush(
     galileo_context.flush()
 
     # Check if ingest_traces (async) was called instead of ingest_traces
-    if mock_core_api_instance.ingest_traces.call_args is not None:
-        payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    if mock_traces_client_instance.ingest_traces.call_args is not None:
+        payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     else:
-        payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+        payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -105,11 +105,11 @@ def test_decorator_context_flush(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_context_flush_specific_project_and_log_stream(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -135,7 +135,7 @@ def test_decorator_context_flush_specific_project_and_log_stream(
 
     galileo_context.flush(project="project-X", log_stream="log-stream-X")
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -144,7 +144,7 @@ def test_decorator_context_flush_specific_project_and_log_stream(
 
     galileo_context.flush(project="project-Y", log_stream="log-stream-Y")
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -154,11 +154,11 @@ def test_decorator_context_flush_specific_project_and_log_stream(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_context_flush_all(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -201,11 +201,11 @@ def test_decorator_context_flush_all(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_llm_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -216,7 +216,7 @@ def test_decorator_llm_span(
     llm_call(query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -228,11 +228,11 @@ def test_decorator_llm_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_workflow_span_output_int(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -243,7 +243,7 @@ def test_decorator_workflow_span_output_int(
     my_function(1, 2)
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -255,11 +255,11 @@ def test_decorator_workflow_span_output_int(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_workflow_span_io_object(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -272,7 +272,7 @@ def test_decorator_workflow_span_io_object(
     )
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -290,11 +290,11 @@ def test_decorator_workflow_span_io_object(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_tool_span_io_object(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -307,7 +307,7 @@ def test_decorator_tool_span_io_object(
     )
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -325,11 +325,11 @@ def test_decorator_tool_span_io_object(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_agent_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -340,7 +340,7 @@ def test_decorator_agent_span(
     my_function("arg1", "arg2")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -352,11 +352,11 @@ def test_decorator_agent_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_agent_span_with_agent_type(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -367,7 +367,7 @@ def test_decorator_agent_span_with_agent_type(
     my_function("arg1", "arg2")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -380,11 +380,11 @@ def test_decorator_agent_span_with_agent_type(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_agent_span_with_nested_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -399,7 +399,7 @@ def test_decorator_agent_span_with_nested_span(
     my_function("arg1", "arg2")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -417,11 +417,11 @@ def test_decorator_agent_span_with_nested_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_nested_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -436,7 +436,7 @@ def test_decorator_nested_span(
     output = nested_call(nested_query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -452,11 +452,11 @@ def test_decorator_nested_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_multiple_nested_spans(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -473,7 +473,7 @@ def test_decorator_multiple_nested_spans(
     output = nested_call(nested_query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -490,11 +490,11 @@ def test_decorator_multiple_nested_spans(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_retriever_span_str(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -505,7 +505,7 @@ def test_decorator_retriever_span_str(
     retriever_call(query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == '{"query": "input"}'
@@ -514,11 +514,11 @@ def test_decorator_retriever_span_str(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_retriever_span_list_str(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -529,7 +529,7 @@ def test_decorator_retriever_span_list_str(
     retriever_call(query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == '{"query": "input"}'
@@ -541,11 +541,11 @@ def test_decorator_retriever_span_list_str(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_retriever_span_list_dict(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -556,7 +556,7 @@ def test_decorator_retriever_span_list_dict(
     retriever_call(query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == '{"query": "input"}'
@@ -568,11 +568,11 @@ def test_decorator_retriever_span_list_dict(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_retriever_span_list_document(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -583,7 +583,7 @@ def test_decorator_retriever_span_list_document(
     retriever_call(query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == '{"query": "input"}'
@@ -595,11 +595,11 @@ def test_decorator_retriever_span_list_document(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_we_should_create_trace_but_reraise_exception(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -612,7 +612,7 @@ def test_decorator_we_should_create_trace_but_reraise_exception(
 
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -620,11 +620,11 @@ def test_decorator_we_should_create_trace_but_reraise_exception(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_start_session(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -642,18 +642,18 @@ def test_decorator_start_session(
 
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert payload.session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_start_session_empty_values(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -669,18 +669,18 @@ def test_decorator_start_session_empty_values(
 
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert payload.session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_clear_session(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -700,18 +700,18 @@ def test_decorator_clear_session(
 
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert payload.session_id is None
 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_set_session(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -727,18 +727,18 @@ def test_decorator_set_session(
 
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert payload.session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_with_active_trace(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -756,7 +756,7 @@ def test_decorator_with_active_trace(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert payload.traces[0].input == "test input"
     assert payload.traces[0].output == "test output"
@@ -784,12 +784,12 @@ class ComplexPydanticModel(BaseModel):
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_input_serialization_deserialization(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """Test that input is properly serialized and then deserialized back to JSON."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -803,7 +803,7 @@ def test_decorator_input_serialization_deserialization(
     my_function(complex_input=complex_input)
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
 
     # Input should be properly serialized and deserialized JSON
@@ -815,12 +815,12 @@ def test_decorator_input_serialization_deserialization(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_llm_span_list_output_serialization(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """Test that LLM spans with list/tuple outputs are converted to string."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -831,7 +831,7 @@ def test_decorator_llm_span_list_output_serialization(
     llm_call_returning_list(query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
 
     # For LLM spans, list outputs should be converted to string within a Message
@@ -841,12 +841,12 @@ def test_decorator_llm_span_list_output_serialization(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_llm_span_tuple_output_serialization(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """Test that LLM spans with tuple outputs are converted to string."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -857,7 +857,7 @@ def test_decorator_llm_span_tuple_output_serialization(
     llm_call_returning_tuple(query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
 
     # For LLM spans, tuple outputs should be converted to string
@@ -868,12 +868,12 @@ def test_decorator_llm_span_tuple_output_serialization(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_llm_span_dict_output_preserved(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """Test that LLM spans with dict outputs are preserved as JSON."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -884,7 +884,7 @@ def test_decorator_llm_span_dict_output_preserved(
     llm_call_returning_dict(query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
 
     # For LLM spans, dict outputs should be preserved as Message with JSON serialization
@@ -896,12 +896,12 @@ def test_decorator_llm_span_dict_output_preserved(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_workflow_span_complex_output_serialization(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """Test that workflow spans properly serialize complex outputs."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -916,7 +916,7 @@ def test_decorator_workflow_span_complex_output_serialization(
     workflow_with_complex_output(query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
 
     # Workflow spans should serialize complex outputs to string
@@ -927,12 +927,12 @@ def test_decorator_workflow_span_complex_output_serialization(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_pydantic_model_input_serialization(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """Test that Pydantic model inputs are properly serialized."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -944,7 +944,7 @@ def test_decorator_pydantic_model_input_serialization(
     process_model(model=test_model)
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
 
     # Pydantic model should be serialized in input
@@ -956,12 +956,12 @@ def test_decorator_pydantic_model_input_serialization(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_pydantic_model_output_serialization(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """Test that Pydantic model outputs are properly serialized."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -972,7 +972,7 @@ def test_decorator_pydantic_model_output_serialization(
     create_model(name="output_test", value=123)
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
 
     # Pydantic model output should be serialized to string
@@ -983,12 +983,12 @@ def test_decorator_pydantic_model_output_serialization(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_null_output_handling(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """Test that None/null outputs are handled properly."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -999,7 +999,7 @@ def test_decorator_null_output_handling(
     function_returning_none(query="input")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
 
     # None output should be converted to empty string or None (depending on implementation)
@@ -1009,12 +1009,12 @@ def test_decorator_null_output_handling(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_tool_span_output_serialization(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """Test that tool spans properly serialize outputs to string."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1025,7 +1025,7 @@ def test_decorator_tool_span_output_serialization(
     tool_with_complex_output(input_data="test")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
 
     # Tool spans should serialize outputs to string (textual span type)
@@ -1037,12 +1037,12 @@ def test_decorator_tool_span_output_serialization(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_decorator_agent_span_output_serialization(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """Test that agent spans properly serialize outputs to string."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1053,7 +1053,7 @@ def test_decorator_agent_span_output_serialization(
     agent_with_complex_output(query="test query")
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     span = payload.traces[0].spans[0]
 
     # Agent spans should serialize outputs to string (textual span type)

@@ -36,7 +36,7 @@ from galileo.utils.datasets import load_dataset_and_records
 from galileo_core.exceptions.http import GalileoHTTPException
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.shared.metric import MetricValueType
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
 @pytest.fixture
@@ -410,7 +410,7 @@ class TestExperiments:
 
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
-    @patch("galileo.logger.logger.GalileoCoreApiClient")
+    @patch("galileo.logger.logger.Traces")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
@@ -485,7 +485,7 @@ class TestExperiments:
         mock_get_experiment: Mock,
         mock_create_experiment: Mock,
         mock_get_dataset: Mock,
-        mock_core_api_client: Mock,
+        mock_traces_client: Mock,
         mock_projects_client: Mock,
         mock_logstreams_client: Mock,
         reset_context,
@@ -498,7 +498,7 @@ class TestExperiments:
         aggregate_results: list[MetricValueType],
         thread_pool: bool,
     ):
-        mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+        mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -528,7 +528,7 @@ class TestExperiments:
         mock_get_dataset_instance.get_content.assert_called()
 
         # check galileo_logger
-        payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+        payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
         assert len(payload.traces) == 1
         trace = payload.traces[0]
@@ -665,7 +665,7 @@ class TestExperiments:
     @travel(datetime(2012, 1, 1), tick=False)
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
-    @patch("galileo.logger.logger.GalileoCoreApiClient")
+    @patch("galileo.logger.logger.Traces")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -678,13 +678,13 @@ class TestExperiments:
         mock_create_experiment: Mock,
         mock_create_job: Mock,
         mock_get_dataset: Mock,
-        mock_core_api_client: Mock,
+        mock_traces_client: Mock,
         mock_projects_client: Mock,
         mock_logstreams_client: Mock,
         reset_context,
         dataset_content_with_question: DatasetContent,
     ):
-        mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+        mock_core_api_instance = setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
 

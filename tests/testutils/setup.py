@@ -252,9 +252,9 @@ def setup_mock_experiments_client(mock_experiment_client: Mock):
     return mock_instance
 
 
-def setup_mock_core_api_client(mock_core_api_client: Mock):
+def setup_mock_traces_client(mock_traces_client: Mock):
     now = datetime.datetime.now()
-    mock_instance = mock_core_api_client.return_value
+    mock_instance = mock_traces_client.return_value
     mock_instance.get_project_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
     mock_instance.get_log_stream_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
     mock_instance.ingest_traces = AsyncMock(return_value={})

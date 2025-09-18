@@ -14,17 +14,17 @@ from galileo import Message, MessageRole
 from galileo.handlers.langchain import GalileoAsyncCallback
 from galileo.logger.logger import GalileoLogger
 from galileo_core.schemas.shared.document import Document as GalileoDocument
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
 class TestGalileoAsyncCallback:
     @pytest.fixture
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
-    @patch("galileo.logger.logger.GalileoCoreApiClient")
-    def galileo_logger(self, mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock):
+    @patch("galileo.logger.logger.Traces")
+    def galileo_logger(self, mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock):
         """Creates a mock Galileo logger for testing"""
-        setup_mock_core_api_client(mock_core_api_client)
+        setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
         logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
