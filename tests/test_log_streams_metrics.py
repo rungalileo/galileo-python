@@ -80,7 +80,9 @@ class TestLogStreamMetrics:
         mock_scorer_settings_class.return_value.create.return_value = None
 
         # Test with built-in metrics
-        scorers, local_metrics = LogStreams.create_metric_configs(
+        from galileo.utils.metrics import create_metric_configs
+
+        scorers, local_metrics = create_metric_configs(
             "project-123", "logstream-456", [GalileoScorers.correctness, "completeness"]
         )
 
@@ -109,7 +111,9 @@ class TestLogStreamMetrics:
         local_metric = LocalMetricConfig(name="custom_metric", scorer_fn=custom_scorer)
 
         # Test with local metrics only
-        scorers, local_metrics = LogStreams.create_metric_configs("project-123", "logstream-456", [local_metric])
+        from galileo.utils.metrics import create_metric_configs
+
+        scorers, local_metrics = create_metric_configs("project-123", "logstream-456", [local_metric])
 
         # Verify no scorer settings creation for local metrics
         mock_scorer_settings.return_value.create.assert_not_called()
@@ -135,7 +139,9 @@ class TestLogStreamMetrics:
         local_metric = LocalMetricConfig(name="local_metric", scorer_fn=custom_scorer)
 
         # Test with mixed metrics (only valid ones to avoid decorator error handling)
-        scorers, local_metrics = LogStreams.create_metric_configs(
+        from galileo.utils.metrics import create_metric_configs
+
+        scorers, local_metrics = create_metric_configs(
             "project-123", "logstream-456", [GalileoScorers.correctness, local_metric]
         )
 
@@ -148,7 +154,7 @@ class TestLogStreamMetrics:
 
     def test_log_stream_enable_metrics_instance_method(self, mock_log_stream):
         """Test LogStream instance enable_metrics method."""
-        with patch.object(LogStreams, "create_metric_configs") as mock_create_configs:
+        with patch("galileo.utils.metrics.create_metric_configs") as mock_create_configs:
             mock_create_configs.return_value = ([], [])
 
             # Test instance method
@@ -169,7 +175,7 @@ class TestLogStreamMetrics:
 
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
-    @patch.object(LogStreams, "create_metric_configs")
+    @patch("galileo.utils.metrics.create_metric_configs")
     def test_logstreams_enable_metrics_with_explicit_params(
         self, mock_create_configs, mock_get, mock_projects_class, mock_project, mock_log_stream
     ):
@@ -200,7 +206,7 @@ class TestLogStreamMetrics:
 
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
-    @patch.object(LogStreams, "create_metric_configs")
+    @patch("galileo.utils.metrics.create_metric_configs")
     def test_logstreams_enable_metrics_with_env_vars(
         self, mock_create_configs, mock_get, mock_projects_class, mock_project, mock_log_stream
     ):
@@ -296,7 +302,7 @@ class TestLogStreamMetrics:
 
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
-    @patch.object(LogStreams, "create_metric_configs")
+    @patch("galileo.utils.metrics.create_metric_configs")
     def test_enable_metrics_with_env_vars_integration(
         self, mock_create_configs, mock_get, mock_projects_class, mock_project, mock_log_stream
     ):

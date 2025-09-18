@@ -812,7 +812,9 @@ class TestExperiments:
         mock_scorer_settings_class.return_value.create = MagicMock()
 
         # Test valid metrics
-        scorers, local_scorers = Experiments.create_metric_configs(
+        from galileo.utils.metrics import create_metric_configs
+
+        scorers, local_scorers = create_metric_configs(
             "project_id", "experiment_id", ["metric1", LocalMetricConfig(name="length", scorer_fn=lambda x: len(x))]
         )
         assert len(scorers) == 1  # Should return one valid scorer
@@ -820,7 +822,7 @@ class TestExperiments:
 
         # Test unknown metrics
         with pytest.raises(ValueError):
-            Experiments.create_metric_configs("project_id", "experiment_id", ["unknown_metric"])
+            create_metric_configs("project_id", "experiment_id", ["unknown_metric"])
 
     @patch("galileo.utils.metrics.Scorers")
     @patch("galileo.utils.metrics.ScorerSettings")
@@ -848,8 +850,9 @@ class TestExperiments:
         # Test with Metric objects (without version)
         metric1 = Metric(name="metric1")
         metric2 = Metric(name="metric2")
+        from galileo.utils.metrics import create_metric_configs
 
-        scorers, local_scorers = Experiments.create_metric_configs("project_id", "experiment_id", [metric1, metric2])
+        scorers, local_scorers = create_metric_configs("project_id", "experiment_id", [metric1, metric2])
 
         assert len(scorers) == 2  # Should return two valid scorers
         assert len(local_scorers) == 0  # No local scorers
@@ -860,7 +863,9 @@ class TestExperiments:
         # Test with a Metric object with version
         versionable_metric = Metric(name="versionable_metric", version=2)
 
-        scorers, local_scorers = Experiments.create_metric_configs("project_id", "experiment_id", [versionable_metric])
+        from galileo.utils.metrics import create_metric_configs
+
+        scorers, local_scorers = create_metric_configs("project_id", "experiment_id", [versionable_metric])
 
         assert len(scorers) == 1  # Should return one valid scorer
         assert len(local_scorers) == 0  # No local scorers
@@ -871,7 +876,9 @@ class TestExperiments:
         # Test mixed input types
         local_metric = LocalMetricConfig(name="length", scorer_fn=lambda x: len(x))
 
-        scorers, local_scorers = Experiments.create_metric_configs(
+        from galileo.utils.metrics import create_metric_configs
+
+        scorers, local_scorers = create_metric_configs(
             "project_id", "experiment_id", ["metric1", local_metric, Metric(name="metric2")]
         )
 

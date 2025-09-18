@@ -89,15 +89,6 @@ class Experiments(BaseClientModel):
     def list(self, project_id: str) -> Optional[Union[HTTPValidationError, list["ExperimentResponse"]]]:
         return list_experiments_projects_project_id_experiments_get.sync(project_id=project_id, client=self.client)
 
-    @staticmethod
-    def create_metric_configs(
-        project_id: str,
-        experiment_id: str,
-        metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]],
-    ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
-        """Create metric configurations for experiments using shared utility."""
-        return create_metric_configs(project_id, experiment_id, metrics)
-
     def run(
         self,
         project_obj: Project,
@@ -273,7 +264,7 @@ def run_experiment(
     scorer_settings: Optional[list[ScorerConfig]] = None
     local_metrics: list[LocalMetricConfig] = list()
     if metrics is not None:
-        scorer_settings, local_metrics = Experiments.create_metric_configs(project_obj.id, experiment_obj.id, metrics)
+        scorer_settings, local_metrics = create_metric_configs(project_obj.id, experiment_obj.id, metrics)
 
     # Execute a runner function experiment
     if function is not None:

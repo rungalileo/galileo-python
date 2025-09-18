@@ -12,7 +12,6 @@ from galileo.resources.api.log_stream import (
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
 from galileo.resources.models.log_stream_response import LogStreamResponse
-from galileo.resources.models.scorer_config import ScorerConfig
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.metrics import create_metric_configs
@@ -219,7 +218,7 @@ class LogStream(LogStreamResponse):
         if not hasattr(self, "id") or not hasattr(self, "project_id"):
             raise ValueError("Log stream must have id and project_id to enable metrics")
 
-        _, local_metrics = LogStreams.create_metric_configs(self.project_id, self.id, metrics)
+        _, local_metrics = create_metric_configs(self.project_id, self.id, metrics)
         return local_metrics
 
 
@@ -497,18 +496,9 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
         if not log_stream:
             raise ValueError(f"Log stream '{log_stream_name}' not found in project '{project_obj.name}'")
 
-        # Use the same logic as experiments to create metric configurations
-        _, local_metrics = LogStreams.create_metric_configs(project_obj.id, log_stream.id, metrics)
+        # Use the shared utility function directly
+        _, local_metrics = create_metric_configs(project_obj.id, log_stream.id, metrics)
         return local_metrics
-
-    @staticmethod
-    def create_metric_configs(
-        project_id: str,
-        log_stream_id: str,
-        metrics: builtins.list[Union[GalileoScorers, Metric, LocalMetricConfig, str]],
-    ) -> tuple[builtins.list[ScorerConfig], builtins.list[LocalMetricConfig]]:
-        """Internal helper to process metrics and create scorer configurations using shared utility."""
-        return create_metric_configs(project_id, log_stream_id, metrics)
 
 
 #
