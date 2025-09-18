@@ -154,7 +154,7 @@ class TestLogStreamMetrics:
 
     def test_log_stream_enable_metrics_instance_method(self, mock_log_stream):
         """Test LogStream instance enable_metrics method."""
-        with patch("galileo.utils.metrics.create_metric_configs") as mock_create_configs:
+        with patch("galileo.log_streams.create_metric_configs") as mock_create_configs:
             mock_create_configs.return_value = ([], [])
 
             # Test instance method
@@ -175,7 +175,7 @@ class TestLogStreamMetrics:
 
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
-    @patch("galileo.utils.metrics.create_metric_configs")
+    @patch("galileo.log_streams.create_metric_configs")
     def test_logstreams_enable_metrics_with_explicit_params(
         self, mock_create_configs, mock_get, mock_projects_class, mock_project, mock_log_stream
     ):
@@ -206,7 +206,7 @@ class TestLogStreamMetrics:
 
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
-    @patch("galileo.utils.metrics.create_metric_configs")
+    @patch("galileo.log_streams.create_metric_configs")
     def test_logstreams_enable_metrics_with_env_vars(
         self, mock_create_configs, mock_get, mock_projects_class, mock_project, mock_log_stream
     ):
@@ -302,7 +302,7 @@ class TestLogStreamMetrics:
 
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
-    @patch("galileo.utils.metrics.create_metric_configs")
+    @patch("galileo.log_streams.create_metric_configs")
     def test_enable_metrics_with_env_vars_integration(
         self, mock_create_configs, mock_get, mock_projects_class, mock_project, mock_log_stream
     ):
