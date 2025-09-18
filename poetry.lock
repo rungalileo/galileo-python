@@ -7175,4 +7175,4 @@ openai = ["openai", "openai-agents", "packaging"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "8774a34f4186886fe6a50bd7452e8b91b9fa8c55fa62b42c4c79706e17ac10d4"
+content-hash = "efa8bfef322d087e7bf2ef35208e93c158ae8265e7765dfc5dafd6c517e0c1a5"
