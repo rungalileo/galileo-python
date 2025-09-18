@@ -34,7 +34,7 @@ class TestTracesHeaders:
     async def test_make_async_request_includes_sdk_header(self, traces_client, mock_config):
         """Test that _make_async_request includes the X-Galileo-SDK header."""
         # Call the private method directly to test header inclusion
-        await traces_client._make_async_request(method=RequestMethod.GET, path="/test-endpoint")
+        await traces_client._make_async_request(request_method=RequestMethod.GET, endpoint="/test-endpoint")
 
         # Verify the request was made with correct headers
         mock_config.api_client.arequest.assert_called_once()
