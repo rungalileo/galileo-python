@@ -2,7 +2,7 @@ import builtins
 import os
 from typing import Optional, Union, overload
 
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
 from galileo.resources.api.log_stream import (
     create_log_stream_projects_project_id_log_streams_post,
@@ -222,7 +222,12 @@ class LogStream(LogStreamResponse):
         return local_metrics
 
 
-class LogStreams(BaseClientModel, DecorateAllMethods):
+class LogStreams(DecorateAllMethods):
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     @overload
     def list(self, *, project_id: str) -> list[LogStream]: ...
 
@@ -259,14 +264,14 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
 
         if project_id:
             log_streams = list_log_streams_projects_project_id_log_streams_get.sync(
-                client=self.client, project_id=project_id
+                client=self.config.api_client, project_id=project_id
             )
         else:
-            project = Projects(config=self.config).get(name=project_name)
+            project = Projects().get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
             log_streams = list_log_streams_projects_project_id_log_streams_get.sync(
-                client=self.client, project_id=project.id
+                client=self.config.api_client, project_id=project.id
             )
         return [LogStream(log_stream=log_stream) for log_stream in log_streams] if log_streams else []
 
@@ -322,14 +327,14 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
             raise ValueError("Exactly one of 'project_id' or 'project_name' must be provided")
 
         if not project_id:
-            project = Projects(config=self.config).get(name=project_name)
+            project = Projects().get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
             project_id = project.id
 
         if id:
             log_stream_response = get_log_stream_projects_project_id_log_streams_log_stream_id_get.sync(
-                project_id=project_id, log_stream_id=id, client=self.client
+                project_id=project_id, log_stream_id=id, client=self.config.api_client
             )
             if not log_stream_response:
                 return None
@@ -385,14 +390,14 @@ class LogStreams(BaseClientModel, DecorateAllMethods):
             raise ValueError("Exactly one of 'project_id' or 'project_name' must be provided")
 
         if not project_id:
-            project = Projects(config=self.config).get(name=project_name)
+            project = Projects().get(name=project_name)
             if not project:
                 raise ValueError(f"Project {project_name} not found")
             project_id = project.id
 
         body = LogStreamCreateRequest(name=name)
         response = create_log_stream_projects_project_id_log_streams_post.sync(
-            project_id=project_id, client=self.client, body=body
+            project_id=project_id, client=self.config.api_client, body=body
         )
 
         if isinstance(response, HTTPValidationError):
