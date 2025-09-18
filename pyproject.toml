@@ -19,7 +19,7 @@ openai = { version = "<1.96.0", optional = true }
 openai-agents = { version = "<0.2.1", optional = true }
 galileo-core = "~=3.64.5"
 backoff = "^2.2.1"
-crewai = { version = ">=0.152.0,<0.160.0", optional = true, python = ">=3.10,<3.14" }
+crewai = { version = ">=0.152.0,<=0.186.1", optional = true, python = ">=3.10,<3.14" }
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.0"
@@ -150,7 +150,7 @@ formatter-cmds = ["ruff check --exit-zero --fix $file", "ruff format $file"]
 [project.optional-dependencies]
 langchain = ["langchain-core"]
 openai = ["openai", "packaging (>=24.2,<25.0)", "openai-agents"]
-crewai = ["crewai (>=0.152.0,<0.160.0)"]
+crewai = ["crewai (>=0.152.0,<=0.186.1)"]
 all = ["langchain-core", "openai", "crewai"]
 
 

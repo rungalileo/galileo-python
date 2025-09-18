@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Any, Optional, Union
 from uuid import UUID
 
+from packaging.version import Version
+
 from galileo.handlers.base_handler import GalileoBaseHandler
 from galileo.logger import GalileoLogger
 from galileo.schema.handlers import NodeType
@@ -13,24 +15,64 @@ from galileo.utils.serialization import serialize_to_str
 _logger = logging.getLogger(__name__)
 
 try:
-    from crewai.utilities.events.agent_events import (
-        AgentExecutionCompletedEvent,
-        AgentExecutionErrorEvent,
-        AgentExecutionStartedEvent,
-    )
-    from crewai.utilities.events.base_event_listener import BaseEventListener
-    from crewai.utilities.events.crew_events import (
-        CrewKickoffCompletedEvent,
-        CrewKickoffFailedEvent,
-        CrewKickoffStartedEvent,
-    )
-    from crewai.utilities.events.llm_events import LLMCallCompletedEvent, LLMCallFailedEvent, LLMCallStartedEvent
-    from crewai.utilities.events.task_events import TaskCompletedEvent, TaskFailedEvent, TaskStartedEvent
-    from crewai.utilities.events.tool_usage_events import (
-        ToolUsageErrorEvent,
-        ToolUsageFinishedEvent,
-        ToolUsageStartedEvent,
-    )
+    from crewai import __version__ as CREWAI_VERSION
+
+    CREWAI_VERSION = Version(CREWAI_VERSION)
+    CREWAI_EVENTS_MODULE_AVAILABLE = CREWAI_VERSION >= Version("0.177.0")
+    if CREWAI_EVENTS_MODULE_AVAILABLE:
+        from crewai.events.base_event_listener import BaseEventListener  # pyright: ignore[reportMissingImports]
+        from crewai.events.types.agent_events import (  # pyright: ignore[reportMissingImports]
+            AgentExecutionCompletedEvent,
+            AgentExecutionErrorEvent,
+            AgentExecutionStartedEvent,
+        )
+        from crewai.events.types.crew_events import (  # pyright: ignore[reportMissingImports]
+            CrewKickoffCompletedEvent,
+            CrewKickoffFailedEvent,
+            CrewKickoffStartedEvent,
+        )
+        from crewai.events.types.llm_events import (  # pyright: ignore[reportMissingImports]
+            LLMCallCompletedEvent,
+            LLMCallFailedEvent,
+            LLMCallStartedEvent,
+        )
+        from crewai.events.types.task_events import (  # pyright: ignore[reportMissingImports]
+            TaskCompletedEvent,
+            TaskFailedEvent,
+            TaskStartedEvent,
+        )
+        from crewai.events.types.tool_usage_events import (  # pyright: ignore[reportMissingImports]
+            ToolUsageErrorEvent,
+            ToolUsageFinishedEvent,
+            ToolUsageStartedEvent,
+        )
+    else:
+        from crewai.utilities.events.agent_events import (  # pyright: ignore[reportMissingImports]
+            AgentExecutionCompletedEvent,
+            AgentExecutionErrorEvent,
+            AgentExecutionStartedEvent,
+        )
+        from crewai.utilities.events.base_event_listener import BaseEventListener
+        from crewai.utilities.events.crew_events import (  # pyright: ignore[reportMissingImports]
+            CrewKickoffCompletedEvent,
+            CrewKickoffFailedEvent,
+            CrewKickoffStartedEvent,
+        )
+        from crewai.utilities.events.llm_events import (  # pyright: ignore[reportMissingImports]
+            LLMCallCompletedEvent,
+            LLMCallFailedEvent,
+            LLMCallStartedEvent,
+        )
+        from crewai.utilities.events.task_events import (  # pyright: ignore[reportMissingImports]
+            TaskCompletedEvent,
+            TaskFailedEvent,
+            TaskStartedEvent,
+        )
+        from crewai.utilities.events.tool_usage_events import (  # pyright: ignore[reportMissingImports]
+            ToolUsageErrorEvent,
+            ToolUsageFinishedEvent,
+            ToolUsageStartedEvent,
+        )
 
     CREWAI_AVAILABLE = True
 except ImportError:
