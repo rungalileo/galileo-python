@@ -3,7 +3,6 @@ from typing import Optional, Union
 
 from pydantic import UUID4
 
-from galileo.base import BaseClientModel
 from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
 from galileo.resources.api.protect import (
@@ -23,9 +22,7 @@ from galileo_core.utils.name import ts_name
 
 
 def _get_validated_project_id(
-    project_id: Optional[Union[str, UUID4]] = None,
-    project_name: Optional[str] = None,
-    config: Optional[GalileoPythonConfig] = None,
+    project_id: Optional[Union[str, UUID4]] = None, project_name: Optional[str] = None
 ) -> str:
     """
     Resolves project ID from either project_id or project_name.
@@ -34,7 +31,7 @@ def _get_validated_project_id(
     if project_id is not None and type(project_id).__name__ == "UUID":
         project_id = str(project_id)
 
-    project = Projects(config=config).get_with_env_fallbacks(name=project_name, id=project_id)
+    project = Projects().get_with_env_fallbacks(name=project_name, id=project_id)
     if not project:
         raise ValueError(f"Project with name '{project_name}' not found.")
     return str(project.id)
@@ -44,7 +41,6 @@ def _get_stage_id(
     stage_id: Optional[Union[str, UUID4]] = None,
     stage_name: Optional[str] = None,
     project_id: Optional[Union[str, UUID4]] = None,
-    config: Optional[GalileoPythonConfig] = None,
 ) -> str:
     """
     Resolves stage ID from either stage_id or stage_name.
@@ -53,7 +49,7 @@ def _get_stage_id(
     if stage_id:
         return str(stage_id)
     elif stage_name:
-        stage = Stages(config=config).get(project_id=project_id, stage_name=stage_name)
+        stage = Stages().get(project_id=project_id, stage_name=stage_name)
         if not stage:
             raise ValueError(f"Stage with name '{stage_name}' not found.")
         return str(stage.id)
@@ -61,7 +57,12 @@ def _get_stage_id(
         raise ValueError("Either stage_id or stage_name must be provided.")
 
 
-class Stages(BaseClientModel, DecorateAllMethods):
+class Stages(DecorateAllMethods):
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def create(
         self,
         project_id: Optional[Union[str, UUID4]] = None,
@@ -72,9 +73,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
         description: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_validated_project_id(
-            project_id=project_id, project_name=project_name, config=self.config
-        )
+        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
         actual_name = name or ts_name("stage")
 
@@ -92,7 +91,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         body = APIStageWithRulesets.from_dict(request_dict)
 
         response = create_stage_projects_project_id_stages_post.sync(
-            project_id=str(actual_project_id), client=self.client, body=body
+            project_id=str(actual_project_id), client=self.config.api_client, body=body
         )
 
         if isinstance(response, APIStageDB):
@@ -106,9 +105,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_validated_project_id(
-            project_id=project_id, project_name=project_name, config=self.config
-        )
+        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
         if not stage_id and not stage_name:
             raise ValueError("Either stage_id or stage_name must be provided.")
@@ -117,7 +114,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
             project_id=actual_project_id,
             stage_id=str(stage_id) if stage_id else UNSET,
             stage_name=stage_name if stage_name else UNSET,
-            client=self.client,
+            client=self.config.api_client,
         )
         if isinstance(response, APIStageDB):
             return StageDB.model_validate(response.to_dict())
@@ -131,13 +128,9 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
         prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_validated_project_id(
-            project_id=project_id, project_name=project_name, config=self.config
-        )
+        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
-        actual_stage_id: str = _get_stage_id(
-            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, config=self.config
-        )
+        actual_stage_id: str = _get_stage_id(stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id)
 
         request = RulesetsMixin(prioritized_rulesets=prioritized_rulesets or [])
         request_dict = request.model_dump()
@@ -145,7 +138,7 @@ class Stages(BaseClientModel, DecorateAllMethods):
         body = APIRulesetsMixin.from_dict(request_dict)
 
         response = update_stage_projects_project_id_stages_stage_id_post.sync(
-            project_id=actual_project_id, stage_id=actual_stage_id, client=self.client, body=body
+            project_id=actual_project_id, stage_id=actual_stage_id, client=self.config.api_client, body=body
         )
         if isinstance(response, APIStageDB):
             return StageDB.model_validate(response.to_dict())
@@ -160,16 +153,12 @@ class Stages(BaseClientModel, DecorateAllMethods):
         stage_name: Optional[str] = None,
     ) -> StageDB:
         """Sets the pause state of a stage."""
-        actual_project_id: str = _get_validated_project_id(
-            project_id=project_id, project_name=project_name, config=self.config
-        )
+        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
 
-        actual_stage_id: str = _get_stage_id(
-            stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id, config=self.config
-        )
+        actual_stage_id: str = _get_stage_id(stage_id=stage_id, stage_name=stage_name, project_id=actual_project_id)
 
         response = pause_stage_projects_project_id_stages_stage_id_put.sync(
-            project_id=actual_project_id, stage_id=actual_stage_id, client=self.client, pause=pause_flag
+            project_id=actual_project_id, stage_id=actual_stage_id, client=self.config.api_client, pause=pause_flag
         )
         if isinstance(response, APIStageDB):
             return StageDB.model_validate(response.to_dict())

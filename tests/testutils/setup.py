@@ -7,7 +7,6 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from galileo.experiments import Experiments
 from galileo.log_streams import LogStream
 from galileo.logger.logger import GalileoLogger
 from galileo.projects import Project
@@ -241,15 +240,13 @@ def setup_mock_experiments_client(mock_experiment_client: Mock):
     now = datetime.datetime.now()
     mock_instance = mock_experiment_client.return_value
     mock_instance.get = Mock(
-        return_value=Experiments(
-            ExperimentResponse(
-                id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
-                project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
-                name="test",
-                created_at=now,
-                updated_at=now,
-                task_type=TaskType.VALUE_16,
-            )
+        return_value=ExperimentResponse(
+            id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
+            project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
+            name="test",
+            created_at=now,
+            updated_at=now,
+            task_type=TaskType.VALUE_16,
         )
     )
     return mock_instance
