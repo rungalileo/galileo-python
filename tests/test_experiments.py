@@ -36,7 +36,7 @@ from galileo.utils.datasets import load_dataset_and_records
 from galileo_core.exceptions.http import GalileoHTTPException
 from galileo_core.schemas.logging.span import Span, StepWithChildSpans
 from galileo_core.schemas.shared.metric import MetricValueType
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
 @pytest.fixture
@@ -410,14 +410,13 @@ class TestExperiments:
 
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
-    @patch("galileo.logger.logger.GalileoCoreApiClient")
+    @patch("galileo.logger.logger.Traces")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
-    @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
-    @patch.object(galileo.experiments.Scorers, "get_scorer_version", return_value=mock_scorer_version_response())
-    @patch.object(galileo.experiments.ScorerSettings, "create")
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
     @pytest.mark.parametrize("thread_pool", [True, False])
     @pytest.mark.parametrize(
         ["function", "metrics", "num_spans", "span_type", "results", "aggregate_results"],
@@ -480,14 +479,13 @@ class TestExperiments:
     )
     def test_run_experiment_with_func(
         self,
-        mock_scorer_settings_create: Mock,
-        mock_get_scorer_version: Mock,
-        mock_scorers_list: Mock,
+        mock_scorer_settings_class: Mock,
+        mock_scorers_class: Mock,
         mock_get_project: Mock,
         mock_get_experiment: Mock,
         mock_create_experiment: Mock,
         mock_get_dataset: Mock,
-        mock_core_api_client: Mock,
+        mock_traces_client: Mock,
         mock_projects_client: Mock,
         mock_logstreams_client: Mock,
         reset_context,
@@ -500,7 +498,7 @@ class TestExperiments:
         aggregate_results: list[MetricValueType],
         thread_pool: bool,
     ):
-        mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+        mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -530,7 +528,7 @@ class TestExperiments:
         mock_get_dataset_instance.get_content.assert_called()
 
         # check galileo_logger
-        payload = mock_core_api_instance.ingest_traces.call_args[0][0]
+        payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
         assert len(payload.traces) == 1
         trace = payload.traces[0]
@@ -564,8 +562,8 @@ class TestExperiments:
         assert num_spans == sum(check_span(span) for span in trace.spans)
 
     @travel(datetime(2012, 1, 1), tick=False)
-    @patch.object(galileo.experiments.ScorerSettings, "create")
-    @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
+    @patch("galileo.utils.metrics.ScorerSettings")
+    @patch("galileo.utils.metrics.Scorers")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -578,11 +576,15 @@ class TestExperiments:
         mock_create_experiment: Mock,
         mock_create_job: Mock,
         mock_get_dataset: Mock,
-        mock_scorers_list: Mock,
-        mock_scorersettings_create: Mock,
+        mock_scorers_class: Mock,
+        mock_scorer_settings_class: Mock,
         dataset_content: DatasetContent,
     ):
         mock_create_job.return_value = MagicMock()
+
+        # Setup scorer mocks
+        mock_scorers_class.return_value.list.return_value = scorers()
+        mock_scorer_settings_class.return_value.create.return_value = None
 
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
@@ -604,8 +606,8 @@ class TestExperiments:
         )
         mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
         mock_get_dataset_instance.get_content.assert_called()
-        mock_scorers_list.assert_called_with()
-        mock_scorersettings_create.assert_called_with(
+        mock_scorers_class.return_value.list.assert_called_with()
+        mock_scorer_settings_class.return_value.create.assert_called_with(
             project_id="00000000-0000-0000-0000-000000000000",
             run_id="00000000-0000-4000-8000-000000000001",
             scorers=[ScorerConfig.from_dict(scorers()[0].to_dict())],
@@ -663,7 +665,7 @@ class TestExperiments:
     @travel(datetime(2012, 1, 1), tick=False)
     @patch("galileo.logger.logger.LogStreams")
     @patch("galileo.logger.logger.Projects")
-    @patch("galileo.logger.logger.GalileoCoreApiClient")
+    @patch("galileo.logger.logger.Traces")
     @patch.object(galileo.datasets.Datasets, "get")
     @patch.object(galileo.jobs.Jobs, "create")
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
@@ -676,13 +678,13 @@ class TestExperiments:
         mock_create_experiment: Mock,
         mock_create_job: Mock,
         mock_get_dataset: Mock,
-        mock_core_api_client: Mock,
+        mock_traces_client: Mock,
         mock_projects_client: Mock,
         mock_logstreams_client: Mock,
         reset_context,
         dataset_content_with_question: DatasetContent,
     ):
-        mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+        mock_core_api_instance = setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -763,9 +765,9 @@ class TestExperiments:
     @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
     @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
-    @patch.object(galileo.experiments.Scorers, "list", return_value=scorers())
-    @patch.object(galileo.experiments.Scorers, "get_scorer_version", return_value=mock_scorer_version_response())
-    @patch.object(galileo.experiments.ScorerSettings, "create", return_value=None)
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
     def test_run_experiment_with_local_scorers_and_prompt_template(
         self,
         mock_scorer_settings_create: Mock,
@@ -798,18 +800,21 @@ class TestExperiments:
             == "Local metrics can only be used with a locally run experiment, not a prompt experiment."
         )
 
-    @patch("galileo.experiments.Scorers")
-    @patch("galileo.experiments.ScorerSettings")
-    def test_create_scorer_configs(self, mock_scorer_settings, mock_scorers):
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_create_scorer_configs(self, mock_scorer_settings_class, mock_scorers_class):
         # Setup mock return values
-        mock_scorers_instance = mock_scorers.return_value
+        mock_scorers_instance = mock_scorers_class.return_value
         mock_scorers_instance.list.return_value = [
-            ScorerConfig(id="1", name="metric1", scorer_type=ScorerTypes.PRESET),
-            ScorerConfig(id="2", name="metric2", scorer_type=ScorerTypes.PRESET),
+            ScorerResponse(id="1", name="metric1", scorer_type=ScorerTypes.PRESET, tags=[]),
+            ScorerResponse(id="2", name="metric2", scorer_type=ScorerTypes.PRESET, tags=[]),
         ]
+        mock_scorer_settings_class.return_value.create = MagicMock()
 
         # Test valid metrics
-        scorers, local_scorers = Experiments.create_metric_configs(
+        from galileo.utils.metrics import create_metric_configs
+
+        scorers, local_scorers = create_metric_configs(
             "project_id", "experiment_id", ["metric1", LocalMetricConfig(name="length", scorer_fn=lambda x: len(x))]
         )
         assert len(scorers) == 1  # Should return one valid scorer
@@ -817,22 +822,23 @@ class TestExperiments:
 
         # Test unknown metrics
         with pytest.raises(ValueError):
-            Experiments.create_metric_configs("project_id", "experiment_id", ["unknown_metric"])
+            create_metric_configs("project_id", "experiment_id", ["unknown_metric"])
 
-    @patch("galileo.experiments.Scorers")
-    @patch("galileo.experiments.ScorerSettings")
-    def test_create_scorer_configs_with_metric_objects(self, mock_scorer_settings, mock_scorers):
+    @patch("galileo.utils.metrics.Scorers")
+    @patch("galileo.utils.metrics.ScorerSettings")
+    def test_create_scorer_configs_with_metric_objects(self, mock_scorer_settings_class, mock_scorers_class):
         # Setup mock return values
-        mock_scorers_instance = mock_scorers.return_value
+        mock_scorers_instance = mock_scorers_class.return_value
+        mock_scorer_settings_class.return_value.create = MagicMock()
 
         # Create mock scorer responses
-        mock_scorers = [
+        mock_scorer_responses = [
             ScorerResponse.from_dict({"id": "1", "name": "metric1", "scorer_type": "preset", "tags": ["test"]}),
             ScorerResponse.from_dict({"id": "2", "name": "metric2", "scorer_type": "preset", "tags": ["test"]}),
             ScorerResponse.from_dict({"id": "3", "name": "versionable_metric", "scorer_type": "llm", "tags": ["test"]}),
         ]
 
-        mock_scorers_instance.list.return_value = mock_scorers
+        mock_scorers_instance.list.return_value = mock_scorer_responses
 
         # Mock the get_scorer_version method
         mock_version_response = MagicMock()
@@ -844,8 +850,9 @@ class TestExperiments:
         # Test with Metric objects (without version)
         metric1 = Metric(name="metric1")
         metric2 = Metric(name="metric2")
+        from galileo.utils.metrics import create_metric_configs
 
-        scorers, local_scorers = Experiments.create_metric_configs("project_id", "experiment_id", [metric1, metric2])
+        scorers, local_scorers = create_metric_configs("project_id", "experiment_id", [metric1, metric2])
 
         assert len(scorers) == 2  # Should return two valid scorers
         assert len(local_scorers) == 0  # No local scorers
@@ -856,7 +863,9 @@ class TestExperiments:
         # Test with a Metric object with version
         versionable_metric = Metric(name="versionable_metric", version=2)
 
-        scorers, local_scorers = Experiments.create_metric_configs("project_id", "experiment_id", [versionable_metric])
+        from galileo.utils.metrics import create_metric_configs
+
+        scorers, local_scorers = create_metric_configs("project_id", "experiment_id", [versionable_metric])
 
         assert len(scorers) == 1  # Should return one valid scorer
         assert len(local_scorers) == 0  # No local scorers
@@ -867,7 +876,9 @@ class TestExperiments:
         # Test mixed input types
         local_metric = LocalMetricConfig(name="length", scorer_fn=lambda x: len(x))
 
-        scorers, local_scorers = Experiments.create_metric_configs(
+        from galileo.utils.metrics import create_metric_configs
+
+        scorers, local_scorers = create_metric_configs(
             "project_id", "experiment_id", ["metric1", local_metric, Metric(name="metric2")]
         )
 

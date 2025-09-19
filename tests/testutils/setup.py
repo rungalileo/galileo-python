@@ -7,7 +7,6 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
-from galileo.experiments import Experiments
 from galileo.log_streams import LogStream
 from galileo.logger.logger import GalileoLogger
 from galileo.projects import Project
@@ -241,23 +240,21 @@ def setup_mock_experiments_client(mock_experiment_client: Mock):
     now = datetime.datetime.now()
     mock_instance = mock_experiment_client.return_value
     mock_instance.get = Mock(
-        return_value=Experiments(
-            ExperimentResponse(
-                id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
-                project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
-                name="test",
-                created_at=now,
-                updated_at=now,
-                task_type=TaskType.VALUE_16,
-            )
+        return_value=ExperimentResponse(
+            id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
+            project_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
+            name="test",
+            created_at=now,
+            updated_at=now,
+            task_type=TaskType.VALUE_16,
         )
     )
     return mock_instance
 
 
-def setup_mock_core_api_client(mock_core_api_client: Mock):
+def setup_mock_traces_client(mock_traces_client: Mock):
     now = datetime.datetime.now()
-    mock_instance = mock_core_api_client.return_value
+    mock_instance = mock_traces_client.return_value
     mock_instance.get_project_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
     mock_instance.get_log_stream_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
     mock_instance.ingest_traces = AsyncMock(return_value={})

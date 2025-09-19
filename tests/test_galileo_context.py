@@ -4,7 +4,7 @@ import pytest
 
 from galileo import galileo_context
 from galileo.decorator import _experiment_id_context, _log_stream_context, _project_context
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
 @pytest.fixture
@@ -14,15 +14,15 @@ def reset_context():
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_nested_context_restoration(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """
     Test that nested galileo_context calls correctly restore the previous context.
     This tests the stack-based approach for context nesting.
     """
-    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -67,15 +67,15 @@ def test_nested_context_restoration(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_context_update_with_defaults(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, reset_context
 ) -> None:
     """
     Test that updating only some context values in nested contexts works correctly.
     This tests that we only update the specified values and keep the rest from the parent context.
     """
-    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
