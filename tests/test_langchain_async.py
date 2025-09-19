@@ -872,3 +872,77 @@ class TestGalileoAsyncCallback:
         inner_span = outer_span.spans[0]
         assert inner_span.type == "agent"
         assert inner_span.name == "OuterChain:Agent"
+
+    @mark.asyncio
+    async def test_ai_message_with_list_content(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
+        """Test AIMessage serialization with content as list of dicts (Responses API format)"""
+        run_id = uuid.uuid4()
+        parent_id = uuid.uuid4()
+
+        # Create parent chain
+        await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+
+        # Create AIMessage with content as list (Responses API format)
+        ai_message = AIMessage(content=[{"text": "This is a response from the Responses API"}])
+
+        # Start chat model with the AIMessage
+        await callback.on_chat_model_start(
+            serialized={},
+            messages=[[ai_message]],
+            run_id=run_id,
+            parent_run_id=parent_id,
+            invocation_params={"model": "gpt-4o", "temperature": 0.7},
+        )
+
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "chat"
+
+        # Check that content was properly converted from list to string
+        input_data = node.span_params["input"]
+        assert isinstance(input_data, list)
+        assert len(input_data) == 1
+        assert input_data[0]["content"] == "This is a response from the Responses API"
+        assert input_data[0]["role"] == "assistant"
+
+    @mark.asyncio
+    async def test_ai_message_with_reasoning(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
+        """Test AIMessage serialization with reasoning in additional_kwargs"""
+        run_id = uuid.uuid4()
+        parent_id = uuid.uuid4()
+
+        # Create parent chain
+        await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
+
+        # Create AIMessage with reasoning in additional_kwargs
+        ai_message = AIMessage(
+            content="I'll help you with that question.",
+            additional_kwargs={
+                "reasoning": "The user is asking for help, so I should provide a helpful response",
+                "tool_calls": [{"id": "call_1", "type": "function", "function": {"name": "search", "arguments": "{}"}}],
+            },
+        )
+
+        # Start chat model with the AIMessage
+        await callback.on_chat_model_start(
+            serialized={},
+            messages=[[ai_message]],
+            run_id=run_id,
+            parent_run_id=parent_id,
+            invocation_params={"model": "gpt-4o", "temperature": 0.7},
+        )
+
+        node = callback._handler.get_node(run_id)
+        assert node is not None
+        assert node.node_type == "chat"
+
+        # Check that reasoning and tool_calls were properly extracted
+        input_data = node.span_params["input"]
+        assert isinstance(input_data, list)
+        assert len(input_data) == 1
+        assert input_data[0]["content"] == "I'll help you with that question."
+        assert input_data[0]["role"] == "assistant"
+        assert input_data[0]["reasoning"] == "The user is asking for help, so I should provide a helpful response"
+        assert input_data[0]["tool_calls"] == [
+            {"id": "call_1", "type": "function", "function": {"name": "search", "arguments": "{}"}}
+        ]
