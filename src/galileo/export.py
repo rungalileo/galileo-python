@@ -35,22 +35,20 @@ class ExportClient:
         self,
         project_id: UUID4,
         root_type: RootType,
+        filters: list[
+            Union[
+                LogRecordsBooleanFilter,
+                LogRecordsDateFilter,
+                LogRecordsIDFilter,
+                LogRecordsNumberFilter,
+                LogRecordsTextFilter,
+            ]
+        ],
+        sort: LogRecordsSortClause,
         export_format: LLMExportFormat = LLMExportFormat.JSONL,
         log_stream_id: Optional[UUID4] = None,
         experiment_id: Optional[UUID4] = None,
-        filters: Optional[
-            list[
-                Union[
-                    LogRecordsBooleanFilter,
-                    LogRecordsDateFilter,
-                    LogRecordsIDFilter,
-                    LogRecordsNumberFilter,
-                    LogRecordsTextFilter,
-                ]
-            ]
-        ] = None,
         column_ids: Optional[list[str]] = None,
-        sort: Optional[LogRecordsSortClause] = None,
     ) -> Iterator[dict[str, Any]]:
         response = export_records_stream(
             client=self.config.api_client,
@@ -80,22 +78,20 @@ class ExportClient:
 def export_records(
     project_id: UUID4,
     root_type: RootType,
+    filters: list[
+        Union[
+            LogRecordsBooleanFilter,
+            LogRecordsDateFilter,
+            LogRecordsIDFilter,
+            LogRecordsNumberFilter,
+            LogRecordsTextFilter,
+        ]
+    ],
+    sort: LogRecordsSortClause,
     export_format: LLMExportFormat = LLMExportFormat.JSONL,
     log_stream_id: Optional[UUID4] = None,
     experiment_id: Optional[UUID4] = None,
-    filters: Optional[
-        list[
-            Union[
-                LogRecordsBooleanFilter,
-                LogRecordsDateFilter,
-                LogRecordsIDFilter,
-                LogRecordsNumberFilter,
-                LogRecordsTextFilter,
-            ]
-        ]
-    ] = None,
     column_ids: Optional[list[str]] = None,
-    sort: Optional[LogRecordsSortClause] = None,
 ) -> Iterator[dict[str, Any]]:
     """Exports records from a Galileo project.
 
