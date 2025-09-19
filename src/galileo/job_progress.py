@@ -40,7 +40,7 @@ def get_run_scorer_jobs(project_id: UUID4, run_id: UUID4) -> list[JobDB]:
     if response is None:
         raise ValueError(f"Failed to get scorer jobs for project {project_id}, run {run_id}")
 
-    _logger.info(f"Scorer jobs: {response}")
+    _logger.debug(f"Scorer jobs: {response}")
 
     return [job for job in response if job.job_name == JobName.log_stream_scorer]
 

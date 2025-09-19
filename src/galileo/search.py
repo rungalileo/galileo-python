@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from pydantic import UUID4
 
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.resources.api.trace import (
     query_sessions_projects_project_id_sessions_search_post,
     query_spans_projects_project_id_spans_search_post,
@@ -36,7 +36,12 @@ FilterType = Union[
 ]
 
 
-class Search(BaseClientModel):
+class Search:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def query(
         self,
         project_id: UUID4,
@@ -65,7 +70,7 @@ class Search(BaseClientModel):
 
         api_function = api_function_map[record_type]
 
-        response = api_function.sync(client=self.client, project_id=str(project_id), body=body)
+        response = api_function.sync(client=self.config.api_client, project_id=str(project_id), body=body)
 
         if isinstance(response, HTTPValidationError):
             raise ValueError(response.detail)

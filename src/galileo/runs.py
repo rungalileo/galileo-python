@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import UUID4
 
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.resources.api.run_scorer_settings import (
     upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_patch,
 )
@@ -18,7 +18,12 @@ from galileo.resources.models import (
 logger = logging.getLogger(__name__)
 
 
-class Runs(BaseClientModel):
+class Runs:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def update_scorer_settings(
         self,
         project_id: UUID4,
@@ -29,7 +34,7 @@ class Runs(BaseClientModel):
         body = RunScorerSettingsPatchRequest(run_id=str(run_id), scorers=scorers, segment_filters=segment_filters)
 
         response = upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_patch.sync(
-            client=self.client, project_id=str(project_id), run_id=str(run_id), body=body
+            client=self.config.api_client, project_id=str(project_id), run_id=str(run_id), body=body
         )
 
         if isinstance(response, HTTPValidationError):

@@ -109,7 +109,7 @@ class Metrics:
         )
 
         response = query_metrics_projects_project_id_metrics_search_post.sync(
-            client=self.client, project_id=str(project_id), body=body
+            client=self.config.api_client, project_id=str(project_id), body=body
         )
 
         if isinstance(response, HTTPValidationError):

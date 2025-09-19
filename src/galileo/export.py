@@ -6,7 +6,7 @@ from typing import Any, Optional, Union
 
 from pydantic import UUID4
 
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.resources.api.trace.export_records_projects_project_id_export_records_post import (
     stream_detailed as export_records_stream,
 )
@@ -25,7 +25,12 @@ from galileo.resources.models import (
 logger = logging.getLogger(__name__)
 
 
-class ExportClient(BaseClientModel):
+class ExportClient:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def records(
         self,
         project_id: UUID4,
@@ -48,7 +53,7 @@ class ExportClient(BaseClientModel):
         sort: Optional[LogRecordsSortClause] = None,
     ) -> Iterator[dict[str, Any]]:
         response = export_records_stream(
-            client=self.client,
+            client=self.config.api_client,
             project_id=project_id,
             body=LogRecordsExportRequest(
                 root_type=root_type,
