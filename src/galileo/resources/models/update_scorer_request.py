@@ -21,6 +21,7 @@ class UpdateScorerRequest:
         default_version_id (Union[None, Unset, str]):
         defaults (Union['ScorerDefaults', None, Unset]):
         description (Union[None, Unset, str]):
+        ground_truth (Union[None, Unset, bool]):
         model_type (Union[ModelType, None, Unset]):
         name (Union[None, Unset, str]):
         tags (Union[None, Unset, list[str]]):
@@ -29,6 +30,7 @@ class UpdateScorerRequest:
     default_version_id: Union[None, Unset, str] = UNSET
     defaults: Union["ScorerDefaults", None, Unset] = UNSET
     description: Union[None, Unset, str] = UNSET
+    ground_truth: Union[None, Unset, bool] = UNSET
     model_type: Union[ModelType, None, Unset] = UNSET
     name: Union[None, Unset, str] = UNSET
     tags: Union[None, Unset, list[str]] = UNSET
@@ -56,6 +58,12 @@ class UpdateScorerRequest:
             description = UNSET
         else:
             description = self.description
+
+        ground_truth: Union[None, Unset, bool]
+        if isinstance(self.ground_truth, Unset):
+            ground_truth = UNSET
+        else:
+            ground_truth = self.ground_truth
 
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
@@ -89,6 +97,8 @@ class UpdateScorerRequest:
             field_dict["defaults"] = defaults
         if description is not UNSET:
             field_dict["description"] = description
+        if ground_truth is not UNSET:
+            field_dict["ground_truth"] = ground_truth
         if model_type is not UNSET:
             field_dict["model_type"] = model_type
         if name is not UNSET:
@@ -139,6 +149,15 @@ class UpdateScorerRequest:
 
         description = _parse_description(d.pop("description", UNSET))
 
+        def _parse_ground_truth(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        ground_truth = _parse_ground_truth(d.pop("ground_truth", UNSET))
+
         def _parse_model_type(data: object) -> Union[ModelType, None, Unset]:
             if data is None:
                 return data
@@ -186,6 +205,7 @@ class UpdateScorerRequest:
             default_version_id=default_version_id,
             defaults=defaults,
             description=description,
+            ground_truth=ground_truth,
             model_type=model_type,
             name=name,
             tags=tags,

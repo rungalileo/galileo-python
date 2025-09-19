@@ -7,12 +7,14 @@ import pytest
 
 from galileo.datasets import (
     Dataset,
+    DatasetAPIException,
     DatasetAppendRow,
     DatasetAppendRowValues,
     Datasets,
     UpdateDatasetContentRequest,
     convert_dataset_row_to_record,
     create_dataset,
+    extend_dataset,
     get_dataset_version,
     get_dataset_version_history,
 )
@@ -24,10 +26,12 @@ from galileo.resources.models import (
     DatasetNameFilter,
     DatasetNameFilterOperator,
     DatasetUpdatedAtSort,
+    JobProgress,
     ListDatasetParams,
     ListDatasetResponse,
     ListDatasetVersionParams,
     ListDatasetVersionResponse,
+    SyntheticDatasetExtensionResponse,
 )
 from galileo.resources.models.dataset_row import DatasetRow
 from galileo.resources.models.dataset_row_values_dict import DatasetRowValuesDict
@@ -401,7 +405,7 @@ def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
 
     assert expected_etag == dataset._get_etag()
     get_dataset_content_by_id_patch.sync_detailed.assert_called_once_with(
-        client=dataset.client, dataset_id=dataset.dataset.id
+        client=dataset.config.api_client, dataset_id=dataset.dataset.id
     )
 
 
@@ -418,7 +422,7 @@ def test_dataset_add_rows_success(update_dataset_patch: Mock, get_dataset_conten
     expected_append_row_c = DatasetAppendRowValues()
     expected_append_row_c.additional_properties = {"input": "c"}
     update_dataset_patch.sync.assert_called_once_with(
-        client=dataset.client,
+        client=dataset.config.api_client,
         dataset_id="78e8035d-c429-47f2-8971-68f10e7e91c9",
         body=UpdateDatasetContentRequest(
             edits=[
@@ -475,3 +479,72 @@ def test_get_dataset_validation_errors():
     with pytest.raises(ValueError) as exc_info:
         Datasets().get(name=None)
     assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
+
+
+@patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
+@patch("galileo.datasets.get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get")
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+@patch("galileo.datasets.time.sleep")  # Mock sleep to avoid actual delays
+def test_extend_dataset_success(
+    sleep_mock: Mock, extend_dataset_mock: Mock, get_extend_status_mock: Mock, get_dataset_content_mock: Mock
+):
+    """Test the extend_dataset function with successful completion."""
+
+    # Setup test data
+    extended_dataset_id = "a8b3d8e0-5e0b-4b0f-8b3a-3b9f4b3d3b3a"
+
+    # Mock the initial extend request response
+    extend_response = SyntheticDatasetExtensionResponse(dataset_id=extended_dataset_id)
+    extend_dataset_mock.sync.return_value = extend_response
+
+    # Mock job progress responses - first incomplete, then complete
+    progress_responses = [
+        JobProgress(steps_completed=1, steps_total=3, progress_message="Processing"),
+        JobProgress(steps_completed=2, steps_total=3, progress_message="Still processing"),
+        JobProgress(steps_completed=3, steps_total=3, progress_message="Done"),
+    ]
+    get_extend_status_mock.sync.side_effect = progress_responses
+
+    # Mock the final dataset content
+    extended_row = DatasetRow(
+        index=0,
+        row_id="be4dcadf-a0a2-475e-91e4-7bd03fdf5de8",
+        values=["Extended", "Row"],
+        values_dict={"col1": "Extended", "col2": "Row"},
+        metadata=None,
+    )
+    dataset_content = DatasetContent(column_names=["col1", "col2"], rows=[extended_row])
+    get_dataset_content_mock.sync.return_value = dataset_content
+
+    # Call the function
+    result = extend_dataset(
+        prompt_settings={"model_alias": "GPT-4o mini"},
+        prompt="Financial planning assistant that helps clients design an investment strategy.",
+        instructions="You are a financial planning assistant that helps clients design an investment strategy.",
+        examples=["I want to invest $1000 per month."],
+        data_types=["Prompt Injection"],
+        count=3,
+    )
+
+    # Verify the result
+    assert result == [extended_row]
+
+    # Verify the API calls
+    extend_dataset_mock.sync.assert_called_once()
+    assert get_extend_status_mock.sync.call_count == 3  # Called 3 times before completion
+    get_dataset_content_mock.sync.assert_called_once_with(client=ANY, dataset_id=extended_dataset_id)
+
+    # Verify sleep was called between status checks
+    assert sleep_mock.call_count == 2  # Called 2 times (between the 3 status checks)
+
+
+@patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
+def test_extend_dataset_api_failure(extend_dataset_mock: Mock):
+    """Test extend_dataset when the initial API call fails."""
+
+    # Mock API failure
+    extend_dataset_mock.sync.return_value = HTTPValidationError()
+
+    # Call should raise DatasetAPIException
+    with pytest.raises(DatasetAPIException, match="Request to extend dataset failed."):
+        extend_dataset(prompt_settings={"model_alias": "GPT-4o mini"}, prompt="Test prompt", count=1)

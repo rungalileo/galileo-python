@@ -6,6 +6,7 @@ class LLMIntegration(str, Enum):
     AWS_BEDROCK = "aws_bedrock"
     AWS_SAGEMAKER = "aws_sagemaker"
     AZURE = "azure"
+    CUSTOM = "custom"
     DATABRICKS = "databricks"
     MISTRAL = "mistral"
     NVIDIA = "nvidia"

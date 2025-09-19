@@ -25,6 +25,7 @@ class LogTracesIngestRequest:
         is_complete (Union[Unset, bool]): Whether or not the records in this request are complete. Default: True.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         logging_method (Union[Unset, LoggingMethod]):
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         reliable (Union[Unset, bool]): Whether or not to use reliable logging.  If set to False, the method will respond
             immediately before verifying that the traces have been successfully ingested, and no error message will be
             returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
@@ -38,6 +39,7 @@ class LogTracesIngestRequest:
     is_complete: Union[Unset, bool] = True
     log_stream_id: Union[None, Unset, str] = UNSET
     logging_method: Union[Unset, LoggingMethod] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
     reliable: Union[Unset, bool] = False
     session_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -72,6 +74,12 @@ class LogTracesIngestRequest:
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
+        metrics_testing_id: Union[None, Unset, str]
+        if isinstance(self.metrics_testing_id, Unset):
+            metrics_testing_id = UNSET
+        else:
+            metrics_testing_id = self.metrics_testing_id
+
         reliable = self.reliable
 
         session_id: Union[None, Unset, str]
@@ -93,6 +101,8 @@ class LogTracesIngestRequest:
             field_dict["log_stream_id"] = log_stream_id
         if logging_method is not UNSET:
             field_dict["logging_method"] = logging_method
+        if metrics_testing_id is not UNSET:
+            field_dict["metrics_testing_id"] = metrics_testing_id
         if reliable is not UNSET:
             field_dict["reliable"] = reliable
         if session_id is not UNSET:
@@ -148,6 +158,15 @@ class LogTracesIngestRequest:
         else:
             logging_method = LoggingMethod(_logging_method)
 
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
+
         reliable = d.pop("reliable", UNSET)
 
         def _parse_session_id(data: object) -> Union[None, Unset, str]:
@@ -166,6 +185,7 @@ class LogTracesIngestRequest:
             is_complete=is_complete,
             log_stream_id=log_stream_id,
             logging_method=logging_method,
+            metrics_testing_id=metrics_testing_id,
             reliable=reliable,
             session_id=session_id,
         )

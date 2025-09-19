@@ -4,7 +4,7 @@ import warnings
 from typing import Optional, Union, overload
 
 from galileo import Message
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
 from galileo.resources.api.prompts import (
     create_global_prompt_template_templates_post,
@@ -95,7 +95,12 @@ class PromptTemplateVersion(BasePromptTemplateVersionResponse):
             self.additional_properties = prompt_template_version.additional_properties.copy()
 
 
-class PromptTemplates(BaseClientModel):
+class PromptTemplates:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def list(self, project_name: str) -> list[PromptTemplate]:
         project = Projects().get(name=project_name)
         if not project:
@@ -104,7 +109,7 @@ class PromptTemplates(BaseClientModel):
         templates = get_project_templates_projects_project_id_templates_get.sync(
             # TODO: remove type ignore, when migrated to proper AuthenticatedClient
             project_id=project.id,
-            client=self.client,  # type: ignore[arg-type]
+            client=self.config.api_client,  # type: ignore[arg-type]
         )
 
         if not templates or isinstance(templates, HTTPValidationError):
@@ -122,7 +127,7 @@ class PromptTemplates(BaseClientModel):
             # TODO: remove type ignore, when migrated to proper AuthenticatedClient
             project_id=project.id,
             template_id=template_id,
-            client=self.client,  # type: ignore[arg-type]
+            client=self.config.api_client,  # type: ignore[arg-type]
         )
 
         if not template or isinstance(template, HTTPValidationError):
@@ -142,7 +147,7 @@ class PromptTemplates(BaseClientModel):
         _logger.debug(f"{body}")
         response = create_prompt_template_with_version_projects_project_id_templates_post.sync_detailed(
             project_id=project.id,
-            client=self.client,  # type: ignore[arg-type]
+            client=self.config.api_client,  # type: ignore[arg-type]
             body=body,  # type: ignore[arg-type]
         )
 
@@ -156,7 +161,12 @@ class PromptTemplates(BaseClientModel):
         return PromptTemplate(prompt_template=response.parsed)
 
 
-class GlobalPromptTemplates(BaseClientModel):
+class GlobalPromptTemplates:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def list(
         self, *, name_filter: Optional[str] = None, limit: Union[Unset, int] = 100, starting_token: int = 0
     ) -> list[PromptTemplate]:
@@ -167,7 +177,7 @@ class GlobalPromptTemplates(BaseClientModel):
             ]
 
         response = query_templates_templates_query_post.sync(
-            client=self.client, body=params, limit=limit, starting_token=starting_token
+            client=self.config.api_client, body=params, limit=limit, starting_token=starting_token
         )
 
         if not response or isinstance(response, HTTPValidationError):
@@ -193,7 +203,9 @@ class GlobalPromptTemplates(BaseClientModel):
 
         if template_id:
             _logger.debug(f"Get global template {template_id}")
-            template = get_global_template_templates_template_id_get.sync(template_id=template_id, client=self.client)
+            template = get_global_template_templates_template_id_get.sync(
+                template_id=template_id, client=self.config.api_client
+            )
 
             if not template or isinstance(template, HTTPValidationError):
                 return None
@@ -226,12 +238,14 @@ class GlobalPromptTemplates(BaseClientModel):
             template_id = template.id
 
         if template_id:
-            delete_global_template_templates_template_id_delete.sync(client=self.client, template_id=template_id)
+            delete_global_template_templates_template_id_delete.sync(
+                client=self.config.api_client, template_id=template_id
+            )
 
     def get_version(self, *, template_id: str, version: int) -> Optional[PromptTemplateVersion]:
         _logger.debug(f"Get global template {template_id} version {version}")
         template_version = get_global_template_version_templates_template_id_versions_version_get.sync(
-            template_id=template_id, version=version, client=self.client
+            template_id=template_id, version=version, client=self.config.api_client
         )
 
         if not template_version or isinstance(template_version, HTTPValidationError):
@@ -243,7 +257,7 @@ class GlobalPromptTemplates(BaseClientModel):
         body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
 
         _logger.debug(f"Creating global template: {body}")
-        response = create_global_prompt_template_templates_post.sync_detailed(client=self.client, body=body)
+        response = create_global_prompt_template_templates_post.sync_detailed(client=self.config.api_client, body=body)
 
         if response.status_code != 200:
             raise PromptTemplateAPIException(response.content.decode("utf-8"))
@@ -279,7 +293,7 @@ class GlobalPromptTemplates(BaseClientModel):
 
         _logger.debug(f"Updating global template {template_id}: {body}")
         response = update_global_template_templates_template_id_patch.sync_detailed(
-            template_id=template_id, client=self.client, body=body
+            template_id=template_id, client=self.config.api_client, body=body
         )
 
         if response.status_code != 200:
@@ -327,7 +341,7 @@ class GlobalPromptTemplates(BaseClientModel):
 
         _logger.debug(f"Rendering template: {template}")
         response = render_template_render_template_post.sync_detailed(
-            client=self.client, body=body, starting_token=starting_token, limit=limit
+            client=self.config.api_client, body=body, starting_token=starting_token, limit=limit
         )
 
         if response.status_code != 200:
@@ -362,33 +376,31 @@ def list_prompt_templates(project: str) -> list[PromptTemplate]:
 
 
 @overload
-def get_prompt(*, id: str) -> Optional[PromptTemplateVersion]: ...
+def get_prompt(*, id: str) -> Optional[PromptTemplate]: ...
 
 
 @overload
-def get_prompt(*, name: str) -> Optional[PromptTemplateVersion]: ...
+def get_prompt(*, name: str) -> Optional[PromptTemplate]: ...
 
 
-def get_prompt(
-    *, id: Optional[str] = None, name: Optional[str] = None, version: Optional[int] = None
-) -> Optional[PromptTemplateVersion]:
+def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optional[PromptTemplate]:
     """
-    Retrieves a specific global prompt template version.
+    Retrieves a global prompt template.
 
     You must provide either 'id' or 'name', but not both.
-    If 'version' is not provided, the currently selected version is returned.
+
     Parameters
     ----------
     id : str, optional
         The unique identifier of the template to retrieve. Defaults to None.
     name : str, optional
         The name of the template to retrieve. Defaults to None.
-    version : int, optional
-        The version number to retrieve. If not provided, the currently selected version is returned. Defaults to None.
+
     Returns
     -------
-    Optional[PromptTemplateVersion]
-        The template version if found, None otherwise.
+    Optional[PromptTemplate]
+        The template if found, None otherwise.
+
     Raises
     ------
     ValueError
@@ -400,25 +412,12 @@ def get_prompt(
     if (id is not None) and (name is not None):
         raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
-    if version is not None:
-        target_id = id
-        if name:
-            prompt_template = GlobalPromptTemplates().get(name=name)
-            if not prompt_template:
-                return None
-            target_id = prompt_template.id
-
-        if not target_id:
-            raise ValueError("A template id is required to fetch a specific version.")
-
-        return GlobalPromptTemplates().get_version(template_id=target_id, version=version)
-
     prompt_template = GlobalPromptTemplates().get(template_id=id) if id else GlobalPromptTemplates().get(name=name)  # type: ignore[arg-type]
 
-    if not prompt_template or isinstance(prompt_template.selected_version, Unset):
+    if not prompt_template:
         return None
 
-    return PromptTemplateVersion(prompt_template_version=prompt_template.selected_version)
+    return PromptTemplate(prompt_template=prompt_template)
 
 
 @overload

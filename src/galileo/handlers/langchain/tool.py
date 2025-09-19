@@ -7,7 +7,7 @@ from pydantic import UUID4, BaseModel, ConfigDict, Field
 from pydantic.v1 import BaseModel as BaseModelV1
 
 from galileo.constants.protect import TIMEOUT_SECS
-from galileo.protect import ainvoke, invoke
+from galileo.protect import ainvoke_protect, invoke_protect
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload as CorePayload
 from galileo_core.schemas.protect.response import Response
@@ -66,7 +66,7 @@ class ProtectTool(BaseTool):
         for tools.
         """
         api_payload = CorePayload(input=input, output=output)
-        api_response = invoke(
+        api_response = invoke_protect(
             payload=api_payload,
             prioritized_rulesets=self.prioritized_rulesets,
             project_name=self.project_name,
@@ -86,7 +86,7 @@ class ProtectTool(BaseTool):
         for tools.
         """
         api_payload = CorePayload(input=input, output=output)
-        api_response = await ainvoke(
+        api_response = await ainvoke_protect(
             payload=api_payload,
             prioritized_rulesets=self.prioritized_rulesets,
             project_name=self.project_name,

@@ -27,6 +27,7 @@ class LogRecordsQueryRequest:
             'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
         limit (Union[Unset, int]):  Default: 100.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         sort (Union[Unset, LogRecordsSortClause]):
         starting_token (Union[Unset, int]):  Default: 0.
         truncate_fields (Union[Unset, bool]):  Default: False.
@@ -47,6 +48,7 @@ class LogRecordsQueryRequest:
     ] = UNSET
     limit: Union[Unset, int] = 100
     log_stream_id: Union[None, Unset, str] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
     sort: Union[Unset, "LogRecordsSortClause"] = UNSET
     starting_token: Union[Unset, int] = 0
     truncate_fields: Union[Unset, bool] = False
@@ -90,6 +92,12 @@ class LogRecordsQueryRequest:
         else:
             log_stream_id = self.log_stream_id
 
+        metrics_testing_id: Union[None, Unset, str]
+        if isinstance(self.metrics_testing_id, Unset):
+            metrics_testing_id = UNSET
+        else:
+            metrics_testing_id = self.metrics_testing_id
+
         sort: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.sort, Unset):
             sort = self.sort.to_dict()
@@ -109,6 +117,8 @@ class LogRecordsQueryRequest:
             field_dict["limit"] = limit
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
+        if metrics_testing_id is not UNSET:
+            field_dict["metrics_testing_id"] = metrics_testing_id
         if sort is not UNSET:
             field_dict["sort"] = sort
         if starting_token is not UNSET:
@@ -204,6 +214,15 @@ class LogRecordsQueryRequest:
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
+
         _sort = d.pop("sort", UNSET)
         sort: Union[Unset, LogRecordsSortClause]
         if isinstance(_sort, Unset):
@@ -220,6 +239,7 @@ class LogRecordsQueryRequest:
             filters=filters,
             limit=limit,
             log_stream_id=log_stream_id,
+            metrics_testing_id=metrics_testing_id,
             sort=sort,
             starting_token=starting_token,
             truncate_fields=truncate_fields,

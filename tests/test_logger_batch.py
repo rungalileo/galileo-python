@@ -4,7 +4,7 @@ import logging
 import uuid
 from collections import deque
 from typing import Union
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, Mock, patch
 from uuid import UUID, uuid4
 
 import pytest
@@ -21,10 +21,10 @@ from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response, TraceMetadata
 from galileo_core.schemas.shared.document import Document
 from tests.testutils.setup import (
-    setup_mock_core_api_client,
     setup_mock_experiments_client,
     setup_mock_logstreams_client,
     setup_mock_projects_client,
+    setup_mock_traces_client,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -36,8 +36,8 @@ def test_galileo_logger_exceptions() -> None:
     assert str(exc_info.value) == "User cannot specify both a log stream and an experiment."
 
 
-@patch("galileo.logger.logger.GalileoCoreApiClient")
-def test_disable_galileo_logger(mock_core_api_client: Mock, monkeypatch, caplog) -> None:
+@patch("galileo.logger.logger.Traces")
+def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog) -> None:
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.WARNING):
@@ -61,17 +61,17 @@ def test_disable_galileo_logger(mock_core_api_client: Mock, monkeypatch, caplog)
         assert "Bypassing logging for add_llm_span. Logging is currently disabled." in caplog.text
         assert "Bypassing logging for conclude. Logging is currently disabled." in caplog.text
         assert "Bypassing logging for flush. Logging is currently disabled." in caplog.text
-    mock_core_api_client.assert_not_called()
-    mock_core_api_client.ingest_traces_sync.assert_not_called()
+    mock_traces_client.assert_not_called()
+    mock_traces_client.ingest_traces.assert_not_called()
 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_single_span_trace_to_galileo(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -96,7 +96,8 @@ def test_single_span_trace_to_galileo(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -129,12 +130,12 @@ def test_single_span_trace_to_galileo(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_all_span_types_with_redacted_fields(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
     """Test that redacted_input and redacted_output fields work for all span types."""
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -235,7 +236,8 @@ def test_all_span_types_with_redacted_fields(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload = mock_traces_client_instance.ingest_traces.call_args.args[0]
     trace = payload.traces[0]
 
     assert trace.input == "Sensitive trace input: api_key_123"
@@ -312,11 +314,11 @@ def test_all_span_types_with_redacted_fields(
 
 @patch("galileo.experiments.Experiments")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_single_span_trace_to_galileo_experiment_id(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_experiments_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_experiments_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_experiments_client(mock_experiments_client)
 
@@ -329,7 +331,8 @@ def test_single_span_trace_to_galileo_experiment_id(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,
         experiment_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a",
@@ -361,11 +364,11 @@ def test_single_span_trace_to_galileo_experiment_id(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_nested_span_trace_to_galileo(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -398,7 +401,8 @@ def test_nested_span_trace_to_galileo(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload = mock_traces_client_instance.ingest_traces.call_args.args[0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -411,9 +415,9 @@ def test_nested_span_trace_to_galileo(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
-def test_add_agent_span(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+@patch("galileo.logger.logger.Traces")
+def test_add_agent_span(mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -429,7 +433,8 @@ def test_add_agent_span(mock_core_api_client: Mock, mock_projects_client: Mock, 
     logger.conclude(output="response", duration_ns=1_000_000, status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload = mock_traces_client_instance.ingest_traces.call_args.args[0]
     expected_payload = TracesIngestRequest(log_stream_id=None, experiment_id=None, traces=[trace])
     assert payload == expected_payload
     assert isinstance(payload.traces[0].spans[0], AgentSpan)
@@ -440,11 +445,11 @@ def test_add_agent_span(mock_core_api_client: Mock, mock_projects_client: Mock, 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_add_protect_tool_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -485,7 +490,8 @@ def test_add_protect_tool_span(
     logger.conclude(output="response", duration_ns=1_000_000, status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload = mock_traces_client_instance.ingest_traces.call_args.args[0]
     expected_payload = TracesIngestRequest(log_stream_id=None, experiment_id=None, traces=[trace])
     assert payload == expected_payload
     protect_span = payload.traces[0].spans[0]
@@ -522,11 +528,11 @@ def test_add_protect_tool_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_multi_span_trace_to_galileo(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -572,7 +578,7 @@ def test_multi_span_trace_to_galileo(
 
     logger.flush()
 
-    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -605,11 +611,11 @@ def test_multi_span_trace_to_galileo(
 @pytest.mark.asyncio
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 async def test_single_span_trace_to_galileo_with_async(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -645,7 +651,7 @@ async def test_single_span_trace_to_galileo_with_async(
 
     setattr(span.metrics, "length", 6)
 
-    payload: TracesIngestRequest = mock_core_api_instance.ingest_traces.call_args[0][0]
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
         log_stream_id=None,  # TODO: fix this
         experiment_id=None,
@@ -677,11 +683,11 @@ async def test_single_span_trace_to_galileo_with_async(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_retriever_span_str_output(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -694,7 +700,7 @@ def test_retriever_span_str_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -703,11 +709,11 @@ def test_retriever_span_str_output(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_retriever_span_list_str_output(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -720,7 +726,7 @@ def test_retriever_span_list_str_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -732,11 +738,11 @@ def test_retriever_span_list_str_output(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_retriever_span_dict_output(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -756,7 +762,7 @@ def test_retriever_span_dict_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -767,11 +773,11 @@ def test_retriever_span_dict_output(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_retriever_span_list_dict_output(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -798,7 +804,7 @@ def test_retriever_span_list_dict_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -814,11 +820,11 @@ def test_retriever_span_list_dict_output(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_retriever_span_document_output(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -835,7 +841,7 @@ def test_retriever_span_document_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -844,11 +850,11 @@ def test_retriever_span_document_output(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_retriever_span_list_document_output(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -865,7 +871,7 @@ def test_retriever_span_list_document_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -877,11 +883,11 @@ def test_retriever_span_list_document_output(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_retriever_span_none_output(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -892,7 +898,7 @@ def test_retriever_span_none_output(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert isinstance(payload.traces[0].spans[0], RetrieverSpan)
     assert payload.traces[0].spans[0].input == "prompt"
@@ -901,11 +907,9 @@ def test_retriever_span_none_output(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
-def test_conclude_all_spans(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
-) -> None:
-    setup_mock_core_api_client(mock_core_api_client)
+@patch("galileo.logger.logger.Traces")
+def test_conclude_all_spans(mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -942,11 +946,11 @@ def test_conclude_all_spans(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_flush_with_conclude_all_spans(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -973,7 +977,7 @@ def test_flush_with_conclude_all_spans(
 
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -987,11 +991,11 @@ def test_flush_with_conclude_all_spans(
 
 @patch("galileo.logger.logger.Projects.get")
 @patch("galileo.projects.create_project_projects_post")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_galileo_logger_failed_creating_project(
-    mock_core_api_client: Mock, galileo_resources_api_projects: Mock, mock_projects_get: Mock, caplog
+    mock_traces_client: Mock, galileo_resources_api_projects: Mock, mock_projects_get: Mock, caplog
 ) -> None:
-    mock_instance = mock_core_api_client.return_value
+    mock_instance = mock_traces_client.return_value
 
     mock_instance.get_project_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a")})
     mock_instance.get_log_stream_by_name = Mock(return_value={"id": UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b")})
@@ -1149,9 +1153,9 @@ def test_get_last_output_last_child_no_output() -> None:
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
-def test_session_create(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+@patch("galileo.logger.logger.Traces")
+def test_session_create(mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1160,7 +1164,7 @@ def test_session_create(mock_core_api_client: Mock, mock_projects_client: Mock, 
         name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test"
     )
 
-    payload = mock_core_api_instance.create_session_sync.call_args[0][0]
+    payload = mock_traces_client_instance.create_session.call_args[0][0]
 
     assert payload.name == "test-session"
     assert payload.previous_session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
@@ -1171,18 +1175,18 @@ def test_session_create(mock_core_api_client: Mock, mock_projects_client: Mock, 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_session_create_empty_values(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     session_id = logger.start_session()
 
-    payload = mock_core_api_instance.create_session_sync.call_args[0][0]
+    payload = mock_traces_client_instance.create_session.call_args[0][0]
 
     assert payload.name is None
     assert payload.previous_session_id is None
@@ -1193,9 +1197,9 @@ def test_session_create_empty_values(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
-def test_session_clear(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
-    setup_mock_core_api_client(mock_core_api_client)
+@patch("galileo.logger.logger.Traces")
+def test_session_clear(mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1213,11 +1217,11 @@ def test_session_clear(mock_core_api_client: Mock, mock_projects_client: Mock, m
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_session_id_on_flush(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1233,15 +1237,15 @@ def test_session_id_on_flush(
     logger.conclude("output", status_code=200)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     assert str(payload.session_id) == session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
-def test_set_session_id(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+@patch("galileo.logger.logger.Traces")
+def test_set_session_id(mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1259,17 +1263,17 @@ def test_set_session_id(mock_core_api_client: Mock, mock_projects_client: Mock, 
     logger.flush()
 
     # Check that the session ID is set correctly in the payload
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     assert payload.session_id == UUID(session_id)
 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_start_session_with_external_id(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1278,12 +1282,12 @@ def test_start_session_with_external_id(
     session_id = logger.start_session(
         name="test-session", previous_session_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e", external_id="test-external-id"
     )
-    mock_core_api_instance.get_sessions_sync.assert_called_once()
-    mock_core_api_instance.create_session_sync.assert_called_once()
+    mock_traces_client_instance.get_sessions.assert_called_once()
+    mock_traces_client_instance.create_session.assert_called_once()
     assert session_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c"
     assert logger.session_id == session_id
 
-    mock_core_api_instance.get_sessions_sync = Mock(
+    mock_traces_client_instance.get_sessions = AsyncMock(
         return_value={
             "starting_token": 0,
             "limit": 100,
@@ -1315,12 +1319,12 @@ def test_start_session_with_external_id(
             "num_records": 1,
         }
     )
-    mock_core_api_instance.create_session_sync.reset_mock()
+    mock_traces_client_instance.create_session.reset_mock()
 
     logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
     session_id = logger.start_session(external_id="test-external-id")
-    mock_core_api_instance.get_sessions_sync.assert_called_once()
-    mock_core_api_instance.create_session_sync.assert_not_called()
+    mock_traces_client_instance.get_sessions.assert_called_once()
+    mock_traces_client_instance.create_session.assert_not_called()
     assert session_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9c")
     assert logger.session_id == session_id
 
@@ -1331,17 +1335,17 @@ def test_start_session_with_external_id(
     logger.flush()
 
     # Check that the session ID is set correctly in the payload
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     assert payload.session_id == session_id
 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_logger_init_with_project_id_and_log_stream_id(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client = setup_mock_traces_client(mock_traces_client)
     mock_projects_client = setup_mock_projects_client(mock_projects_client)
     mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1358,11 +1362,11 @@ def test_logger_init_with_project_id_and_log_stream_id(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_logger_init_with_project_id_and_log_stream_name(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client = setup_mock_traces_client(mock_traces_client)
     mock_projects_client = setup_mock_projects_client(mock_projects_client)
     mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1377,11 +1381,11 @@ def test_logger_init_with_project_id_and_log_stream_name(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_logger_init_with_project_name_and_log_stream_id(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client = setup_mock_traces_client(mock_traces_client)
     mock_projects_client = setup_mock_projects_client(mock_projects_client)
     mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1396,11 +1400,11 @@ def test_logger_init_with_project_name_and_log_stream_id(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_logger_init_with_project_name_and_experiment_id(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client = setup_mock_traces_client(mock_traces_client)
     mock_projects_client = setup_mock_projects_client(mock_projects_client)
     mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1416,11 +1420,11 @@ def test_logger_init_with_project_name_and_experiment_id(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_logger_init_with_project_id_and_experiment_id(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client = setup_mock_traces_client(mock_traces_client)
     mock_projects_client = setup_mock_projects_client(mock_projects_client)
     mock_logstreams_client = setup_mock_logstreams_client(mock_logstreams_client)
 

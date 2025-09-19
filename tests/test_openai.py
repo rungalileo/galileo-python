@@ -9,7 +9,7 @@ from openai.types.chat import ChatCompletionChunk
 from galileo import Message, MessageRole, galileo_context, log
 from galileo.openai import OpenAIGalileo, openai
 from galileo_core.schemas.logging.span import LlmSpan, WorkflowSpan
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 from tests.testutils.streaming import EventStream
 
 
@@ -20,15 +20,15 @@ def openai_incorrect_api_key_error():
 @patch("openai.resources.chat.Completions.create")
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_basic_openai_call(
-    mock_core_api_client: Mock,
+    mock_traces_client: Mock,
     mock_projects_client: Mock,
     mock_logstreams_client: Mock,
     openai_create,
     create_chat_completion,
 ):
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.return_value = create_chat_completion
@@ -55,7 +55,7 @@ def test_basic_openai_call(
     assert response == "The mock is working! ;)"
 
     galileo_context.flush()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert payload.traces[0].status_code == 200
@@ -80,11 +80,11 @@ def test_basic_openai_call(
 @patch("openai.resources.chat.Completions.create")
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_streamed_openai_call(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
 ):
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -108,7 +108,7 @@ def test_streamed_openai_call(
     assert chunk_count == 3
 
     galileo_context.flush()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert payload.traces[0].status_code == 200
@@ -125,15 +125,15 @@ def test_streamed_openai_call(
 @patch("openai.resources.chat.Completions.create")
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_openai_api_calls_as_parent_span(
-    mock_core_api_client: Mock,
+    mock_traces_client: Mock,
     mock_projects_client: Mock,
     mock_logstreams_client: Mock,
     openai_create,
     create_chat_completion,
 ):
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.return_value = create_chat_completion
@@ -154,7 +154,7 @@ def test_openai_api_calls_as_parent_span(
 
     galileo_context.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -178,11 +178,11 @@ def test_openai_api_calls_as_parent_span(
 )
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_openai_error_trace(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
 ):
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -202,19 +202,19 @@ def test_openai_error_trace(
     galileo_context.flush()
 
     openai_create.assert_called_once()
-    mock_core_api_instance.ingest_traces_sync.assert_called()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_traces_client_instance.ingest_traces.assert_called()
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     assert len(payload.traces) == 1
 
 
 @patch("openai.resources.chat.Completions.create")
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_openai_error_trace_(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
 ):
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.side_effect = openai.APIStatusError(
@@ -239,8 +239,8 @@ def test_openai_error_trace_(
     galileo_context.flush()
 
     openai_create.assert_called_once()
-    mock_core_api_instance.ingest_traces_sync.assert_called()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_traces_client_instance.ingest_traces.assert_called()
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     assert len(payload.traces) == 1
     assert payload.traces[0].status_code == 401
     assert payload.traces[0].output == "<NoneType response returned from OpenAI>"
@@ -252,11 +252,11 @@ def test_openai_error_trace_(
 )
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_client_fails_because_openai_error_trace_no_exp(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
 ):
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -278,8 +278,8 @@ def test_client_fails_because_openai_error_trace_no_exp(
 
     mock_projects_client.assert_called_once()
     openai_create.assert_called_once()
-    mock_core_api_instance.ingest_traces_sync.assert_called()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    mock_traces_client_instance.ingest_traces.assert_called()
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1
@@ -288,18 +288,18 @@ def test_client_fails_because_openai_error_trace_no_exp(
 @patch("openai.resources.chat.Completions.create")
 @patch("galileo.logger.logger.LogStreams", side_effect=Exception("error"))
 @patch("galileo.logger.logger.Projects", side_effect=Exception("error"))
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_galileo_api_client_transport_error_not_blocking_user_code(
-    mock_core_api_client: Mock,
+    mock_traces_client: Mock,
     mock_projects_client: Mock,
     mock_logstreams_client: Mock,
     openai_create,
     create_chat_completion,
 ):
-    m = mock_core_api_client.return_value
+    m = mock_traces_client.return_value
     m.get_project_by_name = AsyncMock(side_effect=httpx.HTTPError("http error"))
     m.get_log_stream_by_name = AsyncMock(side_effect=httpx.HTTPError("http error"))
-    m.ingest_traces_sync = AsyncMock(side_effect=httpx.HTTPError("http error"))
+    m.ingest_traces = AsyncMock(side_effect=httpx.HTTPError("http error"))
     m.ingest_traces = AsyncMock(side_effect=httpx.HTTPError("http error"))
 
     setup_mock_projects_client(mock_projects_client)
@@ -326,15 +326,15 @@ def test_galileo_api_client_transport_error_not_blocking_user_code(
 @patch("openai.resources.chat.Completions.create")
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_openai_calls_in_active_trace(
-    mock_core_api_client: Mock,
+    mock_traces_client: Mock,
     mock_projects_client: Mock,
     mock_logstreams_client: Mock,
     openai_create,
     create_chat_completion,
 ):
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
     openai_create.return_value = create_chat_completion
@@ -353,7 +353,7 @@ def test_openai_calls_in_active_trace(
     logger.conclude(output="trace completed", duration_ns=1000)
     logger.flush()
 
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
 
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 2

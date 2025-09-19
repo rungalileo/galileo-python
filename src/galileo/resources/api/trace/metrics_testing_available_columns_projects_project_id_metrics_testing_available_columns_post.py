@@ -1,0 +1,153 @@
+from http import HTTPStatus
+from typing import Any, Optional, Union
+
+import httpx
+
+from galileo.utils.headers_data import get_package_version
+from galileo_core.constants.request_method import RequestMethod
+from galileo_core.helpers.api_client import ApiClient
+
+from ... import errors
+from ...models.http_validation_error import HTTPValidationError
+from ...models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
+from ...models.metrics_testing_available_columns_request import MetricsTestingAvailableColumnsRequest
+from ...types import Response
+
+
+def _get_kwargs(project_id: str, *, body: MetricsTestingAvailableColumnsRequest) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
+    _kwargs: dict[str, Any] = {
+        "method": RequestMethod.POST,
+        "return_raw_response": True,
+        "path": f"/projects/{project_id}/metrics-testing/available_columns",
+    }
+
+    _kwargs["json"] = body.to_dict()
+
+    headers["Content-Type"] = "application/json"
+
+    headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
+
+    _kwargs["content_headers"] = headers
+    return _kwargs
+
+
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+    if response.status_code == 200:
+        response_200 = LogRecordsAvailableColumnsResponse.from_dict(response.json())
+
+        return response_200
+    if response.status_code == 422:
+        response_422 = HTTPValidationError.from_dict(response.json())
+
+        return response_422
+    if client.raise_on_unexpected_status:
+        raise errors.UnexpectedStatus(response.status_code, response.content)
+    else:
+        return None
+
+
+def _build_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+    return Response(
+        status_code=HTTPStatus(response.status_code),
+        content=response.content,
+        headers=response.headers,
+        parsed=_parse_response(client=client, response=response),
+    )
+
+
+def sync_detailed(
+    project_id: str, *, client: ApiClient, body: MetricsTestingAvailableColumnsRequest
+) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+    """Metrics Testing Available Columns
+
+    Args:
+        project_id (str):
+        body (MetricsTestingAvailableColumnsRequest): Request to get the available columns for the
+            metrics testing table.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]
+    """
+
+    kwargs = _get_kwargs(project_id=project_id, body=body)
+
+    response = client.request(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+def sync(
+    project_id: str, *, client: ApiClient, body: MetricsTestingAvailableColumnsRequest
+) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+    """Metrics Testing Available Columns
+
+    Args:
+        project_id (str):
+        body (MetricsTestingAvailableColumnsRequest): Request to get the available columns for the
+            metrics testing table.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]
+    """
+
+    return sync_detailed(project_id=project_id, client=client, body=body).parsed
+
+
+async def asyncio_detailed(
+    project_id: str, *, client: ApiClient, body: MetricsTestingAvailableColumnsRequest
+) -> Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+    """Metrics Testing Available Columns
+
+    Args:
+        project_id (str):
+        body (MetricsTestingAvailableColumnsRequest): Request to get the available columns for the
+            metrics testing table.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Response[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]
+    """
+
+    kwargs = _get_kwargs(project_id=project_id, body=body)
+
+    response = await client.arequest(**kwargs)
+
+    return _build_response(client=client, response=response)
+
+
+async def asyncio(
+    project_id: str, *, client: ApiClient, body: MetricsTestingAvailableColumnsRequest
+) -> Optional[Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]]:
+    """Metrics Testing Available Columns
+
+    Args:
+        project_id (str):
+        body (MetricsTestingAvailableColumnsRequest): Request to get the available columns for the
+            metrics testing table.
+
+    Raises:
+        errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException: If the request takes longer than Client.timeout.
+
+    Returns:
+        Union[HTTPValidationError, LogRecordsAvailableColumnsResponse]
+    """
+
+    return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

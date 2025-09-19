@@ -17,9 +17,9 @@ from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response, TraceMetadata
 from galileo_core.schemas.shared.document import Document
 from tests.testutils.setup import (
-    setup_mock_core_api_client,
     setup_mock_logstreams_client,
     setup_mock_projects_client,
+    setup_mock_traces_client,
     setup_thread_pool_request_capture,
 )
 
@@ -32,8 +32,8 @@ def test_galileo_logger_exceptions() -> None:
     assert str(exc_info.value) == "User cannot specify both a log stream and an experiment."
 
 
-@patch("galileo.logger.logger.GalileoCoreApiClient")
-def test_disable_galileo_logger(mock_core_api_client: Mock, monkeypatch, caplog) -> None:
+@patch("galileo.logger.logger.Traces")
+def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog) -> None:
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.WARNING):
@@ -57,18 +57,18 @@ def test_disable_galileo_logger(mock_core_api_client: Mock, monkeypatch, caplog)
         captured_tasks = capture.get_all_tasks()
         assert len(captured_tasks) == 0
 
-        mock_core_api_client.assert_not_called()
-        mock_core_api_client.ingest_traces_sync.assert_not_called()
-        mock_core_api_client.ingest_spans_sync.assert_not_called()
-        mock_core_api_client.update_trace_sync.assert_not_called()
-        mock_core_api_client.update_span_sync.assert_not_called()
+        mock_traces_client.assert_not_called()
+        mock_traces_client.ingest_traces.assert_not_called()
+        mock_traces_client.ingest_spans.assert_not_called()
+        mock_traces_client.update_trace.assert_not_called()
+        mock_traces_client.update_span.assert_not_called()
 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
-def test_start_trace(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+@patch("galileo.logger.logger.Traces")
+def test_start_trace(mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -87,7 +87,7 @@ def test_start_trace(mock_core_api_client: Mock, mock_projects_client: Mock, moc
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].input == "input"
     assert request.traces[0].name == "test-trace"
@@ -99,9 +99,9 @@ def test_start_trace(mock_core_api_client: Mock, mock_projects_client: Mock, moc
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
-def test_add_llm_span(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+@patch("galileo.logger.logger.Traces")
+def test_add_llm_span(mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -134,7 +134,7 @@ def test_add_llm_span(mock_core_api_client: Mock, mock_projects_client: Mock, mo
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].input == "input"
     assert request.traces[0].name == "test-trace"
@@ -149,7 +149,7 @@ def test_add_llm_span(mock_core_api_client: Mock, mock_projects_client: Mock, mo
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -166,11 +166,11 @@ def test_add_llm_span(mock_core_api_client: Mock, mock_projects_client: Mock, mo
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_add_protect_tool_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -218,7 +218,7 @@ def test_add_protect_tool_span(
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].input == "input"
     assert request.traces[0].name == "test-trace"
@@ -233,7 +233,7 @@ def test_add_protect_tool_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -271,9 +271,9 @@ def test_add_protect_tool_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
-def test_conclude_trace(mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+@patch("galileo.logger.logger.Traces")
+def test_conclude_trace(mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -296,7 +296,7 @@ def test_conclude_trace(mock_core_api_client: Mock, mock_projects_client: Mock, 
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
     assert request.traces[0].parent_id is None
@@ -314,7 +314,7 @@ def test_conclude_trace(mock_core_api_client: Mock, mock_projects_client: Mock, 
     assert isinstance(request, TraceUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_trace.assert_called_with(request)
+    mock_traces_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.output == "response"
@@ -324,11 +324,11 @@ def test_conclude_trace(mock_core_api_client: Mock, mock_projects_client: Mock, 
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_conclude_trace_with_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -364,7 +364,7 @@ def test_conclude_trace_with_span(
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
     assert request.traces[0].parent_id is None
@@ -382,7 +382,7 @@ def test_conclude_trace_with_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -401,7 +401,7 @@ def test_conclude_trace_with_span(
     assert isinstance(request, TraceUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_trace.assert_called_with(request)
+    mock_traces_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.output == "response"
@@ -411,11 +411,11 @@ def test_conclude_trace_with_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_conclude_trace_and_start_new_trace(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -463,7 +463,7 @@ def test_conclude_trace_and_start_new_trace(
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
     assert request.traces[0].parent_id is None
@@ -482,7 +482,7 @@ def test_conclude_trace_and_start_new_trace(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -502,7 +502,7 @@ def test_conclude_trace_and_start_new_trace(
     assert isinstance(request, TraceUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_trace.assert_called_with(request)
+    mock_traces_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.output == "response"
@@ -515,7 +515,7 @@ def test_conclude_trace_and_start_new_trace(
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
     assert request.traces[0].parent_id is None
@@ -530,11 +530,11 @@ def test_conclude_trace_and_start_new_trace(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_conclude_trace_with_nested_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -579,7 +579,7 @@ def test_conclude_trace_with_nested_span(
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
     assert request.traces[0].parent_id is None
@@ -598,7 +598,7 @@ def test_conclude_trace_with_nested_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -619,7 +619,7 @@ def test_conclude_trace_with_nested_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == workflow_span_id
@@ -640,7 +640,7 @@ def test_conclude_trace_with_nested_span(
     assert isinstance(request, SpanUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_span.assert_called_with(request)
+    mock_traces_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == workflow_span_id
     assert request.output == "response1"
@@ -652,7 +652,7 @@ def test_conclude_trace_with_nested_span(
     assert isinstance(request, TraceUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_trace.assert_called_with(request)
+    mock_traces_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.output == "response2"
@@ -662,11 +662,11 @@ def test_conclude_trace_with_nested_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_conclude_all_with_nested_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -706,7 +706,7 @@ def test_conclude_all_with_nested_span(
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
     assert request.traces[0].input == "input"
@@ -724,7 +724,7 @@ def test_conclude_all_with_nested_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -743,7 +743,7 @@ def test_conclude_all_with_nested_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == workflow_span_id
@@ -763,7 +763,7 @@ def test_conclude_all_with_nested_span(
     assert isinstance(request, SpanUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_span.assert_called_with(request)
+    mock_traces_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == workflow_span_id
     assert request.output == "response"
@@ -775,7 +775,7 @@ def test_conclude_all_with_nested_span(
     assert isinstance(request, TraceUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_trace.assert_called_with(request)
+    mock_traces_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.output == "response"
@@ -785,11 +785,11 @@ def test_conclude_all_with_nested_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_conclude_trace_with_agent_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -839,7 +839,7 @@ def test_conclude_trace_with_agent_span(
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
     assert request.traces[0].input == "input"
@@ -857,7 +857,7 @@ def test_conclude_trace_with_agent_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -878,7 +878,7 @@ def test_conclude_trace_with_agent_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == agent_span_id
@@ -899,7 +899,7 @@ def test_conclude_trace_with_agent_span(
     assert isinstance(request, SpanUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_span.assert_called_with(request)
+    mock_traces_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == agent_span_id
     assert request.output == "response1"
@@ -911,7 +911,7 @@ def test_conclude_trace_with_agent_span(
     assert isinstance(request, TraceUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_trace.assert_called_with(request)
+    mock_traces_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.output == "response2"
@@ -921,11 +921,11 @@ def test_conclude_trace_with_agent_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_trace_with_multiple_nested_spans(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1012,7 +1012,7 @@ def test_trace_with_multiple_nested_spans(
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
     assert request.traces[0].input == "input"
@@ -1030,7 +1030,7 @@ def test_trace_with_multiple_nested_spans(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -1051,7 +1051,7 @@ def test_trace_with_multiple_nested_spans(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == agent_span_id
@@ -1071,7 +1071,7 @@ def test_trace_with_multiple_nested_spans(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == agent_span_id
@@ -1089,7 +1089,7 @@ def test_trace_with_multiple_nested_spans(
     assert isinstance(request, SpanUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_span.assert_called_with(request)
+    mock_traces_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == agent_span_id
     assert request.output == "response1"
@@ -1101,7 +1101,7 @@ def test_trace_with_multiple_nested_spans(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -1121,7 +1121,7 @@ def test_trace_with_multiple_nested_spans(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == workflow_span_id
@@ -1141,7 +1141,7 @@ def test_trace_with_multiple_nested_spans(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == workflow_span_id
@@ -1168,7 +1168,7 @@ def test_trace_with_multiple_nested_spans(
     assert isinstance(request, SpanUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_span.assert_called_with(request)
+    mock_traces_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == workflow_span_id
     assert request.output == "response2"
@@ -1180,7 +1180,7 @@ def test_trace_with_multiple_nested_spans(
     assert isinstance(request, TraceUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_trace.assert_called_with(request)
+    mock_traces_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.output == "response2"
@@ -1190,11 +1190,11 @@ def test_trace_with_multiple_nested_spans(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_trace_with_nested_span_and_sibling(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1245,7 +1245,7 @@ def test_trace_with_nested_span_and_sibling(
     assert isinstance(request, TracesIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_traces.assert_called_with(request)
+    mock_traces_client_instance.ingest_traces.assert_called_with(request)
 
     assert request.traces[0].type == "trace"
     assert request.traces[0].parent_id is None
@@ -1264,7 +1264,7 @@ def test_trace_with_nested_span_and_sibling(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -1284,7 +1284,7 @@ def test_trace_with_nested_span_and_sibling(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == workflow_span_id
@@ -1302,7 +1302,7 @@ def test_trace_with_nested_span_and_sibling(
     assert isinstance(request, SpanUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_span.assert_called_with(request)
+    mock_traces_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == workflow_span_id
     assert request.output == "response1"
@@ -1314,7 +1314,7 @@ def test_trace_with_nested_span_and_sibling(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.parent_id == trace_id
@@ -1334,7 +1334,7 @@ def test_trace_with_nested_span_and_sibling(
     assert isinstance(request, TraceUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_trace.assert_called_with(request)
+    mock_traces_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == trace_id
     assert request.output == "response2"
@@ -1344,11 +1344,11 @@ def test_trace_with_nested_span_and_sibling(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_add_llm_span_and_conclude_existing_trace(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1361,7 +1361,7 @@ def test_add_llm_span_and_conclude_existing_trace(
         experimental={"mode": "streaming"},
     )
 
-    mock_core_api_client_instance.get_trace_sync.assert_called_once()
+    mock_traces_client_instance.get_trace.assert_called_once()
 
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
@@ -1391,7 +1391,7 @@ def test_add_llm_span_and_conclude_existing_trace(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
@@ -1410,7 +1410,7 @@ def test_add_llm_span_and_conclude_existing_trace(
     assert isinstance(request, TraceUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_trace.assert_called_with(request)
+    mock_traces_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.output == "response"
@@ -1420,11 +1420,11 @@ def test_add_llm_span_and_conclude_existing_trace(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_add_nested_span_and_conclude_existing_trace(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1437,7 +1437,7 @@ def test_add_nested_span_and_conclude_existing_trace(
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
     )
 
-    mock_core_api_client_instance.get_trace_sync.assert_called_once()
+    mock_traces_client_instance.get_trace.assert_called_once()
 
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
@@ -1482,7 +1482,7 @@ def test_add_nested_span_and_conclude_existing_trace(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
@@ -1501,7 +1501,7 @@ def test_add_nested_span_and_conclude_existing_trace(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == workflow_span_id
@@ -1521,7 +1521,7 @@ def test_add_nested_span_and_conclude_existing_trace(
     assert isinstance(request, SpanUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_span.assert_called_with(request)
+    mock_traces_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == workflow_span_id
     assert request.output == "workflow-output"
@@ -1532,7 +1532,7 @@ def test_add_nested_span_and_conclude_existing_trace(
     assert isinstance(request, TraceUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_trace.assert_called_with(request)
+    mock_traces_client_instance.update_trace.assert_called_with(request)
 
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.output == "response"
@@ -1542,11 +1542,11 @@ def test_add_nested_span_and_conclude_existing_trace(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_add_llm_span_and_conclude_existing_workflow_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1559,7 +1559,7 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
 
-    mock_core_api_client_instance.get_span_sync.assert_called_once()
+    mock_traces_client_instance.get_span.assert_called_once()
 
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
@@ -1589,7 +1589,7 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
@@ -1608,7 +1608,7 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
     assert isinstance(request, SpanUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_span.assert_called_with(request)
+    mock_traces_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
     assert request.output == "response"
@@ -1617,11 +1617,11 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_add_nested_span_and_conclude_existing_span(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
 ) -> None:
-    mock_core_api_client_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1634,7 +1634,7 @@ def test_add_nested_span_and_conclude_existing_span(
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
 
-    mock_core_api_client_instance.get_span_sync.assert_called_once()
+    mock_traces_client_instance.get_span.assert_called_once()
 
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
@@ -1679,7 +1679,7 @@ def test_add_nested_span_and_conclude_existing_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
@@ -1698,7 +1698,7 @@ def test_add_nested_span_and_conclude_existing_span(
     assert isinstance(request, SpansIngestRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.ingest_spans.assert_called_with(request)
+    mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == workflow_span_id
@@ -1718,7 +1718,7 @@ def test_add_nested_span_and_conclude_existing_span(
     assert isinstance(request, SpanUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_span.assert_called_with(request)
+    mock_traces_client_instance.update_span.assert_called_with(request)
 
     assert request.output == "workflow-output-2"
     assert request.status_code == 200
@@ -1728,7 +1728,7 @@ def test_add_nested_span_and_conclude_existing_span(
     assert isinstance(request, SpanUpdateRequest)
 
     asyncio.run(captured_task.task_func())
-    mock_core_api_client_instance.update_span.assert_called_with(request)
+    mock_traces_client_instance.update_span.assert_called_with(request)
 
     assert request.span_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
     assert request.output == "response"
@@ -1737,11 +1737,11 @@ def test_add_nested_span_and_conclude_existing_span(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_catch_error_trace_span_ids_in_batch_mode(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, caplog
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, caplog
 ) -> None:
-    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
@@ -1754,11 +1754,11 @@ def test_catch_error_trace_span_ids_in_batch_mode(
 
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 def test_catch_error_mismatched_trace_span_ids(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, caplog
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, caplog
 ) -> None:
-    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 

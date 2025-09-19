@@ -1,10 +1,11 @@
 import datetime
 import logging
-from typing import Optional, Union, overload
+import os
+from typing import Optional, Union
 
 import httpx
 
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.resources.api.projects import (
     create_project_projects_post,
     get_all_projects_projects_all_get,
@@ -97,7 +98,12 @@ class Project:
             self.permissions = project.permissions
 
 
-class Projects(BaseClientModel, DecorateAllMethods):
+class Projects(DecorateAllMethods):
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def list(self) -> list[Project]:
         """
         Lists all projects.
@@ -116,14 +122,44 @@ class Projects(BaseClientModel, DecorateAllMethods):
 
         """
         projects: list[ProjectDBThin] = get_all_projects_projects_all_get.sync(
-            client=self.client, type_=ProjectType.GEN_AI
+            client=self.config.api_client, type_=ProjectType.GEN_AI
         )
         return [Project(project=project) for project in projects] if projects else []
 
-    @overload
-    def get(self, *, id: str) -> Optional[Project]: ...
-    @overload
-    def get(self, *, name: str) -> Optional[Project]: ...
+    def get_with_env_fallbacks(self, *, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Project]:
+        """
+        Retrieves a project by id or name.
+
+        Either `id` or `name` must be provided, but not both. If neither is provided,
+        the method will attempt to read from the environment variables `GALILEO_PROJECT_ID`
+        and `GALILEO_PROJECT`. If both environment variables are set, a ValueError is raised.
+
+        Parameters
+        ----------
+        id : str
+            The id of the project.
+        name : str
+            The name of the project.
+        Returns
+        -------
+        Project
+            The project.
+
+        Raises
+        ------
+        ValueError
+            If neither or both `id` and `name` are provided.
+        errors.UnexpectedStatus
+            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException
+            If the request takes longer than Client.timeout.
+
+        """
+        id = id or (None if name else os.getenv("GALILEO_PROJECT_ID")) or None
+        name = name or (None if id else os.getenv("GALILEO_PROJECT")) or None
+
+        return self.get(id=id, name=name)
+
     def get(self, *, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Project]:
         """
         Retrieves a project by id or name (exactly one of `id` or `name` must be provided).
@@ -149,11 +185,19 @@ class Projects(BaseClientModel, DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        if (id is None) and (name is None):
-            raise ValueError("Exactly one of 'id' or 'name' must be provided")
+        name = name.strip() if name else None
+        id = id.strip() if id else None
+
+        # Check we have one and only one of project name or Id.
+        if (not name and not id) or (name and id):
+            raise ValueError("Exactly one of 'id' or 'name' must be provided.")
+
+        project: Optional[Project] = None
 
         if id:
-            detailed_response = get_project_projects_project_id_get.sync_detailed(project_id=id, client=self.client)
+            detailed_response = get_project_projects_project_id_get.sync_detailed(
+                project_id=id, client=self.config.api_client
+            )
             if detailed_response.status_code != httpx.codes.OK:
                 raise ProjectsAPIException(detailed_response.content)
 
@@ -164,7 +208,7 @@ class Projects(BaseClientModel, DecorateAllMethods):
 
         elif name:
             detailed_response = get_projects_projects_get.sync_detailed(
-                client=self.client, project_name=name, type_=ProjectType.GEN_AI
+                client=self.config.api_client, project_name=name, type_=ProjectType.GEN_AI
             )
 
             if detailed_response.status_code != httpx.codes.OK:
@@ -203,7 +247,7 @@ class Projects(BaseClientModel, DecorateAllMethods):
         """
         body = ProjectCreate(name=name, type_=ProjectType.GEN_AI, create_example_templates=False, created_by=None)
 
-        detailed_response = create_project_projects_post.sync_detailed(client=self.client, body=body)
+        detailed_response = create_project_projects_post.sync_detailed(client=self.config.api_client, body=body)
 
         if detailed_response.status_code != httpx.codes.OK:
             raise ProjectsAPIException(detailed_response.content)

@@ -12,6 +12,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.base_scorer_version_db import BaseScorerVersionDB
+    from ..models.chain_poll_template import ChainPollTemplate
     from ..models.scorer_defaults import ScorerDefaults
 
 
@@ -26,16 +27,19 @@ class ScorerResponse:
         name (str):
         scorer_type (ScorerTypes):
         tags (list[str]):
+        chain_poll_template (Union['ChainPollTemplate', None, Unset]):
         created_at (Union[None, Unset, datetime.datetime]):
         created_by (Union[None, Unset, str]):
         default_version (Union['BaseScorerVersionDB', None, Unset]):
         default_version_id (Union[None, Unset, str]):
         defaults (Union['ScorerDefaults', None, Unset]):
         description (Union[None, Unset, str]):
+        ground_truth (Union[None, Unset, bool]):
         included_fields (Union[Unset, list[str]]): Fields that can be used in the scorer to configure it. i.e. model,
             num_judges, etc. This enables the ui to know which fields a user can configure when they're setting a scorer
         label (Union[Unset, str]):  Default: ''.
         latest_version (Union['BaseScorerVersionDB', None, Unset]):
+        metric_name (Union[None, Unset, str]):
         model_type (Union[ModelType, None, Unset]):
         updated_at (Union[None, Unset, datetime.datetime]):
     """
@@ -44,21 +48,25 @@ class ScorerResponse:
     name: str
     scorer_type: ScorerTypes
     tags: list[str]
+    chain_poll_template: Union["ChainPollTemplate", None, Unset] = UNSET
     created_at: Union[None, Unset, datetime.datetime] = UNSET
     created_by: Union[None, Unset, str] = UNSET
     default_version: Union["BaseScorerVersionDB", None, Unset] = UNSET
     default_version_id: Union[None, Unset, str] = UNSET
     defaults: Union["ScorerDefaults", None, Unset] = UNSET
     description: Union[None, Unset, str] = UNSET
+    ground_truth: Union[None, Unset, bool] = UNSET
     included_fields: Union[Unset, list[str]] = UNSET
     label: Union[Unset, str] = ""
     latest_version: Union["BaseScorerVersionDB", None, Unset] = UNSET
+    metric_name: Union[None, Unset, str] = UNSET
     model_type: Union[ModelType, None, Unset] = UNSET
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.base_scorer_version_db import BaseScorerVersionDB
+        from ..models.chain_poll_template import ChainPollTemplate
         from ..models.scorer_defaults import ScorerDefaults
 
         id = self.id
@@ -68,6 +76,14 @@ class ScorerResponse:
         scorer_type = self.scorer_type.value
 
         tags = self.tags
+
+        chain_poll_template: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.chain_poll_template, Unset):
+            chain_poll_template = UNSET
+        elif isinstance(self.chain_poll_template, ChainPollTemplate):
+            chain_poll_template = self.chain_poll_template.to_dict()
+        else:
+            chain_poll_template = self.chain_poll_template
 
         created_at: Union[None, Unset, str]
         if isinstance(self.created_at, Unset):
@@ -111,6 +127,12 @@ class ScorerResponse:
         else:
             description = self.description
 
+        ground_truth: Union[None, Unset, bool]
+        if isinstance(self.ground_truth, Unset):
+            ground_truth = UNSET
+        else:
+            ground_truth = self.ground_truth
+
         included_fields: Union[Unset, list[str]] = UNSET
         if not isinstance(self.included_fields, Unset):
             included_fields = self.included_fields
@@ -124,6 +146,12 @@ class ScorerResponse:
             latest_version = self.latest_version.to_dict()
         else:
             latest_version = self.latest_version
+
+        metric_name: Union[None, Unset, str]
+        if isinstance(self.metric_name, Unset):
+            metric_name = UNSET
+        else:
+            metric_name = self.metric_name
 
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
@@ -144,6 +172,8 @@ class ScorerResponse:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"id": id, "name": name, "scorer_type": scorer_type, "tags": tags})
+        if chain_poll_template is not UNSET:
+            field_dict["chain_poll_template"] = chain_poll_template
         if created_at is not UNSET:
             field_dict["created_at"] = created_at
         if created_by is not UNSET:
@@ -156,12 +186,16 @@ class ScorerResponse:
             field_dict["defaults"] = defaults
         if description is not UNSET:
             field_dict["description"] = description
+        if ground_truth is not UNSET:
+            field_dict["ground_truth"] = ground_truth
         if included_fields is not UNSET:
             field_dict["included_fields"] = included_fields
         if label is not UNSET:
             field_dict["label"] = label
         if latest_version is not UNSET:
             field_dict["latest_version"] = latest_version
+        if metric_name is not UNSET:
+            field_dict["metric_name"] = metric_name
         if model_type is not UNSET:
             field_dict["model_type"] = model_type
         if updated_at is not UNSET:
@@ -172,6 +206,7 @@ class ScorerResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.base_scorer_version_db import BaseScorerVersionDB
+        from ..models.chain_poll_template import ChainPollTemplate
         from ..models.scorer_defaults import ScorerDefaults
 
         d = dict(src_dict)
@@ -182,6 +217,23 @@ class ScorerResponse:
         scorer_type = ScorerTypes(d.pop("scorer_type"))
 
         tags = cast(list[str], d.pop("tags"))
+
+        def _parse_chain_poll_template(data: object) -> Union["ChainPollTemplate", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                chain_poll_template_type_0 = ChainPollTemplate.from_dict(data)
+
+                return chain_poll_template_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["ChainPollTemplate", None, Unset], data)
+
+        chain_poll_template = _parse_chain_poll_template(d.pop("chain_poll_template", UNSET))
 
         def _parse_created_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
@@ -261,6 +313,15 @@ class ScorerResponse:
 
         description = _parse_description(d.pop("description", UNSET))
 
+        def _parse_ground_truth(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        ground_truth = _parse_ground_truth(d.pop("ground_truth", UNSET))
+
         included_fields = cast(list[str], d.pop("included_fields", UNSET))
 
         label = d.pop("label", UNSET)
@@ -281,6 +342,15 @@ class ScorerResponse:
             return cast(Union["BaseScorerVersionDB", None, Unset], data)
 
         latest_version = _parse_latest_version(d.pop("latest_version", UNSET))
+
+        def _parse_metric_name(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metric_name = _parse_metric_name(d.pop("metric_name", UNSET))
 
         def _parse_model_type(data: object) -> Union[ModelType, None, Unset]:
             if data is None:
@@ -321,15 +391,18 @@ class ScorerResponse:
             name=name,
             scorer_type=scorer_type,
             tags=tags,
+            chain_poll_template=chain_poll_template,
             created_at=created_at,
             created_by=created_by,
             default_version=default_version,
             default_version_id=default_version_id,
             defaults=defaults,
             description=description,
+            ground_truth=ground_truth,
             included_fields=included_fields,
             label=label,
             latest_version=latest_version,
+            metric_name=metric_name,
             model_type=model_type,
             updated_at=updated_at,
         )

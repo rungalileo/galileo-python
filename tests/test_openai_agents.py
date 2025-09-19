@@ -16,7 +16,7 @@ from pytest import MonkeyPatch, mark
 
 from galileo.handlers.openai_agents import GalileoTracingProcessor
 from galileo.logger.logger import GalileoLogger
-from tests.testutils.setup import setup_mock_core_api_client, setup_mock_logstreams_client, setup_mock_projects_client
+from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
 
 class HomeworkOutput(BaseModel):
@@ -67,11 +67,11 @@ os.environ["OPENAI_API_KEY"] = "sk-test"
 )
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 async def test_complex_agent(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: MonkeyPatch
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: MonkeyPatch
 ) -> None:
-    setup_mock_core_api_client(mock_core_api_client)
+    setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
     # galileo_context.reset()
@@ -104,11 +104,11 @@ async def test_complex_agent(
 )
 @patch("galileo.logger.logger.LogStreams")
 @patch("galileo.logger.logger.Projects")
-@patch("galileo.logger.logger.GalileoCoreApiClient")
+@patch("galileo.logger.logger.Traces")
 async def test_simple_agent(
-    mock_core_api_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: MonkeyPatch
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, monkeypatch: MonkeyPatch
 ) -> None:
-    mock_core_api_instance = setup_mock_core_api_client(mock_core_api_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
     # galileo_context.reset()
@@ -128,6 +128,6 @@ async def test_simple_agent(
         assert span.metrics.duration_ns > 0
 
     galileo_logger.flush()
-    payload = mock_core_api_instance.ingest_traces_sync.call_args[0][0]
+    payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
     assert len(payload.traces) == 1
     assert len(payload.traces[0].spans) == 1

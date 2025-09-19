@@ -1,13 +1,16 @@
+import builtins
 import mimetypes
+import time
 from typing import Any, Optional, Union, overload
 
-from galileo.base import BaseClientModel
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.datasets import (
     create_dataset_datasets_post,
     delete_dataset_datasets_dataset_id_delete,
+    extend_dataset_content_datasets_extend_post,
     get_dataset_content_datasets_dataset_id_content_get,
     get_dataset_datasets_dataset_id_get,
+    get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get,
     get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get,
     list_datasets_datasets_get,
     query_dataset_versions_datasets_dataset_id_versions_query_post,
@@ -24,8 +27,13 @@ from galileo.resources.models.dataset_name_filter import DatasetNameFilter
 from galileo.resources.models.dataset_name_filter_operator import DatasetNameFilterOperator
 from galileo.resources.models.dataset_updated_at_sort import DatasetUpdatedAtSort
 from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.job_progress import JobProgress
 from galileo.resources.models.list_dataset_params import ListDatasetParams
 from galileo.resources.models.list_dataset_response import ListDatasetResponse
+from galileo.resources.models.prompt_run_settings import PromptRunSettings
+from galileo.resources.models.synthetic_data_types import SyntheticDataTypes
+from galileo.resources.models.synthetic_dataset_extension_request import SyntheticDatasetExtensionRequest
+from galileo.resources.models.synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
 from galileo.resources.types import File, Unset
 from galileo.schema.datasets import DatasetRecord
@@ -38,12 +46,13 @@ class DatasetAPIException(APIException):
     pass
 
 
-class Dataset(BaseClientModel, DecorateAllMethods):
+class Dataset(DecorateAllMethods):
     content: Optional[DatasetContent] = None
+    config: GalileoPythonConfig
 
-    def __init__(self, dataset_db: DatasetDB, config: Optional[GalileoPythonConfig] = None) -> None:
+    def __init__(self, dataset_db: DatasetDB) -> None:
         self.dataset = dataset_db
-        super().__init__(config=config)
+        self.config = GalileoPythonConfig.get()
 
     def get_content(self) -> Union[None, DatasetContent]:
         """
@@ -67,7 +76,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
             return None
 
         content: DatasetContent = get_dataset_content_datasets_dataset_id_content_get.sync(
-            client=self.client, dataset_id=self.dataset.id
+            client=self.config.api_client, dataset_id=self.dataset.id
         )
 
         self.content = content
@@ -85,7 +94,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
             return None
 
         response = get_dataset_content_datasets_dataset_id_content_get.sync_detailed(
-            client=self.client, dataset_id=self.dataset.id
+            client=self.config.api_client, dataset_id=self.dataset.id
         )
 
         return response.headers.get("ETag")
@@ -96,7 +105,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
 
         Parameters
         ----------
-        row_data : list[Dict[str, Any]]
+        row_data : List[Dict[str, Any]]
             The rows to add to the dataset.
 
         Returns
@@ -117,7 +126,7 @@ class Dataset(BaseClientModel, DecorateAllMethods):
         ]
         request = UpdateDatasetContentRequest(edits=append_rows)
         response = update_dataset_content_datasets_dataset_id_content_patch.sync(
-            client=self.client, dataset_id=self.dataset.id, body=request, if_match=self._get_etag()
+            client=self.config.api_client, dataset_id=self.dataset.id, body=request, if_match=self._get_etag()
         )
         if isinstance(response, HTTPValidationError):
             raise DatasetAPIException("Request to add new rows to dataset failed.")
@@ -129,13 +138,13 @@ class Dataset(BaseClientModel, DecorateAllMethods):
 
     def get_version_history(self) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
         list_dataset = query_dataset_versions_datasets_dataset_id_versions_query_post.sync(
-            dataset_id=self.dataset.id, client=self.client, body=ListDatasetVersionParams()
+            dataset_id=self.dataset.id, client=self.config.api_client, body=ListDatasetVersionParams()
         )
         return list_dataset
 
     def load_version(self, version_index: int) -> DatasetContent:
         return get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get.sync(
-            dataset_id=self.dataset.id, version_index=version_index, client=self.client
+            dataset_id=self.dataset.id, version_index=version_index, client=self.config.api_client
         )
 
     def __getattr__(self, attr: str) -> Any:
@@ -145,7 +154,12 @@ class Dataset(BaseClientModel, DecorateAllMethods):
         return getattr(self.dataset, attr)
 
 
-class Datasets(BaseClientModel):
+class Datasets:
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def list(self, limit: Union[Unset, int] = 100) -> list[Dataset]:
         """
         Lists all datasets.
@@ -157,7 +171,7 @@ class Datasets(BaseClientModel):
 
         Returns
         -------
-        list[Dataset]
+        List[Dataset]
             A list of datasets.
 
         Raises
@@ -168,8 +182,8 @@ class Datasets(BaseClientModel):
             If the request takes longer than Client.timeout.
 
         """
-        datasets: ListDatasetResponse = list_datasets_datasets_get.sync(client=self.client, limit=limit)
-        return [Dataset(dataset_db=dataset, config=self.config) for dataset in datasets.datasets] if datasets else []
+        datasets: ListDatasetResponse = list_datasets_datasets_get.sync(client=self.config.api_client, limit=limit)
+        return [Dataset(dataset_db=dataset) for dataset in datasets.datasets] if datasets else []
 
     @overload
     def get(self, *, id: str, with_content: bool = False) -> Optional[Dataset]: ...
@@ -210,22 +224,22 @@ class Datasets(BaseClientModel):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
         if id:
-            dataset_response = get_dataset_datasets_dataset_id_get.sync(client=self.client, dataset_id=id)
+            dataset_response = get_dataset_datasets_dataset_id_get.sync(client=self.config.api_client, dataset_id=id)
             if not dataset_response:
                 return None
-            dataset = Dataset(dataset_db=dataset_response, config=self.config)
+            dataset = Dataset(dataset_db=dataset_response)
 
         elif name:
             filter = DatasetNameFilter(operator=DatasetNameFilterOperator.EQ, value=name)
             params = ListDatasetParams(filters=[filter], sort=DatasetUpdatedAtSort(ascending=False))
             datasets_response: ListDatasetResponse = query_datasets_datasets_query_post.sync(
-                client=self.client, body=params, limit=1
+                client=self.config.api_client, body=params, limit=1
             )
 
             if not datasets_response or len(datasets_response.datasets) == 0:
                 return None
 
-            dataset = Dataset(dataset_db=datasets_response.datasets[0], config=self.config)
+            dataset = Dataset(dataset_db=datasets_response.datasets[0])
 
         if with_content:
             dataset.get_content()
@@ -261,7 +275,7 @@ class Datasets(BaseClientModel):
 
         if not dataset:
             raise ValueError(f"Dataset {name} not found")
-        return delete_dataset_datasets_dataset_id_delete.sync(client=self.client, dataset_id=dataset.id)
+        return delete_dataset_datasets_dataset_id_delete.sync(client=self.config.api_client, dataset_id=dataset.id)
 
     def create(self, name: str, content: DatasetType) -> Dataset:
         """
@@ -301,13 +315,137 @@ class Datasets(BaseClientModel):
         body = BodyCreateDatasetDatasetsPost(file=file, name=name)
 
         detailed_response = create_dataset_datasets_post.sync_detailed(
-            client=self.client, body=body, format_=dataset_format
+            client=self.config.api_client, body=body, format_=dataset_format
         )
 
         if not detailed_response.parsed or isinstance(detailed_response.parsed, HTTPValidationError):
             raise DatasetAPIException(detailed_response.content)
 
-        return Dataset(dataset_db=detailed_response.parsed, config=self.config)
+        return Dataset(dataset_db=detailed_response.parsed)
+
+    def extend(
+        self,
+        *,
+        prompt_settings: Optional[dict[str, Any]] = None,
+        prompt: Optional[str] = None,
+        instructions: Optional[str] = None,
+        examples: Optional[builtins.list[str]] = None,
+        data_types: Optional[builtins.list[str]] = None,
+        count: int = 10,
+    ) -> builtins.list[DatasetRow]:
+        """
+        Extends a dataset with synthetically generated data based on the provided parameters.
+
+        This method initiates a dataset extension job, waits for it to complete by polling its status,
+        and then returns the content of the extended dataset.
+
+        Parameters
+        ----------
+        prompt_settings : Dict[str, Any], optional
+            Settings for the prompt generation. Should contain 'model_alias' key.
+            Example: {'model_alias': 'GPT-4o mini'}
+        prompt : str, optional
+            A description of the assistant's role.
+        instructions : str, optional
+            Instructions for the assistant.
+        examples : List[str], optional
+            Examples of user prompts.
+        data_types : List[str], optional
+            The types of data to generate. Possible values are:
+            'General Query', 'Prompt Injection', 'Off-Topic Query',
+            'Toxic Content in Query', 'Multiple Questions in Query',
+            'Sexist Content in Query'.
+        count : int, default 10
+            The number of synthetic examples to generate.
+
+        Returns
+        -------
+        List[DatasetRow]
+            A list of rows from the extended dataset.
+
+        Raises
+        ------
+        DatasetAPIException
+            If the request to extend the dataset fails.
+        errors.UnexpectedStatus
+            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException
+            If the request takes longer than Client.timeout.
+        """
+        # Convert prompt_settings dict to PromptRunSettings if provided
+        model_alias = prompt_settings.get("model_alias", "gpt-4.1-mini") if prompt_settings else "gpt-4.1-mini"
+        prompt_run_settings = PromptRunSettings(model_alias=model_alias)
+
+        # Convert data_types strings to SyntheticDataTypes enum if provided
+        synthetic_data_types = None
+        if data_types:
+            synthetic_data_types = []
+            for data_type in data_types:
+                try:
+                    synthetic_data_types.append(SyntheticDataTypes(data_type))
+                except ValueError:
+                    raise ValueError(
+                        f"Invalid data_type: {data_type}. Must be one of: {[dt.value for dt in SyntheticDataTypes]}"
+                    )
+
+        # Create the extension request
+        request = SyntheticDatasetExtensionRequest(
+            count=count,
+            data_types=synthetic_data_types,
+            examples=examples,
+            instructions=instructions,
+            prompt=prompt,
+            prompt_settings=prompt_run_settings,
+        )
+
+        # Start the extension job
+        response = extend_dataset_content_datasets_extend_post.sync(client=self.config.api_client, body=request)
+
+        if isinstance(response, HTTPValidationError):
+            raise DatasetAPIException("Request to extend dataset failed.")
+
+        if not response or not isinstance(response, SyntheticDatasetExtensionResponse):
+            raise DatasetAPIException("Invalid response from extend dataset API.")
+
+        dataset_id = response.dataset_id
+
+        # Poll for job completion
+        while True:
+            job_progress = get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get.sync(
+                dataset_id=dataset_id, client=self.config.api_client
+            )
+
+            if isinstance(job_progress, HTTPValidationError):
+                raise DatasetAPIException("Failed to get dataset extension status.")
+
+            if not job_progress or not isinstance(job_progress, JobProgress):
+                raise DatasetAPIException("Invalid job progress response.")
+
+            # Check if job is complete
+            if (
+                job_progress.steps_completed is not None
+                and job_progress.steps_total is not None
+                and job_progress.steps_completed == job_progress.steps_total
+            ):
+                print(f"({job_progress.steps_completed}/{job_progress.steps_total}) {job_progress.progress_message}")
+                break
+
+            # Print progress message if available
+            if job_progress.progress_message:
+                print(f"({job_progress.steps_completed}/{job_progress.steps_total}) {job_progress.progress_message}")
+
+            # Wait 1 second before polling again
+            time.sleep(1)
+
+        # Get the final dataset content
+        dataset_content = get_dataset_content_datasets_dataset_id_content_get.sync(
+            client=self.config.api_client, dataset_id=dataset_id
+        )
+
+        if not dataset_content or not dataset_content.rows:
+            return []
+
+        return dataset_content.rows
 
 
 #
@@ -355,15 +493,15 @@ def list_datasets(limit: Union[Unset, int] = 100) -> list[Dataset]:
 
     Returns
     -------
-    list[Dataset]
+    List[Dataset]
         A list of datasets.
 
     Raises
-    ------
-    errors.UnexpectedStatus
-        If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-    httpx.TimeoutException
-        If the request takes longer than Client.timeout.
+        ------
+        errors.UnexpectedStatus
+            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException
+            If the request takes longer than Client.timeout.
 
     """
     return Datasets().list(limit=limit)
@@ -489,8 +627,78 @@ def get_dataset_version(
         raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
+def extend_dataset(
+    *,
+    prompt_settings: Optional[dict[str, Any]] = None,
+    prompt: Optional[str] = None,
+    instructions: Optional[str] = None,
+    examples: Optional[list[str]] = None,
+    data_types: Optional[list[str]] = None,
+    count: int = 10,
+) -> list[DatasetRow]:
+    """
+    Extends a dataset with synthetically generated data based on the provided parameters.
+
+    This function initiates a dataset extension job, waits for it to complete by polling its status,
+    and then returns the content of the extended dataset.
+
+    Parameters
+    ----------
+    prompt_settings : Dict[str, Any], optional
+        Settings for the prompt generation. Should contain 'model_alias' key.
+        Example: {'model_alias': 'GPT-4o mini'}
+    prompt : str, optional
+        A description of the assistant's role.
+    instructions : str, optional
+        Instructions for the assistant.
+    examples : List[str], optional
+        Examples of user prompts.
+    data_types : List[str], optional
+        The types of data to generate. Possible values are:
+        'General Query', 'Prompt Injection', 'Off-Topic Query',
+        'Toxic Content in Query', 'Multiple Questions in Query',
+        'Sexist Content in Query'.
+    count : int, default 10
+        The number of synthetic examples to generate.
+
+    Returns
+    -------
+    List[DatasetRow]
+        A list of rows from the extended dataset.
+
+    Raises
+    ------
+    DatasetAPIException
+        If the request to extend the dataset fails.
+    errors.UnexpectedStatus
+        If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+    httpx.TimeoutException
+        If the request takes longer than Client.timeout.
+
+    Examples
+    --------
+    >>> extended_dataset = extend_dataset(
+    ...     prompt_settings={'model_alias': 'GPT-4o mini'},
+    ...     prompt='Financial planning assistant that helps clients design an investment strategy.',
+    ...     instructions='You are a financial planning assistant that helps clients design an investment strategy.',
+    ...     examples=['I want to invest $1000 per month.'],
+    ...     data_types=['Prompt Injection'],
+    ...     count=3
+    ... )
+    >>> print('Extended dataset:', extended_dataset)
+    """
+    return Datasets().extend(
+        prompt_settings=prompt_settings,
+        prompt=prompt,
+        instructions=instructions,
+        examples=examples,
+        data_types=data_types,
+        count=count,
+    )
+
+
 def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
-    values_dict = dataset_row.values_dict
+    values_dict = dataset_row.values_dict.to_dict()
 
     if "input" not in values_dict or not values_dict["input"]:
         raise ValueError("Dataset row must have input field")
