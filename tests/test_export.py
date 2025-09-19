@@ -29,7 +29,9 @@ def test_export_records_basic(mock_export_records_stream):
 
     column_ids = ["id", "input", "output"]
     sort = LogRecordsSortClause(column_id="created_at", ascending=True)
-    result = list(export_records(project_id=project_id, root_type=RootType.TRACE, column_ids=column_ids, sort=sort))
+    result = list(
+        export_records(project_id=project_id, root_type=RootType.TRACE, column_ids=column_ids, sort=sort, filters=[])
+    )
 
     assert len(result) == 2
     assert result[0]["input"] == "test input 1"
@@ -48,7 +50,15 @@ def test_export_records_with_log_stream_id(mock_export_records_stream):
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
-    list(export_records(project_id=project_id, root_type=RootType.TRACE, log_stream_id=log_stream_id))
+    list(
+        export_records(
+            project_id=project_id,
+            root_type=RootType.TRACE,
+            log_stream_id=log_stream_id,
+            filters=[],
+            sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+        )
+    )
 
     mock_export_records_stream.assert_called_once()
     request_body = mock_export_records_stream.call_args.kwargs["body"]
@@ -62,7 +72,14 @@ def test_export_records_with_filters(mock_export_records_stream):
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
-    list(export_records(project_id=project_id, root_type=RootType.TRACE, filters=filters))
+    list(
+        export_records(
+            project_id=project_id,
+            root_type=RootType.TRACE,
+            filters=filters,
+            sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+        )
+    )
 
     mock_export_records_stream.assert_called_once()
     request_body = mock_export_records_stream.call_args.kwargs["body"]
@@ -75,7 +92,14 @@ def test_export_records_api_failure(mock_export_records_stream):
     mock_export_records_stream.side_effect = UnexpectedStatus(400, b"Bad Request")
 
     with pytest.raises(UnexpectedStatus):
-        list(export_records(project_id=project_id, root_type=RootType.TRACE))
+        list(
+            export_records(
+                project_id=project_id,
+                root_type=RootType.TRACE,
+                filters=[],
+                sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+            )
+        )
 
 
 @pytest.mark.parametrize("root_type", [RootType.TRACE, RootType.SPAN, RootType.SESSION])
@@ -85,7 +109,14 @@ def test_export_records_all_root_types(mock_export_records_stream, root_type):
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
-    list(export_records(project_id=project_id, root_type=root_type))
+    list(
+        export_records(
+            project_id=project_id,
+            root_type=root_type,
+            filters=[],
+            sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+        )
+    )
 
     mock_export_records_stream.assert_called_once()
     request_body = mock_export_records_stream.call_args.kwargs["body"]
@@ -98,7 +129,14 @@ def test_export_records_empty_response(mock_export_records_stream):
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
-    result = list(export_records(project_id=project_id, root_type=RootType.TRACE))
+    result = list(
+        export_records(
+            project_id=project_id,
+            root_type=RootType.TRACE,
+            filters=[],
+            sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+        )
+    )
     assert len(result) == 0
 
 
@@ -110,7 +148,14 @@ def test_export_records_malformed_json(mock_export_records_stream):
     mock_export_records_stream.return_value = mock_response
 
     with pytest.raises(json.JSONDecodeError):
-        list(export_records(project_id=project_id, root_type=RootType.TRACE))
+        list(
+            export_records(
+                project_id=project_id,
+                root_type=RootType.TRACE,
+                filters=[],
+                sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+            )
+        )
 
 
 @patch("galileo.export.export_records_stream")
@@ -120,7 +165,15 @@ def test_export_records_csv(mock_export_records_stream):
     mock_response = httpx.Response(200, content=csv_content.encode("utf-8"))
     mock_export_records_stream.return_value = mock_response
 
-    result = list(export_records(project_id=project_id, root_type=RootType.TRACE, export_format=LLMExportFormat.CSV))
+    result = list(
+        export_records(
+            project_id=project_id,
+            root_type=RootType.TRACE,
+            export_format=LLMExportFormat.CSV,
+            filters=[],
+            sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+        )
+    )
 
     assert len(result) == 2
     assert result[0] == {"id": "1", "input": "test1", "output": "out1"}
