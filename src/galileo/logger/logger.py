@@ -705,7 +705,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             output: LlmStepAllowedIOType: Output of the node.
                 Expected format: Single Message object.
                 Example: Message(content="The response text", role=MessageRole.assistant)
-            model: str: Model used for this span.
+            model: Optional[str]: Model used for this span.
                 Example: "gpt-4o", "claude-4-sonnet"
             redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
                 Same format as input parameter.
