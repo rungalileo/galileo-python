@@ -3,7 +3,7 @@
 import logging
 from typing import Union
 
-from galileo.base import BaseClientModel
+from galileo.config import GalileoPythonConfig
 from galileo.resources.api.experiment_tags import (
     delete_experiment_tag_projects_project_id_experiments_experiment_id_tags_tag_id_delete,
     get_experiment_tags_projects_project_id_experiments_experiment_id_tags_get,
@@ -52,7 +52,12 @@ class ExperimentTag(RunTagDB):
             self.additional_properties = experiment_tag.additional_properties.copy()
 
 
-class ExperimentTags(BaseClientModel, DecorateAllMethods):
+class ExperimentTags(DecorateAllMethods):
+    config: GalileoPythonConfig
+
+    def __init__(self) -> None:
+        self.config = GalileoPythonConfig.get()
+
     def get_experiment_tags(self, project_id: str, experiment_id: str) -> list[ExperimentTag]:
         """
         Get all tags for a specific experiment.
@@ -69,7 +74,7 @@ class ExperimentTags(BaseClientModel, DecorateAllMethods):
             ValueError: If the experiment is not found
         """
         response = get_experiment_tags_projects_project_id_experiments_experiment_id_tags_get.sync(
-            project_id=project_id, experiment_id=experiment_id, client=self.client
+            project_id=project_id, experiment_id=experiment_id, client=self.config.api_client
         )
 
         if isinstance(response, HTTPValidationError):
@@ -100,7 +105,7 @@ class ExperimentTags(BaseClientModel, DecorateAllMethods):
         request_body = RunTagCreateRequest(key=key, value=value, tag_type=tag_type)
 
         response = set_tag_for_experiment_projects_project_id_experiments_experiment_id_tags_post.sync(
-            project_id=project_id, experiment_id=experiment_id, client=self.client, body=request_body
+            project_id=project_id, experiment_id=experiment_id, client=self.config.api_client, body=request_body
         )
 
         if isinstance(response, HTTPValidationError):
@@ -128,7 +133,7 @@ class ExperimentTags(BaseClientModel, DecorateAllMethods):
             ValueError: If the experiment or tag is not found
         """
         response = delete_experiment_tag_projects_project_id_experiments_experiment_id_tags_tag_id_delete.sync(
-            project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=self.client
+            project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=self.config.api_client
         )
 
         if isinstance(response, HTTPValidationError):
