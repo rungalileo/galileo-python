@@ -204,6 +204,38 @@ class TestLogStreamMetrics:
         # Verify return value is just local metrics
         assert local_metrics == []
 
+
+
+    @patch.object(LogStreams, "get")
+    @patch("galileo.log_streams.create_metric_configs")
+    @patch("galileo.projects.Projects.get_with_env_fallbacks")
+    def test_logstreams_enable_metrics_gets_project_correctly(
+        self, mock_get_with_env_fallbacks, mock_create_configs, mock_get, mock_log_stream, mock_project
+    ):
+        """Test LogStreams.enable_metrics with explicit parameters."""
+        # Setup mocks
+        mock_get.return_value = mock_log_stream
+        mock_create_configs.return_value = ([], [])
+        mock_get_with_env_fallbacks.return_value = mock_project
+
+        # Test with explicit parameters
+        log_streams = LogStreams()
+        local_metrics = log_streams.enable_metrics(
+            log_stream_name="Test Log Stream", project_name="Test Project", metrics=["correctness"]
+        )
+
+        # Verify log stream lookup
+        mock_get.assert_called_once_with(name="Test Log Stream", project_name=mock_project.name)
+
+        # Verify metric config creation
+        mock_create_configs.assert_called_once_with(mock_project.id, mock_log_stream.id, ["correctness"])
+
+        # Verify return value is just local metrics
+        assert local_metrics == []
+
+
+
+
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
     @patch("galileo.log_streams.create_metric_configs")
