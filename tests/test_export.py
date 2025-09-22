@@ -30,7 +30,14 @@ def test_export_records_basic(mock_export_records_stream):
     column_ids = ["id", "input", "output"]
     sort = LogRecordsSortClause(column_id="created_at", ascending=True)
     result = list(
-        export_records(project_id=project_id, root_type=RootType.TRACE, column_ids=column_ids, sort=sort, filters=[])
+        export_records(
+            project_id=project_id,
+            root_type=RootType.TRACE,
+            column_ids=column_ids,
+            sort=sort,
+            filters=[],
+            log_stream_id=uuid4(),
+        )
     )
 
     assert len(result) == 2
@@ -66,6 +73,39 @@ def test_export_records_with_log_stream_id(mock_export_records_stream):
 
 
 @patch("galileo.export.export_records_stream")
+def test_export_records_id_validation(mock_export_records_stream):
+    project_id = uuid4()
+    log_stream_id = uuid4()
+    experiment_id = uuid4()
+    mock_response = httpx.Response(200, content=b"")
+    mock_export_records_stream.return_value = mock_response
+
+    # Test that ValueError is raised when both log_stream_id and experiment_id are provided
+    with pytest.raises(ValueError, match="Exactly one of log_stream_id or experiment_id must be provided."):
+        list(
+            export_records(
+                project_id=project_id,
+                root_type=RootType.TRACE,
+                log_stream_id=log_stream_id,
+                experiment_id=experiment_id,
+                filters=[],
+                sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+            )
+        )
+
+    # Test that ValueError is raised when neither log_stream_id nor experiment_id is provided
+    with pytest.raises(ValueError, match="Exactly one of log_stream_id or experiment_id must be provided."):
+        list(
+            export_records(
+                project_id=project_id,
+                root_type=RootType.TRACE,
+                filters=[],
+                sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+            )
+        )
+
+
+@patch("galileo.export.export_records_stream")
 def test_export_records_with_filters(mock_export_records_stream):
     project_id = uuid4()
     filters = [LogRecordsTextFilter(column_id="input", value="test", operator="eq")]
@@ -78,6 +118,7 @@ def test_export_records_with_filters(mock_export_records_stream):
             root_type=RootType.TRACE,
             filters=filters,
             sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+            log_stream_id=uuid4(),
         )
     )
 
@@ -98,6 +139,7 @@ def test_export_records_api_failure(mock_export_records_stream):
                 root_type=RootType.TRACE,
                 filters=[],
                 sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+                log_stream_id=uuid4(),
             )
         )
 
@@ -115,6 +157,7 @@ def test_export_records_all_root_types(mock_export_records_stream, root_type):
             root_type=root_type,
             filters=[],
             sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+            log_stream_id=uuid4(),
         )
     )
 
@@ -135,6 +178,7 @@ def test_export_records_empty_response(mock_export_records_stream):
             root_type=RootType.TRACE,
             filters=[],
             sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+            log_stream_id=uuid4(),
         )
     )
     assert len(result) == 0
@@ -154,6 +198,7 @@ def test_export_records_malformed_json(mock_export_records_stream):
                 root_type=RootType.TRACE,
                 filters=[],
                 sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+                log_stream_id=uuid4(),
             )
         )
 
@@ -172,6 +217,7 @@ def test_export_records_csv(mock_export_records_stream):
             export_format=LLMExportFormat.CSV,
             filters=[],
             sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+            log_stream_id=uuid4(),
         )
     )
 

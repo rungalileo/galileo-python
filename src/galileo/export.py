@@ -108,6 +108,9 @@ def export_records(
     Returns:
         An iterator that yields each record as a dictionary.
     """
+    if (log_stream_id is None) == (experiment_id is None):
+        raise ValueError("Exactly one of log_stream_id or experiment_id must be provided.")
+
     return ExportClient().records(
         project_id=project_id,
         root_type=root_type,
