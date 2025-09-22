@@ -18,7 +18,7 @@ from galileo.resources.models import (
 
 @patch("galileo.export.export_records_stream")
 def test_export_records_basic(mock_export_records_stream):
-    project_id = uuid4()
+    project_id = str(uuid4())
     records_data = [
         {"id": str(uuid4()), "input": "test input 1", "output": "test output 1"},
         {"id": str(uuid4()), "input": "test input 2", "output": "test output 2"},
@@ -36,7 +36,7 @@ def test_export_records_basic(mock_export_records_stream):
             column_ids=column_ids,
             sort=sort,
             filters=[],
-            log_stream_id=uuid4(),
+            log_stream_id=str(uuid4()),
         )
     )
 
@@ -52,8 +52,8 @@ def test_export_records_basic(mock_export_records_stream):
 
 @patch("galileo.export.export_records_stream")
 def test_export_records_with_log_stream_id(mock_export_records_stream):
-    project_id = uuid4()
-    log_stream_id = uuid4()
+    project_id = str(uuid4())
+    log_stream_id = str(uuid4())
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
@@ -74,9 +74,9 @@ def test_export_records_with_log_stream_id(mock_export_records_stream):
 
 @patch("galileo.export.export_records_stream")
 def test_export_records_id_validation(mock_export_records_stream):
-    project_id = uuid4()
-    log_stream_id = uuid4()
-    experiment_id = uuid4()
+    project_id = str(uuid4())
+    log_stream_id = str(uuid4())
+    experiment_id = str(uuid4())
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
@@ -107,7 +107,7 @@ def test_export_records_id_validation(mock_export_records_stream):
 
 @patch("galileo.export.export_records_stream")
 def test_export_records_with_filters(mock_export_records_stream):
-    project_id = uuid4()
+    project_id = str(uuid4())
     filters = [LogRecordsTextFilter(column_id="input", value="test", operator="eq")]
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
@@ -118,7 +118,7 @@ def test_export_records_with_filters(mock_export_records_stream):
             root_type=RootType.TRACE,
             filters=filters,
             sort=LogRecordsSortClause(column_id="created_at", ascending=False),
-            log_stream_id=uuid4(),
+            log_stream_id=str(uuid4()),
         )
     )
 
@@ -129,7 +129,7 @@ def test_export_records_with_filters(mock_export_records_stream):
 
 @patch("galileo.export.export_records_stream")
 def test_export_records_api_failure(mock_export_records_stream):
-    project_id = uuid4()
+    project_id = str(uuid4())
     mock_export_records_stream.side_effect = UnexpectedStatus(400, b"Bad Request")
 
     with pytest.raises(UnexpectedStatus):
@@ -139,7 +139,7 @@ def test_export_records_api_failure(mock_export_records_stream):
                 root_type=RootType.TRACE,
                 filters=[],
                 sort=LogRecordsSortClause(column_id="created_at", ascending=False),
-                log_stream_id=uuid4(),
+                log_stream_id=str(uuid4()),
             )
         )
 
@@ -147,7 +147,7 @@ def test_export_records_api_failure(mock_export_records_stream):
 @pytest.mark.parametrize("root_type", [RootType.TRACE, RootType.SPAN, RootType.SESSION])
 @patch("galileo.export.export_records_stream")
 def test_export_records_all_root_types(mock_export_records_stream, root_type):
-    project_id = uuid4()
+    project_id = str(uuid4())
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
@@ -157,7 +157,7 @@ def test_export_records_all_root_types(mock_export_records_stream, root_type):
             root_type=root_type,
             filters=[],
             sort=LogRecordsSortClause(column_id="created_at", ascending=False),
-            log_stream_id=uuid4(),
+            log_stream_id=str(uuid4()),
         )
     )
 
@@ -168,7 +168,7 @@ def test_export_records_all_root_types(mock_export_records_stream, root_type):
 
 @patch("galileo.export.export_records_stream")
 def test_export_records_empty_response(mock_export_records_stream):
-    project_id = uuid4()
+    project_id = str(uuid4())
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
@@ -178,7 +178,7 @@ def test_export_records_empty_response(mock_export_records_stream):
             root_type=RootType.TRACE,
             filters=[],
             sort=LogRecordsSortClause(column_id="created_at", ascending=False),
-            log_stream_id=uuid4(),
+            log_stream_id=str(uuid4()),
         )
     )
     assert len(result) == 0
@@ -186,7 +186,7 @@ def test_export_records_empty_response(mock_export_records_stream):
 
 @patch("galileo.export.export_records_stream")
 def test_export_records_malformed_json(mock_export_records_stream):
-    project_id = uuid4()
+    project_id = str(uuid4())
     raw_content = b'{"id": "123", "input": "test"}\nthis is not json'
     mock_response = httpx.Response(200, content=raw_content)
     mock_export_records_stream.return_value = mock_response
@@ -198,14 +198,14 @@ def test_export_records_malformed_json(mock_export_records_stream):
                 root_type=RootType.TRACE,
                 filters=[],
                 sort=LogRecordsSortClause(column_id="created_at", ascending=False),
-                log_stream_id=uuid4(),
+                log_stream_id=str(uuid4()),
             )
         )
 
 
 @patch("galileo.export.export_records_stream")
 def test_export_records_csv(mock_export_records_stream):
-    project_id = uuid4()
+    project_id = str(uuid4())
     csv_content = "id,input,output\n1,test1,out1\n2,test2,out2"
     mock_response = httpx.Response(200, content=csv_content.encode("utf-8"))
     mock_export_records_stream.return_value = mock_response
@@ -217,7 +217,7 @@ def test_export_records_csv(mock_export_records_stream):
             export_format=LLMExportFormat.CSV,
             filters=[],
             sort=LogRecordsSortClause(column_id="created_at", ascending=False),
-            log_stream_id=uuid4(),
+            log_stream_id=str(uuid4()),
         )
     )
 

@@ -7,7 +7,7 @@ import pytest
 from galileo.resources.models import HTTPValidationError, LogRecordsQueryResponse, ValidationError
 from galileo.search import get_sessions, get_spans, get_traces
 
-FIXED_PROJECT_ID = uuid4()
+FIXED_PROJECT_ID = str(uuid4())
 
 
 def _log_records_query_response_factory(records: list) -> LogRecordsQueryResponse:
@@ -32,7 +32,7 @@ class TestSearchHelpers:
             response = test_function(project_id=FIXED_PROJECT_ID)
 
             mock_api_call.assert_called_once()
-            assert str(FIXED_PROJECT_ID) in mock_api_call.call_args[1]["project_id"]
+            assert FIXED_PROJECT_ID in mock_api_call.call_args[1]["project_id"]
             assert response == mock_response
             assert response.records == mock_records
 
@@ -54,7 +54,7 @@ class TestSearchHelpers:
                 test_function(project_id=FIXED_PROJECT_ID)
 
     def test_passes_all_parameters_correctly(self, test_function, patch_target):
-        experiment_id = uuid4()
+        experiment_id = str(uuid4())
         log_stream_id = "test_stream"
         limit = 50
         starting_token = 10
@@ -77,7 +77,7 @@ class TestSearchHelpers:
             called_kwargs = mock_api_call.call_args[1]
             body = called_kwargs["body"]
 
-            assert called_kwargs["project_id"] == str(FIXED_PROJECT_ID)
+            assert called_kwargs["project_id"] == FIXED_PROJECT_ID
             assert body.experiment_id == experiment_id
             assert body.log_stream_id == log_stream_id
             assert body.filters == filters

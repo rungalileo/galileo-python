@@ -17,7 +17,7 @@ from galileo_core.constants.scorers import Scorers
 _logger = logging.getLogger(__name__)
 
 
-def get_job(job_id: UUID4) -> JobDB:
+def get_job(job_id: str) -> JobDB:
     config = GalileoPythonConfig.get()
 
     response = get_job_jobs_job_id_get.sync(client=config.api_client, job_id=str(job_id))
@@ -29,7 +29,7 @@ def get_job(job_id: UUID4) -> JobDB:
     return response
 
 
-def get_run_scorer_jobs(project_id: UUID4, run_id: UUID4) -> list[JobDB]:
+def get_run_scorer_jobs(project_id: str, run_id: str) -> list[JobDB]:
     config = GalileoPythonConfig.get()
 
     response = get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync(
@@ -45,7 +45,7 @@ def get_run_scorer_jobs(project_id: UUID4, run_id: UUID4) -> list[JobDB]:
     return [job for job in response if job.job_name == JobName.log_stream_scorer]
 
 
-def scorer_jobs_status(project_id: UUID4 = None, run_id: UUID4 = None) -> None:
+def scorer_jobs_status(project_id: str, run_id: str) -> None:
     """Gets the status of all scorer jobs for a given project and run.
 
     Args:
@@ -79,7 +79,7 @@ def scorer_jobs_status(project_id: UUID4 = None, run_id: UUID4 = None) -> None:
             print(f"{scorer_name.lstrip('_')}: Done ✅")
 
 
-def job_progress(job_id: UUID4, project_id: UUID4, run_id: UUID4) -> UUID4:
+def job_progress(job_id: str, project_id: str, run_id: str) -> UUID4:
     """Monitors the progress of a job and displays a progress bar.
 
     Args:

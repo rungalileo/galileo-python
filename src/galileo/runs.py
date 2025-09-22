@@ -1,8 +1,6 @@
 import logging
 from typing import Optional
 
-from pydantic import UUID4
-
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.run_scorer_settings import (
     upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_patch,
@@ -26,8 +24,8 @@ class Runs:
 
     def update_scorer_settings(
         self,
-        project_id: UUID4,
-        run_id: UUID4,
+        project_id: str,
+        run_id: str,
         scorers: list[ScorerConfig],
         segment_filters: Optional[list[SegmentFilter]] = None,
     ) -> RunScorerSettingsResponse:
@@ -46,7 +44,7 @@ class Runs:
 
 
 def update_scorer_settings(
-    project_id: UUID4, run_id: UUID4, scorers: list[ScorerConfig], segment_filters: Optional[list[SegmentFilter]] = None
+    project_id: str, run_id: str, scorers: list[ScorerConfig], segment_filters: Optional[list[SegmentFilter]] = None
 ) -> RunScorerSettingsResponse:
     """Updates the scorer settings for a specific run.
 

@@ -7,8 +7,8 @@ import pytest
 from galileo.resources.models import HTTPValidationError, RunScorerSettingsResponse, ScorerConfig, ValidationError
 from galileo.runs import update_scorer_settings
 
-FIXED_PROJECT_ID = uuid4()
-FIXED_RUN_ID = uuid4()
+FIXED_PROJECT_ID = str(uuid4())
+FIXED_RUN_ID = str(uuid4())
 
 
 class TestUpdateScorerSettings:
@@ -24,8 +24,8 @@ class TestUpdateScorerSettings:
         called_kwargs = mock_api_call.call_args[1]
         body = called_kwargs["body"]
 
-        assert called_kwargs["project_id"] == str(FIXED_PROJECT_ID)
-        assert called_kwargs["run_id"] == str(FIXED_RUN_ID)
+        assert called_kwargs["project_id"] == FIXED_PROJECT_ID
+        assert called_kwargs["run_id"] == FIXED_RUN_ID
         assert body.scorers == mock_scorers
         assert response == mock_response
 

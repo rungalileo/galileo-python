@@ -4,23 +4,22 @@ from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
 
 import pytest
-from pydantic import UUID4
 from pytest import CaptureFixture
 
 from galileo.job_progress import job_progress, scorer_jobs_status
 from galileo.resources.models import HTTPValidationError, JobDB, ValidationError
 from galileo_core.constants.job import JobStatus
 
-FIXED_PROJECT_ID = uuid4()
-FIXED_RUN_ID = uuid4()
-FIXED_JOB_ID = uuid4()
+FIXED_PROJECT_ID = str(uuid4())
+FIXED_RUN_ID = str(uuid4())
+FIXED_JOB_ID = str(uuid4())
 
 
 def _job_db_factory(
     *,
-    project_id: UUID4 = FIXED_PROJECT_ID,
-    run_id: UUID4 = FIXED_RUN_ID,
-    job_id: Optional[UUID4] = None,
+    project_id: str = FIXED_PROJECT_ID,
+    run_id: str = FIXED_RUN_ID,
+    job_id: Optional[str] = None,
     job_name: str = "test-job",
     status: JobStatus = JobStatus.completed,
     request_data: Optional[dict] = None,
@@ -55,7 +54,7 @@ class TestJobProgress:
         mock_get_scorer_jobs.return_value = []
 
         job_progress(job_id=FIXED_JOB_ID, project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
-        mock_get_job.assert_called_with(client=ANY, job_id=str(FIXED_JOB_ID))
+        mock_get_job.assert_called_with(client=ANY, job_id=FIXED_JOB_ID)
 
     @patch("galileo.job_progress.get_job_jobs_job_id_get.sync")
     def test_failed(self, mock_get_job: Mock):
@@ -63,7 +62,7 @@ class TestJobProgress:
 
         with pytest.raises(ValueError, match="Job failed with error message Test error."):
             job_progress(job_id=FIXED_JOB_ID, project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
-        mock_get_job.assert_called_with(client=ANY, job_id=str(FIXED_JOB_ID))
+        mock_get_job.assert_called_with(client=ANY, job_id=FIXED_JOB_ID)
 
     @patch("galileo.job_progress.get_job_jobs_job_id_get.sync")
     def test_get_job_fails(self, mock_get_job: Mock):
@@ -71,7 +70,7 @@ class TestJobProgress:
 
         with pytest.raises(ValueError, match=f"Failed to get job status for job {FIXED_JOB_ID}"):
             job_progress(job_id=FIXED_JOB_ID, project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
-        mock_get_job.assert_called_with(client=ANY, job_id=str(FIXED_JOB_ID))
+        mock_get_job.assert_called_with(client=ANY, job_id=FIXED_JOB_ID)
 
     @patch("galileo.job_progress.get_job_jobs_job_id_get.sync")
     def test_get_job_http_validation_error(self, mock_get_job: Mock):

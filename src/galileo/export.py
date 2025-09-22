@@ -4,8 +4,6 @@ import logging
 from collections.abc import Iterator
 from typing import Any, Optional, Union
 
-from pydantic import UUID4
-
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.trace.export_records_projects_project_id_export_records_post import (
     stream_detailed as export_records_stream,
@@ -33,7 +31,7 @@ class ExportClient:
 
     def records(
         self,
-        project_id: UUID4,
+        project_id: str,
         root_type: RootType,
         filters: list[
             Union[
@@ -46,8 +44,8 @@ class ExportClient:
         ],
         sort: LogRecordsSortClause,
         export_format: LLMExportFormat = LLMExportFormat.JSONL,
-        log_stream_id: Optional[UUID4] = None,
-        experiment_id: Optional[UUID4] = None,
+        log_stream_id: Optional[str] = None,
+        experiment_id: Optional[str] = None,
         column_ids: Optional[list[str]] = None,
     ) -> Iterator[dict[str, Any]]:
         response = export_records_stream(
@@ -76,7 +74,7 @@ class ExportClient:
 
 
 def export_records(
-    project_id: UUID4,
+    project_id: str,
     root_type: RootType,
     filters: list[
         Union[
@@ -89,8 +87,8 @@ def export_records(
     ],
     sort: LogRecordsSortClause,
     export_format: LLMExportFormat = LLMExportFormat.JSONL,
-    log_stream_id: Optional[UUID4] = None,
-    experiment_id: Optional[UUID4] = None,
+    log_stream_id: Optional[str] = None,
+    experiment_id: Optional[str] = None,
     column_ids: Optional[list[str]] = None,
 ) -> Iterator[dict[str, Any]]:
     """Exports records from a Galileo project.

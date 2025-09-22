@@ -2,8 +2,6 @@ import datetime
 import logging
 from typing import Optional
 
-from pydantic import UUID4
-
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.data import create_llm_scorer_version_scorers_scorer_id_version_llm_post, create_scorers_post
 from galileo.resources.api.trace import query_metrics_projects_project_id_metrics_search_post
@@ -89,10 +87,10 @@ class Metrics:
 
     def query(
         self,
-        project_id: UUID4,
+        project_id: str,
         start_time: datetime.datetime,
         end_time: datetime.datetime,
-        experiment_id: Optional[UUID4] = None,
+        experiment_id: Optional[str] = None,
         log_stream_id: Optional[str] = None,
         filters: Optional[list[FilterType]] = None,
         group_by: Optional[str] = None,
@@ -155,10 +153,10 @@ def create_custom_llm_metric(
 
 
 def get_metrics(
-    project_id: UUID4,
+    project_id: str,
     start_time: datetime.datetime,
     end_time: datetime.datetime,
-    experiment_id: Optional[UUID4] = None,
+    experiment_id: Optional[str] = None,
     log_stream_id: Optional[str] = None,
     filters: Optional[list[FilterType]] = None,
     group_by: Optional[str] = None,

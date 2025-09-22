@@ -2,8 +2,6 @@ import logging
 from enum import Enum
 from typing import Optional, Union
 
-from pydantic import UUID4
-
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.trace import (
     query_sessions_projects_project_id_sessions_search_post,
@@ -44,9 +42,9 @@ class Search:
 
     def query(
         self,
-        project_id: UUID4,
+        project_id: str,
         record_type: RecordType,
-        experiment_id: Optional[UUID4] = None,
+        experiment_id: Optional[str] = None,
         log_stream_id: Optional[str] = None,
         filters: Optional[list[FilterType]] = None,
         sort: Optional[LogRecordsSortClause] = None,
@@ -81,8 +79,8 @@ class Search:
 
 
 def get_spans(
-    project_id: UUID4,
-    experiment_id: Optional[UUID4] = None,
+    project_id: str,
+    experiment_id: Optional[str] = None,
     log_stream_id: Optional[str] = None,
     filters: Optional[list[FilterType]] = None,
     sort: Optional[LogRecordsSortClause] = None,
@@ -116,8 +114,8 @@ def get_spans(
 
 
 def get_traces(
-    project_id: UUID4,
-    experiment_id: Optional[UUID4] = None,
+    project_id: str,
+    experiment_id: Optional[str] = None,
     log_stream_id: Optional[str] = None,
     filters: Optional[list[FilterType]] = None,
     sort: Optional[LogRecordsSortClause] = None,
@@ -151,8 +149,8 @@ def get_traces(
 
 
 def get_sessions(
-    project_id: UUID4,
-    experiment_id: Optional[UUID4] = None,
+    project_id: str,
+    experiment_id: Optional[str] = None,
     log_stream_id: Optional[str] = None,
     filters: Optional[list[FilterType]] = None,
     sort: Optional[LogRecordsSortClause] = None,

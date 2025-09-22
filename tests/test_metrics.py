@@ -23,7 +23,7 @@ from galileo.resources.models.scorer_response import ScorerResponse
 from galileo.resources.models.scorer_types import ScorerTypes
 from galileo_core.schemas.logging.step import StepType
 
-FIXED_PROJECT_ID = uuid4()
+FIXED_PROJECT_ID = str(uuid4())
 
 
 @pytest.fixture
@@ -395,7 +395,7 @@ class TestGetMetrics:
         response = get_metrics(project_id=FIXED_PROJECT_ID, start_time=start_time, end_time=end_time)
 
         mock_api_call.assert_called_once()
-        assert str(FIXED_PROJECT_ID) in mock_api_call.call_args[1]["project_id"]
+        assert FIXED_PROJECT_ID in mock_api_call.call_args[1]["project_id"]
         assert response == mock_response
 
     @patch("galileo.metrics.query_metrics_projects_project_id_metrics_search_post.sync")
@@ -427,7 +427,7 @@ class TestGetMetrics:
 
         start_time = datetime.datetime.now()
         end_time = start_time + datetime.timedelta(hours=1)
-        experiment_id = uuid4()
+        experiment_id = str(uuid4())
         log_stream_id = "test_stream"
         filters = [Mock()]
         group_by = "some_column"
@@ -448,7 +448,7 @@ class TestGetMetrics:
         called_kwargs = mock_api_call.call_args[1]
         body = called_kwargs["body"]
 
-        assert called_kwargs["project_id"] == str(FIXED_PROJECT_ID)
+        assert called_kwargs["project_id"] == FIXED_PROJECT_ID
         assert body.start_time == start_time
         assert body.end_time == end_time
         assert body.experiment_id == experiment_id
