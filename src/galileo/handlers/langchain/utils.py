@@ -13,4 +13,4 @@ def get_agent_name(parent_run_id: Optional[UUID], node_name: str, nodes: dict[st
 
 
 def is_agent_node(node_name: str) -> bool:
-    return node_name in ["LangGraph", "Agent"]
+    return node_name.lower() in ["langgraph", "agent"]
