@@ -204,8 +204,6 @@ class TestLogStreamMetrics:
         # Verify return value is just local metrics
         assert local_metrics == []
 
-
-
     @patch.object(LogStreams, "get")
     @patch("galileo.log_streams.create_metric_configs")
     @patch("galileo.projects.Projects.get_with_env_fallbacks")
@@ -232,9 +230,6 @@ class TestLogStreamMetrics:
 
         # Verify return value is just local metrics
         assert local_metrics == []
-
-
-
 
     @patch("galileo.log_streams.Projects")
     @patch.object(LogStreams, "get")
