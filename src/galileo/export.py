@@ -2,23 +2,14 @@ import csv
 import json
 import logging
 from collections.abc import Iterator
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.trace.export_records_projects_project_id_export_records_post import (
     stream_detailed as export_records_stream,
 )
-from galileo.resources.models import (
-    LLMExportFormat,
-    LogRecordsBooleanFilter,
-    LogRecordsDateFilter,
-    LogRecordsExportRequest,
-    LogRecordsIDFilter,
-    LogRecordsNumberFilter,
-    LogRecordsSortClause,
-    LogRecordsTextFilter,
-    RootType,
-)
+from galileo.resources.models import LLMExportFormat, LogRecordsExportRequest, LogRecordsSortClause, RootType
+from galileo.schema.filters import FilterType
 
 logger = logging.getLogger(__name__)
 
@@ -33,15 +24,7 @@ class ExportClient:
         self,
         project_id: str,
         root_type: RootType,
-        filters: list[
-            Union[
-                LogRecordsBooleanFilter,
-                LogRecordsDateFilter,
-                LogRecordsIDFilter,
-                LogRecordsNumberFilter,
-                LogRecordsTextFilter,
-            ]
-        ],
+        filters: list[FilterType],
         sort: LogRecordsSortClause,
         export_format: LLMExportFormat = LLMExportFormat.JSONL,
         log_stream_id: Optional[str] = None,
@@ -76,15 +59,7 @@ class ExportClient:
 def export_records(
     project_id: str,
     root_type: RootType,
-    filters: list[
-        Union[
-            LogRecordsBooleanFilter,
-            LogRecordsDateFilter,
-            LogRecordsIDFilter,
-            LogRecordsNumberFilter,
-            LogRecordsTextFilter,
-        ]
-    ],
+    filters: list[FilterType],
     sort: LogRecordsSortClause,
     export_format: LLMExportFormat = LLMExportFormat.JSONL,
     log_stream_id: Optional[str] = None,

@@ -1,6 +1,6 @@
 import logging
 from enum import Enum
-from typing import Optional, Union
+from typing import Optional
 
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.trace import (
@@ -10,15 +10,11 @@ from galileo.resources.api.trace import (
 )
 from galileo.resources.models import (
     HTTPValidationError,
-    LogRecordsBooleanFilter,
-    LogRecordsDateFilter,
-    LogRecordsIDFilter,
-    LogRecordsNumberFilter,
     LogRecordsQueryRequest,
     LogRecordsQueryResponse,
     LogRecordsSortClause,
-    LogRecordsTextFilter,
 )
+from galileo.schema.filters import FilterType
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +23,6 @@ class RecordType(str, Enum):
     SPAN = "spans"
     TRACE = "traces"
     SESSION = "sessions"
-
-
-FilterType = Union[
-    LogRecordsBooleanFilter, LogRecordsDateFilter, LogRecordsIDFilter, LogRecordsNumberFilter, LogRecordsTextFilter
-]
 
 
 class Search:
