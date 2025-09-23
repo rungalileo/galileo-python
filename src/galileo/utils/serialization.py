@@ -103,10 +103,18 @@ class EventSerializer(JSONEncoder):
                 elif isinstance(obj, (AIMessageChunk, AIMessage)):
                     # Map the `type` to `role`.
                     dumped = obj.model_dump(mode="json", include={"content", "type", "additional_kwargs"})
+                    content = dumped.get("content")
+                    if isinstance(content, list):
+                        # Responses API returns content as a list of dicts
+                        # Convert list content to string format for consistency
+                        if content and isinstance(content[0], dict):
+                            dumped["content"] = content[0].get("text", "")
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     additional_kwargs = dumped.pop("additional_kwargs", {})
                     if "tool_calls" in additional_kwargs:
                         dumped["tool_calls"] = additional_kwargs.pop("tool_calls")
+                    if "reasoning" in additional_kwargs:
+                        dumped["reasoning"] = additional_kwargs.pop("reasoning")
                     return dumped
                 elif isinstance(obj, ToolMessage):
                     # Map the `type` to `role`.
