@@ -514,8 +514,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
         input: StepAllowedInputType: Input to the node.
-            Expected format: String representation of trace input.
-            Example: "User query: What is the weather today?"
+            Expected format: String or sequence of Message objects.
+            Examples:
+                - String: "User query: What is the weather today?"
+                - Messages: [Message(content="Hello", role=MessageRole.user)]
         redacted_input: Optional[StepAllowedInputType]: Redacted input to the node.
             Same format as input parameter.
         name: Optional[str]: Name of the trace.
@@ -591,17 +593,17 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Parameters:
         ----------
-            input: LlmStepAllowedIOType: Input to the node.
+            input: LlmSpanAllowedInputType: Input to the node.
                 Expected format: List of Message objects.
                 Example: [Message(content="Say this is a test", role=MessageRole.user)]
-            output: LlmStepAllowedIOType: Output of the node.
+            output: LlmSpanAllowedOutputType: Output of the node.
                 Expected format: Single Message object.
                 Example: Message(content="The response text", role=MessageRole.assistant)
             model: Optional[str]: Model used for this span.
                 Example: "gpt-4o", "claude-4-sonnet"
-            redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
+            redacted_input: Optional[LlmSpanAllowedInputType]: Redacted input to the node.
                 Same format as input parameter.
-            redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
+            redacted_output: Optional[LlmSpanAllowedOutputType]: Redacted output of the node.
                 Same format as output parameter.
             tools: Optional[List[dict]]: List of available tools passed to LLM on invocation.
                 Expected format for each tool dictionary:
@@ -699,17 +701,17 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Parameters:
         ----------
-            input: LlmStepAllowedIOType: Input to the node.
+            input: LlmSpanAllowedInputType: Input to the node.
                 Expected format: List of Message objects.
                 Example: [Message(content="Say this is a test", role=MessageRole.user)]
-            output: LlmStepAllowedIOType: Output of the node.
+            output: LlmSpanAllowedOutputType: Output of the node.
                 Expected format: Single Message object.
                 Example: Message(content="The response text", role=MessageRole.assistant)
             model: Optional[str]: Model used for this span.
                 Example: "gpt-4o", "claude-4-sonnet"
-            redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
+            redacted_input: Optional[LlmSpanAllowedInputType]: Redacted input to the node.
                 Same format as input parameter.
-            redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
+            redacted_output: Optional[LlmSpanAllowedOutputType]: Redacted output of the node.
                 Same format as output parameter.
             tools: Optional[list[dict]]: List of available tools passed to LLM on invocation.
                 Expected format for each tool dictionary:
