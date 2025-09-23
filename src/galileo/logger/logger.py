@@ -514,13 +514,26 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
         input: StepAllowedInputType: Input to the node.
+            Expected format: String or sequence of Message objects.
+            Examples:
+                - String: "User query: What is the weather today?"
+                - Messages: [Message(content="Hello", role=MessageRole.user)]
         redacted_input: Optional[StepAllowedInputType]: Redacted input to the node.
+            Same format as input parameter.
         name: Optional[str]: Name of the trace.
+            Example: "weather_query_trace", "customer_support_session"
         duration_ns: Optional[int]: Duration of the trace in nanoseconds.
         created_at: Optional[datetime]: Timestamp of the trace's creation.
         metadata: Optional[dict[str, str]]: Metadata associated with this trace.
+            Expected format: {"key1": "value1", "key2": "value2"}
         tags: Optional[list[str]]: Tags associated with this trace.
+            Expected format: ["tag1", "tag2", "tag3"]
+        dataset_input: Optional[str]: Input from the associated dataset.
+        dataset_output: Optional[str]: Expected output from the associated dataset.
+        dataset_metadata: Optional[dict[str, str]]: Metadata from the associated dataset.
+            Expected format: {"key1": "value1", "key2": "value2"}
         external_id: Optional[str]: External ID for this trace to connect to external systems.
+            Expected format: Unique identifier string.
 
         Returns:
         -------
@@ -580,23 +593,50 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Parameters:
         ----------
-            input: LlmStepAllowedIOType: Input to the node.
-            output: LlmStepAllowedIOType: Output of the node.
-            model: Optional[str]: Model used for this span. Feedback from April: Good docs about what model names we use.
-            redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
-            redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
+            input: LlmSpanAllowedInputType: Input to the node.
+                Expected format: List of Message objects.
+                Example: [Message(content="Say this is a test", role=MessageRole.user)]
+            output: LlmSpanAllowedOutputType: Output of the node.
+                Expected format: Single Message object.
+                Example: Message(content="The response text", role=MessageRole.assistant)
+            model: Optional[str]: Model used for this span.
+                Example: "gpt-4o", "claude-4-sonnet"
+            redacted_input: Optional[LlmSpanAllowedInputType]: Redacted input to the node.
+                Same format as input parameter.
+            redacted_output: Optional[LlmSpanAllowedOutputType]: Redacted output of the node.
+                Same format as output parameter.
             tools: Optional[List[dict]]: List of available tools passed to LLM on invocation.
+                Expected format for each tool dictionary:
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "function_name",
+                        "description": "Function description",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {...},
+                            "required": [...]
+                        }
+                    }
+                }
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[dict[str, str]]: Metadata associated with this span.
+                Expected format: {"key1": "value1", "key2": "value2"}
+            tags: Optional[list[str]]: Tags associated with this span.
+                Expected format: ["tag1", "tag2", "tag3"]
             num_input_tokens: Optional[int]: Number of input tokens.
             num_output_tokens: Optional[int]: Number of output tokens.
             total_tokens: Optional[int]: Total number of tokens.
-            temperature: Optional[float]: Temperature used for generation.
-            ground_truth: Optional[str]: Ground truth, expected output of the workflow.
+            temperature: Optional[float]: Temperature used for generation (0.0 to 2.0).
             status_code: Optional[int]: Status code of the node execution.
+                Expected values: 200 (success), 400 (client error), 500 (server error)
             time_to_first_token_ns: Optional[int]: Time until the first token was returned.
+            dataset_input: Optional[str]: Input from the associated dataset.
+            dataset_output: Optional[str]: Expected output from the associated dataset.
+            dataset_metadata: Optional[dict[str, str]]: Metadata from the associated dataset.
+                Expected format: {"key1": "value1", "key2": "value2"}
             span_step_number: Optional[int]: Step number of the span.
         Returns:
         -------
@@ -661,21 +701,45 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         Parameters:
         ----------
-            input: LlmStepAllowedIOType: Input to the node.
-            output: LlmStepAllowedIOType: Output of the node.
-            model: str: Model used for this span.
-            redacted_input: Optional[LlmStepAllowedIOType]: Redacted input to the node.
-            redacted_output: Optional[LlmStepAllowedIOType]: Redacted output of the node.
+            input: LlmSpanAllowedInputType: Input to the node.
+                Expected format: List of Message objects.
+                Example: [Message(content="Say this is a test", role=MessageRole.user)]
+            output: LlmSpanAllowedOutputType: Output of the node.
+                Expected format: Single Message object.
+                Example: Message(content="The response text", role=MessageRole.assistant)
+            model: Optional[str]: Model used for this span.
+                Example: "gpt-4o", "claude-4-sonnet"
+            redacted_input: Optional[LlmSpanAllowedInputType]: Redacted input to the node.
+                Same format as input parameter.
+            redacted_output: Optional[LlmSpanAllowedOutputType]: Redacted output of the node.
+                Same format as output parameter.
             tools: Optional[list[dict]]: List of available tools passed to LLM on invocation.
+                Expected format for each tool dictionary:
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "function_name",
+                        "description": "Function description",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {...},
+                            "required": [...]
+                        }
+                    }
+                }
             name: Optional[str]: Name of the span.
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[dict[str, str]]: Metadata associated with this span.
+                Expected format: {"key1": "value1", "key2": "value2"}
+            tags: Optional[list[str]]: Tags associated with this span.
+                Expected format: ["tag1", "tag2", "tag3"]
             num_input_tokens: Optional[int]: Number of input tokens.
             num_output_tokens: Optional[int]: Number of output tokens.
             total_tokens: Optional[int]: Total number of tokens.
-            temperature: Optional[float]: Temperature used for generation.
+            temperature: Optional[float]: Temperature used for generation (0.0 to 2.0).
             status_code: Optional[int]: Status code of the node execution.
+                Expected values: 200 (success), 400 (client error), 500 (server error)
             time_to_first_token_ns: Optional[int]: Time until the first token was returned.
             step_number: Optional[int]: Step number of the span.
         Returns:
@@ -825,15 +889,27 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
             input: str: Input to the node.
+                Expected format: String representation of tool input/arguments.
+                Example: "search_query: python best practices"
             redacted_input: Optional[str]: Redacted input to the node.
-            output: str: Output of the node.
+                Same format as input parameter.
+            output: Optional[str]: Output of the node.
+                Expected format: String representation of tool result.
+                Example: "Found 10 results for python best practices"
             redacted_output: Optional[str]: Redacted output to the node.
+                Same format as output parameter.
             name: Optional[str]: Name of the span.
+                Example: "search_tool", "calculator", "weather_api"
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[dict[str, str]]: Metadata associated with this span.
+                Expected format: {"key1": "value1", "key2": "value2"}
+            tags: Optional[list[str]]: Tags associated with this span.
+                Expected format: ["tag1", "tag2", "tag3"]
             status_code: Optional[int]: Status code of the node execution.
+                Expected values: 200 (success), 400 (client error), 500 (server error)
             tool_call_id: Optional[str]: Tool call ID.
+                Expected format: Unique identifier for the tool call.
             step_number: Optional[int]: Step number of the span.
         Returns:
         -------
@@ -880,13 +956,22 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
             payload: Payload: Input to the node. This is the input to the Protect `invoke` method.
+                Expected format: Payload object with input_ and/or output attributes.
+                Example: Payload(input_="User input text", output="Model output text")
             redacted_payload: Optional[Payload]: Redacted input to the node.
-            response: Response: Output of the node. This is the output from the Protect `invoke` method.
+                Same format as payload parameter.
+            response: Optional[Response]: Output of the node. This is the output from the Protect `invoke` method.
+                Expected format: Response object with text, trace_metadata, and status.
+                Example: Response(text="Processed text", status=ExecutionStatus.triggered)
             redacted_response: Optional[Response]: Redacted output to the node.
+                Same format as response parameter.
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[dict[str, str]]: Metadata associated with this span.
+                Expected format: {"key1": "value1", "key2": "value2"}
             tags: Optional[list[str]]: Tags associated with this span.
+                Expected format: ["tag1", "tag2", "tag3"]
             status_code: Optional[int]: Status code of the node execution.
+                Expected values: 200 (success), 400 (client error), 500 (server error)
             step_number: Optional[int]: Step number of the span.
         Returns:
         -------
@@ -935,13 +1020,23 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
             input: str: Input to the node.
+                Expected format: String representation of workflow input.
+                Example: "Start workflow with user request: analyze data"
             redacted_input: Optional[str]: Redacted input to the node.
+                Same format as input parameter.
             output: Optional[str]: Output of the node. This can also be set on conclude().
+                Expected format: String representation of workflow output.
+                Example: "Workflow completed successfully with results"
             redacted_output: Optional[str]: Redacted output to the node. This can also be set on conclude().
+                Same format as output parameter.
             name: Optional[str]: Name of the span.
+                Example: "data_analysis_workflow", "user_onboarding_flow"
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[dict[str, str]]: Metadata associated with this span.
+                Expected format: {"key1": "value1", "key2": "value2"}
+            tags: Optional[list[str]]: Tags associated with this span.
+                Expected format: ["tag1", "tag2", "tag3"]
             step_number: Optional[int]: Step number of the span.
         Returns:
         -------
@@ -988,14 +1083,26 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
             input: str: Input to the node.
+                Expected format: String representation of agent input.
+                Example: "User query to be processed by agent"
             redacted_input: Optional[str]: Redacted input to the node.
+                Same format as input parameter.
             output: Optional[str]: Output of the node. This can also be set on conclude().
+                Expected format: String representation of agent output.
+                Example: "Agent completed task with final answer"
             redacted_output: Optional[str]: Redacted output to the node. This can also be set on conclude().
+                Same format as output parameter.
             name: Optional[str]: Name of the span.
+                Example: "reasoning_agent", "planning_agent", "router_agent"
             duration_ns: Optional[int]: duration_ns of the node in nanoseconds.
             created_at: Optional[datetime]: Timestamp of the span's creation.
             metadata: Optional[dict[str, str]]: Metadata associated with this span.
+                Expected format: {"key1": "value1", "key2": "value2"}
+            tags: Optional[list[str]]: Tags associated with this span.
+                Expected format: ["tag1", "tag2", "tag3"]
             agent_type: Optional[AgentType]: Agent type of the span.
+                Expected values: AgentType.CLASSIFIER, AgentType.PLANNER, AgentType.REACT,
+                AgentType.REFLECTION, AgentType.ROUTER, AgentType.SUPERVISOR, AgentType.JUDGE, AgentType.DEFAULT
             step_number: Optional[int]: Step number of the span.
 
         Returns:
@@ -1218,8 +1325,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
             name: Optional[str]: Name of the session. Only used to set name for new sessions. If not provided, a session name will be generated automatically.
+                Example: "user_session_123", "customer_support_chat"
             previous_session_id: Optional[str]: ID of the previous session.
+                Expected format: UUID string format.
+                Example: "12345678-1234-5678-9012-123456789012"
             external_id: Optional[str]: External ID of the session. If a session in the current project and log stream with this external ID is found, it will be used instead of creating a new one.
+                Expected format: Unique identifier string.
+                Example: "user_session_abc123", "support_ticket_456"
         Returns:
         -------
             str: The ID of the session (existing or newly created).
@@ -1238,9 +1350,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Parameters:
         ----------
             name: Optional[str]: Name of the session. If omitted, the server will assign a name.
+                Example: "user_session_123", "customer_support_chat"
             previous_session_id: Optional[str]: UUID string of a prior session to link to.
+                Expected format: UUID string format.
+                Example: "12345678-1234-5678-9012-123456789012"
             external_id: Optional[str]: External identifier to dedupe against existing sessions within the same
                 project/log stream or experiment; if found, that session will be reused instead of creating a new one.
+                Expected format: Unique identifier string.
+                Example: "user_session_abc123", "support_ticket_456"
 
         Returns:
         -------

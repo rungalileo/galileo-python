@@ -492,7 +492,7 @@ class LogStreams(DecorateAllMethods):
         log_stream_name = log_stream_name or os.getenv("GALILEO_LOG_STREAM")
 
         # Get project using environment fallbacks
-        project_obj = Projects(config=self.config).get_with_env_fallbacks(name=project_name)
+        project_obj = Projects().get_with_env_fallbacks(name=project_name)
         if not project_obj:
             raise ValueError(f"Project '{project_name}' not found")
 
