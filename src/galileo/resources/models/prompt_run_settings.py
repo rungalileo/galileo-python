@@ -27,7 +27,7 @@ class PromptRunSettings:
         known_models (Union[Unset, list['Model']]):
         logprobs (Union[Unset, bool]):  Default: True.
         max_tokens (Union[Unset, int]):  Default: 1024.
-        model_alias (Union[Unset, str]):  Default: 'gpt-5-mini'.
+        model_alias (Union[Unset, str]):  Default: 'GPT-4o'.
         n (Union[Unset, int]):  Default: 1.
         presence_penalty (Union[Unset, float]):  Default: 0.0.
         reasoning_effort (Union[Unset, str]):  Default: 'medium'.
@@ -48,7 +48,7 @@ class PromptRunSettings:
     known_models: Union[Unset, list["Model"]] = UNSET
     logprobs: Union[Unset, bool] = True
     max_tokens: Union[Unset, int] = 1024
-    model_alias: Union[Unset, str] = "gpt-5-mini"
+    model_alias: Union[Unset, str] = "GPT-4o"
     n: Union[Unset, int] = 1
     presence_penalty: Union[Unset, float] = 0.0
     reasoning_effort: Union[Unset, str] = "medium"
@@ -68,10 +68,7 @@ class PromptRunSettings:
         from ..models.prompt_run_settings_response_format_type_0 import PromptRunSettingsResponseFormatType0
 
         deployment_name: Union[None, Unset, str]
-        if isinstance(self.deployment_name, Unset):
-            deployment_name = UNSET
-        else:
-            deployment_name = self.deployment_name
+        deployment_name = UNSET if isinstance(self.deployment_name, Unset) else self.deployment_name
 
         echo = self.echo
 
@@ -236,9 +233,8 @@ class PromptRunSettings:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_format_type_0 = PromptRunSettingsResponseFormatType0.from_dict(data)
+                return PromptRunSettingsResponseFormatType0.from_dict(data)
 
-                return response_format_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["PromptRunSettingsResponseFormatType0", None, Unset], data)
@@ -253,9 +249,8 @@ class PromptRunSettings:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                stop_sequences_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return stop_sequences_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[str]], data)
@@ -272,9 +267,8 @@ class PromptRunSettings:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                tool_choice_type_1 = OpenAIToolChoice.from_dict(data)
+                return OpenAIToolChoice.from_dict(data)
 
-                return tool_choice_type_1
             except:  # noqa: E722
                 pass
             return cast(Union["OpenAIToolChoice", None, Unset, str], data)

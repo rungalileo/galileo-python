@@ -6,20 +6,32 @@ import httpx
 from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
-
+from ...types import Response, UNSET
 from ... import errors
+
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from typing import cast
 
 
-def _get_kwargs(project_id: str, experiment_id: str) -> dict[str, Any]:
+
+def _get_kwargs(
+    project_id: str,
+    experiment_id: str,
+
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    
+
+    
+
+    
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.DELETE,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/experiments/{experiment_id}",
+        "path": "/projects/{project_id}/experiments/{experiment_id}".format(project_id=project_id,experiment_id=experiment_id,),
     }
+
 
     headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
 
@@ -28,11 +40,13 @@ def _get_kwargs(project_id: str, experiment_id: str) -> dict[str, Any]:
 
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[Any, HTTPValidationError]]:
-    if response.status_code == 204:
+    if response.status_code == :
         response_204 = cast(Any, None)
         return response_204
-    if response.status_code == 422:
+    if response.status_code == :
         response_422 = HTTPValidationError.from_dict(response.json())
+
+
 
         return response_422
     if client.raise_on_unexpected_status:
@@ -51,9 +65,13 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    project_id: str, experiment_id: str, *, client: ApiClient
+    project_id: str,
+    experiment_id: str,
+    *,
+    client: ApiClient,
+
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Delete Experiment
+    """ Delete Experiment
 
      Delete a specific experiment.
 
@@ -67,17 +85,29 @@ def sync_detailed(
 
     Returns:
         Response[Union[Any, HTTPValidationError]]
-    """
+     """
 
-    kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id)
 
-    response = client.request(**kwargs)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+experiment_id=experiment_id,
+
+    )
+
+    response = client.request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
+def sync(
+    project_id: str,
+    experiment_id: str,
+    *,
+    client: ApiClient,
 
-def sync(project_id: str, experiment_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
-    """Delete Experiment
+) -> Optional[Union[Any, HTTPValidationError]]:
+    """ Delete Experiment
 
      Delete a specific experiment.
 
@@ -91,15 +121,24 @@ def sync(project_id: str, experiment_id: str, *, client: ApiClient) -> Optional[
 
     Returns:
         Union[Any, HTTPValidationError]
-    """
+     """
 
-    return sync_detailed(project_id=project_id, experiment_id=experiment_id, client=client).parsed
 
+    return sync_detailed(
+        project_id=project_id,
+experiment_id=experiment_id,
+client=client,
+
+    ).parsed
 
 async def asyncio_detailed(
-    project_id: str, experiment_id: str, *, client: ApiClient
+    project_id: str,
+    experiment_id: str,
+    *,
+    client: ApiClient,
+
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Delete Experiment
+    """ Delete Experiment
 
      Delete a specific experiment.
 
@@ -113,19 +152,29 @@ async def asyncio_detailed(
 
     Returns:
         Response[Union[Any, HTTPValidationError]]
-    """
+     """
 
-    kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id)
 
-    response = await client.arequest(**kwargs)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+experiment_id=experiment_id,
+
+    )
+
+    response = await client.arequest(
+        **kwargs
+    )
 
     return _build_response(client=client, response=response)
 
-
 async def asyncio(
-    project_id: str, experiment_id: str, *, client: ApiClient
+    project_id: str,
+    experiment_id: str,
+    *,
+    client: ApiClient,
+
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Delete Experiment
+    """ Delete Experiment
 
      Delete a specific experiment.
 
@@ -139,6 +188,12 @@ async def asyncio(
 
     Returns:
         Union[Any, HTTPValidationError]
-    """
+     """
 
-    return (await asyncio_detailed(project_id=project_id, experiment_id=experiment_id, client=client)).parsed
+
+    return (await asyncio_detailed(
+        project_id=project_id,
+experiment_id=experiment_id,
+client=client,
+
+    )).parsed

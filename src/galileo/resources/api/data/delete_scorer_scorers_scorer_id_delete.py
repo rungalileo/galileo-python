@@ -1,26 +1,37 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
 from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
-
+from ...types import Response, UNSET
 from ... import errors
+
 from ...models.delete_scorer_response import DeleteScorerResponse
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from typing import cast
 
 
-def _get_kwargs(scorer_id: str) -> dict[str, Any]:
+
+def _get_kwargs(
+    scorer_id: str,
+
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    
+
+    
+
+    
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.DELETE,
         "return_raw_response": True,
-        "path": f"/scorers/{scorer_id}",
+        "path": "/scorers/{scorer_id}".format(scorer_id=scorer_id,),
     }
+
 
     headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
 
@@ -28,15 +39,17 @@ def _get_kwargs(scorer_id: str) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Optional[Union[DeleteScorerResponse, HTTPValidationError]]:
-    if response.status_code == 200:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[DeleteScorerResponse, HTTPValidationError]]:
+    if response.status_code == :
         response_200 = DeleteScorerResponse.from_dict(response.json())
 
+
+
         return response_200
-    if response.status_code == 422:
+    if response.status_code == :
         response_422 = HTTPValidationError.from_dict(response.json())
+
+
 
         return response_422
     if client.raise_on_unexpected_status:
@@ -45,9 +58,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[DeleteScorerResponse, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[DeleteScorerResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -56,8 +67,13 @@ def _build_response(
     )
 
 
-def sync_detailed(scorer_id: str, *, client: ApiClient) -> Response[Union[DeleteScorerResponse, HTTPValidationError]]:
-    """Delete Scorer
+def sync_detailed(
+    scorer_id: str,
+    *,
+    client: ApiClient,
+
+) -> Response[Union[DeleteScorerResponse, HTTPValidationError]]:
+    """ Delete Scorer
 
     Args:
         scorer_id (str):
@@ -68,17 +84,27 @@ def sync_detailed(scorer_id: str, *, client: ApiClient) -> Response[Union[Delete
 
     Returns:
         Response[Union[DeleteScorerResponse, HTTPValidationError]]
-    """
+     """
 
-    kwargs = _get_kwargs(scorer_id=scorer_id)
 
-    response = client.request(**kwargs)
+    kwargs = _get_kwargs(
+        scorer_id=scorer_id,
+
+    )
+
+    response = client.request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
 
+def sync(
+    scorer_id: str,
+    *,
+    client: ApiClient,
 
-def sync(scorer_id: str, *, client: ApiClient) -> Optional[Union[DeleteScorerResponse, HTTPValidationError]]:
-    """Delete Scorer
+) -> Optional[Union[DeleteScorerResponse, HTTPValidationError]]:
+    """ Delete Scorer
 
     Args:
         scorer_id (str):
@@ -89,15 +115,22 @@ def sync(scorer_id: str, *, client: ApiClient) -> Optional[Union[DeleteScorerRes
 
     Returns:
         Union[DeleteScorerResponse, HTTPValidationError]
-    """
+     """
 
-    return sync_detailed(scorer_id=scorer_id, client=client).parsed
 
+    return sync_detailed(
+        scorer_id=scorer_id,
+client=client,
+
+    ).parsed
 
 async def asyncio_detailed(
-    scorer_id: str, *, client: ApiClient
+    scorer_id: str,
+    *,
+    client: ApiClient,
+
 ) -> Response[Union[DeleteScorerResponse, HTTPValidationError]]:
-    """Delete Scorer
+    """ Delete Scorer
 
     Args:
         scorer_id (str):
@@ -108,17 +141,27 @@ async def asyncio_detailed(
 
     Returns:
         Response[Union[DeleteScorerResponse, HTTPValidationError]]
-    """
+     """
 
-    kwargs = _get_kwargs(scorer_id=scorer_id)
 
-    response = await client.arequest(**kwargs)
+    kwargs = _get_kwargs(
+        scorer_id=scorer_id,
+
+    )
+
+    response = await client.arequest(
+        **kwargs
+    )
 
     return _build_response(client=client, response=response)
 
+async def asyncio(
+    scorer_id: str,
+    *,
+    client: ApiClient,
 
-async def asyncio(scorer_id: str, *, client: ApiClient) -> Optional[Union[DeleteScorerResponse, HTTPValidationError]]:
-    """Delete Scorer
+) -> Optional[Union[DeleteScorerResponse, HTTPValidationError]]:
+    """ Delete Scorer
 
     Args:
         scorer_id (str):
@@ -129,6 +172,11 @@ async def asyncio(scorer_id: str, *, client: ApiClient) -> Optional[Union[Delete
 
     Returns:
         Union[DeleteScorerResponse, HTTPValidationError]
-    """
+     """
 
-    return (await asyncio_detailed(scorer_id=scorer_id, client=client)).parsed
+
+    return (await asyncio_detailed(
+        scorer_id=scorer_id,
+client=client,
+
+    )).parsed

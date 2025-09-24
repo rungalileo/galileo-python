@@ -44,10 +44,7 @@ class CreatePromptTemplateWithVersionRequestBody:
         from ..models.name import Name
 
         name: Union[dict[str, Any], str]
-        if isinstance(self.name, Name):
-            name = self.name.to_dict()
-        else:
-            name = self.name
+        name = self.name.to_dict() if isinstance(self.name, Name) else self.name
 
         template: Union[list[dict[str, Any]], str]
         if isinstance(self.template, list):
@@ -62,10 +59,7 @@ class CreatePromptTemplateWithVersionRequestBody:
         hidden = self.hidden
 
         output_type: Union[None, Unset, str]
-        if isinstance(self.output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = self.output_type
+        output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
 
         raw = self.raw
 
@@ -74,10 +68,7 @@ class CreatePromptTemplateWithVersionRequestBody:
             settings = self.settings.to_dict()
 
         version: Union[None, Unset, int]
-        if isinstance(self.version, Unset):
-            version = UNSET
-        else:
-            version = self.version
+        version = UNSET if isinstance(self.version, Unset) else self.version
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -107,9 +98,8 @@ class CreatePromptTemplateWithVersionRequestBody:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                name_type_1 = Name.from_dict(data)
+                return Name.from_dict(data)
 
-                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Union["Name", str], data)
@@ -149,10 +139,7 @@ class CreatePromptTemplateWithVersionRequestBody:
 
         _settings = d.pop("settings", UNSET)
         settings: Union[Unset, PromptRunSettings]
-        if isinstance(_settings, Unset):
-            settings = UNSET
-        else:
-            settings = PromptRunSettings.from_dict(_settings)
+        settings = UNSET if isinstance(_settings, Unset) else PromptRunSettings.from_dict(_settings)
 
         def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:

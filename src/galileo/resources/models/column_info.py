@@ -112,18 +112,12 @@ class ColumnInfo:
             data_unit = self.data_unit
 
         description: Union[None, Unset, str]
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         filterable = self.filterable
 
         group_label: Union[None, Unset, str]
-        if isinstance(self.group_label, Unset):
-            group_label = UNSET
-        else:
-            group_label = self.group_label
+        group_label = UNSET if isinstance(self.group_label, Unset) else self.group_label
 
         insight_type: Union[None, Unset, str]
         if isinstance(self.insight_type, Unset):
@@ -138,10 +132,7 @@ class ColumnInfo:
         is_optional = self.is_optional
 
         label: Union[None, Unset, str]
-        if isinstance(self.label, Unset):
-            label = UNSET
-        else:
-            label = self.label
+        label = UNSET if isinstance(self.label, Unset) else self.label
 
         multi_valued = self.multi_valued
 
@@ -154,10 +145,7 @@ class ColumnInfo:
             scorer_config = self.scorer_config
 
         scorer_id: Union[None, Unset, str]
-        if isinstance(self.scorer_id, Unset):
-            scorer_id = UNSET
-        else:
-            scorer_id = self.scorer_id
+        scorer_id = UNSET if isinstance(self.scorer_id, Unset) else self.scorer_id
 
         sortable = self.sortable
 
@@ -227,9 +215,8 @@ class ColumnInfo:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                allowed_values_type_0 = cast(list[Any], data)
+                return cast(list[Any], data)
 
-                return allowed_values_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[Any]], data)
@@ -253,9 +240,8 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_type_type_0 = DataType(data)
+                return DataType(data)
 
-                return data_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[DataType, None, Unset], data)
@@ -270,9 +256,8 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                data_unit_type_0 = DataUnit(data)
+                return DataUnit(data)
 
-                return data_unit_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[DataUnit, None, Unset], data)
@@ -307,9 +292,8 @@ class ColumnInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                insight_type_type_0 = InsightType(data)
+                return InsightType(data)
 
-                return insight_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[InsightType, None, Unset], data)
@@ -339,9 +323,8 @@ class ColumnInfo:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                scorer_config_type_0 = ScorerConfig.from_dict(data)
+                return ScorerConfig.from_dict(data)
 
-                return scorer_config_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ScorerConfig", None, Unset], data)
@@ -367,9 +350,8 @@ class ColumnInfo:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                threshold_type_0 = MetricThreshold.from_dict(data)
+                return MetricThreshold.from_dict(data)
 
-                return threshold_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["MetricThreshold", None, Unset], data)

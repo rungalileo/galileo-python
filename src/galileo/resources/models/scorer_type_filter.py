@@ -56,9 +56,8 @@ class ScorerTypeFilter:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                value_type_0 = ScorerTypes(data)
+                return ScorerTypes(data)
 
-                return value_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, list):

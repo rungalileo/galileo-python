@@ -1,23 +1,34 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
 from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
-
+from ...types import Response, UNSET
 from ... import errors
+
 from ...models.http_validation_error import HTTPValidationError
 from ...models.project_db import ProjectDB
 from ...models.project_type import ProjectType
-from ...types import UNSET, Response, Unset
+from ...types import UNSET, Unset
+from typing import cast
+from typing import cast, Union
+from typing import Union
+
 
 
 def _get_kwargs(
-    *, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
+    *,
+    project_name: Union[None, Unset, str] = UNSET,
+    type_: Union[None, ProjectType, Unset] = UNSET,
+
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    
+
+    
 
     params: dict[str, Any] = {}
 
@@ -37,7 +48,9 @@ def _get_kwargs(
         json_type_ = type_
     params["type"] = json_type_
 
+
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
@@ -46,26 +59,29 @@ def _get_kwargs(
         "params": params,
     }
 
+
     headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
 
     _kwargs["content_headers"] = headers
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
-    if response.status_code == 200:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[HTTPValidationError, list['ProjectDB']]]:
+    if response.status_code == :
         response_200 = []
         _response_200 = response.json()
-        for response_200_item_data in _response_200:
+        for response_200_item_data in (_response_200):
             response_200_item = ProjectDB.from_dict(response_200_item_data)
+
+
 
             response_200.append(response_200_item)
 
         return response_200
-    if response.status_code == 422:
+    if response.status_code == :
         response_422 = HTTPValidationError.from_dict(response.json())
+
+
 
         return response_422
     if client.raise_on_unexpected_status:
@@ -74,9 +90,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, list['ProjectDB']]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -86,9 +100,13 @@ def _build_response(
 
 
 def sync_detailed(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects
+    *,
+    client: ApiClient,
+    project_name: Union[None, Unset, str] = UNSET,
+    type_: Union[None, ProjectType, Unset] = UNSET,
+
+) -> Response[Union[HTTPValidationError, list['ProjectDB']]]:
+    """ Get Projects
 
      Gets projects for a user.
 
@@ -106,19 +124,29 @@ def sync_detailed(
 
     Returns:
         Response[Union[HTTPValidationError, list['ProjectDB']]]
-    """
+     """
 
-    kwargs = _get_kwargs(project_name=project_name, type_=type_)
 
-    response = client.request(**kwargs)
+    kwargs = _get_kwargs(
+        project_name=project_name,
+type_=type_,
+
+    )
+
+    response = client.request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
-
 
 def sync(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects
+    *,
+    client: ApiClient,
+    project_name: Union[None, Unset, str] = UNSET,
+    type_: Union[None, ProjectType, Unset] = UNSET,
+
+) -> Optional[Union[HTTPValidationError, list['ProjectDB']]]:
+    """ Get Projects
 
      Gets projects for a user.
 
@@ -136,15 +164,24 @@ def sync(
 
     Returns:
         Union[HTTPValidationError, list['ProjectDB']]
-    """
+     """
 
-    return sync_detailed(client=client, project_name=project_name, type_=type_).parsed
 
+    return sync_detailed(
+        client=client,
+project_name=project_name,
+type_=type_,
+
+    ).parsed
 
 async def asyncio_detailed(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects
+    *,
+    client: ApiClient,
+    project_name: Union[None, Unset, str] = UNSET,
+    type_: Union[None, ProjectType, Unset] = UNSET,
+
+) -> Response[Union[HTTPValidationError, list['ProjectDB']]]:
+    """ Get Projects
 
      Gets projects for a user.
 
@@ -162,19 +199,29 @@ async def asyncio_detailed(
 
     Returns:
         Response[Union[HTTPValidationError, list['ProjectDB']]]
-    """
+     """
 
-    kwargs = _get_kwargs(project_name=project_name, type_=type_)
 
-    response = await client.arequest(**kwargs)
+    kwargs = _get_kwargs(
+        project_name=project_name,
+type_=type_,
+
+    )
+
+    response = await client.arequest(
+        **kwargs
+    )
 
     return _build_response(client=client, response=response)
 
-
 async def asyncio(
-    *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
-) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects
+    *,
+    client: ApiClient,
+    project_name: Union[None, Unset, str] = UNSET,
+    type_: Union[None, ProjectType, Unset] = UNSET,
+
+) -> Optional[Union[HTTPValidationError, list['ProjectDB']]]:
+    """ Get Projects
 
      Gets projects for a user.
 
@@ -192,6 +239,12 @@ async def asyncio(
 
     Returns:
         Union[HTTPValidationError, list['ProjectDB']]
-    """
+     """
 
-    return (await asyncio_detailed(client=client, project_name=project_name, type_=type_)).parsed
+
+    return (await asyncio_detailed(
+        client=client,
+project_name=project_name,
+type_=type_,
+
+    )).parsed

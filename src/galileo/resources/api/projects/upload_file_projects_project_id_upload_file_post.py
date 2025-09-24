@@ -1,30 +1,42 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
 from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
-
+from ...types import Response, UNSET
 from ... import errors
-from ...models.body_upload_file_projects_project_id_upload_file_post import (
-    BodyUploadFileProjectsProjectIdUploadFilePost,
-)
+
+from ...models.body_upload_file_projects_project_id_upload_file_post import BodyUploadFileProjectsProjectIdUploadFilePost
 from ...models.http_validation_error import HTTPValidationError
-from ...types import Response
+from typing import cast
 
 
-def _get_kwargs(project_id: str, *, body: BodyUploadFileProjectsProjectIdUploadFilePost) -> dict[str, Any]:
+
+def _get_kwargs(
+    project_id: str,
+    *,
+    body: BodyUploadFileProjectsProjectIdUploadFilePost,
+
+) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    
+
+    
+
+    
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
         "return_raw_response": True,
-        "path": f"/projects/{project_id}/upload_file",
+        "path": "/projects/{project_id}/upload_file".format(project_id=project_id,),
     }
 
     _kwargs["files"] = body.to_multipart()
+
+
 
     headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
 
@@ -33,11 +45,13 @@ def _get_kwargs(project_id: str, *, body: BodyUploadFileProjectsProjectIdUploadF
 
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[Any, HTTPValidationError]]:
-    if response.status_code == 200:
+    if response.status_code == :
         response_200 = response.json()
         return response_200
-    if response.status_code == 422:
+    if response.status_code == :
         response_422 = HTTPValidationError.from_dict(response.json())
+
+
 
         return response_422
     if client.raise_on_unexpected_status:
@@ -56,9 +70,13 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(
-    project_id: str, *, client: ApiClient, body: BodyUploadFileProjectsProjectIdUploadFilePost
+    project_id: str,
+    *,
+    client: ApiClient,
+    body: BodyUploadFileProjectsProjectIdUploadFilePost,
+
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Upload File
+    """ Upload File
 
     Args:
         project_id (str):
@@ -70,19 +88,29 @@ def sync_detailed(
 
     Returns:
         Response[Union[Any, HTTPValidationError]]
-    """
+     """
 
-    kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    response = client.request(**kwargs)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+body=body,
+
+    )
+
+    response = client.request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
-
 
 def sync(
-    project_id: str, *, client: ApiClient, body: BodyUploadFileProjectsProjectIdUploadFilePost
+    project_id: str,
+    *,
+    client: ApiClient,
+    body: BodyUploadFileProjectsProjectIdUploadFilePost,
+
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Upload File
+    """ Upload File
 
     Args:
         project_id (str):
@@ -94,15 +122,24 @@ def sync(
 
     Returns:
         Union[Any, HTTPValidationError]
-    """
+     """
 
-    return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
+    return sync_detailed(
+        project_id=project_id,
+client=client,
+body=body,
+
+    ).parsed
 
 async def asyncio_detailed(
-    project_id: str, *, client: ApiClient, body: BodyUploadFileProjectsProjectIdUploadFilePost
+    project_id: str,
+    *,
+    client: ApiClient,
+    body: BodyUploadFileProjectsProjectIdUploadFilePost,
+
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Upload File
+    """ Upload File
 
     Args:
         project_id (str):
@@ -114,19 +151,29 @@ async def asyncio_detailed(
 
     Returns:
         Response[Union[Any, HTTPValidationError]]
-    """
+     """
 
-    kwargs = _get_kwargs(project_id=project_id, body=body)
 
-    response = await client.arequest(**kwargs)
+    kwargs = _get_kwargs(
+        project_id=project_id,
+body=body,
+
+    )
+
+    response = await client.arequest(
+        **kwargs
+    )
 
     return _build_response(client=client, response=response)
 
-
 async def asyncio(
-    project_id: str, *, client: ApiClient, body: BodyUploadFileProjectsProjectIdUploadFilePost
+    project_id: str,
+    *,
+    client: ApiClient,
+    body: BodyUploadFileProjectsProjectIdUploadFilePost,
+
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Upload File
+    """ Upload File
 
     Args:
         project_id (str):
@@ -138,6 +185,12 @@ async def asyncio(
 
     Returns:
         Union[Any, HTTPValidationError]
-    """
+     """
 
-    return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed
+
+    return (await asyncio_detailed(
+        project_id=project_id,
+client=client,
+body=body,
+
+    )).parsed

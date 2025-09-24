@@ -83,16 +83,10 @@ class Model:
             alternative_names = self.alternative_names
 
         api_version: Union[None, Unset, str]
-        if isinstance(self.api_version, Unset):
-            api_version = UNSET
-        else:
-            api_version = self.api_version
+        api_version = UNSET if isinstance(self.api_version, Unset) else self.api_version
 
         assistant_role: Union[None, Unset, str]
-        if isinstance(self.assistant_role, Unset):
-            assistant_role = UNSET
-        else:
-            assistant_role = self.assistant_role
+        assistant_role = UNSET if isinstance(self.assistant_role, Unset) else self.assistant_role
 
         cost_by: Union[Unset, str] = UNSET
         if not isinstance(self.cost_by, Unset):
@@ -111,10 +105,7 @@ class Model:
         input_price = self.input_price
 
         input_token_limit: Union[None, Unset, int]
-        if isinstance(self.input_token_limit, Unset):
-            input_token_limit = UNSET
-        else:
-            input_token_limit = self.input_token_limit
+        input_token_limit = UNSET if isinstance(self.input_token_limit, Unset) else self.input_token_limit
 
         integration: Union[Unset, str] = UNSET
         if not isinstance(self.integration, Unset):
@@ -133,10 +124,7 @@ class Model:
         output_price = self.output_price
 
         output_token_limit: Union[None, Unset, int]
-        if isinstance(self.output_token_limit, Unset):
-            output_token_limit = UNSET
-        else:
-            output_token_limit = self.output_token_limit
+        output_token_limit = UNSET if isinstance(self.output_token_limit, Unset) else self.output_token_limit
 
         params_map: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.params_map, Unset):
@@ -149,16 +137,10 @@ class Model:
         system_supported = self.system_supported
 
         token_limit: Union[None, Unset, int]
-        if isinstance(self.token_limit, Unset):
-            token_limit = UNSET
-        else:
-            token_limit = self.token_limit
+        token_limit = UNSET if isinstance(self.token_limit, Unset) else self.token_limit
 
         user_role: Union[None, Unset, str]
-        if isinstance(self.user_role, Unset):
-            user_role = UNSET
-        else:
-            user_role = self.user_role
+        user_role = UNSET if isinstance(self.user_role, Unset) else self.user_role
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -237,10 +219,7 @@ class Model:
 
         _cost_by = d.pop("cost_by", UNSET)
         cost_by: Union[Unset, ModelCostBy]
-        if isinstance(_cost_by, Unset):
-            cost_by = UNSET
-        else:
-            cost_by = ModelCostBy(_cost_by)
+        cost_by = UNSET if isinstance(_cost_by, Unset) else ModelCostBy(_cost_by)
 
         formatting_tokens = d.pop("formatting_tokens", UNSET)
 
@@ -252,9 +231,8 @@ class Model:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                input_map_type_0 = InputMap.from_dict(data)
+                return InputMap.from_dict(data)
 
-                return input_map_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["InputMap", None, Unset], data)
@@ -274,10 +252,7 @@ class Model:
 
         _integration = d.pop("integration", UNSET)
         integration: Union[Unset, LLMIntegration]
-        if isinstance(_integration, Unset):
-            integration = UNSET
-        else:
-            integration = LLMIntegration(_integration)
+        integration = UNSET if isinstance(_integration, Unset) else LLMIntegration(_integration)
 
         is_chat = d.pop("is_chat", UNSET)
 
@@ -289,9 +264,8 @@ class Model:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                output_map_type_0 = OutputMap.from_dict(data)
+                return OutputMap.from_dict(data)
 
-                return output_map_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["OutputMap", None, Unset], data)
@@ -311,10 +285,7 @@ class Model:
 
         _params_map = d.pop("params_map", UNSET)
         params_map: Union[Unset, RunParamsMap]
-        if isinstance(_params_map, Unset):
-            params_map = UNSET
-        else:
-            params_map = RunParamsMap.from_dict(_params_map)
+        params_map = UNSET if isinstance(_params_map, Unset) else RunParamsMap.from_dict(_params_map)
 
         provides_log_probs = d.pop("provides_log_probs", UNSET)
 

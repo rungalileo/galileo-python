@@ -55,18 +55,12 @@ class InputToxicityScorer:
             filters = self.filters
 
         model_name: Union[None, Unset, str]
-        if isinstance(self.model_name, Unset):
-            model_name = UNSET
-        else:
-            model_name = self.model_name
+        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
         name = self.name
 
         num_judges: Union[None, Unset, int]
-        if isinstance(self.num_judges, Unset):
-            num_judges = UNSET
-        else:
-            num_judges = self.num_judges
+        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
@@ -111,16 +105,13 @@ class InputToxicityScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+                            return NodeNameFilter.from_dict(data)
 
-                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
-
-                        return filters_type_0_item_type_1
+                        return MetadataFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -157,10 +148,7 @@ class InputToxicityScorer:
 
         _type_ = d.pop("type", UNSET)
         type_: Union[Unset, InputToxicityScorerType]
-        if isinstance(_type_, Unset):
-            type_ = UNSET
-        else:
-            type_ = InputToxicityScorerType(_type_)
+        type_ = UNSET if isinstance(_type_, Unset) else InputToxicityScorerType(_type_)
 
         input_toxicity_scorer = cls(
             filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_

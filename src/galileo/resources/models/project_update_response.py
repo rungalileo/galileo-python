@@ -45,16 +45,10 @@ class ProjectUpdateResponse:
         updated_at = self.updated_at.isoformat()
 
         created_by: Union[None, Unset, str]
-        if isinstance(self.created_by, Unset):
-            created_by = UNSET
-        else:
-            created_by = self.created_by
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         description: Union[None, Unset, str]
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         labels: Union[Unset, list[str]] = UNSET
         if not isinstance(self.labels, Unset):
@@ -64,10 +58,7 @@ class ProjectUpdateResponse:
                 labels.append(labels_item)
 
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         type_: Union[None, Unset, str]
         if isinstance(self.type_, Unset):
@@ -144,9 +135,8 @@ class ProjectUpdateResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                type_type_0 = ProjectType(data)
+                return ProjectType(data)
 
-                return type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, ProjectType, Unset], data)

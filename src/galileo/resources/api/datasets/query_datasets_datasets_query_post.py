@@ -1,18 +1,22 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, cast
 
 import httpx
 
 from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
-
+from ...types import Response, UNSET
 from ... import errors
+
 from ...models.dataset_action import DatasetAction
 from ...models.http_validation_error import HTTPValidationError
 from ...models.list_dataset_params import ListDatasetParams
 from ...models.list_dataset_response import ListDatasetResponse
-from ...types import UNSET, Response, Unset
+from ...types import UNSET, Unset
+from typing import cast
+from typing import Union
+
 
 
 def _get_kwargs(
@@ -21,8 +25,12 @@ def _get_kwargs(
     actions: Union[Unset, list[DatasetAction]] = UNSET,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
+
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    
+
+    
 
     params: dict[str, Any] = {}
 
@@ -33,13 +41,16 @@ def _get_kwargs(
             actions_item = actions_item_data.value
             json_actions.append(actions_item)
 
+
     params["actions"] = json_actions
 
     params["starting_token"] = starting_token
 
     params["limit"] = limit
 
+
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
@@ -50,6 +61,7 @@ def _get_kwargs(
 
     _kwargs["json"] = body.to_dict()
 
+
     headers["Content-Type"] = "application/json"
 
     headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
@@ -58,15 +70,17 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Optional[Union[HTTPValidationError, ListDatasetResponse]]:
-    if response.status_code == 200:
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[HTTPValidationError, ListDatasetResponse]]:
+    if response.status_code == :
         response_200 = ListDatasetResponse.from_dict(response.json())
 
+
+
         return response_200
-    if response.status_code == 422:
+    if response.status_code == :
         response_422 = HTTPValidationError.from_dict(response.json())
+
+
 
         return response_422
     if client.raise_on_unexpected_status:
@@ -75,9 +89,7 @@ def _parse_response(
         return None
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[HTTPValidationError, ListDatasetResponse]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, ListDatasetResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -93,8 +105,9 @@ def sync_detailed(
     actions: Union[Unset, list[DatasetAction]] = UNSET,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
+
 ) -> Response[Union[HTTPValidationError, ListDatasetResponse]]:
-    """Query Datasets
+    """ Query Datasets
 
     Args:
         actions (Union[Unset, list[DatasetAction]]): Actions to include in the 'permissions'
@@ -109,14 +122,22 @@ def sync_detailed(
 
     Returns:
         Response[Union[HTTPValidationError, ListDatasetResponse]]
-    """
+     """
 
-    kwargs = _get_kwargs(body=body, actions=actions, starting_token=starting_token, limit=limit)
 
-    response = client.request(**kwargs)
+    kwargs = _get_kwargs(
+        body=body,
+actions=actions,
+starting_token=starting_token,
+limit=limit,
+
+    )
+
+    response = client.request(
+        **kwargs,
+    )
 
     return _build_response(client=client, response=response)
-
 
 def sync(
     *,
@@ -125,8 +146,9 @@ def sync(
     actions: Union[Unset, list[DatasetAction]] = UNSET,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
+
 ) -> Optional[Union[HTTPValidationError, ListDatasetResponse]]:
-    """Query Datasets
+    """ Query Datasets
 
     Args:
         actions (Union[Unset, list[DatasetAction]]): Actions to include in the 'permissions'
@@ -141,10 +163,17 @@ def sync(
 
     Returns:
         Union[HTTPValidationError, ListDatasetResponse]
-    """
+     """
 
-    return sync_detailed(client=client, body=body, actions=actions, starting_token=starting_token, limit=limit).parsed
 
+    return sync_detailed(
+        client=client,
+body=body,
+actions=actions,
+starting_token=starting_token,
+limit=limit,
+
+    ).parsed
 
 async def asyncio_detailed(
     *,
@@ -153,8 +182,9 @@ async def asyncio_detailed(
     actions: Union[Unset, list[DatasetAction]] = UNSET,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
+
 ) -> Response[Union[HTTPValidationError, ListDatasetResponse]]:
-    """Query Datasets
+    """ Query Datasets
 
     Args:
         actions (Union[Unset, list[DatasetAction]]): Actions to include in the 'permissions'
@@ -169,14 +199,22 @@ async def asyncio_detailed(
 
     Returns:
         Response[Union[HTTPValidationError, ListDatasetResponse]]
-    """
+     """
 
-    kwargs = _get_kwargs(body=body, actions=actions, starting_token=starting_token, limit=limit)
 
-    response = await client.arequest(**kwargs)
+    kwargs = _get_kwargs(
+        body=body,
+actions=actions,
+starting_token=starting_token,
+limit=limit,
+
+    )
+
+    response = await client.arequest(
+        **kwargs
+    )
 
     return _build_response(client=client, response=response)
-
 
 async def asyncio(
     *,
@@ -185,8 +223,9 @@ async def asyncio(
     actions: Union[Unset, list[DatasetAction]] = UNSET,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
+
 ) -> Optional[Union[HTTPValidationError, ListDatasetResponse]]:
-    """Query Datasets
+    """ Query Datasets
 
     Args:
         actions (Union[Unset, list[DatasetAction]]): Actions to include in the 'permissions'
@@ -201,8 +240,14 @@ async def asyncio(
 
     Returns:
         Union[HTTPValidationError, ListDatasetResponse]
-    """
+     """
 
-    return (
-        await asyncio_detailed(client=client, body=body, actions=actions, starting_token=starting_token, limit=limit)
-    ).parsed
+
+    return (await asyncio_detailed(
+        client=client,
+body=body,
+actions=actions,
+starting_token=starting_token,
+limit=limit,
+
+    )).parsed

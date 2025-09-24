@@ -41,10 +41,7 @@ class StageWithRulesets:
         project_id = self.project_id
 
         description: Union[None, Unset, str]
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         paused = self.paused
 
@@ -102,10 +99,7 @@ class StageWithRulesets:
 
         _type_ = d.pop("type", UNSET)
         type_: Union[Unset, StageType]
-        if isinstance(_type_, Unset):
-            type_ = UNSET
-        else:
-            type_ = StageType(_type_)
+        type_ = UNSET if isinstance(_type_, Unset) else StageType(_type_)
 
         stage_with_rulesets = cls(
             name=name,

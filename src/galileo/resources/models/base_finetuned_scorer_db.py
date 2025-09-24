@@ -73,9 +73,8 @@ class BaseFinetunedScorerDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                executor_type_0 = CoreScorerName(data)
+                return CoreScorerName(data)
 
-                return executor_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[CoreScorerName, None, Unset], data)

@@ -26,10 +26,7 @@ class UpsertDatasetContentRequest:
         dataset_id = self.dataset_id
 
         version_index: Union[None, Unset, int]
-        if isinstance(self.version_index, Unset):
-            version_index = UNSET
-        else:
-            version_index = self.version_index
+        version_index = UNSET if isinstance(self.version_index, Unset) else self.version_index
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
