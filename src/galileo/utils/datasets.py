@@ -61,7 +61,7 @@ def get_records_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
 def create_rows_from_records(records: list[dict[str, str]]) -> list[DatasetRecord]:
     result = []
     for record in records:
-        if "input" in record:
+        if isinstance(record, dict) and "input" in record:
             result.append(DatasetRecord(**record))
         else:
             result.append(DatasetRecord(input=record))
