@@ -56,9 +56,9 @@ def scorer_jobs_status(project_id: str, run_id: str) -> None:
     scorer_jobs = get_run_scorer_jobs(project_id, run_id)
     for job in scorer_jobs:
         scorer_name = None
-        if job.request_data.get("prompt_scorer_settings"):
+        if "prompt_scorer_settings" in job.request_data:
             scorer_name = job.request_data["prompt_scorer_settings"]["scorer_name"]
-        elif job.request_data.get("scorer_config"):
+        elif "scorer_config" in job.request_data:
             scorer_name = job.request_data["scorer_config"]["name"]
 
         if not scorer_name:
