@@ -60,4 +60,8 @@ repos:
   #           "./pyproject.toml",
   # ]
 
-exclude: "CHANGELOG.md"
+exclude: |
+  (?x)^(
+    CHANGELOG\.md|
+    src/galileo/resources/.*
+  )$

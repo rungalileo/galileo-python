@@ -7,9 +7,7 @@ _logger = logging.getLogger(__name__)
 
 
 def galileo_logging_enabled() -> bool:
-    if os.getenv("GALILEO_LOGGING_DISABLED", "false").lower() in ("true", "1", "t"):
-        return False
-    return True
+    return os.getenv("GALILEO_LOGGING_DISABLED", "false").lower() not in ("true", "1", "t")
 
 
 def nop_sync(f: Callable) -> Callable:
@@ -18,6 +16,7 @@ def nop_sync(f: Callable) -> Callable:
         if galileo_logging_enabled():
             return f(*args, **kwargs)
         _logger.warning(f"Bypassing logging for {f.__name__}. Logging is currently disabled.")
+        return None
 
     return decorated
 
@@ -28,5 +27,6 @@ def nop_async(f: Callable) -> Callable:
         if galileo_logging_enabled():
             return await f(*args, **kwargs)
         _logger.warning(f"Bypassing logging for {f.__name__}. Logging is currently disabled.")
+        return None
 
     return decorated

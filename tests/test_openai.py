@@ -13,7 +13,7 @@ from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_proje
 from tests.testutils.streaming import EventStream
 
 
-def openai_incorrect_api_key_error():
+def openai_incorrect_api_key_error() -> bytes:
     return b"{'error': {'message': 'Incorrect API key provided: sk-galil********. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}"
 
 
@@ -27,7 +27,7 @@ def test_basic_openai_call(
     mock_logstreams_client: Mock,
     openai_create,
     create_chat_completion,
-):
+) -> None:
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -83,7 +83,7 @@ def test_basic_openai_call(
 @patch("galileo.logger.logger.Traces")
 def test_streamed_openai_call(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
-):
+) -> None:
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -132,7 +132,7 @@ def test_openai_api_calls_as_parent_span(
     mock_logstreams_client: Mock,
     openai_create,
     create_chat_completion,
-):
+) -> None:
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -181,7 +181,7 @@ def test_openai_api_calls_as_parent_span(
 @patch("galileo.logger.logger.Traces")
 def test_openai_error_trace(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
-):
+) -> None:
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -213,7 +213,7 @@ def test_openai_error_trace(
 @patch("galileo.logger.logger.Traces")
 def test_openai_error_trace_(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
-):
+) -> None:
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -255,7 +255,7 @@ def test_openai_error_trace_(
 @patch("galileo.logger.logger.Traces")
 def test_client_fails_because_openai_error_trace_no_exp(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, openai_create
-):
+) -> None:
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
@@ -295,7 +295,7 @@ def test_galileo_api_client_transport_error_not_blocking_user_code(
     mock_logstreams_client: Mock,
     openai_create,
     create_chat_completion,
-):
+) -> None:
     m = mock_traces_client.return_value
     m.get_project_by_name = AsyncMock(side_effect=httpx.HTTPError("http error"))
     m.get_log_stream_by_name = AsyncMock(side_effect=httpx.HTTPError("http error"))
@@ -333,7 +333,7 @@ def test_openai_calls_in_active_trace(
     mock_logstreams_client: Mock,
     openai_create,
     create_chat_completion,
-):
+) -> None:
     mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)

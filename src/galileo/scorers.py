@@ -30,7 +30,7 @@ class Scorers:
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
 
-    def list(self, types: list[ScorerTypes] = None) -> Union[Unset, list[ScorerResponse]]:
+    def list(self, types: Optional[list[ScorerTypes]] = None) -> Union[Unset, list[ScorerResponse]]:
         """
         Args:
             types: List of scorer types to filter by. Defaults to all scorers.
@@ -53,10 +53,9 @@ class Scorers:
         Returns:
             Scorer response if found, otherwise None
         """
-        result = get_scorer_version_or_latest_scorers_scorer_id_version_get.sync(
+        return get_scorer_version_or_latest_scorers_scorer_id_version_get.sync(
             scorer_id=scorer_id, version=version, client=self.config.api_client
         )
-        return result
 
 
 class ScorerSettings:

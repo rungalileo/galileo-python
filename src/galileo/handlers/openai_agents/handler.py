@@ -265,7 +265,7 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
             )
 
         # Create the node
-        node = Node(node_type=galileo_type, span_params=initial_params, run_id=span_id, parent_run_id=parent_id)  # type: ignore[arg-type]
+        node = Node(node_type=galileo_type, span_params=initial_params, run_id=span_id, parent_run_id=parent_id)
         self._nodes[span_id] = node
 
         # Add to parent's children list

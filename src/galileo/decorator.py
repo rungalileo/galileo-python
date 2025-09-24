@@ -83,15 +83,24 @@ _log_stream_context: ContextVar[Optional[str]] = ContextVar("log_stream_context"
 _trace_context: ContextVar[Optional[Trace]] = ContextVar("trace_context", default=None)
 _experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_context", default=None)
 _mode_context: ContextVar[Optional[str]] = ContextVar("mode_context", default="batch")
-_span_stack_context: ContextVar[list[WorkflowSpan]] = ContextVar("span_stack_context", default=[])
+_span_stack_context: ContextVar[Optional[list[WorkflowSpan]]] = ContextVar("span_stack_context", default=None)
 
 # Stack variables for storing previous values (for proper nesting)
-_project_stack: ContextVar[list[Optional[str]]] = ContextVar("project_stack", default=[])
-_log_stream_stack: ContextVar[list[Optional[str]]] = ContextVar("log_stream_stack", default=[])
-_trace_stack: ContextVar[list[Optional[Trace]]] = ContextVar("trace_stack", default=[])
-_experiment_id_stack: ContextVar[list[Optional[str]]] = ContextVar("experiment_id_stack", default=[])
-_mode_stack: ContextVar[list[Optional[str]]] = ContextVar("mode_stack", default=[])
-_span_stack_stack: ContextVar[list[list[WorkflowSpan]]] = ContextVar("span_stack_stack", default=[])
+_project_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("project_stack", default=None)
+_log_stream_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("log_stream_stack", default=None)
+_trace_stack: ContextVar[Optional[list[Optional[Trace]]]] = ContextVar("trace_stack", default=None)
+_experiment_id_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("experiment_id_stack", default=None)
+_mode_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("mode_stack", default=None)
+_span_stack_stack: ContextVar[Optional[list[list[WorkflowSpan]]]] = ContextVar("span_stack_stack", default=None)
+
+
+def _get_or_init_list(context_var: ContextVar, default_factory: Callable = list) -> list:
+    """Helper function to get or initialize a context variable with a list."""
+    value = context_var.get()
+    if value is None:
+        value = default_factory()
+        context_var.set(value)
+    return value
 
 
 class GalileoDecorator:
@@ -136,11 +145,11 @@ class GalileoDecorator:
         ).flush()
 
         # Pop values from the stacks and restore the previous context
-        _project_context.set(_project_stack.get().pop())
-        _log_stream_context.set(_log_stream_stack.get().pop())
-        _experiment_id_context.set(_experiment_id_stack.get().pop())
-        _trace_context.set(_trace_stack.get().pop())
-        _span_stack_context.set(_span_stack_stack.get().pop())
+        _project_context.set(_get_or_init_list(_project_stack).pop())
+        _log_stream_context.set(_get_or_init_list(_log_stream_stack).pop())
+        _experiment_id_context.set(_get_or_init_list(_experiment_id_stack).pop())
+        _trace_context.set(_get_or_init_list(_trace_stack).pop())
+        _span_stack_context.set(_get_or_init_list(_span_stack_stack).pop())
 
     def __call__(
         self, *, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
@@ -164,11 +173,11 @@ class GalileoDecorator:
             The decorator instance for use in a with statement
         """
         # Push current values onto the stacks
-        _project_stack.get().append(_project_context.get())
-        _log_stream_stack.get().append(_log_stream_context.get())
-        _experiment_id_stack.get().append(_experiment_id_context.get())
-        _trace_stack.get().append(_trace_context.get())
-        _span_stack_stack.get().append(_span_stack_context.get().copy())
+        _get_or_init_list(_project_stack).append(_project_context.get())
+        _get_or_init_list(_log_stream_stack).append(_log_stream_context.get())
+        _get_or_init_list(_experiment_id_stack).append(_experiment_id_context.get())
+        _get_or_init_list(_trace_stack).append(_trace_context.get())
+        _get_or_init_list(_span_stack_stack).append(_get_or_init_list(_span_stack_context).copy())
 
         # Reset trace context values
         _span_stack_context.set([])
@@ -245,8 +254,7 @@ class GalileoDecorator:
         # This allows the decorator to be used with or without arguments.
         if func is None:
             return decorator
-        else:
-            return decorator(func)
+        return decorator(func)
 
     def _async_log(
         self,
@@ -289,11 +297,11 @@ class GalileoDecorator:
                 result = await func(*args, **kwargs)
             except Exception as e:
                 _logger.error(f"Error while executing function in async_wrapper: {e}", exc_info=True)
+                raise
             finally:
                 result = self._finalize_call(span_type, span_params, result)
 
-                if result is not None:
-                    return result
+            return result
 
         return cast(F, async_wrapper)
 
@@ -368,7 +376,7 @@ class GalileoDecorator:
         params: Optional[dict[str, Union[str, Callable]]] = None,
         is_method: bool = False,
         func_args: tuple = (),
-        func_kwargs: dict = {},
+        func_kwargs: Optional[dict] = None,
     ) -> Optional[dict[str, Any]]:
         """
         Prepare the input parameters for logging.
@@ -388,6 +396,8 @@ class GalileoDecorator:
         -------
             Dictionary of parameters for the span, or None if preparation fails
         """
+        if func_kwargs is None:
+            func_kwargs = {}
         try:
             start_time = _get_timestamp()
 
@@ -464,7 +474,7 @@ class GalileoDecorator:
                         merged[name] = param.default
 
             # Create dictionary of positional args
-            param_names = [name for name in sig.parameters.keys() if name not in ("self", "cls")]
+            param_names = [name for name in sig.parameters if name not in ("self", "cls")]
             for param_name, value in zip(param_names, func_args[1:] if is_method else func_args):
                 merged[param_name] = value
 
@@ -490,11 +500,11 @@ class GalileoDecorator:
         """
         common_params = ["name", "input", "metadata", "tags"]
         span_params = {
-            "llm": common_params + ["model", "temperature", "tools"],
+            "llm": [*common_params, "model", "temperature", "tools"],
             "retriever": common_params,
-            "tool": common_params + ["tool_call_id"],
+            "tool": [*common_params, "tool_call_id"],
             "workflow": common_params,
-            "agent": common_params + ["agent_type"],
+            "agent": [*common_params, "agent_type"],
         }
         return span_params.get(span_type, common_params)
 
@@ -541,10 +551,10 @@ class GalileoDecorator:
                 )
             else:
                 span = client_instance.add_workflow_span(input=input_, name=name, created_at=created_at)
-            _span_stack_context.get().append(span)
+            _get_or_init_list(_span_stack_context).append(span)
 
     def _get_input_from_func_args(
-        self, *, is_method: bool = False, func_args: tuple = (), func_kwargs: dict = {}
+        self, *, is_method: bool = False, func_args: tuple = (), func_kwargs: Optional[dict] = None
     ) -> Any:
         """
         Extract input from function arguments.
@@ -559,6 +569,8 @@ class GalileoDecorator:
             Serialized representation of the function arguments
         """
         # Remove implicitly passed "self" or "cls" argument for instance or class methods
+        if func_kwargs is None:
+            func_kwargs = {}
         logged_args = func_args[1:] if is_method else func_args
         raw_input = {"args": logged_args, "kwargs": func_kwargs}
 
@@ -585,10 +597,9 @@ class GalileoDecorator:
         """
         if inspect.isgenerator(result):
             return self._wrap_sync_generator_result(span_type, span_params, result)
-        elif inspect.isasyncgen(result):
+        if inspect.isasyncgen(result):
             return self._wrap_async_generator_result(span_type, span_params, result)
-        else:
-            return self._handle_call_result(span_type, span_params, result)
+        return self._handle_call_result(span_type, span_params, result)
 
     def _handle_call_result(self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], result: Any) -> Any:
         """
@@ -607,7 +618,7 @@ class GalileoDecorator:
             The original result
         """
         try:
-            output = span_params.get("output", None)
+            output = span_params.get("output")
 
             if output is None:
                 output = result if result is not None else ""
@@ -618,7 +629,7 @@ class GalileoDecorator:
                 # textual spans are spans with string-based input and output
                 or is_textual_span_type(span_type)
                 # llm spans don't accept list or tuple types as output
-                or (span_type == "llm" and (isinstance(output, list) or isinstance(output, tuple)))
+                or (span_type == "llm" and (isinstance(output, (list, tuple))))
             ):
                 # Convert output to string if needed for workflow/tool/agent spans
                 output = serialize_to_str(output)
@@ -626,13 +637,13 @@ class GalileoDecorator:
                 # Serialize and deserialize to ensure proper JSON serialization.
                 output = json.loads(json.dumps(output, cls=EventSerializer))
 
-            stack = _span_stack_context.get()
+            stack = _get_or_init_list(_span_stack_context)
 
             created_at = span_params.get("created_at")
             created_at_ns = created_at.timestamp() * 1e9 if created_at else 0
-            end_time_ns = int(round(_get_timestamp().timestamp() * 1e9))
+            end_time_ns = round(_get_timestamp().timestamp() * 1e9)
             if created_at_ns:
-                span_params["duration_ns"] = int(round(end_time_ns - created_at_ns))
+                span_params["duration_ns"] = round(end_time_ns - created_at_ns)
             else:
                 span_params["created_at"] = created_at
                 span_params["duration_ns"] = 0
@@ -646,7 +657,7 @@ class GalileoDecorator:
                     stack.pop()
                     _span_stack_context.set(stack)
 
-                status_code = span_params.get("status_code", None)
+                status_code = span_params.get("status_code")
                 _logger.debug(f"conclude {output=} {status_code=}")
                 logger.conclude(output=output, duration_ns=span_params["duration_ns"], status_code=status_code)
             else:
@@ -798,7 +809,7 @@ class GalileoDecorator:
         -------
             List[WorkflowSpan]: The current span stack
         """
-        return _span_stack_context.get()
+        return _get_or_init_list(_span_stack_context)
 
     def get_current_trace(self) -> Optional[Trace]:
         """
@@ -833,11 +844,9 @@ class GalileoDecorator:
         """
         self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id).flush()
 
-        if project == _project_context.get() and log_stream == _log_stream_context.get():
-            _span_stack_context.set([])
-            _trace_context.set(None)
-
-        elif project == _project_context.get() and experiment_id == _experiment_id_context.get():
+        if (project == _project_context.get() and log_stream == _log_stream_context.get()) or (
+            project == _project_context.get() and experiment_id == _experiment_id_context.get()
+        ):
             _span_stack_context.set([])
             _trace_context.set(None)
 
@@ -871,12 +880,12 @@ class GalileoDecorator:
         _trace_context.set(None)
 
         # Clear all stacks
-        _project_stack.get().clear()
-        _log_stream_stack.get().clear()
-        _trace_stack.get().clear()
-        _experiment_id_stack.get().clear()
-        _mode_stack.get().clear()
-        _span_stack_stack.get().clear()
+        _get_or_init_list(_project_stack).clear()
+        _get_or_init_list(_log_stream_stack).clear()
+        _get_or_init_list(_trace_stack).clear()
+        _get_or_init_list(_experiment_id_stack).clear()
+        _get_or_init_list(_mode_stack).clear()
+        _get_or_init_list(_span_stack_stack).clear()
 
     def reset_trace_context(self) -> None:
         """Reset the trace context inside the decorator."""

@@ -155,7 +155,7 @@ def _galileo_wrapper(func: Callable) -> Callable:
 
 def _extract_chat_response(kwargs: dict) -> dict:
     """Extracts the llm output from the response."""
-    response = {"role": kwargs.get("role", None)}
+    response = {"role": kwargs.get("role")}
 
     if kwargs.get("function_call") is not None and type(kwargs["function_call"]) is dict:
         response.update(
@@ -185,7 +185,7 @@ def _extract_chat_response(kwargs: dict) -> dict:
             except Exception as e:
                 _logger.error(f"Error processing tool call: {e}")
 
-        response.update({"tool_calls": tool_calls if len(tool_calls) else None})
+        response.update({"tool_calls": tool_calls if tool_calls else None})
 
     response.update({"content": kwargs.get("content", "")})
 
@@ -205,12 +205,12 @@ def _extract_input_data_from_kwargs(
     if metadata is not None and not isinstance(metadata, dict):
         raise TypeError("metadata must be a dictionary")
 
-    model = kwargs.get("model", None) or None
+    model = kwargs.get("model") or None
 
     prompt = None
 
     if resource.type == "completion":
-        prompt = kwargs.get("prompt", None)
+        prompt = kwargs.get("prompt")
     elif resource.type == "chat":
         prompt = kwargs.get("messages", [])
 
@@ -234,15 +234,13 @@ def _extract_input_data_from_kwargs(
         kwargs.get("presence_penalty", 0) if not isinstance(kwargs.get("presence_penalty", 0), NotGiven) else 0
     )
 
-    parsed_seed = kwargs.get("seed", None) if not isinstance(kwargs.get("seed", None), NotGiven) else None
+    parsed_seed = kwargs.get("seed") if not isinstance(kwargs.get("seed"), NotGiven) else None
 
     parsed_n = kwargs.get("n", 1) if not isinstance(kwargs.get("n", 1), NotGiven) else 1
 
-    parsed_tools = kwargs.get("tools", None) if not isinstance(kwargs.get("tools", None), NotGiven) else None
+    parsed_tools = kwargs.get("tools") if not isinstance(kwargs.get("tools"), NotGiven) else None
 
-    parsed_tool_choice = (
-        kwargs.get("tool_choice", None) if not isinstance(kwargs.get("tool_choice", None), NotGiven) else None
-    )
+    parsed_tool_choice = kwargs.get("tool_choice") if not isinstance(kwargs.get("tool_choice"), NotGiven) else None
 
     # handle deprecated aliases (functions for tools, function_call for tool_choice)
     if parsed_tools is None and kwargs.get("functions") is not None:
@@ -301,7 +299,7 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
     if response is None:
         return None, "<NoneType response returned from OpenAI>", None
 
-    model = response.get("model", None) or None
+    model = response.get("model") or None
 
     completion = None
     if resource.type == "completion":
@@ -328,7 +326,7 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
                     _extract_chat_response(choice.message.__dict__) if _is_openai_v1() else choice.get("message", None)
                 )
 
-    usage = _parse_usage(response.get("usage", None))
+    usage = _parse_usage(response.get("usage"))
 
     return model, completion, usage
 
@@ -423,7 +421,7 @@ def _is_openai_v1() -> bool:
     return Version(openai.__version__) >= Version("1.0.0")
 
 
-def _is_streaming_response(response) -> bool:
+def _is_streaming_response(response: Any) -> bool:
     return isinstance(response, types.GeneratorType) or (_is_openai_v1() and isinstance(response, openai.Stream))
 
 
@@ -467,42 +465,40 @@ def _wrap(
                 should_complete_trace=should_complete_trace,
                 status_code=status_code,
             )
-        else:
-            model, completion, usage = _extract_data_from_default_response(
-                open_ai_resource,
-                ((openai_response and openai_response.__dict__) if _is_openai_v1() else openai_response),
+        model, completion, usage = _extract_data_from_default_response(
+            open_ai_resource, ((openai_response and openai_response.__dict__) if _is_openai_v1() else openai_response)
+        )
+
+        if usage is None:
+            usage = {}
+
+        end_time = _get_timestamp()
+
+        duration_ns = round((end_time - start_time).total_seconds() * 1e9)
+
+        # Add a span to the current trace or span (if this is a nested trace)
+        galileo_logger.add_llm_span(
+            input=input_data.input,
+            output=completion,
+            tools=input_data.tools,
+            name=input_data.name,
+            model=model,
+            temperature=input_data.temperature,
+            duration_ns=duration_ns,
+            num_input_tokens=usage.get("prompt_tokens", 0),
+            num_output_tokens=usage.get("completion_tokens", 0),
+            total_tokens=usage.get("total_tokens", 0),
+            metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
+            # openai client library doesn't return http_status code, so we only can hardcode it here
+            # because we if we parsed and extracted data from response it means we get it and it's 200OK
+            status_code=status_code,
+        )
+
+        # Conclude the trace if this is the top-level call
+        if should_complete_trace:
+            galileo_logger.conclude(
+                output=serialize_to_str(completion), duration_ns=duration_ns, status_code=status_code
             )
-
-            if usage is None:
-                usage = {}
-
-            end_time = _get_timestamp()
-
-            duration_ns = int(round((end_time - start_time).total_seconds() * 1e9))
-
-            # Add a span to the current trace or span (if this is a nested trace)
-            galileo_logger.add_llm_span(
-                input=input_data.input,
-                output=completion,
-                tools=input_data.tools,
-                name=input_data.name,
-                model=model,
-                temperature=input_data.temperature,
-                duration_ns=duration_ns,
-                num_input_tokens=usage.get("prompt_tokens", 0),
-                num_output_tokens=usage.get("completion_tokens", 0),
-                total_tokens=usage.get("total_tokens", 0),
-                metadata={str(k): str(v) for k, v in input_data.model_parameters.items()},
-                # openai client library doesn't return http_status code, so we only can hardcode it here
-                # because we if we parsed and extracted data from response it means we get it and it's 200OK
-                status_code=status_code,
-            )
-
-            # Conclude the trace if this is the top-level call
-            if should_complete_trace:
-                galileo_logger.conclude(
-                    output=serialize_to_str(completion), duration_ns=duration_ns, status_code=status_code
-                )
 
         # we want to re-raise exception after we process openai_response
         if exc_info:
@@ -584,7 +580,7 @@ class ResponseGeneratorSync:
     def __enter__(self):
         return self.__iter__()
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         pass
 
     def _finalize(self) -> None:
@@ -595,7 +591,7 @@ class ResponseGeneratorSync:
 
         end_time = _get_timestamp()
         # TODO: make sure completion_start_time what we want
-        duration_ns = int(round((end_time - self.completion_start_time).total_seconds() * 1e9))
+        duration_ns = round((end_time - self.completion_start_time).total_seconds() * 1e9)
 
         # Add a span to the current trace or span (if this is a nested trace)
         self.logger.add_llm_span(

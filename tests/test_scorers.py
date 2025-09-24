@@ -51,7 +51,7 @@ def list_scorers_all():
 
 
 @patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
-def test_list_all_scorers(list_scorers_mock: Mock):
+def test_list_all_scorers(list_scorers_mock: Mock) -> None:
     list_scorers_mock.sync.return_value = list_scorers_all()
     results = Scorers().list()
     actual = {}
@@ -62,7 +62,7 @@ def test_list_all_scorers(list_scorers_mock: Mock):
 
 
 @patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
-def test_list_all_scorers_preset_filter(list_scorers_mock: Mock):
+def test_list_all_scorers_preset_filter(list_scorers_mock: Mock) -> None:
     Scorers().list(types=[ScorerTypes.LLM])
     list_scorers_mock.sync.assert_called_once_with(
         client=ANY,
@@ -103,7 +103,7 @@ class MockHTTPError(Exception):
 
 
 @patch("galileo.scorers.get_scorer_version_or_latest_scorers_scorer_id_version_get")
-def test_get_scorer_version_success(get_scorer_version_mock: Mock):
+def test_get_scorer_version_success(get_scorer_version_mock: Mock) -> None:
     # Setup
     mock_response = create_mock_version_response()
     get_scorer_version_mock.sync.return_value = mock_response

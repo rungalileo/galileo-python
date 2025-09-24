@@ -146,5 +146,4 @@ class ProtectParser(BaseModel):
             print(f"> Raw response: {text}")
         if response.status == ExecutionStatus.triggered and not self.ignore_trigger:
             return text
-        else:
-            return self.chain.invoke(text)
+        return self.chain.invoke(text)

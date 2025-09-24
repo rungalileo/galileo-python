@@ -108,20 +108,20 @@ def nested_trace():
 
 
 class TestPopulateLocalMetrics:
-    def test_populate_local_metrics_no_metrics(self, trace_with_spans):
+    def test_populate_local_metrics_no_metrics(self, trace_with_spans) -> None:
         # Test with empty metrics list
         populate_local_metrics(trace_with_spans, [])
         # No assertions needed, just verifying it doesn't raise exceptions
 
-    def test_populate_local_metrics_with_metrics(self, trace_with_spans, simple_metric_config):
+    def test_populate_local_metrics_with_metrics(self, trace_with_spans, simple_metric_config) -> None:
         # Test with a single metric
         populate_local_metrics(trace_with_spans, [simple_metric_config])
 
         # Verify metrics were set on the span
         assert hasattr(trace_with_spans.spans[0].metrics, "test_metric")
-        assert getattr(trace_with_spans.spans[0].metrics, "test_metric") == 1.0
+        assert trace_with_spans.spans[0].metrics.test_metric == 1.0
 
-    def test_populate_local_metrics_with_multiple_metrics(self, trace_with_spans):
+    def test_populate_local_metrics_with_multiple_metrics(self, trace_with_spans) -> None:
         # Test with multiple metrics
         local_metrics = [
             LocalMetricConfig(name="metric1", scorer_fn=simple_scorer, scorable_types=[StepType.llm]),
@@ -133,22 +133,22 @@ class TestPopulateLocalMetrics:
         # Verify both metrics were set on the span
         assert hasattr(trace_with_spans.spans[0].metrics, "metric1")
         assert hasattr(trace_with_spans.spans[0].metrics, "metric2")
-        assert getattr(trace_with_spans.spans[0].metrics, "metric1") == 1.0
-        assert getattr(trace_with_spans.spans[0].metrics, "metric2") == 1.0
+        assert trace_with_spans.spans[0].metrics.metric1 == 1.0
+        assert trace_with_spans.spans[0].metrics.metric2 == 1.0
 
 
 class TestPopulateLocalMetric:
-    def test_populate_local_metric_scorable_type(self, llm_span, simple_metric_config):
+    def test_populate_local_metric_scorable_type(self, llm_span, simple_metric_config) -> None:
         # Test with a span that has a scorable type
         scores = []
         _populate_local_metric(llm_span, simple_metric_config, scores)
 
         # Verify the metric was set on the span
         assert hasattr(llm_span.metrics, "test_metric")
-        assert getattr(llm_span.metrics, "test_metric") == 1.0
+        assert llm_span.metrics.test_metric == 1.0
         assert scores == [1.0]
 
-    def test_populate_local_metric_non_scorable_type(self, workflow_span, simple_metric_config):
+    def test_populate_local_metric_non_scorable_type(self, workflow_span, simple_metric_config) -> None:
         # Test with a span that doesn't have a scorable type
         scores = []
         _populate_local_metric(workflow_span, simple_metric_config, scores)
@@ -157,7 +157,7 @@ class TestPopulateLocalMetric:
         assert not hasattr(workflow_span.metrics, "test_metric")
         assert not scores  # Scores list should still be empty
 
-    def test_populate_local_metric_with_child_spans(self, trace_with_spans, simple_metric_config):
+    def test_populate_local_metric_with_child_spans(self, trace_with_spans, simple_metric_config) -> None:
         # Test with a trace that has child spans
         scores = []
         _populate_local_metric(trace_with_spans, simple_metric_config, scores)
@@ -168,7 +168,7 @@ class TestPopulateLocalMetric:
         assert len(scores) == 1
         assert scores == [1.0]
 
-    def test_populate_local_metric_with_aggregation(self, trace_with_spans, aggregating_metric_config):
+    def test_populate_local_metric_with_aggregation(self, trace_with_spans, aggregating_metric_config) -> None:
         # Test with a trace that has child spans and an aggregator function
         scores = []
         _populate_local_metric(trace_with_spans, aggregating_metric_config, scores)
@@ -176,10 +176,12 @@ class TestPopulateLocalMetric:
         # Verify metrics were set on child spans and aggregated on the trace
         assert hasattr(trace_with_spans.spans[0].metrics, "test_metric")
         assert hasattr(trace_with_spans.metrics, "test_metric")
-        assert getattr(trace_with_spans.metrics, "test_metric") == 1.0  # Sum of one score
+        assert trace_with_spans.metrics.test_metric == 1.0  # Sum of one score
         assert len(scores) == 1
 
-    def test_populate_local_metric_with_dict_aggregation(self, trace_with_spans, dict_aggregating_metric_config):
+    def test_populate_local_metric_with_dict_aggregation(
+        self, trace_with_spans, dict_aggregating_metric_config
+    ) -> None:
         # Test with a trace that has child spans and an aggregator function that returns a dict
         scores = []
         _populate_local_metric(trace_with_spans, dict_aggregating_metric_config, scores)
@@ -188,11 +190,11 @@ class TestPopulateLocalMetric:
         assert hasattr(trace_with_spans.spans[0].metrics, "test_metric")
         assert hasattr(trace_with_spans.metrics, "test_metric_mean")
         assert hasattr(trace_with_spans.metrics, "test_metric_sum")
-        assert getattr(trace_with_spans.metrics, "test_metric_mean") == 1.0
-        assert getattr(trace_with_spans.metrics, "test_metric_sum") == 1.0
+        assert trace_with_spans.metrics.test_metric_mean == 1.0
+        assert trace_with_spans.metrics.test_metric_sum == 1.0
         assert len(scores) == 1
 
-    def test_populate_local_metric_recursive_with_nested_spans(self, nested_trace):
+    def test_populate_local_metric_recursive_with_nested_spans(self, nested_trace) -> None:
         # Test with a nested structure of spans
         local_metric = LocalMetricConfig(
             name="test_metric",

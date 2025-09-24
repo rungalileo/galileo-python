@@ -340,7 +340,7 @@ class LogStreams(DecorateAllMethods):
                 return None
             return LogStream(log_stream=log_stream_response)
 
-        elif name:
+        if name:
             log_streams = self.list(project_id=project_id)
 
             if not log_streams or len(log_streams) == 0:

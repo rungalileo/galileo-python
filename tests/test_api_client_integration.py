@@ -8,7 +8,7 @@ from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
 
 
-def test_raise_on_unexpected_status_flag(mock_request: Callable):
+def test_raise_on_unexpected_status_flag(mock_request: Callable) -> None:
     """
     Tests that the `raise_on_unexpected_status` flag on ApiClient is respected
     by the generated resource modules.

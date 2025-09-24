@@ -24,12 +24,12 @@ class ThreadPoolTaskHandler:
         self._retry_counts = {}
         self._pool = EventLoopThreadPool(num_threads=num_threads)
 
-    def _handle_task_completion(self, task_id: str):
+    def _handle_task_completion(self, task_id: str) -> None:
         """
         Handle the completion of a task, triggering any children.
         """
         # Find all child tasks that depend on this task
-        for child_task_id, task in list(self._tasks.items()):
+        for _child_task_id, task in list(self._tasks.items()):
             if task.get("parent_task_id") == task_id and task.get("callback"):
                 # Execute the callback which will submit the child task
                 task["callback"]()
@@ -41,7 +41,7 @@ class ThreadPoolTaskHandler:
         start_time: Optional[float] = None,
         parent_task_id: Optional[str] = None,
         callback: Optional[Callable] = None,
-    ):
+    ) -> None:
         """
         Track a submitted future.
 
@@ -62,7 +62,7 @@ class ThreadPoolTaskHandler:
 
     def submit_task(
         self, task_id: str, async_fn: Union[Callable[[], Awaitable[Any]], Coroutine], dependent_on_prev: bool = False
-    ):
+    ) -> None:
         """
         Submit a task to the thread pool.
 
@@ -72,7 +72,7 @@ class ThreadPoolTaskHandler:
             dependent_on_prev: Whether the task depends on the previous task.
         """
 
-        def _submit(*args):
+        def _submit(*args) -> None:
             future = self._pool.submit(async_fn, wait_for_result=False)
             future.add_done_callback(lambda f: self._handle_task_completion(task_id))
             self._add_or_update_task(task_id=task_id, future=future, start_time=time.time(), parent_task_id=None)
@@ -98,7 +98,7 @@ class ThreadPoolTaskHandler:
         """
         return [task for _, task in self._tasks.items() if task.get("parent_task_id") == parent_task_id]
 
-    def increment_retry(self, task_id: str):
+    def increment_retry(self, task_id: str) -> None:
         """
         Increment the retry count for a task.
 
@@ -138,7 +138,7 @@ class ThreadPoolTaskHandler:
         except Exception:
             return "failed"
 
-    def get_result(self, task_id: str):
+    def get_result(self, task_id: str) -> Any:
         """Get result if task completed, otherwise raises exception"""
         if task_id not in self._tasks:
             raise ValueError(f"Task {task_id} not found")
@@ -159,5 +159,5 @@ class ThreadPoolTaskHandler:
         """
         return all(self.get_status(task_id) not in ["running", "pending"] for task_id in self._tasks)
 
-    def terminate(self):
+    def terminate(self) -> None:
         self._pool.stop()

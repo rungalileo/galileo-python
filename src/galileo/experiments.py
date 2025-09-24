@@ -58,9 +58,7 @@ class Experiments:
             body.additional_properties["dataset"] = dataset
 
         experiment = create_experiment_projects_project_id_experiments_post.sync(
-            project_id=project_id,
-            client=self.config.api_client,
-            body=body,  # type: ignore[arg-type]
+            project_id=project_id, client=self.config.api_client, body=body
         )
         if experiment is None:
             raise ValueError("experiment is None")
@@ -153,7 +151,7 @@ class Experiments:
         local_metrics: builtins.list[LocalMetricConfig],
     ) -> dict[str, Any]:
         results = []
-        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id, local_metrics=local_metrics)  # type: ignore[arg-type]
+        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id, local_metrics=local_metrics)
 
         def logged_process_func(row: DatasetRecord) -> Callable:
             return log(name=experiment_obj.name, dataset_record=row)(func)
@@ -194,7 +192,7 @@ def run_experiment(
     prompt_settings: Optional[PromptRunSettings] = None,
     project: Optional[str] = None,
     project_id: Optional[str] = None,
-    dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
+    dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
     metrics: Optional[list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]] = None,
@@ -269,7 +267,7 @@ def run_experiment(
 
     # Set up metrics if provided
     scorer_settings: Optional[list[ScorerConfig]] = None
-    local_metrics: list[LocalMetricConfig] = list()
+    local_metrics: list[LocalMetricConfig] = []
     if metrics is not None:
         scorer_settings, local_metrics = create_metric_configs(project_obj.id, experiment_obj.id, metrics)
 

@@ -287,22 +287,22 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Called when a chain errors."""
-        await self._handler.async_end_node(run_id, output=f"Error: {str(error)}")
+        await self._handler.async_end_node(run_id, output=f"Error: {error!s}")
 
     async def on_llm_error(
         self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Called when an LLM errors."""
-        await self._handler.async_end_node(run_id, output=f"Error: {str(error)}")
+        await self._handler.async_end_node(run_id, output=f"Error: {error!s}")
 
     async def on_tool_error(
         self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Called when a tool errors."""
-        await self._handler.async_end_node(run_id, output=f"Error: {str(error)}")
+        await self._handler.async_end_node(run_id, output=f"Error: {error!s}")
 
     async def on_retriever_error(
         self, error: Exception, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Called when a retriever errors."""
-        await self._handler.async_end_node(run_id, output=f"Error: {str(error)}")
+        await self._handler.async_end_node(run_id, output=f"Error: {error!s}")

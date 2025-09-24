@@ -50,7 +50,7 @@ def mock_login_api_key(mock_request: Callable) -> Generator[None, None, None]:
 @pytest.fixture
 def mock_decode_jwt() -> Generator[MagicMock, None, None]:
     with patch("galileo_core.schemas.base_config.jwt_decode") as _fixture:
-        _fixture.return_value = dict(exp=float("inf"))
+        _fixture.return_value = {"exp": float("inf")}
         yield _fixture
 
 
@@ -82,7 +82,7 @@ def create_chat_completion() -> ChatCompletion:
 
 
 @pytest.fixture
-def test_dataset_row_id():
+def test_dataset_row_id() -> None:
     str(uuid4())
 
 

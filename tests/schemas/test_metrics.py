@@ -5,7 +5,7 @@ from galileo.schema.metrics import Metric
 from galileo_core.schemas.shared.scorers.scorer_name import ScorerName
 
 
-def test_metric_validator_preset_with_version():
+def test_metric_validator_preset_with_version() -> None:
     """Test that creating a Metric with a preset name and version raises a ValidationError"""
     # Get a valid value from the ScorerName enum
     # First, get all the available enum values
@@ -22,7 +22,7 @@ def test_metric_validator_preset_with_version():
     assert f"Galileo metric's '{preset_name}' do not support versioning at this time" in str(exc_info.value)
 
 
-def test_metric_validator_preset_no_version():
+def test_metric_validator_preset_no_version() -> None:
     """Test that creating a Metric with a preset name and no version is valid"""
     # Get a valid value from the ScorerName enum
     preset_names = [scorer.value for scorer in ScorerName]
@@ -37,7 +37,7 @@ def test_metric_validator_preset_no_version():
     assert metric.version is None
 
 
-def test_metric_validator_custom_with_version():
+def test_metric_validator_custom_with_version() -> None:
     """Test that creating a Metric with a custom name and version is valid"""
     # Create a Metric with a custom name and a version
     metric = Metric(name="my_custom_metric", version=2)
@@ -47,7 +47,7 @@ def test_metric_validator_custom_with_version():
     assert metric.version == 2
 
 
-def test_metric_validator_custom_no_version():
+def test_metric_validator_custom_no_version() -> None:
     """Test that creating a Metric with a custom name and no version is valid"""
     # Create a Metric with a custom name and no version
     metric = Metric(name="my_custom_metric")

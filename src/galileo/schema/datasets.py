@@ -39,7 +39,7 @@ class DatasetRecord(BaseModel):
                 value = {"metadata": value}
         if not isinstance(value, dict):
             raise ValueError("Dataset metadata field must be either a string or dictionary")
-        for key, v in value.items():
+        for _key, v in value.items():
             if not isinstance(v, str):
                 raise ValueError("Dataset metadata field dictionary values must be strings")
         return value

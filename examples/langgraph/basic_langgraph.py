@@ -27,14 +27,14 @@ class State(TypedDict):
     messages: Annotated[list, add_messages]
 
 
-def node(state: State):
+def node(state: State) -> dict:
     messages = state["messages"]
     new_message = AIMessage("Hello!")
 
-    return {"messages": messages + [new_message], "extra_field": 10}
+    return {"messages": [*messages, new_message], "extra_field": 10}
 
 
-def node2(state: State):
+def node2(state: State) -> dict:
     return {"messages": state["messages"]}
 
 
