@@ -1,6 +1,3 @@
-from typing import Optional
-
-
 class GalileoFutureError(Exception):
     """
     Base exception for all Galileo Future API errors.
@@ -51,6 +48,6 @@ class APIError(GalileoFutureError):
     This wraps errors from the legacy API to provide consistent error handling.
     """
 
-    def __init__(self, message: str, original_error: Optional[Exception] = None):
+    def __init__(self, message: str, original_error: Exception | None = None):
         super().__init__(message)
         self.original_error = original_error

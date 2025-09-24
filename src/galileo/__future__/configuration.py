@@ -1,143 +1,43 @@
-import contextlib
+import logging
 import os
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Optional
+from typing import Optional
 
 from galileo.__future__.exceptions import ConfigurationError
 from galileo.config import GalileoPythonConfig
-from galileo.utils.logging import get_logger
 
-logger = get_logger(__name__)
-
-
-@dataclass(frozen=True)
-class ConfigKey:
-    """Metadata for a configuration key."""
-
-    name: str
-    env_var: str
-    description: str
-    required: bool = False
-    sensitive: bool = False
-    default: Any = None
-    value_type: type = str
-    parser: Optional[Callable[[str], Any]] = None
+logger = logging.getLogger(__name__)
 
 
-_CONFIGURATION_KEYS = [
-    ConfigKey(
-        name="galileo_api_key",
-        env_var="GALILEO_API_KEY",
-        description="API key for authenticating with Galileo",
-        required=True,
-        sensitive=True,
-    ),
-    ConfigKey(
-        name="console_url", env_var="GALILEO_CONSOLE_URL", description="URL of the Galileo console", required=True
-    ),
-    ConfigKey(
-        name="openai_api_key",
-        env_var="OPENAI_API_KEY",
-        description="OpenAI API key for interoperability with OpenAI SDK",
-        sensitive=True,
-    ),
-    ConfigKey(name="default_project_name", env_var="GALILEO_PROJECT", description="Default project name"),
-    ConfigKey(name="default_project_id", env_var="GALILEO_PROJECT_ID", description="Default project ID"),
-    ConfigKey(name="default_logstream_name", env_var="GALILEO_LOG_STREAM", description="Default log stream name"),
-    ConfigKey(name="default_logstream_id", env_var="GALILEO_LOG_STREAM_ID", description="Default log stream ID"),
-    ConfigKey(
-        name="logging_disabled",
-        env_var="GALILEO_LOGGING_DISABLED",
-        description="Disable all logging to Galileo",
-        default=False,
-        value_type=bool,
-        parser=lambda v: v.lower() in ("true", "1", "t", "yes"),
-    ),
-]
-
-_KEYS_BY_NAME = {key.name: key for key in _CONFIGURATION_KEYS}
-
-
-class ConfigurationMeta(type):
-    """
-    Metaclass for dynamic attribute handling based on CONFIGURATION_KEYS.
-
-    Reference: https://docs.python.org/3/reference/datamodel.html#customizing-attribute-access
-    """
-
-    def __getattribute__(cls, name: str) -> Any:
-        """Generic getter. Returns from: explicit value → env var → .env file → default."""
-        if name.startswith("_") or name in (
-            "connect",
-            "reset",
-            "is_configured",
-            "get_configuration",
-            "get_key_info",
-            "get_keys_by_category",
-        ):
-            return super().__getattribute__(name)
-
-        if name in _KEYS_BY_NAME:
-            key = _KEYS_BY_NAME[name]
-            super().__getattribute__("_load_env_file")()
-            internal_name = f"_{name}"
-
-            try:
-                explicit_value = super().__getattribute__(internal_name)
-                if explicit_value is not None:
-                    return explicit_value
-            except AttributeError:
-                pass
-
-            env_value = os.environ.get(key.env_var)
-            if env_value is not None:
-                if key.parser:
-                    return key.parser(env_value)
-                return env_value
-
-            return key.default
-
-        return super().__getattribute__(name)
-
-    def __setattr__(cls, name: str, value: Any) -> None:
-        """Generic setter. Stores value internally and syncs to environment variable."""
-        if name in _KEYS_BY_NAME:
-            key = _KEYS_BY_NAME[name]
-            internal_name = f"_{name}"
-            super().__setattr__(internal_name, value)
-
-            if value is not None:
-                if key.value_type is bool:
-                    os.environ[key.env_var] = str(value).lower()
-                else:
-                    os.environ[key.env_var] = str(value)
-        else:
-            super().__setattr__(name, value)
-
-
-class Configuration(metaclass=ConfigurationMeta):
+class Configuration:
     """
     Single source of truth for SDK configuration.
 
-    Uses a data-driven approach with keys defined in CONFIGURATION_KEYS.
-    Automatically syncs with environment variables and loads .env files.
+    This class manages environment variables, supports .env file loading, and provides
+    methods for setting and checking configuration values. It provides a simplified
+    interface that abstracts away the complexity of the underlying configuration system.
 
     Examples:
-        Configuration.galileo_api_key = "key"
-        Configuration.console_url = "https://console.galileo.ai"
+        # Set API keys explicitly
+        Configuration.set_galileo_api_key("A valid API key")
+        Configuration.set_openai_api_key("Another valid key")
 
-        if Configuration.is_configured():
-            Configuration.connect()
+        # Attempt connection
+        Configuration.connect()  # Returns nothing on success, raises on failure
 
-        config = Configuration.get_configuration()
+        # Get current configuration values
+        api_key = Configuration.get_galileo_api_key()
+        console_url = Configuration.get_console_url()
     """
 
+    _galileo_api_key: Optional[str] = None
+    _openai_api_key: Optional[str] = None
+    _console_url: Optional[str] = None
     _env_loaded: bool = False
 
     @classmethod
     def _load_env_file(cls) -> None:
-        """Load .env file if present. Called automatically on first access."""
+        """Load environment variables from .env file if present."""
         if cls._env_loaded:
             return
 
@@ -147,88 +47,235 @@ class Configuration(metaclass=ConfigurationMeta):
                 with open(env_file) as f:
                     for line in f:
                         line = line.strip()
-                        if not line or line.startswith("#"):
-                            continue
-                        if "=" in line:
+                        if line and not line.startswith("#") and "=" in line:
                             key, value = line.split("=", 1)
                             key = key.strip()
                             value = value.strip().strip('"').strip("'")
+                            # Only set if not already in environment
                             if key not in os.environ:
                                 os.environ[key] = value
             except Exception as e:
+                # Log .env file parsing errors but continue
                 logger.debug(f"Failed to parse .env file: {e}")
 
         cls._env_loaded = True
 
     @classmethod
+    def set_galileo_api_key(cls, api_key: str) -> None:
+        """
+        Set the Galileo API key for the current session.
+
+        Args:
+            api_key (str): The Galileo API key to use.
+
+        Examples:
+            Configuration.set_galileo_api_key("your-api-key-here")
+        """
+        cls._galileo_api_key = api_key
+        os.environ["GALILEO_API_KEY"] = api_key
+
+    @classmethod
+    def set_openai_api_key(cls, api_key: str) -> None:
+        """
+        Set the OpenAI API key for wrapper usage.
+
+        Args:
+            api_key (str): The OpenAI API key to use.
+
+        Examples:
+            Configuration.set_openai_api_key("your-openai-api-key-here")
+        """
+        cls._openai_api_key = api_key
+        os.environ["OPENAI_API_KEY"] = api_key
+
+    @classmethod
+    def set_console_url(cls, console_url: str) -> None:
+        """
+        Set the Galileo console URL.
+
+        Args:
+            console_url (str): The Galileo console URL to use.
+
+        Examples:
+            Configuration.set_console_url("https://app.galileo.ai")
+            Configuration.set_console_url("http://localhost:8088")
+        """
+        cls._console_url = console_url
+        os.environ["GALILEO_CONSOLE_URL"] = console_url
+
+    @classmethod
+    def get_galileo_api_key(cls) -> Optional[str]:
+        """
+        Get the current Galileo API key.
+
+        Returns:
+            Optional[str]: The Galileo API key if set, None otherwise.
+        """
+        cls._load_env_file()
+        return cls._galileo_api_key or os.environ.get("GALILEO_API_KEY")
+
+    @classmethod
+    def get_openai_api_key(cls) -> Optional[str]:
+        """
+        Get the current OpenAI API key.
+
+        Returns:
+            Optional[str]: The OpenAI API key if set, None otherwise.
+        """
+        cls._load_env_file()
+        return cls._openai_api_key or os.environ.get("OPENAI_API_KEY")
+
+    @classmethod
+    def get_console_url(cls) -> Optional[str]:
+        """
+        Get the current Galileo console URL.
+
+        Returns:
+            Optional[str]: The Galileo console URL if set, None otherwise.
+        """
+        cls._load_env_file()
+        return cls._console_url or os.environ.get("GALILEO_CONSOLE_URL")
+
+    @classmethod
     def connect(cls) -> None:
-        """Validate configuration and connect to Galileo."""
+        """
+        Validate the current configuration by attempting a minimal API call.
+
+        This method attempts to initialize the underlying configuration system and
+        validate connectivity. It will raise an exception if the configuration is
+        invalid or if the connection fails.
+
+        Raises:
+            ValueError: If required configuration values are missing.
+            Exception: If the connection to Galileo fails.
+
+        Examples:
+            try:
+                Configuration.connect()
+                # Connection successful - check logs for details
+            except Exception as e:
+                # Handle connection failure
+                pass
+        """
+        # Load environment variables first
         cls._load_env_file()
 
-        if not cls.console_url:
+        # Check if we have required configuration
+        api_key = cls.get_galileo_api_key()
+        console_url = cls.get_console_url()
+
+        if not console_url:
             raise ConfigurationError(
-                "Galileo console URL is required. Set Configuration.console_url or GALILEO_CONSOLE_URL."
+                "Galileo console URL is required. Set it using Configuration.set_console_url() "
+                "or the GALILEO_CONSOLE_URL environment variable."
             )
 
-        if not cls.galileo_api_key:
+        if not api_key:
             raise ConfigurationError(
-                "Galileo API key is required. Set Configuration.galileo_api_key or GALILEO_API_KEY."
+                "Galileo API key is required. Set it using Configuration.set_galileo_api_key() "
+                "or the GALILEO_API_KEY environment variable."
             )
 
-        logger.info("Validating Galileo configuration and connectivity...")
+        logger.info("Configuration.connect: started")
 
         try:
+            # Use the underlying configuration system to validate connectivity
+            # This will handle authentication, API URL resolution, and validation
             GalileoPythonConfig.get()
-            logger.info("Successfully connected to Galileo")
-        except Exception as e:
-            error_msg = str(e)
-            logger.error(f"Failed to connect to Galileo: {error_msg}")
 
-            error_lower = error_msg.lower()
-            if ("api" in error_lower and "key" in error_lower) or "auth" in error_lower:
-                raise ConfigurationError(f"Authentication failed: {error_msg}") from e
-            if "url" in error_lower or "connection" in error_lower:
-                raise ConfigurationError(f"Connection failed: {error_msg}") from e
+            # The GalileoPythonConfig.get() call will automatically:
+            # 1. Load environment variables
+            # 2. Resolve API URL from console URL
+            # 3. Authenticate with the API key
+            # 4. Validate connectivity by making a test API call
+            # 5. Set up the validated API client
+
+            # If we get here without an exception, the connection is successful
+            logger.info("Configuration.connect: completed")
+            return
+
+        except Exception as e:
+            # Provide a more user-friendly error message
+            error_msg = str(e)
+            logger.error(f"Configuration.connect: failed - {error_msg}")
+
+            if "API key" in error_msg.lower():
+                raise ConfigurationError(f"Invalid API key or authentication failed: {error_msg}") from e
+            if "url" in error_msg.lower() or "connection" in error_msg.lower():
+                raise ConfigurationError(f"Failed to connect to Galileo: {error_msg}") from e
             raise ConfigurationError(f"Configuration validation failed: {error_msg}") from e
 
     @classmethod
     def reset(cls) -> None:
-        """Reset all configuration values and clear environment variables."""
-        for key in _CONFIGURATION_KEYS:
-            with contextlib.suppress(AttributeError):
-                delattr(cls, f"_{key.name}")
-            if key.env_var in os.environ:
-                del os.environ[key.env_var]
+        """
+        Reset all configuration values to their defaults.
 
+        This method clears all set configuration values and resets the underlying
+        configuration system. Useful for testing or switching between different
+        Galileo instances.
+
+        Examples:
+            Configuration.reset()
+        """
+        cls._galileo_api_key = None
+        cls._openai_api_key = None
+        cls._console_url = None
         cls._env_loaded = False
 
+        # Clear environment variables that we might have set
+        for key in ["GALILEO_API_KEY", "OPENAI_API_KEY", "GALILEO_CONSOLE_URL"]:
+            if key in os.environ:
+                del os.environ[key]
+
+        # Reset the underlying configuration
         try:
+            # Only reset if there's an existing instance
             if GalileoPythonConfig._instance is not None:
-                GalileoPythonConfig._instance.reset()
+                config = GalileoPythonConfig._instance
+                config.reset()
         except Exception as e:
-            logger.debug(f"Could not reset GalileoPythonConfig instance: {e}")
+            # If the config doesn't exist yet, that's fine
+            logger.debug(f"Failed to reset config instance: {e}")
 
     @classmethod
     def is_configured(cls) -> bool:
-        """Check if all required configuration keys are set."""
+        """
+        Check if the minimum required configuration is present.
+
+        Returns:
+            bool: True if both API key and console URL are configured, False otherwise.
+
+        Examples:
+            if Configuration.is_configured():
+                # Configuration is ready
+                pass
+            else:
+                # Set required configuration
+                pass
+        """
         cls._load_env_file()
-        return all(getattr(cls, key.name) for key in _CONFIGURATION_KEYS if key.required)
+        return bool(cls.get_galileo_api_key() and cls.get_console_url())
 
     @classmethod
-    def get_configuration(cls) -> dict[str, Any]:
-        """Get all configuration values (sensitive values are masked)."""
+    def get_configuration(cls) -> dict:
+        """
+        Get all current configuration values in a formatted way.
+
+        This method returns a dictionary containing all configuration values.
+
+        Returns:
+            dict: A dictionary containing all configuration
+        """
         cls._load_env_file()
-        result: dict[str, Any] = {}
 
-        for key in _CONFIGURATION_KEYS:
-            value = getattr(cls, key.name)
-            if key.sensitive and value:
-                result[key.name] = "***"
-            elif value is None:
-                result[key.name] = "Not set"
-            else:
-                result[key.name] = value
+        galileo_api_key = cls.get_galileo_api_key()
+        openai_api_key = cls.get_openai_api_key()
+        console_url = cls.get_console_url()
 
-        result["is_configured"] = cls.is_configured()
-        result["env_file_loaded"] = cls._env_loaded
-        return result
+        return {
+            "galileo_api_key": galileo_api_key or "Not set",
+            "openai_api_key": openai_api_key or "Not set",
+            "console_url": console_url or "Not set",
+            "is_configured": cls.is_configured(),
+            "env_file_loaded": cls._env_loaded,
+        }
