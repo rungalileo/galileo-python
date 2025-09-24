@@ -36,7 +36,7 @@ from galileo.resources.models import (
 from galileo.resources.models.dataset_row import DatasetRow
 from galileo.resources.models.dataset_row_values_dict import DatasetRowValuesDict
 from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.types import Response
+from galileo.resources.types import UNSET, Response
 from galileo.schema.datasets import DatasetRecord
 
 
@@ -187,6 +187,7 @@ def test_create_dataset_with_empty_list(create_dataset_datasets_post_mock: Mock)
         client=ANY,
         body=BodyCreateDatasetDatasetsPost(draft=False, file=ANY, name="my_dataset_name"),
         format_=DatasetFormat.JSONL,
+        project_id=UNSET,
     )
 
 
@@ -218,6 +219,43 @@ def test_create_dataset_with_empty_dict(create_dataset_datasets_post_mock: Mock)
         client=ANY,
         body=BodyCreateDatasetDatasetsPost(draft=False, file=ANY, name="my_dataset_name"),
         format_=DatasetFormat.JSONL,
+        project_id=UNSET,
+    )
+
+
+@patch("galileo.datasets.create_dataset_datasets_post")
+def test_create_dataset_with_project_id(create_dataset_datasets_post_mock: Mock) -> None:
+    """Test that create_dataset passes project_id parameter correctly."""
+    create_dataset_datasets_post_mock.sync_detailed.return_value = Response(
+        content=b'{"id":"bb830fae-99d3-4ce7-bef9-300d528e0060","permissions":[],"name":"my_dataset_name","created_at":"2025-05-16T16:26:41.76451","email":"user.test@galileo.ai","first_name":"","last_name":""},"current_version_index":1,"draft":false}',
+        status_code=HTTPStatus.OK,
+        headers={},
+        parsed=DatasetDB.from_dict(
+            {
+                "draft": False,
+                "column_names": ["input", "output", "metadata"],
+                "created_at": "2025-03-10T15:25:03.088471+00:00",
+                "created_by_user": {"id": "01ce18ac-3960-46e1-bb79-0e4965069add"},
+                "current_version_index": 1,
+                "id": "bb830fae-99d3-4ce7-bef9-300d528e0060",
+                "name": "my_dataset_name",
+                "updated_at": "2025-03-26T12:00:44.558105+00:00",
+                "num_rows": 1,
+                "project_count": 0,
+                "permissions": [],
+            }
+        ),
+    )
+
+    # Test with project_id
+    project_id = "test-project-123"
+    create_dataset(name="my_dataset_name", content=[{"input": "test"}], project_id=project_id)
+
+    create_dataset_datasets_post_mock.sync_detailed.assert_called_once_with(
+        client=ANY,
+        body=BodyCreateDatasetDatasetsPost(draft=False, file=ANY, name="my_dataset_name"),
+        format_=DatasetFormat.JSONL,
+        project_id=project_id,
     )
 
 

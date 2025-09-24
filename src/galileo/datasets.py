@@ -35,7 +35,7 @@ from galileo.resources.models.synthetic_data_types import SyntheticDataTypes
 from galileo.resources.models.synthetic_dataset_extension_request import SyntheticDatasetExtensionRequest
 from galileo.resources.models.synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
-from galileo.resources.types import File, Unset
+from galileo.resources.types import UNSET, File, Unset
 from galileo.schema.datasets import DatasetRecord
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.exceptions import APIException
@@ -276,7 +276,7 @@ class Datasets:
             raise ValueError(f"Dataset {name} not found")
         return delete_dataset_datasets_dataset_id_delete.sync(client=self.config.api_client, dataset_id=dataset.id)
 
-    def create(self, name: str, content: DatasetType) -> Dataset:
+    def create(self, name: str, content: DatasetType, project_id: Optional[str] = None) -> Dataset:
         """
         Creates a new dataset.
 
@@ -286,6 +286,8 @@ class Datasets:
             The name of the dataset.
         content : DatasetType
             The content of the dataset.
+        project_id : Optional[str]
+            The project ID to associate with the dataset. If provided, the dataset will be associated with the specified project.
 
         Returns
         -------
@@ -314,7 +316,10 @@ class Datasets:
         body = BodyCreateDatasetDatasetsPost(file=file, name=name)
 
         detailed_response = create_dataset_datasets_post.sync_detailed(
-            client=self.config.api_client, body=body, format_=dataset_format
+            client=self.config.api_client,
+            body=body,
+            format_=dataset_format,
+            project_id=UNSET if project_id is None else project_id,
         )
 
         if not detailed_response.parsed or isinstance(detailed_response.parsed, HTTPValidationError):
@@ -528,7 +533,7 @@ def delete_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> N
     return Datasets().delete(id=id, name=name)  # type: ignore[call-overload]
 
 
-def create_dataset(name: str, content: DatasetType) -> Dataset:
+def create_dataset(name: str, content: DatasetType, project_id: Optional[str] = None) -> Dataset:
     """
     Creates a new dataset.
 
@@ -538,6 +543,8 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
         The name of the dataset.
     content : DatasetType
         The content of the dataset.
+    project_id : Optional[str]
+        The project ID to associate with the dataset. If provided, the dataset will be associated with the specified project.
 
     Returns
     -------
@@ -552,7 +559,7 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
         If the request takes longer than Client.timeout.
 
     """
-    return Datasets().create(name=name, content=content)
+    return Datasets().create(name=name, content=content, project_id=project_id)
 
 
 def get_dataset_version_history(
