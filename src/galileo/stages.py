@@ -48,13 +48,12 @@ def _get_stage_id(
     """
     if stage_id:
         return str(stage_id)
-    elif stage_name:
+    if stage_name:
         stage = Stages().get(project_id=project_id, stage_name=stage_name)
         if not stage:
             raise ValueError(f"Stage with name '{stage_name}' not found.")
         return str(stage.id)
-    else:
-        raise ValueError("Either stage_id or stage_name must be provided.")
+    raise ValueError("Either stage_id or stage_name must be provided.")
 
 
 class Stages(DecorateAllMethods):

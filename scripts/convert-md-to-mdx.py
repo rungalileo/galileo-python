@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 
 
-def process_markdown_files():
+def process_markdown_files() -> None:
     """
     Process all .md files in .generated_docs/reference folder and subdirectories:
     - Remove sidebar_label: line

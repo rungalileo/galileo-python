@@ -390,7 +390,7 @@ def render_template_response_second_page():
 
 @patch("galileo.projects.get_projects_projects_get")
 @patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
-def test_create_prompt(create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock):
+def test_create_prompt(create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
     create_prompt_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
     )
@@ -411,7 +411,7 @@ def test_create_prompt(create_prompt_template_mock: Mock, get_projects_projects_
 
 @patch("galileo.projects.get_projects_projects_get")
 @patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
-def test_create_prompt_bad_request(create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock):
+def test_create_prompt_bad_request(create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
     create_prompt_template_mock.sync_detailed.return_value = Response(
         content=b'{"detail":"Prompt template with name storyteller-prompt already exists (ID 3e3d48fa-0aae-433c-be2c-b3f7fb53c9e2)."}',
         status_code=HTTPStatus.BAD_REQUEST,
@@ -434,7 +434,7 @@ def test_create_prompt_bad_request(create_prompt_template_mock: Mock, get_projec
 
 @patch("galileo.projects.get_projects_projects_get")
 @patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-def test_list_prompts(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock):
+def test_list_prompts(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
     list_prompt_templates_mock.sync.return_value = [prompt_template()]
     get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
     templates = list_prompt_templates(project="andrii-new-project")
@@ -448,7 +448,7 @@ def test_list_prompts(list_prompt_templates_mock: Mock, get_projects_projects_ge
 
 @patch("galileo.projects.get_projects_projects_get")
 @patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-def test_get_prompt_template_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock):
+def test_get_prompt_template_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
     """Test get_prompt_template when template exists."""
     list_prompt_templates_mock.sync.return_value = [prompt_template()]
     get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
@@ -463,7 +463,7 @@ def test_get_prompt_template_found(list_prompt_templates_mock: Mock, get_project
 
 @patch("galileo.projects.get_projects_projects_get")
 @patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-def test_get_prompt_template_not_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock):
+def test_get_prompt_template_not_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
     """Test get_prompt_template when template doesn't exist."""
     list_prompt_templates_mock.sync.return_value = [prompt_template()]  # Return a different template
     get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
@@ -476,7 +476,7 @@ def test_get_prompt_template_not_found(list_prompt_templates_mock: Mock, get_pro
 
 
 @patch("galileo.prompts.create_global_prompt_template_templates_post")
-def test_create_global_prompt_template(create_global_prompt_template_mock: Mock):
+def test_create_global_prompt_template(create_global_prompt_template_mock: Mock) -> None:
     create_global_prompt_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=global_prompt_template()
     )
@@ -499,7 +499,7 @@ def test_create_global_prompt_template(create_global_prompt_template_mock: Mock)
 
 
 @patch("galileo.prompts.create_global_prompt_template_templates_post")
-def test_create_global_prompt_template_error_scenarios(create_global_prompt_template_mock: Mock):
+def test_create_global_prompt_template_error_scenarios(create_global_prompt_template_mock: Mock) -> None:
     """Test create_global_prompt_template with realistic error scenarios."""
 
     # Test 422 Unprocessable Entity for missing fields, invalid data types, etc.
@@ -530,7 +530,7 @@ def test_create_global_prompt_template_error_scenarios(create_global_prompt_temp
 
 
 @patch("galileo.prompts.get_global_template_templates_template_id_get")
-def test_get_global_prompt_template_by_id(get_global_template_mock: Mock):
+def test_get_global_prompt_template_by_id(get_global_template_mock: Mock) -> None:
     get_global_template_mock.sync.return_value = global_prompt_template()
 
     template = get_prompt(id="global-template-id-123")
@@ -545,7 +545,7 @@ def test_get_global_prompt_template_by_id(get_global_template_mock: Mock):
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")
-def test_get_global_prompt_template_by_name(query_templates_mock: Mock):
+def test_get_global_prompt_template_by_name(query_templates_mock: Mock) -> None:
     query_templates_mock.sync.return_value = global_templates_list_response()
 
     template = get_prompt(name="global-helpful-assistant")
@@ -560,7 +560,7 @@ def test_get_global_prompt_template_by_name(query_templates_mock: Mock):
 
 
 @patch("galileo.prompts.get_global_template_templates_template_id_get")
-def test_get_global_prompt_template_by_id_not_found(get_global_template_mock: Mock):
+def test_get_global_prompt_template_by_id_not_found(get_global_template_mock: Mock) -> None:
     get_global_template_mock.sync.return_value = None
 
     template = get_prompt(id="nonexistent-id")
@@ -570,7 +570,7 @@ def test_get_global_prompt_template_by_id_not_found(get_global_template_mock: Mo
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")
-def test_get_global_prompt_template_by_name_not_found(query_templates_mock: Mock):
+def test_get_global_prompt_template_by_name_not_found(query_templates_mock: Mock) -> None:
     query_templates_mock.sync.return_value = empty_templates_list_response()
 
     template = get_prompt(name="nonexistent-template")
@@ -579,7 +579,7 @@ def test_get_global_prompt_template_by_name_not_found(query_templates_mock: Mock
     query_templates_mock.sync.assert_called_once()
 
 
-def test_get_global_prompt_template_validation_errors():
+def test_get_global_prompt_template_validation_errors() -> None:
     with pytest.raises(ValueError) as exc_info:
         get_prompt()
     assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
@@ -590,7 +590,7 @@ def test_get_global_prompt_template_validation_errors():
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")
-def test_list_global_prompt_templates(query_templates_mock: Mock):
+def test_list_global_prompt_templates(query_templates_mock: Mock) -> None:
     query_templates_mock.sync.return_value = global_templates_list_response()
 
     templates = get_prompts()
@@ -602,7 +602,7 @@ def test_list_global_prompt_templates(query_templates_mock: Mock):
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")
-def test_list_global_prompt_templates_with_filter(query_templates_mock: Mock):
+def test_list_global_prompt_templates_with_filter(query_templates_mock: Mock) -> None:
     query_templates_mock.sync.return_value = global_templates_list_response()
 
     templates = get_prompts(name_filter="global-helpful", limit=50)
@@ -623,7 +623,7 @@ def test_list_global_prompt_templates_with_filter(query_templates_mock: Mock):
 
 @patch("galileo.prompts.query_templates_templates_query_post")
 @pytest.mark.parametrize("response_value", [HTTPValidationError(), None])
-def test_list_global_prompt_templates_with_error_responses(query_templates_mock: Mock, response_value):
+def test_list_global_prompt_templates_with_error_responses(query_templates_mock: Mock, response_value) -> None:
     """Test list_global_prompt_templates when API returns HTTPValidationError or None."""
     query_templates_mock.sync.return_value = response_value
 
@@ -634,7 +634,7 @@ def test_list_global_prompt_templates_with_error_responses(query_templates_mock:
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")
-def test_list_global_prompt_templates_empty(query_templates_mock: Mock):
+def test_list_global_prompt_templates_empty(query_templates_mock: Mock) -> None:
     query_templates_mock.sync.return_value = empty_templates_list_response()
 
     templates = get_prompts()
@@ -644,7 +644,7 @@ def test_list_global_prompt_templates_empty(query_templates_mock: Mock):
 
 
 @patch("galileo.prompts.delete_global_template_templates_template_id_delete")
-def test_delete_global_prompt_template_by_id(delete_global_template_mock: Mock):
+def test_delete_global_prompt_template_by_id(delete_global_template_mock: Mock) -> None:
     delete_global_template_mock.sync.return_value = None
 
     delete_prompt(id="global-template-id-123")
@@ -654,7 +654,7 @@ def test_delete_global_prompt_template_by_id(delete_global_template_mock: Mock):
 
 @patch("galileo.prompts.query_templates_templates_query_post")
 @patch("galileo.prompts.delete_global_template_templates_template_id_delete")
-def test_delete_global_prompt_template_by_name(delete_global_template_mock: Mock, query_templates_mock: Mock):
+def test_delete_global_prompt_template_by_name(delete_global_template_mock: Mock, query_templates_mock: Mock) -> None:
     query_templates_mock.sync.return_value = global_templates_list_response()
     delete_global_template_mock.sync.return_value = None
 
@@ -665,7 +665,7 @@ def test_delete_global_prompt_template_by_name(delete_global_template_mock: Mock
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")
-def test_delete_global_prompt_template_by_name_not_found(query_templates_mock: Mock):
+def test_delete_global_prompt_template_by_name_not_found(query_templates_mock: Mock) -> None:
     query_templates_mock.sync.return_value = empty_templates_list_response()
 
     with pytest.raises(ValueError) as exc_info:
@@ -675,7 +675,7 @@ def test_delete_global_prompt_template_by_name_not_found(query_templates_mock: M
     query_templates_mock.sync.assert_called_once()
 
 
-def test_delete_global_prompt_template_validation_errors():
+def test_delete_global_prompt_template_validation_errors() -> None:
     """Test all validation error scenarios for delete_global_prompt_template."""
     with pytest.raises(ValueError) as exc_info:
         delete_prompt()
@@ -691,7 +691,7 @@ def test_delete_global_prompt_template_validation_errors():
 
 
 @patch("galileo.prompts.update_global_template_templates_template_id_patch")
-def test_update_global_prompt_template_by_id(update_global_template_mock: Mock):
+def test_update_global_prompt_template_by_id(update_global_template_mock: Mock) -> None:
     """Test update_prompt with template ID."""
     updated_template = global_prompt_template()
     updated_template.name = "updated-template-name"
@@ -712,7 +712,7 @@ def test_update_global_prompt_template_by_id(update_global_template_mock: Mock):
 
 @patch("galileo.prompts.query_templates_templates_query_post")
 @patch("galileo.prompts.update_global_template_templates_template_id_patch")
-def test_update_global_prompt_template_by_name(update_global_template_mock: Mock, query_templates_mock: Mock):
+def test_update_global_prompt_template_by_name(update_global_template_mock: Mock, query_templates_mock: Mock) -> None:
     """Test update_prompt with template name."""
     query_templates_mock.sync.return_value = global_templates_list_response()
 
@@ -736,7 +736,7 @@ def test_update_global_prompt_template_by_name(update_global_template_mock: Mock
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")
-def test_update_global_prompt_template_by_name_not_found(query_templates_mock: Mock):
+def test_update_global_prompt_template_by_name_not_found(query_templates_mock: Mock) -> None:
     """Test update_prompt when template is not found by name."""
     query_templates_mock.sync.return_value = empty_templates_list_response()
 
@@ -748,7 +748,7 @@ def test_update_global_prompt_template_by_name_not_found(query_templates_mock: M
 
 
 @patch("galileo.prompts.update_global_template_templates_template_id_patch")
-def test_update_global_prompt_template_error_scenarios(update_global_template_mock: Mock):
+def test_update_global_prompt_template_error_scenarios(update_global_template_mock: Mock) -> None:
     """Test update_prompt with realistic error scenarios."""
 
     # Test 422 Unprocessable Entity
@@ -787,7 +787,7 @@ def test_update_global_prompt_template_error_scenarios(update_global_template_mo
     assert update_global_template_mock.sync_detailed.call_count == 3
 
 
-def test_update_global_prompt_template_validation_errors():
+def test_update_global_prompt_template_validation_errors() -> None:
     """Test all validation error scenarios for update_prompt."""
 
     # Test no parameters provided
@@ -807,7 +807,7 @@ def test_update_global_prompt_template_validation_errors():
 
 
 @patch("galileo.prompts.update_global_template_templates_template_id_patch")
-def test_update_global_prompt_template_with_empty_name(update_global_template_mock: Mock):
+def test_update_global_prompt_template_with_empty_name(update_global_template_mock: Mock) -> None:
     """Test update_prompt with empty name (should be handled by API validation)."""
     update_global_template_mock.sync_detailed.return_value = Response(
         content=b'{"detail":[{"loc":["body","name"],"msg":"ensure this value has at least 1 characters","type":"value_error.any_str.min_length"}]}',
@@ -828,7 +828,7 @@ def test_update_global_prompt_template_with_empty_name(update_global_template_mo
 @patch("galileo.prompts.update_global_template_templates_template_id_patch")
 def test_update_global_prompt_template_successful_response_with_http_validation_error(
     update_global_template_mock: Mock,
-):
+) -> None:
     """Test update_prompt when API returns HTTPValidationError as parsed response."""
     update_global_template_mock.sync_detailed.return_value = Response(
         content=b'{"detail":"Some validation error"}',
@@ -845,7 +845,7 @@ def test_update_global_prompt_template_successful_response_with_http_validation_
 
 
 @patch("galileo.prompts.render_template_render_template_post")
-def test_render_template_with_string_data(render_template_mock: Mock):
+def test_render_template_with_string_data(render_template_mock: Mock) -> None:
     """Test render_template with string data."""
     render_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response()
@@ -868,7 +868,7 @@ def test_render_template_with_string_data(render_template_mock: Mock):
 
 
 @patch("galileo.prompts.render_template_render_template_post")
-def test_render_template_with_dataset_data(render_template_mock: Mock):
+def test_render_template_with_dataset_data(render_template_mock: Mock) -> None:
     """Test render_template with dataset data."""
     render_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response()
@@ -889,7 +889,7 @@ def test_render_template_with_dataset_data(render_template_mock: Mock):
 
 
 @patch("galileo.prompts.render_template_render_template_post")
-def test_render_template_with_pagination(render_template_mock: Mock):
+def test_render_template_with_pagination(render_template_mock: Mock) -> None:
     """Test render_template with pagination parameters for both page 1 and page 2."""
     # Test page 1 (starting_token=0, limit=1)
     render_template_mock.sync_detailed.return_value = Response(
@@ -943,7 +943,7 @@ def test_render_template_with_pagination(render_template_mock: Mock):
 
 
 @patch("galileo.prompts.render_template_render_template_post")
-def test_render_template_with_dataset_data_object(render_template_mock: Mock):
+def test_render_template_with_dataset_data_object(render_template_mock: Mock) -> None:
     """Test render_template with DatasetData object."""
     render_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response()
@@ -962,7 +962,7 @@ def test_render_template_with_dataset_data_object(render_template_mock: Mock):
 
 
 @patch("galileo.prompts.render_template_render_template_post")
-def test_render_template_with_string_data_object(render_template_mock: Mock):
+def test_render_template_with_string_data_object(render_template_mock: Mock) -> None:
     """Test render_template with StringData object."""
     render_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response()
@@ -981,7 +981,7 @@ def test_render_template_with_string_data_object(render_template_mock: Mock):
 
 
 @patch("galileo.prompts.render_template_render_template_post")
-def test_render_template_empty_response(render_template_mock: Mock):
+def test_render_template_empty_response(render_template_mock: Mock) -> None:
     """Test render_template with empty response."""
     render_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=render_template_response_empty()
@@ -995,7 +995,7 @@ def test_render_template_empty_response(render_template_mock: Mock):
 
 
 @patch("galileo.prompts.render_template_render_template_post")
-def test_render_template_none_response(render_template_mock: Mock):
+def test_render_template_none_response(render_template_mock: Mock) -> None:
     """Test render_template when API returns None."""
     render_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=None

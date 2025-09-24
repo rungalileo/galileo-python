@@ -31,7 +31,7 @@ class TestTracesHeaders:
         )
 
     @pytest.mark.asyncio
-    async def test_make_async_request_includes_sdk_header(self, traces_client, mock_config):
+    async def test_make_async_request_includes_sdk_header(self, traces_client, mock_config) -> None:
         """Test that _make_async_request includes the X-Galileo-SDK header."""
         # Call the private method directly to test header inclusion
         await traces_client._make_async_request(request_method=RequestMethod.GET, endpoint="/test-endpoint")

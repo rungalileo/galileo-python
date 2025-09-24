@@ -23,16 +23,15 @@ def load_dataset_and_records(
     """
     if dataset_id:
         return get_dataset_and_records(id=dataset_id)
-    elif dataset_name:
+    if dataset_name:
         return get_dataset_and_records(name=dataset_name)
-    elif dataset and isinstance(dataset, str):
+    if dataset and isinstance(dataset, str):
         return get_dataset_and_records(name=dataset)
-    elif dataset and isinstance(dataset, Dataset):
+    if dataset and isinstance(dataset, Dataset):
         return dataset, get_records_for_dataset(dataset)
-    elif dataset and isinstance(dataset, list):
+    if dataset and isinstance(dataset, list):
         return None, create_rows_from_records(dataset)
-    else:
-        raise ValueError("To load dataset records, dataset, dataset_name, or dataset_id must be provided")
+    raise ValueError("To load dataset records, dataset, dataset_name, or dataset_id must be provided")
 
 
 def get_dataset_and_records(
@@ -62,7 +61,7 @@ def get_records_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
 def create_rows_from_records(records: list[dict[str, str]]) -> list[DatasetRecord]:
     result = []
     for record in records:
-        if isinstance(record, dict) and "input" in record:
+        if "input" in record:
             result.append(DatasetRecord(**record))
         else:
             result.append(DatasetRecord(input=record))

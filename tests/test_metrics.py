@@ -84,7 +84,7 @@ class TestMetrics:
     @patch("galileo.metrics.create_scorers_post")
     def test_create_custom_llm_metric_success(
         self, mock_create_scorer, mock_create_version, mock_scorer_response, mock_scorer_version_response
-    ):
+    ) -> None:
         """Test successful creation of a custom LLM metric."""
         # Setup mocks
         mock_create_scorer.sync.return_value = mock_scorer_response
@@ -129,7 +129,7 @@ class TestMetrics:
     @patch("galileo.metrics.create_scorers_post")
     def test_create_custom_llm_metric_with_custom_parameters(
         self, mock_create_scorer, mock_create_version, mock_scorer_response, mock_scorer_version_response
-    ):
+    ) -> None:
         """Test creation of a custom LLM metric with custom parameters."""
         # Setup mocks
         mock_create_scorer.sync.return_value = mock_scorer_response
@@ -172,7 +172,7 @@ class TestMetrics:
 
     @patch("galileo.metrics.create_llm_scorer_version_scorers_scorer_id_version_llm_post")
     @patch("galileo.metrics.create_scorers_post")
-    def test_create_custom_llm_metric_scorer_creation_failure(self, mock_create_scorer, mock_create_version):
+    def test_create_custom_llm_metric_scorer_creation_failure(self, mock_create_scorer, mock_create_version) -> None:
         """Test handling of scorer creation failure."""
         # Setup mock to raise exception
         mock_create_scorer.sync.side_effect = Exception("Scorer creation failed")
@@ -190,7 +190,7 @@ class TestMetrics:
     @patch("galileo.metrics.create_scorers_post")
     def test_create_custom_llm_metric_version_creation_failure(
         self, mock_create_scorer, mock_create_version, mock_scorer_response
-    ):
+    ) -> None:
         """Test handling of version creation failure."""
         # Setup mocks
         mock_create_scorer.sync.return_value = mock_scorer_response
@@ -211,7 +211,7 @@ class TestMetrics:
     @patch("galileo.metrics._logger")
     def test_create_custom_llm_metric_logging(
         self, mock_logger, mock_create_scorer, mock_create_version, mock_scorer_response, mock_scorer_version_response
-    ):
+    ) -> None:
         """Test that successful metric creation is logged."""
         # Setup mocks
         mock_create_scorer.sync.return_value = mock_scorer_response
@@ -230,7 +230,7 @@ class TestPublicFunctions:
     """Test cases for public functions."""
 
     @patch("galileo.metrics.Metrics")
-    def test_create_custom_llm_metric_function(self, mock_metrics_class):
+    def test_create_custom_llm_metric_function(self, mock_metrics_class) -> None:
         """Test the public create_custom_llm_metric function."""
         # Setup mock
         mock_metrics_instance = Mock()
@@ -271,7 +271,7 @@ class TestPublicFunctions:
         assert result == mock_result
 
     @patch("galileo.metrics.Metrics")
-    def test_create_custom_llm_metric_function_default_parameters(self, mock_metrics_class):
+    def test_create_custom_llm_metric_function_default_parameters(self, mock_metrics_class) -> None:
         """Test the public function with default parameters."""
         # Setup mock
         mock_metrics_instance = Mock()
@@ -306,7 +306,7 @@ class TestEdgeCases:
     @patch("galileo.metrics.create_scorers_post")
     def test_empty_string_parameters(
         self, mock_create_scorer, mock_create_version, mock_scorer_response, mock_scorer_version_response
-    ):
+    ) -> None:
         """Test creation with empty string parameters."""
         # Setup mocks
         mock_create_scorer.sync.return_value = mock_scorer_response
@@ -337,7 +337,7 @@ class TestEdgeCases:
     @patch("galileo.metrics.create_scorers_post")
     def test_large_num_judges(
         self, mock_create_scorer, mock_create_version, mock_scorer_response, mock_scorer_version_response
-    ):
+    ) -> None:
         """Test creation with large number of judges."""
         # Setup mocks
         mock_create_scorer.sync.return_value = mock_scorer_response
@@ -362,7 +362,7 @@ class TestEdgeCases:
     @patch("galileo.metrics.create_scorers_post")
     def test_long_tag_list(
         self, mock_create_scorer, mock_create_version, mock_scorer_response, mock_scorer_version_response
-    ):
+    ) -> None:
         """Test creation with a long list of tags."""
         # Setup mocks
         mock_create_scorer.sync.return_value = mock_scorer_response

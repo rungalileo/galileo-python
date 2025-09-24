@@ -19,8 +19,7 @@ class TestGalileoAsyncBaseHandlerCallback:
         setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
-        logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
-        return logger
+        return GalileoLogger(project="my_project", log_stream="my_log_stream")
 
     @pytest.fixture
     def handler(self, galileo_logger: GalileoLogger) -> Generator[GalileoAsyncBaseHandler, None, None]:
@@ -33,7 +32,7 @@ class TestGalileoAsyncBaseHandlerCallback:
         handler._root_node = None
 
     @pytest.mark.asyncio
-    async def test_initialization(self, galileo_logger: GalileoLogger):
+    async def test_initialization(self, galileo_logger: GalileoLogger) -> None:
         """Test callback initialization with various parameters"""
         # Default initialization
         callback = GalileoAsyncBaseHandler(galileo_logger=galileo_logger)
@@ -50,7 +49,7 @@ class TestGalileoAsyncBaseHandlerCallback:
         assert callback._flush_on_chain_end is False
 
     @pytest.mark.asyncio
-    async def test_start_node(self, handler: GalileoAsyncBaseHandler):
+    async def test_start_node(self, handler: GalileoAsyncBaseHandler) -> None:
         """Test creating a node and establishing parent-child relationships"""
         # Create a parent node
         parent_id = uuid.uuid4()
@@ -84,7 +83,7 @@ class TestGalileoAsyncBaseHandlerCallback:
         assert handler._root_node.run_id == parent_id
 
     @pytest.mark.asyncio
-    async def test_end_node(self, handler: GalileoAsyncBaseHandler, galileo_logger: GalileoLogger):
+    async def test_end_node(self, handler: GalileoAsyncBaseHandler, galileo_logger: GalileoLogger) -> None:
         """Test ending a node and updating its parameters"""
         # Create a node
         run_id = uuid.uuid4()

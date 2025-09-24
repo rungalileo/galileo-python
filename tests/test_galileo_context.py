@@ -8,7 +8,7 @@ from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_proje
 
 
 @pytest.fixture
-def reset_context():
+def reset_context() -> None:
     galileo_context.reset()
 
 

@@ -28,7 +28,7 @@ class State(TypedDict):
 llm = ChatOpenAI(model="gpt-4")
 
 
-def chatbot(state: State):
+def chatbot(state: State) -> dict:
     return {"messages": [llm.invoke(state["messages"])]}
 
 

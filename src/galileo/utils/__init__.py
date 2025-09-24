@@ -6,4 +6,4 @@ def _get_timestamp() -> datetime:
 
 
 def _now_ns() -> int:
-    return int(round(_get_timestamp().timestamp() * 1e9))
+    return round(_get_timestamp().timestamp() * 1e9)

@@ -6,7 +6,7 @@ from galileo import Message, MessageRole, ToolCall, ToolCallFunction
 
 
 @pytest.mark.parametrize(
-    "message, expected_to_dict",
+    ("message", "expected_to_dict"),
     [
         (
             Message(role=MessageRole.system, content="You are a helpful agent"),

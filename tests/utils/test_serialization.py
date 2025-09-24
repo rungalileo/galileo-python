@@ -7,7 +7,7 @@ from asyncio import Queue
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, NoReturn, Optional
 from unittest.mock import patch
 
 import pytest
@@ -22,7 +22,7 @@ class TestSerializeDateTime:
         dt_utc = dt.datetime(2023, 1, 1, 12, 0, 0, tzinfo=dt.timezone.utc)
         result = serialize_datetime(dt_utc)
         assert result.endswith("Z")
-        assert "2023-01-01T12:00:00Z" == result
+        assert result == "2023-01-01T12:00:00Z"
 
     def test_serialize_datetime_with_non_utc_timezone(self) -> None:
         # Test with non-UTC timezone
@@ -30,7 +30,7 @@ class TestSerializeDateTime:
         dt_with_tz = dt.datetime(2023, 1, 1, 12, 0, 0, tzinfo=tz)
         result = serialize_datetime(dt_with_tz)
         assert "+05:30" in result
-        assert "2023-01-01T12:00:00+05:30" == result
+        assert result == "2023-01-01T12:00:00+05:30"
 
 
 class TestEventSerializer:
@@ -64,7 +64,7 @@ class TestEventSerializer:
 
     def test_default_queue(self) -> None:
         # Test Queue serialization
-        async def run():
+        async def run() -> None:
             queue = Queue()
             result = json.dumps(queue, cls=EventSerializer)
             decoded_result = json.loads(result)
@@ -131,7 +131,7 @@ class TestEventSerializer:
         assert decoded_result == str(file_path)
 
     @pytest.mark.parametrize(
-        "value,expected",
+        ("value", "expected"),
         [
             (123, 123),  # Within JS safe integer range
             (9007199254740991, 9007199254740991),  # Max safe integer
@@ -277,7 +277,7 @@ class TestEventSerializer:
             assert "not serializable object of type: BadObject" in result
 
     @pytest.mark.parametrize(
-        "value,expected",
+        ("value", "expected"),
         [
             (0, True),
             (42, True),
@@ -355,7 +355,7 @@ class TestSerializeToStr:
         )
 
 
-def test_serialize_complex_example_with_dataclasses():
+def test_serialize_complex_example_with_dataclasses() -> None:
     @dataclass
     class ModelConfig:
         model_name: str
@@ -425,13 +425,13 @@ def sample_data(tmp_path: Path) -> dict[Any, Any]:
 
 
 class TestConvertToStringDict:
-    def test_basic_conversion(self):
+    def test_basic_conversion(self) -> None:
         """Test conversion of a simple dictionary with basic types."""
         input_dict = {"str": "hello", "int": 42, "float": 3.14, "bool": True, "none": None}
         result = convert_to_string_dict(input_dict)
 
         assert isinstance(result, dict)
-        assert all(isinstance(k, str) for k in result.keys())
+        assert all(isinstance(k, str) for k in result)
         assert all(isinstance(v, str) for v in result.values())
         assert result["str"] == "hello"
         assert result["int"] == "42"
@@ -439,12 +439,12 @@ class TestConvertToStringDict:
         assert result["bool"] == "True"
         assert result["none"] == ""
 
-    def test_complex_types(self, sample_data):
+    def test_complex_types(self, sample_data) -> None:
         """Test conversion of complex data types using sample data fixture."""
         result = convert_to_string_dict(sample_data)
 
         assert isinstance(result, dict)
-        assert all(isinstance(k, str) for k in result.keys())
+        assert all(isinstance(k, str) for k in result)
         assert all(isinstance(v, str) for v in result.values())
 
         # Verify numeric key was converted to string
@@ -461,7 +461,7 @@ class TestConvertToStringDict:
         # Verify Path was converted to string
         assert result["path_key"] == str(sample_data["path_key"])
 
-    def test_nested_dicts(self):
+    def test_nested_dicts(self) -> None:
         """Test conversion of deeply nested dictionaries."""
         nested_dict = {"level1": {"level2": {"level3": "deep_value"}}}
         result = convert_to_string_dict(nested_dict)
@@ -472,12 +472,12 @@ class TestConvertToStringDict:
         nested_json = json.loads(result["level1"])
         assert nested_json["level2"]["level3"] == "deep_value"
 
-    def test_empty_dict(self):
+    def test_empty_dict(self) -> None:
         """Test conversion of an empty dictionary."""
         result = convert_to_string_dict({})
         assert result == {}
 
-    def test_pydantic_model(self):
+    def test_pydantic_model(self) -> None:
         """Test conversion of a dictionary containing a Pydantic model."""
         model = TestPydanticModel(name="test", value=42)
         input_dict = {"model": model}
@@ -490,7 +490,7 @@ class TestConvertToStringDict:
         model_dict = result["model"]
         assert model_dict == "name='test' value=42"
 
-    def test_custom_object(self):
+    def test_custom_object(self) -> None:
         """Test conversion of a dictionary containing a custom object."""
         obj = SimpleDataClass("test", 42)
         input_dict = {"custom_obj": obj}
@@ -504,7 +504,7 @@ class TestConvertToStringDict:
         assert isinstance(obj_str, str)
         assert "tests.utils.test_serialization.SimpleDataClass" in obj_str
 
-    def test_large_integers(self):
+    def test_large_integers(self) -> None:
         """Test conversion of integers larger than JavaScript's safe integer range."""
         large_int = 2**54  # Exceeds JavaScript's safe integer range
         input_dict = {"large_int": large_int}
@@ -543,7 +543,7 @@ class TestPydanticModelClassSerialization:
             name: str
 
             @classmethod
-            def model_json_schema(cls):
+            def model_json_schema(cls) -> NoReturn:
                 raise Exception("Schema generation failed")
 
         serializer = EventSerializer()

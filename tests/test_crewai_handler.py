@@ -82,8 +82,7 @@ def mock_galileo_logger():
 
         from galileo.logger.logger import GalileoLogger
 
-        logger = GalileoLogger(project="test_project", log_stream="test_log_stream")
-        return logger
+        return GalileoLogger(project="test_project", log_stream="test_log_stream")
 
 
 @pytest.fixture
@@ -95,13 +94,12 @@ def crewai_callback(mock_galileo_logger):
     ):
         from galileo.handlers.crewai.handler import CrewAIEventListener
 
-        callback = CrewAIEventListener(
+        return CrewAIEventListener(
             galileo_logger=mock_galileo_logger, start_new_trace=True, flush_on_crew_completed=False
         )
-        return callback
 
 
-def test_initialization_with_crewai_available(mock_galileo_logger):
+def test_initialization_with_crewai_available(mock_galileo_logger) -> None:
     """Test CrewAIEventListener initialization when CrewAI is available."""
     with (
         patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", True),
@@ -119,7 +117,7 @@ def test_initialization_with_crewai_available(mock_galileo_logger):
         assert callback._handler._flush_on_chain_end is True
 
 
-def test_initialization_with_crewai_unavailable(mock_galileo_logger):
+def test_initialization_with_crewai_unavailable(mock_galileo_logger) -> None:
     """Test CrewAIEventListener initialization when CrewAI is unavailable."""
     with (
         patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", False),
@@ -132,7 +130,7 @@ def test_initialization_with_crewai_unavailable(mock_galileo_logger):
         assert callback._handler._galileo_logger == mock_galileo_logger
 
 
-def test_generate_run_id_with_source_id(crewai_callback):
+def test_generate_run_id_with_source_id(crewai_callback) -> None:
     """Test UUID generation when source has an ID."""
     source_id = uuid.uuid4()
     source = MockSource(id=source_id)
@@ -142,7 +140,7 @@ def test_generate_run_id_with_source_id(crewai_callback):
     assert result == source_id
 
 
-def test_generate_run_id_with_messages(crewai_callback):
+def test_generate_run_id_with_messages(crewai_callback) -> None:
     """Test UUID generation from event messages."""
     messages = [{"role": "user", "content": "test"}]
     event = MockEvent(messages=messages)
@@ -158,7 +156,7 @@ def test_generate_run_id_with_messages(crewai_callback):
     assert result == result2
 
 
-def test_generate_run_id_with_tool_args_dict(crewai_callback):
+def test_generate_run_id_with_tool_args_dict(crewai_callback) -> None:
     """Test UUID generation from tool args as dict."""
     tool_args = {"arg1": "value1", "arg2": "value2"}
     event = MockEvent(tool_args=tool_args)
@@ -168,7 +166,7 @@ def test_generate_run_id_with_tool_args_dict(crewai_callback):
     assert isinstance(result, uuid.UUID)
 
 
-def test_generate_run_id_with_tool_args_string(crewai_callback):
+def test_generate_run_id_with_tool_args_string(crewai_callback) -> None:
     """Test UUID generation from tool args as string."""
     tool_args = '{"arg1": "value1"}'
     event = MockEvent(tool_args=tool_args)
@@ -178,7 +176,7 @@ def test_generate_run_id_with_tool_args_string(crewai_callback):
     assert isinstance(result, uuid.UUID)
 
 
-def test_generate_run_id_fallback(crewai_callback):
+def test_generate_run_id_fallback(crewai_callback) -> None:
     """Test UUID generation fallback method."""
     event = MockEvent(crew_name="test_crew", agent="test_agent", task="test_task")
     source = MockSource()
@@ -187,7 +185,7 @@ def test_generate_run_id_fallback(crewai_callback):
     assert isinstance(result, uuid.UUID)
 
 
-def test_extract_metadata(crewai_callback):
+def test_extract_metadata(crewai_callback) -> None:
     """Test metadata extraction from event."""
     timestamp = datetime.now()
     event = MockEvent(
@@ -203,7 +201,7 @@ def test_extract_metadata(crewai_callback):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_crew_kickoff_started(crewai_callback, generated_id):
+def test_crew_kickoff_started(crewai_callback, generated_id) -> None:
     """Test crew kickoff started event handling."""
     crew_id = generated_id()
     source = MockSource(id=crew_id)
@@ -221,7 +219,7 @@ def test_crew_kickoff_started(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_crew_kickoff_started_empty_inputs(crewai_callback, generated_id):
+def test_crew_kickoff_started_empty_inputs(crewai_callback, generated_id) -> None:
     """Test crew kickoff started event handling."""
     crew_id = generated_id()
     source = MockSource(id=crew_id)
@@ -240,7 +238,7 @@ def test_crew_kickoff_started_empty_inputs(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_crew_kickoff_completed(crewai_callback, generated_id):
+def test_crew_kickoff_completed(crewai_callback, generated_id) -> None:
     """Test crew kickoff completed event handling."""
     crew_id = generated_id()
     source = MockSource(id=crew_id)
@@ -258,7 +256,7 @@ def test_crew_kickoff_completed(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_crew_kickoff_failed(crewai_callback, generated_id):
+def test_crew_kickoff_failed(crewai_callback, generated_id) -> None:
     """Test crew kickoff failed event handling."""
     crew_id = generated_id()
     source = MockSource(id=crew_id)
@@ -275,7 +273,7 @@ def test_crew_kickoff_failed(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_agent_execution_started(crewai_callback, generated_id):
+def test_agent_execution_started(crewai_callback, generated_id) -> None:
     """Test agent execution started event handling."""
     agent_id = generated_id()
     task_id = generated_id()
@@ -298,7 +296,7 @@ def test_agent_execution_started(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_agent_execution_started_no_input(crewai_callback, generated_id):
+def test_agent_execution_started_no_input(crewai_callback, generated_id) -> None:
     """Test agent execution started event handling."""
     agent_id = generated_id()
     task_id = generated_id()
@@ -321,7 +319,7 @@ def test_agent_execution_started_no_input(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_agent_execution_completed(crewai_callback, generated_id):
+def test_agent_execution_completed(crewai_callback, generated_id) -> None:
     """Test agent execution completed event handling."""
     agent_id = generated_id()
     source = MockSource(id=agent_id)
@@ -334,7 +332,7 @@ def test_agent_execution_completed(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_agent_execution_error(crewai_callback, generated_id):
+def test_agent_execution_error(crewai_callback, generated_id) -> None:
     """Test agent execution error event handling."""
     agent_id = generated_id()
     source = MockSource(id=agent_id)
@@ -351,7 +349,7 @@ def test_agent_execution_error(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_task_started(crewai_callback, generated_id):
+def test_task_started(crewai_callback, generated_id) -> None:
     """Test task started event handling."""
     task_id = generated_id()
     crew_id = generated_id()
@@ -374,7 +372,7 @@ def test_task_started(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_task_started_no_context(crewai_callback, generated_id):
+def test_task_started_no_context(crewai_callback, generated_id) -> None:
     """Test task started event handling."""
     task_id = generated_id()
     crew_id = generated_id()
@@ -397,7 +395,7 @@ def test_task_started_no_context(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_task_started_no_description(crewai_callback, generated_id):
+def test_task_started_no_description(crewai_callback, generated_id) -> None:
     """Test task started event handling."""
     task_id = generated_id()
     crew_id = generated_id()
@@ -420,7 +418,7 @@ def test_task_started_no_description(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_task_completed(crewai_callback, generated_id):
+def test_task_completed(crewai_callback, generated_id) -> None:
     """Test task completed event handling."""
     task_id = generated_id()
     source = MockSource(id=task_id)
@@ -434,7 +432,7 @@ def test_task_completed(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_task_failed(crewai_callback, generated_id):
+def test_task_failed(crewai_callback, generated_id) -> None:
     """Test task failed event handling."""
     task_id = generated_id()
     source = MockSource(id=task_id)
@@ -450,7 +448,7 @@ def test_task_failed(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_tool_usage_started(crewai_callback, generated_id):
+def test_tool_usage_started(crewai_callback, generated_id) -> None:
     """Test tool usage started event handling."""
     tool_id = generated_id()
     agent_id = generated_id()
@@ -470,7 +468,7 @@ def test_tool_usage_started(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_tool_usage_started_no_input(crewai_callback, generated_id):
+def test_tool_usage_started_no_input(crewai_callback, generated_id) -> None:
     """Test tool usage started event handling."""
     tool_id = generated_id()
     agent_id = generated_id()
@@ -492,7 +490,7 @@ def test_tool_usage_started_no_input(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_tool_usage_finished(crewai_callback, generated_id):
+def test_tool_usage_finished(crewai_callback, generated_id) -> None:
     """Test tool usage finished event handling."""
     tool_id = generated_id()
     source = MockSource(id=tool_id)
@@ -505,7 +503,7 @@ def test_tool_usage_finished(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_tool_usage_error(crewai_callback, generated_id):
+def test_tool_usage_error(crewai_callback, generated_id) -> None:
     """Test tool usage error event handling."""
     tool_id = generated_id()
     source = MockSource(id=tool_id)
@@ -522,7 +520,7 @@ def test_tool_usage_error(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_llm_call_started(crewai_callback, generated_id):
+def test_llm_call_started(crewai_callback, generated_id) -> None:
     """Test LLM call started event handling."""
     llm_id = generated_id()
     source = MockSource(id=llm_id, model="gpt-4", temperature=0.7)
@@ -541,7 +539,7 @@ def test_llm_call_started(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_llm_call_completed(crewai_callback, generated_id):
+def test_llm_call_completed(crewai_callback, generated_id) -> None:
     """Test LLM call completed event handling."""
     llm_id = generated_id()
     source = MockSource(id=llm_id)
@@ -554,7 +552,7 @@ def test_llm_call_completed(crewai_callback, generated_id):
 
 
 @pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
-def test_llm_call_failed(crewai_callback, generated_id):
+def test_llm_call_failed(crewai_callback, generated_id) -> None:
     """Test LLM call failed event handling."""
     llm_id = generated_id()
     source = MockSource(id=llm_id)
@@ -570,7 +568,7 @@ def test_llm_call_failed(crewai_callback, generated_id):
         assert call_args[1]["metadata"]["error"] == "Rate limit exceeded"
 
 
-def test_setup_listeners_crewai_unavailable(crewai_callback: CrewAIEventListener):
+def test_setup_listeners_crewai_unavailable(crewai_callback: CrewAIEventListener) -> None:
     """Test setup_listeners when CrewAI is unavailable."""
     mock_event_bus = Mock()
 
@@ -581,7 +579,7 @@ def test_setup_listeners_crewai_unavailable(crewai_callback: CrewAIEventListener
         mock_event_bus.on.assert_not_called()
 
 
-def test_update_crew_input(crewai_callback: CrewAIEventListener):
+def test_update_crew_input(crewai_callback: CrewAIEventListener) -> None:
     """Test crew input update functionality."""
     crew_id = uuid.uuid4()
 
@@ -601,7 +599,7 @@ def test_update_crew_input(crewai_callback: CrewAIEventListener):
         assert "Research market trends" in mock_root_node.span_params["input"]
 
 
-def test_lite_llm_usage_callback(crewai_callback: CrewAIEventListener):
+def test_lite_llm_usage_callback(crewai_callback: CrewAIEventListener) -> None:
     """Test LiteLLM usage callback."""
     node_id = uuid.uuid4()
 
@@ -635,7 +633,7 @@ def test_lite_llm_usage_callback(crewai_callback: CrewAIEventListener):
         assert mock_node.span_params["total_tokens"] == 150
 
 
-def test_lite_llm_usage_callback_no_node(crewai_callback):
+def test_lite_llm_usage_callback_no_node(crewai_callback) -> None:
     """Test LiteLLM usage callback when node doesn't exist."""
     kwargs = {"messages": [{"role": "user", "content": "test"}]}
     mock_response = Mock()

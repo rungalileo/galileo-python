@@ -40,7 +40,7 @@ from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_proje
 
 
 @pytest.fixture
-def reset_context(auto_use=True):
+def reset_context(auto_use=True) -> None:
     galileo_context.reset()
     os.environ.pop("GALILEO_PROJECT", None)
     os.environ.pop("GALILEO_PROJECT_ID", None)
@@ -152,18 +152,18 @@ def mock_scorer_version_response():
 
 class TestExperiments:
     @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
-    def test_create(self, galileo_resources_api_create_experiment: Mock):
+    def test_create(self, galileo_resources_api_create_experiment: Mock) -> None:
         now = datetime(2020, 1, 1).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         galileo_resources_api_create_experiment.sync = Mock(
             return_value=ExperimentResponse.from_dict(
-                dict(
-                    id="test",
-                    name="test_experiment",
-                    project_id="test",
-                    created_at=now,
-                    updated_at=now,
-                    task_type=TaskType.VALUE_16,
-                )
+                {
+                    "id": "test",
+                    "name": "test_experiment",
+                    "project_id": "test",
+                    "created_at": now,
+                    "updated_at": now,
+                    "task_type": TaskType.VALUE_16,
+                }
             )
         )
         experiment = Experiments().create(project_id="test", name="test_experiment")
@@ -172,18 +172,18 @@ class TestExperiments:
         galileo_resources_api_create_experiment.sync.assert_called_once_with(project_id="test", client=ANY, body=ANY)
 
     @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
-    def test_create_experiment(self, galileo_resources_api_create_experiment: Mock):
+    def test_create_experiment(self, galileo_resources_api_create_experiment: Mock) -> None:
         now = datetime(2020, 1, 1).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         galileo_resources_api_create_experiment.sync = Mock(
             return_value=ExperimentResponse.from_dict(
-                dict(
-                    id="test",
-                    name="test_experiment",
-                    project_id="test",
-                    created_at=now,
-                    updated_at=now,
-                    task_type=TaskType.VALUE_16,
-                )
+                {
+                    "id": "test",
+                    "name": "test_experiment",
+                    "project_id": "test",
+                    "created_at": now,
+                    "updated_at": now,
+                    "task_type": TaskType.VALUE_16,
+                }
             )
         )
 
@@ -194,14 +194,14 @@ class TestExperiments:
         )
 
     @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
-    def test_get_experiment(self, list_experiments_mock: Mock):
+    def test_get_experiment(self, list_experiments_mock: Mock) -> None:
         list_experiments_mock.sync = Mock(return_value=[experiment_response()])
         experiment = get_experiment(project_id=str(UUID(int=0)), experiment_name=experiment_response().name)
         assert experiment.name == experiment_response().name
         list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
 
     @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
-    def test_get_experiments(self, list_experiments_mock: Mock):
+    def test_get_experiments(self, list_experiments_mock: Mock) -> None:
         list_experiments_mock.sync = Mock(return_value=[experiment_response()])
         experiments = get_experiments(project_id=str(UUID(int=0)))
         assert len(experiments) == 1
@@ -209,14 +209,14 @@ class TestExperiments:
         list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
 
     @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
-    def test_get_experiment_not_found(self, list_experiments_mock: Mock):
+    def test_get_experiment_not_found(self, list_experiments_mock: Mock) -> None:
         list_experiments_mock.sync = Mock(return_value=None)
         experiment = get_experiment(experiment_name=experiment_response().name, project_id=str(UUID(int=0)))
         assert experiment is None
         list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
 
     @pytest.mark.parametrize(
-        "dataset,dataset_name,dataset_id",
+        ("dataset", "dataset_name", "dataset_id"),
         [("awesome-dataset", None, None), (None, "awesome-dataset", None), (None, None, "dataset_id")],
     )
     @patch.object(galileo.datasets.Datasets, "get")
@@ -228,7 +228,7 @@ class TestExperiments:
         dataset_id,
         dataset_content: DatasetContent,
         test_dataset_row_id: str,
-    ):
+    ) -> None:
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
         _, records = load_dataset_and_records(dataset=dataset, dataset_name=dataset_name, dataset_id=dataset_id)
@@ -242,7 +242,7 @@ class TestExperiments:
         elif dataset_name:
             mock_get_dataset.assert_called_once_with(id=None, name=dataset_name)
 
-    def test_load_dataset_and_records_error(self):
+    def test_load_dataset_and_records_error(self) -> None:
         with pytest.raises(ValueError) as exc_info:
             load_dataset_and_records(dataset=None, dataset_name=None, dataset_id=None)
         assert str(exc_info.value) == "To load dataset records, dataset, dataset_name, or dataset_id must be provided"
@@ -259,7 +259,7 @@ class TestExperiments:
         mock_create_job: Mock,
         mock_get_dataset: Mock,
         dataset_content: DatasetContent,
-    ):
+    ) -> None:
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
@@ -285,7 +285,7 @@ class TestExperiments:
         mock_create_job: Mock,
         mock_get_dataset: Mock,
         dataset_content: DatasetContent,
-    ):
+    ) -> None:
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
@@ -314,7 +314,7 @@ class TestExperiments:
         mock_create_job: Mock,
         mock_get_dataset: Mock,
         dataset_content: DatasetContent,
-    ):
+    ) -> None:
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
@@ -344,7 +344,7 @@ class TestExperiments:
         mock_create_job: Mock,
         mock_get_dataset: Mock,
         dataset_content: DatasetContent,
-    ):
+    ) -> None:
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
@@ -376,7 +376,7 @@ class TestExperiments:
         mock_create_job: Mock,
         mock_get_dataset: Mock,
         dataset_content: DatasetContent,
-    ):
+    ) -> None:
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
@@ -419,7 +419,7 @@ class TestExperiments:
     @patch("galileo.utils.metrics.ScorerSettings")
     @pytest.mark.parametrize("thread_pool", [True, False])
     @pytest.mark.parametrize(
-        ["function", "metrics", "num_spans", "span_type", "results", "aggregate_results"],
+        ("function", "metrics", "num_spans", "span_type", "results", "aggregate_results"),
         [
             (lambda *args, **kwargs: "dummy_function", [], 1, "llm", [], []),
             (
@@ -497,7 +497,7 @@ class TestExperiments:
         results: list[MetricValueType],
         aggregate_results: list[MetricValueType],
         thread_pool: bool,
-    ):
+    ) -> None:
         mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
@@ -579,7 +579,7 @@ class TestExperiments:
         mock_scorers_class: Mock,
         mock_scorer_settings_class: Mock,
         dataset_content: DatasetContent,
-    ):
+    ) -> None:
         mock_create_job.return_value = MagicMock()
 
         # Setup scorer mocks
@@ -627,7 +627,7 @@ class TestExperiments:
         mock_create_job: Mock,
         mock_get_dataset: Mock,
         dataset_content: DatasetContent,
-    ):
+    ) -> None:
         mock_create_job.return_value = MagicMock()
 
         # mock dataset.get_content
@@ -683,7 +683,7 @@ class TestExperiments:
         mock_logstreams_client: Mock,
         reset_context,
         dataset_content_with_question: DatasetContent,
-    ):
+    ) -> None:
         mock_core_api_instance = setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
@@ -694,7 +694,7 @@ class TestExperiments:
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_with_question)
 
-        def runner(input):
+        def runner(input) -> str:
             # emulate using input
             return f"Say hello: {input['question']}"
 
@@ -724,7 +724,7 @@ class TestExperiments:
     @patch.object(galileo.datasets.Datasets, "get")
     def test_run_experiment_with_prompt_template_and_function(
         self, mock_get_dataset: Mock, dataset_content: DatasetContent
-    ):
+    ) -> None:
         # mock dataset.get_content
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
@@ -745,7 +745,7 @@ class TestExperiments:
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
     def test_run_experiment_with_prompt_template_and_local_dataset(
         self, mock_projects_client: Mock, local_dataset: list[dict[str, str]]
-    ):
+    ) -> None:
         setup_mock_projects_client(mock_projects_client)
 
         with pytest.raises(ValueError) as exc_info:
@@ -779,7 +779,7 @@ class TestExperiments:
         mock_get_dataset: Mock,
         mock_projects_client: Mock,
         dataset_content_with_question: DatasetContent,
-    ):
+    ) -> None:
         setup_mock_projects_client(mock_projects_client)
         mock_get_dataset_instance = mock_get_dataset.return_value
         mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_with_question)
@@ -802,7 +802,7 @@ class TestExperiments:
 
     @patch("galileo.utils.metrics.Scorers")
     @patch("galileo.utils.metrics.ScorerSettings")
-    def test_create_scorer_configs(self, mock_scorer_settings_class, mock_scorers_class):
+    def test_create_scorer_configs(self, mock_scorer_settings_class, mock_scorers_class) -> None:
         # Setup mock return values
         mock_scorers_instance = mock_scorers_class.return_value
         mock_scorers_instance.list.return_value = [
@@ -826,7 +826,7 @@ class TestExperiments:
 
     @patch("galileo.utils.metrics.Scorers")
     @patch("galileo.utils.metrics.ScorerSettings")
-    def test_create_scorer_configs_with_metric_objects(self, mock_scorer_settings_class, mock_scorers_class):
+    def test_create_scorer_configs_with_metric_objects(self, mock_scorer_settings_class, mock_scorers_class) -> None:
         # Setup mock return values
         mock_scorers_instance = mock_scorers_class.return_value
         mock_scorer_settings_class.return_value.create = MagicMock()
@@ -898,7 +898,7 @@ class TestExperiments:
         mock_get_dataset: Mock,
         mock_create_job_sync: Mock,
         dataset_content: DatasetContent,
-    ):
+    ) -> None:
         mock_create_job_sync.return_value = MagicMock(
             parsed=None, content=b'{"detail":"mocked error"}', status_code=500
         )

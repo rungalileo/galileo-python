@@ -37,7 +37,7 @@ class Metrics:
         model_name: str = "gpt-4.1-mini",
         num_judges: int = 3,
         description: str = "",
-        tags: list[str] = [],
+        tags: Optional[list[str]] = None,
         output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN,
     ) -> BaseScorerVersionResponse:
         """
@@ -58,6 +58,8 @@ class Metrics:
             BaseScorerVersionResponse: Response containing the created metric details.
         """
 
+        if tags is None:
+            tags = []
         create_scorer_request = CreateScorerRequest(
             name=name,
             scorer_type=ScorerTypes.LLM,
@@ -127,7 +129,7 @@ def create_custom_llm_metric(
     model_name: str = "gpt-4.1-mini",
     num_judges: int = 3,
     description: str = "",
-    tags: list[str] = [],
+    tags: Optional[list[str]] = None,
     output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN,
 ) -> BaseScorerVersionResponse:
     """
@@ -147,6 +149,8 @@ def create_custom_llm_metric(
     Returns:
         BaseScorerVersionResponse: Response containing the created metric details.
     """
+    if tags is None:
+        tags = []
     return Metrics().create_custom_llm_metric(
         name, user_prompt, node_level, cot_enabled, model_name, num_judges, description, tags, output_type
     )

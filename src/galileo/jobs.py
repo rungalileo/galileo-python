@@ -26,16 +26,16 @@ class Jobs:
         scorers: Optional[list[ScorerConfig]],
         prompt_settings: PromptRunSettings,
     ) -> CreateJobResponse:
-        create_params = dict(
-            project_id=project_id,
-            dataset_id=dataset_id,
-            job_name=name,
-            run_id=run_id,
-            prompt_settings=prompt_settings,
-            prompt_template_version_id=prompt_template_id,
-            task_type=task_type,
-            scorers=scorers,
-        )
+        create_params = {
+            "project_id": project_id,
+            "dataset_id": dataset_id,
+            "job_name": name,
+            "run_id": run_id,
+            "prompt_settings": prompt_settings,
+            "prompt_template_version_id": prompt_template_id,
+            "task_type": task_type,
+            "scorers": scorers,
+        }
         _logger.info(f"create job: {create_params}")
         result = create_job_jobs_post.sync_detailed(
             client=self.config.api_client, body=CreateJobRequest(**create_params)

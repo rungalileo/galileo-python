@@ -137,10 +137,9 @@ class Dataset(DecorateAllMethods):
         return self
 
     def get_version_history(self) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
-        list_dataset = query_dataset_versions_datasets_dataset_id_versions_query_post.sync(
+        return query_dataset_versions_datasets_dataset_id_versions_query_post.sync(
             dataset_id=self.dataset.id, client=self.config.api_client, body=ListDatasetVersionParams()
         )
-        return list_dataset
 
     def load_version(self, version_index: int) -> DatasetContent:
         return get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get.sync(
@@ -557,7 +556,7 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
 
 
 def get_dataset_version_history(
-    *, dataset_name: str = None, dataset_id: str = None
+    *, dataset_name: Optional[str] = None, dataset_id: Optional[str] = None
 ) -> Optional[Union[HTTPValidationError, ListDatasetVersionResponse]]:
     """
     Retrieves a dataset version history by dataset name or dataset id.
@@ -582,17 +581,16 @@ def get_dataset_version_history(
         if dataset is None:
             raise ValueError(f"Dataset '{dataset_name}' not found")
         return dataset.get_version_history()
-    elif dataset_id is not None:
+    if dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
         if dataset is None:
             raise ValueError(f"Dataset '{dataset_id}' not found")
         return dataset.get_version_history()
-    else:
-        raise ValueError("Either dataset_name or dataset_id must be provided.")
+    raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
 def get_dataset_version(
-    *, version_index: int, dataset_name: str = None, dataset_id: str = None
+    *, version_index: int, dataset_name: Optional[str] = None, dataset_id: Optional[str] = None
 ) -> Optional[DatasetContent]:
     """
     Retrieves a dataset version by dataset name or dataset id.
@@ -618,13 +616,12 @@ def get_dataset_version(
             raise ValueError(f"Dataset '{dataset_name}' not found")
         return dataset.load_version(version_index)
 
-    elif dataset_id is not None:
+    if dataset_id is not None:
         dataset = Datasets().get(id=dataset_id)
         if dataset is None:
             raise ValueError(f"Dataset '{dataset_id}' not found")
         return dataset.load_version(version_index)
-    else:
-        raise ValueError("Either dataset_name or dataset_id must be provided.")
+    raise ValueError("Either dataset_name or dataset_id must be provided.")
 
 
 def extend_dataset(
@@ -706,6 +703,6 @@ def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
     return DatasetRecord(
         id=dataset_row.row_id,
         input=values_dict["input"],
-        output=values_dict["output"] if "output" in values_dict else None,
-        metadata=values_dict["metadata"] if "metadata" in values_dict else None,
+        output=values_dict.get("output", None),
+        metadata=values_dict.get("metadata", None),
     )

@@ -324,18 +324,8 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
             if node.span_params.get("input") is None:
                 node.span_params["input"] = tool_data.get("input")
 
-        elif galileo_type == "workflow":
-            wf_data = _extract_workflow_data(span.span_data)
-            end_params.update(
-                {
-                    **wf_data,
-                    "metadata": {**node.span_params.get("metadata", {}), **wf_data.get("metadata", {})},
-                    "status_code": wf_data.get("status_code", node.span_params.get("status_code", 200)),
-                }
-            )
-            # Workflow output might only be known at the end
-            if node.span_params.get("output") is None:
-                node.span_params["output"] = wf_data.get("output")
+        # Note: workflow type is not currently supported in the node_type literal
+        # elif galileo_type == "workflow": (removed as unreachable code)
 
         # Handle errors
         if error := span.error:

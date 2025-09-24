@@ -13,7 +13,7 @@ from galileo.utils.datasets import (
 
 @patch("galileo.utils.datasets.get_dataset")
 @patch("galileo.utils.datasets.get_records_for_dataset", return_value=[])
-def test_get_dataset_and_records_with_id(mock_get_records, mock_get_dataset, dataset_content):
+def test_get_dataset_and_records_with_id(mock_get_records, mock_get_dataset, dataset_content) -> None:
     """Test _get_dataset_and_records function with dataset_id."""
     # Setup
     mock_dataset = Mock()
@@ -31,7 +31,7 @@ def test_get_dataset_and_records_with_id(mock_get_records, mock_get_dataset, dat
 
 @patch("galileo.utils.datasets.get_dataset")
 @patch("galileo.utils.datasets.get_records_for_dataset", return_value=[])
-def test_get_dataset_and_records_with_name(mock_get_records, mock_get_dataset, dataset_content):
+def test_get_dataset_and_records_with_name(mock_get_records, mock_get_dataset, dataset_content) -> None:
     """Test _get_dataset_and_records function with dataset_name."""
     # Setup
     mock_dataset = Mock()
@@ -48,7 +48,7 @@ def test_get_dataset_and_records_with_name(mock_get_records, mock_get_dataset, d
 
 
 @patch("galileo.utils.datasets.get_dataset")
-def test_get_dataset_and_records_not_found_id(mock_get_dataset):
+def test_get_dataset_and_records_not_found_id(mock_get_dataset) -> None:
     """Test _get_dataset_and_records function when dataset with id is not found."""
     # Setup
     mock_get_dataset.return_value = None
@@ -59,7 +59,7 @@ def test_get_dataset_and_records_not_found_id(mock_get_dataset):
 
 
 @patch("galileo.utils.datasets.get_dataset")
-def test_get_dataset_and_records_not_found_name(mock_get_dataset):
+def test_get_dataset_and_records_not_found_name(mock_get_dataset) -> None:
     """Test _get_dataset_and_records function when dataset with name is not found."""
     # Setup
     mock_get_dataset.return_value = None
@@ -69,7 +69,7 @@ def test_get_dataset_and_records_not_found_name(mock_get_dataset):
         get_dataset_and_records(name="test-dataset")
 
 
-def test_get_dataset_and_records_no_params():
+def test_get_dataset_and_records_no_params() -> None:
     """Test _get_dataset_and_records function when no parameters are provided."""
     # Execute and Assert
     with pytest.raises(ValueError, match="Either the dataset id or name must be provided"):
@@ -77,7 +77,7 @@ def test_get_dataset_and_records_no_params():
 
 
 @patch("galileo.utils.datasets.convert_dataset_row_to_record")
-def test_get_records_for_dataset(mock_convert, dataset_content):
+def test_get_records_for_dataset(mock_convert, dataset_content) -> None:
     """Test _get_records_for_dataset function."""
     # Setup
     mock_dataset = Mock()
@@ -94,7 +94,7 @@ def test_get_records_for_dataset(mock_convert, dataset_content):
     assert records[0].input == "test"
 
 
-def test_get_records_for_dataset_no_content():
+def test_get_records_for_dataset_no_content() -> None:
     """Test _get_records_for_dataset function when dataset has no content."""
     # Setup
     mock_dataset = Mock()
@@ -106,7 +106,7 @@ def test_get_records_for_dataset_no_content():
 
 
 @patch("galileo.utils.datasets.DatasetRecord")
-def test_create_rows_from_records_with_input_field(mock_dataset_record):
+def test_create_rows_from_records_with_input_field(mock_dataset_record) -> None:
     """Test create_rows_from_records function with records containing 'input' field."""
     # Setup
     records = [{"input": "test input", "output": "test output"}]
@@ -121,7 +121,7 @@ def test_create_rows_from_records_with_input_field(mock_dataset_record):
 
 
 @patch("galileo.utils.datasets.DatasetRecord")
-def test_create_rows_from_records_without_input_field(mock_dataset_record):
+def test_create_rows_from_records_without_input_field(mock_dataset_record) -> None:
     """Test create_rows_from_records function with records not containing 'input' field."""
     # Setup
     records = ["test input"]
@@ -136,7 +136,7 @@ def test_create_rows_from_records_without_input_field(mock_dataset_record):
 
 
 @patch("galileo.utils.datasets.DatasetRecord")
-def test_create_rows_from_records_with_dict_without_input_field(mock_dataset_record):
+def test_create_rows_from_records_with_dict_without_input_field(mock_dataset_record) -> None:
     """Test create_rows_from_records function with dict records not containing 'input' field."""
     # Setup
     records = [{"key": "value"}]
@@ -151,7 +151,7 @@ def test_create_rows_from_records_with_dict_without_input_field(mock_dataset_rec
 
 
 @patch("galileo.utils.datasets.DatasetRecord")
-def test_create_rows_from_records_mixed_types(mock_dataset_record):
+def test_create_rows_from_records_mixed_types(mock_dataset_record) -> None:
     """Test create_rows_from_records function with mixed record types."""
     # Setup
     records = [{"input": "test input 1", "output": "test output 1"}, "test input 2", {"key": "value"}]
@@ -169,7 +169,7 @@ def test_create_rows_from_records_mixed_types(mock_dataset_record):
 
 
 @patch("galileo.utils.datasets.get_dataset_and_records")
-def test_load_dataset_and_records_with_dataset_id(mock_get_dataset_and_records):
+def test_load_dataset_and_records_with_dataset_id(mock_get_dataset_and_records) -> None:
     """Test load_dataset_and_records function with dataset_id."""
     # Setup
     mock_dataset = Mock()
@@ -186,7 +186,7 @@ def test_load_dataset_and_records_with_dataset_id(mock_get_dataset_and_records):
 
 
 @patch("galileo.utils.datasets.get_dataset_and_records")
-def test_load_dataset_and_records_with_dataset_name(mock_get_dataset_and_records):
+def test_load_dataset_and_records_with_dataset_name(mock_get_dataset_and_records) -> None:
     """Test load_dataset_and_records function with dataset_name."""
     # Setup
     mock_dataset = Mock()
@@ -203,7 +203,7 @@ def test_load_dataset_and_records_with_dataset_name(mock_get_dataset_and_records
 
 
 @patch("galileo.utils.datasets.get_dataset_and_records")
-def test_load_dataset_and_records_with_dataset_as_string(mock_get_dataset_and_records):
+def test_load_dataset_and_records_with_dataset_as_string(mock_get_dataset_and_records) -> None:
     """Test load_dataset_and_records function with dataset as string."""
     # Setup
     mock_dataset = Mock()
@@ -220,7 +220,7 @@ def test_load_dataset_and_records_with_dataset_as_string(mock_get_dataset_and_re
 
 
 @patch("galileo.utils.datasets.get_records_for_dataset")
-def test_load_dataset_and_records_with_dataset_object(mock_get_records):
+def test_load_dataset_and_records_with_dataset_object(mock_get_records) -> None:
     """Test load_dataset_and_records function with Dataset object."""
     # Setup
     from galileo.datasets import Dataset
@@ -239,7 +239,7 @@ def test_load_dataset_and_records_with_dataset_object(mock_get_records):
 
 
 @patch("galileo.utils.datasets.create_rows_from_records")
-def test_load_dataset_and_records_with_records_list(mockcreate_rows):
+def test_load_dataset_and_records_with_records_list(mockcreate_rows) -> None:
     """Test load_dataset_and_records function with list of records."""
     # Setup
     records_list = [{"input": "test input"}]
@@ -255,7 +255,7 @@ def test_load_dataset_and_records_with_records_list(mockcreate_rows):
     assert records == mock_records
 
 
-def test_load_dataset_and_records_no_params():
+def test_load_dataset_and_records_no_params() -> None:
     """Test load_dataset_and_records function when no parameters are provided."""
     # Execute and Assert
     with pytest.raises(

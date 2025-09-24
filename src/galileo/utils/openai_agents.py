@@ -23,30 +23,28 @@ def _map_span_type(span_data: SpanData) -> SPAN_TYPE:
     """Determine the Galileo span type based on the OpenAI Agent span data."""
     if isinstance(span_data, (GenerationSpanData, ResponseSpanData)):
         return "llm"
-    elif isinstance(span_data, (FunctionSpanData, GuardrailSpanData)):
+    if isinstance(span_data, (FunctionSpanData, GuardrailSpanData)):
         return "tool"
-    elif isinstance(span_data, (AgentSpanData, HandoffSpanData, CustomSpanData)):
+    if isinstance(span_data, (AgentSpanData, HandoffSpanData, CustomSpanData)):
         return "workflow"
-    else:
-        # Default to workflow for unknown or base SpanData types
-        _logger.debug(f"Unknown span data type {type(span_data)}, defaulting to workflow.")
-        return "workflow"
+    # Default to workflow for unknown or base SpanData types
+    _logger.debug(f"Unknown span data type {type(span_data)}, defaulting to workflow.")
+    return "workflow"
 
 
 def _map_span_name(span: Span[Any]) -> str:
     """Determine the name for a given OpenAI Agent span."""
     if name := getattr(span.span_data, "name", None):
         return name
-    elif isinstance(span.span_data, GenerationSpanData):
+    if isinstance(span.span_data, GenerationSpanData):
         return "Generation"
-    elif isinstance(span.span_data, ResponseSpanData):
+    if isinstance(span.span_data, ResponseSpanData):
         return "Response"
-    elif isinstance(span.span_data, HandoffSpanData):
+    if isinstance(span.span_data, HandoffSpanData):
         return f"Handoff: {span.span_data.from_agent} -> {span.span_data.to_agent}"
-    elif span.span_data.type:
+    if span.span_data.type:
         return span.span_data.type.capitalize()
-    else:
-        return "Unknown Span"
+    return "Unknown Span"
 
 
 def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Union[int, None]]:
@@ -188,9 +186,7 @@ def _extract_llm_data(span_data: Union[GenerationSpanData, ResponseSpanData]) ->
             data["temperature"] = None
 
     # Clean up None values that add_llm_span doesn't expect, but keep necessary keys
-    data = {k: v for k, v in data.items() if v is not None or k in ["input", "output", "metadata", "model_parameters"]}
-
-    return data
+    return {k: v for k, v in data.items() if v is not None or k in ["input", "output", "metadata", "model_parameters"]}
 
 
 def _extract_tool_data(span_data: Union[FunctionSpanData, GuardrailSpanData]) -> dict[str, Any]:
@@ -214,8 +210,7 @@ def _extract_tool_data(span_data: Union[FunctionSpanData, GuardrailSpanData]) ->
             data["metadata"]["status"] = "warning"
 
     # Clean up None values, keeping essential keys
-    data = {k: v for k, v in data.items() if v is not None or k in ["input", "output", "metadata"]}
-    return data
+    return {k: v for k, v in data.items() if v is not None or k in ["input", "output", "metadata"]}
 
 
 def _extract_workflow_data(span_data: Union[AgentSpanData, HandoffSpanData, CustomSpanData]) -> dict[str, Any]:

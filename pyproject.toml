@@ -84,13 +84,112 @@ fix = true
 src = ["src"]
 unsafe-fixes = true
 target-version = "py39"
+exclude = [
+    "src/galileo/resources",
+]
 
 [tool.ruff.format]
 skip-magic-trailing-comma = true
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F", "I", "UP", "ASYNC"]
-ignore = []
+select = [
+    # Pyflakes (basic errors)
+    "F",
+    # Pycodestyle (style errors)
+    "E4", "E7", "E9", "W6",
+    # Import sorting
+    "I",
+    # Pyupgrade (Python version upgrades)
+    "UP",
+    # Async-related checks
+    "ASYNC",
+    # Flake8-bugbear (common bugs)
+    "B",
+    # Flake8-comprehensions (list/set/dict comprehension issues)
+    "C4",
+    # Flake8-pie (unnecessary code patterns)
+    "PIE",
+    # Flake8-simplify (code simplification)
+    "SIM",
+    # Pylint-like rules (selective)
+    "PLC", "PLE", "PLW",
+    # Ruff-specific rules
+    "RUF",
+    # Flake8-bandit (security issues)
+    "S",
+    # Flake8-blind-except (bare except clauses)
+    "BLE",
+    # Flake8-boolean-trap (boolean trap antipattern)
+    "FBT",
+    # Flake8-unused-arguments
+    "ARG",
+    # Flake8-pytest-style
+    "PT",
+    # Flake8-return (return statement issues)
+    "RET",
+    # Flake8-implicit-str-concat
+    "ISC",
+    # Type checking related (important for bug catching)
+    "ANN001", "ANN201", "ANN202", "ANN205", "ANN206",
+]
+ignore = [
+    # Ignore overly strict rules (aligned with popular frameworks)
+    "S101",     # Use of assert (needed for tests)
+    "PLR0913",  # Too many arguments
+    "PLR2004",  # Magic value used in comparison
+    "B008",     # Do not perform function calls in argument defaults
+    "FBT001",   # Boolean positional arg in function definition
+    "FBT002",   # Boolean default arg in function definition
+    "S603",     # subprocess call: check for execution of untrusted input
+    "S607",     # Starting a process with a partial executable path
+    "PLR0911",  # Too many return statements
+    "PLR0912",  # Too many branches
+    "PLR0915",  # Too many statements
+    "PLW2901",  # Redefined loop variable
+    # Type annotation related (balance strictness)
+    "ANN101",   # Missing type annotation for `self` (unnecessary)
+    "ANN102",   # Missing type annotation for `cls` (unnecessary)
+    "ANN002",   # Missing type annotation for `*args` (impractical to enforce)
+    "ANN003",   # Missing type annotation for `**kwargs` (impractical to enforce)
+    "ANN401",   # Dynamically typed expressions (Any) are disallowed
+    # Unused arguments (often legitimate in wrappers, callbacks, etc.)
+    "ARG001",   # Unused function argument
+    "ARG002",   # Unused method argument
+    "ARG005",   # Unused lambda argument (common in callbacks)
+    # Exception handling (often too strict)
+    "BLE001",   # Do not catch blind exception (sometimes necessary)
+    "B904",     # Use raise ... from err (not always needed)
+    # Style preferences (overly pedantic)
+    "SIM102",   # Use single if statement (readability preference)
+    "PLC0206",  # Extracting value from dictionary without calling .items()
+    "PLW0127",  # Self-assignment of variable (sometimes needed)
+    # Additional common ignores from popular frameworks
+    "S324",     # Insecure hash functions (sometimes needed for non-crypto)
+    "PLR0914",  # Too many local variables
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore most linting rules for test files (focus on functionality, not style)
+"tests/**/*.py" = [
+    # Type annotations (not critical for tests)
+    "ANN",      # All annotation rules
+    # Complexity (tests can be complex)
+    "PLR",      # All pylint refactor rules (complexity, etc.)
+    # Security (tests often need assertions, subprocess, etc.)
+    "S",        # All bandit security rules
+    # Style preferences (less important in tests)
+    "FBT",      # Boolean trap rules
+    "ARG",      # Unused argument rules
+    "RET",      # Return statement rules
+    "SIM",      # Simplify rules
+    "C4",       # Comprehension rules
+    "PIE",      # Unnecessary code patterns
+    "ISC",      # Implicit string concatenation
+    # Common test patterns
+    "B008",     # Function calls in argument defaults
+    "B017",     # Do not assert blind exception (needed for pytest.raises)
+    "PT",       # Pytest style rules (can be overly strict)
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["galileo_core"]
@@ -108,12 +207,41 @@ wrap-descriptions = 120
 
 [tool.mypy]
 mypy_path = ["src"]
+# Type checking strictness (balanced for production use)
 disallow_untyped_defs = true
-disable_error_code = ["import-untyped"]
+disallow_incomplete_defs = true
+disallow_untyped_decorators = false  # Often problematic with third-party decorators
+disallow_untyped_calls = false       # Set to false to avoid issues with external libraries
+# Error detection
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = false     # Too noisy with external APIs
+warn_unreachable = true
+# Import handling
 ignore_missing_imports = true
-no_implicit_optional = false
 follow_imports = "skip"
+# Optional handling
+no_implicit_optional = true  # Good practice for modern Python
+strict_optional = true
+# Error codes (balanced approach)
+disable_error_code = [
+    "import-untyped",
+    "misc",  # Disable misc warnings (like untyped decorators we can't control)
+]
+enable_error_code = ["truthy-bool", "redundant-expr", "unused-awaitable"]
+# Plugins
 plugins = ["pydantic.mypy"]
+# Additional strictness (keep what catches real bugs)
+check_untyped_defs = true
+strict_equality = true
+extra_checks = true
+# Performance and compatibility
+show_error_codes = true
+pretty = true
+show_column_numbers = true
+# Incremental mode for better performance on individual files
+incremental = true
+sqlite_cache = true
 
 # Release.
 
