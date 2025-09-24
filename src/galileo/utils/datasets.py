@@ -1,11 +1,13 @@
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from galileo.datasets import Dataset, convert_dataset_row_to_record, get_dataset
 from galileo.schema.datasets import DatasetRecord
 
 
 def load_dataset_and_records(
-    dataset: Union[Dataset, list[dict[str, str]], str, None], dataset_id: Optional[str], dataset_name: Optional[str]
+    dataset: Union[Dataset, list[Union[dict[str, Any], str]], str, None],
+    dataset_id: Optional[str],
+    dataset_name: Optional[str],
 ) -> tuple[Optional[Dataset], list[DatasetRecord]]:
     """
     Load dataset and records based on provided parameters.
@@ -58,7 +60,7 @@ def get_records_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
     return [convert_dataset_row_to_record(row) for row in content.rows]
 
 
-def create_rows_from_records(records: list[dict[str, str]]) -> list[DatasetRecord]:
+def create_rows_from_records(records: list[Union[dict[str, Any], str]]) -> list[DatasetRecord]:
     result = []
     for record in records:
         if isinstance(record, dict) and "input" in record:

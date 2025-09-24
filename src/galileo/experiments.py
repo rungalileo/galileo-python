@@ -192,7 +192,7 @@ def run_experiment(
     prompt_settings: Optional[PromptRunSettings] = None,
     project: Optional[str] = None,
     project_id: Optional[str] = None,
-    dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
+    dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
     metrics: Optional[list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]] = None,
