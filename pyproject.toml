@@ -33,7 +33,7 @@ galileo-core = { extras = ["testing"], version = "~=3.66.0" }
 
 pytest-env = "^1.1.5"
 langchain-core = "^0.3.68"
-pytest-sugar = "^1.0.0"
+pytest-sugar = "^1.1.1"
 vcrpy = "^7.0.0"
 time-machine = "^2.17.0"  # freezegun causes problems with pydantic model validations
 
