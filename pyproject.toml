@@ -164,6 +164,7 @@ ignore = [
     "PLC0206",  # Extracting value from dictionary without calling .items()
     "PLW0127",  # Self-assignment of variable (sometimes needed)
     # Additional common ignores from popular frameworks
+    "S311",     # Standard pseudo-random generators (false positive for backoff/timing)
     "S324",     # Insecure hash functions (sometimes needed for non-crypto)
     "PLR0914",  # Too many local variables
 ]
