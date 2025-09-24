@@ -1,9 +1,19 @@
+import datetime
+import re
 from unittest.mock import MagicMock, Mock, patch
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import pytest
 
-from galileo.metrics import Metrics, create_custom_llm_metric
+from galileo.metrics import Metrics, create_custom_llm_metric, get_metrics
+from galileo.resources.models import (
+    BucketedMetrics,
+    HTTPValidationError,
+    LogRecordsMetricsResponse,
+    LogRecordsMetricsResponseAggregateMetrics,
+    LogRecordsMetricsResponseBucketedMetrics,
+    ValidationError,
+)
 from galileo.resources.models.base_scorer_version_response import BaseScorerVersionResponse
 from galileo.resources.models.create_llm_scorer_version_request import CreateLLMScorerVersionRequest
 from galileo.resources.models.create_scorer_request import CreateScorerRequest
@@ -12,6 +22,8 @@ from galileo.resources.models.scorer_defaults import ScorerDefaults
 from galileo.resources.models.scorer_response import ScorerResponse
 from galileo.resources.models.scorer_types import ScorerTypes
 from galileo_core.schemas.logging.step import StepType
+
+FIXED_PROJECT_ID = str(uuid4())
 
 
 @pytest.fixture
@@ -43,6 +55,26 @@ def mock_scorer_version_response():
     mock_response.model_name = "gpt-4.1-mini"
     mock_response.num_judges = 3
     return mock_response
+
+
+def _log_records_metrics_response_factory() -> LogRecordsMetricsResponse:
+    """Creates a realistic LogRecordsMetricsResponse for testing."""
+    now = datetime.datetime.now()
+    agg_metrics = LogRecordsMetricsResponseAggregateMetrics()
+    agg_metrics["total_cost"] = 15.50
+    agg_metrics["total_tokens"] = 2500
+
+    bucketed_metrics_data = LogRecordsMetricsResponseBucketedMetrics()
+    bucketed_metrics_data["total_cost"] = [
+        BucketedMetrics(start_bucket_time=now, end_bucket_time=now + datetime.timedelta(minutes=5)),
+        BucketedMetrics(
+            start_bucket_time=now + datetime.timedelta(minutes=5), end_bucket_time=now + datetime.timedelta(minutes=10)
+        ),
+    ]
+
+    return LogRecordsMetricsResponse(
+        aggregate_metrics=agg_metrics, bucketed_metrics=bucketed_metrics_data, group_by_columns=[]
+    )
 
 
 class TestMetrics:
@@ -349,3 +381,78 @@ class TestEdgeCases:
         scorer_request = mock_create_scorer.sync.call_args.kwargs["body"]
         assert scorer_request.tags == long_tag_list
         assert len(scorer_request.tags) == 50
+
+
+class TestGetMetrics:
+    @patch("galileo.metrics.query_metrics_projects_project_id_metrics_search_post.sync")
+    def test_successful_call(self, mock_api_call):
+        mock_response = _log_records_metrics_response_factory()
+        mock_api_call.return_value = mock_response
+
+        start_time = datetime.datetime.now()
+        end_time = start_time + datetime.timedelta(hours=1)
+
+        response = get_metrics(project_id=FIXED_PROJECT_ID, start_time=start_time, end_time=end_time)
+
+        mock_api_call.assert_called_once()
+        assert FIXED_PROJECT_ID in mock_api_call.call_args[1]["project_id"]
+        assert response == mock_response
+
+    @patch("galileo.metrics.query_metrics_projects_project_id_metrics_search_post.sync")
+    def test_api_failure_raises_value_error(self, mock_api_call):
+        mock_api_call.return_value = None
+
+        start_time = datetime.datetime.now()
+        end_time = start_time + datetime.timedelta(hours=1)
+
+        with pytest.raises(ValueError, match="Failed to query for metrics."):
+            get_metrics(project_id=FIXED_PROJECT_ID, start_time=start_time, end_time=end_time)
+
+        mock_api_call.assert_called_once()
+
+    @patch("galileo.metrics.query_metrics_projects_project_id_metrics_search_post.sync")
+    def test_http_validation_error_raises_exception(self, mock_api_call):
+        detail = [ValidationError(loc=["body", "project_id"], msg="value is not a valid uuid", type_="type_error.uuid")]
+        mock_api_call.return_value = HTTPValidationError(detail=detail)
+
+        start_time = datetime.datetime.now()
+        end_time = start_time + datetime.timedelta(hours=1)
+
+        with pytest.raises(ValueError, match=re.escape(str(detail))):
+            get_metrics(project_id=FIXED_PROJECT_ID, start_time=start_time, end_time=end_time)
+
+    @patch("galileo.metrics.query_metrics_projects_project_id_metrics_search_post.sync")
+    def test_passes_all_parameters_correctly(self, mock_api_call):
+        mock_api_call.return_value = _log_records_metrics_response_factory()
+
+        start_time = datetime.datetime.now()
+        end_time = start_time + datetime.timedelta(hours=1)
+        experiment_id = str(uuid4())
+        log_stream_id = "test_stream"
+        filters = [Mock()]
+        group_by = "some_column"
+        interval = 10
+
+        get_metrics(
+            project_id=FIXED_PROJECT_ID,
+            start_time=start_time,
+            end_time=end_time,
+            experiment_id=experiment_id,
+            log_stream_id=log_stream_id,
+            filters=filters,
+            group_by=group_by,
+            interval=interval,
+        )
+
+        mock_api_call.assert_called_once()
+        called_kwargs = mock_api_call.call_args[1]
+        body = called_kwargs["body"]
+
+        assert called_kwargs["project_id"] == FIXED_PROJECT_ID
+        assert body.start_time == start_time
+        assert body.end_time == end_time
+        assert body.experiment_id == experiment_id
+        assert body.log_stream_id == log_stream_id
+        assert body.filters == filters
+        assert body.group_by == group_by
+        assert body.interval == interval
