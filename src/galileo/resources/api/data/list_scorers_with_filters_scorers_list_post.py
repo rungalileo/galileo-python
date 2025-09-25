@@ -1,34 +1,23 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union, cast
+from typing import Any, Optional, Union
 
 import httpx
 
 from galileo.utils.headers_data import get_package_version
 from galileo_core.constants.request_method import RequestMethod
 from galileo_core.helpers.api_client import ApiClient
-from ...types import Response, UNSET
-from ... import errors
 
+from ... import errors
 from ...models.http_validation_error import HTTPValidationError
 from ...models.list_scorers_request import ListScorersRequest
 from ...models.list_scorers_response import ListScorersResponse
-from ...types import UNSET, Unset
-from typing import cast
-from typing import Union
-
+from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    *,
-    body: ListScorersRequest,
-    starting_token: Union[Unset, int] = 0,
-    limit: Union[Unset, int] = 100,
-
+    *, body: ListScorersRequest, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-    
-
-    
 
     params: dict[str, Any] = {}
 
@@ -36,9 +25,7 @@ def _get_kwargs(
 
     params["limit"] = limit
 
-
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
-
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,
@@ -49,7 +36,6 @@ def _get_kwargs(
 
     _kwargs["json"] = body.to_dict()
 
-
     headers["Content-Type"] = "application/json"
 
     headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
@@ -58,26 +44,23 @@ def _get_kwargs(
     return _kwargs
 
 
-def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
-    if response.status_code == :
-        response_200 = ListScorersResponse.from_dict(response.json())
+def _parse_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
+    if response.status_code == 200:
+        return ListScorersResponse.from_dict(response.json())
 
+    if response.status_code == 422:
+        return HTTPValidationError.from_dict(response.json())
 
-
-        return response_200
-    if response.status_code == :
-        response_422 = HTTPValidationError.from_dict(response.json())
-
-
-
-        return response_422
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
-def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
+def _build_response(
+    *, client: ApiClient, response: httpx.Response
+) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -92,9 +75,8 @@ def sync_detailed(
     body: ListScorersRequest,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
-
 ) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
-    """ List Scorers With Filters
+    """List Scorers With Filters
 
     Args:
         starting_token (Union[Unset, int]):  Default: 0.
@@ -107,21 +89,14 @@ def sync_detailed(
 
     Returns:
         Response[Union[HTTPValidationError, ListScorersResponse]]
-     """
+    """
 
+    kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
-    kwargs = _get_kwargs(
-        body=body,
-starting_token=starting_token,
-limit=limit,
-
-    )
-
-    response = client.request(
-        **kwargs,
-    )
+    response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
+
 
 def sync(
     *,
@@ -129,9 +104,8 @@ def sync(
     body: ListScorersRequest,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
-
 ) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
-    """ List Scorers With Filters
+    """List Scorers With Filters
 
     Args:
         starting_token (Union[Unset, int]):  Default: 0.
@@ -144,16 +118,10 @@ def sync(
 
     Returns:
         Union[HTTPValidationError, ListScorersResponse]
-     """
+    """
 
+    return sync_detailed(client=client, body=body, starting_token=starting_token, limit=limit).parsed
 
-    return sync_detailed(
-        client=client,
-body=body,
-starting_token=starting_token,
-limit=limit,
-
-    ).parsed
 
 async def asyncio_detailed(
     *,
@@ -161,9 +129,8 @@ async def asyncio_detailed(
     body: ListScorersRequest,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
-
 ) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
-    """ List Scorers With Filters
+    """List Scorers With Filters
 
     Args:
         starting_token (Union[Unset, int]):  Default: 0.
@@ -176,21 +143,14 @@ async def asyncio_detailed(
 
     Returns:
         Response[Union[HTTPValidationError, ListScorersResponse]]
-     """
+    """
 
+    kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
-    kwargs = _get_kwargs(
-        body=body,
-starting_token=starting_token,
-limit=limit,
-
-    )
-
-    response = await client.arequest(
-        **kwargs
-    )
+    response = await client.arequest(**kwargs)
 
     return _build_response(client=client, response=response)
+
 
 async def asyncio(
     *,
@@ -198,9 +158,8 @@ async def asyncio(
     body: ListScorersRequest,
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
-
 ) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
-    """ List Scorers With Filters
+    """List Scorers With Filters
 
     Args:
         starting_token (Union[Unset, int]):  Default: 0.
@@ -213,13 +172,6 @@ async def asyncio(
 
     Returns:
         Union[HTTPValidationError, ListScorersResponse]
-     """
+    """
 
-
-    return (await asyncio_detailed(
-        client=client,
-body=body,
-starting_token=starting_token,
-limit=limit,
-
-    )).parsed
+    return (await asyncio_detailed(client=client, body=body, starting_token=starting_token, limit=limit)).parsed
