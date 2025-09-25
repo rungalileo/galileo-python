@@ -46,7 +46,7 @@ def _get_kwargs(
 
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]:
-    if response.status_code == :
+    if response.status_code == 200:
         def _parse_response_200(data: object) -> Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']:
             try:
                 if not isinstance(data, dict):

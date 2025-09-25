@@ -28,24 +28,37 @@ def fix_status_codes_in_file(file_path: Path) -> bool:
     try:
         content = file_path.read_text(encoding="utf-8")
         original_content = content
-        
-        # Pattern to match: 'if response.status_code == :' followed by 'response_XXX'
-        # This captures the status code from the response variable name
-        pattern = r'if response\.status_code == :\s*\n(\s*)response_(\d+)'
-        
-        def replace_status_code(match):
-            indent = match.group(1)
-            status_code = match.group(2)
-            return f'if response.status_code == {status_code}:\n{indent}response_{status_code}'
-        
-        content = re.sub(pattern, replace_status_code, content, flags=re.MULTILINE)
-        
+
+        # Simple approach: find each broken status code check and fix it by looking for context
+        lines = content.split("\n")
+        modified = False
+
+        for i, line in enumerate(lines):
+            if "if response.status_code == :" in line:
+                # Look for status code in the next few lines
+                status_code = None
+                for j in range(i + 1, min(i + 10, len(lines))):
+                    # Check for patterns like 'response_200', '_parse_response_200', etc.
+                    matches = re.findall(r"(?:response_|_parse_response_|_)(\d{3})", lines[j])
+                    if matches:
+                        status_code = matches[0]
+                        break
+
+                if status_code:
+                    lines[i] = line.replace(
+                        "if response.status_code == :", f"if response.status_code == {status_code}:"
+                    )
+                    modified = True
+
+        if modified:
+            content = "\n".join(lines)
+
         if content != original_content:
             file_path.write_text(content, encoding="utf-8")
             return True
-        
+
         return False
-        
+
     except Exception as e:
         print(f"Error processing {file_path}: {e}", file=sys.stderr)
         return False
@@ -56,15 +69,15 @@ def fix_status_codes_in_directory(directory: Path) -> int:
     if not directory.exists():
         print(f"Directory {directory} not found", file=sys.stderr)
         return 0
-    
+
     patched_count = 0
     python_files = list(directory.rglob("*.py"))
-    
+
     for file_path in python_files:
         if fix_status_codes_in_file(file_path):
             print(f"Patched {file_path}")
             patched_count += 1
-    
+
     return patched_count
 
 
@@ -72,10 +85,10 @@ def main() -> int:
     if len(sys.argv) != 2:
         print(f"Usage: {Path(sys.argv[0]).name} <directory_path>", file=sys.stderr)
         return 1
-    
+
     directory = Path(sys.argv[1])
     patched_count = fix_status_codes_in_directory(directory)
-    
+
     print(f"Patched {patched_count} files")
     return 0
 
