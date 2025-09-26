@@ -14,7 +14,10 @@ from galileo.resources.models.log_stream_create_request import LogStreamCreateRe
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.logging import get_logger
 from galileo.utils.metrics import create_metric_configs
+
+logger = get_logger(__name__)
 
 
 class LogStream(LogStreamResponse):
@@ -60,7 +63,7 @@ class LogStream(LogStreamResponse):
     from galileo.log_streams import list_log_streams
     log_streams = list_log_streams(project_name="My AI Project")
     for stream in log_streams:
-        print(f"Log Stream: {stream.name} (ID: {stream.id})")
+        logger.info(f"Log Stream: {stream.name} (ID: {stream.id})")
 
     # Use a log stream with the context manager
     from galileo.openai import openai
@@ -179,8 +182,8 @@ class LogStream(LogStreamResponse):
                 "toxicity"
             ])
 
-            print(f"Server-side metrics enabled automatically")
-            print(f"Need to process {len(local_metrics)} local metrics")
+            logger.info(f"Server-side metrics enabled automatically")
+            logger.info(f"Need to process {len(local_metrics)} local metrics")
 
         Advanced usage with custom metrics:
 
@@ -200,7 +203,7 @@ class LogStream(LogStreamResponse):
 
             # Process local metrics if any
             for local_metric in local_metrics:
-                print(f"Need to process local metric: {local_metric.name}")
+                logger.info(f"Need to process local metric: {local_metric.name}")
 
         Notes
         -----
@@ -666,8 +669,8 @@ def enable_metrics(
                 "instruction_adherence"
             ]
         )
-        print("Server-side metrics enabled automatically")
-        print(f"Need to process {len(local_metrics)} local metrics")
+        logger.info("Server-side metrics enabled automatically")
+        logger.info(f"Need to process {len(local_metrics)} local metrics")
 
     # Enable metrics using environment variables only
     # export GALILEO_LOG_STREAM="Production Logs"
@@ -675,7 +678,7 @@ def enable_metrics(
         local_metrics = enable_metrics(
             metrics=["correctness", "completeness", "toxicity"]
         )
-        print(f"Need to process {len(local_metrics)} local metrics")
+        logger.info(f"Need to process {len(local_metrics)} local metrics")
 
     # Enable custom and local metrics with environment variable fallbacks
     from galileo.schema.metrics import Metric, LocalMetricConfig
@@ -711,6 +714,6 @@ def enable_metrics(
 
         # Process local metrics
         for local_metric in local_metrics:
-            print(f"Process local metric: {local_metric.name}")
+            logger.info(f"Process local metric: {local_metric.name}")
     """
     return LogStreams().enable_metrics(log_stream_name=log_stream_name, project_name=project_name, metrics=metrics)

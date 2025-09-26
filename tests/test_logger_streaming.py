@@ -1756,7 +1756,7 @@ def test_catch_error_trace_span_ids_in_batch_mode(
 @patch("galileo.logger.logger.Projects")
 @patch("galileo.logger.logger.Traces")
 def test_catch_error_mismatched_trace_span_ids(
-    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, caplog
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, caplog, enable_galileo_logging
 ) -> None:
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
