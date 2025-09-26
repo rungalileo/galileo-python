@@ -1,4 +1,5 @@
 import builtins
+import logging
 import mimetypes
 import time
 from typing import Any, Optional, Union, overload
@@ -40,6 +41,8 @@ from galileo.schema.datasets import DatasetRecord
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.exceptions import APIException
 from galileo_core.utils.dataset import DatasetType, parse_dataset
+
+logger = logging.getLogger(__name__)
 
 
 class DatasetAPIException(APIException):
@@ -426,12 +429,16 @@ class Datasets:
                 and job_progress.steps_total is not None
                 and job_progress.steps_completed == job_progress.steps_total
             ):
-                print(f"({job_progress.steps_completed}/{job_progress.steps_total}) {job_progress.progress_message}")
+                logger.info(
+                    f"({job_progress.steps_completed}/{job_progress.steps_total}) {job_progress.progress_message}"
+                )
                 break
 
-            # Print progress message if available
+            # Log progress message if available
             if job_progress.progress_message:
-                print(f"({job_progress.steps_completed}/{job_progress.steps_total}) {job_progress.progress_message}")
+                logger.info(
+                    f"({job_progress.steps_completed}/{job_progress.steps_total}) {job_progress.progress_message}"
+                )
 
             # Wait 1 second before polling again
             time.sleep(1)

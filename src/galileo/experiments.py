@@ -138,7 +138,7 @@ class Experiments:
 
         link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {link}"
-        print(message)
+        _logger.info(message)
 
         return {"experiment": experiment_obj, "link": link, "message": message}
 
@@ -168,7 +168,7 @@ class Experiments:
 
         link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has completed and results are available at {link}"
-        print(message)
+        _logger.info(message)
 
         return {"experiment": experiment_obj, "link": link, "message": message}
 
