@@ -29,16 +29,56 @@ def is_concludable_span_type(span_type: SPAN_TYPE) -> bool:
     return span_type in ["workflow", "agent"]
 
 
+def _is_logger_configured(logger: logging.Logger) -> bool:
+    """
+    Check if a logger has been explicitly configured by the user.
+
+    Returns True if the logger has handlers, a non-default level, or explicit propagate setting.
+    """
+    # Check if logger has any handlers
+    if logger.handlers:
+        return True
+
+    # Check if level has been explicitly set (not using parent's level)
+    if logger.level != logging.NOTSET:
+        return True
+
+    # Check if propagate has been explicitly set to False
+    # (this is a heuristic - if someone set propagate=False, they likely configured logging)
+    return bool(not logger.propagate and logger.parent and logger.parent.name == "root")
+
+
 def _ensure_silent_by_default() -> None:
     """
-    Ensure galileo loggers are silent by default by configuring the root galileo logger.
-    This is called automatically when the module is imported.
+    Ensure galileo loggers are silent by default, but only if they haven't been configured yet.
+    This avoids interfering with existing logging configurations.
     """
     logger = logging.getLogger("galileo")
-    # Set a high level by default to suppress all output
-    logger.setLevel(logging.CRITICAL + 1)
-    # Ensure no propagation to root logger
-    logger.propagate = False
+
+    # Only apply silent defaults if the logger hasn't been configured by the user
+    if not _is_logger_configured(logger):
+        # Set a high level by default to suppress all output
+        logger.setLevel(logging.CRITICAL + 1)
+        # Ensure no propagation to root logger
+        logger.propagate = False
+
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Get a logger with lazy initialization of silent defaults.
+
+    This should be used by SDK modules instead of directly calling logging.getLogger()
+    to ensure that silent defaults are applied if the user hasn't configured logging.
+
+    Args:
+        name: Logger name (typically __name__)
+
+    Returns:
+        Logger instance with silent defaults applied if not already configured
+    """
+    # Ensure silent defaults are applied on first use
+    _ensure_silent_by_default()
+    return logging.getLogger(name)
 
 
 def enable_console_logging(level: int = logging.INFO) -> None:
@@ -57,6 +97,9 @@ def enable_console_logging(level: int = logging.INFO) -> None:
         >>> galileo.enable_console_logging()
         >>> # Now SDK operations will show progress and debug information
     """
+    # Ensure we apply silent defaults first if logger wasn't configured
+    _ensure_silent_by_default()
+
     logger = logging.getLogger("galileo")
 
     # Check if handler already exists to avoid duplicates
@@ -67,7 +110,3 @@ def enable_console_logging(level: int = logging.INFO) -> None:
 
     logger.setLevel(level)
     logger.propagate = False  # Avoid duplicate logs
-
-
-# Initialize silent logging when module is imported
-_ensure_silent_by_default()

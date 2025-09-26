@@ -1,5 +1,4 @@
 import builtins
-import logging
 import mimetypes
 import time
 from typing import Any, Optional, Union, overload
@@ -40,9 +39,10 @@ from galileo.resources.types import File, Unset
 from galileo.schema.datasets import DatasetRecord
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.exceptions import APIException
+from galileo.utils.logging import get_logger
 from galileo_core.utils.dataset import DatasetType, parse_dataset
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class DatasetAPIException(APIException):

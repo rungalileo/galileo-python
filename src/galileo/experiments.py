@@ -20,9 +20,10 @@ from galileo.resources.models import ExperimentResponse, HTTPValidationError, Pr
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.utils.datasets import load_dataset_and_records
+from galileo.utils.logging import get_logger
 from galileo.utils.metrics import create_metric_configs
 
-_logger = logging.getLogger(__name__)
+_logger = get_logger(__name__)
 
 EXPERIMENT_TASK_TYPE: TaskType = 16
 

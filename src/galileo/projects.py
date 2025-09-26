@@ -1,5 +1,4 @@
 import datetime
-import logging
 import os
 from typing import Optional, Union
 
@@ -22,8 +21,9 @@ from galileo.resources.models.project_type import ProjectType
 from galileo.resources.types import UNSET, Unset
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.exceptions import APIException
+from galileo.utils.logging import get_logger
 
-_logger = logging.getLogger(__name__)
+_logger = get_logger(__name__)
 
 
 class ProjectsAPIException(APIException):

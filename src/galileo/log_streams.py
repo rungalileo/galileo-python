@@ -1,5 +1,4 @@
 import builtins
-import logging
 import os
 from typing import Optional, Union, overload
 
@@ -15,9 +14,10 @@ from galileo.resources.models.log_stream_create_request import LogStreamCreateRe
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.logging import get_logger
 from galileo.utils.metrics import create_metric_configs
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class LogStream(LogStreamResponse):
