@@ -28,10 +28,7 @@ class RenderTemplateRequest:
         from ..models.dataset_data import DatasetData
 
         data: dict[str, Any]
-        if isinstance(self.data, DatasetData):
-            data = self.data.to_dict()
-        else:
-            data = self.data.to_dict()
+        data = self.data.to_dict() if isinstance(self.data, DatasetData) else self.data.to_dict()
 
         template = self.template
 
@@ -52,16 +49,13 @@ class RenderTemplateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                data_type_0 = DatasetData.from_dict(data)
+                return DatasetData.from_dict(data)
 
-                return data_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            data_type_1 = StringData.from_dict(data)
-
-            return data_type_1
+            return StringData.from_dict(data)
 
         data = _parse_data(d.pop("data"))
 

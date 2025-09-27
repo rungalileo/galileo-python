@@ -63,10 +63,7 @@ class LogRecordsQueryResponse:
         limit = self.limit
 
         next_starting_token: Union[None, Unset, int]
-        if isinstance(self.next_starting_token, Unset):
-            next_starting_token = UNSET
-        else:
-            next_starting_token = self.next_starting_token
+        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
         paginated = self.paginated
 
@@ -75,17 +72,17 @@ class LogRecordsQueryResponse:
             records = []
             for records_item_data in self.records:
                 records_item: dict[str, Any]
-                if isinstance(records_item_data, ExtendedTraceRecord):
-                    records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ExtendedAgentSpanRecord):
-                    records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ExtendedWorkflowSpanRecord):
-                    records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ExtendedLlmSpanRecord):
-                    records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ExtendedToolSpanRecord):
-                    records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ExtendedRetrieverSpanRecord):
+                if isinstance(
+                    records_item_data,
+                    (
+                        ExtendedTraceRecord,
+                        ExtendedAgentSpanRecord,
+                        ExtendedWorkflowSpanRecord,
+                        ExtendedLlmSpanRecord,
+                        ExtendedToolSpanRecord,
+                        ExtendedRetrieverSpanRecord,
+                    ),
+                ):
                     records_item = records_item_data.to_dict()
                 else:
                     records_item = records_item_data.to_dict()
@@ -152,56 +149,48 @@ class LogRecordsQueryResponse:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_0 = ExtendedTraceRecord.from_dict(data)
+                    return ExtendedTraceRecord.from_dict(data)
 
-                    return records_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_1 = ExtendedAgentSpanRecord.from_dict(data)
+                    return ExtendedAgentSpanRecord.from_dict(data)
 
-                    return records_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_2 = ExtendedWorkflowSpanRecord.from_dict(data)
+                    return ExtendedWorkflowSpanRecord.from_dict(data)
 
-                    return records_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_3 = ExtendedLlmSpanRecord.from_dict(data)
+                    return ExtendedLlmSpanRecord.from_dict(data)
 
-                    return records_item_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_4 = ExtendedToolSpanRecord.from_dict(data)
+                    return ExtendedToolSpanRecord.from_dict(data)
 
-                    return records_item_type_4
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_5 = ExtendedRetrieverSpanRecord.from_dict(data)
+                    return ExtendedRetrieverSpanRecord.from_dict(data)
 
-                    return records_item_type_5
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                records_item_type_6 = ExtendedSessionRecord.from_dict(data)
-
-                return records_item_type_6
+                return ExtendedSessionRecord.from_dict(data)
 
             records_item = _parse_records_item(records_item_data)
 

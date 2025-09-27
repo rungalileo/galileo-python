@@ -25,10 +25,7 @@ class RenderedTemplate:
         result = self.result
 
         warning: Union[None, Unset, str]
-        if isinstance(self.warning, Unset):
-            warning = UNSET
-        else:
-            warning = self.warning
+        warning = UNSET if isinstance(self.warning, Unset) else self.warning
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

@@ -146,15 +146,7 @@ class MetricSuccess:
             value = str(self.value)
         elif isinstance(self.value, datetime.datetime):
             value = self.value.isoformat()
-        elif isinstance(self.value, Segment):
-            value = self.value.to_dict()
-        elif isinstance(self.value, HallucinationSegment):
-            value = self.value.to_dict()
-        elif isinstance(self.value, Document):
-            value = self.value.to_dict()
-        elif isinstance(self.value, FeedbackRatingDB):
-            value = self.value.to_dict()
-        elif isinstance(self.value, FeedbackAggregate):
+        elif isinstance(self.value, (Segment, HallucinationSegment, Document, FeedbackRatingDB, FeedbackAggregate)):
             value = self.value.to_dict()
         elif isinstance(self.value, list):
             value = []
@@ -164,15 +156,10 @@ class MetricSuccess:
                     value_type_11_item = str(value_type_11_item_data)
                 elif isinstance(value_type_11_item_data, datetime.datetime):
                     value_type_11_item = value_type_11_item_data.isoformat()
-                elif isinstance(value_type_11_item_data, Segment):
-                    value_type_11_item = value_type_11_item_data.to_dict()
-                elif isinstance(value_type_11_item_data, HallucinationSegment):
-                    value_type_11_item = value_type_11_item_data.to_dict()
-                elif isinstance(value_type_11_item_data, Document):
-                    value_type_11_item = value_type_11_item_data.to_dict()
-                elif isinstance(value_type_11_item_data, FeedbackRatingDB):
-                    value_type_11_item = value_type_11_item_data.to_dict()
-                elif isinstance(value_type_11_item_data, FeedbackAggregate):
+                elif isinstance(
+                    value_type_11_item_data,
+                    (Segment, HallucinationSegment, Document, FeedbackRatingDB, FeedbackAggregate),
+                ):
                     value_type_11_item = value_type_11_item_data.to_dict()
                 else:
                     value_type_11_item = value_type_11_item_data
@@ -188,15 +175,10 @@ class MetricSuccess:
                         value_type_12_item_item = str(value_type_12_item_item_data)
                     elif isinstance(value_type_12_item_item_data, datetime.datetime):
                         value_type_12_item_item = value_type_12_item_item_data.isoformat()
-                    elif isinstance(value_type_12_item_item_data, Segment):
-                        value_type_12_item_item = value_type_12_item_item_data.to_dict()
-                    elif isinstance(value_type_12_item_item_data, HallucinationSegment):
-                        value_type_12_item_item = value_type_12_item_item_data.to_dict()
-                    elif isinstance(value_type_12_item_item_data, Document):
-                        value_type_12_item_item = value_type_12_item_item_data.to_dict()
-                    elif isinstance(value_type_12_item_item_data, FeedbackRatingDB):
-                        value_type_12_item_item = value_type_12_item_item_data.to_dict()
-                    elif isinstance(value_type_12_item_item_data, FeedbackAggregate):
+                    elif isinstance(
+                        value_type_12_item_item_data,
+                        (Segment, HallucinationSegment, Document, FeedbackRatingDB, FeedbackAggregate),
+                    ):
                         value_type_12_item_item = value_type_12_item_item_data.to_dict()
                     else:
                         value_type_12_item_item = value_type_12_item_item_data
@@ -216,15 +198,10 @@ class MetricSuccess:
                             value_type_13_item_item_item = str(value_type_13_item_item_item_data)
                         elif isinstance(value_type_13_item_item_item_data, datetime.datetime):
                             value_type_13_item_item_item = value_type_13_item_item_item_data.isoformat()
-                        elif isinstance(value_type_13_item_item_item_data, Segment):
-                            value_type_13_item_item_item = value_type_13_item_item_item_data.to_dict()
-                        elif isinstance(value_type_13_item_item_item_data, HallucinationSegment):
-                            value_type_13_item_item_item = value_type_13_item_item_item_data.to_dict()
-                        elif isinstance(value_type_13_item_item_item_data, Document):
-                            value_type_13_item_item_item = value_type_13_item_item_item_data.to_dict()
-                        elif isinstance(value_type_13_item_item_item_data, FeedbackRatingDB):
-                            value_type_13_item_item_item = value_type_13_item_item_item_data.to_dict()
-                        elif isinstance(value_type_13_item_item_item_data, FeedbackAggregate):
+                        elif isinstance(
+                            value_type_13_item_item_item_data,
+                            (Segment, HallucinationSegment, Document, FeedbackRatingDB, FeedbackAggregate),
+                        ):
                             value_type_13_item_item_item = value_type_13_item_item_item_data.to_dict()
                         else:
                             value_type_13_item_item_item = value_type_13_item_item_item_data
@@ -238,10 +215,7 @@ class MetricSuccess:
             value = self.value
 
         cost: Union[None, Unset, float]
-        if isinstance(self.cost, Unset):
-            cost = UNSET
-        else:
-            cost = self.cost
+        cost = UNSET if isinstance(self.cost, Unset) else self.cost
 
         critique: Union[None, Unset, dict[str, Any]]
         if isinstance(self.critique, Unset):
@@ -252,34 +226,19 @@ class MetricSuccess:
             critique = self.critique
 
         display_value: Union[None, Unset, str]
-        if isinstance(self.display_value, Unset):
-            display_value = UNSET
-        else:
-            display_value = self.display_value
+        display_value = UNSET if isinstance(self.display_value, Unset) else self.display_value
 
         explanation: Union[None, Unset, str]
-        if isinstance(self.explanation, Unset):
-            explanation = UNSET
-        else:
-            explanation = self.explanation
+        explanation = UNSET if isinstance(self.explanation, Unset) else self.explanation
 
         model_alias: Union[None, Unset, str]
-        if isinstance(self.model_alias, Unset):
-            model_alias = UNSET
-        else:
-            model_alias = self.model_alias
+        model_alias = UNSET if isinstance(self.model_alias, Unset) else self.model_alias
 
         num_judges: Union[None, Unset, int]
-        if isinstance(self.num_judges, Unset):
-            num_judges = UNSET
-        else:
-            num_judges = self.num_judges
+        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
         rationale: Union[None, Unset, str]
-        if isinstance(self.rationale, Unset):
-            rationale = UNSET
-        else:
-            rationale = self.rationale
+        rationale = UNSET if isinstance(self.rationale, Unset) else self.rationale
 
         scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
@@ -401,57 +360,50 @@ class MetricSuccess:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                value_type_4 = UUID(data)
+                return UUID(data)
 
-                return value_type_4
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                value_type_5 = isoparse(data)
+                return isoparse(data)
 
-                return value_type_5
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                value_type_6 = Segment.from_dict(data)
+                return Segment.from_dict(data)
 
-                return value_type_6
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                value_type_7 = HallucinationSegment.from_dict(data)
+                return HallucinationSegment.from_dict(data)
 
-                return value_type_7
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                value_type_8 = Document.from_dict(data)
+                return Document.from_dict(data)
 
-                return value_type_8
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                value_type_9 = FeedbackRatingDB.from_dict(data)
+                return FeedbackRatingDB.from_dict(data)
 
-                return value_type_9
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                value_type_10 = FeedbackAggregate.from_dict(data)
+                return FeedbackAggregate.from_dict(data)
 
-                return value_type_10
             except:  # noqa: E722
                 pass
             try:
@@ -482,57 +434,50 @@ class MetricSuccess:
                         try:
                             if not isinstance(data, str):
                                 raise TypeError()
-                            value_type_11_item_type_4 = UUID(data)
+                            return UUID(data)
 
-                            return value_type_11_item_type_4
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, str):
                                 raise TypeError()
-                            value_type_11_item_type_5 = isoparse(data)
+                            return isoparse(data)
 
-                            return value_type_11_item_type_5
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            value_type_11_item_type_6 = Segment.from_dict(data)
+                            return Segment.from_dict(data)
 
-                            return value_type_11_item_type_6
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            value_type_11_item_type_7 = HallucinationSegment.from_dict(data)
+                            return HallucinationSegment.from_dict(data)
 
-                            return value_type_11_item_type_7
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            value_type_11_item_type_8 = Document.from_dict(data)
+                            return Document.from_dict(data)
 
-                            return value_type_11_item_type_8
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            value_type_11_item_type_9 = FeedbackRatingDB.from_dict(data)
+                            return FeedbackRatingDB.from_dict(data)
 
-                            return value_type_11_item_type_9
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            value_type_11_item_type_10 = FeedbackAggregate.from_dict(data)
+                            return FeedbackAggregate.from_dict(data)
 
-                            return value_type_11_item_type_10
                         except:  # noqa: E722
                             pass
                         return cast(
@@ -591,57 +536,50 @@ class MetricSuccess:
                             try:
                                 if not isinstance(data, str):
                                     raise TypeError()
-                                value_type_12_item_item_type_4 = UUID(data)
+                                return UUID(data)
 
-                                return value_type_12_item_item_type_4
                             except:  # noqa: E722
                                 pass
                             try:
                                 if not isinstance(data, str):
                                     raise TypeError()
-                                value_type_12_item_item_type_5 = isoparse(data)
+                                return isoparse(data)
 
-                                return value_type_12_item_item_type_5
                             except:  # noqa: E722
                                 pass
                             try:
                                 if not isinstance(data, dict):
                                     raise TypeError()
-                                value_type_12_item_item_type_6 = Segment.from_dict(data)
+                                return Segment.from_dict(data)
 
-                                return value_type_12_item_item_type_6
                             except:  # noqa: E722
                                 pass
                             try:
                                 if not isinstance(data, dict):
                                     raise TypeError()
-                                value_type_12_item_item_type_7 = HallucinationSegment.from_dict(data)
+                                return HallucinationSegment.from_dict(data)
 
-                                return value_type_12_item_item_type_7
                             except:  # noqa: E722
                                 pass
                             try:
                                 if not isinstance(data, dict):
                                     raise TypeError()
-                                value_type_12_item_item_type_8 = Document.from_dict(data)
+                                return Document.from_dict(data)
 
-                                return value_type_12_item_item_type_8
                             except:  # noqa: E722
                                 pass
                             try:
                                 if not isinstance(data, dict):
                                     raise TypeError()
-                                value_type_12_item_item_type_9 = FeedbackRatingDB.from_dict(data)
+                                return FeedbackRatingDB.from_dict(data)
 
-                                return value_type_12_item_item_type_9
                             except:  # noqa: E722
                                 pass
                             try:
                                 if not isinstance(data, dict):
                                     raise TypeError()
-                                value_type_12_item_item_type_10 = FeedbackAggregate.from_dict(data)
+                                return FeedbackAggregate.from_dict(data)
 
-                                return value_type_12_item_item_type_10
                             except:  # noqa: E722
                                 pass
                             return cast(
@@ -705,57 +643,50 @@ class MetricSuccess:
                                 try:
                                     if not isinstance(data, str):
                                         raise TypeError()
-                                    value_type_13_item_item_item_type_4 = UUID(data)
+                                    return UUID(data)
 
-                                    return value_type_13_item_item_item_type_4
                                 except:  # noqa: E722
                                     pass
                                 try:
                                     if not isinstance(data, str):
                                         raise TypeError()
-                                    value_type_13_item_item_item_type_5 = isoparse(data)
+                                    return isoparse(data)
 
-                                    return value_type_13_item_item_item_type_5
                                 except:  # noqa: E722
                                     pass
                                 try:
                                     if not isinstance(data, dict):
                                         raise TypeError()
-                                    value_type_13_item_item_item_type_6 = Segment.from_dict(data)
+                                    return Segment.from_dict(data)
 
-                                    return value_type_13_item_item_item_type_6
                                 except:  # noqa: E722
                                     pass
                                 try:
                                     if not isinstance(data, dict):
                                         raise TypeError()
-                                    value_type_13_item_item_item_type_7 = HallucinationSegment.from_dict(data)
+                                    return HallucinationSegment.from_dict(data)
 
-                                    return value_type_13_item_item_item_type_7
                                 except:  # noqa: E722
                                     pass
                                 try:
                                     if not isinstance(data, dict):
                                         raise TypeError()
-                                    value_type_13_item_item_item_type_8 = Document.from_dict(data)
+                                    return Document.from_dict(data)
 
-                                    return value_type_13_item_item_item_type_8
                                 except:  # noqa: E722
                                     pass
                                 try:
                                     if not isinstance(data, dict):
                                         raise TypeError()
-                                    value_type_13_item_item_item_type_9 = FeedbackRatingDB.from_dict(data)
+                                    return FeedbackRatingDB.from_dict(data)
 
-                                    return value_type_13_item_item_item_type_9
                                 except:  # noqa: E722
                                     pass
                                 try:
                                     if not isinstance(data, dict):
                                         raise TypeError()
-                                    value_type_13_item_item_item_type_10 = FeedbackAggregate.from_dict(data)
+                                    return FeedbackAggregate.from_dict(data)
 
-                                    return value_type_13_item_item_item_type_10
                                 except:  # noqa: E722
                                     pass
                                 return cast(
@@ -880,9 +811,8 @@ class MetricSuccess:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                critique_type_0 = MetricCritiqueColumnar.from_dict(data)
+                return MetricCritiqueColumnar.from_dict(data)
 
-                return critique_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["MetricCritiqueColumnar", None, Unset], data)
@@ -942,9 +872,8 @@ class MetricSuccess:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                scorer_type_type_0 = ScorerType(data)
+                return ScorerType(data)
 
-                return scorer_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, ScorerType, Unset], data)

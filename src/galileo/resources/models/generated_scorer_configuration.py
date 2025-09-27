@@ -70,10 +70,7 @@ class GeneratedScorerConfiguration:
 
         _output_type = d.pop("output_type", UNSET)
         output_type: Union[Unset, OutputTypeEnum]
-        if isinstance(_output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = OutputTypeEnum(_output_type)
+        output_type = UNSET if isinstance(_output_type, Unset) else OutputTypeEnum(_output_type)
 
         scoreable_node_types = cast(list[str], d.pop("scoreable_node_types", UNSET))
 

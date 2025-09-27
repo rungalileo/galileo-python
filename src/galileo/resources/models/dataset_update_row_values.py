@@ -55,9 +55,8 @@ class DatasetUpdateRowValues:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    additional_property_type_3 = DatasetUpdateRowValuesAdditionalPropertyType3.from_dict(data)
+                    return DatasetUpdateRowValuesAdditionalPropertyType3.from_dict(data)
 
-                    return additional_property_type_3
                 except:  # noqa: E722
                     pass
                 return cast(Union["DatasetUpdateRowValuesAdditionalPropertyType3", None, float, int, str], data)

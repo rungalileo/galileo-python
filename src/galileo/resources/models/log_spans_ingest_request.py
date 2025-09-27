@@ -59,13 +59,7 @@ class LogSpansIngestRequest:
         spans = []
         for spans_item_data in self.spans:
             spans_item: dict[str, Any]
-            if isinstance(spans_item_data, AgentSpan):
-                spans_item = spans_item_data.to_dict()
-            elif isinstance(spans_item_data, WorkflowSpan):
-                spans_item = spans_item_data.to_dict()
-            elif isinstance(spans_item_data, LlmSpan):
-                spans_item = spans_item_data.to_dict()
-            elif isinstance(spans_item_data, RetrieverSpan):
+            if isinstance(spans_item_data, (AgentSpan, WorkflowSpan, LlmSpan, RetrieverSpan)):
                 spans_item = spans_item_data.to_dict()
             else:
                 spans_item = spans_item_data.to_dict()
@@ -75,32 +69,20 @@ class LogSpansIngestRequest:
         trace_id = self.trace_id
 
         client_version: Union[None, Unset, str]
-        if isinstance(self.client_version, Unset):
-            client_version = UNSET
-        else:
-            client_version = self.client_version
+        client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
 
         experiment_id: Union[None, Unset, str]
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         log_stream_id: Union[None, Unset, str]
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         logging_method: Union[Unset, str] = UNSET
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
         metrics_testing_id: Union[None, Unset, str]
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         reliable = self.reliable
 
@@ -143,40 +125,34 @@ class LogSpansIngestRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_0 = AgentSpan.from_dict(data)
+                    return AgentSpan.from_dict(data)
 
-                    return spans_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_1 = WorkflowSpan.from_dict(data)
+                    return WorkflowSpan.from_dict(data)
 
-                    return spans_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_2 = LlmSpan.from_dict(data)
+                    return LlmSpan.from_dict(data)
 
-                    return spans_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    spans_item_type_3 = RetrieverSpan.from_dict(data)
+                    return RetrieverSpan.from_dict(data)
 
-                    return spans_item_type_3
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                spans_item_type_4 = ToolSpan.from_dict(data)
-
-                return spans_item_type_4
+                return ToolSpan.from_dict(data)
 
             spans_item = _parse_spans_item(spans_item_data)
 
@@ -213,10 +189,7 @@ class LogSpansIngestRequest:
 
         _logging_method = d.pop("logging_method", UNSET)
         logging_method: Union[Unset, LoggingMethod]
-        if isinstance(_logging_method, Unset):
-            logging_method = UNSET
-        else:
-            logging_method = LoggingMethod(_logging_method)
+        logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
 
         def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:

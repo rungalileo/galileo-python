@@ -59,118 +59,61 @@ class RunParamsMap:
 
     def to_dict(self) -> dict[str, Any]:
         api_version: Union[None, Unset, str]
-        if isinstance(self.api_version, Unset):
-            api_version = UNSET
-        else:
-            api_version = self.api_version
+        api_version = UNSET if isinstance(self.api_version, Unset) else self.api_version
 
         deployment_name: Union[None, Unset, str]
-        if isinstance(self.deployment_name, Unset):
-            deployment_name = UNSET
-        else:
-            deployment_name = self.deployment_name
+        deployment_name = UNSET if isinstance(self.deployment_name, Unset) else self.deployment_name
 
         echo: Union[None, Unset, str]
-        if isinstance(self.echo, Unset):
-            echo = UNSET
-        else:
-            echo = self.echo
+        echo = UNSET if isinstance(self.echo, Unset) else self.echo
 
         frequency_penalty: Union[None, Unset, str]
-        if isinstance(self.frequency_penalty, Unset):
-            frequency_penalty = UNSET
-        else:
-            frequency_penalty = self.frequency_penalty
+        frequency_penalty = UNSET if isinstance(self.frequency_penalty, Unset) else self.frequency_penalty
 
         logprobs: Union[None, Unset, str]
-        if isinstance(self.logprobs, Unset):
-            logprobs = UNSET
-        else:
-            logprobs = self.logprobs
+        logprobs = UNSET if isinstance(self.logprobs, Unset) else self.logprobs
 
         max_tokens: Union[None, Unset, str]
-        if isinstance(self.max_tokens, Unset):
-            max_tokens = UNSET
-        else:
-            max_tokens = self.max_tokens
+        max_tokens = UNSET if isinstance(self.max_tokens, Unset) else self.max_tokens
 
         model: Union[None, Unset, str]
-        if isinstance(self.model, Unset):
-            model = UNSET
-        else:
-            model = self.model
+        model = UNSET if isinstance(self.model, Unset) else self.model
 
         n: Union[None, Unset, str]
-        if isinstance(self.n, Unset):
-            n = UNSET
-        else:
-            n = self.n
+        n = UNSET if isinstance(self.n, Unset) else self.n
 
         presence_penalty: Union[None, Unset, str]
-        if isinstance(self.presence_penalty, Unset):
-            presence_penalty = UNSET
-        else:
-            presence_penalty = self.presence_penalty
+        presence_penalty = UNSET if isinstance(self.presence_penalty, Unset) else self.presence_penalty
 
         reasoning_effort: Union[None, Unset, str]
-        if isinstance(self.reasoning_effort, Unset):
-            reasoning_effort = UNSET
-        else:
-            reasoning_effort = self.reasoning_effort
+        reasoning_effort = UNSET if isinstance(self.reasoning_effort, Unset) else self.reasoning_effort
 
         response_format: Union[None, Unset, str]
-        if isinstance(self.response_format, Unset):
-            response_format = UNSET
-        else:
-            response_format = self.response_format
+        response_format = UNSET if isinstance(self.response_format, Unset) else self.response_format
 
         stop_sequences: Union[None, Unset, str]
-        if isinstance(self.stop_sequences, Unset):
-            stop_sequences = UNSET
-        else:
-            stop_sequences = self.stop_sequences
+        stop_sequences = UNSET if isinstance(self.stop_sequences, Unset) else self.stop_sequences
 
         temperature: Union[None, Unset, str]
-        if isinstance(self.temperature, Unset):
-            temperature = UNSET
-        else:
-            temperature = self.temperature
+        temperature = UNSET if isinstance(self.temperature, Unset) else self.temperature
 
         tool_choice: Union[None, Unset, str]
-        if isinstance(self.tool_choice, Unset):
-            tool_choice = UNSET
-        else:
-            tool_choice = self.tool_choice
+        tool_choice = UNSET if isinstance(self.tool_choice, Unset) else self.tool_choice
 
         tools: Union[None, Unset, str]
-        if isinstance(self.tools, Unset):
-            tools = UNSET
-        else:
-            tools = self.tools
+        tools = UNSET if isinstance(self.tools, Unset) else self.tools
 
         top_k: Union[None, Unset, str]
-        if isinstance(self.top_k, Unset):
-            top_k = UNSET
-        else:
-            top_k = self.top_k
+        top_k = UNSET if isinstance(self.top_k, Unset) else self.top_k
 
         top_logprobs: Union[None, Unset, str]
-        if isinstance(self.top_logprobs, Unset):
-            top_logprobs = UNSET
-        else:
-            top_logprobs = self.top_logprobs
+        top_logprobs = UNSET if isinstance(self.top_logprobs, Unset) else self.top_logprobs
 
         top_p: Union[None, Unset, str]
-        if isinstance(self.top_p, Unset):
-            top_p = UNSET
-        else:
-            top_p = self.top_p
+        top_p = UNSET if isinstance(self.top_p, Unset) else self.top_p
 
         verbosity: Union[None, Unset, str]
-        if isinstance(self.verbosity, Unset):
-            verbosity = UNSET
-        else:
-            verbosity = self.verbosity
+        verbosity = UNSET if isinstance(self.verbosity, Unset) else self.verbosity
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

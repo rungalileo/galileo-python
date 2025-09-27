@@ -45,22 +45,13 @@ class ExperimentCreateRequest:
             dataset = self.dataset
 
         playground_id: Union[None, Unset, str]
-        if isinstance(self.playground_id, Unset):
-            playground_id = UNSET
-        else:
-            playground_id = self.playground_id
+        playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
 
         playground_prompt_id: Union[None, Unset, str]
-        if isinstance(self.playground_prompt_id, Unset):
-            playground_prompt_id = UNSET
-        else:
-            playground_prompt_id = self.playground_prompt_id
+        playground_prompt_id = UNSET if isinstance(self.playground_prompt_id, Unset) else self.playground_prompt_id
 
         task_type: Union[Literal[16], Literal[17], Unset]
-        if isinstance(self.task_type, Unset):
-            task_type = UNSET
-        else:
-            task_type = self.task_type
+        task_type = UNSET if isinstance(self.task_type, Unset) else self.task_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -91,9 +82,8 @@ class ExperimentCreateRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                dataset_type_0 = ExperimentDatasetRequest.from_dict(data)
+                return ExperimentDatasetRequest.from_dict(data)
 
-                return dataset_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ExperimentDatasetRequest", None, Unset], data)

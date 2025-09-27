@@ -1782,6 +1782,74 @@ components:
         - end_bucket_time
       title: BucketedMetrics
       type: object
+    BulkDeleteDatasetsRequest:
+      description: Request to delete multiple datasets.
+      properties:
+        dataset_ids:
+          items:
+            format: uuid4
+            type: string
+          maxItems: 100
+          minItems: 1
+          title: Dataset Ids
+          type: array
+      required:
+        - dataset_ids
+      title: BulkDeleteDatasetsRequest
+      type: object
+    BulkDeleteDatasetsResponse:
+      description: Response from bulk deletion operation.
+      properties:
+        deleted_count:
+          title: Deleted Count
+          type: integer
+        failed_deletions:
+          items:
+            $ref: '#/components/schemas/api__schemas__content__dataset__BulkDeleteFailure'
+          title: Failed Deletions
+          type: array
+        message:
+          title: Message
+          type: string
+      required:
+        - deleted_count
+        - message
+      title: BulkDeleteDatasetsResponse
+      type: object
+    BulkDeletePromptTemplatesRequest:
+      description: Request to delete multiple prompt templates.
+      properties:
+        template_ids:
+          items:
+            format: uuid4
+            type: string
+          maxItems: 100
+          minItems: 1
+          title: Template Ids
+          type: array
+      required:
+        - template_ids
+      title: BulkDeletePromptTemplatesRequest
+      type: object
+    BulkDeletePromptTemplatesResponse:
+      description: Response from bulk deletion operation.
+      properties:
+        deleted_count:
+          title: Deleted Count
+          type: integer
+        failed_deletions:
+          items:
+            $ref: '#/components/schemas/api__schemas__content__prompt__BulkDeleteFailure'
+          title: Failed Deletions
+          type: array
+        message:
+          title: Message
+          type: string
+      required:
+        - deleted_count
+        - message
+      title: BulkDeletePromptTemplatesResponse
+      type: object
     ChainPollTemplate:
       description: 'Template for a chainpoll metric prompt,
 
@@ -2392,6 +2460,11 @@ components:
                 type: string
               type: array
           title: Labels
+        luna_model:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Luna Model
         metric_critique_configuration:
           anyOf:
             - $ref: '#/components/schemas/MetricCritiqueJobConfiguration'
@@ -2696,6 +2769,11 @@ components:
         link:
           title: Link
           type: string
+        luna_model:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Luna Model
         message:
           title: Message
           type: string
@@ -3109,6 +3187,11 @@ components:
             type: string
           title: Tags
           type: array
+        user_prompt:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Prompt
       required:
         - name
         - scorer_type
@@ -7524,6 +7607,15 @@ components:
         - message
       title: DeletePromptResponse
       type: object
+    DeleteRunResponse:
+      properties:
+        message:
+          title: Message
+          type: string
+      required:
+        - message
+      title: DeleteRunResponse
+      type: object
     DeleteScorerResponse:
       properties:
         message:
@@ -11014,27 +11106,22 @@ components:
     FeedbackRatingInfo:
       properties:
         explanation:
+          anyOf:
+            - type: string
+            - type: 'null'
           title: Explanation
-          type: string
         feedback_type:
-          enum:
-            - like_dislike
-            - star
-            - score
-            - tags
-            - text
-          title: Feedback Type
-          type: string
+          $ref: '#/components/schemas/FeedbackType'
         value:
           anyOf:
             - type: boolean
             - type: integer
+            - type: string
             - items:
                 maxLength: 255
                 minLength: 1
                 type: string
               type: array
-            - type: string
           title: Value
       required:
         - feedback_type
@@ -11042,6 +11129,15 @@ components:
         - explanation
       title: FeedbackRatingInfo
       type: object
+    FeedbackType:
+      enum:
+        - like_dislike
+        - star
+        - score
+        - tags
+        - text
+      title: FeedbackType
+      type: string
     FewShotExample:
       description: Few-shot example for a chainpoll metric prompt.
       properties:
@@ -12969,12 +13065,12 @@ components:
       examples:
         - columns:
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - session
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -12989,12 +13085,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - session
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13009,12 +13105,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - session
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13029,12 +13125,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - session
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13049,11 +13145,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13068,11 +13164,11 @@ components:
               multi_valued: true
               sortable: false
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13088,12 +13184,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - session
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13108,11 +13204,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13127,11 +13223,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13146,12 +13242,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - session
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13166,11 +13262,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13186,11 +13282,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13206,11 +13302,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13226,11 +13322,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13245,11 +13341,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13264,11 +13360,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - trace
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               category: standard
               complex: false
@@ -13283,18 +13379,18 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - trace
-                - workflow
-                - agent
                 - session
                 - retriever
+                - agent
                 - tool
+                - workflow
+                - trace
                 - llm
               applicable_types:
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
                 - llm
               category: standard
               complex: false
@@ -13309,10 +13405,10 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
                 - llm
               category: standard
               complex: false
@@ -13328,10 +13424,10 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
                 - llm
               category: standard
               complex: false
@@ -13346,10 +13442,10 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - agent
                 - retriever
+                - agent
                 - tool
+                - workflow
                 - llm
               category: standard
               complex: false
@@ -13364,13 +13460,13 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
+                - classifier
+                - default
+                - router
                 - reflection
                 - planner
                 - supervisor
                 - react
-                - router
-                - classifier
-                - default
                 - judge
               applicable_types:
                 - agent
@@ -13542,6 +13638,67 @@ components:
         - operator
         - value
       title: LogRecordsDateFilter
+      type: object
+    LogRecordsDeleteRequest:
+      example:
+        filters:
+          - case_sensitive: true
+            name: input
+            operator: eq
+            type: text
+            value: example input
+        log_stream_id: 74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db
+      properties:
+        experiment_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Experiment id associated with the traces.
+          title: Experiment Id
+        filters:
+          items:
+            discriminator:
+              mapping:
+                boolean: '#/components/schemas/LogRecordsBooleanFilter'
+                date: '#/components/schemas/LogRecordsDateFilter'
+                id: '#/components/schemas/LogRecordsIDFilter'
+                number: '#/components/schemas/LogRecordsNumberFilter'
+                text: '#/components/schemas/LogRecordsTextFilter'
+              propertyName: type
+            oneOf:
+              - $ref: '#/components/schemas/LogRecordsIDFilter'
+              - $ref: '#/components/schemas/LogRecordsDateFilter'
+              - $ref: '#/components/schemas/LogRecordsNumberFilter'
+              - $ref: '#/components/schemas/LogRecordsBooleanFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
+          title: Filters
+          type: array
+        log_stream_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Log stream id associated with the traces.
+          title: Log Stream Id
+        metrics_testing_id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          description: Metrics testing id associated with the traces.
+          title: Metrics Testing Id
+      title: LogRecordsDeleteRequest
+      type: object
+    LogRecordsDeleteResponse:
+      properties:
+        message:
+          description: Message
+          title: Message
+          type: string
+      required:
+        - message
+      title: LogRecordsDeleteResponse
       type: object
     LogRecordsExportRequest:
       description: Request schema for exporting log records (sessions, traces, spans).
@@ -13888,7 +14045,7 @@ components:
           num_rows: 2
           paginated: true
           records:
-            - created_at: '2025-09-04T23:59:25.923814Z'
+            - created_at: '2025-09-24T18:07:03.707386Z'
               dataset_metadata: {}
               feedback_rating_info: {}
               id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
@@ -13905,7 +14062,7 @@ components:
               trace_id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               type: trace
               user_metadata: {}
-            - created_at: '2025-09-04T23:59:25.924048Z'
+            - created_at: '2025-09-24T18:07:03.707533Z'
               dataset_metadata: {}
               id: 1edc2401-24b4-448c-a392-b36932293061
               input:
@@ -14171,14 +14328,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           parent_id: 11000011-0000-0000-0000-110000110000
           spans:
-            - created_at: '2025-09-04T23:59:25.885822Z'
+            - created_at: '2025-09-24T18:07:03.679788Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-09-04T23:59:25.861579Z'
+                - created_at: '2025-09-24T18:07:03.663157Z'
                   dataset_metadata: {}
                   id: 22222222-2222-4222-a222-222222222222
                   input:
@@ -14533,14 +14690,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           session_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-09-04T23:59:25.851577Z'
+            - created_at: '2025-09-24T18:07:03.655609Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-09-04T23:59:25.851522Z'
+                - created_at: '2025-09-24T18:07:03.655559Z'
                   dataset_metadata: {}
                   input:
                     - content: 'Question: who is a smart LLM?'
@@ -14558,14 +14715,14 @@ components:
               user_metadata: {}
         - experiment_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-09-04T23:59:25.852372Z'
+            - created_at: '2025-09-24T18:07:03.656367Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-09-04T23:59:25.852327Z'
+                - created_at: '2025-09-24T18:07:03.656296Z'
                   dataset_metadata: {}
                   id: 11111111-1111-4111-a111-111111111111
                   input:
@@ -15559,6 +15716,7 @@ components:
         - discrete
         - freeform
         - percentage
+        - multilabel
       title: OutputTypeEnum
       type: string
     OverrideAction:
@@ -16650,7 +16808,7 @@ components:
           title: Max Tokens
           type: integer
         model_alias:
-          default: gpt-5-mini
+          default: GPT-4o
           title: Model Alias
           type: string
         n:
@@ -17912,6 +18070,25 @@ components:
         - scorers
       title: RunScorerSettingsResponse
       type: object
+    RunTagCreateRequest:
+      properties:
+        key:
+          maxLength: 256
+          title: Key
+          type: string
+        tag_type:
+          title: Tag Type
+          type: string
+        value:
+          maxLength: 256
+          title: Value
+          type: string
+      required:
+        - key
+        - value
+        - tag_type
+      title: RunTagCreateRequest
+      type: object
     RunTagDB:
       properties:
         created_at:
@@ -18274,10 +18451,6 @@ components:
       type: object
     ScorerResponse:
       properties:
-        chain_poll_template:
-          anyOf:
-            - $ref: '#/components/schemas/ChainPollTemplate'
-            - type: 'null'
         created_at:
           anyOf:
             - format: date-time
@@ -18334,11 +18507,6 @@ components:
           anyOf:
             - $ref: '#/components/schemas/BaseScorerVersionDB'
             - type: 'null'
-        metric_name:
-          anyOf:
-            - type: string
-            - type: 'null'
-          title: Metric Name
         model_type:
           anyOf:
             - $ref: '#/components/schemas/ModelType'
@@ -18359,6 +18527,11 @@ components:
               type: string
             - type: 'null'
           title: Updated At
+        user_prompt:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Prompt
       required:
         - id
         - name
@@ -20134,6 +20307,11 @@ components:
               type: array
             - type: 'null'
           title: Tags
+        user_prompt:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: User Prompt
       title: UpdateScorerRequest
       type: object
     UpsertDatasetContentRequest:
@@ -20608,6 +20786,40 @@ components:
           type: object
       title: WorkflowSpan
       type: object
+    api__schemas__content__dataset__BulkDeleteFailure:
+      description: Details about a failed deletion.
+      properties:
+        dataset_id:
+          format: uuid4
+          title: Dataset Id
+          type: string
+        dataset_name:
+          title: Dataset Name
+          type: string
+        reason:
+          title: Reason
+          type: string
+      required:
+        - dataset_id
+        - dataset_name
+        - reason
+      title: BulkDeleteFailure
+      type: object
+    api__schemas__content__prompt__BulkDeleteFailure:
+      description: Details about a failed deletion.
+      properties:
+        reason:
+          title: Reason
+          type: string
+        template_id:
+          format: uuid4
+          title: Template Id
+          type: string
+      required:
+        - template_id
+        - reason
+      title: BulkDeleteFailure
+      type: object
     api__schemas__project__GetProjectsPaginatedResponse:
       properties:
         limit:
@@ -20963,6 +21175,45 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Create Dataset
+      tags:
+        - datasets
+  /datasets/bulk_delete:
+    delete:
+      description: "Delete multiple datasets in bulk.\n\nThis endpoint allows efficient\
+        \ deletion of multiple datasets at once.\nIt validates permissions for each\
+        \ dataset in the service and provides detailed feedback about\nsuccessful\
+        \ and failed deletions for each dataset.\n\nParameters\n----------\ndelete_request\
+        \ : BulkDeleteDatasetsRequest\n    Request containing list of dataset IDs\
+        \ to delete (max 100)\nctx : Context\n    Request context including authentication\
+        \ information\n\nReturns\n-------\nBulkDeleteDatasetsResponse\n    Details\
+        \ about the bulk deletion operation including:\n    - Number of successfully\
+        \ deleted datasets\n    - List of failed deletions with reasons\n    - Summary\
+        \ message"
+      operationId: bulk_delete_datasets_datasets_bulk_delete_delete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDeleteDatasetsRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkDeleteDatasetsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Bulk Delete Datasets
       tags:
         - datasets
   /datasets/extend:
@@ -22790,6 +23041,242 @@ paths:
       summary: Get Experiment Metrics
       tags:
         - experiment
+  /projects/{project_id}/experiments/{experiment_id}/tags:
+    get:
+      description: Gets tags for a given project_id/experiment_id.
+      operationId: get_experiment_tags_projects__project_id__experiments__experiment_id__tags_get
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: path
+          name: experiment_id
+          required: true
+          schema:
+            format: uuid4
+            title: Experiment Id
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/RunTagDB'
+                title: Response Get Experiment Tags Projects  Project Id  Experiments  Experiment
+                  Id  Tags Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Experiment Tags
+      tags:
+        - experiment_tags
+    post:
+      description: Sets a tag for an experiment.
+      operationId: set_tag_for_experiment_projects__project_id__experiments__experiment_id__tags_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: path
+          name: experiment_id
+          required: true
+          schema:
+            format: uuid4
+            title: Experiment Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunTagCreateRequest'
+              examples:
+                - key: Vector DB
+                  tag_type: rag
+                  value: Pinecone
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunTagDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Set Tag For Experiment
+      tags:
+        - experiment_tags
+  /projects/{project_id}/experiments/{experiment_id}/tags/{tag_id}:
+    delete:
+      operationId: delete_experiment_tag_projects__project_id__experiments__experiment_id__tags__tag_id__delete
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: path
+          name: experiment_id
+          required: true
+          schema:
+            format: uuid4
+            title: Experiment Id
+            type: string
+        - in: path
+          name: tag_id
+          required: true
+          schema:
+            format: uuid4
+            title: Tag Id
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteRunResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Delete Experiment Tag
+      tags:
+        - experiment_tags
+    get:
+      description: Gets a tag for a given project_id/experiment_id.
+      operationId: get_experiment_tag_projects__project_id__experiments__experiment_id__tags__tag_id__get
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: path
+          name: experiment_id
+          required: true
+          schema:
+            format: uuid4
+            title: Experiment Id
+            type: string
+        - in: path
+          name: tag_id
+          required: true
+          schema:
+            format: uuid4
+            title: Tag Id
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunTagDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Experiment Tag
+      tags:
+        - experiment_tags
+    put:
+      description: Sets or updates a tag for an experiment.
+      operationId: update_tag_for_experiment_projects__project_id__experiments__experiment_id__tags__tag_id__put
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: path
+          name: experiment_id
+          required: true
+          schema:
+            format: uuid4
+            title: Experiment Id
+            type: string
+        - in: path
+          name: tag_id
+          required: true
+          schema:
+            format: uuid4
+            title: Tag Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunTagCreateRequest'
+              examples:
+                - key: Vector DB
+                  tag_type: rag
+                  value: Pinecone
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RunTagDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Update Tag For Experiment
+      tags:
+        - experiment_tags
   /projects/{project_id}/export_records:
     post:
       operationId: export_records_projects__project_id__export_records_post
@@ -23837,6 +24324,44 @@ paths:
       summary: Sessions Available Columns
       tags:
         - trace
+  /projects/{project_id}/sessions/delete:
+    post:
+      description: Delete all session records that match the provided filters.
+      operationId: delete_sessions_projects__project_id__sessions_delete_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogRecordsDeleteRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogRecordsDeleteResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Delete Sessions
+      tags:
+        - trace
   /projects/{project_id}/sessions/search:
     post:
       operationId: query_sessions_projects__project_id__sessions_search_post
@@ -23984,6 +24509,44 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Spans Available Columns
+      tags:
+        - trace
+  /projects/{project_id}/spans/delete:
+    post:
+      description: Delete all span records that match the provided filters.
+      operationId: delete_spans_projects__project_id__spans_delete_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogRecordsDeleteRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogRecordsDeleteResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Delete Spans
       tags:
         - trace
   /projects/{project_id}/spans/search:
@@ -24774,6 +25337,44 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Traces Available Columns
+      tags:
+        - trace
+  /projects/{project_id}/traces/delete:
+    post:
+      description: Delete all trace records that match the provided filters.
+      operationId: delete_traces_projects__project_id__traces_delete_post
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogRecordsDeleteRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogRecordsDeleteResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Delete Traces
       tags:
         - trace
   /projects/{project_id}/traces/search:
@@ -25944,6 +26545,45 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Create Global Prompt Template
+      tags:
+        - prompts
+  /templates/bulk_delete:
+    delete:
+      description: "Delete multiple global prompt templates in bulk.\n\nThis endpoint\
+        \ allows efficient deletion of multiple global prompt templates at once.\n\
+        It validates permissions for each template in the service and provides detailed\
+        \ feedback about\nsuccessful and failed deletions for each template.\n\nParameters\n\
+        ----------\ndelete_request : BulkDeletePromptTemplatesRequest\n    Request\
+        \ containing list of template IDs to delete (max 100)\nctx : Context\n   \
+        \ Request context including authentication information\n\nReturns\n-------\n\
+        BulkDeletePromptTemplatesResponse\n    Details about the bulk deletion operation\
+        \ including:\n    - Number of successfully deleted templates\n    - List of\
+        \ failed deletions with reasons\n    - Summary message"
+      operationId: bulk_delete_global_templates_templates_bulk_delete_delete
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkDeletePromptTemplatesRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BulkDeletePromptTemplatesResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Bulk Delete Global Templates
       tags:
         - prompts
   /templates/query:

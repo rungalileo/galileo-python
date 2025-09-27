@@ -55,9 +55,8 @@ class DatasetPrependRowValues:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    additional_property_type_3 = DatasetPrependRowValuesAdditionalPropertyType3.from_dict(data)
+                    return DatasetPrependRowValuesAdditionalPropertyType3.from_dict(data)
 
-                    return additional_property_type_3
                 except:  # noqa: E722
                     pass
                 return cast(Union["DatasetPrependRowValuesAdditionalPropertyType3", None, float, int, str], data)

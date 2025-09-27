@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class FeedbackRatingInfoFeedbackType(str, Enum):
+class FeedbackType(str, Enum):
     LIKE_DISLIKE = "like_dislike"
     SCORE = "score"
     STAR = "star"

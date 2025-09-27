@@ -25,22 +25,13 @@ class JobProgress:
 
     def to_dict(self) -> dict[str, Any]:
         progress_message: Union[None, Unset, str]
-        if isinstance(self.progress_message, Unset):
-            progress_message = UNSET
-        else:
-            progress_message = self.progress_message
+        progress_message = UNSET if isinstance(self.progress_message, Unset) else self.progress_message
 
         steps_completed: Union[None, Unset, int]
-        if isinstance(self.steps_completed, Unset):
-            steps_completed = UNSET
-        else:
-            steps_completed = self.steps_completed
+        steps_completed = UNSET if isinstance(self.steps_completed, Unset) else self.steps_completed
 
         steps_total: Union[None, Unset, int]
-        if isinstance(self.steps_total, Unset):
-            steps_total = UNSET
-        else:
-            steps_total = self.steps_total
+        steps_total = UNSET if isinstance(self.steps_total, Unset) else self.steps_total
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

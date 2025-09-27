@@ -29,16 +29,13 @@ def _get_kwargs(project_id: str, group_id: str) -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[Any, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = response.json()
-        return response_200
+        return response.json()
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
+        return HTTPValidationError.from_dict(response.json())
 
-        return response_422
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:

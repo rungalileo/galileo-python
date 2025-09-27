@@ -47,11 +47,6 @@ class Document:
 
         _metadata = d.pop("metadata", UNSET)
         metadata: Union[Unset, DocumentMetadata]
-        if isinstance(_metadata, Unset):
-            metadata = UNSET
-        else:
-            metadata = DocumentMetadata.from_dict(_metadata)
+        metadata = UNSET if isinstance(_metadata, Unset) else DocumentMetadata.from_dict(_metadata)
 
-        document = cls(page_content=page_content, metadata=metadata)
-
-        return document
+        return cls(page_content=page_content, metadata=metadata)

@@ -35,8 +35,7 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[
         return response_200
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[list["CollaboratorRoleInfo"]]:

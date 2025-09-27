@@ -7,6 +7,7 @@ class OutputTypeEnum(str, Enum):
     COUNT = "count"
     DISCRETE = "discrete"
     FREEFORM = "freeform"
+    MULTILABEL = "multilabel"
     PERCENTAGE = "percentage"
 
     def __str__(self) -> str:

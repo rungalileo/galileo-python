@@ -50,11 +50,7 @@ class DatasetDB:
         from ..models.user_info import UserInfo
 
         column_names: Union[None, list[str]]
-        if isinstance(self.column_names, list):
-            column_names = self.column_names
-
-        else:
-            column_names = self.column_names
+        column_names = self.column_names if isinstance(self.column_names, list) else self.column_names
 
         created_at = self.created_at.isoformat()
 
@@ -120,9 +116,8 @@ class DatasetDB:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                column_names_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return column_names_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, list[str]], data)
@@ -137,9 +132,8 @@ class DatasetDB:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                created_by_user_type_0 = UserInfo.from_dict(data)
+                return UserInfo.from_dict(data)
 
-                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None], data)

@@ -36,16 +36,10 @@ class MetricComputation:
         from ..models.metric_computation_value_type_4 import MetricComputationValueType4
 
         error_message: Union[None, Unset, str]
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         execution_time: Union[None, Unset, float]
-        if isinstance(self.execution_time, Unset):
-            execution_time = UNSET
-        else:
-            execution_time = self.execution_time
+        execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
 
         status: Union[None, Unset, str]
         if isinstance(self.status, Unset):
@@ -116,9 +110,8 @@ class MetricComputation:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                status_type_0 = MetricComputationStatus(data)
+                return MetricComputationStatus(data)
 
-                return status_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[MetricComputationStatus, None, Unset], data)
@@ -154,9 +147,8 @@ class MetricComputation:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                value_type_4 = MetricComputationValueType4.from_dict(data)
+                return MetricComputationValueType4.from_dict(data)
 
-                return value_type_4
             except:  # noqa: E722
                 pass
             return cast(
