@@ -1,15 +1,10 @@
-"""
-Dataset class for the Galileo Future API.
-
-This module provides an object-centric interface for managing Galileo datasets,
-offering a more intuitive alternative to the service-based functions.
-"""
-
 from __future__ import annotations
 
+import logging
 from typing import Any
 
 from galileo.datasets import Dataset as LegacyDataset
+from galileo.datasets import Datasets
 from galileo.datasets import delete_dataset as service_delete_dataset
 from galileo.datasets import extend_dataset as service_extend_dataset
 from galileo.datasets import get_dataset as service_get_dataset
@@ -19,6 +14,8 @@ from galileo.datasets import list_datasets as service_list_datasets
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.models.dataset_row import DatasetRow
 from galileo.resources.types import Unset
+
+logger = logging.getLogger(__name__)
 
 
 class Dataset:
@@ -101,10 +98,10 @@ class Dataset:
             self.draft = _legacy_dataset.draft
         elif name is not None:
             # Create a new dataset
-            from galileo.datasets import Datasets
-
+            logger.info(f"Dataset.create: name='{name}' - started")
             datasets_service = Datasets()
             self._legacy_dataset = datasets_service.create(name=name, content=content or [])
+            logger.info(f"Dataset.create: id='{self._legacy_dataset.id}' - completed")
             self.id = self._legacy_dataset.id
             self.name = self._legacy_dataset.name
             self.created_at = self._legacy_dataset.created_at
@@ -172,7 +169,7 @@ class Dataset:
         examples: list[str] | None = None,  # type: ignore[valid-type]
         count: int = 10,
         data_types: list[str] | None = None,  # type: ignore[valid-type]
-        prompt_settings: dict[str, Any] | None = None,  # type: ignore[valid-type]
+        prompt_settings: dict[str, Any] | None = None,
     ) -> list[DatasetRow]:  # type: ignore[valid-type]
         """
         Generate synthetic dataset rows.
@@ -290,7 +287,7 @@ class Dataset:
         examples: list[str] | None = None,  # type: ignore[valid-type]
         count: int = 10,
         data_types: list[str] | None = None,  # type: ignore[valid-type]
-        prompt_settings: dict[str, Any] | None = None,  # type: ignore[valid-type]
+        prompt_settings: dict[str, Any] | None = None,
     ) -> list[DatasetRow]:  # type: ignore[valid-type]
         """
         Extend this dataset with synthetically generated data.
@@ -331,7 +328,9 @@ class Dataset:
             dataset = Dataset.get(name="my-dataset")
             dataset.delete()
         """
+        logger.info(f"Dataset.delete: name='{self.name}' - started")
         service_delete_dataset(name=self.name)
+        logger.info(f"Dataset.delete: name='{self.name}' - completed")
 
     def __str__(self) -> str:
         """String representation of the dataset."""
