@@ -1,14 +1,9 @@
-"""
-Project class for the Galileo Future API.
-
-This module provides an object-centric interface for managing Galileo projects,
-offering a more intuitive alternative to the service-based functions.
-"""
-
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
+from galileo.__future__.exceptions import APIError, ValidationError
 from galileo.projects import Project as LegacyProject
 from galileo.projects import create_project as service_create_project
 from galileo.projects import get_project as service_get_project
@@ -16,6 +11,8 @@ from galileo.projects import list_projects as service_list_projects
 
 if TYPE_CHECKING:
     from galileo.__future__.log_stream import LogStream
+
+logger = logging.getLogger(__name__)
 
 
 class Project:
@@ -78,7 +75,9 @@ class Project:
             self.type = _legacy_project.type
         elif name is not None:
             # Create a new project
+            logger.info(f"Project.create: name='{name}' - started")
             self._legacy_project = service_create_project(name=name)
+            logger.info(f"Project.create: id='{self._legacy_project.id}' - completed")
             self.created_at = self._legacy_project.created_at
             self.created_by = self._legacy_project.created_by
             self.id = self._legacy_project.id
@@ -88,7 +87,7 @@ class Project:
             self.permissions = self._legacy_project.permissions
             self.type = self._legacy_project.type
         else:
-            raise ValueError(
+            raise ValidationError(
                 "Either 'name' must be provided to create a project, or use Project.get() to retrieve an existing project"
             )
 
@@ -105,7 +104,7 @@ class Project:
             Optional[Project]: The project if found, None otherwise.
 
         Raises:
-            ValueError: If neither or both id and name are provided.
+            ValidationError: If neither or both id and name are provided.
 
         Examples:
             # Get by name
@@ -114,10 +113,14 @@ class Project:
             # Get by ID
             project = Project.get(id="project-123")
         """
-        legacy_project = service_get_project(id=id, name=name)
-        if legacy_project is None:
-            return None
-        return cls(_legacy_project=legacy_project)
+        try:
+            legacy_project = service_get_project(id=id, name=name)
+            if legacy_project is None:
+                return None
+            return cls(_legacy_project=legacy_project)
+        except Exception as e:
+            logger.error("Project.get: id='%s' name='%s' - failed: %s", id, name, str(e))
+            raise APIError("Failed to retrieve project: %s", original_error=e) from e
 
     @classmethod
     def list(cls) -> list[Project]:
@@ -130,7 +133,8 @@ class Project:
         Examples:
             projects = Project.list()
             for project in projects:
-                print(f"Project: {project.name} (ID: {project.id})")
+                # Process each project
+                pass
         """
         legacy_projects = service_list_projects()
         return [cls(_legacy_project=legacy_project) for legacy_project in legacy_projects]
@@ -153,7 +157,9 @@ class Project:
         from galileo.__future__.log_stream import LogStream
         from galileo.log_streams import create_log_stream as service_create_log_stream
 
+        logger.info(f"LogStream.create: name='{name}' project_id='{self.id}' - started")
         legacy_log_stream = service_create_log_stream(name=name, project_id=self.id)
+        logger.info(f"LogStream.create: id='{legacy_log_stream.id}' - completed")
         return LogStream(_legacy_log_stream=legacy_log_stream)
 
     def list_log_streams(self) -> list[LogStream]:  # type: ignore[valid-type]
@@ -167,7 +173,8 @@ class Project:
             project = Project.get(name="My AI Project")
             log_streams = project.list_log_streams()
             for stream in log_streams:
-                print(f"Log Stream: {stream.name} (ID: {stream.id})")
+                # Process each log stream
+                pass
         """
         # Import here to avoid circular imports
         from galileo.__future__.log_stream import LogStream

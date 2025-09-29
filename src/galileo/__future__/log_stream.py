@@ -1,16 +1,19 @@
-"""
-LogStream class for the Galileo Future API.
-
-This module provides an object-centric interface for managing Galileo log streams,
-offering a more intuitive alternative to the service-based functions.
-"""
-
 from __future__ import annotations
 
+import builtins
+import logging
+from typing import TYPE_CHECKING
+
+from galileo.__future__.exceptions import ValidationError
 from galileo.log_streams import LogStream as LegacyLogStream
 from galileo.log_streams import get_log_stream as service_get_log_stream
 from galileo.log_streams import list_log_streams as service_list_log_streams
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
+
+if TYPE_CHECKING:
+    from galileo.__future__.project import Project
+
+logger = logging.getLogger(__name__)
 
 
 class LogStream:
@@ -67,7 +70,7 @@ class LogStream:
             self.updated_at = _legacy_log_stream.updated_at
             self.additional_properties = _legacy_log_stream.additional_properties
         else:
-            raise ValueError("LogStream instances should be created through Project methods")
+            raise ValidationError("LogStream instances should be created through Project methods")
 
     @classmethod
     def get(cls, *, name: str, project_id: str | None = None, project_name: str | None = None) -> LogStream | None:
@@ -83,7 +86,7 @@ class LogStream:
             Optional[LogStream]: The log stream if found, None otherwise.
 
         Raises:
-            ValueError: If neither or both project_id and project_name are provided.
+            ValidationError: If neither or both project_id and project_name are provided.
 
         Examples:
             # Get by project name
@@ -116,7 +119,7 @@ class LogStream:
             List[LogStream]: A list of log streams for the project.
 
         Raises:
-            ValueError: If neither or both project_id and project_name are provided.
+            ValidationError: If neither or both project_id and project_name are provided.
 
         Examples:
             # List by project name
@@ -129,9 +132,8 @@ class LogStream:
         return [cls(_legacy_log_stream=legacy_stream) for legacy_stream in legacy_log_streams]
 
     def enable_metrics(
-        self,
-        metrics: list[GalileoScorers | Metric | LocalMetricConfig | str],  # type: ignore[valid-type]
-    ) -> list[LocalMetricConfig]:  # type: ignore[valid-type]
+        self, metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str]
+    ) -> builtins.list[LocalMetricConfig]:
         """
         Enable metrics on this log stream.
 
@@ -167,11 +169,21 @@ class LogStream:
                 "context_relevance"
             ])
         """
-        return self._legacy_log_stream.enable_metrics(metrics)
+        logger.info(f"LogStream.enable_metrics: id='{self.id}' metrics={[str(m) for m in metrics]} - started")
+        result = self._legacy_log_stream.enable_metrics(metrics)
+        logger.info(f"LogStream.enable_metrics: id='{self.id}' - completed")
+        return result
 
     def __str__(self) -> str:
         """String representation of the log stream."""
         return f"LogStream(name='{self.name}', id='{self.id}', project_id='{self.project_id}')"
+
+    @property
+    def project(self) -> Project | None:
+        """Get the project this log stream belongs to."""
+        from galileo.__future__.project import Project
+
+        return Project.get(id=self.project_id)
 
     def __repr__(self) -> str:
         """Detailed string representation of the log stream."""
