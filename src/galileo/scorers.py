@@ -40,8 +40,26 @@ class Scorers:
         body = ListScorersRequest(
             filters=[ScorerTypeFilter(value=type_, operator=ScorerTypeFilterOperator.EQ) for type_ in (types or [])]
         )
-        result = list_scorers_with_filters_scorers_list_post.sync(client=self.config.api_client, body=body)
-        return result.scorers
+
+        # Handle pagination to ensure we get all scorers
+        all_scorers = []
+        starting_token = 0
+
+        while True:
+            result = list_scorers_with_filters_scorers_list_post.sync(
+                client=self.config.api_client, body=body, starting_token=starting_token
+            )
+
+            if result.scorers:
+                all_scorers.extend(result.scorers)
+
+            # Check if there are more pages to fetch
+            if not result.paginated or result.next_starting_token is None:
+                break
+
+            starting_token = result.next_starting_token
+
+        return all_scorers
 
     def get_scorer_version(self, scorer_id: UUID, version: int) -> Union[Unset, BaseScorerVersionResponse]:
         """
