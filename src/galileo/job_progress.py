@@ -1,5 +1,4 @@
 import contextlib
-import logging
 import random
 from time import sleep
 
@@ -12,10 +11,11 @@ from galileo.resources.api.jobs import (
     get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get,
 )
 from galileo.resources.models import HTTPValidationError, JobDB
+from galileo.utils.logging import get_logger
 from galileo_core.constants.job import JobName, JobStatus
 from galileo_core.constants.scorers import Scorers
 
-_logger = logging.getLogger(__name__)
+_logger = get_logger(__name__)
 
 
 def get_job(job_id: str) -> JobDB:
@@ -71,11 +71,11 @@ def scorer_jobs_status(project_id: str, run_id: str) -> None:
         _logger.debug(f"Scorer job {job.id} has scorer {scorer_name}.")
 
         if JobStatus.is_incomplete(job.status):
-            print(f"{scorer_name.lstrip('_')}: Computing 🚧")
+            _logger.info(f"{scorer_name.lstrip('_')}: Computing 🚧")
         elif JobStatus.is_failed(job.status):
-            print(f"{scorer_name.lstrip('_')}: Failed ❌, error was: {job.error_message}")
+            _logger.info(f"{scorer_name.lstrip('_')}: Failed ❌, error was: {job.error_message}")
         else:
-            print(f"{scorer_name.lstrip('_')}: Done ✅")
+            _logger.info(f"{scorer_name.lstrip('_')}: Done ✅")
 
 
 def job_progress(job_id: str, project_id: str, run_id: str) -> UUID4:
@@ -106,6 +106,6 @@ def job_progress(job_id: str, project_id: str, run_id: str) -> UUID4:
     if JobStatus.is_failed(job_status.status):
         raise ValueError(f"Job failed with error message {job_status.error_message}.") from None
 
-    print("Initial job complete, executing scorers asynchronously. Current status:")
+    _logger.info("Initial job complete, executing scorers asynchronously. Current status:")
     scorer_jobs_status(project_id=project_id, run_id=run_id)
     return job_status.id

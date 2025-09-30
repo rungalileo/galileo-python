@@ -15,7 +15,9 @@ def reset_env_vars() -> None:
 
 class TestProjects:
     @patch("galileo.projects.get_all_projects_projects_all_get")
-    def test_get_all_projects_projects_all_get_exc(self, get_all_projects_projects_all_get, caplog) -> None:
+    def test_get_all_projects_projects_all_get_exc(
+        self, get_all_projects_projects_all_get, caplog, enable_galileo_logging
+    ) -> None:
         get_all_projects_projects_all_get.sync.side_effect = ValueError("unable to get all projects")
 
         projects_client = Projects()

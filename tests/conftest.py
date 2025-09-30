@@ -1,4 +1,5 @@
 import datetime
+import logging
 from collections.abc import Generator
 from typing import Callable
 from unittest.mock import MagicMock, patch
@@ -177,3 +178,22 @@ def thread_pool_capture():
 )
 def rulesets(request: pytest.FixtureRequest) -> list[Ruleset]:
     return request.param
+
+
+@pytest.fixture
+def enable_galileo_logging():
+    """Temporarily enable galileo logging for tests that need to capture log output."""
+    galileo_logger = logging.getLogger("galileo")
+    original_level = galileo_logger.level
+    original_propagate = galileo_logger.propagate
+
+    # Enable logging at appropriate levels for different test types
+    galileo_logger.setLevel(logging.DEBUG)  # Most permissive for test flexibility
+    galileo_logger.propagate = True
+
+    try:
+        yield
+    finally:
+        # Restore original settings
+        galileo_logger.setLevel(original_level)
+        galileo_logger.propagate = original_propagate

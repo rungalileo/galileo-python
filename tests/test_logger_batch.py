@@ -37,7 +37,7 @@ def test_galileo_logger_exceptions() -> None:
 
 
 @patch("galileo.logger.logger.Traces")
-def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog) -> None:
+def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog, enable_galileo_logging) -> None:
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.WARNING):
@@ -993,7 +993,11 @@ def test_flush_with_conclude_all_spans(
 @patch("galileo.projects.create_project_projects_post")
 @patch("galileo.logger.logger.Traces")
 def test_galileo_logger_failed_creating_project(
-    mock_traces_client: Mock, galileo_resources_api_projects: Mock, mock_projects_get: Mock, caplog
+    mock_traces_client: Mock,
+    galileo_resources_api_projects: Mock,
+    mock_projects_get: Mock,
+    caplog,
+    enable_galileo_logging,
 ) -> None:
     mock_instance = mock_traces_client.return_value
 
