@@ -81,3 +81,13 @@ class ScorerSettings:
             client=self.config.api_client,
             body=RunScorerSettingsPatchRequest(run_id=run_id, scorers=scorers),
         )
+
+
+def get_scorers(types: Optional[list[ScorerTypes]] = None) -> Union[Unset, list[ScorerResponse]]:
+    """
+    Args:
+        types: List of scorer types to filter by. Defaults to all scorers.
+    Returns:
+        List of scorers
+    """
+    return Scorers().list(types=types)

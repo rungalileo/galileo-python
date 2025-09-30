@@ -3,7 +3,11 @@ import logging
 from typing import Optional
 
 from galileo.config import GalileoPythonConfig
-from galileo.resources.api.data import create_llm_scorer_version_scorers_scorer_id_version_llm_post, create_scorers_post
+from galileo.resources.api.data import (
+    create_llm_scorer_version_scorers_scorer_id_version_llm_post,
+    create_scorers_post,
+    delete_scorer_scorers_scorer_id_delete,
+)
 from galileo.resources.api.trace import query_metrics_projects_project_id_metrics_search_post
 from galileo.resources.models import (
     HTTPValidationError,
@@ -16,6 +20,7 @@ from galileo.resources.models.create_llm_scorer_version_request import CreateLLM
 from galileo.resources.models.create_scorer_request import CreateScorerRequest
 from galileo.resources.models.output_type_enum import OutputTypeEnum
 from galileo.resources.models.scorer_defaults import ScorerDefaults
+from galileo.scorers import get_scorers
 from galileo.search import FilterType
 from galileo_core.schemas.logging.step import StepType
 
@@ -27,6 +32,13 @@ class Metrics:
 
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
+
+    def delete_metric(self, name: str, scorer_type: ScorerTypes) -> None:
+        scorers = get_scorers(types=[scorer_type])
+        scorer = next((s for s in scorers if s.name == name), None)
+        if not scorer:
+            raise ValueError(f"Scorer with name {name} not found.")
+        delete_scorer_scorers_scorer_id_delete.sync(scorer_id=scorer.id, client=self.config.api_client)
 
     def create_custom_llm_metric(
         self,
@@ -191,3 +203,13 @@ def get_metrics(
         group_by=group_by,
         interval=interval,
     )
+
+
+def delete_metric(name: str, scorer_type: ScorerTypes) -> None:
+    """
+    Deletes a metric by its name and type.
+    Args:
+        name: The name of the scorer to delete.
+        scorer_type: The type of the scorer.
+    """
+    Metrics().delete_metric(name, scorer_type)
