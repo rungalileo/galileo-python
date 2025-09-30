@@ -226,19 +226,19 @@ class TestMetrics:
         mock_logger.info.assert_called_once_with("Created custom LLM metric: %s", "test_metric")
 
     @patch("galileo.metrics.delete_scorer_scorers_scorer_id_delete")
-    @patch("galileo.metrics.get_scorers")
-    def test_delete_metric_success(self, mock_get_scorers, mock_delete_scorer, mock_scorer_response) -> None:
+    @patch("galileo.scorers.Scorers.list")
+    def test_delete_metric_success(self, mock_list_scorers, mock_delete_scorer, mock_scorer_response) -> None:
         """Test successful deletion of a metric."""
         # Setup mocks
-        mock_get_scorers.return_value = [mock_scorer_response]
+        mock_list_scorers.return_value = [mock_scorer_response]
 
         metrics = Metrics()
 
         # Test deleting a metric
-        metrics.delete_metric(name="test_metric", scorer_type=ScorerTypes.LLM)
+        metrics.delete_metric(scorer_name="test_metric", scorer_type=ScorerTypes.LLM)
 
-        # Verify get_scorers was called
-        mock_get_scorers.assert_called_once_with(types=[ScorerTypes.LLM])
+        # Verify list was called
+        mock_list_scorers.assert_called_once_with(types=[ScorerTypes.LLM])
 
         # Verify delete_scorer was called
         mock_delete_scorer.sync.assert_called_once_with(
@@ -326,7 +326,7 @@ class TestPublicFunctions:
         mock_metrics_class.return_value = mock_metrics_instance
 
         # Call the public function
-        delete_metric(name="test_metric", scorer_type=ScorerTypes.LLM)
+        delete_metric(scorer_name="test_metric", scorer_type=ScorerTypes.LLM)
 
         # Verify Metrics class was instantiated
         mock_metrics_class.assert_called_once()
