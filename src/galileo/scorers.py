@@ -54,10 +54,10 @@ class Scorers:
             if not isinstance(result, ListScorersResponse):
                 raise ValueError(f"Failed to list scorers, got response: {result}")
 
-            if not isinstance(result.scorers, Unset) and result.scorers:
+            if not isinstance(result.scorers, Unset):
                 all_scorers.extend(result.scorers)
 
-            if result.next_starting_token is not None and not isinstance(result.next_starting_token, Unset):
+            if isinstance(result.next_starting_token, int):
                 starting_token = result.next_starting_token
             else:
                 break
