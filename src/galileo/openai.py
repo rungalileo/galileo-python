@@ -50,7 +50,7 @@ import httpx
 from pydantic import BaseModel
 from wrapt import wrap_function_wrapper  # type: ignore[import-untyped]
 
-from galileo import GalileoLogger
+from galileo import GalileoLogger, Message, MessageRole, ToolCall, ToolCallFunction
 from galileo.decorator import galileo_context
 from galileo.utils import _get_timestamp
 from galileo.utils.serialization import serialize_to_str
@@ -103,7 +103,10 @@ _logger = logging.getLogger(__name__)
 OPENAI_CLIENT_METHODS = [
     OpenAiModuleDefinition(
         module="openai.resources.chat.completions", object="Completions", method="create", type="chat", sync=True
-    )
+    ),
+    OpenAiModuleDefinition(
+        module="openai.resources.responses", object="Responses", method="create", type="response", sync=True
+    ),
     # Eventually add more OpenAI client library methods here
 ]
 
@@ -151,6 +154,77 @@ def _galileo_wrapper(func: Callable) -> Callable:
         return wrapper
 
     return _with_galileo
+
+
+def _convert_to_galileo_message(data: Any, default_role: str = "user") -> Message:
+    """Convert OpenAI response data to a Galileo Message object."""
+    if hasattr(data, "type") and data.type == "function_call":
+        tool_call = ToolCall(
+            id=getattr(data, "call_id", ""),
+            function=ToolCallFunction(name=getattr(data, "name", ""), arguments=getattr(data, "arguments", "")),
+        )
+        return Message(content="", role=MessageRole.assistant, tool_calls=[tool_call])
+
+    if isinstance(data, dict) and data.get("type") == "function_call_output":
+        output = data.get("output", "")
+        if isinstance(output, dict):
+            import json
+
+            content = json.dumps(output)
+        else:
+            content = str(output)
+
+        return Message(content=content, role=MessageRole.tool, tool_call_id=data.get("call_id", ""))
+
+    # Handle ChatCompletionMessage objects (from completion API) and dictionary messages
+    if (hasattr(data, "role") and hasattr(data, "content")) or isinstance(data, dict):
+        # Extract role and content from either object type
+        if hasattr(data, "role"):
+            # ChatCompletionMessage object
+            role = getattr(data, "role", default_role)
+            content = getattr(data, "content", "")
+            tool_calls = getattr(data, "tool_calls", None)
+            tool_call_id = getattr(data, "tool_call_id", None)
+        else:
+            # Dictionary message
+            role = data.get("role", default_role)
+            content = data.get("content", "")
+            tool_calls = data.get("tool_calls")
+            tool_call_id = data.get("tool_call_id")
+
+        # Handle tool calls if present
+        galileo_tool_calls = None
+        if tool_calls:
+            galileo_tool_calls = []
+            for tc in tool_calls:
+                if hasattr(tc, "function"):
+                    # ChatCompletionMessageFunctionToolCall object
+                    galileo_tool_calls.append(
+                        ToolCall(
+                            id=getattr(tc, "id", ""),
+                            function=ToolCallFunction(
+                                name=getattr(tc.function, "name", ""), arguments=getattr(tc.function, "arguments", "")
+                            ),
+                        )
+                    )
+                elif isinstance(tc, dict) and "function" in tc:
+                    # Dictionary tool call
+                    galileo_tool_calls.append(
+                        ToolCall(
+                            id=tc.get("id", ""),
+                            function=ToolCallFunction(
+                                name=tc["function"].get("name", ""), arguments=tc["function"].get("arguments", "")
+                            ),
+                        )
+                    )
+
+        return Message(
+            content=str(content) if content is not None else "",
+            role=MessageRole(role),
+            tool_calls=galileo_tool_calls,
+            tool_call_id=tool_call_id,
+        )
+    return Message(content=str(data), role=MessageRole(default_role))
 
 
 def _extract_chat_response(kwargs: dict) -> dict:
@@ -213,6 +287,8 @@ def _extract_input_data_from_kwargs(
         prompt = kwargs.get("prompt")
     elif resource.type == "chat":
         prompt = kwargs.get("messages", [])
+    elif resource.type == "response":
+        prompt = kwargs.get("input", "")
 
     parsed_temperature = float(
         kwargs.get("temperature", 1) if not isinstance(kwargs.get("temperature", 1), NotGiven) else 1
@@ -283,6 +359,17 @@ def _parse_usage(usage: Optional[dict] = None) -> Optional[dict]:
 
     usage_dict = usage.copy() if isinstance(usage, dict) else usage.__dict__
 
+    # Handle Responses API field names (input_tokens/output_tokens) vs Chat Completions (prompt_tokens/completion_tokens)
+    if "input_tokens" in usage_dict:
+        usage_dict["prompt_tokens"] = usage_dict.pop("input_tokens")
+    if "output_tokens" in usage_dict:
+        usage_dict["completion_tokens"] = usage_dict.pop("output_tokens")
+
+    if "input_tokens_details" in usage_dict:
+        usage_dict["prompt_tokens_details"] = usage_dict.pop("input_tokens_details")
+    if "output_tokens_details" in usage_dict:
+        usage_dict["completion_tokens_details"] = usage_dict.pop("output_tokens_details")
+
     for tokens_details in ["prompt_tokens_details", "completion_tokens_details"]:
         if tokens_details in usage_dict and usage_dict[tokens_details] is not None:
             tokens_details_dict = (
@@ -293,6 +380,44 @@ def _parse_usage(usage: Optional[dict] = None) -> Optional[dict]:
             usage_dict[tokens_details] = {k: v for k, v in tokens_details_dict.items() if v is not None}
 
     return usage_dict
+
+
+def _extract_responses_output(output_items: list) -> dict:
+    """Extract the final message and tool calls from Responses API output items."""
+    final_message = None
+    tool_calls = []
+
+    for item in output_items:
+        if hasattr(item, "type") and item.type == "message":
+            final_message = {"role": getattr(item, "role", "assistant"), "content": ""}
+
+            content = getattr(item, "content", [])
+            if isinstance(content, list):
+                text_parts = []
+                for content_item in content:
+                    if hasattr(content_item, "text"):
+                        text_parts.append(content_item.text)
+                    elif isinstance(content_item, dict) and "text" in content_item:
+                        text_parts.append(content_item["text"])
+                final_message["content"] = "".join(text_parts)
+            else:
+                final_message["content"] = str(content)
+
+        elif hasattr(item, "type") and item.type == "function_call":
+            tool_call = {
+                "id": getattr(item, "id", ""),
+                "function": {"name": getattr(item, "name", ""), "arguments": getattr(item, "arguments", "")},
+                "type": "function",
+            }
+            tool_calls.append(tool_call)
+
+    if final_message:
+        if tool_calls:
+            final_message["tool_calls"] = tool_calls
+        return final_message
+    if tool_calls:
+        return {"role": "assistant", "tool_calls": tool_calls}
+    return {"role": "assistant", "content": ""}
 
 
 def _extract_data_from_default_response(resource: OpenAiModuleDefinition, response: dict[str, Any]) -> Any:
@@ -325,6 +450,10 @@ def _extract_data_from_default_response(resource: OpenAiModuleDefinition, respon
                 completion = (
                     _extract_chat_response(choice.message.__dict__) if _is_openai_v1() else choice.get("message", None)
                 )
+    elif resource.type == "response":
+        # Handle Responses API structure
+        output = response.get("output", [])
+        completion = _extract_responses_output(output)
 
     usage = _parse_usage(response.get("usage"))
 
@@ -335,9 +464,26 @@ def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: 
     completion = defaultdict(str) if resource.type == "chat" else ""
     model, usage = None, None
 
+    # For Responses API, we just need to find the final completed event
+    if resource.type == "response":
+        final_response = None
+
     for chunk in chunks:
         if _is_openai_v1():
             chunk = chunk.__dict__
+
+        if resource.type == "response":
+            chunk_type = chunk.get("type", "")
+
+            if chunk_type == "response.completed":
+                final_response = chunk.get("response")
+                if final_response:
+                    model = getattr(final_response, "model", None)
+                    usage_obj = getattr(final_response, "usage", None)
+                    if usage_obj:
+                        usage = _parse_usage(usage_obj.__dict__ if hasattr(usage_obj, "__dict__") else usage_obj)
+
+            continue
 
         model = model or chunk.get("model", None) or None
         usage = chunk.get("usage", None)
@@ -414,7 +560,15 @@ def _extract_streamed_openai_response(resource: OpenAiModuleDefinition, chunks: 
             or None
         )
 
-    return model, get_response_for_chat() if resource.type == "chat" else completion, usage
+    if resource.type == "chat":
+        return model, get_response_for_chat(), usage
+    if resource.type == "response":
+        if final_response:
+            output_items = getattr(final_response, "output", [])
+            response_message = _extract_responses_output(output_items)
+            return model, response_message, usage
+        return model, {"role": "assistant", "content": ""}, usage
+    return model, completion, usage
 
 
 def _is_openai_v1() -> bool:
@@ -442,7 +596,14 @@ def _wrap(
     else:
         # If we don't have an active trace, start a new trace
         # We will conclude it at the end
-        galileo_logger.start_trace(input=serialize_to_str(input_data.input), name=input_data.name)
+        if isinstance(input_data.input, list):
+            trace_input_messages = [_convert_to_galileo_message(msg) for msg in input_data.input]
+        else:
+            trace_input_messages = [_convert_to_galileo_message(input_data.input)]
+
+        # Serialize with "messages" wrapper for UI compatibility
+        trace_input = {"messages": [msg.model_dump(exclude_none=True) for msg in trace_input_messages]}
+        galileo_logger.start_trace(input=serialize_to_str(trace_input), name=input_data.name)
         should_complete_trace = True
 
     try:
@@ -476,10 +637,17 @@ def _wrap(
 
         duration_ns = round((end_time - start_time).total_seconds() * 1e9)
 
+        if isinstance(input_data.input, list):
+            span_input = [_convert_to_galileo_message(msg) for msg in input_data.input]
+        else:
+            span_input = [_convert_to_galileo_message(input_data.input)]
+
+        span_output = _convert_to_galileo_message(completion, "assistant")
+
         # Add a span to the current trace or span (if this is a nested trace)
         galileo_logger.add_llm_span(
-            input=input_data.input,
-            output=completion,
+            input=span_input,
+            output=span_output,
             tools=input_data.tools,
             name=input_data.name,
             model=model,
@@ -496,8 +664,19 @@ def _wrap(
 
         # Conclude the trace if this is the top-level call
         if should_complete_trace:
+            full_conversation = []
+
+            if isinstance(input_data.input, list):
+                full_conversation.extend([_convert_to_galileo_message(msg) for msg in input_data.input])
+            else:
+                full_conversation.append(_convert_to_galileo_message(input_data.input))
+
+            full_conversation.append(span_output)
+
+            # Serialize with "messages" wrapper for UI compatibility
+            trace_output = {"messages": [msg.model_dump(exclude_none=True) for msg in full_conversation]}
             galileo_logger.conclude(
-                output=serialize_to_str(completion), duration_ns=duration_ns, status_code=status_code
+                output=serialize_to_str(trace_output), duration_ns=duration_ns, status_code=status_code
             )
 
         # we want to re-raise exception after we process openai_response
@@ -593,10 +772,17 @@ class ResponseGeneratorSync:
         # TODO: make sure completion_start_time what we want
         duration_ns = round((end_time - self.completion_start_time).total_seconds() * 1e9)
 
+        if isinstance(self.input_data.input, list):
+            span_input = [_convert_to_galileo_message(msg) for msg in self.input_data.input]
+        else:
+            span_input = [_convert_to_galileo_message(self.input_data.input)]
+
+        span_output = _convert_to_galileo_message(completion, "assistant")
+
         # Add a span to the current trace or span (if this is a nested trace)
         self.logger.add_llm_span(
-            input=self.input_data.input,
-            output=completion,
+            input=span_input,
+            output=span_output,
             tools=self.input_data.tools,
             name=self.input_data.name,
             model=model,
@@ -611,7 +797,19 @@ class ResponseGeneratorSync:
 
         # Conclude the trace if this is the top-level call
         if self.should_complete_trace:
-            self.logger.conclude(output=completion, duration_ns=duration_ns, status_code=self.status_code)
+            full_conversation = []
+
+            if isinstance(self.input_data.input, list):
+                full_conversation.extend([_convert_to_galileo_message(msg) for msg in self.input_data.input])
+            else:
+                full_conversation.append(_convert_to_galileo_message(self.input_data.input))
+
+            full_conversation.append(span_output)
+
+            trace_output = {"messages": [msg.model_dump(exclude_none=True) for msg in full_conversation]}
+            self.logger.conclude(
+                output=serialize_to_str(trace_output), duration_ns=duration_ns, status_code=self.status_code
+            )
 
 
 class OpenAIGalileo:
