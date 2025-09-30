@@ -1,6 +1,6 @@
 [project]
 name = "galileo"
-version = "1.21.0"
+version = "1.22.0"
 description = "Client library for the Galileo platform."
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
@@ -131,6 +131,8 @@ select = [
     "ISC",
     # Type checking related (important for bug catching)
     "ANN001", "ANN201", "ANN202", "ANN205", "ANN206",
+    # Flake8-print (no print statements in production code)
+    "T201",
 ]
 ignore = [
     # Ignore overly strict rules (aligned with popular frameworks)
@@ -190,6 +192,14 @@ ignore = [
     "B008",     # Function calls in argument defaults
     "B017",     # Do not assert blind exception (needed for pytest.raises)
     "PT",       # Pytest style rules (can be overly strict)
+    "T201",     # Print statements (allowed in tests for debugging)
+]
+# Allow print statements in examples (they're documentation) and scripts (utility tools)
+"examples/**/*.py" = [
+    "T201",     # Print statements (allowed in examples)
+]
+"scripts/**/*.py" = [
+    "T201",     # Print statements (allowed in scripts)
 ]
 
 [tool.ruff.lint.isort]

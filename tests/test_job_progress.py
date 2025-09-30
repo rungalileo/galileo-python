@@ -1,10 +1,11 @@
+import logging
 import re
 from typing import Optional
 from unittest.mock import ANY, Mock, patch
 from uuid import uuid4
 
 import pytest
-from pytest import CaptureFixture
+from pytest import CaptureFixture, LogCaptureFixture
 
 from galileo.job_progress import job_progress, scorer_jobs_status
 from galileo.resources.models import HTTPValidationError, JobDB, ValidationError
@@ -83,7 +84,7 @@ class TestJobProgress:
 
 class TestScorerJobsStatus:
     @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
-    def test_simple(self, mock_get_jobs: Mock, capsys: CaptureFixture[str]):
+    def test_simple(self, mock_get_jobs: Mock, caplog: LogCaptureFixture, enable_galileo_logging):
         mock_get_jobs.return_value = [
             _job_db_factory(
                 job_name="log_stream_scorer",
@@ -92,12 +93,12 @@ class TestScorerJobsStatus:
             )
         ]
 
-        scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
-        captured = capsys.readouterr()
-        assert captured.out == "pii: Computing 🚧\n"
+        with caplog.at_level(logging.INFO, logger="galileo.job_progress"):
+            scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
+            assert "pii: Computing 🚧" in caplog.text
 
     @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
-    def test_skips_prompt_run(self, mock_get_jobs: Mock, capsys: CaptureFixture[str]):
+    def test_skips_prompt_run(self, mock_get_jobs: Mock, caplog: LogCaptureFixture, enable_galileo_logging):
         mock_get_jobs.return_value = [
             _job_db_factory(job_name="log_stream_run"),
             _job_db_factory(
@@ -107,9 +108,9 @@ class TestScorerJobsStatus:
             ),
         ]
 
-        scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
-        captured = capsys.readouterr()
-        assert captured.out == "pii: Computing 🚧\n"
+        with caplog.at_level(logging.INFO, logger="galileo.job_progress"):
+            scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
+            assert "pii: Computing 🚧" in caplog.text
 
     @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
     def test_no_scorer_jobs(self, mock_get_jobs: Mock, capsys: CaptureFixture[str]):
@@ -120,7 +121,7 @@ class TestScorerJobsStatus:
         assert captured.out == ""
 
     @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
-    def test_one_of_each(self, mock_get_jobs: Mock, capsys: CaptureFixture[str]):
+    def test_one_of_each(self, mock_get_jobs: Mock, caplog: LogCaptureFixture, enable_galileo_logging):
         mock_get_jobs.return_value = [
             _job_db_factory(job_name="log_stream_run"),
             _job_db_factory(
@@ -141,17 +142,14 @@ class TestScorerJobsStatus:
             ),
         ]
 
-        scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
-        captured = capsys.readouterr()
-        assert captured.out.split("\n") == [
-            "pii: Computing 🚧",
-            "toxicity: Failed ❌, error was: An error occurred.",
-            "chunk_attribution_utilization_plus: Done ✅",
-            "",
-        ]
+        with caplog.at_level(logging.INFO, logger="galileo.job_progress"):
+            scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
+            assert "pii: Computing 🚧" in caplog.text
+            assert "toxicity: Failed ❌, error was: An error occurred." in caplog.text
+            assert "chunk_attribution_utilization_plus: Done ✅" in caplog.text
 
     @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
-    def test_unknown_scorer_name(self, mock_get_jobs: Mock, capsys: CaptureFixture[str]):
+    def test_unknown_scorer_name(self, mock_get_jobs: Mock, caplog: LogCaptureFixture, enable_galileo_logging):
         mock_get_jobs.return_value = [
             _job_db_factory(job_name="log_stream_run"),
             _job_db_factory(
@@ -161,9 +159,9 @@ class TestScorerJobsStatus:
             ),
         ]
 
-        scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
-        captured = capsys.readouterr()
-        assert captured.out == "abc: Computing 🚧\n"
+        with caplog.at_level(logging.INFO, logger="galileo.job_progress"):
+            scorer_jobs_status(project_id=FIXED_PROJECT_ID, run_id=FIXED_RUN_ID)
+            assert "abc: Computing 🚧" in caplog.text
 
     @patch("galileo.job_progress.get_jobs_for_project_run_projects_project_id_runs_run_id_jobs_get.sync")
     def test_get_run_scorer_jobs_fails(self, mock_get_jobs: Mock):

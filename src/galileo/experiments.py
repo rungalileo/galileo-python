@@ -20,9 +20,10 @@ from galileo.resources.models import ExperimentResponse, HTTPValidationError, Pr
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.utils.datasets import load_dataset_and_records
+from galileo.utils.logging import get_logger
 from galileo.utils.metrics import create_metric_configs
 
-_logger = logging.getLogger(__name__)
+_logger = get_logger(__name__)
 
 EXPERIMENT_TASK_TYPE: TaskType = 16
 
@@ -138,7 +139,7 @@ class Experiments:
 
         link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {link}"
-        print(message)
+        _logger.info(message)
 
         return {"experiment": experiment_obj, "link": link, "message": message}
 
@@ -168,7 +169,7 @@ class Experiments:
 
         link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has completed and results are available at {link}"
-        print(message)
+        _logger.info(message)
 
         return {"experiment": experiment_obj, "link": link, "message": message}
 
