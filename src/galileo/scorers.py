@@ -12,6 +12,7 @@ from galileo.resources.api.run_scorer_settings import (
 from galileo.resources.models import (
     HTTPValidationError,
     ListScorersRequest,
+    ListScorersResponse,
     ScorerConfig,
     ScorerResponse,
     ScorerTypeFilter,
@@ -30,7 +31,7 @@ class Scorers:
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
 
-    def list(self, types: Optional[list[ScorerTypes]] = None) -> Union[Unset, list[ScorerResponse]]:
+    def list(self, types: Optional[list[ScorerTypes]] = None) -> list[ScorerResponse]:
         """
         Args:
             types: List of scorer types to filter by. Defaults to all scorers.
@@ -40,8 +41,28 @@ class Scorers:
         body = ListScorersRequest(
             filters=[ScorerTypeFilter(value=type_, operator=ScorerTypeFilterOperator.EQ) for type_ in (types or [])]
         )
-        result = list_scorers_with_filters_scorers_list_post.sync(client=self.config.api_client, body=body)
-        return result.scorers
+
+        all_scorers: list[ScorerResponse] = []
+        starting_token = 0
+        limit = 100
+
+        while True:
+            result = list_scorers_with_filters_scorers_list_post.sync(
+                client=self.config.api_client, body=body, starting_token=starting_token, limit=limit
+            )
+
+            if not isinstance(result, ListScorersResponse):
+                raise ValueError(f"Failed to list scorers, got response: {result}")
+
+            if not isinstance(result.scorers, Unset) and result.scorers:
+                all_scorers.extend(result.scorers)
+
+            if result.next_starting_token is not None and not isinstance(result.next_starting_token, Unset):
+                starting_token = result.next_starting_token
+            else:
+                break
+
+        return all_scorers
 
     def get_scorer_version(self, scorer_id: UUID, version: int) -> Union[Unset, BaseScorerVersionResponse]:
         """
