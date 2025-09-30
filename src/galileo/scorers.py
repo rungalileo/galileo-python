@@ -44,11 +44,9 @@ class Scorers:
 
         all_scorers: list[ScorerResponse] = []
         starting_token = 0
-        limit = 100
-
         while True:
             result = list_scorers_with_filters_scorers_list_post.sync(
-                client=self.config.api_client, body=body, starting_token=starting_token, limit=limit
+                client=self.config.api_client, body=body, starting_token=starting_token
             )
 
             if not isinstance(result, ListScorersResponse):

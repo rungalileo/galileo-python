@@ -58,9 +58,7 @@ def test_list_all_scorers(list_scorers_mock: Mock) -> None:
     for r in results:
         actual[r.name] = r.scorer_type.name
     assert actual == {"agentic_workflow_success": "PRESET", "dummy_llm": "LLM"}
-    list_scorers_mock.sync.assert_called_once_with(
-        client=ANY, body=ListScorersRequest(filters=[]), starting_token=0, limit=100
-    )
+    list_scorers_mock.sync.assert_called_once_with(client=ANY, body=ListScorersRequest(filters=[]), starting_token=0)
 
 
 @patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
@@ -73,7 +71,6 @@ def test_list_all_scorers_preset_filter(list_scorers_mock: Mock) -> None:
             filters=[ScorerTypeFilter(operator=ScorerTypeFilterOperator.EQ, value=ScorerTypes.LLM)]
         ),
         starting_token=0,
-        limit=100,
     )
 
 
@@ -140,8 +137,8 @@ def test_list_all_scorers_paginated(list_scorers_mock: Mock) -> None:
 
     # Verify that the mock was called twice with the correct starting_token
     assert list_scorers_mock.sync.call_count == 2
-    list_scorers_mock.sync.assert_any_call(client=ANY, body=ListScorersRequest(filters=[]), starting_token=0, limit=100)
-    list_scorers_mock.sync.assert_any_call(client=ANY, body=ListScorersRequest(filters=[]), starting_token=1, limit=100)
+    list_scorers_mock.sync.assert_any_call(client=ANY, body=ListScorersRequest(filters=[]), starting_token=0)
+    list_scorers_mock.sync.assert_any_call(client=ANY, body=ListScorersRequest(filters=[]), starting_token=1)
 
 
 def create_mock_version_response():
