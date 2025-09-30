@@ -920,3 +920,36 @@ class TestExperiments:
         assert mock_create_experiment.call_args[0][0] == "00000000-0000-0000-0000-000000000000"
         assert mock_create_experiment.call_args[0][1] == "test_experiment"
         mock_create_job_sync.assert_called_once()
+
+    @patch("galileo.experiments.upsert_experiment_tag")
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.jobs.Jobs, "create")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=None)
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_with_experiment_tags_basic(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_create_job: Mock,
+        mock_get_dataset: Mock,
+        mock_upsert_tag: Mock,
+        dataset_content: DatasetContent,
+    ) -> None:
+        """Test that experiment_tags are applied when running experiments."""
+        mock_create_job.return_value = MagicMock()
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content)
+
+        experiment_tags = {"environment": "test", "version": "1.0", "team": "qa"}
+
+        run_experiment(
+            experiment_name="test_experiment_with_tags",
+            project="awesome-new-project",
+            dataset_id=str(UUID(int=0)),
+            prompt_template=prompt_template(),
+            experiment_tags=experiment_tags,
+        )
+
+        assert mock_upsert_tag.call_count == 3
