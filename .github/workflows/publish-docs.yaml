@@ -15,12 +15,12 @@ jobs:
     steps:
       # Checkout both this repo, and the docs official repo
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: ./galileo-python
 
       - name: Check out Docs repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: rungalileo/docs-official
           path: ./docs-official
