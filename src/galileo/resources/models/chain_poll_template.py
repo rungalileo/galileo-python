@@ -43,10 +43,7 @@ class ChainPollTemplate:
         explanation_field_name = self.explanation_field_name
 
         metric_description: Union[None, Unset, str]
-        if isinstance(self.metric_description, Unset):
-            metric_description = UNSET
-        else:
-            metric_description = self.metric_description
+        metric_description = UNSET if isinstance(self.metric_description, Unset) else self.metric_description
 
         metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
@@ -56,10 +53,7 @@ class ChainPollTemplate:
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
         metric_system_prompt: Union[None, Unset, str]
-        if isinstance(self.metric_system_prompt, Unset):
-            metric_system_prompt = UNSET
-        else:
-            metric_system_prompt = self.metric_system_prompt
+        metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
 
         value_field_name = self.value_field_name
 

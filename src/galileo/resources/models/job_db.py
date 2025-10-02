@@ -89,10 +89,7 @@ class JobDB:
             completed_at = self.completed_at
 
         error_message: Union[None, Unset, str]
-        if isinstance(self.error_message, Unset):
-            error_message = UNSET
-        else:
-            error_message = self.error_message
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
 
         failed_at: Union[None, Unset, str]
         if isinstance(self.failed_at, Unset):
@@ -103,16 +100,10 @@ class JobDB:
             failed_at = self.failed_at
 
         migration_name: Union[None, Unset, str]
-        if isinstance(self.migration_name, Unset):
-            migration_name = UNSET
-        else:
-            migration_name = self.migration_name
+        migration_name = UNSET if isinstance(self.migration_name, Unset) else self.migration_name
 
         monitor_batch_id: Union[None, Unset, str]
-        if isinstance(self.monitor_batch_id, Unset):
-            monitor_batch_id = UNSET
-        else:
-            monitor_batch_id = self.monitor_batch_id
+        monitor_batch_id = UNSET if isinstance(self.monitor_batch_id, Unset) else self.monitor_batch_id
 
         processing_started: Union[None, Unset, str]
         if isinstance(self.processing_started, Unset):
@@ -123,10 +114,7 @@ class JobDB:
             processing_started = self.processing_started
 
         progress_message: Union[None, Unset, str]
-        if isinstance(self.progress_message, Unset):
-            progress_message = UNSET
-        else:
-            progress_message = self.progress_message
+        progress_message = UNSET if isinstance(self.progress_message, Unset) else self.progress_message
 
         progress_percent = self.progress_percent
 
@@ -203,9 +191,8 @@ class JobDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                completed_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return completed_at_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, datetime.datetime], data)
@@ -229,9 +216,8 @@ class JobDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                failed_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return failed_at_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, datetime.datetime], data)
@@ -264,9 +250,8 @@ class JobDB:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                processing_started_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return processing_started_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, datetime.datetime], data)

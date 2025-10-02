@@ -30,28 +30,16 @@ class LlmMetrics:
 
     def to_dict(self) -> dict[str, Any]:
         duration_ns: Union[None, Unset, int]
-        if isinstance(self.duration_ns, Unset):
-            duration_ns = UNSET
-        else:
-            duration_ns = self.duration_ns
+        duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
 
         num_input_tokens: Union[None, Unset, int]
-        if isinstance(self.num_input_tokens, Unset):
-            num_input_tokens = UNSET
-        else:
-            num_input_tokens = self.num_input_tokens
+        num_input_tokens = UNSET if isinstance(self.num_input_tokens, Unset) else self.num_input_tokens
 
         num_output_tokens: Union[None, Unset, int]
-        if isinstance(self.num_output_tokens, Unset):
-            num_output_tokens = UNSET
-        else:
-            num_output_tokens = self.num_output_tokens
+        num_output_tokens = UNSET if isinstance(self.num_output_tokens, Unset) else self.num_output_tokens
 
         num_total_tokens: Union[None, Unset, int]
-        if isinstance(self.num_total_tokens, Unset):
-            num_total_tokens = UNSET
-        else:
-            num_total_tokens = self.num_total_tokens
+        num_total_tokens = UNSET if isinstance(self.num_total_tokens, Unset) else self.num_total_tokens
 
         time_to_first_token_ns: Union[None, Unset, int]
         if isinstance(self.time_to_first_token_ns, Unset):

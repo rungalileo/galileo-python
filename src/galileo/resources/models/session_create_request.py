@@ -31,40 +31,22 @@ class SessionCreateRequest:
 
     def to_dict(self) -> dict[str, Any]:
         experiment_id: Union[None, Unset, str]
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         external_id: Union[None, Unset, str]
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         log_stream_id: Union[None, Unset, str]
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         metrics_testing_id: Union[None, Unset, str]
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         previous_session_id: Union[None, Unset, str]
-        if isinstance(self.previous_session_id, Unset):
-            previous_session_id = UNSET
-        else:
-            previous_session_id = self.previous_session_id
+        previous_session_id = UNSET if isinstance(self.previous_session_id, Unset) else self.previous_session_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

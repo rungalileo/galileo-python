@@ -47,22 +47,13 @@ class FeedbackRatingDB:
         created_by = self.created_by
 
         rating: dict[str, Any]
-        if isinstance(self.rating, LikeDislikeRating):
-            rating = self.rating.to_dict()
-        elif isinstance(self.rating, StarRating):
-            rating = self.rating.to_dict()
-        elif isinstance(self.rating, ScoreRating):
-            rating = self.rating.to_dict()
-        elif isinstance(self.rating, TagsRating):
+        if isinstance(self.rating, (LikeDislikeRating, StarRating, ScoreRating, TagsRating)):
             rating = self.rating.to_dict()
         else:
             rating = self.rating.to_dict()
 
         explanation: Union[None, Unset, str]
-        if isinstance(self.explanation, Unset):
-            explanation = UNSET
-        else:
-            explanation = self.explanation
+        explanation = UNSET if isinstance(self.explanation, Unset) else self.explanation
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -96,40 +87,34 @@ class FeedbackRatingDB:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                rating_type_0 = LikeDislikeRating.from_dict(data)
+                return LikeDislikeRating.from_dict(data)
 
-                return rating_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                rating_type_1 = StarRating.from_dict(data)
+                return StarRating.from_dict(data)
 
-                return rating_type_1
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                rating_type_2 = ScoreRating.from_dict(data)
+                return ScoreRating.from_dict(data)
 
-                return rating_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                rating_type_3 = TagsRating.from_dict(data)
+                return TagsRating.from_dict(data)
 
-                return rating_type_3
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            rating_type_4 = TextRating.from_dict(data)
-
-            return rating_type_4
+            return TextRating.from_dict(data)
 
         rating = _parse_rating(d.pop("rating"))
 

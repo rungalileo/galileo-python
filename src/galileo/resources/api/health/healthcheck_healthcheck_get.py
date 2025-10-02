@@ -13,8 +13,6 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    headers: dict[str, Any] = {}
-
     _kwargs: dict[str, Any] = {"method": RequestMethod.GET, "return_raw_response": True, "path": "/healthcheck"}
 
     headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
@@ -25,13 +23,11 @@ def _get_kwargs() -> dict[str, Any]:
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[HealthcheckResponse]:
     if response.status_code == 200:
-        response_200 = HealthcheckResponse.from_dict(response.json())
+        return HealthcheckResponse.from_dict(response.json())
 
-        return response_200
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HealthcheckResponse]:

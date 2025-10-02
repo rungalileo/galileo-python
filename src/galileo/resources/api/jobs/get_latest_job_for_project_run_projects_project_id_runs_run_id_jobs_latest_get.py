@@ -14,8 +14,6 @@ from ...types import Response
 
 
 def _get_kwargs(project_id: str, run_id: str) -> dict[str, Any]:
-    headers: dict[str, Any] = {}
-
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.GET,
         "return_raw_response": True,
@@ -39,24 +37,20 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_0 = JobDB.from_dict(data)
+                return JobDB.from_dict(data)
 
-                return response_200_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["JobDB", None], data)
 
-        response_200 = _parse_response_200(response.json())
+        return _parse_response_200(response.json())
 
-        return response_200
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
+        return HTTPValidationError.from_dict(response.json())
 
-        return response_422
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(

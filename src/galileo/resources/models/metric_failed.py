@@ -26,10 +26,7 @@ class MetricFailed:
 
     def to_dict(self) -> dict[str, Any]:
         message: Union[None, Unset, str]
-        if isinstance(self.message, Unset):
-            message = UNSET
-        else:
-            message = self.message
+        message = UNSET if isinstance(self.message, Unset) else self.message
 
         scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
@@ -74,9 +71,8 @@ class MetricFailed:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                scorer_type_type_0 = ScorerType(data)
+                return ScorerType(data)
 
-                return scorer_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, ScorerType, Unset], data)

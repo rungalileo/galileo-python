@@ -13,8 +13,6 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
-    headers: dict[str, Any] = {}
-
     _kwargs: dict[str, Any] = {"method": RequestMethod.GET, "return_raw_response": True, "path": "/collaborator_roles"}
 
     headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"
@@ -33,10 +31,10 @@ def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[
             response_200.append(response_200_item)
 
         return response_200
+
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[list["CollaboratorRoleInfo"]]:

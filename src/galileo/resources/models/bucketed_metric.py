@@ -33,10 +33,7 @@ class BucketedMetric:
         name = self.name
 
         average: Union[None, Unset, float]
-        if isinstance(self.average, Unset):
-            average = UNSET
-        else:
-            average = self.average
+        average = UNSET if isinstance(self.average, Unset) else self.average
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

@@ -35,28 +35,16 @@ class PromptDatasetDB:
         id = self.id
 
         file_name: Union[None, Unset, str]
-        if isinstance(self.file_name, Unset):
-            file_name = UNSET
-        else:
-            file_name = self.file_name
+        file_name = UNSET if isinstance(self.file_name, Unset) else self.file_name
 
         message: Union[None, Unset, str]
-        if isinstance(self.message, Unset):
-            message = UNSET
-        else:
-            message = self.message
+        message = UNSET if isinstance(self.message, Unset) else self.message
 
         num_rows: Union[None, Unset, int]
-        if isinstance(self.num_rows, Unset):
-            num_rows = UNSET
-        else:
-            num_rows = self.num_rows
+        num_rows = UNSET if isinstance(self.num_rows, Unset) else self.num_rows
 
         rows: Union[None, Unset, int]
-        if isinstance(self.rows, Unset):
-            rows = UNSET
-        else:
-            rows = self.rows
+        rows = UNSET if isinstance(self.rows, Unset) else self.rows
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

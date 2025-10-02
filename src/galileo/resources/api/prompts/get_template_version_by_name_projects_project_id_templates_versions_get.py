@@ -14,17 +14,12 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(project_id: str, *, template_name: str, version: Union[None, Unset, int] = UNSET) -> dict[str, Any]:
-    headers: dict[str, Any] = {}
-
     params: dict[str, Any] = {}
 
     params["template_name"] = template_name
 
     json_version: Union[None, Unset, int]
-    if isinstance(version, Unset):
-        json_version = UNSET
-    else:
-        json_version = version
+    json_version = UNSET if isinstance(version, Unset) else version
     params["version"] = json_version
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
@@ -46,17 +41,14 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = BasePromptTemplateVersionResponse.from_dict(response.json())
+        return BasePromptTemplateVersionResponse.from_dict(response.json())
 
-        return response_200
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
+        return HTTPValidationError.from_dict(response.json())
 
-        return response_422
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(

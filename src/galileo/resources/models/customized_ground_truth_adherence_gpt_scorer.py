@@ -106,26 +106,17 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             aggregates = self.aggregates
 
         can_copy_to_llm: Union[None, Unset, bool]
-        if isinstance(self.can_copy_to_llm, Unset):
-            can_copy_to_llm = UNSET
-        else:
-            can_copy_to_llm = self.can_copy_to_llm
+        can_copy_to_llm = UNSET if isinstance(self.can_copy_to_llm, Unset) else self.can_copy_to_llm
 
         chainpoll_template: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.chainpoll_template, Unset):
             chainpoll_template = self.chainpoll_template.to_dict()
 
         cot_enabled: Union[None, Unset, bool]
-        if isinstance(self.cot_enabled, Unset):
-            cot_enabled = UNSET
-        else:
-            cot_enabled = self.cot_enabled
+        cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
         description: Union[None, Unset, str]
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         extra: Union[None, Unset, dict[str, Any]]
         if isinstance(self.extra, Unset):
@@ -153,16 +144,10 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             filters = self.filters
 
         generated_scorer_id: Union[None, Unset, str]
-        if isinstance(self.generated_scorer_id, Unset):
-            generated_scorer_id = UNSET
-        else:
-            generated_scorer_id = self.generated_scorer_id
+        generated_scorer_id = UNSET if isinstance(self.generated_scorer_id, Unset) else self.generated_scorer_id
 
         ground_truth: Union[None, Unset, bool]
-        if isinstance(self.ground_truth, Unset):
-            ground_truth = UNSET
-        else:
-            ground_truth = self.ground_truth
+        ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
 
         indices: Union[None, Unset, list[int]]
         if isinstance(self.indices, Unset):
@@ -182,16 +167,10 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             input_type = self.input_type
 
         lora_task_id: Union[None, Unset, int]
-        if isinstance(self.lora_task_id, Unset):
-            lora_task_id = UNSET
-        else:
-            lora_task_id = self.lora_task_id
+        lora_task_id = UNSET if isinstance(self.lora_task_id, Unset) else self.lora_task_id
 
         metric_name: Union[None, Unset, str]
-        if isinstance(self.metric_name, Unset):
-            metric_name = UNSET
-        else:
-            metric_name = self.metric_name
+        metric_name = UNSET if isinstance(self.metric_name, Unset) else self.metric_name
 
         model_alias = self.model_alias
 
@@ -208,18 +187,12 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             output_type = self.output_type
 
         prompt: Union[None, Unset, str]
-        if isinstance(self.prompt, Unset):
-            prompt = UNSET
-        else:
-            prompt = self.prompt
+        prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
 
         regex_field = self.regex_field
 
         registered_scorer_id: Union[None, Unset, str]
-        if isinstance(self.registered_scorer_id, Unset):
-            registered_scorer_id = UNSET
-        else:
-            registered_scorer_id = self.registered_scorer_id
+        registered_scorer_id = UNSET if isinstance(self.registered_scorer_id, Unset) else self.registered_scorer_id
 
         scoreable_node_types: Union[None, Unset, list[str]]
         if isinstance(self.scoreable_node_types, Unset):
@@ -332,9 +305,8 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                aggregates_type_0 = CustomizedGroundTruthAdherenceGPTScorerAggregatesType0.from_dict(data)
+                return CustomizedGroundTruthAdherenceGPTScorerAggregatesType0.from_dict(data)
 
-                return aggregates_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["CustomizedGroundTruthAdherenceGPTScorerAggregatesType0", None, Unset], data)
@@ -383,9 +355,8 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                extra_type_0 = CustomizedGroundTruthAdherenceGPTScorerExtraType0.from_dict(data)
+                return CustomizedGroundTruthAdherenceGPTScorerExtraType0.from_dict(data)
 
-                return extra_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["CustomizedGroundTruthAdherenceGPTScorerExtraType0", None, Unset], data)
@@ -408,16 +379,13 @@ class CustomizedGroundTruthAdherenceGPTScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+                            return NodeNameFilter.from_dict(data)
 
-                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
-
-                        return filters_type_0_item_type_1
+                        return MetadataFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -456,9 +424,8 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                indices_type_0 = cast(list[int], data)
+                return cast(list[int], data)
 
-                return indices_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[int]], data)
@@ -473,9 +440,8 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                input_type_type_0 = InputTypeEnum(data)
+                return InputTypeEnum(data)
 
-                return input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[InputTypeEnum, None, Unset], data)
@@ -516,9 +482,8 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = OutputTypeEnum(data)
+                return OutputTypeEnum(data)
 
-                return output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, OutputTypeEnum, Unset], data)
@@ -579,9 +544,8 @@ class CustomizedGroundTruthAdherenceGPTScorer:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scores_type_0 = cast(list[Any], data)
+                return cast(list[Any], data)
 
-                return scores_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[Any]], data)

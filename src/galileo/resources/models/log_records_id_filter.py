@@ -30,11 +30,7 @@ class LogRecordsIDFilter:
         column_id = self.column_id
 
         value: Union[list[str], str]
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         operator: Union[Unset, str] = UNSET
         if not isinstance(self.operator, Unset):
@@ -61,9 +57,8 @@ class LogRecordsIDFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(Union[list[str], str], data)
@@ -72,10 +67,7 @@ class LogRecordsIDFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: Union[Unset, LogRecordsIDFilterOperator]
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = LogRecordsIDFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else LogRecordsIDFilterOperator(_operator)
 
         type_ = cast(Union[Literal["id"], Unset], d.pop("type", UNSET))
         if type_ != "id" and not isinstance(type_, Unset):

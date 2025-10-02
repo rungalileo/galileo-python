@@ -75,9 +75,8 @@ class QueryDatasetParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                sort_type_0 = DatasetContentSortClause.from_dict(data)
+                return DatasetContentSortClause.from_dict(data)
 
-                return sort_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["DatasetContentSortClause", None, Unset], data)

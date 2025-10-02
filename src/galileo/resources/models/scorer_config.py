@@ -68,10 +68,7 @@ class ScorerConfig:
         scorer_type = self.scorer_type.value
 
         cot_enabled: Union[None, Unset, bool]
-        if isinstance(self.cot_enabled, Unset):
-            cot_enabled = UNSET
-        else:
-            cot_enabled = self.cot_enabled
+        cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
         filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
@@ -99,10 +96,7 @@ class ScorerConfig:
             input_type = self.input_type
 
         model_name: Union[None, Unset, str]
-        if isinstance(self.model_name, Unset):
-            model_name = UNSET
-        else:
-            model_name = self.model_name
+        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
@@ -113,16 +107,10 @@ class ScorerConfig:
             model_type = self.model_type
 
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         num_judges: Union[None, Unset, int]
-        if isinstance(self.num_judges, Unset):
-            num_judges = UNSET
-        else:
-            num_judges = self.num_judges
+        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
         output_type: Union[None, Unset, str]
         if isinstance(self.output_type, Unset):
@@ -211,16 +199,13 @@ class ScorerConfig:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+                            return NodeNameFilter.from_dict(data)
 
-                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
-
-                        return filters_type_0_item_type_1
+                        return MetadataFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -241,9 +226,8 @@ class ScorerConfig:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                input_type_type_0 = InputTypeEnum(data)
+                return InputTypeEnum(data)
 
-                return input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[InputTypeEnum, None, Unset], data)
@@ -267,9 +251,8 @@ class ScorerConfig:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = ModelType(data)
+                return ModelType(data)
 
-                return model_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[ModelType, None, Unset], data)
@@ -302,9 +285,8 @@ class ScorerConfig:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = OutputTypeEnum(data)
+                return OutputTypeEnum(data)
 
-                return output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, OutputTypeEnum, Unset], data)
@@ -319,9 +301,8 @@ class ScorerConfig:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scoreable_node_types_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[str]], data)
@@ -336,9 +317,8 @@ class ScorerConfig:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                scorer_version_type_0 = BaseScorerVersionDB.from_dict(data)
+                return BaseScorerVersionDB.from_dict(data)
 
-                return scorer_version_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["BaseScorerVersionDB", None, Unset], data)

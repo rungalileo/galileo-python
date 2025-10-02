@@ -22,6 +22,7 @@ class BodyCreateDatasetDatasetsPost:
         file (Union[File, None, Unset]):
         hidden (Union[Unset, bool]):  Default: False.
         name (Union[None, Unset, str]):
+        project_id (Union[None, Unset, str]):
     """
 
     append_suffix_if_duplicate: Union[Unset, bool] = False
@@ -31,16 +32,14 @@ class BodyCreateDatasetDatasetsPost:
     file: Union[File, None, Unset] = UNSET
     hidden: Union[Unset, bool] = False
     name: Union[None, Unset, str] = UNSET
+    project_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         append_suffix_if_duplicate = self.append_suffix_if_duplicate
 
         copy_from_dataset_id: Union[None, Unset, str]
-        if isinstance(self.copy_from_dataset_id, Unset):
-            copy_from_dataset_id = UNSET
-        else:
-            copy_from_dataset_id = self.copy_from_dataset_id
+        copy_from_dataset_id = UNSET if isinstance(self.copy_from_dataset_id, Unset) else self.copy_from_dataset_id
 
         copy_from_dataset_version_index: Union[None, Unset, int]
         if isinstance(self.copy_from_dataset_version_index, Unset):
@@ -62,10 +61,10 @@ class BodyCreateDatasetDatasetsPost:
         hidden = self.hidden
 
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
+
+        project_id: Union[None, Unset, str]
+        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -84,6 +83,8 @@ class BodyCreateDatasetDatasetsPost:
             field_dict["hidden"] = hidden
         if name is not UNSET:
             field_dict["name"] = name
+        if project_id is not UNSET:
+            field_dict["project_id"] = project_id
 
         return field_dict
 
@@ -135,6 +136,12 @@ class BodyCreateDatasetDatasetsPost:
             else:
                 files.append(("name", (None, str(self.name).encode(), "text/plain")))
 
+        if not isinstance(self.project_id, Unset):
+            if isinstance(self.project_id, str):
+                files.append(("project_id", (None, str(self.project_id).encode(), "text/plain")))
+            else:
+                files.append(("project_id", (None, str(self.project_id).encode(), "text/plain")))
+
         for prop_name, prop in self.additional_properties.items():
             files.append((prop_name, (None, str(prop).encode(), "text/plain")))
 
@@ -175,9 +182,8 @@ class BodyCreateDatasetDatasetsPost:
             try:
                 if not isinstance(data, bytes):
                     raise TypeError()
-                file_type_0 = File(payload=BytesIO(data))
+                return File(payload=BytesIO(data))
 
-                return file_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[File, None, Unset], data)
@@ -195,6 +201,15 @@ class BodyCreateDatasetDatasetsPost:
 
         name = _parse_name(d.pop("name", UNSET))
 
+        def _parse_project_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        project_id = _parse_project_id(d.pop("project_id", UNSET))
+
         body_create_dataset_datasets_post = cls(
             append_suffix_if_duplicate=append_suffix_if_duplicate,
             copy_from_dataset_id=copy_from_dataset_id,
@@ -203,6 +218,7 @@ class BodyCreateDatasetDatasetsPost:
             file=file,
             hidden=hidden,
             name=name,
+            project_id=project_id,
         )
 
         body_create_dataset_datasets_post.additional_properties = d

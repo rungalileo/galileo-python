@@ -32,17 +32,11 @@ def _get_kwargs(
     params: dict[str, Any] = {}
 
     json_file_name: Union[None, Unset, str]
-    if isinstance(file_name, Unset):
-        json_file_name = UNSET
-    else:
-        json_file_name = file_name
+    json_file_name = UNSET if isinstance(file_name, Unset) else file_name
     params["file_name"] = json_file_name
 
     json_num_rows: Union[None, Unset, int]
-    if isinstance(num_rows, Unset):
-        json_num_rows = UNSET
-    else:
-        json_num_rows = num_rows
+    json_num_rows = UNSET if isinstance(num_rows, Unset) else num_rows
     params["num_rows"] = json_num_rows
 
     json_format_: Union[Unset, str] = UNSET
@@ -74,17 +68,14 @@ def _parse_response(
     *, client: ApiClient, response: httpx.Response
 ) -> Optional[Union[HTTPValidationError, PromptDatasetDB]]:
     if response.status_code == 200:
-        response_200 = PromptDatasetDB.from_dict(response.json())
+        return PromptDatasetDB.from_dict(response.json())
 
-        return response_200
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
+        return HTTPValidationError.from_dict(response.json())
 
-        return response_422
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(

@@ -60,10 +60,7 @@ class ProjectDBThin:
         bookmark = self.bookmark
 
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
@@ -143,9 +140,8 @@ class ProjectDBThin:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                type_type_0 = ProjectType(data)
+                return ProjectType(data)
 
-                return type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, ProjectType, Unset], data)

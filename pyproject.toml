@@ -43,7 +43,7 @@ mypy = "^1.16.0"
 openai = "^1.95.1"
 codeflash = ">=0.12.3"
 ruff = "^0.12.3"
-openapi-python-client = "^0.25.3"
+openapi-python-client = "^0.26.1"
 yq = "^3.4.3"
 pyyaml = "^6.0.2"
 
