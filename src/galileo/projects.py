@@ -279,12 +279,20 @@ class Projects(DecorateAllMethods):
         response = create_user_project_collaborators_projects_project_id_users_post.sync(
             project_id=project_id, client=self.config.api_client, body=body
         )
-        return response[0] if response else None
+        if isinstance(response, HTTPValidationError):
+            raise ValueError(response.detail)
+        if response is None:
+            raise ValueError(f"Failed to share project {project_id} with user {user_id}")
+        return response[0]
 
     def unshare_project_with_user(self, project_id: str, user_id: str) -> None:
-        delete_user_project_collaborator_projects_project_id_users_user_id_delete.sync(
+        response = delete_user_project_collaborator_projects_project_id_users_user_id_delete.sync(
             project_id=project_id, user_id=user_id, client=self.config.api_client
         )
+        if isinstance(response, HTTPValidationError):
+            raise ValueError(response.detail)
+        if response is None:
+            raise ValueError(f"Failed to unshare project {project_id} with user {user_id}")
 
     def list_user_project_collaborators(self, project_id: str) -> builtins.list[UserCollaborator]:
         all_collaborators: list[UserCollaborator] = []
@@ -294,11 +302,15 @@ class Projects(DecorateAllMethods):
             response = list_user_project_collaborators_projects_project_id_users_get.sync(
                 project_id=project_id, client=self.config.api_client, starting_token=starting_token
             )
+            if isinstance(response, HTTPValidationError):
+                raise ValueError(response.detail)
+            if response is None:
+                raise ValueError(f"Failed to list collaborators for project {project_id}")
 
-            if response and response.collaborators:
+            if response.collaborators:
                 all_collaborators.extend(response.collaborators)
 
-            if response and response.paginated and response.next_starting_token is not None:
+            if response.paginated and response.next_starting_token is not None:
                 starting_token = response.next_starting_token
             else:
                 starting_token = None
@@ -308,9 +320,14 @@ class Projects(DecorateAllMethods):
         self, project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.VIEWER
     ) -> UserCollaborator:
         body = CollaboratorUpdate(role=role)
-        return update_user_project_collaborator_projects_project_id_users_user_id_patch.sync(
+        response = update_user_project_collaborator_projects_project_id_users_user_id_patch.sync(
             project_id=project_id, user_id=user_id, client=self.config.api_client, body=body
         )
+        if isinstance(response, HTTPValidationError):
+            raise ValueError(response.detail)
+        if response is None:
+            raise ValueError(f"Failed to update collaborator for project {project_id}")
+        return response
 
 
 #
