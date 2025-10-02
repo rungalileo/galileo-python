@@ -1,3 +1,4 @@
+import builtins
 import datetime
 import os
 from typing import Optional, Union
@@ -7,10 +8,16 @@ import httpx
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.projects import (
     create_project_projects_post,
+    create_user_project_collaborators_projects_project_id_users_post,
+    delete_user_project_collaborator_projects_project_id_users_user_id_delete,
     get_all_projects_projects_all_get,
     get_project_projects_project_id_get,
     get_projects_projects_get,
+    list_user_project_collaborators_projects_project_id_users_get,
+    update_user_project_collaborator_projects_project_id_users_user_id_patch,
 )
+from galileo.resources.models.collaborator_role import CollaboratorRole
+from galileo.resources.models.collaborator_update import CollaboratorUpdate
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.permission import Permission
 from galileo.resources.models.project_create import ProjectCreate
@@ -18,6 +25,8 @@ from galileo.resources.models.project_create_response import ProjectCreateRespon
 from galileo.resources.models.project_db import ProjectDB
 from galileo.resources.models.project_db_thin import ProjectDBThin
 from galileo.resources.models.project_type import ProjectType
+from galileo.resources.models.user_collaborator import UserCollaborator
+from galileo.resources.models.user_collaborator_create import UserCollaboratorCreate
 from galileo.resources.types import UNSET, Unset
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.exceptions import APIException
@@ -263,6 +272,46 @@ class Projects(DecorateAllMethods):
 
         return Project(project=response)
 
+    def share_project_with_user(
+        self, project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.VIEWER
+    ) -> UserCollaborator:
+        body = [UserCollaboratorCreate(user_id=user_id, role=role)]
+        response = create_user_project_collaborators_projects_project_id_users_post.sync(
+            project_id=project_id, client=self.config.api_client, body=body
+        )
+        return response[0] if response else None
+
+    def unshare_project_with_user(self, project_id: str, user_id: str) -> None:
+        delete_user_project_collaborator_projects_project_id_users_user_id_delete.sync(
+            project_id=project_id, user_id=user_id, client=self.config.api_client
+        )
+
+    def list_user_project_collaborators(self, project_id: str) -> builtins.list[UserCollaborator]:
+        all_collaborators: list[UserCollaborator] = []
+        starting_token: Optional[int] = 0
+
+        while starting_token is not None:
+            response = list_user_project_collaborators_projects_project_id_users_get.sync(
+                project_id=project_id, client=self.config.api_client, starting_token=starting_token
+            )
+
+            if response and response.collaborators:
+                all_collaborators.extend(response.collaborators)
+
+            if response and response.paginated and response.next_starting_token is not None:
+                starting_token = response.next_starting_token
+            else:
+                starting_token = None
+        return all_collaborators
+
+    def update_user_project_collaborator(
+        self, project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.VIEWER
+    ) -> UserCollaborator:
+        body = CollaboratorUpdate(role=role)
+        return update_user_project_collaborator_projects_project_id_users_user_id_patch.sync(
+            project_id=project_id, user_id=user_id, client=self.config.api_client, body=body
+        )
+
 
 #
 # Convenience methods
@@ -348,3 +397,73 @@ def create_project(name: str) -> Project:
 
     """
     return Projects().create(name=name)
+
+
+def share_project_with_user(
+    project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.VIEWER
+) -> UserCollaborator:
+    """
+    Share a project with a user.
+    Parameters
+    ----------
+    project_id : str
+        The ID of the project.
+    user_id : str
+        The ID of the user.
+    role : CollaboratorRole
+        The role to assign to the user.
+    Returns
+    -------
+    UserCollaborator
+        The response from the server.
+    """
+    return Projects().share_project_with_user(project_id=project_id, user_id=user_id, role=role)
+
+
+def unshare_project_with_user(project_id: str, user_id: str) -> None:
+    """
+    Unshare a project with a user.
+    Parameters
+    ----------
+    project_id : str
+        The ID of the project.
+    user_id : str
+        The ID of the user.
+    """
+    return Projects().unshare_project_with_user(project_id=project_id, user_id=user_id)
+
+
+def list_user_project_collaborators(project_id: str) -> list[UserCollaborator]:
+    """
+    List all users that a project is shared with.
+    Parameters
+    ----------
+    project_id : str
+        The ID of the project.
+    Returns
+    -------
+    List[UserCollaborator]
+        A list of users that the project is shared with.
+    """
+    return Projects().list_user_project_collaborators(project_id=project_id)
+
+
+def update_user_project_collaborator(
+    project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.VIEWER
+) -> UserCollaborator:
+    """
+    Update a user's role for a project.
+    Parameters
+    ----------
+    project_id : str
+        The ID of the project.
+    user_id : str
+        The ID of the user.
+    role : CollaboratorRole
+        The new role to assign to the user.
+    Returns
+    -------
+    UserCollaborator
+        The response from the server.
+    """
+    return Projects().update_user_project_collaborator(project_id=project_id, user_id=user_id, role=role)

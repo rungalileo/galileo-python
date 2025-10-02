@@ -95,3 +95,35 @@ class TestProjects:
         with patch.dict("os.environ", {"GALILEO_PROJECT": "my_project"}):
             Projects().get_with_env_fallbacks()
             get_projects_projects_get.assert_called_once_with(project_name="my_project", client=ANY, type_=ANY)
+
+    @patch("galileo.projects.create_user_project_collaborators_projects_project_id_users_post.sync")
+    def test_share_project_with_user(self, mock_create_user_project_collaborators):
+        mock_create_user_project_collaborators.return_value = [Mock()]
+        projects_client = Projects()
+        projects_client.share_project_with_user(project_id="123", user_id="456")
+        mock_create_user_project_collaborators.assert_called_once_with(project_id="123", client=ANY, body=ANY)
+
+    @patch("galileo.projects.delete_user_project_collaborator_projects_project_id_users_user_id_delete.sync")
+    def test_unshare_project_with_user(self, mock_delete_user_project_collaborator):
+        projects_client = Projects()
+        projects_client.unshare_project_with_user(project_id="123", user_id="456")
+        mock_delete_user_project_collaborator.assert_called_once_with(project_id="123", user_id="456", client=ANY)
+
+    @patch("galileo.projects.list_user_project_collaborators_projects_project_id_users_get.sync")
+    def test_list_user_project_collaborators(self, mock_list_user_project_collaborators):
+        mock_list_user_project_collaborators.side_effect = [
+            Mock(collaborators=[Mock()], paginated=True, next_starting_token=1),
+            Mock(collaborators=[Mock()], paginated=False, next_starting_token=None),
+        ]
+        projects_client = Projects()
+        collaborators = projects_client.list_user_project_collaborators(project_id="123")
+        assert len(collaborators) == 2
+        assert mock_list_user_project_collaborators.call_count == 2
+
+    @patch("galileo.projects.update_user_project_collaborator_projects_project_id_users_user_id_patch.sync")
+    def test_update_user_project_collaborator(self, mock_update_user_project_collaborator):
+        projects_client = Projects()
+        projects_client.update_user_project_collaborator(project_id="123", user_id="456")
+        mock_update_user_project_collaborator.assert_called_once_with(
+            project_id="123", user_id="456", client=ANY, body=ANY
+        )
