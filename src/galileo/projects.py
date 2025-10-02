@@ -421,6 +421,7 @@ def share_project_with_user(
 ) -> UserCollaborator:
     """
     Share a project with a user.
+
     Parameters
     ----------
     project_id : str
@@ -429,10 +430,11 @@ def share_project_with_user(
         The ID of the user.
     role : CollaboratorRole
         The role to assign to the user.
+
     Returns
     -------
     UserCollaborator
-        The response from the server.
+        The created user collaborator object.
     """
     return Projects().share_project_with_user(project_id=project_id, user_id=user_id, role=role)
 
@@ -440,6 +442,7 @@ def share_project_with_user(
 def unshare_project_with_user(project_id: str, user_id: str) -> None:
     """
     Unshare a project with a user.
+
     Parameters
     ----------
     project_id : str
@@ -453,10 +456,12 @@ def unshare_project_with_user(project_id: str, user_id: str) -> None:
 def list_user_project_collaborators(project_id: str) -> list[UserCollaborator]:
     """
     List all users that a project is shared with.
+
     Parameters
     ----------
     project_id : str
         The ID of the project.
+
     Returns
     -------
     List[UserCollaborator]
@@ -470,6 +475,7 @@ def update_user_project_collaborator(
 ) -> UserCollaborator:
     """
     Update a user's role for a project.
+
     Parameters
     ----------
     project_id : str
@@ -478,9 +484,10 @@ def update_user_project_collaborator(
         The ID of the user.
     role : CollaboratorRole
         The new role to assign to the user.
+
     Returns
     -------
     UserCollaborator
-        The response from the server.
+        The updated user collaborator object.
     """
     return Projects().update_user_project_collaborator(project_id=project_id, user_id=user_id, role=role)
