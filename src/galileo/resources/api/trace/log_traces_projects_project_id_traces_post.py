@@ -16,6 +16,7 @@ from ...types import Response
 
 def _get_kwargs(project_id: str, *, body: LogTracesIngestRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,

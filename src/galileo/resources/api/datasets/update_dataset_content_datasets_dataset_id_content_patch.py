@@ -17,6 +17,7 @@ def _get_kwargs(
     dataset_id: str, *, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    headers: dict[str, Any] = {}
     if not isinstance(if_match, Unset):
         headers["If-Match"] = if_match
 

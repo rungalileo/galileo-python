@@ -22,6 +22,7 @@ from ... import errors
 def _get_kwargs(
     {{ arguments(endpoint, include_client=False) | indent(4) }}
 ) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
     {{ header_params(endpoint) | indent(4) }}
 
     {{ cookie_params(endpoint) | indent(4) }}

@@ -13,6 +13,8 @@ from ...types import Response
 
 
 def _get_kwargs() -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
     _kwargs: dict[str, Any] = {"method": RequestMethod.GET, "return_raw_response": True, "path": "/healthcheck"}
 
     headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"

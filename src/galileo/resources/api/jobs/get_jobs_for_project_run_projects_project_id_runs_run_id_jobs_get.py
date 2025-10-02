@@ -14,6 +14,8 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(project_id: str, run_id: str, *, status: Union[None, Unset, str] = UNSET) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
     params: dict[str, Any] = {}
 
     json_status: Union[None, Unset, str]

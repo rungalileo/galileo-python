@@ -14,6 +14,8 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(project_id: str, stage_id: str, *, pause: Union[Unset, bool] = False) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
     params: dict[str, Any] = {}
 
     params["pause"] = pause

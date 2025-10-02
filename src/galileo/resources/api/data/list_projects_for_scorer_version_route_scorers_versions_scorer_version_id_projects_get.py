@@ -16,6 +16,8 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     scorer_version_id: str, *, scorer_id: str, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
     params: dict[str, Any] = {}
 
     params["scorer_id"] = scorer_id

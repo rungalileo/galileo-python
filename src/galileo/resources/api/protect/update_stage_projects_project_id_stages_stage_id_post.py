@@ -16,6 +16,7 @@ from ...types import Response
 
 def _get_kwargs(project_id: str, stage_id: str, *, body: RulesetsMixin) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.POST,

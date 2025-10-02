@@ -28,6 +28,7 @@ def _get_kwargs(
     hidden: Union[Unset, bool] = False,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 

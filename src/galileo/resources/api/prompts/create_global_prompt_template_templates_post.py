@@ -18,6 +18,7 @@ def _get_kwargs(
     *, body: CreatePromptTemplateWithVersionRequestBody, project_id: Union[None, Unset, str] = UNSET
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
+    headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 
