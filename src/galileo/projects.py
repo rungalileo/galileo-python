@@ -1,3 +1,4 @@
+import builtins
 import datetime
 import os
 from typing import Optional, Union
@@ -22,6 +23,12 @@ from galileo.resources.types import UNSET, Unset
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.exceptions import APIException
 from galileo.utils.logging import get_logger
+from galileo_core.helpers.user_project import list_user_project_collaborators as core_list_user_project_collaborators
+from galileo_core.helpers.user_project import share_project_with_user as core_share_project_with_user
+from galileo_core.helpers.user_project import unshare_project_with_user as core_unshare_project_with_user
+from galileo_core.helpers.user_project import update_user_project_collaborator as core_update_user_project_collaborator
+from galileo_core.schemas.core.collaboration_role import CollaboratorRole
+from galileo_core.schemas.core.user_project import UserProjectCollaboratorResponse
 
 _logger = get_logger(__name__)
 
@@ -263,6 +270,24 @@ class Projects(DecorateAllMethods):
 
         return Project(project=response)
 
+    def share_project_with_user(
+        self, project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.viewer
+    ) -> UserProjectCollaboratorResponse:
+        return core_share_project_with_user(project_id=project_id, user_id=user_id, role=role, config=self.config)
+
+    def unshare_project_with_user(self, project_id: str, user_id: str) -> None:
+        return core_unshare_project_with_user(project_id=project_id, user_id=user_id, config=self.config)
+
+    def list_user_project_collaborators(self, project_id: str) -> builtins.list[UserProjectCollaboratorResponse]:
+        return core_list_user_project_collaborators(project_id=project_id, config=self.config)
+
+    def update_user_project_collaborator(
+        self, project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.viewer
+    ) -> UserProjectCollaboratorResponse:
+        return core_update_user_project_collaborator(
+            project_id=project_id, user_id=user_id, role=role, config=self.config
+        )
+
 
 #
 # Convenience methods
@@ -348,3 +373,75 @@ def create_project(name: str) -> Project:
 
     """
     return Projects().create(name=name)
+
+
+def share_project_with_user(
+    project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.viewer
+) -> UserProjectCollaboratorResponse:
+    """
+    Share a project with a user.
+
+    Parameters
+    ----------
+    project_id : str
+        The ID of the project.
+    user_id : str
+        The ID of the user.
+    role : CollaboratorRole
+        The role to assign to the user.
+    Returns
+    -------
+    UserProjectCollaboratorResponse
+        The response from the server.
+    """
+    return Projects().share_project_with_user(project_id=project_id, user_id=user_id, role=role)
+
+
+def unshare_project_with_user(project_id: str, user_id: str) -> None:
+    """
+    Unshare a project with a user.
+
+    Parameters
+    ----------
+    project_id : str
+        The ID of the project.
+    user_id : str
+        The ID of the user.
+    """
+    return Projects().unshare_project_with_user(project_id=project_id, user_id=user_id)
+
+
+def list_user_project_collaborators(project_id: str) -> list[UserProjectCollaboratorResponse]:
+    """
+    List all users that a project is shared with.
+    Parameters
+    ----------
+    project_id : str
+        The ID of the project.
+    Returns
+    -------
+    list[UserProjectCollaboratorResponse]
+        A list of users that the project is shared with.
+    """
+    return Projects().list_user_project_collaborators(project_id=project_id)
+
+
+def update_user_project_collaborator(
+    project_id: str, user_id: str, role: CollaboratorRole = CollaboratorRole.viewer
+) -> UserProjectCollaboratorResponse:
+    """
+    Update a user's role for a project.
+    Parameters
+    ----------
+    project_id : str
+        The ID of the project.
+    user_id : str
+        The ID of the user.
+    role : CollaboratorRole
+        The new role to assign to the user.
+    Returns
+    -------
+    UserProjectCollaboratorResponse
+        The response from the server.
+    """
+    return Projects().update_user_project_collaborator(project_id=project_id, user_id=user_id, role=role)

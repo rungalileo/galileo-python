@@ -95,3 +95,29 @@ class TestProjects:
         with patch.dict("os.environ", {"GALILEO_PROJECT": "my_project"}):
             Projects().get_with_env_fallbacks()
             get_projects_projects_get.assert_called_once_with(project_name="my_project", client=ANY, type_=ANY)
+
+    @patch("galileo.projects.core_share_project_with_user")
+    def test_share_project_with_user(self, mock_core_share_project_with_user):
+        projects_client = Projects()
+        projects_client.share_project_with_user(project_id="123", user_id="456")
+        mock_core_share_project_with_user.assert_called_once_with(project_id="123", user_id="456", role=ANY, config=ANY)
+
+    @patch("galileo.projects.core_unshare_project_with_user")
+    def test_unshare_project_with_user(self, mock_core_unshare_project_with_user):
+        projects_client = Projects()
+        projects_client.unshare_project_with_user(project_id="123", user_id="456")
+        mock_core_unshare_project_with_user.assert_called_once_with(project_id="123", user_id="456", config=ANY)
+
+    @patch("galileo.projects.core_list_user_project_collaborators")
+    def test_list_user_project_collaborators(self, mock_core_list_user_project_collaborators):
+        projects_client = Projects()
+        projects_client.list_user_project_collaborators(project_id="123")
+        mock_core_list_user_project_collaborators.assert_called_once_with(project_id="123", config=ANY)
+
+    @patch("galileo.projects.core_update_user_project_collaborator")
+    def test_update_user_project_collaborator(self, mock_core_update_user_project_collaborator):
+        projects_client = Projects()
+        projects_client.update_user_project_collaborator(project_id="123", user_id="456")
+        mock_core_update_user_project_collaborator.assert_called_once_with(
+            project_id="123", user_id="456", role=ANY, config=ANY
+        )
