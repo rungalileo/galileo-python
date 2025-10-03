@@ -10,6 +10,7 @@ from galileo.resources.api.prompts import (
     create_global_prompt_template_templates_post,
     create_prompt_template_with_version_projects_project_id_templates_post,
     delete_global_template_templates_template_id_delete,
+    delete_template_projects_project_id_templates_template_id_delete,
     get_global_template_templates_template_id_get,
     get_global_template_version_templates_template_id_versions_version_get,
     get_project_templates_projects_project_id_templates_get,
@@ -374,18 +375,41 @@ def list_prompt_templates(project: str) -> list[PromptTemplate]:
 
 
 @overload
+def get_prompt(*, id: str, project_id: str) -> Optional[PromptTemplate]: ...
+
+
+@overload
+def get_prompt(*, id: str, project_name: str) -> Optional[PromptTemplate]: ...
+
+
+@overload
 def get_prompt(*, id: str) -> Optional[PromptTemplate]: ...
+
+
+@overload
+def get_prompt(*, name: str, project_id: str) -> Optional[PromptTemplate]: ...
+
+
+@overload
+def get_prompt(*, name: str, project_name: str) -> Optional[PromptTemplate]: ...
 
 
 @overload
 def get_prompt(*, name: str) -> Optional[PromptTemplate]: ...
 
 
-def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optional[PromptTemplate]:
+def get_prompt(
+    *,
+    id: Optional[str] = None,
+    name: Optional[str] = None,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> Optional[PromptTemplate]:
     """
-    Retrieves a global prompt template.
+    Retrieves a prompt template (global or project-specific).
 
-    You must provide either 'id' or 'name', but not both.
+    You must provide either 'id' or 'name', but not both. Optionally provide
+    'project_id' or 'project_name' to retrieve a project-specific template.
 
     Parameters
     ----------
@@ -393,6 +417,12 @@ def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optio
         The unique identifier of the template to retrieve. Defaults to None.
     name : str, optional
         The name of the template to retrieve. Defaults to None.
+    project_id : str, optional
+        The ID of the project to retrieve the template from. If not provided,
+        retrieves a global template. Mutually exclusive with project_name.
+    project_name : str, optional
+        The name of the project to retrieve the template from. If not provided,
+        retrieves a global template. Mutually exclusive with project_id.
 
     Returns
     -------
@@ -402,14 +432,68 @@ def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optio
     Raises
     ------
     ValueError
-        If neither or both 'id' and 'name' are provided.
+        If neither or both 'id' and 'name' are provided, if both project_id and
+        project_name are provided, or if the specified project does not exist.
+
+    Examples
+    --------
+    >>> # Get global template by ID
+    >>> template = get_prompt(id="template-id-123")
+
+    >>> # Get global template by name
+    >>> template = get_prompt(name="my-template")
+
+    >>> # Get project-specific template by ID
+    >>> template = get_prompt(id="template-id-123", project_name="My Project")
+
+    >>> # Get project-specific template by name
+    >>> template = get_prompt(name="my-template", project_id="project-id-456")
     """
+    # Validate template identifier
     if (id is None) and (name is None):
         raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
     if (id is not None) and (name is not None):
         raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
+    # Validate project identifier
+    if project_id is not None and project_name is not None:
+        raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
+
+    # If a project is specified, get project-specific template
+    if project_id is not None or project_name is not None:
+        # Get the project to validate it exists
+        project = Projects().get(id=project_id, name=project_name)
+        if not project:
+            identifier = project_id if project_id else project_name
+            raise ValueError(f"Project '{identifier}' does not exist")
+
+        if id:
+            # Get by template ID
+            _logger.debug(f"Get template {id} from project {project.id}")
+            template = get_template_from_project_projects_project_id_templates_template_id_get.sync(
+                project_id=project.id, template_id=id, client=GalileoPythonConfig.get().api_client
+            )
+
+            if not template or isinstance(template, HTTPValidationError):
+                return None
+
+            return PromptTemplate(prompt_template=template)
+        # Get by template name - need to list all and find by name
+        config = GalileoPythonConfig.get()
+        templates_response = get_project_templates_projects_project_id_templates_get.sync(
+            project_id=project.id, client=config.api_client
+        )
+
+        if not templates_response or isinstance(templates_response, HTTPValidationError):
+            return None
+
+        for template_data in templates_response:
+            if template_data.name == name:
+                return PromptTemplate(prompt_template=template_data)
+        return None
+
+    # Otherwise, get global template
     prompt_template = GlobalPromptTemplates().get(template_id=id) if id else GlobalPromptTemplates().get(name=name)  # type: ignore[arg-type]
 
     if not prompt_template:
@@ -419,23 +503,54 @@ def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optio
 
 
 @overload
+def delete_prompt(*, id: str, project_id: str) -> None: ...
+
+
+@overload
+def delete_prompt(*, id: str, project_name: str) -> None: ...
+
+
+@overload
 def delete_prompt(*, id: str) -> None: ...
+
+
+@overload
+def delete_prompt(*, name: str, project_id: str) -> None: ...
+
+
+@overload
+def delete_prompt(*, name: str, project_name: str) -> None: ...
 
 
 @overload
 def delete_prompt(*, name: str) -> None: ...
 
 
-def delete_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> None:
+def delete_prompt(
+    *,
+    id: Optional[str] = None,
+    name: Optional[str] = None,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> None:
     """
-    Delete a global prompt template by ID or name.
+    Delete a prompt template (global or project-specific) by ID or name.
+
+    You must provide either 'id' or 'name', but not both. Optionally provide
+    'project_id' or 'project_name' to delete a project-specific template.
 
     Parameters
     ----------
-    id : str
+    id : str, optional
         The unique identifier of the template to delete. Defaults to None.
-    name : str
+    name : str, optional
         The name of the template to delete. Defaults to None.
+    project_id : str, optional
+        The ID of the project containing the template. If not provided,
+        deletes a global template. Mutually exclusive with project_name.
+    project_name : str, optional
+        The name of the project containing the template. If not provided,
+        deletes a global template. Mutually exclusive with project_id.
 
     Returns
     -------
@@ -444,8 +559,74 @@ def delete_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> No
     Raises
     ------
     ValueError
-        If neither or both id and name are provided, or if the template is not found.
+        If neither or both id and name are provided, if both project_id and
+        project_name are provided, if the specified project does not exist,
+        or if the template is not found.
+
+    Examples
+    --------
+    >>> # Delete global template by ID
+    >>> delete_prompt(id="template-id-123")
+
+    >>> # Delete global template by name
+    >>> delete_prompt(name="my-template")
+
+    >>> # Delete project-specific template by ID
+    >>> delete_prompt(id="template-id-123", project_name="My Project")
+
+    >>> # Delete project-specific template by name
+    >>> delete_prompt(name="my-template", project_id="project-id-456")
     """
+    # Validate template identifier
+    if (id is None) and (name is None):
+        raise ValueError("Exactly one of 'id' or 'name' must be provided")
+
+    if (id is not None) and (name is not None):
+        raise ValueError("Exactly one of 'id' or 'name' must be provided")
+
+    # Validate project identifier
+    if project_id is not None and project_name is not None:
+        raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
+
+    # If a project is specified, delete project-specific template
+    if project_id is not None or project_name is not None:
+        # Get the project to validate it exists
+        project = Projects().get(id=project_id, name=project_name)
+        if not project:
+            identifier = project_id if project_id else project_name
+            raise ValueError(f"Project '{identifier}' does not exist")
+
+        # If name is provided, need to get the template ID first
+        if name:
+            # Get template by name without causing a double project lookup
+            config = GalileoPythonConfig.get()
+            templates_response = get_project_templates_projects_project_id_templates_get.sync(
+                project_id=project.id, client=config.api_client
+            )
+
+            if not templates_response or isinstance(templates_response, HTTPValidationError):
+                raise ValueError(f"Template '{name}' not found in project '{project.name}'")
+
+            # Find template by name
+            template_found = None
+            for template_data in templates_response:
+                if template_data.name == name:
+                    template_found = template_data
+                    break
+
+            if not template_found:
+                raise ValueError(f"Template '{name}' not found in project '{project.name}'")
+
+            id = template_found.id
+
+        # Delete the template
+        _logger.debug(f"Deleting template {id} from project {project.id}")
+        delete_template_projects_project_id_templates_template_id_delete.sync(
+            project_id=project.id, template_id=id, client=GalileoPythonConfig.get().api_client
+        )
+        return None
+
+    # Otherwise, delete global template
     return GlobalPromptTemplates().delete(template_id=id, name=name)  # type: ignore[call-overload]
 
 
@@ -613,9 +794,15 @@ def create_prompt(
     return GlobalPromptTemplates().create(name=name, template=template)
 
 
-def get_prompts(name_filter: Optional[str] = None, limit: Union[Unset, int] = 100) -> list[PromptTemplate]:
+def get_prompts(
+    name_filter: Optional[str] = None,
+    limit: Union[Unset, int] = 100,
+    *,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> list[PromptTemplate]:
     """
-    List global prompt templates with optional filtering.
+    List prompt templates (global or project-specific) with optional filtering.
 
     Parameters
     ----------
@@ -623,23 +810,76 @@ def get_prompts(name_filter: Optional[str] = None, limit: Union[Unset, int] = 10
         Filter templates by name containing this string. Defaults to None (no filtering).
     limit : Union[Unset, int], optional
         Maximum number of templates to return. Defaults to 100.
+    project_id : str, optional
+        The ID of the project to list templates from. If not provided,
+        lists global templates. Mutually exclusive with project_name.
+    project_name : str, optional
+        The name of the project to list templates from. If not provided,
+        lists global templates. Mutually exclusive with project_id.
 
     Returns
     -------
     list[PromptTemplate]
         List of prompt templates matching the criteria.
 
+    Raises
+    ------
+    ValueError
+        If both project_id and project_name are provided, or if the specified
+        project does not exist.
+
     Examples
     --------
     >>> # List all global templates
     >>> templates = get_prompts()
 
-    >>> # List templates with names containing "assistant"
+    >>> # List global templates with names containing "assistant"
     >>> templates = get_prompts(name_filter="assistant")
 
-    >>> # List first 10 templates
+    >>> # List first 10 global templates
     >>> templates = get_prompts(limit=10)
+
+    >>> # List all templates in a project by name
+    >>> templates = get_prompts(project_name="My Project")
+
+    >>> # List templates in a project by ID with name filter
+    >>> templates = get_prompts(name_filter="assistant", project_id="project-id-123")
     """
+    # Validate project identifier
+    if project_id is not None and project_name is not None:
+        raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
+
+    # If a project is specified, list project-specific templates
+    if project_id is not None or project_name is not None:
+        # Get the project to validate it exists
+        project = Projects().get(id=project_id, name=project_name)
+        if not project:
+            identifier = project_id if project_id else project_name
+            raise ValueError(f"Project '{identifier}' does not exist")
+
+        # List project templates directly using the API
+        config = GalileoPythonConfig.get()
+        templates_response = get_project_templates_projects_project_id_templates_get.sync(
+            project_id=project.id, client=config.api_client
+        )
+
+        if not templates_response or isinstance(templates_response, HTTPValidationError):
+            return []
+
+        # Convert to PromptTemplate objects
+        templates = [PromptTemplate(prompt_template=t) for t in templates_response]
+
+        # Apply name filter if provided
+        if name_filter:
+            templates = [t for t in templates if name_filter.lower() in t.name.lower()]
+
+        # Apply limit
+        if not isinstance(limit, Unset):
+            templates = templates[:limit]
+
+        return templates
+
+    # Otherwise, list global templates
     return GlobalPromptTemplates().list(name_filter=name_filter, limit=limit)
 
 
