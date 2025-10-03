@@ -1005,3 +1005,338 @@ def test_render_template_none_response(render_template_mock: Mock) -> None:
         render_template(template="Hello {{name}}!", data=["User1"])
 
     render_template_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
+def test_create_prompt_with_project_name(
+    create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock
+) -> None:
+    """Test create_prompt with project_name parameter."""
+    create_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
+    )
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    template = create_prompt(
+        name="project-template",
+        template=[Message(role=MessageRole.system, content="you are a helpful assistant")],
+        project_name="andrii-new-project",
+    )
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    create_prompt_template_mock.sync_detailed.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_project_projects_project_id_get")
+@patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
+def test_create_prompt_with_project_id(
+    create_prompt_template_mock: Mock, get_project_projects_project_id_get_mock: Mock
+) -> None:
+    """Test create_prompt with project_id parameter."""
+    create_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
+    )
+    get_project_projects_project_id_get_mock.sync_detailed.return_value = Response(
+        content=json.dumps(projects_response().parsed[0].to_dict()).encode("utf-8"),
+        status_code=HTTPStatus.OK,
+        headers={"Content-Type": "application/json"},
+        parsed=projects_response().parsed[0],
+    )
+
+    template = create_prompt(
+        name="project-template",
+        template=[Message(role=MessageRole.system, content="you are a helpful assistant")],
+        project_id="e343ea54-4df3-4d0b-9bc5-7e8224be348f",
+    )
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    create_prompt_template_mock.sync_detailed.assert_called_once()
+    get_project_projects_project_id_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+def test_create_prompt_with_nonexistent_project_name(get_projects_projects_get_mock: Mock) -> None:
+    """Test create_prompt with nonexistent project_name."""
+    get_projects_projects_get_mock.sync_detailed.return_value = Response(
+        content=b"[]", status_code=HTTPStatus.OK, headers={"Content-Type": "application/json"}, parsed=[]
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        create_prompt(
+            name="project-template",
+            template=[Message(role=MessageRole.system, content="you are a helpful assistant")],
+            project_name="nonexistent-project",
+        )
+
+    assert "Project 'nonexistent-project' does not exist" in str(exc_info.value)
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_project_projects_project_id_get")
+def test_create_prompt_with_nonexistent_project_id(get_project_projects_project_id_get_mock: Mock) -> None:
+    """Test create_prompt with nonexistent project_id."""
+    get_project_projects_project_id_get_mock.sync_detailed.return_value = Response(
+        content=b"null", status_code=HTTPStatus.OK, headers={"Content-Type": "application/json"}, parsed=None
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        create_prompt(
+            name="project-template",
+            template=[Message(role=MessageRole.system, content="you are a helpful assistant")],
+            project_id="nonexistent-id",
+        )
+
+    assert "Project 'nonexistent-id' does not exist" in str(exc_info.value)
+    get_project_projects_project_id_get_mock.sync_detailed.assert_called_once()
+
+
+def test_create_prompt_with_both_project_params() -> None:
+    """Test create_prompt with both project_id and project_name (should raise error)."""
+    with pytest.raises(ValueError) as exc_info:
+        create_prompt(
+            name="project-template",
+            template=[Message(role=MessageRole.system, content="you are a helpful assistant")],
+            project_id="some-id",
+            project_name="some-name",
+        )
+
+    assert "Only one of 'project_id' or 'project_name' can be provided, not both" in str(exc_info.value)
+
+
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_without_project_creates_global(create_global_prompt_template_mock: Mock) -> None:
+    """Test that create_prompt without project parameters creates a global template."""
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=global_prompt_template()
+    )
+
+    template = create_prompt(
+        name="global-template", template=[Message(role=MessageRole.system, content="you are a helpful assistant")]
+    )
+
+    assert template is not None
+    assert template.name == "global-helpful-assistant"
+    create_global_prompt_template_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
+def test_create_prompt_with_project_name_and_string_template(
+    create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock
+) -> None:
+    """Test create_prompt with project_name and string template."""
+    create_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
+    )
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    template_str = '[{"content":"you are a helpful assistant","role":"system"}]'
+    template = create_prompt(name="project-template", template=template_str, project_name="andrii-new-project")
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    create_prompt_template_mock.sync_detailed.assert_called_once()
+    # Verify the body contains the string template
+    call_kwargs = create_prompt_template_mock.sync_detailed.call_args
+    assert call_kwargs.kwargs["body"].template == template_str
+
+
+# Test get_prompt() with project support
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_template_from_project_projects_project_id_templates_template_id_get")
+def test_get_prompt_with_project_name_and_id(
+    get_template_from_project_mock: Mock, get_projects_projects_get_mock: Mock
+) -> None:
+    """Test get_prompt with project_name parameter and template ID."""
+    get_template_from_project_mock.sync.return_value = prompt_template()
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    template = get_prompt(id="4793f4b9-eb56-4495-88a9-8cf57bfe737b", project_name="andrii-new-project")
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    get_template_from_project_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_get_prompt_with_project_name_and_name(
+    get_project_templates_mock: Mock, get_projects_projects_get_mock: Mock
+) -> None:
+    """Test get_prompt with project_name parameter and template name."""
+    get_project_templates_mock.sync.return_value = [prompt_template()]
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    template = get_prompt(name="andrii-good-prompt", project_name="andrii-new-project")
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    get_project_templates_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+def test_get_prompt_with_nonexistent_project(get_projects_projects_get_mock: Mock) -> None:
+    """Test get_prompt with nonexistent project."""
+    get_projects_projects_get_mock.sync_detailed.return_value = Response(
+        content=b"[]", status_code=HTTPStatus.OK, headers={"Content-Type": "application/json"}, parsed=[]
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        get_prompt(id="template-id", project_name="nonexistent-project")
+
+    assert "Project 'nonexistent-project' does not exist" in str(exc_info.value)
+
+
+def test_get_prompt_with_both_project_params() -> None:
+    """Test get_prompt with both project parameters (should raise error)."""
+    with pytest.raises(ValueError) as exc_info:
+        get_prompt(id="template-id", project_id="id-123", project_name="proj-name")
+
+    assert "Only one of 'project_id' or 'project_name' can be provided, not both" in str(exc_info.value)
+
+
+# Test get_prompts() with project support
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_get_prompts_with_project_name(get_project_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
+    """Test get_prompts with project_name parameter."""
+    get_project_templates_mock.sync.return_value = [prompt_template()]
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    templates = get_prompts(project_name="andrii-new-project")
+
+    assert len(templates) == 1
+    assert templates[0].name == "andrii-good-prompt"
+    get_project_templates_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_project_projects_project_id_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_get_prompts_with_project_id(
+    get_project_templates_mock: Mock, get_project_projects_project_id_get_mock: Mock
+) -> None:
+    """Test get_prompts with project_id parameter."""
+    get_project_templates_mock.sync.return_value = [prompt_template()]
+    get_project_projects_project_id_get_mock.sync_detailed.return_value = Response(
+        content=json.dumps(projects_response().parsed[0].to_dict()).encode("utf-8"),
+        status_code=HTTPStatus.OK,
+        headers={"Content-Type": "application/json"},
+        parsed=projects_response().parsed[0],
+    )
+
+    templates = get_prompts(project_id="e343ea54-4df3-4d0b-9bc5-7e8224be348f")
+
+    assert len(templates) == 1
+    assert templates[0].name == "andrii-good-prompt"
+    get_project_templates_mock.sync.assert_called_once()
+    get_project_projects_project_id_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_get_prompts_with_project_and_name_filter(
+    get_project_templates_mock: Mock, get_projects_projects_get_mock: Mock
+) -> None:
+    """Test get_prompts with project and name filter."""
+    template1 = prompt_template()
+    template2 = prompt_template()
+    template2.name = "different-template"
+
+    get_project_templates_mock.sync.return_value = [template1, template2]
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    templates = get_prompts(name_filter="good", project_name="andrii-new-project")
+
+    assert len(templates) == 1
+    assert templates[0].name == "andrii-good-prompt"
+
+
+def test_get_prompts_with_both_project_params() -> None:
+    """Test get_prompts with both project parameters (should raise error)."""
+    with pytest.raises(ValueError) as exc_info:
+        get_prompts(project_id="id-123", project_name="proj-name")
+
+    assert "Only one of 'project_id' or 'project_name' can be provided, not both" in str(exc_info.value)
+
+
+# Test delete_prompt() with project support
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.delete_template_projects_project_id_templates_template_id_delete")
+def test_delete_prompt_with_project_name_and_id(
+    delete_template_mock: Mock, get_projects_projects_get_mock: Mock
+) -> None:
+    """Test delete_prompt with project_name parameter and template ID."""
+    delete_template_mock.sync.return_value = None
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    delete_prompt(id="template-id-123", project_name="andrii-new-project")
+
+    delete_template_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+@patch("galileo.prompts.delete_template_projects_project_id_templates_template_id_delete")
+def test_delete_prompt_with_project_name_and_name(
+    delete_template_mock: Mock, get_project_templates_mock: Mock, get_projects_projects_get_mock: Mock
+) -> None:
+    """Test delete_prompt with project_name parameter and template name."""
+    delete_template_mock.sync.return_value = None
+    get_project_templates_mock.sync.return_value = [prompt_template()]
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    delete_prompt(name="andrii-good-prompt", project_name="andrii-new-project")
+
+    delete_template_mock.sync.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_project_projects_project_id_get")
+@patch("galileo.prompts.delete_template_projects_project_id_templates_template_id_delete")
+def test_delete_prompt_with_project_id(
+    delete_template_mock: Mock, get_project_projects_project_id_get_mock: Mock
+) -> None:
+    """Test delete_prompt with project_id parameter."""
+    delete_template_mock.sync.return_value = None
+    get_project_projects_project_id_get_mock.sync_detailed.return_value = Response(
+        content=json.dumps(projects_response().parsed[0].to_dict()).encode("utf-8"),
+        status_code=HTTPStatus.OK,
+        headers={"Content-Type": "application/json"},
+        parsed=projects_response().parsed[0],
+    )
+
+    delete_prompt(id="template-id-123", project_id="e343ea54-4df3-4d0b-9bc5-7e8224be348f")
+
+    delete_template_mock.sync.assert_called_once()
+    get_project_projects_project_id_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_delete_prompt_with_project_name_template_not_found(
+    get_project_templates_mock: Mock, get_projects_projects_get_mock: Mock
+) -> None:
+    """Test delete_prompt when template is not found in project."""
+    get_project_templates_mock.sync.return_value = []
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    with pytest.raises(ValueError) as exc_info:
+        delete_prompt(name="nonexistent-template", project_name="andrii-new-project")
+
+    assert "Template 'nonexistent-template' not found in project" in str(exc_info.value)
+
+
+def test_delete_prompt_with_both_project_params() -> None:
+    """Test delete_prompt with both project parameters (should raise error)."""
+    with pytest.raises(ValueError) as exc_info:
+        delete_prompt(id="template-id", project_id="id-123", project_name="proj-name")
+
+    assert "Only one of 'project_id' or 'project_name' can be provided, not both" in str(exc_info.value)
