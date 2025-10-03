@@ -504,9 +504,30 @@ def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_n
     raise ValueError("Invalid state: neither id nor name is provided")
 
 
-def create_prompt(name: str, template: Union[list[Message], str]) -> PromptTemplate:
+@overload
+def create_prompt(name: str, template: Union[list[Message], str], *, project_id: str) -> PromptTemplate: ...
+
+
+@overload
+def create_prompt(name: str, template: Union[list[Message], str], *, project_name: str) -> PromptTemplate: ...
+
+
+@overload
+def create_prompt(name: str, template: Union[list[Message], str]) -> PromptTemplate: ...
+
+
+def create_prompt(
+    name: str,
+    template: Union[list[Message], str],
+    *,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> PromptTemplate:
     """
-    Create a new global prompt template.
+    Create a new prompt template.
+
+    Creates either a global prompt template (when no project is specified) or a
+    project-specific prompt template (when project_id or project_name is provided).
 
     Parameters
     ----------
@@ -515,6 +536,12 @@ def create_prompt(name: str, template: Union[list[Message], str]) -> PromptTempl
     template : Union[list[Message], str]
         The template content. Can be either a list of Message objects or a JSON string
         representing the message structure.
+    project_id : str, optional
+        The ID of the project to associate the template with. If provided, creates a
+        project-specific template. Mutually exclusive with project_name.
+    project_name : str, optional
+        The name of the project to associate the template with. If provided, creates a
+        project-specific template. Mutually exclusive with project_id.
 
     Returns
     -------
@@ -523,9 +550,66 @@ def create_prompt(name: str, template: Union[list[Message], str]) -> PromptTempl
 
     Raises
     ------
+    ValueError
+        If both project_id and project_name are provided, or if the specified project
+        does not exist.
     PromptTemplateAPIException
         If the API request fails or returns an error.
+
+    Examples
+    --------
+    >>> # Create a global template
+    >>> template = create_prompt(
+    ...     name="helpful-assistant",
+    ...     template=[Message(role=MessageRole.SYSTEM, content="You are helpful")]
+    ... )
+
+    >>> # Create a project-specific template by project name
+    >>> template = create_prompt(
+    ...     name="project-assistant",
+    ...     template=[Message(role=MessageRole.SYSTEM, content="You are helpful")],
+    ...     project_name="My Project"
+    ... )
+
+    >>> # Create a project-specific template by project ID
+    >>> template = create_prompt(
+    ...     name="project-assistant",
+    ...     template=[Message(role=MessageRole.SYSTEM, content="You are helpful")],
+    ...     project_id="project-id-123"
+    ... )
     """
+    # Validate that only one project identifier is provided
+    if project_id is not None and project_name is not None:
+        raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
+
+    # If a project is specified, create a project-specific template
+    if project_id is not None or project_name is not None:
+        # Get the project to validate it exists and get its ID
+        project = Projects().get(id=project_id, name=project_name)
+        if not project:
+            identifier = project_id if project_id else project_name
+            raise ValueError(f"Project '{identifier}' does not exist")
+
+        # Create the request body
+        body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
+
+        # Make API call directly with the project ID
+        config = GalileoPythonConfig.get()
+        _logger.debug(f"Creating project template: {body}")
+        response = create_prompt_template_with_version_projects_project_id_templates_post.sync_detailed(
+            project_id=project.id, client=config.api_client, body=body
+        )
+
+        if response.status_code != 200:
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
+
+        if not response.parsed or isinstance(response.parsed, HTTPValidationError):
+            _logger.error(response)
+            raise PromptTemplateAPIException(response.content.decode("utf-8"))
+
+        return PromptTemplate(prompt_template=response.parsed)
+
+    # Otherwise, create a global template
     return GlobalPromptTemplates().create(name=name, template=template)
 
 
