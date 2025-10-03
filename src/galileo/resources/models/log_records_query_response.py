@@ -30,6 +30,7 @@ class LogRecordsQueryResponse:
             'ExtendedRetrieverSpanRecord', 'ExtendedSessionRecord', 'ExtendedToolSpanRecord', 'ExtendedTraceRecord',
             'ExtendedWorkflowSpanRecord']]]): records matching the query
         starting_token (Union[Unset, int]):  Default: 0.
+        total_count (Union[None, Unset, int]): Total number of records matching the query (before pagination)
     """
 
     limit: Union[Unset, int] = 100
@@ -50,6 +51,7 @@ class LogRecordsQueryResponse:
         ],
     ] = UNSET
     starting_token: Union[Unset, int] = 0
+    total_count: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -63,10 +65,7 @@ class LogRecordsQueryResponse:
         limit = self.limit
 
         next_starting_token: Union[None, Unset, int]
-        if isinstance(self.next_starting_token, Unset):
-            next_starting_token = UNSET
-        else:
-            next_starting_token = self.next_starting_token
+        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
         paginated = self.paginated
 
@@ -75,17 +74,17 @@ class LogRecordsQueryResponse:
             records = []
             for records_item_data in self.records:
                 records_item: dict[str, Any]
-                if isinstance(records_item_data, ExtendedTraceRecord):
-                    records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ExtendedAgentSpanRecord):
-                    records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ExtendedWorkflowSpanRecord):
-                    records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ExtendedLlmSpanRecord):
-                    records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ExtendedToolSpanRecord):
-                    records_item = records_item_data.to_dict()
-                elif isinstance(records_item_data, ExtendedRetrieverSpanRecord):
+                if isinstance(
+                    records_item_data,
+                    (
+                        ExtendedTraceRecord,
+                        ExtendedAgentSpanRecord,
+                        ExtendedWorkflowSpanRecord,
+                        ExtendedLlmSpanRecord,
+                        ExtendedToolSpanRecord,
+                        ExtendedRetrieverSpanRecord,
+                    ),
+                ):
                     records_item = records_item_data.to_dict()
                 else:
                     records_item = records_item_data.to_dict()
@@ -93,6 +92,9 @@ class LogRecordsQueryResponse:
                 records.append(records_item)
 
         starting_token = self.starting_token
+
+        total_count: Union[None, Unset, int]
+        total_count = UNSET if isinstance(self.total_count, Unset) else self.total_count
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -107,6 +109,8 @@ class LogRecordsQueryResponse:
             field_dict["records"] = records
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if total_count is not UNSET:
+            field_dict["total_count"] = total_count
 
         return field_dict
 
@@ -152,56 +156,48 @@ class LogRecordsQueryResponse:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_0 = ExtendedTraceRecord.from_dict(data)
+                    return ExtendedTraceRecord.from_dict(data)
 
-                    return records_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_1 = ExtendedAgentSpanRecord.from_dict(data)
+                    return ExtendedAgentSpanRecord.from_dict(data)
 
-                    return records_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_2 = ExtendedWorkflowSpanRecord.from_dict(data)
+                    return ExtendedWorkflowSpanRecord.from_dict(data)
 
-                    return records_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_3 = ExtendedLlmSpanRecord.from_dict(data)
+                    return ExtendedLlmSpanRecord.from_dict(data)
 
-                    return records_item_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_4 = ExtendedToolSpanRecord.from_dict(data)
+                    return ExtendedToolSpanRecord.from_dict(data)
 
-                    return records_item_type_4
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    records_item_type_5 = ExtendedRetrieverSpanRecord.from_dict(data)
+                    return ExtendedRetrieverSpanRecord.from_dict(data)
 
-                    return records_item_type_5
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                records_item_type_6 = ExtendedSessionRecord.from_dict(data)
-
-                return records_item_type_6
+                return ExtendedSessionRecord.from_dict(data)
 
             records_item = _parse_records_item(records_item_data)
 
@@ -209,12 +205,22 @@ class LogRecordsQueryResponse:
 
         starting_token = d.pop("starting_token", UNSET)
 
+        def _parse_total_count(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        total_count = _parse_total_count(d.pop("total_count", UNSET))
+
         log_records_query_response = cls(
             limit=limit,
             next_starting_token=next_starting_token,
             paginated=paginated,
             records=records,
             starting_token=starting_token,
+            total_count=total_count,
         )
 
         log_records_query_response.additional_properties = d

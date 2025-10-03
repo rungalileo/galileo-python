@@ -5,7 +5,7 @@ class Routes(str, Enum):
     healthcheck = "healthcheck"
     login = "login"
     api_key_login = "login/api_key"
-    get_token = "get-token"
+    get_token = "get-token"  # noqa: S105  # This is a URL path, not a password
 
     projects = "projects"
     all_projects = "projects/all"

@@ -1,7 +1,7 @@
 import logging
 import threading
 from os import getenv
-from typing import Optional
+from typing import ClassVar, Optional
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.logger import GalileoLogger
@@ -24,7 +24,7 @@ class GalileoLoggerSingleton:
 
     _instance = None  # Class-level attribute to hold the singleton instance.
     _lock = threading.Lock()  # Lock for thread-safe instantiation and operations.
-    _galileo_loggers: dict[tuple[str, str, str, str], GalileoLogger] = {}  # Cache for loggers.
+    _galileo_loggers: ClassVar[dict[tuple[str, str, str, str], GalileoLogger]] = {}  # Cache for loggers.
 
     def __new__(cls) -> "GalileoLoggerSingleton":
         """
@@ -72,9 +72,9 @@ class GalileoLoggerSingleton:
             log_stream = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
         if experiment_id is not None:
-            return key + (project, experiment_id)
+            return (*key, project, experiment_id)
 
-        return key + (project, log_stream)
+        return (*key, project, log_stream)
 
     def get(
         self,

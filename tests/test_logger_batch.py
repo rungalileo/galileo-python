@@ -37,7 +37,7 @@ def test_galileo_logger_exceptions() -> None:
 
 
 @patch("galileo.logger.logger.Traces")
-def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog) -> None:
+def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog, enable_galileo_logging) -> None:
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.WARNING):
@@ -124,7 +124,7 @@ def test_single_span_trace_to_galileo(
     assert trace.status_code == expected_payload.traces[0].status_code
     assert trace.spans == expected_payload.traces[0].spans
     assert trace.metrics == expected_payload.traces[0].metrics
-    assert logger.traces == list()
+    assert logger.traces == []
     assert logger._parent_stack == deque()
 
 
@@ -308,7 +308,7 @@ def test_all_span_types_with_redacted_fields(
         Document(content="Document with phone: [REDACTED]", metadata=None),
     ]
 
-    assert logger.traces == list()
+    assert logger.traces == []
     assert logger._parent_stack == deque()
 
 
@@ -358,7 +358,7 @@ def test_single_span_trace_to_galileo_experiment_id(
     assert trace.status_code == expected_payload.traces[0].status_code
     assert trace.spans == expected_payload.traces[0].spans
     assert trace.metrics == expected_payload.traces[0].metrics
-    assert logger.traces == list()
+    assert logger.traces == []
     assert logger._parent_stack == deque()
 
 
@@ -409,7 +409,7 @@ def test_nested_span_trace_to_galileo(
         traces=[trace],
     )
     assert payload == expected_payload
-    assert logger.traces == list()
+    assert logger.traces == []
     assert logger._parent_stack == deque()
 
 
@@ -439,7 +439,7 @@ def test_add_agent_span(mock_traces_client: Mock, mock_projects_client: Mock, mo
     assert payload == expected_payload
     assert isinstance(payload.traces[0].spans[0], AgentSpan)
     assert payload.traces[0].spans[0].agent_type == AgentType.default
-    assert logger.traces == list()
+    assert logger.traces == []
     assert logger._parent_stack == deque()
 
 
@@ -522,7 +522,7 @@ def test_add_protect_tool_span(
             "execution_time": execution_time,
         },
     }
-    assert logger.traces == list()
+    assert logger.traces == []
     assert logger._parent_stack == deque()
 
 
@@ -604,7 +604,7 @@ def test_multi_span_trace_to_galileo(
     assert trace.status_code == expected_payload.traces[0].status_code
     assert trace.spans == expected_payload.traces[0].spans
     assert trace.metrics == expected_payload.traces[0].metrics
-    assert logger.traces == list()
+    assert logger.traces == []
     assert logger._parent_stack == deque()
 
 
@@ -645,11 +645,11 @@ async def test_single_span_trace_to_galileo_with_async(
         temperature=1.0,
         status_code=200,
     )
-    setattr(span.metrics, "length", 1)
+    span.metrics.length = 1
     logger.conclude("output", status_code=200)
     await logger.async_flush()
 
-    setattr(span.metrics, "length", 6)
+    span.metrics.length = 6
 
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args[0][0]
     expected_payload = TracesIngestRequest(
@@ -677,7 +677,7 @@ async def test_single_span_trace_to_galileo_with_async(
     assert trace.status_code == expected_payload.traces[0].status_code
     assert trace.spans == expected_payload.traces[0].spans
     assert trace.metrics == expected_payload.traces[0].metrics
-    assert logger.traces == list()
+    assert logger.traces == []
     assert logger._parent_stack == deque()
 
 
@@ -993,7 +993,11 @@ def test_flush_with_conclude_all_spans(
 @patch("galileo.projects.create_project_projects_post")
 @patch("galileo.logger.logger.Traces")
 def test_galileo_logger_failed_creating_project(
-    mock_traces_client: Mock, galileo_resources_api_projects: Mock, mock_projects_get: Mock, caplog
+    mock_traces_client: Mock,
+    galileo_resources_api_projects: Mock,
+    mock_projects_get: Mock,
+    caplog,
+    enable_galileo_logging,
 ) -> None:
     mock_instance = mock_traces_client.return_value
 

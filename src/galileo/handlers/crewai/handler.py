@@ -18,7 +18,7 @@ try:
     from crewai import __version__ as CREWAI_VERSION
 
     CREWAI_VERSION = Version(CREWAI_VERSION)
-    CREWAI_EVENTS_MODULE_AVAILABLE = CREWAI_VERSION >= Version("0.177.0")
+    CREWAI_EVENTS_MODULE_AVAILABLE = Version("0.177.0") <= CREWAI_VERSION
     if CREWAI_EVENTS_MODULE_AVAILABLE:
         from crewai.events.base_event_listener import BaseEventListener  # pyright: ignore[reportMissingImports]
         from crewai.events.types.agent_events import (  # pyright: ignore[reportMissingImports]
@@ -210,10 +210,7 @@ class CrewAIEventListener(BaseEventListener):
                 tool_args = event.tool_args
             else:
                 # Convert dict to JSON string
-                if isinstance(event.tool_args, dict):
-                    tool_args = json.dumps(event.tool_args)
-                else:
-                    tool_args = str(event.tool_args)
+                tool_args = json.dumps(event.tool_args) if isinstance(event.tool_args, dict) else str(event.tool_args)
             hash_obj = hashlib.md5(tool_args.encode())
             digest = hash_obj.hexdigest()
             return UUID(digest)
@@ -380,10 +377,7 @@ class CrewAIEventListener(BaseEventListener):
         run_id = self._generate_run_id(source, event)
         output = ""
         if hasattr(event, "output") and event.output:
-            if hasattr(event.output, "raw"):
-                output = event.output.raw
-            else:
-                output = str(event.output)
+            output = event.output.raw if hasattr(event.output, "raw") else str(event.output)
 
         self._handler.end_node(run_id=run_id, output=serialize_to_str(output))
 

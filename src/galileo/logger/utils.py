@@ -21,7 +21,7 @@ def get_last_output(node: Union[BaseStep, None]) -> Optional[str]:
 
     if node.output:
         return node.output if isinstance(node.output, str) else serialize_to_str(node.output)
-    elif isinstance(node, StepWithChildSpans) and len(node.spans):
+    if isinstance(node, StepWithChildSpans) and len(node.spans):
         return get_last_output(node.spans[-1])
     return None
 
@@ -53,6 +53,6 @@ def handle_galileo_http_exceptions_for_retry(func: Callable) -> Callable:
 
             _logger.error(f"Unrecoverable failure or unrecognized error: {e}")
 
-            return
+            return None
 
     return wrapper

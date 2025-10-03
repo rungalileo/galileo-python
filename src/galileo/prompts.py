@@ -109,7 +109,7 @@ class PromptTemplates:
         templates = get_project_templates_projects_project_id_templates_get.sync(
             # TODO: remove type ignore, when migrated to proper AuthenticatedClient
             project_id=project.id,
-            client=self.config.api_client,  # type: ignore[arg-type]
+            client=self.config.api_client,
         )
 
         if not templates or isinstance(templates, HTTPValidationError):
@@ -127,7 +127,7 @@ class PromptTemplates:
             # TODO: remove type ignore, when migrated to proper AuthenticatedClient
             project_id=project.id,
             template_id=template_id,
-            client=self.config.api_client,  # type: ignore[arg-type]
+            client=self.config.api_client,
         )
 
         if not template or isinstance(template, HTTPValidationError):
@@ -142,13 +142,11 @@ class PromptTemplates:
         if not project:
             raise ValueError(f"Project {project_name} does not exist")
 
-        body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)  # type: ignore[arg-type]
+        body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
 
         _logger.debug(f"{body}")
         response = create_prompt_template_with_version_projects_project_id_templates_post.sync_detailed(
-            project_id=project.id,
-            client=self.config.api_client,  # type: ignore[arg-type]
-            body=body,  # type: ignore[arg-type]
+            project_id=project.id, client=self.config.api_client, body=body
         )
 
         if response.status_code != 200:
@@ -497,14 +495,13 @@ def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_n
 
     if id:
         return GlobalPromptTemplates().update(template_id=id, name=new_name)
-    elif name:
+    if name:
         template = GlobalPromptTemplates().get(name=name)
         if not template:
             raise ValueError(f"Global template '{name}' not found")
         return GlobalPromptTemplates().update(template_id=template.id, name=new_name)
-    else:
-        # Line won't be reached but mypy complains without this
-        raise ValueError("Invalid state: neither id nor name is provided")
+    # Line won't be reached but mypy complains without this
+    raise ValueError("Invalid state: neither id nor name is provided")
 
 
 def create_prompt(name: str, template: Union[list[Message], str]) -> PromptTemplate:

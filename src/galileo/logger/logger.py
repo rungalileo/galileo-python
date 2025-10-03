@@ -7,7 +7,7 @@ import uuid
 from collections import deque
 from datetime import datetime
 from os import getenv
-from typing import Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 import backoff
 from pydantic import ValidationError
@@ -315,7 +315,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         if node.output:
             return node.output if isinstance(node.output, str) else serialize_to_str(node.output)
-        elif isinstance(node, StepWithChildSpans) and len(node.spans):
+        if isinstance(node, StepWithChildSpans) and len(node.spans):
             return GalileoLogger._get_last_output(node.spans[-1])
         return None
 
@@ -341,7 +341,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             ),
         )
         @handle_galileo_http_exceptions_for_retry
-        async def ingest_traces_with_backoff(request):
+        async def ingest_traces_with_backoff(request: Any) -> None:
             await self._traces_client.ingest_traces(request)
 
         self._task_handler.submit_task(
@@ -384,7 +384,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             ),
         )
         @handle_galileo_http_exceptions_for_retry
-        async def ingest_spans_with_backoff(request):
+        async def ingest_spans_with_backoff(request: Any) -> None:
             await self._traces_client.ingest_spans(request)
 
         self._task_handler.submit_task(
@@ -422,7 +422,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 ),
             )
             @handle_galileo_http_exceptions_for_retry
-            async def update_trace_with_backoff(request):
+            async def update_trace_with_backoff(request: Any) -> None:
                 await self._traces_client.update_trace(request)
 
             self._task_handler.submit_task(
@@ -459,7 +459,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             ),
         )
         @handle_galileo_http_exceptions_for_retry
-        async def update_span_with_backoff(request):
+        async def update_span_with_backoff(request: Any) -> None:
             await self._traces_client.update_span(request)
 
         self._task_handler.submit_task(
@@ -539,20 +539,20 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             Trace: The created trace.
         """
-        kwargs = dict(
-            input=input,
-            redacted_input=redacted_input,
-            name=name,
-            duration_ns=duration_ns,
-            created_at=created_at,
-            user_metadata=metadata,
-            tags=tags,
-            dataset_input=dataset_input,
-            dataset_output=dataset_output,
-            dataset_metadata=dataset_metadata,
-            external_id=external_id,
-            id=uuid.uuid4(),
-        )
+        kwargs = {
+            "input": input,
+            "redacted_input": redacted_input,
+            "name": name,
+            "duration_ns": duration_ns,
+            "created_at": created_at,
+            "user_metadata": metadata,
+            "tags": tags,
+            "dataset_input": dataset_input,
+            "dataset_output": dataset_output,
+            "dataset_metadata": dataset_metadata,
+            "external_id": external_id,
+            "id": uuid.uuid4(),
+        }
         trace = self.add_trace(**kwargs)
 
         if self.mode == "streaming":
@@ -746,27 +746,27 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             LlmSpan: The created span.
         """
-        kwargs = dict(
-            input=input,
-            output=output,
-            model=model,
-            redacted_input=redacted_input,
-            redacted_output=redacted_output,
-            tools=tools,
-            name=name,
-            created_at=created_at,
-            duration_ns=duration_ns,
-            user_metadata=metadata,
-            tags=tags,
-            num_input_tokens=num_input_tokens,
-            num_output_tokens=num_output_tokens,
-            total_tokens=total_tokens,
-            temperature=temperature,
-            status_code=status_code,
-            time_to_first_token_ns=time_to_first_token_ns,
-            step_number=step_number,
-            id=uuid.uuid4(),
-        )
+        kwargs = {
+            "input": input,
+            "output": output,
+            "model": model,
+            "redacted_input": redacted_input,
+            "redacted_output": redacted_output,
+            "tools": tools,
+            "name": name,
+            "created_at": created_at,
+            "duration_ns": duration_ns,
+            "user_metadata": metadata,
+            "tags": tags,
+            "num_input_tokens": num_input_tokens,
+            "num_output_tokens": num_output_tokens,
+            "total_tokens": total_tokens,
+            "temperature": temperature,
+            "status_code": status_code,
+            "time_to_first_token_ns": time_to_first_token_ns,
+            "step_number": step_number,
+            "id": uuid.uuid4(),
+        }
 
         span = super().add_llm_span(**kwargs)
 
@@ -820,9 +820,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             if isinstance(data, list):
                 if all(isinstance(doc, Document) for doc in data):
                     return data
-                elif all(isinstance(doc, str) for doc in data):
+                if all(isinstance(doc, str) for doc in data):
                     return [Document(content=doc, metadata={}) for doc in data]
-                elif all(isinstance(doc, dict) for doc in data):
+                if all(isinstance(doc, dict) for doc in data):
                     try:
                         return [Document.model_validate(doc) for doc in data]
                     except ValidationError:
@@ -846,20 +846,20 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         documents = _convert_to_documents(output, "output")
         redacted_documents = _convert_to_documents(redacted_output, "redacted_output")
 
-        kwargs = dict(
-            input=input,
-            documents=documents,
-            redacted_input=redacted_input,
-            redacted_documents=redacted_documents,
-            name=name,
-            duration_ns=duration_ns,
-            created_at=created_at,
-            user_metadata=metadata,
-            tags=tags,
-            status_code=status_code,
-            step_number=step_number,
-            id=uuid.uuid4(),
-        )
+        kwargs = {
+            "input": input,
+            "documents": documents,
+            "redacted_input": redacted_input,
+            "redacted_documents": redacted_documents,
+            "name": name,
+            "duration_ns": duration_ns,
+            "created_at": created_at,
+            "user_metadata": metadata,
+            "tags": tags,
+            "status_code": status_code,
+            "step_number": step_number,
+            "id": uuid.uuid4(),
+        }
         span = super().add_retriever_span(**kwargs)
 
         if self.mode == "streaming":
@@ -915,21 +915,21 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             ToolSpan: The created span.
         """
-        kwargs = dict(
-            input=input,
-            redacted_input=redacted_input,
-            output=output,
-            redacted_output=redacted_output,
-            name=name,
-            duration_ns=duration_ns,
-            created_at=created_at,
-            user_metadata=metadata,
-            tags=tags,
-            status_code=status_code,
-            tool_call_id=tool_call_id,
-            step_number=step_number,
-            id=uuid.uuid4(),
-        )
+        kwargs = {
+            "input": input,
+            "redacted_input": redacted_input,
+            "output": output,
+            "redacted_output": redacted_output,
+            "name": name,
+            "duration_ns": duration_ns,
+            "created_at": created_at,
+            "user_metadata": metadata,
+            "tags": tags,
+            "status_code": status_code,
+            "tool_call_id": tool_call_id,
+            "step_number": step_number,
+            "id": uuid.uuid4(),
+        }
         span = super().add_tool_span(**kwargs)
 
         if self.mode == "streaming":
@@ -977,20 +977,22 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             ToolSpan: The created Protect tool span.
         """
-        kwargs = dict(
-            input=json.dumps(payload.model_dump(mode="json")),
-            redacted_input=json.dumps(redacted_payload.model_dump(mode="json")) if redacted_payload else None,
-            output=json.dumps(response.model_dump(mode="json")) if response else None,
-            redacted_output=json.dumps(redacted_response.model_dump(mode="json")) if redacted_response else None,
-            name="GalileoProtect",
-            duration_ns=response.trace_metadata.response_at - response.trace_metadata.received_at if response else None,
-            created_at=created_at,
-            user_metadata=metadata,
-            tags=tags,
-            status_code=status_code,
-            step_number=step_number,
-            id=uuid.uuid4(),
-        )
+        kwargs = {
+            "input": json.dumps(payload.model_dump(mode="json")),
+            "redacted_input": json.dumps(redacted_payload.model_dump(mode="json")) if redacted_payload else None,
+            "output": json.dumps(response.model_dump(mode="json")) if response else None,
+            "redacted_output": json.dumps(redacted_response.model_dump(mode="json")) if redacted_response else None,
+            "name": "GalileoProtect",
+            "duration_ns": response.trace_metadata.response_at - response.trace_metadata.received_at
+            if response
+            else None,
+            "created_at": created_at,
+            "user_metadata": metadata,
+            "tags": tags,
+            "status_code": status_code,
+            "step_number": step_number,
+            "id": uuid.uuid4(),
+        }
         span = super().add_tool_span(**kwargs)
 
         if self.mode == "streaming":
@@ -1042,19 +1044,19 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             WorkflowSpan: The created span.
         """
-        kwargs = dict(
-            input=input,
-            redacted_input=redacted_input,
-            output=output,
-            redacted_output=redacted_output,
-            name=name,
-            duration_ns=duration_ns,
-            created_at=created_at,
-            user_metadata=metadata,
-            tags=tags,
-            step_number=step_number,
-            id=uuid.uuid4(),
-        )
+        kwargs = {
+            "input": input,
+            "redacted_input": redacted_input,
+            "output": output,
+            "redacted_output": redacted_output,
+            "name": name,
+            "duration_ns": duration_ns,
+            "created_at": created_at,
+            "user_metadata": metadata,
+            "tags": tags,
+            "step_number": step_number,
+            "id": uuid.uuid4(),
+        }
         span = super().add_workflow_span(**kwargs)
 
         if self.mode == "streaming":
@@ -1109,20 +1111,20 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
             AgentSpan: The created span.
         """
-        kwargs = dict(
-            input=input,
-            redacted_input=redacted_input,
-            output=output,
-            redacted_output=redacted_output,
-            name=name,
-            duration_ns=duration_ns,
-            created_at=created_at,
-            user_metadata=metadata,
-            tags=tags,
-            agent_type=agent_type,
-            step_number=step_number,
-            id=uuid.uuid4(),
-        )
+        kwargs = {
+            "input": input,
+            "redacted_input": redacted_input,
+            "output": output,
+            "redacted_output": redacted_output,
+            "name": name,
+            "duration_ns": duration_ns,
+            "created_at": created_at,
+            "user_metadata": metadata,
+            "tags": tags,
+            "agent_type": agent_type,
+            "step_number": step_number,
+            "id": uuid.uuid4(),
+        }
         span = super().add_agent_span(**kwargs)
 
         if self.mode == "streaming":
@@ -1216,11 +1218,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     async def _flush_batch(self) -> list[Trace]:
         if self.mode != "batch":
             self._logger.warning("Flushing in streaming mode is not supported.")
-            return list()
+            return []
 
         if not self.traces:
             self._logger.info("No traces to flush.")
-            return list()
+            return []
 
         current_parent = self.current_parent()
         if current_parent is not None:
@@ -1245,7 +1247,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._logger.info(f"Successfully flushed {trace_count} {'trace' if trace_count == 1 else 'traces'}.")
 
-        self.traces = list()
+        self.traces = []
         self._parent_stack = deque()
         return logged_traces
 

@@ -27,6 +27,7 @@ class CreateScorerRequest:
         ground_truth (Union[None, Unset, bool]):
         model_type (Union[ModelType, None, Unset]):
         tags (Union[Unset, list[str]]):
+        user_prompt (Union[None, Unset, str]):
     """
 
     name: str
@@ -37,6 +38,7 @@ class CreateScorerRequest:
     ground_truth: Union[None, Unset, bool] = UNSET
     model_type: Union[ModelType, None, Unset] = UNSET
     tags: Union[Unset, list[str]] = UNSET
+    user_prompt: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -47,10 +49,7 @@ class CreateScorerRequest:
         scorer_type = self.scorer_type.value
 
         default_version_id: Union[None, Unset, str]
-        if isinstance(self.default_version_id, Unset):
-            default_version_id = UNSET
-        else:
-            default_version_id = self.default_version_id
+        default_version_id = UNSET if isinstance(self.default_version_id, Unset) else self.default_version_id
 
         defaults: Union[None, Unset, dict[str, Any]]
         if isinstance(self.defaults, Unset):
@@ -63,10 +62,7 @@ class CreateScorerRequest:
         description = self.description
 
         ground_truth: Union[None, Unset, bool]
-        if isinstance(self.ground_truth, Unset):
-            ground_truth = UNSET
-        else:
-            ground_truth = self.ground_truth
+        ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
 
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
@@ -79,6 +75,9 @@ class CreateScorerRequest:
         tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
+
+        user_prompt: Union[None, Unset, str]
+        user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -95,6 +94,8 @@ class CreateScorerRequest:
             field_dict["model_type"] = model_type
         if tags is not UNSET:
             field_dict["tags"] = tags
+        if user_prompt is not UNSET:
+            field_dict["user_prompt"] = user_prompt
 
         return field_dict
 
@@ -124,9 +125,8 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                defaults_type_0 = ScorerDefaults.from_dict(data)
+                return ScorerDefaults.from_dict(data)
 
-                return defaults_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ScorerDefaults", None, Unset], data)
@@ -152,9 +152,8 @@ class CreateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = ModelType(data)
+                return ModelType(data)
 
-                return model_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[ModelType, None, Unset], data)
@@ -162,6 +161,15 @@ class CreateScorerRequest:
         model_type = _parse_model_type(d.pop("model_type", UNSET))
 
         tags = cast(list[str], d.pop("tags", UNSET))
+
+        def _parse_user_prompt(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        user_prompt = _parse_user_prompt(d.pop("user_prompt", UNSET))
 
         create_scorer_request = cls(
             name=name,
@@ -172,6 +180,7 @@ class CreateScorerRequest:
             ground_truth=ground_truth,
             model_type=model_type,
             tags=tags,
+            user_prompt=user_prompt,
         )
 
         create_scorer_request.additional_properties = d

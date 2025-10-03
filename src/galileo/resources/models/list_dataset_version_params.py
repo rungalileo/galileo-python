@@ -56,9 +56,8 @@ class ListDatasetVersionParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                sort_type_0 = DatasetVersionIndexSort.from_dict(data)
+                return DatasetVersionIndexSort.from_dict(data)
 
-                return sort_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["DatasetVersionIndexSort", None, Unset], data)

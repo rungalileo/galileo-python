@@ -31,16 +31,14 @@ def serialize_datetime(v: dt.datetime) -> str:
         if v.tzinfo is not None and v.tzinfo.tzname(None) == dt.timezone.utc.tzname(None):
             # UTC is a special case where we use "Z" at the end instead of "+00:00"
             return v.isoformat().replace("+00:00", "Z")
-        else:
-            # Delegate to the typical +/- offset format
-            return v.isoformat()
+        # Delegate to the typical +/- offset format
+        return v.isoformat()
 
     if v.tzinfo is not None:
         return _serialize_zoned_datetime(v)
-    else:
-        local_tz = dt.datetime.now().astimezone().tzinfo
-        localized_dt = v.replace(tzinfo=local_tz)
-        return _serialize_zoned_datetime(localized_dt)
+    local_tz = dt.datetime.now().astimezone().tzinfo
+    localized_dt = v.replace(tzinfo=local_tz)
+    return _serialize_zoned_datetime(localized_dt)
 
 
 def map_langchain_role(role: str) -> str:
@@ -63,7 +61,7 @@ class EventSerializer(JSONEncoder):
                 return serialize_datetime(obj)
 
             if isinstance(obj, (Exception, KeyboardInterrupt)):
-                return f"{type(obj).__name__}: {str(obj)}"
+                return f"{type(obj).__name__}: {obj!s}"
 
             if isinstance(obj, enum.Enum):
                 return obj.value
@@ -96,11 +94,11 @@ class EventSerializer(JSONEncoder):
 
                 if isinstance(obj, (AgentAction, ChatPromptValue)):
                     return self.default(obj.messages)
-                elif isinstance(obj, ChatGeneration):
+                if isinstance(obj, ChatGeneration):
                     return self.default(obj.message)
-                elif isinstance(obj, LLMResult):
+                if isinstance(obj, LLMResult):
                     return self.default(obj.generations[0])
-                elif isinstance(obj, (AIMessageChunk, AIMessage)):
+                if isinstance(obj, (AIMessageChunk, AIMessage)):
                     # Map the `type` to `role`.
                     dumped = obj.model_dump(mode="json", include={"content", "type", "additional_kwargs"})
                     content = dumped.get("content")
@@ -116,12 +114,12 @@ class EventSerializer(JSONEncoder):
                     if "reasoning" in additional_kwargs:
                         dumped["reasoning"] = additional_kwargs.pop("reasoning")
                     return dumped
-                elif isinstance(obj, ToolMessage):
+                if isinstance(obj, ToolMessage):
                     # Map the `type` to `role`.
                     dumped = obj.model_dump(mode="json", include={"content", "type", "status", "tool_call_id"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     return dumped
-                elif isinstance(obj, BaseMessage):
+                if isinstance(obj, BaseMessage):
                     # Map the `type` to `role`.
                     dumped = obj.model_dump(mode="json", include={"content", "type"})
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
@@ -143,7 +141,7 @@ class EventSerializer(JSONEncoder):
 
             # Handle Pydantic model classes (not instances)
             if isinstance(obj, type) and issubclass(obj, BaseModel):
-                if hasattr(obj, "model_json_schema") and callable(getattr(obj, "model_json_schema")):
+                if hasattr(obj, "model_json_schema") and callable(obj.model_json_schema):
                     try:
                         return obj.model_json_schema()
                     except Exception:
@@ -181,22 +179,20 @@ class EventSerializer(JSONEncoder):
             if hasattr(obj, "__slots__") and len(obj.__slots__) > 0:
                 return self.default({slot: getattr(obj, slot, None) for slot in obj.__slots__})
 
-            elif hasattr(obj, "__dict__"):
+            if hasattr(obj, "__dict__"):
                 obj_id = id(obj)
 
                 if obj_id in self.seen:
                     # Break on circular references
                     return type(obj).__name__
-                else:
-                    self.seen.add(obj_id)
-                    result = {k: self.default(v) for k, v in vars(obj).items() if not k.startswith("_")}
-                    self.seen.remove(obj_id)
+                self.seen.add(obj_id)
+                result = {k: self.default(v) for k, v in vars(obj).items() if not k.startswith("_")}
+                self.seen.remove(obj_id)
 
-                    return result
+                return result
 
-            else:
-                # Return object type rather than JSONEncoder.default(obj) which simply raises a TypeError
-                return f"<{type(obj).__name__}>"
+            # Return object type rather than JSONEncoder.default(obj) which simply raises a TypeError
+            return f"<{type(obj).__name__}>"
 
         except Exception:
             _logger.warning(f"Serialization failed for object of type {type(obj).__name__}")

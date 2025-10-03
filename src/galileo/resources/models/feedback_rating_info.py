@@ -4,7 +4,7 @@ from typing import Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.feedback_rating_info_feedback_type import FeedbackRatingInfoFeedbackType
+from ..models.feedback_type import FeedbackType
 
 T = TypeVar("T", bound="FeedbackRatingInfo")
 
@@ -13,27 +13,24 @@ T = TypeVar("T", bound="FeedbackRatingInfo")
 class FeedbackRatingInfo:
     """
     Attributes:
-        explanation (str):
-        feedback_type (FeedbackRatingInfoFeedbackType):
+        explanation (Union[None, str]):
+        feedback_type (FeedbackType):
         value (Union[bool, int, list[str], str]):
     """
 
-    explanation: str
-    feedback_type: FeedbackRatingInfoFeedbackType
+    explanation: Union[None, str]
+    feedback_type: FeedbackType
     value: Union[bool, int, list[str], str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        explanation: Union[None, str]
         explanation = self.explanation
 
         feedback_type = self.feedback_type.value
 
         value: Union[bool, int, list[str], str]
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -44,17 +41,22 @@ class FeedbackRatingInfo:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        explanation = d.pop("explanation")
 
-        feedback_type = FeedbackRatingInfoFeedbackType(d.pop("feedback_type"))
+        def _parse_explanation(data: object) -> Union[None, str]:
+            if data is None:
+                return data
+            return cast(Union[None, str], data)
+
+        explanation = _parse_explanation(d.pop("explanation"))
+
+        feedback_type = FeedbackType(d.pop("feedback_type"))
 
         def _parse_value(data: object) -> Union[bool, int, list[str], str]:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_2 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_2
             except:  # noqa: E722
                 pass
             return cast(Union[bool, int, list[str], str], data)

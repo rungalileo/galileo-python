@@ -293,7 +293,7 @@ class GalileoBaseHandler:
         Optional[Node]
             The node if found, otherwise None.
         """
-        return self._nodes.get(str(run_id)) if run_id else None
+        return self._nodes.get(str(run_id))
 
     def get_nodes(self) -> dict[str, Node]:
         """

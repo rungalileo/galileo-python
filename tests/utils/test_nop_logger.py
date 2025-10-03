@@ -1,7 +1,7 @@
 from galileo.utils.nop_logger import galileo_logging_enabled
 
 
-def test_galileo_logging_enabled(monkeypatch):
+def test_galileo_logging_enabled(monkeypatch) -> None:
     assert galileo_logging_enabled() is True
 
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")

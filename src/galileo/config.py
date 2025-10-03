@@ -1,6 +1,6 @@
 # mypy: disable-error-code=syntax
 # We need to ignore syntax errors until https://github.com/python/mypy/issues/17535 is resolved.
-from typing import Any, Optional
+from typing import Any, ClassVar, Optional
 
 from pydantic_core import Url
 
@@ -12,18 +12,14 @@ class GalileoPythonConfig(GalileoConfig):
     config_filename: str = "galileo-python-config.json"
     console_url: Url = "https://app.galileo.ai"
 
-    def reset(self) -> None:
-        global _galileo_config
-        _galileo_config = None
+    _instance: ClassVar[Optional["GalileoPythonConfig"]] = None
 
+    def reset(self) -> None:
+        GalileoPythonConfig._instance = None
         super().reset()
 
     @classmethod
     def get(cls, **kwargs: Any) -> "GalileoPythonConfig":
-        global _galileo_config
-        _galileo_config = cls._get(_galileo_config, **kwargs)  # type: ignore[arg-type]
-        assert _galileo_config is not None, "Failed to initialize GalileoPythonConfig"
-        return _galileo_config
-
-
-_galileo_config: Optional[GalileoPythonConfig] = None
+        cls._instance = cls._get(cls._instance, **kwargs)
+        assert cls._instance is not None, "Failed to initialize GalileoPythonConfig"
+        return cls._instance

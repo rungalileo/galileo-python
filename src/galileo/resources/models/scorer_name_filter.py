@@ -30,11 +30,7 @@ class ScorerNameFilter:
         operator = self.operator.value
 
         value: Union[list[str], str]
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         case_sensitive = self.case_sensitive
 
@@ -59,9 +55,8 @@ class ScorerNameFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(Union[list[str], str], data)

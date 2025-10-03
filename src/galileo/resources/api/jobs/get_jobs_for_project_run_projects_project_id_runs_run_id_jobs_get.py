@@ -19,10 +19,7 @@ def _get_kwargs(project_id: str, run_id: str, *, status: Union[None, Unset, str]
     params: dict[str, Any] = {}
 
     json_status: Union[None, Unset, str]
-    if isinstance(status, Unset):
-        json_status = UNSET
-    else:
-        json_status = status
+    json_status = UNSET if isinstance(status, Unset) else status
     params["status"] = json_status
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
@@ -52,14 +49,13 @@ def _parse_response(
             response_200.append(response_200_item)
 
         return response_200
-    if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
 
-        return response_422
+    if response.status_code == 422:
+        return HTTPValidationError.from_dict(response.json())
+
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(

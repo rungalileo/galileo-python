@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
     from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
     from ..models.experiment_response_tags import ExperimentResponseTags
+    from ..models.experiment_status import ExperimentStatus
     from ..models.prompt_run_settings import PromptRunSettings
 
 
@@ -45,6 +46,7 @@ class ExperimentResponse:
         prompt_run_settings (Union['PromptRunSettings', None, Unset]):
         rank (Union[None, Unset, int]):
         ranking_score (Union[None, Unset, float]):
+        status (Union[Unset, ExperimentStatus]):
         tags (Union[Unset, ExperimentResponseTags]):
         updated_at (Union[None, Unset, datetime.datetime]): Timestamp of the trace or span's last update
         winner (Union[None, Unset, bool]):
@@ -66,6 +68,7 @@ class ExperimentResponse:
     prompt_run_settings: Union["PromptRunSettings", None, Unset] = UNSET
     rank: Union[None, Unset, int] = UNSET
     ranking_score: Union[None, Unset, float] = UNSET
+    status: Union[Unset, "ExperimentStatus"] = UNSET
     tags: Union[Unset, "ExperimentResponseTags"] = UNSET
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
     winner: Union[None, Unset, bool] = UNSET
@@ -96,10 +99,7 @@ class ExperimentResponse:
             created_at = self.created_at.isoformat()
 
         created_by: Union[None, Unset, str]
-        if isinstance(self.created_by, Unset):
-            created_by = UNSET
-        else:
-            created_by = self.created_by
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         dataset: Union[None, Unset, dict[str, Any]]
         if isinstance(self.dataset, Unset):
@@ -120,10 +120,7 @@ class ExperimentResponse:
             playground = self.playground
 
         playground_id: Union[None, Unset, str]
-        if isinstance(self.playground_id, Unset):
-            playground_id = UNSET
-        else:
-            playground_id = self.playground_id
+        playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
 
         prompt: Union[None, Unset, dict[str, Any]]
         if isinstance(self.prompt, Unset):
@@ -134,10 +131,7 @@ class ExperimentResponse:
             prompt = self.prompt
 
         prompt_model: Union[None, Unset, str]
-        if isinstance(self.prompt_model, Unset):
-            prompt_model = UNSET
-        else:
-            prompt_model = self.prompt_model
+        prompt_model = UNSET if isinstance(self.prompt_model, Unset) else self.prompt_model
 
         prompt_run_settings: Union[None, Unset, dict[str, Any]]
         if isinstance(self.prompt_run_settings, Unset):
@@ -148,16 +142,14 @@ class ExperimentResponse:
             prompt_run_settings = self.prompt_run_settings
 
         rank: Union[None, Unset, int]
-        if isinstance(self.rank, Unset):
-            rank = UNSET
-        else:
-            rank = self.rank
+        rank = UNSET if isinstance(self.rank, Unset) else self.rank
 
         ranking_score: Union[None, Unset, float]
-        if isinstance(self.ranking_score, Unset):
-            ranking_score = UNSET
-        else:
-            ranking_score = self.ranking_score
+        ranking_score = UNSET if isinstance(self.ranking_score, Unset) else self.ranking_score
+
+        status: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.status, Unset):
+            status = self.status.to_dict()
 
         tags: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.tags, Unset):
@@ -172,10 +164,7 @@ class ExperimentResponse:
             updated_at = self.updated_at
 
         winner: Union[None, Unset, bool]
-        if isinstance(self.winner, Unset):
-            winner = UNSET
-        else:
-            winner = self.winner
+        winner = UNSET if isinstance(self.winner, Unset) else self.winner
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -206,6 +195,8 @@ class ExperimentResponse:
             field_dict["rank"] = rank
         if ranking_score is not UNSET:
             field_dict["ranking_score"] = ranking_score
+        if status is not UNSET:
+            field_dict["status"] = status
         if tags is not UNSET:
             field_dict["tags"] = tags
         if updated_at is not UNSET:
@@ -223,6 +214,7 @@ class ExperimentResponse:
         from ..models.experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
         from ..models.experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
         from ..models.experiment_response_tags import ExperimentResponseTags
+        from ..models.experiment_status import ExperimentStatus
         from ..models.prompt_run_settings import PromptRunSettings
 
         d = dict(src_dict)
@@ -248,10 +240,7 @@ class ExperimentResponse:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         def _parse_created_by(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -270,9 +259,8 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                dataset_type_0 = ExperimentDataset.from_dict(data)
+                return ExperimentDataset.from_dict(data)
 
-                return dataset_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ExperimentDataset", None, Unset], data)
@@ -289,9 +277,8 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                playground_type_0 = ExperimentPlayground.from_dict(data)
+                return ExperimentPlayground.from_dict(data)
 
-                return playground_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ExperimentPlayground", None, Unset], data)
@@ -315,9 +302,8 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                prompt_type_0 = ExperimentPrompt.from_dict(data)
+                return ExperimentPrompt.from_dict(data)
 
-                return prompt_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ExperimentPrompt", None, Unset], data)
@@ -341,9 +327,8 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                prompt_run_settings_type_0 = PromptRunSettings.from_dict(data)
+                return PromptRunSettings.from_dict(data)
 
-                return prompt_run_settings_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["PromptRunSettings", None, Unset], data)
@@ -368,12 +353,13 @@ class ExperimentResponse:
 
         ranking_score = _parse_ranking_score(d.pop("ranking_score", UNSET))
 
+        _status = d.pop("status", UNSET)
+        status: Union[Unset, ExperimentStatus]
+        status = UNSET if isinstance(_status, Unset) else ExperimentStatus.from_dict(_status)
+
         _tags = d.pop("tags", UNSET)
         tags: Union[Unset, ExperimentResponseTags]
-        if isinstance(_tags, Unset):
-            tags = UNSET
-        else:
-            tags = ExperimentResponseTags.from_dict(_tags)
+        tags = UNSET if isinstance(_tags, Unset) else ExperimentResponseTags.from_dict(_tags)
 
         def _parse_updated_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
@@ -383,9 +369,8 @@ class ExperimentResponse:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return updated_at_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, datetime.datetime], data)
@@ -418,6 +403,7 @@ class ExperimentResponse:
             prompt_run_settings=prompt_run_settings,
             rank=rank,
             ranking_score=ranking_score,
+            status=status,
             tags=tags,
             updated_at=updated_at,
             winner=winner,

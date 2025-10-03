@@ -1,5 +1,4 @@
 import datetime
-import logging
 import os
 from typing import Optional, Union
 
@@ -22,8 +21,9 @@ from galileo.resources.models.project_type import ProjectType
 from galileo.resources.types import UNSET, Unset
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.exceptions import APIException
+from galileo.utils.logging import get_logger
 
-_logger = logging.getLogger(__name__)
+_logger = get_logger(__name__)
 
 
 class ProjectsAPIException(APIException):
@@ -93,7 +93,7 @@ class Project:
         self.name = project.name
         self.type = project.type_
 
-        if isinstance(project, ProjectDBThin) or isinstance(project, ProjectDB):
+        if isinstance(project, (ProjectDBThin, ProjectDB)):
             self.bookmark = project.bookmark
             self.permissions = project.permissions
 
@@ -295,7 +295,7 @@ def get_project(*, id: Optional[str] = None, name: Optional[str] = None) -> Opti
         If the request takes longer than Client.timeout.
 
     """
-    return Projects().get(id=id, name=name)  # type: ignore[call-overload]
+    return Projects().get(id=id, name=name)
 
 
 def list_projects() -> list[Project]:

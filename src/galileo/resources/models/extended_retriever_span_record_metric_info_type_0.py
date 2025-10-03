@@ -44,17 +44,10 @@ class ExtendedRetrieverSpanRecordMetricInfoType0:
 
         field_dict: dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
-            if isinstance(prop, MetricNotComputed):
-                field_dict[prop_name] = prop.to_dict()
-            elif isinstance(prop, MetricPending):
-                field_dict[prop_name] = prop.to_dict()
-            elif isinstance(prop, MetricComputing):
-                field_dict[prop_name] = prop.to_dict()
-            elif isinstance(prop, MetricNotApplicable):
-                field_dict[prop_name] = prop.to_dict()
-            elif isinstance(prop, MetricSuccess):
-                field_dict[prop_name] = prop.to_dict()
-            elif isinstance(prop, MetricError):
+            if isinstance(
+                prop,
+                (MetricNotComputed, MetricPending, MetricComputing, MetricNotApplicable, MetricSuccess, MetricError),
+            ):
                 field_dict[prop_name] = prop.to_dict()
             else:
                 field_dict[prop_name] = prop.to_dict()
@@ -91,56 +84,48 @@ class ExtendedRetrieverSpanRecordMetricInfoType0:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    additional_property_type_0 = MetricNotComputed.from_dict(data)
+                    return MetricNotComputed.from_dict(data)
 
-                    return additional_property_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    additional_property_type_1 = MetricPending.from_dict(data)
+                    return MetricPending.from_dict(data)
 
-                    return additional_property_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    additional_property_type_2 = MetricComputing.from_dict(data)
+                    return MetricComputing.from_dict(data)
 
-                    return additional_property_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    additional_property_type_3 = MetricNotApplicable.from_dict(data)
+                    return MetricNotApplicable.from_dict(data)
 
-                    return additional_property_type_3
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    additional_property_type_4 = MetricSuccess.from_dict(data)
+                    return MetricSuccess.from_dict(data)
 
-                    return additional_property_type_4
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    additional_property_type_5 = MetricError.from_dict(data)
+                    return MetricError.from_dict(data)
 
-                    return additional_property_type_5
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                additional_property_type_6 = MetricFailed.from_dict(data)
-
-                return additional_property_type_6
+                return MetricFailed.from_dict(data)
 
             additional_property = _parse_additional_property(prop_dict)
 

@@ -74,7 +74,7 @@ def _patch_common_modules():
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 @patch("galileo.stages.ts_name", return_value="auto-name")
-def test_create_stage_happy_path(mock_ts_name: Mock, mock_api: Mock):
+def test_create_stage_happy_path(mock_ts_name: Mock, mock_api: Mock) -> None:
     """Smoke-test: minimal args produce StageDB and correct API call."""
     mock_api.return_value = _api_stage_db_factory(name="auto-name")
 
@@ -86,7 +86,7 @@ def test_create_stage_happy_path(mock_ts_name: Mock, mock_api: Mock):
 
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
-def test_create_stage_validation_error(mock_api: Mock):
+def test_create_stage_validation_error(mock_api: Mock) -> None:
     """create_stage returns HTTPValidationError untouched."""
     err = HTTPValidationError(detail=[{"msg": "bad", "loc": ["body"], "type": "value_error"}])
     mock_api.return_value = err
@@ -97,7 +97,7 @@ def test_create_stage_validation_error(mock_api: Mock):
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
 @patch("galileo.stages.ts_name", return_value="ts_auto")
-def test_create_stage_generates_name_and_type(mock_ts_name: Mock, mock_api: Mock):
+def test_create_stage_generates_name_and_type(mock_ts_name: Mock, mock_api: Mock) -> None:
     """No name provided → ts_name used; stage_type override respected."""
     mock_api.return_value = _api_stage_db_factory(name="ts_auto", stage_type=StageType.central, paused=True)
 
@@ -112,7 +112,7 @@ def test_create_stage_generates_name_and_type(mock_ts_name: Mock, mock_api: Mock
 
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
-def test_create_central_stage_with_rulesets(mock_api: Mock):
+def test_create_central_stage_with_rulesets(mock_api: Mock) -> None:
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
     rulesets = [Ruleset(rules=rules)]
     stage_name = "test-central-stage-with-rules"
@@ -141,7 +141,7 @@ def test_create_central_stage_with_rulesets(mock_api: Mock):
 
 
 @patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
-def test_get_stage_by_id(mock_api: Mock):
+def test_get_stage_by_id(mock_api: Mock) -> None:
     mock_api.return_value = _api_stage_db_factory(stage_id=FIXED_STAGE_ID)
 
     stage = get_protect_stage(project_id=FIXED_PROJECT_ID, stage_id=FIXED_STAGE_ID)
@@ -155,7 +155,7 @@ def test_get_stage_by_id(mock_api: Mock):
 
 @patch("galileo.stages.get_stage_projects_project_id_stages_get.sync")
 @patch("galileo.stages.Projects")
-def test_get_stage_by_names(mock_projects_cls: Mock, mock_api: Mock):
+def test_get_stage_by_names(mock_projects_cls: Mock, mock_api: Mock) -> None:
     proj_inst = Mock()
     proj_inst.get_with_env_fallbacks.return_value.id = str(FIXED_PROJECT_ID)
     mock_projects_cls.return_value = proj_inst
@@ -173,7 +173,7 @@ def test_get_stage_by_names(mock_projects_cls: Mock, mock_api: Mock):
 
 @patch("galileo.stages.update_stage_projects_project_id_stages_stage_id_post.sync")
 @patch("galileo.stages.Stages.get")
-def test_update_stage_rulesets(mock_get: Mock, mock_api: Mock):
+def test_update_stage_rulesets(mock_get: Mock, mock_api: Mock) -> None:
     """Verify rulesets payload reaches API, version bumps."""
     mock_get.return_value = _core_stage_db_factory(stage_id=FIXED_STAGE_ID)
     mock_api.return_value = _api_stage_db_factory(stage_id=FIXED_STAGE_ID, version=2)
@@ -195,7 +195,7 @@ def test_update_stage_rulesets(mock_get: Mock, mock_api: Mock):
 @patch("galileo.stages.update_stage_projects_project_id_stages_stage_id_post.sync")
 @patch("galileo.stages.Stages.get")
 @patch("galileo.stages.Projects")
-def test_update_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api: Mock):
+def test_update_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api: Mock) -> None:
     proj_inst = Mock()
     proj_inst.get_with_env_fallbacks.return_value.id = str(FIXED_PROJECT_ID)
     mock_projects_cls.return_value = proj_inst
@@ -211,10 +211,10 @@ def test_update_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api
     assert stage.version == 3
 
 
-@pytest.mark.parametrize("pause_flag, api_fn", [(True, pause_protect_stage), (False, resume_protect_stage)])
+@pytest.mark.parametrize(("pause_flag", "api_fn"), [(True, pause_protect_stage), (False, resume_protect_stage)])
 @patch("galileo.stages.pause_stage_projects_project_id_stages_stage_id_put.sync")
 @patch("galileo.stages.Stages.get")
-def test_pause_and_resume_by_id(mock_get: Mock, mock_api: Mock, pause_flag, api_fn):
+def test_pause_and_resume_by_id(mock_get: Mock, mock_api: Mock, pause_flag, api_fn) -> None:
     mock_get.return_value = _core_stage_db_factory(stage_id=FIXED_STAGE_ID, paused=not pause_flag)
     mock_api.return_value = _api_stage_db_factory(stage_id=FIXED_STAGE_ID, paused=pause_flag)
 
@@ -229,7 +229,7 @@ def test_pause_and_resume_by_id(mock_get: Mock, mock_api: Mock, pause_flag, api_
 @patch("galileo.stages.pause_stage_projects_project_id_stages_stage_id_put.sync")
 @patch("galileo.stages.Stages.get")
 @patch("galileo.stages.Projects")
-def test_pause_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api: Mock):
+def test_pause_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api: Mock) -> None:
     proj_inst = Mock()
     proj_inst.get_with_env_fallbacks.return_value.id = str(FIXED_PROJECT_ID)
     mock_projects_cls.return_value = proj_inst
@@ -248,7 +248,7 @@ def test_pause_stage_by_names(mock_projects_cls: Mock, mock_get: Mock, mock_api:
 
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
-def test_stage_creation_with_project_id_and_project_name_env_var(mock_api: Mock, monkeypatch):
+def test_stage_creation_with_project_id_and_project_name_env_var(mock_api: Mock, monkeypatch) -> None:
     monkeypatch.setenv("GALILEO_PROJECT", "proj")
 
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
@@ -280,7 +280,7 @@ def test_stage_creation_with_project_id_and_project_name_env_var(mock_api: Mock,
 
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
-def test_stage_creation_with_project_id_and_project_id_env_var(mock_api: Mock, monkeypatch):
+def test_stage_creation_with_project_id_and_project_id_env_var(mock_api: Mock, monkeypatch) -> None:
     monkeypatch.setenv("GALILEO_PROJECT_ID", str(FIXED_PROJECT_ID))
 
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
@@ -312,7 +312,7 @@ def test_stage_creation_with_project_id_and_project_id_env_var(mock_api: Mock, m
 
 
 @patch("galileo.stages.create_stage_projects_project_id_stages_post.sync")
-def test_stage_creation_with_project_name_and_project_id_env_var(mock_api: Mock, monkeypatch):
+def test_stage_creation_with_project_name_and_project_id_env_var(mock_api: Mock, monkeypatch) -> None:
     monkeypatch.setenv("GALILEO_PROJECT_ID", "proj")
 
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]

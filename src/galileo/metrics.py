@@ -37,7 +37,7 @@ class Metrics:
         model_name: str = "gpt-4.1-mini",
         num_judges: int = 3,
         description: str = "",
-        tags: list[str] = [],
+        tags: Optional[list[str]] = None,
         output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN,
     ) -> BaseScorerVersionResponse:
         """
@@ -58,25 +58,25 @@ class Metrics:
             BaseScorerVersionResponse: Response containing the created metric details.
         """
 
+        if tags is None:
+            tags = []
         create_scorer_request = CreateScorerRequest(
             name=name,
             scorer_type=ScorerTypes.LLM,
             description=description,
             tags=tags,
-            defaults=ScorerDefaults(model_name=model_name, num_judges=num_judges),
+            defaults=ScorerDefaults(
+                model_name=model_name,
+                num_judges=num_judges,
+                output_type=output_type,
+                cot_enabled=cot_enabled,
+                scoreable_node_types=[node_level],
+            ),
         )
 
         scorer = create_scorers_post.sync(body=create_scorer_request, client=self.config.api_client)
 
-        scoreable_node_types = [node_level]
-        version_req = CreateLLMScorerVersionRequest(
-            user_prompt=user_prompt,
-            scoreable_node_types=scoreable_node_types,
-            cot_enabled=cot_enabled,
-            output_type=output_type,
-            model_name=model_name,
-            num_judges=num_judges,
-        )
+        version_req = CreateLLMScorerVersionRequest(user_prompt=user_prompt)
         version_resp = create_llm_scorer_version_scorers_scorer_id_version_llm_post.sync(
             scorer_id=scorer.id, body=version_req, client=self.config.api_client
         )
@@ -127,7 +127,7 @@ def create_custom_llm_metric(
     model_name: str = "gpt-4.1-mini",
     num_judges: int = 3,
     description: str = "",
-    tags: list[str] = [],
+    tags: Optional[list[str]] = None,
     output_type: OutputTypeEnum = OutputTypeEnum.BOOLEAN,
 ) -> BaseScorerVersionResponse:
     """
@@ -147,6 +147,8 @@ def create_custom_llm_metric(
     Returns:
         BaseScorerVersionResponse: Response containing the created metric details.
     """
+    if tags is None:
+        tags = []
     return Metrics().create_custom_llm_metric(
         name, user_prompt, node_level, cot_enabled, model_name, num_judges, description, tags, output_type
     )

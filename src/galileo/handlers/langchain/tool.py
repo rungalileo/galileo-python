@@ -8,10 +8,13 @@ from pydantic.v1 import BaseModel as BaseModelV1
 
 from galileo.constants.protect import TIMEOUT_SECS
 from galileo.protect import ainvoke_protect, invoke_protect
+from galileo.utils.logging import get_logger
 from galileo_core.schemas.protect.execution_status import ExecutionStatus
 from galileo_core.schemas.protect.payload import Payload as CorePayload
 from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
+
+logger = get_logger(__name__)
 
 
 class ProtectToolInputSchema(BaseModelV1):
@@ -143,8 +146,7 @@ class ProtectParser(BaseModel):
         text = response.text
 
         if self.echo_output:
-            print(f"> Raw response: {text}")
+            logger.debug(f"> Raw response: {text}")
         if response.status == ExecutionStatus.triggered and not self.ignore_trigger:
             return text
-        else:
-            return self.chain.invoke(text)
+        return self.chain.invoke(text)

@@ -27,17 +27,15 @@ class TestGalileoAsyncCallback:
         setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
-        logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
-        return logger
+        return GalileoLogger(project="my_project", log_stream="my_log_stream")
 
     @pytest.fixture
     def callback(self, galileo_logger: GalileoLogger) -> Generator[GalileoAsyncCallback, None, None]:
         """Creates a GalileoCallback with a mock logger"""
-        callback = GalileoAsyncCallback(galileo_logger=galileo_logger, flush_on_chain_end=False)
-        yield callback
+        return GalileoAsyncCallback(galileo_logger=galileo_logger, flush_on_chain_end=False)
 
     @mark.asyncio
-    async def test_initialization(self, galileo_logger: GalileoLogger):
+    async def test_initialization(self, galileo_logger: GalileoLogger) -> None:
         """Test callback initialization with various parameters"""
         # Default initialization
         callback = GalileoAsyncCallback(galileo_logger=galileo_logger)
@@ -52,7 +50,7 @@ class TestGalileoAsyncCallback:
         assert callback._handler._flush_on_chain_end is False
 
     @mark.asyncio
-    async def test_on_chain_start_end(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
+    async def test_on_chain_start_end(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger) -> None:
         """Test chain start and end callbacks"""
         run_id = uuid.uuid4()
 
@@ -85,7 +83,7 @@ class TestGalileoAsyncCallback:
     @mark.asyncio
     async def test_on_chain_start_end_with_input_update(
         self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
-    ):
+    ) -> None:
         """Test chain start and end callbacks with input update (streaming mode)"""
         run_id = uuid.uuid4()
 
@@ -112,7 +110,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
-    async def test_on_agent_chain(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
+    async def test_on_agent_chain(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger) -> None:
         """Test agent chain handling"""
         run_id = uuid.uuid4()
 
@@ -138,7 +136,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
-    async def test_on_llm_start_end(self, callback: GalileoAsyncCallback):
+    async def test_on_llm_start_end(self, callback: GalileoAsyncCallback) -> None:
         """Test LLM start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -182,7 +180,7 @@ class TestGalileoAsyncCallback:
         assert node.span_params["duration_ns"] > 0
 
     @mark.asyncio
-    async def test_on_chat_model_start(self, callback: GalileoAsyncCallback):
+    async def test_on_chat_model_start(self, callback: GalileoAsyncCallback) -> None:
         """Test chat model start callback"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -224,7 +222,7 @@ class TestGalileoAsyncCallback:
     @mark.asyncio
     async def test_on_chat_model_start_end_with_tools(
         self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
-    ):
+    ) -> None:
         """Test chat model start and end callbacks with tools"""
         run_id = uuid.uuid4()
         chain_id = uuid.uuid4()
@@ -300,7 +298,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
-    async def test_on_tool_start_end_with_string_output(self, callback: GalileoAsyncCallback):
+    async def test_on_tool_start_end_with_string_output(self, callback: GalileoAsyncCallback) -> None:
         """Test tool start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -326,7 +324,7 @@ class TestGalileoAsyncCallback:
         assert node.span_params["output"] == "4"
 
     @mark.asyncio
-    async def test_on_tool_start_end_with_object_output(self, callback: GalileoAsyncCallback):
+    async def test_on_tool_start_end_with_object_output(self, callback: GalileoAsyncCallback) -> None:
         """Test tool start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -391,7 +389,7 @@ class TestGalileoAsyncCallback:
         assert node.span_params["output"] == '{"tool_call_id": "1", "status": "success", "role": "tool"}'
 
     @mark.asyncio
-    async def test_on_tool_start_end_with_dict_output(self, callback: GalileoAsyncCallback):
+    async def test_on_tool_start_end_with_dict_output(self, callback: GalileoAsyncCallback) -> None:
         """Test tool start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -439,7 +437,7 @@ class TestGalileoAsyncCallback:
         assert node.span_params["output"] == '{"tool_call_id": "1", "status": "success", "role": "tool"}'
 
     @mark.asyncio
-    async def test_on_retriever_start_end(self, callback: GalileoAsyncCallback):
+    async def test_on_retriever_start_end(self, callback: GalileoAsyncCallback) -> None:
         """Test retriever start and end callbacks"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -467,7 +465,7 @@ class TestGalileoAsyncCallback:
     @mark.asyncio
     async def test_extracting_chain_names_from_metadata(
         self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
-    ):
+    ) -> None:
         """Test extracting chain names from metadata kwarg, with two nested chains"""
         chain_id = uuid.uuid4()
         chain_id2 = uuid.uuid4()
@@ -499,7 +497,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].spans[0].name == "Test Chain 2"
 
     @mark.asyncio
-    async def test_complex_execution_flow(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
+    async def test_complex_execution_flow(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger) -> None:
         """Test a complex execution flow with multiple component types"""
         # Create UUIDs for different components
         chain_id = uuid.uuid4()
@@ -606,7 +604,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].spans[2].step_number is None
 
     @mark.asyncio
-    async def test_missing_parent_node(self, callback: GalileoAsyncCallback):
+    async def test_missing_parent_node(self, callback: GalileoAsyncCallback) -> None:
         """Test handling of missing parent nodes"""
         parent_id = uuid.uuid4()
         child_id = uuid.uuid4()
@@ -626,7 +624,7 @@ class TestGalileoAsyncCallback:
         assert node.parent_run_id == parent_id
 
     @mark.asyncio
-    async def test_serialization_error_handling(self, callback: GalileoAsyncCallback):
+    async def test_serialization_error_handling(self, callback: GalileoAsyncCallback) -> None:
         """Test handling of serialization errors"""
         run_id = uuid.uuid4()
 
@@ -653,7 +651,7 @@ class TestGalileoAsyncCallback:
         assert isinstance(node.span_params["output"], str)
 
     @mark.asyncio
-    async def test_callback_with_active_trace(self, galileo_logger: GalileoLogger):
+    async def test_callback_with_active_trace(self, galileo_logger: GalileoLogger) -> None:
         """Test that the callback properly handles an active trace."""
         run_id = uuid.uuid4()
 
@@ -691,7 +689,7 @@ class TestGalileoAsyncCallback:
         assert traces[0].spans[0].step_number is None
 
     @mark.asyncio
-    async def test_node_created_at(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
+    async def test_node_created_at(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger) -> None:
         parent_id = uuid.uuid4()
         llm_run_id = uuid.uuid4()
         retriever_run_id = uuid.uuid4()
@@ -746,7 +744,7 @@ class TestGalileoAsyncCallback:
         assert time_diff_ms >= delay_ms
 
     @pytest.mark.parametrize(
-        "node_type, start_fn, end_fn, input_args, output_args, expected_type",
+        ("node_type", "start_fn", "end_fn", "input_args", "output_args", "expected_type"),
         [
             (
                 "tool",
@@ -801,7 +799,7 @@ class TestGalileoAsyncCallback:
         input_args,
         output_args,
         expected_type,
-    ):
+    ) -> None:
         """Test that step_number is set correctly for all node types when metadata contains langgraph_step"""
         parent_id = uuid.uuid4()
         run_id = uuid.uuid4()
@@ -841,7 +839,7 @@ class TestGalileoAsyncCallback:
             assert root_span.step_number == step_number
 
     @mark.asyncio
-    async def test_on_nested_agent_chains(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
+    async def test_on_nested_agent_chains(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger) -> None:
         """Test nested agent chain handling and name change"""
         outer_run_id = uuid.uuid4()
         inner_run_id = uuid.uuid4()
@@ -874,7 +872,9 @@ class TestGalileoAsyncCallback:
         assert inner_span.name == "OuterChain:Agent"
 
     @mark.asyncio
-    async def test_ai_message_with_list_content(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
+    async def test_ai_message_with_list_content(
+        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+    ) -> None:
         """Test AIMessage serialization with content as list of dicts (Responses API format)"""
         run_id = uuid.uuid4()
         parent_id = uuid.uuid4()
@@ -906,7 +906,9 @@ class TestGalileoAsyncCallback:
         assert input_data[0]["role"] == "assistant"
 
     @mark.asyncio
-    async def test_ai_message_with_reasoning(self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger):
+    async def test_ai_message_with_reasoning(
+        self, callback: GalileoAsyncCallback, galileo_logger: GalileoLogger
+    ) -> None:
         """Test AIMessage serialization with reasoning in additional_kwargs"""
         run_id = uuid.uuid4()
         parent_id = uuid.uuid4()

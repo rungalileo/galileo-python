@@ -8,9 +8,8 @@ from openai.types.chat import ChatCompletionChunk
 
 def model_dict(m: BaseModel, **kwargs: Any) -> dict[str, Any]:
     if hasattr(m, "model_dump"):
-        return getattr(m, "model_dump")(**kwargs)
-    else:
-        return getattr(m, "dict")(**kwargs)
+        return m.model_dump(**kwargs)
+    return m.dict(**kwargs)
 
 
 class EventStream:

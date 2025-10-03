@@ -35,10 +35,7 @@ class ListScorerVersionsResponse:
         limit = self.limit
 
         next_starting_token: Union[None, Unset, int]
-        if isinstance(self.next_starting_token, Unset):
-            next_starting_token = UNSET
-        else:
-            next_starting_token = self.next_starting_token
+        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
         paginated = self.paginated
 

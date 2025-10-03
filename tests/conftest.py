@@ -1,4 +1,5 @@
 import datetime
+import logging
 from collections.abc import Generator
 from typing import Callable
 from unittest.mock import MagicMock, patch
@@ -50,7 +51,7 @@ def mock_login_api_key(mock_request: Callable) -> Generator[None, None, None]:
 @pytest.fixture
 def mock_decode_jwt() -> Generator[MagicMock, None, None]:
     with patch("galileo_core.schemas.base_config.jwt_decode") as _fixture:
-        _fixture.return_value = dict(exp=float("inf"))
+        _fixture.return_value = {"exp": float("inf")}
         yield _fixture
 
 
@@ -82,7 +83,7 @@ def create_chat_completion() -> ChatCompletion:
 
 
 @pytest.fixture
-def test_dataset_row_id():
+def test_dataset_row_id() -> None:
     str(uuid4())
 
 
@@ -177,3 +178,22 @@ def thread_pool_capture():
 )
 def rulesets(request: pytest.FixtureRequest) -> list[Ruleset]:
     return request.param
+
+
+@pytest.fixture
+def enable_galileo_logging():
+    """Temporarily enable galileo logging for tests that need to capture log output."""
+    galileo_logger = logging.getLogger("galileo")
+    original_level = galileo_logger.level
+    original_propagate = galileo_logger.propagate
+
+    # Enable logging at appropriate levels for different test types
+    galileo_logger.setLevel(logging.DEBUG)  # Most permissive for test flexibility
+    galileo_logger.propagate = True
+
+    try:
+        yield
+    finally:
+        # Restore original settings
+        galileo_logger.setLevel(original_level)
+        galileo_logger.propagate = original_propagate

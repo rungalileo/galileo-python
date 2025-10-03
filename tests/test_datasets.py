@@ -153,14 +153,14 @@ def list_dataset_versions():
 
 
 @patch("galileo.datasets.create_dataset_datasets_post")
-def test_create_dataset_validation_error(create_dataset_datasets_post_mock: Mock):
+def test_create_dataset_validation_error(create_dataset_datasets_post_mock: Mock) -> None:
     with pytest.raises(ValueError) as exc_info:
         create_dataset(name="my_dataset_name", content=None)
     assert "Invalid dataset type: '<class 'NoneType'>'." in str(exc_info.value), str(exc_info)
 
 
 @patch("galileo.datasets.create_dataset_datasets_post")
-def test_create_dataset_with_empty_list(create_dataset_datasets_post_mock: Mock):
+def test_create_dataset_with_empty_list(create_dataset_datasets_post_mock: Mock) -> None:
     create_dataset_datasets_post_mock.sync_detailed.return_value = Response(
         content=b'{"id":"bb830fae-99d3-4ce7-bef9-300d528e0060","permissions":[],"name":"my_dataset_name","created_at":"2025-05-16T16:26:41.76451","email":"user.test@galileo.ai","first_name":"","last_name":""},"current_version_index":1,"draft":false}',
         status_code=HTTPStatus.OK,
@@ -191,7 +191,7 @@ def test_create_dataset_with_empty_list(create_dataset_datasets_post_mock: Mock)
 
 
 @patch("galileo.datasets.create_dataset_datasets_post")
-def test_create_dataset_with_empty_dict(create_dataset_datasets_post_mock: Mock):
+def test_create_dataset_with_empty_dict(create_dataset_datasets_post_mock: Mock) -> None:
     create_dataset_datasets_post_mock.sync_detailed.return_value = Response(
         content=b'{"id":"bb830fae-99d3-4ce7-bef9-300d528e0060","permissions":[],"name":"my_dataset_name","created_at":"2025-05-16T16:26:41.76451","email":"user.test@galileo.ai","first_name":"","last_name":""},"current_version_index":1,"draft":false}',
         status_code=HTTPStatus.OK,
@@ -225,7 +225,7 @@ def test_create_dataset_with_empty_dict(create_dataset_datasets_post_mock: Mock)
 @patch("galileo.datasets.get_dataset_datasets_dataset_id_get")
 def test_get_dataset_version_using_dataset_id(
     get_dataset_datasets_dataset_id_get: Mock, get_dataset_version_mock: Mock
-):
+) -> None:
     get_dataset_datasets_dataset_id_get.sync.return_value = dataset_db()
     get_dataset_version_mock.sync.return_value = dataset_content()
 
@@ -244,7 +244,7 @@ def test_get_dataset_version_using_dataset_id(
 @patch("galileo.datasets.query_datasets_datasets_query_post")
 def test_get_dataset_version_using_dataset_name(
     query_datasets_datasets_query_post: Mock, get_dataset_version_mock: Mock
-):
+) -> None:
     query_datasets_datasets_query_post.sync.return_value = dataset_response()
     get_dataset_version_mock.sync.return_value = dataset_content()
 
@@ -260,7 +260,7 @@ def test_get_dataset_version_using_dataset_name(
     )
 
 
-def test_get_dataset_version_wo_dataset_name_or_dataset_id():
+def test_get_dataset_version_wo_dataset_name_or_dataset_id() -> None:
     with pytest.raises(ValueError) as exc_info:
         get_dataset_version(version_index=1)
     assert "Either dataset_name or dataset_id must be provided." in str(exc_info.value), str(exc_info)
@@ -270,7 +270,7 @@ def test_get_dataset_version_wo_dataset_name_or_dataset_id():
 @patch("galileo.datasets.get_dataset_datasets_dataset_id_get")
 def test_get_dataset_version_history_using_dataset_id(
     get_dataset_datasets_dataset_id_get: Mock, get_dataset_versions_mock: Mock
-):
+) -> None:
     get_dataset_datasets_dataset_id_get.sync.return_value = dataset_db()
     get_dataset_versions_mock.sync.return_value = list_dataset_versions()
 
@@ -290,7 +290,7 @@ def test_get_dataset_version_history_using_dataset_id(
 @patch("galileo.datasets.query_datasets_datasets_query_post")
 def test_get_dataset_version_history_using_dataset_name(
     query_datasets_datasets_query_post: Mock, get_dataset_version_mock: Mock
-):
+) -> None:
     query_datasets_datasets_query_post.sync.return_value = dataset_response()
     get_dataset_version_mock.sync.return_value = list_dataset_versions()
 
@@ -307,13 +307,13 @@ def test_get_dataset_version_history_using_dataset_name(
     )
 
 
-def test_get_dataset_version_history_wo_dataset_name_or_dataset_id():
+def test_get_dataset_version_history_wo_dataset_name_or_dataset_id() -> None:
     with pytest.raises(ValueError) as exc_info:
         get_dataset_version_history()
     assert "Either dataset_name or dataset_id must be provided." in str(exc_info.value), str(exc_info)
 
 
-def test_convert_dataset_row_to_record():
+def test_convert_dataset_row_to_record() -> None:
     """Test the convert_dataset_row_to_record function with various inputs."""
 
     # Case 1: Normal case with input, output, and metadata
@@ -412,7 +412,9 @@ def test__get_etag(get_dataset_content_by_id_patch: Mock) -> None:
 @patch("galileo.datasets.Dataset._get_etag", return_value="test_etag")
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 @patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
-def test_dataset_add_rows_success(update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock):
+def test_dataset_add_rows_success(
+    update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock
+) -> None:
     dataset = Dataset(dataset_db=dataset_db())
 
     dataset.add_rows([{"input": "b"}, {"input": "c"}])
@@ -439,7 +441,9 @@ def test_dataset_add_rows_success(update_dataset_patch: Mock, get_dataset_conten
 @patch("galileo.datasets.Dataset._get_etag", return_value="test_etag")
 @patch("galileo.datasets.get_dataset_content_datasets_dataset_id_content_get")
 @patch("galileo.datasets.update_dataset_content_datasets_dataset_id_content_patch")
-def test_dataset_add_rows_failure(update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock):
+def test_dataset_add_rows_failure(
+    update_dataset_patch: Mock, get_dataset_content_patch: Mock, etag_patch: Mock
+) -> None:
     update_dataset_patch.sync.return_value = HTTPValidationError()
 
     dataset = Dataset(dataset_db=dataset_db())
@@ -453,7 +457,7 @@ def test_dataset_add_rows_failure(update_dataset_patch: Mock, get_dataset_conten
     get_dataset_content_patch.sync.assert_not_called()
 
 
-def test_delete_dataset_validation_errors():
+def test_delete_dataset_validation_errors() -> None:
     with pytest.raises(ValueError) as exc_info:
         Datasets().delete()
     assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
@@ -467,7 +471,7 @@ def test_delete_dataset_validation_errors():
     assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
 
 
-def test_get_dataset_validation_errors():
+def test_get_dataset_validation_errors() -> None:
     with pytest.raises(ValueError) as exc_info:
         Datasets().get()
     assert str(exc_info.value) == "Exactly one of 'id' or 'name' must be provided"
@@ -487,7 +491,7 @@ def test_get_dataset_validation_errors():
 @patch("galileo.datasets.time.sleep")  # Mock sleep to avoid actual delays
 def test_extend_dataset_success(
     sleep_mock: Mock, extend_dataset_mock: Mock, get_extend_status_mock: Mock, get_dataset_content_mock: Mock
-):
+) -> None:
     """Test the extend_dataset function with successful completion."""
 
     # Setup test data
@@ -539,7 +543,7 @@ def test_extend_dataset_success(
 
 
 @patch("galileo.datasets.extend_dataset_content_datasets_extend_post")
-def test_extend_dataset_api_failure(extend_dataset_mock: Mock):
+def test_extend_dataset_api_failure(extend_dataset_mock: Mock) -> None:
     """Test extend_dataset when the initial API call fails."""
 
     # Mock API failure

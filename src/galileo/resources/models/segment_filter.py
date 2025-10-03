@@ -38,9 +38,7 @@ class SegmentFilter:
         filter_: Union[None, Unset, dict[str, Any]]
         if isinstance(self.filter_, Unset):
             filter_ = UNSET
-        elif isinstance(self.filter_, NodeNameFilter):
-            filter_ = self.filter_.to_dict()
-        elif isinstance(self.filter_, MetadataFilter):
+        elif isinstance(self.filter_, (NodeNameFilter, MetadataFilter)):
             filter_ = self.filter_.to_dict()
         else:
             filter_ = self.filter_
@@ -73,17 +71,15 @@ class SegmentFilter:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                filter_type_0_type_0 = NodeNameFilter.from_dict(data)
+                return NodeNameFilter.from_dict(data)
 
-                return filter_type_0_type_0
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                filter_type_0_type_1 = MetadataFilter.from_dict(data)
+                return MetadataFilter.from_dict(data)
 
-                return filter_type_0_type_1
             except:  # noqa: E722
                 pass
             return cast(Union["MetadataFilter", "NodeNameFilter", None, Unset], data)

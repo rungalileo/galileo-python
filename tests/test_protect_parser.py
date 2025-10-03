@@ -1,10 +1,11 @@
+import logging
 from json import dumps
 from typing import Any, Optional
 from unittest.mock import patch
 
 from langchain_core.callbacks import CallbackManagerForLLMRun
 from langchain_core.language_models.llms import LLM
-from pytest import CaptureFixture, mark
+from pytest import LogCaptureFixture, mark
 
 from galileo.handlers.langchain.tool import ProtectParser
 
@@ -34,36 +35,36 @@ class ProtectLLM(LLM):
 
 
 @mark.parametrize(
-    ["output", "ignore_trigger", "expected_return", "expected_call_count"],
+    ("output", "ignore_trigger", "expected_return", "expected_call_count"),
     [
-        [dumps({"text": "foo", "status": "not_triggered", **A_TRACE_METADATA_DICT}), False, "foo", 1],
-        [dumps({"text": "foo", "status": "not_triggered", **A_TRACE_METADATA_DICT}), True, "foo", 1],
-        [dumps({"text": "timeout", "status": "TIMEOUT", **A_TRACE_METADATA_DICT}), False, "timeout", 1],
-        [dumps({"text": "timeout", "status": "TIMEOUT", **A_TRACE_METADATA_DICT}), True, "timeout", 1],
-        [
+        (dumps({"text": "foo", "status": "not_triggered", **A_TRACE_METADATA_DICT}), False, "foo", 1),
+        (dumps({"text": "foo", "status": "not_triggered", **A_TRACE_METADATA_DICT}), True, "foo", 1),
+        (dumps({"text": "timeout", "status": "TIMEOUT", **A_TRACE_METADATA_DICT}), False, "timeout", 1),
+        (dumps({"text": "timeout", "status": "TIMEOUT", **A_TRACE_METADATA_DICT}), True, "timeout", 1),
+        (
             dumps({"text": "not_triggered", "status": "not_triggered", **A_TRACE_METADATA_DICT}),
             False,
             "not_triggered",
             1,
-        ],
-        [
+        ),
+        (
             dumps({"text": "not_triggered", "status": "not_triggered", **A_TRACE_METADATA_DICT}),
             True,
             "not_triggered",
             1,
-        ],
-        [
+        ),
+        (
             dumps({"text": "triggering text", "status": "TRIGGERED", **A_TRACE_METADATA_DICT}),
             False,
             "triggering text",
             0,
-        ],
-        [
+        ),
+        (
             dumps({"text": "triggering text", "status": "TRIGGERED", **A_TRACE_METADATA_DICT}),
             True,
             "triggering text",
             1,
-        ],
+        ),
     ],
 )
 def test_parser(output: str, ignore_trigger: bool, expected_return: str, expected_call_count: int) -> None:
@@ -76,10 +77,15 @@ def test_parser(output: str, ignore_trigger: bool, expected_return: str, expecte
         assert mock_fn.call_count == expected_call_count
 
 
-@mark.parametrize(["echo_output", "expected_output"], [[True, "> Raw response: foo\n"], [False, ""]])
-def test_echo(echo_output: bool, expected_output: str, capsys: CaptureFixture) -> None:
+@mark.parametrize(("echo_output", "should_log"), [(True, True), (False, False)])
+def test_echo(echo_output: bool, should_log: bool, caplog: LogCaptureFixture, enable_galileo_logging) -> None:
     """Verify that the ProtectParser echoes the output if echo_output is True."""
     parser = ProtectParser(chain=ProtectLLM(), echo_output=echo_output)
-    parser.parser(dumps({"text": "foo", "status": "not_triggered", **A_TRACE_METADATA_DICT}))
-    captured = capsys.readouterr()
-    assert captured.out == expected_output
+
+    with caplog.at_level(logging.DEBUG, logger="galileo.handlers.langchain.tool"):
+        parser.parser(dumps({"text": "foo", "status": "not_triggered", **A_TRACE_METADATA_DICT}))
+
+        if should_log:
+            assert "> Raw response: foo" in caplog.text
+        else:
+            assert "> Raw response: foo" not in caplog.text

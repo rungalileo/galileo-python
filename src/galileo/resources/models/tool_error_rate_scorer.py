@@ -53,10 +53,7 @@ class ToolErrorRateScorer:
             filters = self.filters
 
         model_name: Union[None, Unset, str]
-        if isinstance(self.model_name, Unset):
-            model_name = UNSET
-        else:
-            model_name = self.model_name
+        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
         name = self.name
 
@@ -101,16 +98,13 @@ class ToolErrorRateScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+                            return NodeNameFilter.from_dict(data)
 
-                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
-
-                        return filters_type_0_item_type_1
+                        return MetadataFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 
@@ -138,10 +132,7 @@ class ToolErrorRateScorer:
 
         _type_ = d.pop("type", UNSET)
         type_: Union[Unset, ToolErrorRateScorerType]
-        if isinstance(_type_, Unset):
-            type_ = UNSET
-        else:
-            type_ = ToolErrorRateScorerType(_type_)
+        type_ = UNSET if isinstance(_type_, Unset) else ToolErrorRateScorerType(_type_)
 
         tool_error_rate_scorer = cls(filters=filters, model_name=model_name, name=name, type_=type_)
 

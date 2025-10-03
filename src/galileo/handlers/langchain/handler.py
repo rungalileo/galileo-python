@@ -67,9 +67,9 @@ class GalileoCallback(BaseCallbackHandler):
 
             if node_name:
                 return node_name
-            elif node_class_reference and isinstance(node_class_reference, list):
+            if node_class_reference and isinstance(node_class_reference, list):
                 return node_class_reference[-1]
-            elif isinstance(kwargs, dict):
+            if isinstance(kwargs, dict):
                 if kwargs_name := kwargs.get("name"):
                     return kwargs_name
                 if "metadata" in kwargs and isinstance(kwargs["metadata"], dict):

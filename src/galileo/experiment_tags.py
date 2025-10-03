@@ -21,8 +21,6 @@ _logger = logging.getLogger(__name__)
 class ExperimentTagsAPIException(APIException):
     """Exception raised when experiment tags operations fail."""
 
-    pass
-
 
 class ExperimentTag(RunTagDB):
     """Wrapper class for experiment tags that provides additional functionality."""

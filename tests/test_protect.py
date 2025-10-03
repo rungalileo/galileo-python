@@ -65,7 +65,7 @@ def invoke_response() -> APIResponse:
 
 
 @mark.parametrize(
-    ["include_project_id", "include_project_name", "include_stage_name", "include_stage_id"],
+    ("include_project_id", "include_project_name", "include_stage_name", "include_stage_id"),
     [
         (True, True, True, True),
         (True, False, True, True),
@@ -162,7 +162,7 @@ class TestAInvoke:
 
 
 @mark.parametrize(
-    ["include_project_id", "include_project_name", "include_stage_name", "include_stage_id"],
+    ("include_project_id", "include_project_name", "include_stage_name", "include_stage_id"),
     [
         (True, True, True, True),
         (True, False, True, True),
@@ -288,7 +288,7 @@ class TestInvoke:
 
 @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
 @mark.asyncio
-async def test_invoke_with_rulesets(mock_invoke_post_async: Mock):
+async def test_invoke_with_rulesets(mock_invoke_post_async: Mock) -> None:
     mock_invoke_post_async.return_value = invoke_response()
 
     rules = [Rule(metric="m1", operator=RuleOperator.eq, target_value="v1")]
@@ -313,7 +313,7 @@ async def test_invoke_with_rulesets(mock_invoke_post_async: Mock):
 
 @patch("galileo.protect.invoke_protect_invoke_post.asyncio", new_callable=AsyncMock)
 @mark.asyncio
-async def test_invoke_api_validation_error(mock_invoke_post_async: Mock):
+async def test_invoke_api_validation_error(mock_invoke_post_async: Mock) -> None:
     error_detail_item = {"loc": ["body", "payload", "input"], "msg": "Field required", "type": "missing"}
     validation_error = HTTPValidationError(detail=[error_detail_item])
     mock_invoke_post_async.return_value = validation_error
@@ -333,7 +333,7 @@ async def test_invoke_api_validation_error(mock_invoke_post_async: Mock):
 
 
 @mark.parametrize(
-    "status, expected",
+    ("status", "expected"),
     [
         ("not_triggered", "not_triggered"),
         # ("NOT_TRIGGERED", "not_triggered"),
@@ -343,7 +343,7 @@ async def test_invoke_api_validation_error(mock_invoke_post_async: Mock):
         ("TRIGGERED", "triggered"),
     ],
 )
-def test_execution_status_case_insensitive(status: str, expected: str):
+def test_execution_status_case_insensitive(status: str, expected: str) -> None:
     """
     Tests that APIExecutionStatus can be initialized
     with strings of various casings.
@@ -352,7 +352,7 @@ def test_execution_status_case_insensitive(status: str, expected: str):
     assert parsed_status.value == expected
 
 
-def test_string_http_validation_error():
+def test_string_http_validation_error() -> None:
     """
     Tests that HTTPValidationError correctly parses a 'detail' field
     that is a simple string.

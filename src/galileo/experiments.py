@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from galileo import galileo_context, log
 from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset
+from galileo.experiment_tags import upsert_experiment_tag
 from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
@@ -20,9 +21,10 @@ from galileo.resources.models import ExperimentResponse, HTTPValidationError, Pr
 from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.utils.datasets import load_dataset_and_records
+from galileo.utils.logging import get_logger
 from galileo.utils.metrics import create_metric_configs
 
-_logger = logging.getLogger(__name__)
+_logger = get_logger(__name__)
 
 EXPERIMENT_TASK_TYPE: TaskType = 16
 
@@ -58,9 +60,7 @@ class Experiments:
             body.additional_properties["dataset"] = dataset
 
         experiment = create_experiment_projects_project_id_experiments_post.sync(
-            project_id=project_id,
-            client=self.config.api_client,
-            body=body,  # type: ignore[arg-type]
+            project_id=project_id, client=self.config.api_client, body=body
         )
         if experiment is None:
             raise ValueError("experiment is None")
@@ -140,7 +140,7 @@ class Experiments:
 
         link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has started and is currently processing. Results will be available at {link}"
-        print(message)
+        _logger.info(message)
 
         return {"experiment": experiment_obj, "link": link, "message": message}
 
@@ -153,7 +153,7 @@ class Experiments:
         local_metrics: builtins.list[LocalMetricConfig],
     ) -> dict[str, Any]:
         results = []
-        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id, local_metrics=local_metrics)  # type: ignore[arg-type]
+        galileo_context.init(project=project_obj.name, experiment_id=experiment_obj.id, local_metrics=local_metrics)
 
         def logged_process_func(row: DatasetRecord) -> Callable:
             return log(name=experiment_obj.name, dataset_record=row)(func)
@@ -170,7 +170,7 @@ class Experiments:
 
         link = f"{self.config.console_url}/project/{project_obj.id}/experiments/{experiment_obj.id}"
         message = f"Experiment {experiment_obj.name} has completed and results are available at {link}"
-        print(message)
+        _logger.info(message)
 
         return {"experiment": experiment_obj, "link": link, "message": message}
 
@@ -194,11 +194,12 @@ def run_experiment(
     prompt_settings: Optional[PromptRunSettings] = None,
     project: Optional[str] = None,
     project_id: Optional[str] = None,
-    dataset: Optional[Union[Dataset, list[dict[str, str]], str]] = None,
+    dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
     metrics: Optional[list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]] = None,
     function: Optional[Callable] = None,
+    experiment_tags: Optional[dict[str, str]] = None,
 ) -> Any:
     """
     Run an experiment with the specified parameters.
@@ -222,6 +223,7 @@ def run_experiment(
         dataset_name: Name of the dataset
         metrics: List of metrics to evaluate
         function: Optional function to run with the experiment
+        experiment_tags: Optional dictionary of key-value pairs to tag the experiment with
 
     Returns:
         Experiment run results
@@ -267,9 +269,17 @@ def run_experiment(
 
     experiment_obj = Experiments().create(project_obj.id, experiment_name, dataset_obj)
 
+    if experiment_tags is not None:
+        for key, value in experiment_tags.items():
+            try:
+                upsert_experiment_tag(project_obj.id, experiment_obj.id, key, value)
+                _logger.debug(f"Added tag {key}={value} to experiment {experiment_obj.id}")
+            except Exception as e:
+                _logger.warning(f"Failed to add tag {key}={value} to experiment {experiment_obj.id}: {e}")
+
     # Set up metrics if provided
     scorer_settings: Optional[list[ScorerConfig]] = None
-    local_metrics: list[LocalMetricConfig] = list()
+    local_metrics: list[LocalMetricConfig] = []
     if metrics is not None:
         scorer_settings, local_metrics = create_metric_configs(project_obj.id, experiment_obj.id, metrics)
 

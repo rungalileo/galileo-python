@@ -66,23 +66,17 @@ class LogRecordsMetricsQueryRequest:
         start_time = self.start_time.isoformat()
 
         experiment_id: Union[None, Unset, str]
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
-                if isinstance(filters_item_data, LogRecordsIDFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, LogRecordsDateFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, LogRecordsNumberFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, LogRecordsBooleanFilter):
+                if isinstance(
+                    filters_item_data,
+                    (LogRecordsIDFilter, LogRecordsDateFilter, LogRecordsNumberFilter, LogRecordsBooleanFilter),
+                ):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
@@ -90,24 +84,15 @@ class LogRecordsMetricsQueryRequest:
                 filters.append(filters_item)
 
         group_by: Union[None, Unset, str]
-        if isinstance(self.group_by, Unset):
-            group_by = UNSET
-        else:
-            group_by = self.group_by
+        group_by = UNSET if isinstance(self.group_by, Unset) else self.group_by
 
         interval = self.interval
 
         log_stream_id: Union[None, Unset, str]
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         metrics_testing_id: Union[None, Unset, str]
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -165,40 +150,34 @@ class LogRecordsMetricsQueryRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_0 = LogRecordsIDFilter.from_dict(data)
+                    return LogRecordsIDFilter.from_dict(data)
 
-                    return filters_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_1 = LogRecordsDateFilter.from_dict(data)
+                    return LogRecordsDateFilter.from_dict(data)
 
-                    return filters_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_2 = LogRecordsNumberFilter.from_dict(data)
+                    return LogRecordsNumberFilter.from_dict(data)
 
-                    return filters_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_3 = LogRecordsBooleanFilter.from_dict(data)
+                    return LogRecordsBooleanFilter.from_dict(data)
 
-                    return filters_item_type_3
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                filters_item_type_4 = LogRecordsTextFilter.from_dict(data)
-
-                return filters_item_type_4
+                return LogRecordsTextFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 

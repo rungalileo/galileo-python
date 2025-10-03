@@ -51,25 +51,94 @@ def list_scorers_all():
 
 
 @patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
-def test_list_all_scorers(list_scorers_mock: Mock):
+def test_list_all_scorers(list_scorers_mock: Mock) -> None:
     list_scorers_mock.sync.return_value = list_scorers_all()
     results = Scorers().list()
     actual = {}
     for r in results:
         actual[r.name] = r.scorer_type.name
     assert actual == {"agentic_workflow_success": "PRESET", "dummy_llm": "LLM"}
-    list_scorers_mock.sync.assert_called_once_with(client=ANY, body=ListScorersRequest(filters=[]))
+    list_scorers_mock.sync.assert_called_once_with(client=ANY, body=ListScorersRequest(filters=[]), starting_token=0)
 
 
 @patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
-def test_list_all_scorers_preset_filter(list_scorers_mock: Mock):
+def test_list_all_scorers_preset_filter(list_scorers_mock: Mock) -> None:
+    list_scorers_mock.sync.return_value = ListScorersResponse(scorers=[])
     Scorers().list(types=[ScorerTypes.LLM])
     list_scorers_mock.sync.assert_called_once_with(
         client=ANY,
         body=ListScorersRequest(
             filters=[ScorerTypeFilter(operator=ScorerTypeFilterOperator.EQ, value=ScorerTypes.LLM)]
         ),
+        starting_token=0,
     )
+
+
+@patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
+def test_list_all_scorers_paginated(list_scorers_mock: Mock) -> None:
+    # Mock the first page of the response
+    page1_response = ListScorersResponse.from_dict(
+        {
+            "limit": 100,
+            "next_starting_token": 1,
+            "paginated": True,
+            "scorers": [
+                {
+                    "label": "Action Advancement",
+                    "id": "f7933a6d-7a65-4ce3-bfe4-b863109a04ee",
+                    "name": "agentic_workflow_success",
+                    "scorer_type": "preset",
+                    "tags": ["preset", "agents"],
+                    "created_at": "2025-03-28T18:54:02.848267+00:00",
+                    "created_by": "d351012a-dd92-4d0c-a356-57161b1377cd",
+                    "defaults": {"filters": None, "model_name": "GPT-4o", "num_judges": 5},
+                    "description": "Detects whether the user successfully accomplished or advanced towards their goal.",
+                    "included_fields": ["model_name", "num_judges", "filters"],
+                    "latest_version": None,
+                    "updated_at": "2025-03-28T18:54:02.848269+00:00",
+                }
+            ],
+            "starting_token": 0,
+        }
+    )
+
+    # Mock the second page of the response
+    page2_response = ListScorersResponse.from_dict(
+        {
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": True,
+            "scorers": [
+                {
+                    "label": "dummy",
+                    "id": "a7933a6d-7a65-4ce3-bfe4-b863109a0412",
+                    "name": "dummy_llm",
+                    "scorer_type": "llm",
+                    "tags": ["llm"],
+                    "created_at": "2025-03-28T18:54:02.848267+00:00",
+                    "created_by": "d351012a-dd92-4d0c-a356-57161b1377cd",
+                    "updated_at": "2025-03-28T18:54:02.848269+00:00",
+                }
+            ],
+            "starting_token": 1,
+        }
+    )
+
+    # Set the side_effect to return the two pages
+    list_scorers_mock.sync.side_effect = [page1_response, page2_response]
+
+    # Call the method under test
+    results = Scorers().list()
+
+    # Verify the results
+    assert len(results) == 2
+    actual = {r.name: r.scorer_type.name for r in results}
+    assert actual == {"agentic_workflow_success": "PRESET", "dummy_llm": "LLM"}
+
+    # Verify that the mock was called twice with the correct starting_token
+    assert list_scorers_mock.sync.call_count == 2
+    list_scorers_mock.sync.assert_any_call(client=ANY, body=ListScorersRequest(filters=[]), starting_token=0)
+    list_scorers_mock.sync.assert_any_call(client=ANY, body=ListScorersRequest(filters=[]), starting_token=1)
 
 
 def create_mock_version_response():
@@ -103,7 +172,7 @@ class MockHTTPError(Exception):
 
 
 @patch("galileo.scorers.get_scorer_version_or_latest_scorers_scorer_id_version_get")
-def test_get_scorer_version_success(get_scorer_version_mock: Mock):
+def test_get_scorer_version_success(get_scorer_version_mock: Mock) -> None:
     # Setup
     mock_response = create_mock_version_response()
     get_scorer_version_mock.sync.return_value = mock_response

@@ -81,34 +81,19 @@ class RunDB:
         winner = self.winner
 
         dataset_hash: Union[None, Unset, str]
-        if isinstance(self.dataset_hash, Unset):
-            dataset_hash = UNSET
-        else:
-            dataset_hash = self.dataset_hash
+        dataset_hash = UNSET if isinstance(self.dataset_hash, Unset) else self.dataset_hash
 
         dataset_version_id: Union[None, Unset, str]
-        if isinstance(self.dataset_version_id, Unset):
-            dataset_version_id = UNSET
-        else:
-            dataset_version_id = self.dataset_version_id
+        dataset_version_id = UNSET if isinstance(self.dataset_version_id, Unset) else self.dataset_version_id
 
         example_content_id: Union[None, Unset, str]
-        if isinstance(self.example_content_id, Unset):
-            example_content_id = UNSET
-        else:
-            example_content_id = self.example_content_id
+        example_content_id = UNSET if isinstance(self.example_content_id, Unset) else self.example_content_id
 
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         project_id: Union[None, Unset, str]
-        if isinstance(self.project_id, Unset):
-            project_id = UNSET
-        else:
-            project_id = self.project_id
+        project_id = UNSET if isinstance(self.project_id, Unset) else self.project_id
 
         run_tags: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.run_tags, Unset):
@@ -244,9 +229,8 @@ class RunDB:
             try:
                 if not isinstance(data, int):
                     raise TypeError()
-                task_type_type_0 = TaskType(data)
+                return TaskType(data)
 
-                return task_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, TaskType, Unset], data)

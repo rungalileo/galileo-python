@@ -32,16 +32,10 @@ class UserInfo:
         id = self.id
 
         first_name: Union[None, Unset, str]
-        if isinstance(self.first_name, Unset):
-            first_name = UNSET
-        else:
-            first_name = self.first_name
+        first_name = UNSET if isinstance(self.first_name, Unset) else self.first_name
 
         last_name: Union[None, Unset, str]
-        if isinstance(self.last_name, Unset):
-            last_name = UNSET
-        else:
-            last_name = self.last_name
+        last_name = UNSET if isinstance(self.last_name, Unset) else self.last_name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

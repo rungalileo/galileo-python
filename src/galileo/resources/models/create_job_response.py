@@ -81,6 +81,7 @@ class CreateJobResponse:
         job_id (Union[None, Unset, str]):
         job_name (Union[Unset, str]):  Default: 'default'.
         labels (Union[Unset, list[list[str]], list[str]]):
+        luna_model (Union[None, Unset, str]):
         metric_critique_configuration (Union['MetricCritiqueJobConfiguration', None, Unset]):
         migration_name (Union[None, Unset, str]):
         monitor_batch_id (Union[None, Unset, str]):
@@ -136,6 +137,7 @@ class CreateJobResponse:
     job_id: Union[None, Unset, str] = UNSET
     job_name: Union[Unset, str] = "default"
     labels: Union[Unset, list[list[str]], list[str]] = UNSET
+    luna_model: Union[None, Unset, str] = UNSET
     metric_critique_configuration: Union["MetricCritiqueJobConfiguration", None, Unset] = UNSET
     migration_name: Union[None, Unset, str] = UNSET
     monitor_batch_id: Union[None, Unset, str] = UNSET
@@ -278,16 +280,10 @@ class CreateJobResponse:
         run_id = self.run_id
 
         dataset_id: Union[None, Unset, str]
-        if isinstance(self.dataset_id, Unset):
-            dataset_id = UNSET
-        else:
-            dataset_id = self.dataset_id
+        dataset_id = UNSET if isinstance(self.dataset_id, Unset) else self.dataset_id
 
         dataset_version_index: Union[None, Unset, int]
-        if isinstance(self.dataset_version_index, Unset):
-            dataset_version_index = UNSET
-        else:
-            dataset_version_index = self.dataset_version_index
+        dataset_version_index = UNSET if isinstance(self.dataset_version_index, Unset) else self.dataset_version_index
 
         epoch = self.epoch
 
@@ -301,10 +297,7 @@ class CreateJobResponse:
             feature_names = self.feature_names
 
         job_id: Union[None, Unset, str]
-        if isinstance(self.job_id, Unset):
-            job_id = UNSET
-        else:
-            job_id = self.job_id
+        job_id = UNSET if isinstance(self.job_id, Unset) else self.job_id
 
         job_name = self.job_name
 
@@ -321,6 +314,9 @@ class CreateJobResponse:
         else:
             labels = self.labels
 
+        luna_model: Union[None, Unset, str]
+        luna_model = UNSET if isinstance(self.luna_model, Unset) else self.luna_model
+
         metric_critique_configuration: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_critique_configuration, Unset):
             metric_critique_configuration = UNSET
@@ -330,16 +326,10 @@ class CreateJobResponse:
             metric_critique_configuration = self.metric_critique_configuration
 
         migration_name: Union[None, Unset, str]
-        if isinstance(self.migration_name, Unset):
-            migration_name = UNSET
-        else:
-            migration_name = self.migration_name
+        migration_name = UNSET if isinstance(self.migration_name, Unset) else self.migration_name
 
         monitor_batch_id: Union[None, Unset, str]
-        if isinstance(self.monitor_batch_id, Unset):
-            monitor_batch_id = UNSET
-        else:
-            monitor_batch_id = self.monitor_batch_id
+        monitor_batch_id = UNSET if isinstance(self.monitor_batch_id, Unset) else self.monitor_batch_id
 
         ner_labels: Union[None, Unset, list[str]]
         if isinstance(self.ner_labels, Unset):
@@ -364,83 +354,24 @@ class CreateJobResponse:
             ) in self.prompt_customized_scorers_configuration:
                 prompt_customized_scorers_configuration_type_0_item: dict[str, Any]
                 if isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedAgenticSessionSuccessGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedAgenticWorkflowSuccessGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
                     prompt_customized_scorers_configuration_type_0_item_data,
-                    CustomizedChunkAttributionUtilizationGPTScorer,
+                    (
+                        CustomizedAgenticSessionSuccessGPTScorer,
+                        CustomizedAgenticWorkflowSuccessGPTScorer,
+                        CustomizedChunkAttributionUtilizationGPTScorer,
+                        CustomizedCompletenessGPTScorer,
+                        CustomizedFactualityGPTScorer,
+                        CustomizedGroundednessGPTScorer,
+                        CustomizedInstructionAdherenceGPTScorer,
+                        CustomizedGroundTruthAdherenceGPTScorer,
+                        CustomizedPromptInjectionGPTScorer,
+                        CustomizedSexistGPTScorer,
+                        CustomizedInputSexistGPTScorer,
+                        CustomizedToolSelectionQualityGPTScorer,
+                        CustomizedToolErrorRateGPTScorer,
+                        CustomizedToxicityGPTScorer,
+                    ),
                 ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedCompletenessGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedFactualityGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedGroundednessGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedInstructionAdherenceGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedGroundTruthAdherenceGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedPromptInjectionGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(prompt_customized_scorers_configuration_type_0_item_data, CustomizedSexistGPTScorer):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedInputSexistGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedToolSelectionQualityGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(
-                    prompt_customized_scorers_configuration_type_0_item_data, CustomizedToolErrorRateGPTScorer
-                ):
-                    prompt_customized_scorers_configuration_type_0_item = (
-                        prompt_customized_scorers_configuration_type_0_item_data.to_dict()
-                    )
-                elif isinstance(prompt_customized_scorers_configuration_type_0_item_data, CustomizedToxicityGPTScorer):
                     prompt_customized_scorers_configuration_type_0_item = (
                         prompt_customized_scorers_configuration_type_0_item_data.to_dict()
                     )
@@ -455,10 +386,7 @@ class CreateJobResponse:
             prompt_customized_scorers_configuration = self.prompt_customized_scorers_configuration
 
         prompt_dataset_id: Union[None, Unset, str]
-        if isinstance(self.prompt_dataset_id, Unset):
-            prompt_dataset_id = UNSET
-        else:
-            prompt_dataset_id = self.prompt_dataset_id
+        prompt_dataset_id = UNSET if isinstance(self.prompt_dataset_id, Unset) else self.prompt_dataset_id
 
         prompt_finetuned_scorers_configuration: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.prompt_finetuned_scorers_configuration, Unset):
@@ -547,10 +475,7 @@ class CreateJobResponse:
             protect_scorer_payload = self.protect_scorer_payload
 
         protect_trace_id: Union[None, Unset, str]
-        if isinstance(self.protect_trace_id, Unset):
-            protect_trace_id = UNSET
-        else:
-            protect_trace_id = self.protect_trace_id
+        protect_trace_id = UNSET if isinstance(self.protect_trace_id, Unset) else self.protect_trace_id
 
         resource_limits: Union[None, Unset, dict[str, Any]]
         if isinstance(self.resource_limits, Unset):
@@ -581,51 +506,34 @@ class CreateJobResponse:
             scorers = []
             for scorers_type_1_item_data in self.scorers:
                 scorers_type_1_item: dict[str, Any]
-                if isinstance(scorers_type_1_item_data, AgenticWorkflowSuccessScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, AgenticSessionSuccessScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, BleuScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, ChunkAttributionUtilizationScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, CompletenessScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, ContextAdherenceScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, ContextRelevanceScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, CorrectnessScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, GroundTruthAdherenceScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, InputPIIScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, InputSexistScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, InputToneScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, InputToxicityScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, InstructionAdherenceScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, OutputPIIScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, OutputSexistScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, OutputToneScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, OutputToxicityScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, PromptInjectionScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, PromptPerplexityScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, RougeScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, ToolErrorRateScorer):
-                    scorers_type_1_item = scorers_type_1_item_data.to_dict()
-                elif isinstance(scorers_type_1_item_data, ToolSelectionQualityScorer):
+                if isinstance(
+                    scorers_type_1_item_data,
+                    (
+                        AgenticWorkflowSuccessScorer,
+                        AgenticSessionSuccessScorer,
+                        BleuScorer,
+                        ChunkAttributionUtilizationScorer,
+                        CompletenessScorer,
+                        ContextAdherenceScorer,
+                        ContextRelevanceScorer,
+                        CorrectnessScorer,
+                        GroundTruthAdherenceScorer,
+                        InputPIIScorer,
+                        InputSexistScorer,
+                        InputToneScorer,
+                        InputToxicityScorer,
+                        InstructionAdherenceScorer,
+                        OutputPIIScorer,
+                        OutputSexistScorer,
+                        OutputToneScorer,
+                        OutputToxicityScorer,
+                        PromptInjectionScorer,
+                        PromptPerplexityScorer,
+                        RougeScorer,
+                        ToolErrorRateScorer,
+                        ToolSelectionQualityScorer,
+                    ),
+                ):
                     scorers_type_1_item = scorers_type_1_item_data.to_dict()
                 else:
                     scorers_type_1_item = scorers_type_1_item_data.to_dict()
@@ -676,10 +584,7 @@ class CreateJobResponse:
         upload_data_in_separate_task = self.upload_data_in_separate_task
 
         user_id: Union[None, Unset, str]
-        if isinstance(self.user_id, Unset):
-            user_id = UNSET
-        else:
-            user_id = self.user_id
+        user_id = UNSET if isinstance(self.user_id, Unset) else self.user_id
 
         xray = self.xray
 
@@ -700,6 +605,8 @@ class CreateJobResponse:
             field_dict["job_name"] = job_name
         if labels is not UNSET:
             field_dict["labels"] = labels
+        if luna_model is not UNSET:
+            field_dict["luna_model"] = luna_model
         if metric_critique_configuration is not UNSET:
             field_dict["metric_critique_configuration"] = metric_critique_configuration
         if migration_name is not UNSET:
@@ -852,9 +759,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                feature_names_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return feature_names_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[str]], data)
@@ -890,11 +796,18 @@ class CreateJobResponse:
                 pass
             if not isinstance(data, list):
                 raise TypeError()
-            labels_type_1 = cast(list[str], data)
-
-            return labels_type_1
+            return cast(list[str], data)
 
         labels = _parse_labels(d.pop("labels", UNSET))
+
+        def _parse_luna_model(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        luna_model = _parse_luna_model(d.pop("luna_model", UNSET))
 
         def _parse_metric_critique_configuration(data: object) -> Union["MetricCritiqueJobConfiguration", None, Unset]:
             if data is None:
@@ -904,9 +817,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_critique_configuration_type_0 = MetricCritiqueJobConfiguration.from_dict(data)
+                return MetricCritiqueJobConfiguration.from_dict(data)
 
-                return metric_critique_configuration_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["MetricCritiqueJobConfiguration", None, Unset], data)
@@ -941,9 +853,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                ner_labels_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return ner_labels_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[str]], data)
@@ -1014,150 +925,104 @@ class CreateJobResponse:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_0 = (
-                                CustomizedAgenticSessionSuccessGPTScorer.from_dict(data)
-                            )
+                            return CustomizedAgenticSessionSuccessGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_1 = (
-                                CustomizedAgenticWorkflowSuccessGPTScorer.from_dict(data)
-                            )
+                            return CustomizedAgenticWorkflowSuccessGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_1
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_2 = (
-                                CustomizedChunkAttributionUtilizationGPTScorer.from_dict(data)
-                            )
+                            return CustomizedChunkAttributionUtilizationGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_2
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_3 = (
-                                CustomizedCompletenessGPTScorer.from_dict(data)
-                            )
+                            return CustomizedCompletenessGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_3
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_4 = (
-                                CustomizedFactualityGPTScorer.from_dict(data)
-                            )
+                            return CustomizedFactualityGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_4
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_5 = (
-                                CustomizedGroundednessGPTScorer.from_dict(data)
-                            )
+                            return CustomizedGroundednessGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_5
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_6 = (
-                                CustomizedInstructionAdherenceGPTScorer.from_dict(data)
-                            )
+                            return CustomizedInstructionAdherenceGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_6
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_7 = (
-                                CustomizedGroundTruthAdherenceGPTScorer.from_dict(data)
-                            )
+                            return CustomizedGroundTruthAdherenceGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_7
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_8 = (
-                                CustomizedPromptInjectionGPTScorer.from_dict(data)
-                            )
+                            return CustomizedPromptInjectionGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_8
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_9 = (
-                                CustomizedSexistGPTScorer.from_dict(data)
-                            )
+                            return CustomizedSexistGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_9
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_10 = (
-                                CustomizedInputSexistGPTScorer.from_dict(data)
-                            )
+                            return CustomizedInputSexistGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_10
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_11 = (
-                                CustomizedToolSelectionQualityGPTScorer.from_dict(data)
-                            )
+                            return CustomizedToolSelectionQualityGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_11
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_12 = (
-                                CustomizedToolErrorRateGPTScorer.from_dict(data)
-                            )
+                            return CustomizedToolErrorRateGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_12
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            prompt_customized_scorers_configuration_type_0_item_type_13 = (
-                                CustomizedToxicityGPTScorer.from_dict(data)
-                            )
+                            return CustomizedToxicityGPTScorer.from_dict(data)
 
-                            return prompt_customized_scorers_configuration_type_0_item_type_13
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        prompt_customized_scorers_configuration_type_0_item_type_14 = (
-                            CustomizedInputToxicityGPTScorer.from_dict(data)
-                        )
-
-                        return prompt_customized_scorers_configuration_type_0_item_type_14
+                        return CustomizedInputToxicityGPTScorer.from_dict(data)
 
                     prompt_customized_scorers_configuration_type_0_item = (
                         _parse_prompt_customized_scorers_configuration_type_0_item(
@@ -1250,9 +1115,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                prompt_generated_scorers_configuration_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return prompt_generated_scorers_configuration_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[str]], data)
@@ -1271,9 +1135,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                prompt_optimization_configuration_type_0 = PromptOptimizationConfiguration.from_dict(data)
+                return PromptOptimizationConfiguration.from_dict(data)
 
-                return prompt_optimization_configuration_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["PromptOptimizationConfiguration", None, Unset], data)
@@ -1322,9 +1185,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                prompt_scorer_settings_type_0 = BaseScorer.from_dict(data)
+                return BaseScorer.from_dict(data)
 
-                return prompt_scorer_settings_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["BaseScorer", None, Unset], data)
@@ -1339,9 +1201,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                prompt_scorers_configuration_type_0 = ScorersConfiguration.from_dict(data)
+                return ScorersConfiguration.from_dict(data)
 
-                return prompt_scorers_configuration_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ScorersConfiguration", None, Unset], data)
@@ -1356,9 +1217,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                prompt_settings_type_0 = PromptRunSettings.from_dict(data)
+                return PromptRunSettings.from_dict(data)
 
-                return prompt_settings_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["PromptRunSettings", None, Unset], data)
@@ -1382,9 +1242,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, bytes):
                     raise TypeError()
-                protect_scorer_payload_type_0 = File(payload=BytesIO(data))
+                return File(payload=BytesIO(data))
 
-                return protect_scorer_payload_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[File, None, Unset], data)
@@ -1408,9 +1267,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                resource_limits_type_0 = TaskResourceLimits.from_dict(data)
+                return TaskResourceLimits.from_dict(data)
 
-                return resource_limits_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["TaskResourceLimits", None, Unset], data)
@@ -1425,9 +1283,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                scorer_config_type_0 = ScorerConfig.from_dict(data)
+                return ScorerConfig.from_dict(data)
 
-                return scorer_config_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ScorerConfig", None, Unset], data)
@@ -1524,192 +1381,167 @@ class CreateJobResponse:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_0 = AgenticWorkflowSuccessScorer.from_dict(data)
+                            return AgenticWorkflowSuccessScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_0
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_1 = AgenticSessionSuccessScorer.from_dict(data)
+                            return AgenticSessionSuccessScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_1
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_2 = BleuScorer.from_dict(data)
+                            return BleuScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_2
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_3 = ChunkAttributionUtilizationScorer.from_dict(data)
+                            return ChunkAttributionUtilizationScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_3
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_4 = CompletenessScorer.from_dict(data)
+                            return CompletenessScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_4
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_5 = ContextAdherenceScorer.from_dict(data)
+                            return ContextAdherenceScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_5
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_6 = ContextRelevanceScorer.from_dict(data)
+                            return ContextRelevanceScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_6
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_7 = CorrectnessScorer.from_dict(data)
+                            return CorrectnessScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_7
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_8 = GroundTruthAdherenceScorer.from_dict(data)
+                            return GroundTruthAdherenceScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_8
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_9 = InputPIIScorer.from_dict(data)
+                            return InputPIIScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_9
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_10 = InputSexistScorer.from_dict(data)
+                            return InputSexistScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_10
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_11 = InputToneScorer.from_dict(data)
+                            return InputToneScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_11
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_12 = InputToxicityScorer.from_dict(data)
+                            return InputToxicityScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_12
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_13 = InstructionAdherenceScorer.from_dict(data)
+                            return InstructionAdherenceScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_13
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_14 = OutputPIIScorer.from_dict(data)
+                            return OutputPIIScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_14
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_15 = OutputSexistScorer.from_dict(data)
+                            return OutputSexistScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_15
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_16 = OutputToneScorer.from_dict(data)
+                            return OutputToneScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_16
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_17 = OutputToxicityScorer.from_dict(data)
+                            return OutputToxicityScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_17
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_18 = PromptInjectionScorer.from_dict(data)
+                            return PromptInjectionScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_18
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_19 = PromptPerplexityScorer.from_dict(data)
+                            return PromptPerplexityScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_19
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_20 = RougeScorer.from_dict(data)
+                            return RougeScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_20
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_21 = ToolErrorRateScorer.from_dict(data)
+                            return ToolErrorRateScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_21
                         except:  # noqa: E722
                             pass
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            scorers_type_1_item_type_22 = ToolSelectionQualityScorer.from_dict(data)
+                            return ToolSelectionQualityScorer.from_dict(data)
 
-                            return scorers_type_1_item_type_22
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        scorers_type_1_item_type_23 = UncertaintyScorer.from_dict(data)
-
-                        return scorers_type_1_item_type_23
+                        return UncertaintyScorer.from_dict(data)
 
                     scorers_type_1_item = _parse_scorers_type_1_item(scorers_type_1_item_data)
 
@@ -1796,9 +1628,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, int):
                     raise TypeError()
-                task_type_type_0 = TaskType(data)
+                return TaskType(data)
 
-                return task_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, TaskType, Unset], data)
@@ -1813,9 +1644,8 @@ class CreateJobResponse:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                tasks_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return tasks_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[str]], data)
@@ -1847,6 +1677,7 @@ class CreateJobResponse:
             job_id=job_id,
             job_name=job_name,
             labels=labels,
+            luna_model=luna_model,
             metric_critique_configuration=metric_critique_configuration,
             migration_name=migration_name,
             monitor_batch_id=monitor_batch_id,

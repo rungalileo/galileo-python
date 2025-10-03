@@ -38,22 +38,13 @@ class MetricsTestingAvailableColumnsRequest:
         cot_enabled = self.cot_enabled
 
         experiment_id: Union[None, Unset, str]
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
-        else:
-            experiment_id = self.experiment_id
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         log_stream_id: Union[None, Unset, str]
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         metrics_testing_id: Union[None, Unset, str]
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         output_type: Union[Unset, str] = UNSET
         if not isinstance(self.output_type, Unset):
@@ -111,10 +102,7 @@ class MetricsTestingAvailableColumnsRequest:
 
         _output_type = d.pop("output_type", UNSET)
         output_type: Union[Unset, OutputTypeEnum]
-        if isinstance(_output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = OutputTypeEnum(_output_type)
+        output_type = UNSET if isinstance(_output_type, Unset) else OutputTypeEnum(_output_type)
 
         metrics_testing_available_columns_request = cls(
             name=name,

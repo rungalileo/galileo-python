@@ -1,3 +1,4 @@
+from typing import NoReturn
 from unittest.mock import Mock, patch
 from uuid import UUID
 
@@ -11,7 +12,7 @@ from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_proje
 
 
 @pytest.fixture
-def reset_context():
+def reset_context() -> None:
     galileo_context.reset()
 
 
@@ -28,7 +29,7 @@ def test_decorator_context_reset(
     galileo_context.init(project="project-X", log_stream="log-stream-X")
 
     @log(span_type="llm")
-    def llm_call(query: str):
+    def llm_call(query: str) -> str:
         return "response"
 
     assert galileo_context.get_current_trace() is None
@@ -80,7 +81,7 @@ def test_decorator_context_flush(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="llm")
-    def llm_call(query: str):
+    def llm_call(query: str) -> str:
         return "response"
 
     assert galileo_context.get_current_trace() is None
@@ -116,7 +117,7 @@ def test_decorator_context_flush_specific_project_and_log_stream(
     galileo_context.init(project="project-X", log_stream="log-stream-X")
 
     @log(span_type="llm")
-    def llm_call(query: str):
+    def llm_call(query: str) -> str:
         return "response"
 
     assert galileo_context.get_current_trace() is None
@@ -163,7 +164,7 @@ def test_decorator_context_flush_all(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="llm")
-    def llm_call(query: str):
+    def llm_call(query: str) -> str:
         return "response"
 
     galileo_context.init(project="project-X", log_stream="log-stream-X")
@@ -210,7 +211,7 @@ def test_decorator_llm_span(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="llm")
-    def llm_call(query: str):
+    def llm_call(query: str) -> str:
         return "response"
 
     llm_call(query="input")
@@ -334,7 +335,7 @@ def test_decorator_agent_span(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="agent")
-    def my_function(arg1: str, arg2: str):
+    def my_function(arg1: str, arg2: str) -> str:
         return f"{arg1} {arg2}"
 
     my_function("arg1", "arg2")
@@ -361,7 +362,7 @@ def test_decorator_agent_span_with_agent_type(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="agent", params={"agent_type": "planner"})
-    def my_function(arg1: str, arg2: str):
+    def my_function(arg1: str, arg2: str) -> str:
         return f"{arg1} {arg2}"
 
     my_function("arg1", "arg2")
@@ -389,7 +390,7 @@ def test_decorator_agent_span_with_nested_span(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="tool")
-    def my_tool_function(arg1: str):
+    def my_tool_function(arg1: str) -> str:
         return f"{arg1}"
 
     @log(span_type="agent", params={"agent_type": "planner"})
@@ -426,7 +427,7 @@ def test_decorator_nested_span(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="llm")
-    def llm_call(query: str):
+    def llm_call(query: str) -> str:
         return "response"
 
     @log
@@ -461,11 +462,11 @@ def test_decorator_multiple_nested_spans(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="llm")
-    def llm_call(query: str):
+    def llm_call(query: str) -> str:
         return "response"
 
     @log()
-    def nested_call(nested_query: str):
+    def nested_call(nested_query: str) -> str:
         llm_call(query=nested_query)
         llm_call(query=nested_query)
         return "new response"
@@ -499,7 +500,7 @@ def test_decorator_retriever_span_str(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="retriever")
-    def retriever_call(query: str):
+    def retriever_call(query: str) -> str:
         return "response1"
 
     retriever_call(query="input")
@@ -604,7 +605,7 @@ def test_decorator_we_should_create_trace_but_reraise_exception(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log()
-    def foo():
+    def foo() -> NoReturn:
         raise Exception("i'm user exception")
 
     with pytest.raises(Exception):
@@ -629,7 +630,7 @@ def test_decorator_start_session(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log()
-    def foo():
+    def foo() -> str:
         return "response"
 
     foo()
@@ -658,7 +659,7 @@ def test_decorator_start_session_empty_values(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log()
-    def foo():
+    def foo() -> str:
         return "response"
 
     foo()
@@ -685,7 +686,7 @@ def test_decorator_clear_session(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log()
-    def foo():
+    def foo() -> str:
         return "response"
 
     foo()
@@ -716,7 +717,7 @@ def test_decorator_set_session(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log()
-    def foo():
+    def foo() -> str:
         return "response"
 
     foo()
@@ -743,7 +744,7 @@ def test_decorator_with_active_trace(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log()
-    def foo(input: str):
+    def foo(input: str) -> str:
         return "response"
 
     logger = galileo_context.get_logger_instance()
@@ -794,7 +795,7 @@ def test_decorator_input_serialization_deserialization(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="workflow")
-    def my_function(complex_input: dict):
+    def my_function(complex_input: dict) -> str:
         return "response"
 
     # Test with complex nested data
@@ -937,7 +938,7 @@ def test_decorator_pydantic_model_input_serialization(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="workflow")
-    def process_model(model: TestPydanticModel):
+    def process_model(model: TestPydanticModel) -> str:
         return f"Processed {model.name}"
 
     test_model = TestPydanticModel(name="test", value=42)
@@ -993,7 +994,7 @@ def test_decorator_null_output_handling(
     setup_mock_logstreams_client(mock_logstreams_client)
 
     @log(span_type="workflow")
-    def function_returning_none(query: str):
+    def function_returning_none(query: str) -> None:
         return None
 
     function_returning_none(query="input")

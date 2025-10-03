@@ -6,7 +6,7 @@ from galileo.schema.datasets import DatasetRecord
 
 
 class TestDatasetRecordValidators:
-    def test_validate_input(self):
+    def test_validate_input(self) -> None:
         # Test with string input
         record = DatasetRecord(input="test input")
         assert record.input == "test input"
@@ -25,7 +25,7 @@ class TestDatasetRecordValidators:
         record = DatasetRecord(input=42)
         assert record.input == json.dumps(42)
 
-    def test_validate_output(self):
+    def test_validate_output(self) -> None:
         # Test with None output
         record = DatasetRecord(input="test", output=None)
         assert record.output is None
@@ -44,7 +44,7 @@ class TestDatasetRecordValidators:
         record = DatasetRecord(input="test", output=test_list)
         assert record.output == json.dumps(test_list)
 
-    def test_validate_metadata(self):
+    def test_validate_metadata(self) -> None:
         # Test with None metadata
         record = DatasetRecord(input="test", metadata=None)
         assert record.metadata is None
@@ -73,7 +73,7 @@ class TestDatasetRecordValidators:
 
 
 class TestDatasetRecordDeserializedProperties:
-    def test_deserialized_input(self):
+    def test_deserialized_input(self) -> None:
         # Test with JSON string input
         test_dict = {"key": "value"}
         record = DatasetRecord(input=json.dumps(test_dict))
@@ -88,7 +88,7 @@ class TestDatasetRecordDeserializedProperties:
         record = DatasetRecord(input=json.dumps(complex_json))
         assert record.deserialized_input == complex_json
 
-    def test_deserialized_output(self):
+    def test_deserialized_output(self) -> None:
         # Test with None output
         record = DatasetRecord(input="test", output=None)
         assert record.deserialized_output is None

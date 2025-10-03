@@ -29,7 +29,7 @@ def sample_run_tag():
 @patch(
     "galileo.resources.api.experiment_tags.get_experiment_tags_projects_project_id_experiments_experiment_id_tags_get.sync"
 )
-def test_get_experiment_tags_success(mock_get_tags, sample_run_tag):
+def test_get_experiment_tags_success(mock_get_tags, sample_run_tag) -> None:
     """Test successfully getting experiment tags."""
     mock_get_tags.return_value = [sample_run_tag]
     result = get_experiment_tags("project_1", "experiment_1")
@@ -44,7 +44,7 @@ def test_get_experiment_tags_success(mock_get_tags, sample_run_tag):
 @patch(
     "galileo.resources.api.experiment_tags.get_experiment_tags_projects_project_id_experiments_experiment_id_tags_get.sync"
 )
-def test_get_experiment_tags_no_tags(mock_get_tags):
+def test_get_experiment_tags_no_tags(mock_get_tags) -> None:
     """Test getting experiment tags when experiment has no tags."""
     mock_get_tags.return_value = []
     result = get_experiment_tags("project_1", "experiment_1")
@@ -55,7 +55,7 @@ def test_get_experiment_tags_no_tags(mock_get_tags):
 @patch(
     "galileo.resources.api.experiment_tags.get_experiment_tags_projects_project_id_experiments_experiment_id_tags_get.sync"
 )
-def test_get_experiment_tags_experiment_not_found(mock_get_tags):
+def test_get_experiment_tags_experiment_not_found(mock_get_tags) -> None:
     """Test getting experiment tags when experiment is not found."""
     mock_get_tags.return_value = None
     result = get_experiment_tags("project_1", "experiment_1")
@@ -66,7 +66,7 @@ def test_get_experiment_tags_experiment_not_found(mock_get_tags):
 @patch(
     "galileo.resources.api.experiment_tags.set_tag_for_experiment_projects_project_id_experiments_experiment_id_tags_post.sync"
 )
-def test_upsert_experiment_tag_create_new(mock_set_tag, sample_run_tag):
+def test_upsert_experiment_tag_create_new(mock_set_tag, sample_run_tag) -> None:
     """Test creating a new tag via upsert."""
     mock_set_tag.return_value = sample_run_tag
     result = upsert_experiment_tag("project_1", "experiment_1", "version", "1.0.0")
@@ -80,7 +80,7 @@ def test_upsert_experiment_tag_create_new(mock_set_tag, sample_run_tag):
 @patch(
     "galileo.resources.api.experiment_tags.set_tag_for_experiment_projects_project_id_experiments_experiment_id_tags_post.sync"
 )
-def test_upsert_experiment_tag_update(mock_set_tag, sample_run_tag):
+def test_upsert_experiment_tag_update(mock_set_tag, sample_run_tag) -> None:
     """Test updating an existing tag via upsert."""
     mock_set_tag.return_value = sample_run_tag
     result = upsert_experiment_tag("project_1", "experiment_1", "environment", "staging", "system")
@@ -94,7 +94,7 @@ def test_upsert_experiment_tag_update(mock_set_tag, sample_run_tag):
 @patch(
     "galileo.resources.api.experiment_tags.delete_experiment_tag_projects_project_id_experiments_experiment_id_tags_tag_id_delete.sync"
 )
-def test_delete_experiment_tag_success(mock_delete_tag):
+def test_delete_experiment_tag_success(mock_delete_tag) -> None:
     """Test successfully deleting a tag."""
     mock_delete_tag.return_value = DeleteRunResponse(message="Tag deleted successfully")
     result = delete_experiment_tag("project_1", "experiment_1", "tag_1")
@@ -107,7 +107,7 @@ def test_delete_experiment_tag_success(mock_delete_tag):
 @patch(
     "galileo.resources.api.experiment_tags.delete_experiment_tag_projects_project_id_experiments_experiment_id_tags_tag_id_delete.sync"
 )
-def test_delete_experiment_tag_not_found(mock_delete_tag):
+def test_delete_experiment_tag_not_found(mock_delete_tag) -> None:
     """Test deleting a tag that doesn't exist."""
     mock_delete_tag.return_value = None
 
@@ -120,7 +120,7 @@ def test_delete_experiment_tag_not_found(mock_delete_tag):
 @patch(
     "galileo.resources.api.experiment_tags.get_experiment_tags_projects_project_id_experiments_experiment_id_tags_get.sync"
 )
-def test_experiment_tags_class_get_tags(mock_get_tags, sample_run_tag):
+def test_experiment_tags_class_get_tags(mock_get_tags, sample_run_tag) -> None:
     """Test ExperimentTags class get_experiment_tags method."""
     mock_get_tags.return_value = [sample_run_tag]
 

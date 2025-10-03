@@ -19,18 +19,16 @@ class TestGalileoBaseHandler:
         setup_mock_traces_client(mock_traces_client)
         setup_mock_projects_client(mock_projects_client)
         setup_mock_logstreams_client(mock_logstreams_client)
-        logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
-        return logger
+        return GalileoLogger(project="my_project", log_stream="my_log_stream")
 
     @pytest.fixture
     def handler(self, galileo_logger: GalileoLogger) -> Generator[GalileoBaseHandler, None, None]:
         """Creates a GalileoBaseHandler with a mock logger"""
-        callback = GalileoBaseHandler(galileo_logger=galileo_logger, flush_on_chain_end=False)
+        return GalileoBaseHandler(galileo_logger=galileo_logger, flush_on_chain_end=False)
         # Reset the root node before each test
-        yield callback
         # Clean up after each test
 
-    def test_initialization(self, galileo_logger: GalileoLogger):
+    def test_initialization(self, galileo_logger: GalileoLogger) -> None:
         """Test callback initialization with various parameters"""
         # Default initialization
         handler = GalileoBaseHandler(galileo_logger=galileo_logger)
@@ -44,7 +42,7 @@ class TestGalileoBaseHandler:
         assert handler._start_new_trace is False
         assert handler._flush_on_chain_end is False
 
-    def test_start_node(self, handler: GalileoBaseHandler):
+    def test_start_node(self, handler: GalileoBaseHandler) -> None:
         """Test creating a node and establishing parent-child relationships"""
         # Create a parent node
         parent_id = uuid.uuid4()
@@ -77,7 +75,7 @@ class TestGalileoBaseHandler:
         assert handler._root_node
         assert handler._root_node.run_id == parent_id
 
-    def test_end_node(self, handler: GalileoBaseHandler, galileo_logger: GalileoLogger):
+    def test_end_node(self, handler: GalileoBaseHandler, galileo_logger: GalileoLogger) -> None:
         """Test ending a node and updating its parameters"""
         # Create a node
         run_id = uuid.uuid4()
