@@ -33,12 +33,20 @@ class Metrics:
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
 
-    def delete_metric(self, scorer_name: str, scorer_type: ScorerTypes) -> None:
-        scorers = Scorers().list(types=[scorer_type])
-        scorer = next((s for s in scorers if s.name == scorer_name), None)
-        if not scorer:
-            raise ValueError(f"Scorer with name {scorer_name} not found.")
-        delete_scorer_scorers_scorer_id_delete.sync(scorer_id=scorer.id, client=self.config.api_client)
+    def delete_metric(self, name: str) -> None:
+        scorers = Scorers().list()
+        scorers_to_delete = [s for s in scorers if s.name == name]
+
+        if not scorers_to_delete:
+            raise ValueError(f"Scorer with name {name} not found.")
+
+        for scorer in scorers_to_delete:
+            response = delete_scorer_scorers_scorer_id_delete.sync(scorer_id=scorer.id, client=self.config.api_client)
+
+            if isinstance(response, HTTPValidationError):
+                raise ValueError(response.detail)
+            if response is None:
+                raise ValueError("Failed to delete metric.")
 
     def create_custom_llm_metric(
         self,
@@ -205,11 +213,10 @@ def get_metrics(
     )
 
 
-def delete_metric(scorer_name: str, scorer_type: ScorerTypes) -> None:
+def delete_metric(name: str) -> None:
     """
-    Deletes a metric by its name and type.
+    Deletes a metric by its name.
     Args:
-        scorer_name: The name of the scorer to delete.
-        scorer_type: The type of the scorer.
+        name: The name of the scorer to delete.
     """
-    Metrics().delete_metric(scorer_name, scorer_type)
+    Metrics().delete_metric(name)
