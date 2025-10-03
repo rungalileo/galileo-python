@@ -214,7 +214,8 @@ def get_metrics(
 def delete_metric(name: str) -> None:
     """
     Deletes a metric by its name.
+
     Args:
-        name: The name of the scorer to delete.
+        name: The name of the metric to delete.
     """
     Metrics().delete_metric(name)

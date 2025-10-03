@@ -225,18 +225,11 @@ class TestMetrics:
     @patch("galileo.scorers.Scorers.list")
     def test_delete_metric_success(self, mock_list_scorers, mock_delete_scorer, mock_scorer_response) -> None:
         """Test successful deletion of a metric."""
-        # Setup mocks
         mock_list_scorers.return_value = [mock_scorer_response]
-
         metrics = Metrics()
-
-        # Test deleting a metric
         metrics.delete_metric(name="test_metric")
 
-        # Verify list was called
         mock_list_scorers.assert_called_once_with()
-
-        # Verify delete_scorer was called
         mock_delete_scorer.sync.assert_called_once_with(
             scorer_id=mock_scorer_response.id, client=metrics.config.api_client
         )
@@ -244,12 +237,9 @@ class TestMetrics:
     @patch("galileo.scorers.Scorers.list")
     def test_delete_metric_not_found(self, mock_list_scorers) -> None:
         """Test deleting a metric that does not exist."""
-        # Setup mocks
         mock_list_scorers.return_value = []
-
         metrics = Metrics()
 
-        # Test that ValueError is raised
         with pytest.raises(ValueError, match="Scorer with name test_metric not found."):
             metrics.delete_metric(name="test_metric")
 
@@ -257,13 +247,10 @@ class TestMetrics:
     @patch("galileo.scorers.Scorers.list")
     def test_delete_metric_api_failure(self, mock_list_scorers, mock_delete_scorer, mock_scorer_response) -> None:
         """Test API failure when deleting a metric."""
-        # Setup mocks
         mock_list_scorers.return_value = [mock_scorer_response]
         mock_delete_scorer.sync.return_value = None
-
         metrics = Metrics()
 
-        # Test that ValueError is raised
         with pytest.raises(ValueError, match="Failed to delete metric."):
             metrics.delete_metric(name="test_metric")
 
@@ -343,17 +330,11 @@ class TestPublicFunctions:
     @patch("galileo.metrics.Metrics")
     def test_delete_metric_function(self, mock_metrics_class) -> None:
         """Test the public delete_metric function."""
-        # Setup mock
         mock_metrics_instance = Mock()
         mock_metrics_class.return_value = mock_metrics_instance
 
-        # Call the public function
         delete_metric(name="test_metric")
-
-        # Verify Metrics class was instantiated
         mock_metrics_class.assert_called_once()
-
-        # Verify the method was called with correct parameters
         mock_metrics_instance.delete_metric.assert_called_once_with("test_metric")
 
 
