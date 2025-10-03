@@ -22,10 +22,7 @@ class Metrics:
 
     def to_dict(self) -> dict[str, Any]:
         duration_ns: Union[None, Unset, int]
-        if isinstance(self.duration_ns, Unset):
-            duration_ns = UNSET
-        else:
-            duration_ns = self.duration_ns
+        duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

@@ -15,6 +15,7 @@ class GeneratedScorerConfiguration:
     """
     Attributes:
         cot_enabled (Union[Unset, bool]): Whether chain of thought is enabled for this scorer. Default: False.
+        ground_truth (Union[Unset, bool]): Whether ground truth is enabled for this scorer. Default: False.
         model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
         num_judges (Union[Unset, int]):  Default: 3.
         output_type (Union[Unset, OutputTypeEnum]): Enumeration of output types.
@@ -22,6 +23,7 @@ class GeneratedScorerConfiguration:
     """
 
     cot_enabled: Union[Unset, bool] = False
+    ground_truth: Union[Unset, bool] = False
     model_alias: Union[Unset, str] = "gpt-4.1-mini"
     num_judges: Union[Unset, int] = 3
     output_type: Union[Unset, OutputTypeEnum] = UNSET
@@ -30,6 +32,8 @@ class GeneratedScorerConfiguration:
 
     def to_dict(self) -> dict[str, Any]:
         cot_enabled = self.cot_enabled
+
+        ground_truth = self.ground_truth
 
         model_alias = self.model_alias
 
@@ -48,6 +52,8 @@ class GeneratedScorerConfiguration:
         field_dict.update({})
         if cot_enabled is not UNSET:
             field_dict["cot_enabled"] = cot_enabled
+        if ground_truth is not UNSET:
+            field_dict["ground_truth"] = ground_truth
         if model_alias is not UNSET:
             field_dict["model_alias"] = model_alias
         if num_judges is not UNSET:
@@ -64,21 +70,21 @@ class GeneratedScorerConfiguration:
         d = dict(src_dict)
         cot_enabled = d.pop("cot_enabled", UNSET)
 
+        ground_truth = d.pop("ground_truth", UNSET)
+
         model_alias = d.pop("model_alias", UNSET)
 
         num_judges = d.pop("num_judges", UNSET)
 
         _output_type = d.pop("output_type", UNSET)
         output_type: Union[Unset, OutputTypeEnum]
-        if isinstance(_output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = OutputTypeEnum(_output_type)
+        output_type = UNSET if isinstance(_output_type, Unset) else OutputTypeEnum(_output_type)
 
         scoreable_node_types = cast(list[str], d.pop("scoreable_node_types", UNSET))
 
         generated_scorer_configuration = cls(
             cot_enabled=cot_enabled,
+            ground_truth=ground_truth,
             model_alias=model_alias,
             num_judges=num_judges,
             output_type=output_type,

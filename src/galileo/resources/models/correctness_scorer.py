@@ -54,18 +54,12 @@ class CorrectnessScorer:
             filters = self.filters
 
         model_name: Union[None, Unset, str]
-        if isinstance(self.model_name, Unset):
-            model_name = UNSET
-        else:
-            model_name = self.model_name
+        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
         name = self.name
 
         num_judges: Union[None, Unset, int]
-        if isinstance(self.num_judges, Unset):
-            num_judges = UNSET
-        else:
-            num_judges = self.num_judges
+        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
         type_ = self.type_
 
@@ -108,16 +102,13 @@ class CorrectnessScorer:
                         try:
                             if not isinstance(data, dict):
                                 raise TypeError()
-                            filters_type_0_item_type_0 = NodeNameFilter.from_dict(data)
+                            return NodeNameFilter.from_dict(data)
 
-                            return filters_type_0_item_type_0
                         except:  # noqa: E722
                             pass
                         if not isinstance(data, dict):
                             raise TypeError()
-                        filters_type_0_item_type_1 = MetadataFilter.from_dict(data)
-
-                        return filters_type_0_item_type_1
+                        return MetadataFilter.from_dict(data)
 
                     filters_type_0_item = _parse_filters_type_0_item(filters_type_0_item_data)
 

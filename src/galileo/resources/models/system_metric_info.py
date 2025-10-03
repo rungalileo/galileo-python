@@ -64,52 +64,28 @@ class SystemMetricInfo:
             histogram = self.histogram
 
         max_: Union[None, Unset, float]
-        if isinstance(self.max_, Unset):
-            max_ = UNSET
-        else:
-            max_ = self.max_
+        max_ = UNSET if isinstance(self.max_, Unset) else self.max_
 
         mean: Union[None, Unset, float]
-        if isinstance(self.mean, Unset):
-            mean = UNSET
-        else:
-            mean = self.mean
+        mean = UNSET if isinstance(self.mean, Unset) else self.mean
 
         median: Union[None, Unset, float]
-        if isinstance(self.median, Unset):
-            median = UNSET
-        else:
-            median = self.median
+        median = UNSET if isinstance(self.median, Unset) else self.median
 
         min_: Union[None, Unset, float]
-        if isinstance(self.min_, Unset):
-            min_ = UNSET
-        else:
-            min_ = self.min_
+        min_ = UNSET if isinstance(self.min_, Unset) else self.min_
 
         p25: Union[None, Unset, float]
-        if isinstance(self.p25, Unset):
-            p25 = UNSET
-        else:
-            p25 = self.p25
+        p25 = UNSET if isinstance(self.p25, Unset) else self.p25
 
         p5: Union[None, Unset, float]
-        if isinstance(self.p5, Unset):
-            p5 = UNSET
-        else:
-            p5 = self.p5
+        p5 = UNSET if isinstance(self.p5, Unset) else self.p5
 
         p75: Union[None, Unset, float]
-        if isinstance(self.p75, Unset):
-            p75 = UNSET
-        else:
-            p75 = self.p75
+        p75 = UNSET if isinstance(self.p75, Unset) else self.p75
 
         p95: Union[None, Unset, float]
-        if isinstance(self.p95, Unset):
-            p95 = UNSET
-        else:
-            p95 = self.p95
+        p95 = UNSET if isinstance(self.p95, Unset) else self.p95
 
         unit: Union[None, Unset, str]
         if isinstance(self.unit, Unset):
@@ -168,9 +144,8 @@ class SystemMetricInfo:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                histogram_type_0 = Histogram.from_dict(data)
+                return Histogram.from_dict(data)
 
-                return histogram_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["Histogram", None, Unset], data)
@@ -257,9 +232,8 @@ class SystemMetricInfo:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                unit_type_0 = DataUnit(data)
+                return DataUnit(data)
 
-                return unit_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[DataUnit, None, Unset], data)

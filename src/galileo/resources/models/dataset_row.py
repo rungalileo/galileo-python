@@ -38,10 +38,7 @@ class DatasetRow:
         index = self.index
 
         metadata: Union[None, dict[str, Any]]
-        if isinstance(self.metadata, DatasetRowMetadata):
-            metadata = self.metadata.to_dict()
-        else:
-            metadata = self.metadata
+        metadata = self.metadata.to_dict() if isinstance(self.metadata, DatasetRowMetadata) else self.metadata
 
         row_id = self.row_id
 
@@ -79,9 +76,8 @@ class DatasetRow:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = DatasetRowMetadata.from_dict(data)
+                return DatasetRowMetadata.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["DatasetRowMetadata", None], data)
@@ -100,9 +96,8 @@ class DatasetRow:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    values_item_type_3 = DatasetRowValuesItemType3.from_dict(data)
+                    return DatasetRowValuesItemType3.from_dict(data)
 
-                    return values_item_type_3
                 except:  # noqa: E722
                     pass
                 return cast(Union["DatasetRowValuesItemType3", None, float, int, str], data)

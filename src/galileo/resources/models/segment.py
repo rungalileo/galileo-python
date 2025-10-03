@@ -34,10 +34,7 @@ class Segment:
         value = self.value
 
         prob: Union[None, Unset, float]
-        if isinstance(self.prob, Unset):
-            prob = UNSET
-        else:
-            prob = self.prob
+        prob = UNSET if isinstance(self.prob, Unset) else self.prob
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
