@@ -15,7 +15,6 @@ from ...types import Response
 
 def _get_kwargs(*, body: TemplateStubRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-    headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {"method": RequestMethod.POST, "return_raw_response": True, "path": "/input_stub"}
 

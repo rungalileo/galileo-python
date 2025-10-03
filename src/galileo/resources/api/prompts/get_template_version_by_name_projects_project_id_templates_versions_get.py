@@ -14,8 +14,6 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(project_id: str, *, template_name: str, version: Union[None, Unset, int] = UNSET) -> dict[str, Any]:
-    headers: dict[str, Any] = {}
-
     params: dict[str, Any] = {}
 
     params["template_name"] = template_name

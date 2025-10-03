@@ -7991,6 +7991,17 @@ components:
           type: array
       title: ExperimentMetricsResponse
       type: object
+    ExperimentPhaseStatus:
+      properties:
+        progress_percent:
+          default: 0.0
+          description: Progress percentage from 0.0 to 1.0
+          maximum: 1.0
+          minimum: 0.0
+          title: Progress Percent
+          type: number
+      title: ExperimentPhaseStatus
+      type: object
     ExperimentPlayground:
       properties:
         name:
@@ -8106,6 +8117,8 @@ components:
             - type: number
             - type: 'null'
           title: Ranking Score
+        status:
+          $ref: '#/components/schemas/ExperimentStatus'
         tags:
           additionalProperties:
             items:
@@ -8132,6 +8145,12 @@ components:
         - project_id
         - task_type
       title: ExperimentResponse
+      type: object
+    ExperimentStatus:
+      properties:
+        log_generation:
+          $ref: '#/components/schemas/ExperimentPhaseStatus'
+      title: ExperimentStatus
       type: object
     ExperimentUpdateRequest:
       properties:
@@ -13349,13 +13368,13 @@ components:
       examples:
         - columns:
             - applicable_types:
-                - retriever
-                - trace
-                - workflow
-                - llm
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
                 - session
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -13369,13 +13388,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - trace
-                - workflow
-                - llm
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
                 - session
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -13389,13 +13408,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - trace
-                - workflow
-                - llm
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
                 - session
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -13409,13 +13428,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - trace
-                - workflow
-                - llm
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
                 - session
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: timestamp
@@ -13429,12 +13448,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - trace
-                - workflow
                 - llm
-                - tool
-                - agent
               category: standard
               complex: false
               data_type: text
@@ -13448,12 +13467,12 @@ components:
               multi_valued: true
               sortable: false
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - trace
-                - workflow
                 - llm
-                - tool
-                - agent
               category: standard
               complex: false
               data_type: integer
@@ -13468,13 +13487,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - trace
-                - workflow
-                - llm
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
                 - session
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -13488,12 +13507,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - trace
-                - workflow
                 - llm
-                - tool
-                - agent
               category: standard
               complex: false
               data_type: text
@@ -13507,12 +13526,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - trace
-                - workflow
                 - llm
-                - tool
-                - agent
               category: standard
               complex: false
               data_type: text
@@ -13526,13 +13545,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - trace
-                - workflow
-                - llm
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
                 - session
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -13546,12 +13565,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - trace
-                - workflow
                 - llm
-                - tool
-                - agent
               category: standard
               complex: false
               data_type: uuid
@@ -13566,12 +13585,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - trace
-                - workflow
                 - llm
-                - tool
-                - agent
               category: standard
               complex: false
               data_type: uuid
@@ -13586,12 +13605,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - trace
-                - workflow
                 - llm
-                - tool
-                - agent
               category: standard
               complex: false
               data_type: uuid
@@ -13606,12 +13625,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - trace
-                - workflow
                 - llm
-                - tool
-                - agent
               category: standard
               complex: false
               data_type: timestamp
@@ -13625,12 +13644,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - trace
-                - workflow
                 - llm
-                - tool
-                - agent
               category: standard
               complex: false
               data_type: boolean
@@ -13644,12 +13663,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - agent
+                - tool
+                - workflow
                 - retriever
                 - trace
-                - workflow
                 - llm
-                - tool
-                - agent
               category: standard
               complex: false
               data_type: boolean
@@ -13663,19 +13682,19 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - retriever
-                - trace
-                - workflow
-                - llm
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
                 - session
-              applicable_types:
-                - retriever
-                - workflow
+                - trace
                 - llm
-                - tool
+              applicable_types:
                 - agent
+                - tool
+                - workflow
+                - retriever
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -13689,11 +13708,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - workflow
-                - llm
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -13708,11 +13727,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - workflow
-                - llm
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -13726,11 +13745,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - retriever
-                - workflow
-                - llm
-                - tool
                 - agent
+                - tool
+                - workflow
+                - retriever
+                - llm
               category: standard
               complex: false
               data_type: integer
@@ -13744,14 +13763,14 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - router
-                - react
-                - default
-                - planner
-                - reflection
                 - classifier
-                - supervisor
+                - router
                 - judge
+                - planner
+                - default
+                - supervisor
+                - react
+                - reflection
               applicable_types:
                 - agent
               category: standard
@@ -14376,7 +14395,7 @@ components:
           num_rows: 2
           paginated: true
           records:
-            - created_at: '2025-10-01T19:49:29.301493Z'
+            - created_at: '2025-10-02T23:33:25.266872Z'
               dataset_metadata: {}
               feedback_rating_info: {}
               id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
@@ -14393,7 +14412,7 @@ components:
               trace_id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               type: trace
               user_metadata: {}
-            - created_at: '2025-10-01T19:49:29.301630Z'
+            - created_at: '2025-10-02T23:33:25.267019Z'
               dataset_metadata: {}
               id: 1edc2401-24b4-448c-a392-b36932293061
               input:
@@ -14417,6 +14436,7 @@ components:
               trace_id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               type: llm
               user_metadata: {}
+          total_count: 150
       properties:
         limit:
           default: 100
@@ -14458,6 +14478,12 @@ components:
           default: 0
           title: Starting Token
           type: integer
+        total_count:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          description: Total number of records matching the query (before pagination)
+          title: Total Count
       title: LogRecordsQueryResponse
       type: object
     LogRecordsSortClause:
@@ -14659,14 +14685,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           parent_id: 11000011-0000-0000-0000-110000110000
           spans:
-            - created_at: '2025-10-01T19:49:29.271867Z'
+            - created_at: '2025-10-02T23:33:25.236745Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-10-01T19:49:29.257030Z'
+                - created_at: '2025-10-02T23:33:25.220309Z'
                   dataset_metadata: {}
                   id: 22222222-2222-4222-a222-222222222222
                   input:
@@ -15021,14 +15047,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           session_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-10-01T19:49:29.251906Z'
+            - created_at: '2025-10-02T23:33:25.215218Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-10-01T19:49:29.251862Z'
+                - created_at: '2025-10-02T23:33:25.215184Z'
                   dataset_metadata: {}
                   input:
                     - content: 'Question: who is a smart LLM?'
@@ -15046,14 +15072,14 @@ components:
               user_metadata: {}
         - experiment_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-10-01T19:49:29.252436Z'
+            - created_at: '2025-10-02T23:33:25.215675Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-10-01T19:49:29.252407Z'
+                - created_at: '2025-10-02T23:33:25.215645Z'
                   dataset_metadata: {}
                   id: 11111111-1111-4111-a111-111111111111
                   input:

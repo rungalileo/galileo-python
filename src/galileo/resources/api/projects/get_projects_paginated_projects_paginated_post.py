@@ -23,7 +23,6 @@ def _get_kwargs(
     limit: Union[Unset, int] = 100,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-    headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 

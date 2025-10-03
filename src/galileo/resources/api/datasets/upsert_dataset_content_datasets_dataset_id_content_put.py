@@ -16,7 +16,6 @@ from ...types import Response
 
 def _get_kwargs(dataset_id: str, *, body: Union["RollbackRequest", "UpsertDatasetContentRequest"]) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-    headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PUT,

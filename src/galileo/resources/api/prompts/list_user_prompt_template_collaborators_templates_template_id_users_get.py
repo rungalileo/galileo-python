@@ -16,8 +16,6 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     template_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> dict[str, Any]:
-    headers: dict[str, Any] = {}
-
     params: dict[str, Any] = {}
 
     params["starting_token"] = starting_token

@@ -30,6 +30,7 @@ class LogRecordsQueryResponse:
             'ExtendedRetrieverSpanRecord', 'ExtendedSessionRecord', 'ExtendedToolSpanRecord', 'ExtendedTraceRecord',
             'ExtendedWorkflowSpanRecord']]]): records matching the query
         starting_token (Union[Unset, int]):  Default: 0.
+        total_count (Union[None, Unset, int]): Total number of records matching the query (before pagination)
     """
 
     limit: Union[Unset, int] = 100
@@ -50,6 +51,7 @@ class LogRecordsQueryResponse:
         ],
     ] = UNSET
     starting_token: Union[Unset, int] = 0
+    total_count: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -91,6 +93,9 @@ class LogRecordsQueryResponse:
 
         starting_token = self.starting_token
 
+        total_count: Union[None, Unset, int]
+        total_count = UNSET if isinstance(self.total_count, Unset) else self.total_count
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
@@ -104,6 +109,8 @@ class LogRecordsQueryResponse:
             field_dict["records"] = records
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if total_count is not UNSET:
+            field_dict["total_count"] = total_count
 
         return field_dict
 
@@ -198,12 +205,22 @@ class LogRecordsQueryResponse:
 
         starting_token = d.pop("starting_token", UNSET)
 
+        def _parse_total_count(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        total_count = _parse_total_count(d.pop("total_count", UNSET))
+
         log_records_query_response = cls(
             limit=limit,
             next_starting_token=next_starting_token,
             paginated=paginated,
             records=records,
             starting_token=starting_token,
+            total_count=total_count,
         )
 
         log_records_query_response.additional_properties = d

@@ -16,7 +16,6 @@ from ...types import Response
 
 def _get_kwargs(project_id: str, run_id: str, *, body: RunScorerSettingsPatchRequest) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-    headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PATCH,

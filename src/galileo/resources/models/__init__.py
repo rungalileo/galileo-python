@@ -212,12 +212,14 @@ from .experiment_dataset import ExperimentDataset
 from .experiment_dataset_request import ExperimentDatasetRequest
 from .experiment_metrics_request import ExperimentMetricsRequest
 from .experiment_metrics_response import ExperimentMetricsResponse
+from .experiment_phase_status import ExperimentPhaseStatus
 from .experiment_playground import ExperimentPlayground
 from .experiment_prompt import ExperimentPrompt
 from .experiment_response import ExperimentResponse
 from .experiment_response_aggregate_feedback import ExperimentResponseAggregateFeedback
 from .experiment_response_aggregate_metrics import ExperimentResponseAggregateMetrics
 from .experiment_response_tags import ExperimentResponseTags
+from .experiment_status import ExperimentStatus
 from .experiment_update_request import ExperimentUpdateRequest
 from .experiments_available_columns_response import ExperimentsAvailableColumnsResponse
 from .extended_agent_span_record import ExtendedAgentSpanRecord
@@ -821,12 +823,14 @@ __all__ = (
     "ExperimentDatasetRequest",
     "ExperimentMetricsRequest",
     "ExperimentMetricsResponse",
+    "ExperimentPhaseStatus",
     "ExperimentPlayground",
     "ExperimentPrompt",
     "ExperimentResponse",
     "ExperimentResponseAggregateFeedback",
     "ExperimentResponseAggregateMetrics",
     "ExperimentResponseTags",
+    "ExperimentStatus",
     "ExperimentUpdateRequest",
     "ExperimentsAvailableColumnsResponse",
     "ExtendedAgentSpanRecord",

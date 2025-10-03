@@ -17,8 +17,6 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     *, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
 ) -> dict[str, Any]:
-    headers: dict[str, Any] = {}
-
     params: dict[str, Any] = {}
 
     json_project_name: Union[None, Unset, str]

@@ -18,7 +18,6 @@ def _get_kwargs(
     dataset_id: str, *, body: QueryDatasetParams, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-    headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
 

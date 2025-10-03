@@ -16,7 +16,6 @@ from ...types import Response
 
 def _get_kwargs(template_id: str, group_id: str, *, body: CollaboratorUpdate) -> dict[str, Any]:
     headers: dict[str, Any] = {}
-    headers: dict[str, Any] = {}
 
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PATCH,
