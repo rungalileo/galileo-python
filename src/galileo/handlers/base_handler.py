@@ -234,6 +234,13 @@ class GalileoBaseHandler:
         if "created_at" not in node.span_params:
             node.span_params["created_at"] = datetime.now(tz=timezone.utc)
 
+        found_node = self._nodes.get(node_id)
+        if found_node:
+            _logger.debug(f"Node already exists for run_id {run_id}, overwriting...")
+            self._nodes[node_id].span_params.update(**kwargs)
+            self._nodes[node_id].children.extend(node.children)
+            return found_node
+
         self._nodes[node_id] = node
 
         # Set as root node if needed

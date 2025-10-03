@@ -901,15 +901,15 @@ toml = ["tomli ; python_full_version <= \"3.11.0a6\""]
 
 [[package]]
 name = "crewai"
-version = "0.177.0"
+version = "0.193.2"
 description = "Cutting-edge framework for orchestrating role-playing, autonomous AI agents. By fostering collaborative intelligence, CrewAI empowers agents to work together seamlessly, tackling complex tasks."
 optional = true
 python-versions = "<3.14,>=3.10"
 groups = ["main"]
 markers = "python_version >= \"3.10\" and (extra == \"crewai\" or extra == \"all\")"
 files = [
-    {file = "crewai-0.177.0-py3-none-any.whl", hash = "sha256:4718335f0c8236ef42740166fe86f9636a9cf628eeea87205d85599ed1b771b4"},
-    {file = "crewai-0.177.0.tar.gz", hash = "sha256:cd34f024881afa163894793e51875a45b02a06f82b342785515455a2e48bb2c0"},
+    {file = "crewai-0.193.2-py3-none-any.whl", hash = "sha256:cad4d6a5f32e902a390ca3fc84698839e7720c1ae7acdba002da9a18405a01c8"},
+    {file = "crewai-0.193.2.tar.gz", hash = "sha256:239f1d299bbf493e76778434f6476604b585e1f228e2c75d39983a39a1522275"},
 ]
 
 [package.dependencies]
@@ -949,7 +949,7 @@ openpyxl = ["openpyxl (>=3.1.5)"]
 pandas = ["pandas (>=2.2.3)"]
 pdfplumber = ["pdfplumber (>=0.11.4)"]
 qdrant = ["qdrant-client[fastembed] (>=1.14.3)"]
-tools = ["crewai-tools (>=0.69.0,<0.70.0)"]
+tools = ["crewai-tools (>=0.73.0,<0.74.0)"]
 
 [[package]]
 name = "crosshair-tool"
@@ -7175,4 +7175,4 @@ openai = ["openai", "openai-agents", "packaging"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "308415413afadf47b782fe415e9d378452b010bdce53db9a40d0b8bacfd945f8"
+content-hash = "10303c2a778f2114ce0ed286c1bf9989c44595baccbc275b49ce52288f6b16e6"

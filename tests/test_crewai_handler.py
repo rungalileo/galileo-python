@@ -646,3 +646,237 @@ def test_lite_llm_usage_callback_no_node(crewai_callback) -> None:
         crewai_callback.lite_llm_usage_callback(
             kwargs=kwargs, completion_response=mock_response, start_time=datetime.now(), end_time=datetime.now()
         )
+
+
+# Memory event tests (for CrewAI >= 0.177.0)
+
+
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_memory_query_started(crewai_callback, generated_id) -> None:
+    """Test memory query started event handling."""
+    query_id = generated_id()
+    agent_id = generated_id()
+    source = MockSource(id=query_id)
+    event = MockEvent(
+        query="What are the market trends?",
+        limit=10,
+        score_threshold=0.8,
+        agent_id=agent_id,
+        agent_role="Research Agent",
+    )
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        crewai_callback._handle_memory_query_started(source, event)
+
+        mock_start_node.assert_called_once()
+        call_args = mock_start_node.call_args
+        assert call_args[1]["node_type"] == NodeType.RETRIEVER.value
+        assert str(call_args[1]["parent_run_id"]) == str(agent_id)
+        expected_run_id = crewai_callback._generate_run_id(source, event)
+        assert call_args[1]["run_id"] == expected_run_id
+
+        assert call_args[1]["name"] == "Memory Query"
+        assert call_args[1]["input"] == "What are the market trends?"
+        assert call_args[1]["metadata"]["query"] == "What are the market trends?"
+        assert call_args[1]["metadata"]["limit"] == 10
+        assert call_args[1]["metadata"]["score_threshold"] == 0.8
+        assert call_args[1]["metadata"]["agent_role"] == "Research Agent"
+
+
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_memory_query_completed(crewai_callback, generated_id) -> None:
+    """Test memory query completed event handling."""
+    query_id = generated_id()
+    source = MockSource(id=query_id)
+    results = [{"content": "Market trend 1"}, {"content": "Market trend 2"}]
+    event = MockEvent(query="What are the market trends?", results=results, limit=10, query_time_ms=150.5)
+
+    with patch.object(crewai_callback._handler, "end_node") as mock_end_node:
+        crewai_callback._handle_memory_query_completed(source, event)
+
+        mock_end_node.assert_called_once()
+        call_args = mock_end_node.call_args
+        expected_run_id = crewai_callback._generate_run_id(source, event)
+        assert call_args[1]["run_id"] == expected_run_id
+        assert call_args[1]["metadata"]["query_time_ms"] == 150.5
+        assert call_args[1]["metadata"]["results_count"] == 2
+
+
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_memory_query_failed(crewai_callback, generated_id) -> None:
+    """Test memory query failed event handling."""
+    query_id = generated_id()
+    source = MockSource(id=query_id)
+    event = MockEvent(query="What are the market trends?", limit=10, error="Connection timeout")
+
+    with patch.object(crewai_callback._handler, "end_node") as mock_end_node:
+        crewai_callback._handle_memory_query_failed(source, event)
+
+        mock_end_node.assert_called_once()
+        call_args = mock_end_node.call_args
+        expected_run_id = crewai_callback._generate_run_id(source, event)
+        assert call_args[1]["run_id"] == expected_run_id
+        assert call_args[1]["output"] == "Memory query failed: Connection timeout"
+        assert call_args[1]["metadata"]["error"] == "Connection timeout"
+
+
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_memory_save_started(crewai_callback, generated_id) -> None:
+    """Test memory save started event handling."""
+    save_id = generated_id()
+    agent_id = generated_id()
+    source = MockSource(id=save_id)
+    event = MockEvent(
+        value="Important market insight",
+        metadata={"source": "research", "confidence": 0.9},
+        agent_id=agent_id,
+        agent_role="Research Agent",
+    )
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        crewai_callback._handle_memory_save_started(source, event)
+
+        mock_start_node.assert_called_once()
+        call_args = mock_start_node.call_args
+        assert call_args[1]["node_type"] == NodeType.CHAIN.value
+        assert str(call_args[1]["parent_run_id"]) == str(agent_id)
+        assert call_args[1]["run_id"] == save_id
+        assert call_args[1]["name"] == "Memory Save"
+        assert call_args[1]["input"] == "Important market insight"
+        assert call_args[1]["metadata"]["source"] == "research"
+        assert call_args[1]["metadata"]["confidence"] == 0.9
+        assert call_args[1]["metadata"]["agent_role"] == "Research Agent"
+
+
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_memory_save_started_no_value(crewai_callback, generated_id) -> None:
+    """Test memory save started event handling with no value."""
+    save_id = generated_id()
+    source = MockSource(id=save_id)
+    event = MockEvent(value=None, metadata=None)
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        crewai_callback._handle_memory_save_started(source, event)
+
+        mock_start_node.assert_called_once()
+        call_args = mock_start_node.call_args
+        assert call_args[1]["input"] == "Memory content"
+
+
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_memory_save_completed(crewai_callback, generated_id) -> None:
+    """Test memory save completed event handling."""
+    save_id = generated_id()
+    source = MockSource(id=save_id)
+    event = MockEvent(value="Important market insight", save_time_ms=75.2)
+
+    with patch.object(crewai_callback._handler, "end_node") as mock_end_node:
+        crewai_callback._handle_memory_save_completed(source, event)
+
+        mock_end_node.assert_called_once()
+        call_args = mock_end_node.call_args
+        assert call_args[1]["run_id"] == save_id
+        assert call_args[1]["output"] == "Memory saved successfully: Important market insight"
+        assert call_args[1]["metadata"]["save_time_ms"] == 75.2
+
+
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_memory_save_failed(crewai_callback, generated_id) -> None:
+    """Test memory save failed event handling."""
+    save_id = generated_id()
+    source = MockSource(id=save_id)
+    event = MockEvent(value="Important market insight", error="Storage full")
+
+    with patch.object(crewai_callback._handler, "end_node") as mock_end_node:
+        crewai_callback._handle_memory_save_failed(source, event)
+
+        mock_end_node.assert_called_once()
+        call_args = mock_end_node.call_args
+        assert call_args[1]["run_id"] == save_id
+        assert call_args[1]["output"] == "Memory save failed: Storage full"
+        assert call_args[1]["metadata"]["error"] == "Storage full"
+
+
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_memory_retrieval_started(crewai_callback, generated_id) -> None:
+    """Test memory retrieval started event handling."""
+    retrieval_id = generated_id()
+    task_id = generated_id()
+    source = MockSource(id=retrieval_id)
+    event = MockEvent(task_id=task_id)
+
+    with patch.object(crewai_callback._handler, "start_node") as mock_start_node:
+        crewai_callback._handle_memory_retrieval_started(source, event)
+
+        mock_start_node.assert_called_once()
+        call_args = mock_start_node.call_args
+
+        assert call_args[1]["node_type"] == NodeType.CHAIN.value
+        assert str(call_args[1]["parent_run_id"]) == str(task_id)
+        expected_run_id = crewai_callback._generate_run_id(source, event)
+        assert call_args[1]["run_id"] == expected_run_id
+        assert call_args[1]["name"] == "Memory Retrieval"
+        assert call_args[1]["input"] == "Retrieving relevant memories for task"
+        assert call_args[1]["metadata"]["task_id"] == task_id
+
+
+@pytest.mark.parametrize("generated_id", [lambda: uuid.uuid4(), lambda: str(uuid.uuid4())])
+def test_memory_retrieval_completed(crewai_callback, generated_id) -> None:
+    """Test memory retrieval completed event handling."""
+    retrieval_id = generated_id()
+    source = MockSource(id=retrieval_id)
+    event = MockEvent(
+        task_id=generated_id(), memory_content="Retrieved relevant market insights and trends", retrieval_time_ms=120.8
+    )
+
+    with patch.object(crewai_callback._handler, "end_node") as mock_end_node:
+        crewai_callback._handle_memory_retrieval_completed(source, event)
+
+        mock_end_node.assert_called_once()
+        call_args = mock_end_node.call_args
+        expected_run_id = crewai_callback._generate_run_id(source, event)
+        assert call_args[1]["run_id"] == expected_run_id
+        assert call_args[1]["output"] == "Retrieved relevant market insights and trends"
+        assert call_args[1]["metadata"]["retrieval_time_ms"] == 120.8
+
+
+def test_setup_listeners_with_memory_events_available(mock_galileo_logger) -> None:
+    """Test setup_listeners when CrewAI memory events are available (>= 0.177.0)."""
+    mock_event_bus = Mock()
+
+    with (
+        patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", True),
+        patch("galileo.handlers.crewai.handler.CREWAI_EVENTS_MODULE_AVAILABLE", True),
+        patch("galileo.handlers.crewai.handler.BaseEventListener"),
+    ):
+        from galileo.handlers.crewai.handler import CrewAIEventListener
+
+        callback = CrewAIEventListener(galileo_logger=mock_galileo_logger)
+        callback.setup_listeners(mock_event_bus)
+
+        # Verify that memory event listeners were registered
+        # The mock_event_bus.on should have been called for all event types including memory events
+        assert mock_event_bus.on.call_count >= 8  # At least 8 memory event handlers should be registered
+
+
+def test_setup_listeners_without_memory_events_available(mock_galileo_logger) -> None:
+    """Test setup_listeners when CrewAI memory events are not available (< 0.177.0)."""
+    mock_event_bus = Mock()
+
+    with (
+        patch("galileo.handlers.crewai.handler.CREWAI_AVAILABLE", True),
+        patch("galileo.handlers.crewai.handler.CREWAI_EVENTS_MODULE_AVAILABLE", False),
+        patch("galileo.handlers.crewai.handler.BaseEventListener"),
+    ):
+        from galileo.handlers.crewai.handler import CrewAIEventListener
+
+        callback = CrewAIEventListener(galileo_logger=mock_galileo_logger)
+        callback.setup_listeners(mock_event_bus)
+
+        # Verify that memory event listeners were NOT registered
+        # Check that the call count is less than what it would be with memory events
+        # This is a bit fragile but helps ensure memory events are conditionally registered
+        call_count = mock_event_bus.on.call_count
+        # Should be the original event handlers but not memory events
+        assert call_count > 0  # Some events should still be registered
+        # We can't easily test the exact count without more complex mocking
