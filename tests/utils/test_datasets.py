@@ -26,7 +26,7 @@ def test_get_dataset_and_records_with_id(mock_get_records, mock_get_dataset, dat
     # Assert
     mock_get_dataset.assert_called_once_with(id="test-id")
     assert dataset == mock_dataset
-    mock_get_records.assert_called_once_with(mock_dataset)
+    mock_get_records.assert_called_once_with(mock_dataset, limit=None)
 
 
 @patch("galileo.utils.datasets.get_dataset")
@@ -44,7 +44,7 @@ def test_get_dataset_and_records_with_name(mock_get_records, mock_get_dataset, d
     # Assert
     mock_get_dataset.assert_called_once_with(name="test-dataset")
     assert dataset == mock_dataset
-    mock_get_records.assert_called_once_with(mock_dataset)
+    mock_get_records.assert_called_once_with(mock_dataset, limit=None)
 
 
 @patch("galileo.utils.datasets.get_dataset")
@@ -88,7 +88,7 @@ def test_get_records_for_dataset(mock_convert, dataset_content) -> None:
     records = get_records_for_dataset(mock_dataset)
 
     # Assert
-    mock_dataset.get_content.assert_called_once()
+    mock_dataset.get_content.assert_called_once_with(limit=None)
     mock_convert.assert_called_once_with(dataset_content.rows[0])
     assert len(records) == 1
     assert records[0].input == "test"
@@ -180,7 +180,7 @@ def test_load_dataset_and_records_with_dataset_id(mock_get_dataset_and_records) 
     dataset, records = load_dataset_and_records(None, "test-id", None)
 
     # Assert
-    mock_get_dataset_and_records.assert_called_once_with(id="test-id")
+    mock_get_dataset_and_records.assert_called_once_with(id="test-id", limit=None)
     assert dataset == mock_dataset
     assert records == mock_records
 
@@ -197,7 +197,7 @@ def test_load_dataset_and_records_with_dataset_name(mock_get_dataset_and_records
     dataset, records = load_dataset_and_records(None, None, "test-dataset")
 
     # Assert
-    mock_get_dataset_and_records.assert_called_once_with(name="test-dataset")
+    mock_get_dataset_and_records.assert_called_once_with(name="test-dataset", limit=None)
     assert dataset == mock_dataset
     assert records == mock_records
 
@@ -214,7 +214,7 @@ def test_load_dataset_and_records_with_dataset_as_string(mock_get_dataset_and_re
     dataset, records = load_dataset_and_records("test-dataset", None, None)
 
     # Assert
-    mock_get_dataset_and_records.assert_called_once_with(name="test-dataset")
+    mock_get_dataset_and_records.assert_called_once_with(name="test-dataset", limit=None)
     assert dataset == mock_dataset
     assert records == mock_records
 
@@ -233,7 +233,7 @@ def test_load_dataset_and_records_with_dataset_object(mock_get_records) -> None:
     dataset, records = load_dataset_and_records(mock_dataset, None, None)
 
     # Assert
-    mock_get_records.assert_called_once_with(mock_dataset)
+    mock_get_records.assert_called_once_with(mock_dataset, limit=None)
     assert dataset == mock_dataset
     assert records == mock_records
 
