@@ -91,6 +91,7 @@ except ImportError:
     BaseEventListener = object
 
     CREWAI_AVAILABLE = False
+    CREWAI_EVENTS_MODULE_AVAILABLE = False
 
 try:
     import litellm
