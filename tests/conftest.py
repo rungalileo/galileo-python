@@ -132,6 +132,24 @@ def local_dataset():
 
 
 @pytest.fixture
+def dataset_content_10_rows():
+    """Dataset content with 10 rows for testing dataset_limit functionality."""
+    rows = [
+        DatasetRow(
+            index=i,
+            row_id=f"row{i}",
+            values=[f"Question {i}", f"Answer {i}", f'{{"meta": "data{i}"}}'],
+            values_dict=DatasetRowValuesDict.from_dict(
+                {"input": f"Question {i}", "output": f"Answer {i}", "metadata": f'{{"meta": "data{i}"}}'}
+            ),
+            metadata=None,
+        )
+        for i in range(10)
+    ]
+    return DatasetContent(rows=rows)
+
+
+@pytest.fixture
 def thread_pool_capture():
     """
     Pytest fixture that provides a function to capture thread pool requests from streaming methods.

@@ -953,3 +953,28 @@ class TestExperiments:
         )
 
         assert mock_upsert_tag.call_count == 3
+
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_with_dataset_limit(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_dataset: Mock,
+        dataset_content_10_rows: DatasetContent,
+    ) -> None:
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_10_rows)
+
+        run_experiment(
+            "test_experiment",
+            project="awesome-new-project",
+            dataset_id=str(UUID(int=0)),
+            function=lambda x: f"output: {x}",
+            dataset_limit=5,
+        )
+
+        mock_get_dataset_instance.get_content.assert_called_with(limit=5)
