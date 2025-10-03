@@ -41,10 +41,7 @@ class UpdateDatasetRequest:
             column_mapping = self.column_mapping
 
         draft: Union[None, Unset, bool]
-        if isinstance(self.draft, Unset):
-            draft = UNSET
-        else:
-            draft = self.draft
+        draft = UNSET if isinstance(self.draft, Unset) else self.draft
 
         name: Union[None, Unset, dict[str, Any], str]
         if isinstance(self.name, Unset):
@@ -81,9 +78,8 @@ class UpdateDatasetRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                column_mapping_type_0 = ColumnMapping.from_dict(data)
+                return ColumnMapping.from_dict(data)
 
-                return column_mapping_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ColumnMapping", None, Unset], data)
@@ -107,9 +103,8 @@ class UpdateDatasetRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                name_type_1 = Name.from_dict(data)
+                return Name.from_dict(data)
 
-                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Union["Name", None, Unset, str], data)

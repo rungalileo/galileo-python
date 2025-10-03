@@ -36,10 +36,7 @@ class Message:
         role = self.role.value
 
         tool_call_id: Union[None, Unset, str]
-        if isinstance(self.tool_call_id, Unset):
-            tool_call_id = UNSET
-        else:
-            tool_call_id = self.tool_call_id
+        tool_call_id = UNSET if isinstance(self.tool_call_id, Unset) else self.tool_call_id
 
         tool_calls: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.tool_calls, Unset):

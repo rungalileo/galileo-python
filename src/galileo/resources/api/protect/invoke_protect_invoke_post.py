@@ -39,28 +39,22 @@ def _parse_response(
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                response_200_type_0 = ProtectResponse.from_dict(data)
+                return ProtectResponse.from_dict(data)
 
-                return response_200_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            response_200_type_1 = InvokeResponse.from_dict(data)
+            return InvokeResponse.from_dict(data)
 
-            return response_200_type_1
+        return _parse_response_200(response.json())
 
-        response_200 = _parse_response_200(response.json())
-
-        return response_200
     if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
+        return HTTPValidationError.from_dict(response.json())
 
-        return response_422
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(

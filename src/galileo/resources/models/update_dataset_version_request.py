@@ -21,10 +21,7 @@ class UpdateDatasetVersionRequest:
 
     def to_dict(self) -> dict[str, Any]:
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

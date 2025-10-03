@@ -1,6 +1,6 @@
 [project]
 name = "galileo"
-version = "1.22.0"
+version = "1.23.0"
 description = "Client library for the Galileo platform."
 authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
@@ -43,7 +43,7 @@ mypy = "^1.16.0"
 openai = "^1.95.1"
 codeflash = ">=0.12.3"
 ruff = "^0.12.3"
-openapi-python-client = "^0.25.3"
+openapi-python-client = "^0.26.1"
 yq = "^3.4.3"
 pyyaml = "^6.0.2"
 

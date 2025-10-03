@@ -4,7 +4,6 @@ from typing import Any, Literal, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.project_type import ProjectType
 from ..models.project_type_filter_operator import ProjectTypeFilterOperator
 from ..types import UNSET, Unset
 
@@ -16,12 +15,12 @@ class ProjectTypeFilter:
     """
     Attributes:
         operator (ProjectTypeFilterOperator):
-        value (Union[ProjectType, list[ProjectType]]):
+        value (Union[list[str], str]):
         name (Union[Literal['type'], Unset]):  Default: 'type'.
     """
 
     operator: ProjectTypeFilterOperator
-    value: Union[ProjectType, list[ProjectType]]
+    value: Union[list[str], str]
     name: Union[Literal["type"], Unset] = "type"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -29,13 +28,7 @@ class ProjectTypeFilter:
         operator = self.operator.value
 
         value: Union[list[str], str]
-        if isinstance(self.value, ProjectType):
-            value = self.value.value
-        else:
-            value = []
-            for value_type_1_item_data in self.value:
-                value_type_1_item = value_type_1_item_data.value
-                value.append(value_type_1_item)
+        value = self.value if isinstance(self.value, list) else self.value
 
         name = self.name
 
@@ -52,25 +45,15 @@ class ProjectTypeFilter:
         d = dict(src_dict)
         operator = ProjectTypeFilterOperator(d.pop("operator"))
 
-        def _parse_value(data: object) -> Union[ProjectType, list[ProjectType]]:
+        def _parse_value(data: object) -> Union[list[str], str]:
             try:
-                if not isinstance(data, str):
+                if not isinstance(data, list):
                     raise TypeError()
-                value_type_0 = ProjectType(data)
+                return cast(list[str], data)
 
-                return value_type_0
             except:  # noqa: E722
                 pass
-            if not isinstance(data, list):
-                raise TypeError()
-            value_type_1 = []
-            _value_type_1 = data
-            for value_type_1_item_data in _value_type_1:
-                value_type_1_item = ProjectType(value_type_1_item_data)
-
-                value_type_1.append(value_type_1_item)
-
-            return value_type_1
+            return cast(Union[list[str], str], data)
 
         value = _parse_value(d.pop("value"))
 

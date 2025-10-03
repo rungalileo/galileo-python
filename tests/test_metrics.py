@@ -110,6 +110,9 @@ class TestMetrics:
         assert scorer_request.tags == []
         assert scorer_request.defaults.model_name == "gpt-4.1-mini"
         assert scorer_request.defaults.num_judges == 3
+        assert scorer_request.defaults.output_type == OutputTypeEnum.BOOLEAN
+        assert scorer_request.defaults.cot_enabled is True
+        assert scorer_request.defaults.scoreable_node_types == [StepType.llm]
 
         # Verify create_version was called with correct parameters
         mock_create_version.sync.assert_called_once()
@@ -118,11 +121,6 @@ class TestMetrics:
 
         assert isinstance(version_request, CreateLLMScorerVersionRequest)
         assert version_request.user_prompt == "Rate the quality of this response"
-        assert version_request.scoreable_node_types == [StepType.llm]
-        assert version_request.cot_enabled is True
-        assert version_request.output_type == OutputTypeEnum.BOOLEAN
-        assert version_request.model_name == "gpt-4.1-mini"
-        assert version_request.num_judges == 3
         assert create_version_call.kwargs["scorer_id"] == mock_scorer_response.id
 
     @patch("galileo.metrics.create_llm_scorer_version_scorers_scorer_id_version_llm_post")
@@ -160,15 +158,13 @@ class TestMetrics:
         assert scorer_request.tags == ["custom", "evaluation", "quality"]
         assert scorer_request.defaults.model_name == "GPT-3.5-turbo"
         assert scorer_request.defaults.num_judges == 5
+        assert scorer_request.defaults.output_type == OutputTypeEnum.CATEGORICAL
+        assert scorer_request.defaults.cot_enabled is False
+        assert scorer_request.defaults.scoreable_node_types == [StepType.workflow]
 
         # Verify create_version was called with correct parameters
         version_request = mock_create_version.sync.call_args.kwargs["body"]
         assert version_request.user_prompt == "Custom prompt for evaluation"
-        assert version_request.scoreable_node_types == [StepType.workflow]
-        assert version_request.cot_enabled is False
-        assert version_request.model_name == "GPT-3.5-turbo"
-        assert version_request.num_judges == 5
-        assert version_request.output_type == OutputTypeEnum.CATEGORICAL
 
     @patch("galileo.metrics.create_llm_scorer_version_scorers_scorer_id_version_llm_post")
     @patch("galileo.metrics.create_scorers_post")
@@ -418,7 +414,7 @@ class TestEdgeCases:
         assert scorer_request.defaults.num_judges == 100
 
         version_request = mock_create_version.sync.call_args.kwargs["body"]
-        assert version_request.num_judges == 100
+        assert version_request.user_prompt == "Test prompt"
 
     @patch("galileo.metrics.create_llm_scorer_version_scorers_scorer_id_version_llm_post")
     @patch("galileo.metrics.create_scorers_post")

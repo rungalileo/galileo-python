@@ -32,14 +32,7 @@ class LogRecordsNumberFilter:
         operator = self.operator.value
 
         value: Union[float, int, list[float], list[int]]
-        if isinstance(self.value, list):
-            value = self.value
-
-        elif isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, (list, list)) else self.value
 
         type_ = self.type_
 
@@ -62,17 +55,15 @@ class LogRecordsNumberFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_2 = cast(list[int], data)
+                return cast(list[int], data)
 
-                return value_type_2
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_3 = cast(list[float], data)
+                return cast(list[float], data)
 
-                return value_type_3
             except:  # noqa: E722
                 pass
             return cast(Union[float, int, list[float], list[int]], data)

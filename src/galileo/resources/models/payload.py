@@ -23,16 +23,10 @@ class Payload:
 
     def to_dict(self) -> dict[str, Any]:
         input_: Union[None, Unset, str]
-        if isinstance(self.input_, Unset):
-            input_ = UNSET
-        else:
-            input_ = self.input_
+        input_ = UNSET if isinstance(self.input_, Unset) else self.input_
 
         output: Union[None, Unset, str]
-        if isinstance(self.output, Unset):
-            output = UNSET
-        else:
-            output = self.output
+        output = UNSET if isinstance(self.output, Unset) else self.output
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

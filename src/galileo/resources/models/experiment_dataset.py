@@ -25,22 +25,13 @@ class ExperimentDataset:
 
     def to_dict(self) -> dict[str, Any]:
         dataset_id: Union[None, Unset, str]
-        if isinstance(self.dataset_id, Unset):
-            dataset_id = UNSET
-        else:
-            dataset_id = self.dataset_id
+        dataset_id = UNSET if isinstance(self.dataset_id, Unset) else self.dataset_id
 
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         version_index: Union[None, Unset, int]
-        if isinstance(self.version_index, Unset):
-            version_index = UNSET
-        else:
-            version_index = self.version_index
+        version_index = UNSET if isinstance(self.version_index, Unset) else self.version_index
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
