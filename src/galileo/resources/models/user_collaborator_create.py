@@ -44,10 +44,7 @@ class UserCollaboratorCreate:
 
         _role = d.pop("role", UNSET)
         role: Union[Unset, CollaboratorRole]
-        if isinstance(_role, Unset):
-            role = UNSET
-        else:
-            role = CollaboratorRole(_role)
+        role = UNSET if isinstance(_role, Unset) else CollaboratorRole(_role)
 
         user_collaborator_create = cls(user_id=user_id, role=role)
 

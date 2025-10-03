@@ -108,32 +108,20 @@ class ExtendedRetrieverSpanRecord:
             created_at = self.created_at.isoformat()
 
         dataset_input: Union[None, Unset, str]
-        if isinstance(self.dataset_input, Unset):
-            dataset_input = UNSET
-        else:
-            dataset_input = self.dataset_input
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
 
         dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.dataset_metadata, Unset):
             dataset_metadata = self.dataset_metadata.to_dict()
 
         dataset_output: Union[None, Unset, str]
-        if isinstance(self.dataset_output, Unset):
-            dataset_output = UNSET
-        else:
-            dataset_output = self.dataset_output
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
 
         external_id: Union[None, Unset, str]
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         has_children: Union[None, Unset, bool]
-        if isinstance(self.has_children, Unset):
-            has_children = UNSET
-        else:
-            has_children = self.has_children
+        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
 
         input_ = self.input_
 
@@ -152,10 +140,7 @@ class ExtendedRetrieverSpanRecord:
             metrics = self.metrics.to_dict()
 
         metrics_batch_id: Union[None, Unset, str]
-        if isinstance(self.metrics_batch_id, Unset):
-            metrics_batch_id = UNSET
-        else:
-            metrics_batch_id = self.metrics_batch_id
+        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
 
         name = self.name
 
@@ -167,10 +152,7 @@ class ExtendedRetrieverSpanRecord:
                 output.append(output_item)
 
         redacted_input: Union[None, Unset, str]
-        if isinstance(self.redacted_input, Unset):
-            redacted_input = UNSET
-        else:
-            redacted_input = self.redacted_input
+        redacted_input = UNSET if isinstance(self.redacted_input, Unset) else self.redacted_input
 
         redacted_output: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.redacted_output, Unset):
@@ -185,32 +167,20 @@ class ExtendedRetrieverSpanRecord:
             redacted_output = self.redacted_output
 
         session_batch_id: Union[None, Unset, str]
-        if isinstance(self.session_batch_id, Unset):
-            session_batch_id = UNSET
-        else:
-            session_batch_id = self.session_batch_id
+        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
 
         status_code: Union[None, Unset, int]
-        if isinstance(self.status_code, Unset):
-            status_code = UNSET
-        else:
-            status_code = self.status_code
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
 
         step_number: Union[None, Unset, int]
-        if isinstance(self.step_number, Unset):
-            step_number = UNSET
-        else:
-            step_number = self.step_number
+        step_number = UNSET if isinstance(self.step_number, Unset) else self.step_number
 
         tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
         trace_id: Union[None, Unset, str]
-        if isinstance(self.trace_id, Unset):
-            trace_id = UNSET
-        else:
-            trace_id = self.trace_id
+        trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
 
         type_ = self.type_
 
@@ -303,10 +273,7 @@ class ExtendedRetrieverSpanRecord:
 
         _created_at = d.pop("created_at", UNSET)
         created_at: Union[Unset, datetime.datetime]
-        if isinstance(_created_at, Unset):
-            created_at = UNSET
-        else:
-            created_at = isoparse(_created_at)
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
         def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -363,9 +330,8 @@ class ExtendedRetrieverSpanRecord:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_info_type_0 = ExtendedRetrieverSpanRecordMetricInfoType0.from_dict(data)
+                return ExtendedRetrieverSpanRecordMetricInfoType0.from_dict(data)
 
-                return metric_info_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ExtendedRetrieverSpanRecordMetricInfoType0", None, Unset], data)
@@ -374,10 +340,7 @@ class ExtendedRetrieverSpanRecord:
 
         _metrics = d.pop("metrics", UNSET)
         metrics: Union[Unset, Metrics]
-        if isinstance(_metrics, Unset):
-            metrics = UNSET
-        else:
-            metrics = Metrics.from_dict(_metrics)
+        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
 
         def _parse_metrics_batch_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -478,9 +441,8 @@ class ExtendedRetrieverSpanRecord:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                updated_at_type_0 = isoparse(data)
+                return isoparse(data)
 
-                return updated_at_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, datetime.datetime], data)

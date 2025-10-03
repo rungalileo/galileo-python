@@ -7,7 +7,9 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.and_node import AndNode
     from ..models.chain_poll_template import ChainPollTemplate
+    from ..models.filter_leaf import FilterLeaf
     from ..models.generated_scorer_configuration import GeneratedScorerConfiguration
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
@@ -15,6 +17,8 @@ if TYPE_CHECKING:
     from ..models.log_records_number_filter import LogRecordsNumberFilter
     from ..models.log_records_sort_clause import LogRecordsSortClause
     from ..models.log_records_text_filter import LogRecordsTextFilter
+    from ..models.not_node import NotNode
+    from ..models.or_node import OrNode
 
 
 T = TypeVar("T", bound="ValidateLLMScorerLogRecordRequest")
@@ -33,6 +37,7 @@ class ValidateLLMScorerLogRecordRequest:
             scorer_configuration (GeneratedScorerConfiguration):
             user_prompt (str):
             experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
+            filter_tree (Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode', None, Unset]):
             filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsDateFilter', 'LogRecordsIDFilter',
                 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
             limit (Union[Unset, int]):  Default: 100.
@@ -49,6 +54,7 @@ class ValidateLLMScorerLogRecordRequest:
     scorer_configuration: "GeneratedScorerConfiguration"
     user_prompt: str
     experiment_id: Union[None, Unset, str] = UNSET
+    filter_tree: Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset] = UNSET
     filters: Union[
         Unset,
         list[
@@ -70,10 +76,14 @@ class ValidateLLMScorerLogRecordRequest:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.and_node import AndNode
+        from ..models.filter_leaf import FilterLeaf
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
+        from ..models.not_node import NotNode
+        from ..models.or_node import OrNode
 
         chain_poll_template = self.chain_poll_template.to_dict()
 
@@ -86,23 +96,25 @@ class ValidateLLMScorerLogRecordRequest:
         user_prompt = self.user_prompt
 
         experiment_id: Union[None, Unset, str]
-        if isinstance(self.experiment_id, Unset):
-            experiment_id = UNSET
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
+
+        filter_tree: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.filter_tree, Unset):
+            filter_tree = UNSET
+        elif isinstance(self.filter_tree, (FilterLeaf, AndNode, OrNode, NotNode)):
+            filter_tree = self.filter_tree.to_dict()
         else:
-            experiment_id = self.experiment_id
+            filter_tree = self.filter_tree
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
-                if isinstance(filters_item_data, LogRecordsIDFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, LogRecordsDateFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, LogRecordsNumberFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, LogRecordsBooleanFilter):
+                if isinstance(
+                    filters_item_data,
+                    (LogRecordsIDFilter, LogRecordsDateFilter, LogRecordsNumberFilter, LogRecordsBooleanFilter),
+                ):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
@@ -112,16 +124,10 @@ class ValidateLLMScorerLogRecordRequest:
         limit = self.limit
 
         log_stream_id: Union[None, Unset, str]
-        if isinstance(self.log_stream_id, Unset):
-            log_stream_id = UNSET
-        else:
-            log_stream_id = self.log_stream_id
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         metrics_testing_id: Union[None, Unset, str]
-        if isinstance(self.metrics_testing_id, Unset):
-            metrics_testing_id = UNSET
-        else:
-            metrics_testing_id = self.metrics_testing_id
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         sort: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.sort, Unset):
@@ -144,6 +150,8 @@ class ValidateLLMScorerLogRecordRequest:
         )
         if experiment_id is not UNSET:
             field_dict["experiment_id"] = experiment_id
+        if filter_tree is not UNSET:
+            field_dict["filter_tree"] = filter_tree
         if filters is not UNSET:
             field_dict["filters"] = filters
         if limit is not UNSET:
@@ -163,7 +171,9 @@ class ValidateLLMScorerLogRecordRequest:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.and_node import AndNode
         from ..models.chain_poll_template import ChainPollTemplate
+        from ..models.filter_leaf import FilterLeaf
         from ..models.generated_scorer_configuration import GeneratedScorerConfiguration
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
@@ -171,6 +181,8 @@ class ValidateLLMScorerLogRecordRequest:
         from ..models.log_records_number_filter import LogRecordsNumberFilter
         from ..models.log_records_sort_clause import LogRecordsSortClause
         from ..models.log_records_text_filter import LogRecordsTextFilter
+        from ..models.not_node import NotNode
+        from ..models.or_node import OrNode
 
         d = dict(src_dict)
         chain_poll_template = ChainPollTemplate.from_dict(d.pop("chain_poll_template"))
@@ -192,6 +204,43 @@ class ValidateLLMScorerLogRecordRequest:
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
+        def _parse_filter_tree(data: object) -> Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return FilterLeaf.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return AndNode.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return OrNode.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return NotNode.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset], data)
+
+        filter_tree = _parse_filter_tree(d.pop("filter_tree", UNSET))
+
         filters = []
         _filters = d.pop("filters", UNSET)
         for filters_item_data in _filters or []:
@@ -208,40 +257,34 @@ class ValidateLLMScorerLogRecordRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_0 = LogRecordsIDFilter.from_dict(data)
+                    return LogRecordsIDFilter.from_dict(data)
 
-                    return filters_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_1 = LogRecordsDateFilter.from_dict(data)
+                    return LogRecordsDateFilter.from_dict(data)
 
-                    return filters_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_2 = LogRecordsNumberFilter.from_dict(data)
+                    return LogRecordsNumberFilter.from_dict(data)
 
-                    return filters_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_3 = LogRecordsBooleanFilter.from_dict(data)
+                    return LogRecordsBooleanFilter.from_dict(data)
 
-                    return filters_item_type_3
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                filters_item_type_4 = LogRecordsTextFilter.from_dict(data)
-
-                return filters_item_type_4
+                return LogRecordsTextFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 
@@ -269,10 +312,7 @@ class ValidateLLMScorerLogRecordRequest:
 
         _sort = d.pop("sort", UNSET)
         sort: Union[Unset, LogRecordsSortClause]
-        if isinstance(_sort, Unset):
-            sort = UNSET
-        else:
-            sort = LogRecordsSortClause.from_dict(_sort)
+        sort = UNSET if isinstance(_sort, Unset) else LogRecordsSortClause.from_dict(_sort)
 
         starting_token = d.pop("starting_token", UNSET)
 
@@ -285,6 +325,7 @@ class ValidateLLMScorerLogRecordRequest:
             scorer_configuration=scorer_configuration,
             user_prompt=user_prompt,
             experiment_id=experiment_id,
+            filter_tree=filter_tree,
             filters=filters,
             limit=limit,
             log_stream_id=log_stream_id,

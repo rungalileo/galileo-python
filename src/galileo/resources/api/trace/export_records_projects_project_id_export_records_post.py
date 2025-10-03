@@ -34,16 +34,14 @@ def _get_kwargs(project_id: str, *, body: LogRecordsExportRequest) -> dict[str, 
 
 def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[Union[Any, HTTPValidationError]]:
     if response.status_code == 200:
-        response_200 = response.json()
-        return response_200
-    if response.status_code == 422:
-        response_422 = HTTPValidationError.from_dict(response.json())
+        return response.json()
 
-        return response_422
+    if response.status_code == 422:
+        return HTTPValidationError.from_dict(response.json())
+
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
-    else:
-        return None
+    return None
 
 
 def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[Union[Any, HTTPValidationError]]:
@@ -53,6 +51,12 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
         headers=response.headers,
         parsed=_parse_response(client=client, response=response),
     )
+
+
+def stream_detailed(project_id: str, *, client: ApiClient, body: LogRecordsExportRequest) -> httpx.Response:
+    kwargs = _get_kwargs(project_id=project_id, body=body)
+
+    return client.request(**kwargs)
 
 
 def sync_detailed(
@@ -78,14 +82,6 @@ def sync_detailed(
     response = client.request(**kwargs)
 
     return _build_response(client=client, response=response)
-
-
-def stream_detailed(project_id: str, *, client: ApiClient, body: LogRecordsExportRequest) -> httpx.Response:
-    kwargs = _get_kwargs(project_id=project_id, body=body)
-
-    response = client.request(**kwargs)
-
-    return response
 
 
 def sync(

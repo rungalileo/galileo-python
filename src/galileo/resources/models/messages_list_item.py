@@ -25,10 +25,7 @@ class MessagesListItem:
         content = self.content
 
         role: str
-        if isinstance(self.role, MessagesListItemRole):
-            role = self.role.value
-        else:
-            role = self.role
+        role = self.role.value if isinstance(self.role, MessagesListItemRole) else self.role
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -45,9 +42,8 @@ class MessagesListItem:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                role_type_1 = MessagesListItemRole(data)
+                return MessagesListItemRole(data)
 
-                return role_type_1
             except:  # noqa: E722
                 pass
             return cast(Union[MessagesListItemRole, str], data)

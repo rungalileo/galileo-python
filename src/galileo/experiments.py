@@ -9,6 +9,7 @@ from attrs import field as _attrs_field
 from galileo import galileo_context, log
 from galileo.config import GalileoPythonConfig
 from galileo.datasets import Dataset
+from galileo.experiment_tags import upsert_experiment_tag
 from galileo.jobs import Jobs
 from galileo.projects import Project, Projects
 from galileo.prompts import PromptTemplate
@@ -199,6 +200,7 @@ def run_experiment(
     dataset_limit: Optional[int] = None,
     metrics: Optional[list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]] = None,
     function: Optional[Callable] = None,
+    experiment_tags: Optional[dict[str, str]] = None,
 ) -> Any:
     """
     Run an experiment with the specified parameters.
@@ -223,6 +225,7 @@ def run_experiment(
         dataset_limit: Rows to fetch from dataset (None for default limit 100)
         metrics: List of metrics to evaluate
         function: Optional function to run with the experiment
+        experiment_tags: Optional dictionary of key-value pairs to tag the experiment with
 
     Returns:
         Experiment run results
@@ -267,6 +270,14 @@ def run_experiment(
         experiment_name = f"{existing_experiment.name} {now:%Y-%m-%d} at {now:%H:%M:%S}.{now.microsecond // 1000:03d}"
 
     experiment_obj = Experiments().create(project_obj.id, experiment_name, dataset_obj)
+
+    if experiment_tags is not None:
+        for key, value in experiment_tags.items():
+            try:
+                upsert_experiment_tag(project_obj.id, experiment_obj.id, key, value)
+                _logger.debug(f"Added tag {key}={value} to experiment {experiment_obj.id}")
+            except Exception as e:
+                _logger.warning(f"Failed to add tag {key}={value} to experiment {experiment_obj.id}: {e}")
 
     # Set up metrics if provided
     scorer_settings: Optional[list[ScorerConfig]] = None

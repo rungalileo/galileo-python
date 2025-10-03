@@ -27,11 +27,7 @@ class PromptTemplateCreatedByFilter:
 
     def to_dict(self) -> dict[str, Any]:
         value: Union[list[str], str]
-        if isinstance(self.value, list):
-            value = self.value
-
-        else:
-            value = self.value
+        value = self.value if isinstance(self.value, list) else self.value
 
         name = self.name
 
@@ -57,9 +53,8 @@ class PromptTemplateCreatedByFilter:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                value_type_1 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return value_type_1
             except:  # noqa: E722
                 pass
             return cast(Union[list[str], str], data)
@@ -72,10 +67,7 @@ class PromptTemplateCreatedByFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: Union[Unset, PromptTemplateCreatedByFilterOperator]
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = PromptTemplateCreatedByFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else PromptTemplateCreatedByFilterOperator(_operator)
 
         prompt_template_created_by_filter = cls(value=value, name=name, operator=operator)
 

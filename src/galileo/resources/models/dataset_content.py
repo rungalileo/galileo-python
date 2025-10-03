@@ -43,10 +43,7 @@ class DatasetContent:
         limit = self.limit
 
         next_starting_token: Union[None, Unset, int]
-        if isinstance(self.next_starting_token, Unset):
-            next_starting_token = UNSET
-        else:
-            next_starting_token = self.next_starting_token
+        next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
         paginated = self.paginated
 
@@ -60,10 +57,7 @@ class DatasetContent:
         starting_token = self.starting_token
 
         warning_message: Union[None, Unset, str]
-        if isinstance(self.warning_message, Unset):
-            warning_message = UNSET
-        else:
-            warning_message = self.warning_message
+        warning_message = UNSET if isinstance(self.warning_message, Unset) else self.warning_message
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

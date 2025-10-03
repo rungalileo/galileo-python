@@ -47,10 +47,7 @@ class RulesetResult:
             action = self.action.to_dict()
 
         description: Union[None, Unset, str]
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         rule_results: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.rule_results, Unset):
@@ -101,16 +98,13 @@ class RulesetResult:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                action_type_0 = OverrideAction.from_dict(data)
+                return OverrideAction.from_dict(data)
 
-                return action_type_0
             except:  # noqa: E722
                 pass
             if not isinstance(data, dict):
                 raise TypeError()
-            action_type_1 = PassthroughAction.from_dict(data)
-
-            return action_type_1
+            return PassthroughAction.from_dict(data)
 
         action = _parse_action(d.pop("action", UNSET))
 
@@ -139,10 +133,7 @@ class RulesetResult:
 
         _status = d.pop("status", UNSET)
         status: Union[Unset, ExecutionStatus]
-        if isinstance(_status, Unset):
-            status = UNSET
-        else:
-            status = ExecutionStatus(_status)
+        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
 
         ruleset_result = cls(
             action=action, description=description, rule_results=rule_results, rules=rules, status=status

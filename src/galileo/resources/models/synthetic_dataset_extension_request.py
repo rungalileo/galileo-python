@@ -60,16 +60,10 @@ class SyntheticDatasetExtensionRequest:
             examples = self.examples
 
         instructions: Union[None, Unset, str]
-        if isinstance(self.instructions, Unset):
-            instructions = UNSET
-        else:
-            instructions = self.instructions
+        instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
 
         prompt: Union[None, Unset, str]
-        if isinstance(self.prompt, Unset):
-            prompt = UNSET
-        else:
-            prompt = self.prompt
+        prompt = UNSET if isinstance(self.prompt, Unset) else self.prompt
 
         prompt_settings: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.prompt_settings, Unset):
@@ -168,9 +162,8 @@ class SyntheticDatasetExtensionRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                source_dataset_type_0 = SyntheticDataSourceDataset.from_dict(data)
+                return SyntheticDataSourceDataset.from_dict(data)
 
-                return source_dataset_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["SyntheticDataSourceDataset", None, Unset], data)

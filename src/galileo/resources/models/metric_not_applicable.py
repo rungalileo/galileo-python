@@ -62,9 +62,8 @@ class MetricNotApplicable:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                scorer_type_type_0 = ScorerType(data)
+                return ScorerType(data)
 
-                return scorer_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, ScorerType, Unset], data)

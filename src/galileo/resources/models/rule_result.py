@@ -37,27 +37,17 @@ class RuleResult:
         operator = self.operator.value
 
         target_value: Union[None, float, int, list[Any], str]
-        if isinstance(self.target_value, list):
-            target_value = self.target_value
-
-        else:
-            target_value = self.target_value
+        target_value = self.target_value if isinstance(self.target_value, list) else self.target_value
 
         execution_time: Union[None, Unset, float]
-        if isinstance(self.execution_time, Unset):
-            execution_time = UNSET
-        else:
-            execution_time = self.execution_time
+        execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
 
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
             status = self.status.value
 
         value: Union[Any, None, Unset]
-        if isinstance(self.value, Unset):
-            value = UNSET
-        else:
-            value = self.value
+        value = UNSET if isinstance(self.value, Unset) else self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -84,9 +74,8 @@ class RuleResult:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                target_value_type_3 = cast(list[Any], data)
+                return cast(list[Any], data)
 
-                return target_value_type_3
             except:  # noqa: E722
                 pass
             return cast(Union[None, float, int, list[Any], str], data)
@@ -104,10 +93,7 @@ class RuleResult:
 
         _status = d.pop("status", UNSET)
         status: Union[Unset, ExecutionStatus]
-        if isinstance(_status, Unset):
-            status = UNSET
-        else:
-            status = ExecutionStatus(_status)
+        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
 
         def _parse_value(data: object) -> Union[Any, None, Unset]:
             if data is None:

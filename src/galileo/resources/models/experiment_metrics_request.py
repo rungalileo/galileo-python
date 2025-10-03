@@ -50,13 +50,10 @@ class ExperimentMetricsRequest:
             filters = []
             for filters_item_data in self.filters:
                 filters_item: dict[str, Any]
-                if isinstance(filters_item_data, LogRecordsIDFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, LogRecordsDateFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, LogRecordsNumberFilter):
-                    filters_item = filters_item_data.to_dict()
-                elif isinstance(filters_item_data, LogRecordsBooleanFilter):
+                if isinstance(
+                    filters_item_data,
+                    (LogRecordsIDFilter, LogRecordsDateFilter, LogRecordsNumberFilter, LogRecordsBooleanFilter),
+                ):
                     filters_item = filters_item_data.to_dict()
                 else:
                     filters_item = filters_item_data.to_dict()
@@ -96,40 +93,34 @@ class ExperimentMetricsRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_0 = LogRecordsIDFilter.from_dict(data)
+                    return LogRecordsIDFilter.from_dict(data)
 
-                    return filters_item_type_0
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_1 = LogRecordsDateFilter.from_dict(data)
+                    return LogRecordsDateFilter.from_dict(data)
 
-                    return filters_item_type_1
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_2 = LogRecordsNumberFilter.from_dict(data)
+                    return LogRecordsNumberFilter.from_dict(data)
 
-                    return filters_item_type_2
                 except:  # noqa: E722
                     pass
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    filters_item_type_3 = LogRecordsBooleanFilter.from_dict(data)
+                    return LogRecordsBooleanFilter.from_dict(data)
 
-                    return filters_item_type_3
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                filters_item_type_4 = LogRecordsTextFilter.from_dict(data)
-
-                return filters_item_type_4
+                return LogRecordsTextFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 

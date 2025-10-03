@@ -23,16 +23,10 @@ class ExperimentPlayground:
 
     def to_dict(self) -> dict[str, Any]:
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         playground_id: Union[None, Unset, str]
-        if isinstance(self.playground_id, Unset):
-            playground_id = UNSET
-        else:
-            playground_id = self.playground_id
+        playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

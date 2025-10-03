@@ -149,9 +149,8 @@ class InvokeResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                headers_type_0 = InvokeResponseHeadersType0.from_dict(data)
+                return InvokeResponseHeadersType0.from_dict(data)
 
-                return headers_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["InvokeResponseHeadersType0", None, Unset], data)
@@ -166,9 +165,8 @@ class InvokeResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metadata_type_0 = InvokeResponseMetadataType0.from_dict(data)
+                return InvokeResponseMetadataType0.from_dict(data)
 
-                return metadata_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["InvokeResponseMetadataType0", None, Unset], data)
@@ -191,10 +189,7 @@ class InvokeResponse:
 
         _status = d.pop("status", UNSET)
         status: Union[Unset, ExecutionStatus]
-        if isinstance(_status, Unset):
-            status = UNSET
-        else:
-            status = ExecutionStatus(_status)
+        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
 
         invoke_response = cls(
             action_result=action_result,

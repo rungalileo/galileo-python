@@ -57,10 +57,7 @@ class ProtectResponse:
 
         _status = d.pop("status", UNSET)
         status: Union[Unset, ExecutionStatus]
-        if isinstance(_status, Unset):
-            status = UNSET
-        else:
-            status = ExecutionStatus(_status)
+        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
 
         protect_response = cls(text=text, trace_metadata=trace_metadata, status=status)
 
