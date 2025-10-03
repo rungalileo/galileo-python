@@ -14,6 +14,8 @@ from ...types import Response
 
 
 def _get_kwargs(job_id: str) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
     _kwargs: dict[str, Any] = {"method": RequestMethod.GET, "return_raw_response": True, "path": f"/jobs/{job_id}"}
 
     headers["X-Galileo-SDK"] = f"galileo-python/{get_package_version()}"

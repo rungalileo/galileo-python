@@ -14,6 +14,8 @@ from ...types import Response
 
 
 def _get_kwargs(template_id: str, version: int) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+
     _kwargs: dict[str, Any] = {
         "method": RequestMethod.PUT,
         "return_raw_response": True,
