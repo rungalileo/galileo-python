@@ -132,8 +132,8 @@ def local_dataset():
 
 
 @pytest.fixture
-def dataset_content_10_rows():
-    """Dataset content with 10 rows for testing dataset_limit functionality."""
+def dataset_content_150_rows():
+    """Dataset content with 15 rows for testing dataset_limit functionality."""
     rows = [
         DatasetRow(
             index=i,
@@ -144,7 +144,7 @@ def dataset_content_10_rows():
             ),
             metadata=None,
         )
-        for i in range(10)
+        for i in range(150)
     ]
     return DatasetContent(rows=rows)
 

@@ -197,7 +197,6 @@ def run_experiment(
     dataset: Optional[Union[Dataset, list[Union[dict[str, Any], str]], str]] = None,
     dataset_id: Optional[str] = None,
     dataset_name: Optional[str] = None,
-    dataset_limit: Optional[int] = None,
     metrics: Optional[list[Union[GalileoScorers, Metric, LocalMetricConfig, str]]] = None,
     function: Optional[Callable] = None,
     experiment_tags: Optional[dict[str, str]] = None,
@@ -222,7 +221,6 @@ def run_experiment(
         dataset: Dataset object, list of records, or dataset name
         dataset_id: ID of the dataset
         dataset_name: Name of the dataset
-        dataset_limit: Rows to fetch from dataset (None for default limit 100)
         metrics: List of metrics to evaluate
         function: Optional function to run with the experiment
         experiment_tags: Optional dictionary of key-value pairs to tag the experiment with
@@ -234,7 +232,7 @@ def run_experiment(
         ValueError: If required parameters are missing or invalid
     """
     # Load dataset and records
-    dataset_obj, records = load_dataset_and_records(dataset, dataset_id, dataset_name, dataset_limit)
+    dataset_obj, records = load_dataset_and_records(dataset, dataset_id, dataset_name)
 
     # Validate experiment configuration
     if prompt_template and not dataset_obj:
