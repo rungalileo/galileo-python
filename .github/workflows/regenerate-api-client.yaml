@@ -42,7 +42,7 @@ jobs:
           echo "${{ secrets.GALILEO_AUTOMATION_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
 
       - name: set up ssh-agent
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.GALILEO_AUTOMATION_SSH_PRIVATE_KEY }}
 
