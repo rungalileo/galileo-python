@@ -226,3 +226,26 @@ def test_export_records_csv(mock_export_records_stream):
     assert result[1] == {"id": "2", "input": "test2", "output": "out2"}
     request_body = mock_export_records_stream.call_args.kwargs["body"]
     assert request_body.export_format == LLMExportFormat.CSV
+
+
+@pytest.mark.parametrize("redact_param", [True, False])
+@patch("galileo.export.export_records_stream")
+def test_export_records_redact(mock_export_records_stream, redact_param):
+    project_id = str(uuid4())
+    mock_response = httpx.Response(200, content=b"")
+    mock_export_records_stream.return_value = mock_response
+
+    list(
+        export_records(
+            project_id=project_id,
+            root_type=RootType.TRACE,
+            filters=[],
+            sort=LogRecordsSortClause(column_id="created_at", ascending=False),
+            log_stream_id=str(uuid4()),
+            redact=redact_param,
+        )
+    )
+
+    mock_export_records_stream.assert_called_once()
+    request_body = mock_export_records_stream.call_args.kwargs["body"]
+    assert request_body.redact == redact_param
