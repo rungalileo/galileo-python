@@ -70,10 +70,7 @@ class ProjectItem:
             created_by_user = self.created_by_user
 
         description: Union[None, Unset, str]
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         labels: Union[Unset, list[str]] = UNSET
         if not isinstance(self.labels, Unset):
@@ -83,16 +80,10 @@ class ProjectItem:
                 labels.append(labels_item)
 
         num_experiments: Union[None, Unset, int]
-        if isinstance(self.num_experiments, Unset):
-            num_experiments = UNSET
-        else:
-            num_experiments = self.num_experiments
+        num_experiments = UNSET if isinstance(self.num_experiments, Unset) else self.num_experiments
 
         num_logstreams: Union[None, Unset, int]
-        if isinstance(self.num_logstreams, Unset):
-            num_logstreams = UNSET
-        else:
-            num_logstreams = self.num_logstreams
+        num_logstreams = UNSET if isinstance(self.num_logstreams, Unset) else self.num_logstreams
 
         permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
@@ -145,9 +136,8 @@ class ProjectItem:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                created_by_user_type_0 = UserInfo.from_dict(data)
+                return UserInfo.from_dict(data)
 
-                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None, Unset], data)

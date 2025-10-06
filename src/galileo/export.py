@@ -30,6 +30,7 @@ class ExportClient:
         log_stream_id: Optional[str] = None,
         experiment_id: Optional[str] = None,
         column_ids: Optional[list[str]] = None,
+        redact: bool = True,
     ) -> Iterator[dict[str, Any]]:
         response = export_records_stream(
             client=self.config.api_client,
@@ -42,6 +43,7 @@ class ExportClient:
                 filters=filters,
                 column_ids=column_ids,
                 sort=sort,
+                redact=redact,
             ),
         )
 
@@ -65,6 +67,7 @@ def export_records(
     log_stream_id: Optional[str] = None,
     experiment_id: Optional[str] = None,
     column_ids: Optional[list[str]] = None,
+    redact: bool = True,
 ) -> Iterator[dict[str, Any]]:
     """Exports records from a Galileo project.
 
@@ -77,6 +80,7 @@ def export_records(
         filters: A list of filters to apply to the export.
         column_ids: A list of column IDs to include in the export.
         sort: A sort clause to order the exported records.
+        redact: Redact sensitive data from the response.
 
     Returns:
         An iterator that yields each record as a dictionary.
@@ -93,4 +97,5 @@ def export_records(
         filters=filters,
         column_ids=column_ids,
         sort=sort,
+        redact=redact,
     )

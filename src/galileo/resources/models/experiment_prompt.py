@@ -27,28 +27,16 @@ class ExperimentPrompt:
 
     def to_dict(self) -> dict[str, Any]:
         content: Union[None, Unset, str]
-        if isinstance(self.content, Unset):
-            content = UNSET
-        else:
-            content = self.content
+        content = UNSET if isinstance(self.content, Unset) else self.content
 
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         prompt_template_id: Union[None, Unset, str]
-        if isinstance(self.prompt_template_id, Unset):
-            prompt_template_id = UNSET
-        else:
-            prompt_template_id = self.prompt_template_id
+        prompt_template_id = UNSET if isinstance(self.prompt_template_id, Unset) else self.prompt_template_id
 
         version_index: Union[None, Unset, int]
-        if isinstance(self.version_index, Unset):
-            version_index = UNSET
-        else:
-            version_index = self.version_index
+        version_index = UNSET if isinstance(self.version_index, Unset) else self.version_index
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

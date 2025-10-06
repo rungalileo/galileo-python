@@ -40,16 +40,10 @@ class SessionCreateResponse:
         project_name = self.project_name
 
         external_id: Union[None, Unset, str]
-        if isinstance(self.external_id, Unset):
-            external_id = UNSET
-        else:
-            external_id = self.external_id
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
 
         previous_session_id: Union[None, Unset, str]
-        if isinstance(self.previous_session_id, Unset):
-            previous_session_id = UNSET
-        else:
-            previous_session_id = self.previous_session_id
+        previous_session_id = UNSET if isinstance(self.previous_session_id, Unset) else self.previous_session_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

@@ -25,6 +25,7 @@ class UpdateScorerRequest:
         model_type (Union[ModelType, None, Unset]):
         name (Union[None, Unset, str]):
         tags (Union[None, Unset, list[str]]):
+        user_prompt (Union[None, Unset, str]):
     """
 
     default_version_id: Union[None, Unset, str] = UNSET
@@ -34,16 +35,14 @@ class UpdateScorerRequest:
     model_type: Union[ModelType, None, Unset] = UNSET
     name: Union[None, Unset, str] = UNSET
     tags: Union[None, Unset, list[str]] = UNSET
+    user_prompt: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.scorer_defaults import ScorerDefaults
 
         default_version_id: Union[None, Unset, str]
-        if isinstance(self.default_version_id, Unset):
-            default_version_id = UNSET
-        else:
-            default_version_id = self.default_version_id
+        default_version_id = UNSET if isinstance(self.default_version_id, Unset) else self.default_version_id
 
         defaults: Union[None, Unset, dict[str, Any]]
         if isinstance(self.defaults, Unset):
@@ -54,16 +53,10 @@ class UpdateScorerRequest:
             defaults = self.defaults
 
         description: Union[None, Unset, str]
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         ground_truth: Union[None, Unset, bool]
-        if isinstance(self.ground_truth, Unset):
-            ground_truth = UNSET
-        else:
-            ground_truth = self.ground_truth
+        ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
 
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
@@ -74,10 +67,7 @@ class UpdateScorerRequest:
             model_type = self.model_type
 
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         tags: Union[None, Unset, list[str]]
         if isinstance(self.tags, Unset):
@@ -87,6 +77,9 @@ class UpdateScorerRequest:
 
         else:
             tags = self.tags
+
+        user_prompt: Union[None, Unset, str]
+        user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -105,6 +98,8 @@ class UpdateScorerRequest:
             field_dict["name"] = name
         if tags is not UNSET:
             field_dict["tags"] = tags
+        if user_prompt is not UNSET:
+            field_dict["user_prompt"] = user_prompt
 
         return field_dict
 
@@ -131,9 +126,8 @@ class UpdateScorerRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                defaults_type_0 = ScorerDefaults.from_dict(data)
+                return ScorerDefaults.from_dict(data)
 
-                return defaults_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ScorerDefaults", None, Unset], data)
@@ -166,9 +160,8 @@ class UpdateScorerRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                model_type_type_0 = ModelType(data)
+                return ModelType(data)
 
-                return model_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[ModelType, None, Unset], data)
@@ -192,14 +185,22 @@ class UpdateScorerRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                tags_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return tags_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[str]], data)
 
         tags = _parse_tags(d.pop("tags", UNSET))
+
+        def _parse_user_prompt(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        user_prompt = _parse_user_prompt(d.pop("user_prompt", UNSET))
 
         update_scorer_request = cls(
             default_version_id=default_version_id,
@@ -209,6 +210,7 @@ class UpdateScorerRequest:
             model_type=model_type,
             name=name,
             tags=tags,
+            user_prompt=user_prompt,
         )
 
         update_scorer_request.additional_properties = d

@@ -56,9 +56,8 @@ class PreviewDatasetRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                column_mapping_type_0 = ColumnMapping.from_dict(data)
+                return ColumnMapping.from_dict(data)
 
-                return column_mapping_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ColumnMapping", None, Unset], data)

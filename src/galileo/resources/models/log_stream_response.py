@@ -45,10 +45,7 @@ class LogStreamResponse:
         updated_at = self.updated_at.isoformat()
 
         created_by: Union[None, Unset, str]
-        if isinstance(self.created_by, Unset):
-            created_by = UNSET
-        else:
-            created_by = self.created_by
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         has_user_created_sessions = self.has_user_created_sessions
 

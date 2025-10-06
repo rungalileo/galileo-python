@@ -98,10 +98,7 @@ class BasePromptTemplateVersionResponse:
         lines_removed = self.lines_removed
 
         output_type: Union[None, Unset, str]
-        if isinstance(self.output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = self.output_type
+        output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
 
         raw = self.raw
 
@@ -151,9 +148,8 @@ class BasePromptTemplateVersionResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                created_by_user_type_0 = UserInfo.from_dict(data)
+                return UserInfo.from_dict(data)
 
-                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None], data)

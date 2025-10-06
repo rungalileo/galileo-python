@@ -67,22 +67,13 @@ class UserDB:
             auth_method = self.auth_method.value
 
         email_is_verified: Union[None, Unset, bool]
-        if isinstance(self.email_is_verified, Unset):
-            email_is_verified = UNSET
-        else:
-            email_is_verified = self.email_is_verified
+        email_is_verified = UNSET if isinstance(self.email_is_verified, Unset) else self.email_is_verified
 
         first_name: Union[None, Unset, str]
-        if isinstance(self.first_name, Unset):
-            first_name = UNSET
-        else:
-            first_name = self.first_name
+        first_name = UNSET if isinstance(self.first_name, Unset) else self.first_name
 
         last_name: Union[None, Unset, str]
-        if isinstance(self.last_name, Unset):
-            last_name = UNSET
-        else:
-            last_name = self.last_name
+        last_name = UNSET if isinstance(self.last_name, Unset) else self.last_name
 
         permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
@@ -141,10 +132,7 @@ class UserDB:
 
         _auth_method = d.pop("auth_method", UNSET)
         auth_method: Union[Unset, AuthMethod]
-        if isinstance(_auth_method, Unset):
-            auth_method = UNSET
-        else:
-            auth_method = AuthMethod(_auth_method)
+        auth_method = UNSET if isinstance(_auth_method, Unset) else AuthMethod(_auth_method)
 
         def _parse_email_is_verified(data: object) -> Union[None, Unset, bool]:
             if data is None:
@@ -182,10 +170,7 @@ class UserDB:
 
         _role = d.pop("role", UNSET)
         role: Union[Unset, UserRole]
-        if isinstance(_role, Unset):
-            role = UNSET
-        else:
-            role = UserRole(_role)
+        role = UNSET if isinstance(_role, Unset) else UserRole(_role)
 
         user_db = cls(
             created_at=created_at,

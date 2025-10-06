@@ -72,16 +72,10 @@ class GeneratedScorerResponse:
         updated_at = self.updated_at.isoformat()
 
         instructions: Union[None, Unset, str]
-        if isinstance(self.instructions, Unset):
-            instructions = UNSET
-        else:
-            instructions = self.instructions
+        instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
 
         user_prompt: Union[None, Unset, str]
-        if isinstance(self.user_prompt, Unset):
-            user_prompt = UNSET
-        else:
-            user_prompt = self.user_prompt
+        user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)

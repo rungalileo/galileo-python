@@ -30,16 +30,10 @@ class ProjectUpdate:
 
     def to_dict(self) -> dict[str, Any]:
         created_by: Union[None, Unset, str]
-        if isinstance(self.created_by, Unset):
-            created_by = UNSET
-        else:
-            created_by = self.created_by
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         description: Union[None, Unset, str]
-        if isinstance(self.description, Unset):
-            description = UNSET
-        else:
-            description = self.description
+        description = UNSET if isinstance(self.description, Unset) else self.description
 
         labels: Union[None, Unset, list[str]]
         if isinstance(self.labels, Unset):
@@ -51,10 +45,7 @@ class ProjectUpdate:
             labels = self.labels
 
         name: Union[None, Unset, str]
-        if isinstance(self.name, Unset):
-            name = UNSET
-        else:
-            name = self.name
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         type_: Union[None, Unset, str]
         if isinstance(self.type_, Unset):
@@ -110,9 +101,8 @@ class ProjectUpdate:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                labels_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return labels_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[str]], data)
@@ -136,9 +126,8 @@ class ProjectUpdate:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                type_type_0 = ProjectType(data)
+                return ProjectType(data)
 
-                return type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, ProjectType, Unset], data)

@@ -50,10 +50,7 @@ class DatasetContentFilter:
 
         _operator = d.pop("operator", UNSET)
         operator: Union[Unset, DatasetContentFilterOperator]
-        if isinstance(_operator, Unset):
-            operator = UNSET
-        else:
-            operator = DatasetContentFilterOperator(_operator)
+        operator = UNSET if isinstance(_operator, Unset) else DatasetContentFilterOperator(_operator)
 
         dataset_content_filter = cls(column_name=column_name, value=value, operator=operator)
 

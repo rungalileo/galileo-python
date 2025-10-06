@@ -44,10 +44,7 @@ class BasePromptTemplateVersion:
             template = self.template
 
         output_type: Union[None, Unset, str]
-        if isinstance(self.output_type, Unset):
-            output_type = UNSET
-        else:
-            output_type = self.output_type
+        output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
 
         raw = self.raw
 
@@ -56,10 +53,7 @@ class BasePromptTemplateVersion:
             settings = self.settings.to_dict()
 
         version: Union[None, Unset, int]
-        if isinstance(self.version, Unset):
-            version = UNSET
-        else:
-            version = self.version
+        version = UNSET if isinstance(self.version, Unset) else self.version
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -113,10 +107,7 @@ class BasePromptTemplateVersion:
 
         _settings = d.pop("settings", UNSET)
         settings: Union[Unset, PromptRunSettings]
-        if isinstance(_settings, Unset):
-            settings = UNSET
-        else:
-            settings = PromptRunSettings.from_dict(_settings)
+        settings = UNSET if isinstance(_settings, Unset) else PromptRunSettings.from_dict(_settings)
 
         def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:

@@ -53,10 +53,7 @@ class CreateLLMScorerVersionRequest:
             chain_poll_template = self.chain_poll_template
 
         cot_enabled: Union[None, Unset, bool]
-        if isinstance(self.cot_enabled, Unset):
-            cot_enabled = UNSET
-        else:
-            cot_enabled = self.cot_enabled
+        cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
 
         input_type: Union[None, Unset, str]
         if isinstance(self.input_type, Unset):
@@ -67,22 +64,13 @@ class CreateLLMScorerVersionRequest:
             input_type = self.input_type
 
         instructions: Union[None, Unset, str]
-        if isinstance(self.instructions, Unset):
-            instructions = UNSET
-        else:
-            instructions = self.instructions
+        instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
 
         model_name: Union[None, Unset, str]
-        if isinstance(self.model_name, Unset):
-            model_name = UNSET
-        else:
-            model_name = self.model_name
+        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
 
         num_judges: Union[None, Unset, int]
-        if isinstance(self.num_judges, Unset):
-            num_judges = UNSET
-        else:
-            num_judges = self.num_judges
+        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
         output_type: Union[None, Unset, str]
         if isinstance(self.output_type, Unset):
@@ -102,10 +90,7 @@ class CreateLLMScorerVersionRequest:
             scoreable_node_types = self.scoreable_node_types
 
         user_prompt: Union[None, Unset, str]
-        if isinstance(self.user_prompt, Unset):
-            user_prompt = UNSET
-        else:
-            user_prompt = self.user_prompt
+        user_prompt = UNSET if isinstance(self.user_prompt, Unset) else self.user_prompt
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -145,9 +130,8 @@ class CreateLLMScorerVersionRequest:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                chain_poll_template_type_0 = ChainPollTemplate.from_dict(data)
+                return ChainPollTemplate.from_dict(data)
 
-                return chain_poll_template_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["ChainPollTemplate", None, Unset], data)
@@ -171,9 +155,8 @@ class CreateLLMScorerVersionRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                input_type_type_0 = InputTypeEnum(data)
+                return InputTypeEnum(data)
 
-                return input_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[InputTypeEnum, None, Unset], data)
@@ -215,9 +198,8 @@ class CreateLLMScorerVersionRequest:
             try:
                 if not isinstance(data, str):
                     raise TypeError()
-                output_type_type_0 = OutputTypeEnum(data)
+                return OutputTypeEnum(data)
 
-                return output_type_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, OutputTypeEnum, Unset], data)
@@ -232,9 +214,8 @@ class CreateLLMScorerVersionRequest:
             try:
                 if not isinstance(data, list):
                     raise TypeError()
-                scoreable_node_types_type_0 = cast(list[str], data)
+                return cast(list[str], data)
 
-                return scoreable_node_types_type_0
             except:  # noqa: E722
                 pass
             return cast(Union[None, Unset, list[str]], data)

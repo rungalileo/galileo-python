@@ -72,10 +72,7 @@ class BasePromptTemplateResponse:
         max_version = self.max_version
 
         name: Union[dict[str, Any], str]
-        if isinstance(self.name, Name):
-            name = self.name.to_dict()
-        else:
-            name = self.name
+        name = self.name.to_dict() if isinstance(self.name, Name) else self.name
 
         selected_version = self.selected_version.to_dict()
 
@@ -143,9 +140,8 @@ class BasePromptTemplateResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                created_by_user_type_0 = UserInfo.from_dict(data)
+                return UserInfo.from_dict(data)
 
-                return created_by_user_type_0
             except:  # noqa: E722
                 pass
             return cast(Union["UserInfo", None], data)
@@ -160,9 +156,8 @@ class BasePromptTemplateResponse:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                name_type_1 = Name.from_dict(data)
+                return Name.from_dict(data)
 
-                return name_type_1
             except:  # noqa: E722
                 pass
             return cast(Union["Name", str], data)
