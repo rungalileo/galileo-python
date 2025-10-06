@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from typing import Any, Optional
 
 from galileo.config import GalileoPythonConfig
+from galileo.log_streams import LogStreams
 from galileo.resources.api.trace.export_records_projects_project_id_export_records_post import (
     stream_detailed as export_records_stream,
 )
@@ -90,6 +91,11 @@ def export_records(
     """
     if filters is None:
         filters = []
+
+    if log_stream_id is None and experiment_id is None:
+        log_stream = LogStreams().get(name="default", project_id=project_id)
+        if log_stream:
+            log_stream_id = log_stream.id
 
     if (log_stream_id is None) == (experiment_id is None):
         raise ValueError("Exactly one of log_stream_id or experiment_id must be provided.")

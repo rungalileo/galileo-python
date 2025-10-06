@@ -6,6 +6,7 @@ import httpx
 import pytest
 
 from galileo.export import export_records
+from galileo.log_streams import LogStream
 from galileo.resources.errors import UnexpectedStatus
 from galileo.resources.models import (
     LLMExportFormat,
@@ -66,6 +67,41 @@ def test_export_records_with_defaults(mock_export_records_stream):
     assert request_body.sort == LogRecordsSortClause(column_id="created_at", ascending=False)
 
 
+@patch("galileo.export.LogStreams.get")
+@patch("galileo.export.export_records_stream")
+def test_export_records_default_log_stream(mock_export_records_stream, mock_log_streams_get):
+    project_id = str(uuid4())
+    default_log_stream_id = str(uuid4())
+    mock_log_stream = LogStream()
+    mock_log_stream.id = default_log_stream_id
+    mock_log_streams_get.return_value = mock_log_stream
+    mock_response = httpx.Response(200, content=b"")
+    mock_export_records_stream.return_value = mock_response
+
+    list(export_records(project_id=project_id))
+
+    mock_log_streams_get.assert_called_once_with(name="default", project_id=project_id)
+    mock_export_records_stream.assert_called_once()
+    request_body = mock_export_records_stream.call_args.kwargs["body"]
+    assert request_body.log_stream_id == default_log_stream_id
+    assert request_body.experiment_id is None
+
+
+@patch("galileo.export.LogStreams.get")
+@patch("galileo.export.export_records_stream")
+def test_export_records_no_default_log_stream(mock_export_records_stream, mock_log_streams_get):
+    project_id = str(uuid4())
+    mock_log_streams_get.return_value = None
+    mock_response = httpx.Response(200, content=b"")
+    mock_export_records_stream.return_value = mock_response
+
+    with pytest.raises(ValueError, match="Exactly one of log_stream_id or experiment_id must be provided."):
+        list(export_records(project_id=project_id))
+
+    mock_log_streams_get.assert_called_once_with(name="default", project_id=project_id)
+    mock_export_records_stream.assert_not_called()
+
+
 @patch("galileo.export.export_records_stream")
 def test_export_records_id_validation(mock_export_records_stream):
     project_id = str(uuid4())
@@ -82,17 +118,6 @@ def test_export_records_id_validation(mock_export_records_stream):
                 root_type=RootType.TRACE,
                 log_stream_id=log_stream_id,
                 experiment_id=experiment_id,
-                filters=[],
-                sort=LogRecordsSortClause(column_id="created_at", ascending=False),
-            )
-        )
-
-    # Test that ValueError is raised when neither log_stream_id nor experiment_id is provided
-    with pytest.raises(ValueError, match="Exactly one of log_stream_id or experiment_id must be provided."):
-        list(
-            export_records(
-                project_id=project_id,
-                root_type=RootType.TRACE,
                 filters=[],
                 sort=LogRecordsSortClause(column_id="created_at", ascending=False),
             )
