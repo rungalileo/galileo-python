@@ -34,9 +34,7 @@ class Metrics:
         self.config = GalileoPythonConfig.get()
 
     def delete_metric(self, name: str) -> None:
-        scorers = Scorers().list()
-        scorers_to_delete = [s for s in scorers if s.name == name]
-
+        scorers_to_delete = Scorers().list(name=name)
         if not scorers_to_delete:
             raise ValueError(f"Scorer with name {name} not found.")
 

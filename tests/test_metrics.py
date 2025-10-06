@@ -229,7 +229,7 @@ class TestMetrics:
         metrics = Metrics()
         metrics.delete_metric(name="test_metric")
 
-        mock_list_scorers.assert_called_once_with()
+        mock_list_scorers.assert_called_once_with(name="test_metric")
         mock_delete_scorer.sync.assert_called_once_with(
             scorer_id=mock_scorer_response.id, client=metrics.config.api_client
         )

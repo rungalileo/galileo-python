@@ -14,6 +14,8 @@ from galileo.resources.models import (
     ListScorersRequest,
     ListScorersResponse,
     ScorerConfig,
+    ScorerNameFilter,
+    ScorerNameFilterOperator,
     ScorerResponse,
     ScorerTypeFilter,
     ScorerTypeFilterOperator,
@@ -31,16 +33,19 @@ class Scorers:
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
 
-    def list(self, types: Optional[list[ScorerTypes]] = None) -> list[ScorerResponse]:
+    def list(self, name: Optional[str] = None, types: Optional[list[ScorerTypes]] = None) -> list[ScorerResponse]:
         """
         Args:
+            name: Name of the scorer to filter by.
             types: List of scorer types to filter by. Defaults to all scorers.
         Returns:
             List of scorers
         """
-        body = ListScorersRequest(
-            filters=[ScorerTypeFilter(value=type_, operator=ScorerTypeFilterOperator.EQ) for type_ in (types or [])]
-        )
+        filters = [ScorerTypeFilter(value=type_, operator=ScorerTypeFilterOperator.EQ) for type_ in (types or [])]
+        if name:
+            filters.append(ScorerNameFilter(value=name, operator=ScorerNameFilterOperator.EQ))
+
+        body = ListScorersRequest(filters=filters)
 
         all_scorers: list[ScorerResponse] = []
         starting_token = 0
