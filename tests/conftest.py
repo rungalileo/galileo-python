@@ -9,6 +9,19 @@
 # 3. Security - prevents real API keys from leaking into test logs
 import os as _os
 
+import pytest
+from openai.types import CompletionUsage
+from openai.types.chat import ChatCompletionMessage
+from openai.types.chat.chat_completion import ChatCompletion, Choice
+from openai.types.responses import (
+    Response,
+    ResponseFunctionToolCall,
+    ResponseOutputMessage,
+    ResponseOutputText,
+    ResponseUsage,
+)
+from openai.types.responses.response_usage import InputTokensDetails, OutputTokensDetails
+
 _os.environ["GALILEO_CONSOLE_URL"] = "http://localtest:8088"
 _os.environ["GALILEO_API_KEY"] = "api-1234567890"
 _os.environ["GALILEO_PROJECT"] = "test-project"
@@ -23,11 +36,6 @@ from collections.abc import Generator  # noqa: E402
 from typing import Callable  # noqa: E402
 from unittest.mock import MagicMock, patch  # noqa: E402
 from uuid import uuid4  # noqa: E402
-
-import pytest  # noqa: E402
-from openai.types import CompletionUsage  # noqa: E402
-from openai.types.chat import ChatCompletionMessage  # noqa: E402
-from openai.types.chat.chat_completion import ChatCompletion, Choice  # noqa: E402
 
 from galileo.config import GalileoPythonConfig  # noqa: E402
 from galileo.resources.models import DatasetContent, DatasetRow, DatasetRowValuesDict  # noqa: E402
@@ -107,6 +115,73 @@ def create_chat_completion() -> ChatCompletion:
         ],
         created=int(datetime.datetime.now().timestamp()),
         usage=CompletionUsage(completion_tokens=13, prompt_tokens=12, total_tokens=25),
+    )
+
+
+@pytest.fixture
+def create_responses_response():
+    """Mock Responses API response for basic text generation."""
+
+    return Response(
+        id="resp_test123",
+        created_at=1758822441.0,
+        model="gpt-4o",
+        object="response",
+        output=[
+            ResponseOutputMessage(
+                id="msg_test123",
+                content=[
+                    ResponseOutputText(text="This is a test response", type="output_text", annotations=[], logprobs=[])
+                ],
+                role="assistant",
+                status="completed",
+                type="message",
+            )
+        ],
+        parallel_tool_calls=True,
+        tool_choice="auto",
+        tools=[],
+        usage=ResponseUsage(
+            input_tokens=10,
+            input_tokens_details=InputTokensDetails(cached_tokens=0),
+            output_tokens=5,
+            output_tokens_details=OutputTokensDetails(reasoning_tokens=0),
+            total_tokens=15,
+        ),
+        status="completed",
+    )
+
+
+@pytest.fixture
+def create_responses_response_with_tools():
+    """Mock Responses API response with tool calls."""
+
+    return Response(
+        id="resp_test456",
+        created_at=1758822441.0,
+        model="gpt-4o",
+        object="response",
+        output=[
+            ResponseFunctionToolCall(
+                id="fc_test456",
+                name="get_weather",
+                arguments='{"location": "San Francisco"}',
+                type="function_call",
+                call_id="call_test456",
+                status="completed",
+            )
+        ],
+        parallel_tool_calls=True,
+        tool_choice="auto",
+        tools=[],
+        usage=ResponseUsage(
+            input_tokens=20,
+            input_tokens_details=InputTokensDetails(cached_tokens=0),
+            output_tokens=10,
+            output_tokens_details=OutputTokensDetails(reasoning_tokens=0),
+            total_tokens=30,
+        ),
+        status="completed",
     )
 
 
