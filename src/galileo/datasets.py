@@ -354,6 +354,9 @@ class Datasets:
         if (id is None) == (name is None):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
+        if project_id is not None and project_name is not None:
+            raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
+
         if id:
             dataset_response = get_dataset_datasets_dataset_id_get.sync(client=self.config.api_client, dataset_id=id)
             if not dataset_response:

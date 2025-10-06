@@ -564,8 +564,6 @@ def test_extend_dataset_api_failure(extend_dataset_mock: Mock) -> None:
 def test_list_datasets_with_project_id(query_datasets_mock: Mock, get_project_mock: Mock) -> None:
     """Test listing datasets filtered by project_id."""
     from galileo.datasets import list_datasets
-    from galileo.projects import Project
-    from galileo.resources.models import ProjectDB
 
     project_id = "test-project-id"
     dataset_db = DatasetDB(
@@ -581,9 +579,10 @@ def test_list_datasets_with_project_id(query_datasets_mock: Mock, get_project_mo
         created_by_user=None,
     )
 
-    # Mock project retrieval
-    project_db = ProjectDB(id=project_id, name="Test Project")
-    get_project_mock.return_value = Project(project=project_db)
+    # Mock project retrieval - return a mock Project with id attribute
+    mock_project = Mock()
+    mock_project.id = project_id
+    get_project_mock.return_value = mock_project
 
     # Mock dataset query response
     query_datasets_mock.sync.return_value = ListDatasetResponse(datasets=[dataset_db])
@@ -607,8 +606,6 @@ def test_list_datasets_with_project_id(query_datasets_mock: Mock, get_project_mo
 def test_list_datasets_with_project_name(query_datasets_mock: Mock, get_project_mock: Mock) -> None:
     """Test listing datasets filtered by project_name."""
     from galileo.datasets import list_datasets
-    from galileo.projects import Project
-    from galileo.resources.models import ProjectDB
 
     project_name = "Test Project"
     project_id = "test-project-id"
@@ -625,9 +622,10 @@ def test_list_datasets_with_project_name(query_datasets_mock: Mock, get_project_
         created_by_user=None,
     )
 
-    # Mock project retrieval by name
-    project_db = ProjectDB(id=project_id, name=project_name)
-    get_project_mock.return_value = Project(project=project_db)
+    # Mock project retrieval by name - return a mock Project with id attribute
+    mock_project = Mock()
+    mock_project.id = project_id
+    get_project_mock.return_value = mock_project
 
     # Mock dataset query response
     query_datasets_mock.sync.return_value = ListDatasetResponse(datasets=[dataset_db])
@@ -671,8 +669,7 @@ def test_list_datasets_with_nonexistent_project_name(get_project_mock: Mock) -> 
 def test_get_dataset_with_project_id(list_projects_mock: Mock, get_dataset_mock: Mock, get_project_mock: Mock) -> None:
     """Test getting a dataset with project_id validation."""
     from galileo.datasets import get_dataset
-    from galileo.projects import Project
-    from galileo.resources.models import ListDatasetProjectsResponse, ProjectDB
+    from galileo.resources.models import ListDatasetProjectsResponse
 
     dataset_id = "dataset-1"
     project_id = "test-project-id"
@@ -692,14 +689,15 @@ def test_get_dataset_with_project_id(list_projects_mock: Mock, get_dataset_mock:
     )
     get_dataset_mock.sync.return_value = dataset_db
 
-    # Mock project retrieval
-    project_db = ProjectDB(id=project_id, name="Test Project")
-    get_project_mock.return_value = Project(project=project_db)
+    # Mock project retrieval - return a mock Project with id attribute
+    mock_project = Mock()
+    mock_project.id = project_id
+    get_project_mock.return_value = mock_project
 
-    # Mock dataset projects list
-    list_projects_mock.return_value = ListDatasetProjectsResponse(
-        projects=[ProjectDB(id=project_id, name="Test Project")]
-    )
+    # Mock dataset projects list - use Mock objects for projects
+    mock_proj = Mock()
+    mock_proj.id = project_id
+    list_projects_mock.return_value = ListDatasetProjectsResponse(projects=[mock_proj])
 
     # Call the function
     result = get_dataset(id=dataset_id, project_id=project_id)
@@ -720,8 +718,7 @@ def test_get_dataset_with_project_name(
 ) -> None:
     """Test getting a dataset with project_name validation."""
     from galileo.datasets import get_dataset
-    from galileo.projects import Project
-    from galileo.resources.models import ListDatasetProjectsResponse, ProjectDB
+    from galileo.resources.models import ListDatasetProjectsResponse
 
     dataset_name = "Test Dataset"
     dataset_id = "dataset-1"
@@ -743,14 +740,15 @@ def test_get_dataset_with_project_name(
     )
     query_datasets_mock.sync.return_value = ListDatasetResponse(datasets=[dataset_db])
 
-    # Mock project retrieval by name
-    project_db = ProjectDB(id=project_id, name=project_name)
-    get_project_mock.return_value = Project(project=project_db)
+    # Mock project retrieval by name - return a mock Project with id attribute
+    mock_project = Mock()
+    mock_project.id = project_id
+    get_project_mock.return_value = mock_project
 
-    # Mock dataset projects list
-    list_projects_mock.return_value = ListDatasetProjectsResponse(
-        projects=[ProjectDB(id=project_id, name=project_name)]
-    )
+    # Mock dataset projects list - use Mock objects for projects
+    mock_proj = Mock()
+    mock_proj.id = project_id
+    list_projects_mock.return_value = ListDatasetProjectsResponse(projects=[mock_proj])
 
     # Call the function
     result = get_dataset(name=dataset_name, project_name=project_name)
@@ -807,8 +805,7 @@ def test_get_dataset_with_nonexistent_project(get_dataset_mock: Mock, get_projec
 def test_get_dataset_not_in_project(list_projects_mock: Mock, get_dataset_mock: Mock, get_project_mock: Mock) -> None:
     """Test getting a dataset that is not used in the specified project."""
     from galileo.datasets import get_dataset
-    from galileo.projects import Project
-    from galileo.resources.models import ListDatasetProjectsResponse, ProjectDB
+    from galileo.resources.models import ListDatasetProjectsResponse
 
     dataset_id = "dataset-1"
     project_id = "test-project-id"
@@ -829,14 +826,15 @@ def test_get_dataset_not_in_project(list_projects_mock: Mock, get_dataset_mock: 
     )
     get_dataset_mock.sync.return_value = dataset_db
 
-    # Mock project retrieval
-    project_db = ProjectDB(id=project_id, name="Test Project")
-    get_project_mock.return_value = Project(project=project_db)
+    # Mock project retrieval - return a mock Project with id attribute
+    mock_project = Mock()
+    mock_project.id = project_id
+    get_project_mock.return_value = mock_project
 
-    # Mock dataset is used in a different project
-    list_projects_mock.return_value = ListDatasetProjectsResponse(
-        projects=[ProjectDB(id=other_project_id, name="Other Project")]
-    )
+    # Mock dataset is used in a different project - use Mock objects
+    other_mock_proj = Mock()
+    other_mock_proj.id = other_project_id
+    list_projects_mock.return_value = ListDatasetProjectsResponse(projects=[other_mock_proj])
 
     with pytest.raises(ValueError, match="Dataset 'dataset-1' is not used in project 'test-project-id'"):
         get_dataset(id=dataset_id, project_id=project_id)
@@ -851,8 +849,7 @@ def test_delete_dataset_with_project_id(
 ) -> None:
     """Test deleting a dataset with project_id validation."""
     from galileo.datasets import delete_dataset
-    from galileo.projects import Project
-    from galileo.resources.models import ListDatasetProjectsResponse, ProjectDB
+    from galileo.resources.models import ListDatasetProjectsResponse
 
     dataset_id = "dataset-1"
     project_id = "test-project-id"
@@ -872,14 +869,15 @@ def test_delete_dataset_with_project_id(
     )
     get_dataset_mock.sync.return_value = dataset_db
 
-    # Mock project retrieval
-    project_db = ProjectDB(id=project_id, name="Test Project")
-    get_project_mock.return_value = Project(project=project_db)
+    # Mock project retrieval - return a mock Project with id attribute
+    mock_project = Mock()
+    mock_project.id = project_id
+    get_project_mock.return_value = mock_project
 
-    # Mock dataset projects list
-    list_projects_mock.return_value = ListDatasetProjectsResponse(
-        projects=[ProjectDB(id=project_id, name="Test Project")]
-    )
+    # Mock dataset projects list - use Mock objects for projects
+    mock_proj = Mock()
+    mock_proj.id = project_id
+    list_projects_mock.return_value = ListDatasetProjectsResponse(projects=[mock_proj])
 
     # Mock deletion
     delete_dataset_mock.sync.return_value = None
@@ -900,8 +898,7 @@ def test_delete_dataset_with_project_name(
 ) -> None:
     """Test deleting a dataset with project_name validation."""
     from galileo.datasets import delete_dataset
-    from galileo.projects import Project
-    from galileo.resources.models import ListDatasetProjectsResponse, ProjectDB
+    from galileo.resources.models import ListDatasetProjectsResponse
 
     dataset_name = "Test Dataset"
     dataset_id = "dataset-1"
@@ -923,14 +920,15 @@ def test_delete_dataset_with_project_name(
     )
     query_datasets_mock.sync.return_value = ListDatasetResponse(datasets=[dataset_db])
 
-    # Mock project retrieval by name
-    project_db = ProjectDB(id=project_id, name=project_name)
-    get_project_mock.return_value = Project(project=project_db)
+    # Mock project retrieval by name - return a mock Project with id attribute
+    mock_project = Mock()
+    mock_project.id = project_id
+    get_project_mock.return_value = mock_project
 
-    # Mock dataset projects list
-    list_projects_mock.return_value = ListDatasetProjectsResponse(
-        projects=[ProjectDB(id=project_id, name=project_name)]
-    )
+    # Mock dataset projects list - use Mock objects for projects
+    mock_proj = Mock()
+    mock_proj.id = project_id
+    list_projects_mock.return_value = ListDatasetProjectsResponse(projects=[mock_proj])
 
     # Mock deletion
     delete_dataset_mock.sync.return_value = None
@@ -958,8 +956,7 @@ def test_delete_dataset_not_in_project(
 ) -> None:
     """Test deleting a dataset that is not used in the specified project."""
     from galileo.datasets import delete_dataset
-    from galileo.projects import Project
-    from galileo.resources.models import ListDatasetProjectsResponse, ProjectDB
+    from galileo.resources.models import ListDatasetProjectsResponse
 
     dataset_id = "dataset-1"
     project_id = "test-project-id"
@@ -980,14 +977,15 @@ def test_delete_dataset_not_in_project(
     )
     get_dataset_mock.sync.return_value = dataset_db
 
-    # Mock project retrieval
-    project_db = ProjectDB(id=project_id, name="Test Project")
-    get_project_mock.return_value = Project(project=project_db)
+    # Mock project retrieval - return a mock Project with id attribute
+    mock_project = Mock()
+    mock_project.id = project_id
+    get_project_mock.return_value = mock_project
 
-    # Mock dataset is used in a different project
-    list_projects_mock.return_value = ListDatasetProjectsResponse(
-        projects=[ProjectDB(id=other_project_id, name="Other Project")]
-    )
+    # Mock dataset is used in a different project - use Mock objects
+    other_mock_proj = Mock()
+    other_mock_proj.id = other_project_id
+    list_projects_mock.return_value = ListDatasetProjectsResponse(projects=[other_mock_proj])
 
     with pytest.raises(ValueError, match="Dataset 'dataset-1' is not used in project 'test-project-id'"):
         delete_dataset(id=dataset_id, project_id=project_id)

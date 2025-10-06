@@ -238,9 +238,9 @@ class TestExperiments:
             )
         ]
         if dataset_id:
-            mock_get_dataset.assert_called_once_with(id=dataset_id, name=None)
+            mock_get_dataset.assert_called_once_with(id=dataset_id, name=None, project_id=None, project_name=None)
         elif dataset_name:
-            mock_get_dataset.assert_called_once_with(id=None, name=dataset_name)
+            mock_get_dataset.assert_called_once_with(id=None, name=dataset_name, project_id=None, project_name=None)
 
     def test_load_dataset_and_records_error(self) -> None:
         with pytest.raises(ValueError) as exc_info:
@@ -395,7 +395,9 @@ class TestExperiments:
         mock_create_experiment.assert_called_once_with(
             project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000", mock_get_dataset.return_value
         )
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(
+            id="00000000-0000-0000-0000-000000000000", name=None, project_id=None, project_name=None
+        )
         mock_get_dataset_instance.get_content.assert_called()
         mock_create_job.assert_called_once_with(
             name="playground_run",
@@ -524,7 +526,9 @@ class TestExperiments:
             "00000000-0000-0000-0000-000000000000", ANY, mock_get_dataset.return_value
         )
 
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-4000-8000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(
+            id="00000000-0000-4000-8000-000000000000", name=None, project_id=None, project_name=None
+        )
         mock_get_dataset_instance.get_content.assert_called()
 
         # check galileo_logger
@@ -604,7 +608,9 @@ class TestExperiments:
         mock_create_experiment.assert_called_once_with(
             project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000", mock_get_dataset.return_value
         )
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(
+            id="00000000-0000-0000-0000-000000000000", name=None, project_id=None, project_name=None
+        )
         mock_get_dataset_instance.get_content.assert_called()
         mock_scorers_class.return_value.list.assert_called_with()
         mock_scorer_settings_class.return_value.create.assert_called_with(
@@ -649,7 +655,9 @@ class TestExperiments:
             project().id, "awesome-new-experiment 2012-01-01 at 00:00:00.000", mock_get_dataset.return_value
         )
 
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(
+            id="00000000-0000-0000-0000-000000000000", name=None, project_id=None, project_name=None
+        )
         mock_get_dataset_instance.get_content.assert_called()
         mock_create_job.assert_called_once_with(
             name="playground_run",
@@ -710,7 +718,9 @@ class TestExperiments:
             "00000000-0000-0000-0000-000000000000", ANY, mock_get_dataset.return_value
         )
 
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000000", name=None)
+        mock_get_dataset.assert_called_once_with(
+            id="00000000-0000-0000-0000-000000000000", name=None, project_id=None, project_name=None
+        )
         mock_get_dataset_instance.get_content.assert_called()
 
         # check galileo_logger
@@ -739,7 +749,9 @@ class TestExperiments:
             )
         assert str(exc_info.value) == "A function or prompt_template should be provided, but not both"
 
-        mock_get_dataset.assert_called_once_with(id="00000000-0000-0000-0000-000000000001", name=None)
+        mock_get_dataset.assert_called_once_with(
+            id="00000000-0000-0000-0000-000000000001", name=None, project_id=None, project_name=None
+        )
         mock_get_dataset_instance.get_content.assert_called()
 
     @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
