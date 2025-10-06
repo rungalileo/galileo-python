@@ -61,7 +61,7 @@ def test_export_records_with_defaults(mock_export_records_stream):
     mock_export_records_stream.assert_called_once()
     request_body = mock_export_records_stream.call_args.kwargs["body"]
     assert request_body.log_stream_id == log_stream_id
-    assert request_body.root_type == RootType.SESSION
+    assert request_body.root_type == RootType.TRACE
     assert request_body.filters == []
     assert request_body.sort == LogRecordsSortClause(column_id="created_at", ascending=False)
 
