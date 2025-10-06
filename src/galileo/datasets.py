@@ -4,6 +4,7 @@ import time
 from typing import Any, Optional, Union, overload
 
 from galileo.config import GalileoPythonConfig
+from galileo.projects import Projects
 from galileo.resources.api.datasets import (
     create_dataset_datasets_post,
     delete_dataset_datasets_dataset_id_delete,
@@ -26,6 +27,7 @@ from galileo.resources.models.dataset_db import DatasetDB
 from galileo.resources.models.dataset_name_filter import DatasetNameFilter
 from galileo.resources.models.dataset_name_filter_operator import DatasetNameFilterOperator
 from galileo.resources.models.dataset_updated_at_sort import DatasetUpdatedAtSort
+from galileo.resources.models.dataset_used_in_project_filter import DatasetUsedInProjectFilter
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.job_progress import JobProgress
 from galileo.resources.models.list_dataset_params import ListDatasetParams
@@ -156,20 +158,102 @@ class Dataset(DecorateAllMethods):
         return getattr(self.dataset, attr)
 
 
+def _resolve_project_id(project_id: Optional[str], project_name: Optional[str]) -> str:
+    """
+    Resolve project identifier to project ID and validate project exists.
+
+    Parameters
+    ----------
+    project_id : str, optional
+        The project ID.
+    project_name : str, optional
+        The project name.
+
+    Returns
+    -------
+    str
+        The resolved project ID.
+
+    Raises
+    ------
+    ValueError
+        If both project_id and project_name are provided, or if the project doesn't exist.
+    """
+    if project_id is not None and project_name is not None:
+        raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
+
+    if project_name is not None:
+        project = Projects().get(name=project_name)
+        if not project:
+            raise ValueError(f"Project '{project_name}' does not exist")
+        return project.id
+    if project_id is not None:
+        project = Projects().get(id=project_id)
+        if not project:
+            raise ValueError(f"Project '{project_id}' does not exist")
+        return project_id
+    raise ValueError("Either project_id or project_name must be provided")
+
+
+def _validate_dataset_in_project(
+    dataset_id: str, dataset_identifier: str, project_id: str, project_identifier: str, config: GalileoPythonConfig
+) -> None:
+    """
+    Validate that a dataset is used in a specific project.
+
+    Parameters
+    ----------
+    dataset_id : str
+        The dataset ID.
+    dataset_identifier : str
+        The dataset name or ID for error messages.
+    project_id : str
+        The project ID to validate against.
+    project_identifier : str
+        The project name or ID for error messages.
+    config : GalileoPythonConfig
+        The Galileo configuration.
+
+    Raises
+    ------
+    ValueError
+        If the dataset is not used in the specified project.
+    """
+    from galileo.resources.api.datasets import list_dataset_projects_datasets_dataset_id_projects_get
+
+    projects_response = list_dataset_projects_datasets_dataset_id_projects_get.sync(
+        dataset_id=dataset_id, client=config.api_client
+    )
+
+    if not projects_response or not hasattr(projects_response, "projects"):
+        raise ValueError(f"Dataset '{dataset_identifier}' is not used in project '{project_identifier}'")
+
+    # Check if our project is in the list
+    project_ids = [p.id for p in projects_response.projects]
+    if project_id not in project_ids:
+        raise ValueError(f"Dataset '{dataset_identifier}' is not used in project '{project_identifier}'")
+
+
 class Datasets:
     config: GalileoPythonConfig
 
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
 
-    def list(self, limit: Union[Unset, int] = 100) -> list[Dataset]:
+    def list(
+        self, limit: Union[Unset, int] = 100, *, project_id: Optional[str] = None, project_name: Optional[str] = None
+    ) -> list[Dataset]:
         """
-        Lists all datasets.
+        Lists all datasets, optionally filtered by project.
 
         Parameters
         ----------
         limit : Union[Unset, int]
             The maximum number of datasets to return. Default is 100.
+        project_id : str, optional
+            Filter datasets used in this project by ID. Mutually exclusive with project_name.
+        project_name : str, optional
+            Filter datasets used in this project by name. Mutually exclusive with project_id.
 
         Returns
         -------
@@ -178,25 +262,64 @@ class Datasets:
 
         Raises
         ------
+        ValueError
+            If both project_id and project_name are provided, or if the specified project
+            does not exist.
         errors.UnexpectedStatus
             If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
 
         """
-        datasets: ListDatasetResponse = list_datasets_datasets_get.sync(client=self.config.api_client, limit=limit)
-        return [Dataset(dataset_db=dataset) for dataset in datasets.datasets] if datasets else []
+        # If no project filter, use simple list endpoint
+        if project_id is None and project_name is None:
+            datasets: ListDatasetResponse = list_datasets_datasets_get.sync(client=self.config.api_client, limit=limit)
+            return [Dataset(dataset_db=dataset) for dataset in datasets.datasets] if datasets else []
+
+        # Resolve project identifier to ID
+        resolved_project_id = _resolve_project_id(project_id, project_name)
+
+        # Use query endpoint with project filter
+        project_filter = DatasetUsedInProjectFilter(value=resolved_project_id)
+        params = ListDatasetParams(filters=[project_filter])
+
+        datasets_response: ListDatasetResponse = query_datasets_datasets_query_post.sync(
+            client=self.config.api_client, body=params, limit=limit
+        )
+
+        return [Dataset(dataset_db=dataset) for dataset in datasets_response.datasets] if datasets_response else []
 
     @overload
     def get(self, *, id: str, with_content: bool = False) -> Optional[Dataset]: ...
+
     @overload
+    def get(self, *, id: str, with_content: bool = False, project_id: str) -> Optional[Dataset]: ...
+
+    @overload
+    def get(self, *, id: str, with_content: bool = False, project_name: str) -> Optional[Dataset]: ...
+
     @overload
     def get(self, *, name: str, with_content: bool = False) -> Optional[Dataset]: ...
+
+    @overload
+    def get(self, *, name: str, with_content: bool = False, project_id: str) -> Optional[Dataset]: ...
+
+    @overload
+    def get(self, *, name: str, with_content: bool = False, project_name: str) -> Optional[Dataset]: ...
+
     def get(
-        self, *, id: Optional[str] = None, name: Optional[str] = None, with_content: bool = False
+        self,
+        *,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+        with_content: bool = False,
+        project_id: Optional[str] = None,
+        project_name: Optional[str] = None,
     ) -> Optional[Dataset]:
         """
         Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
+
+        Optionally validates that the dataset is used in a specific project.
 
         Parameters
         ----------
@@ -206,6 +329,10 @@ class Datasets:
             The name of the dataset.
         with_content : bool
             Whether to return the content of the dataset. Default is False.
+        project_id : str, optional
+            Validate that the dataset is used in this project by ID. Mutually exclusive with project_name.
+        project_name : str, optional
+            Validate that the dataset is used in this project by name. Mutually exclusive with project_id.
 
         Returns
         -------
@@ -215,7 +342,9 @@ class Datasets:
         Raises
         ------
         ValueError
-            If neither or both `id` and `name` are provided.
+            If neither or both `id` and `name` are provided, if both project_id and project_name
+            are provided, or if the specified project does not exist, or if the dataset is not
+            used in the specified project.
         errors.UnexpectedStatus
             If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException
@@ -243,17 +372,51 @@ class Datasets:
 
             dataset = Dataset(dataset_db=datasets_response.datasets[0])
 
+        # Validate project association if project parameters provided
+        if project_id is not None or project_name is not None:
+            resolved_project_id = _resolve_project_id(project_id, project_name)
+            _validate_dataset_in_project(
+                dataset_id=dataset.id,
+                dataset_identifier=name or id,  # type: ignore[arg-type]
+                project_id=resolved_project_id,
+                project_identifier=project_name or project_id,  # type: ignore[arg-type]
+                config=self.config,
+            )
+
         if with_content:
             dataset.get_content()
         return dataset
 
     @overload
     def delete(self, *, id: str) -> None: ...
+
+    @overload
+    def delete(self, *, id: str, project_id: str) -> None: ...
+
+    @overload
+    def delete(self, *, id: str, project_name: str) -> None: ...
+
     @overload
     def delete(self, *, name: str) -> None: ...
-    def delete(self, *, id: Optional[str] = None, name: Optional[str] = None) -> None:
+
+    @overload
+    def delete(self, *, name: str, project_id: str) -> None: ...
+
+    @overload
+    def delete(self, *, name: str, project_name: str) -> None: ...
+
+    def delete(
+        self,
+        *,
+        id: Optional[str] = None,
+        name: Optional[str] = None,
+        project_id: Optional[str] = None,
+        project_name: Optional[str] = None,
+    ) -> None:
         """
         Deletes a dataset by id or name.
+
+        Optionally validates that the dataset is used in a specific project before deletion.
 
         Parameters
         ----------
@@ -261,22 +424,32 @@ class Datasets:
             The id of the dataset.
         name : str
             The name of the dataset.
+        project_id : str, optional
+            Validate that the dataset is used in this project by ID before deletion.
+            Mutually exclusive with project_name.
+        project_name : str, optional
+            Validate that the dataset is used in this project by name before deletion.
+            Mutually exclusive with project_id.
 
         Raises
         ------
+        ValueError
+            If neither or both `id` and `name` are provided, if both project_id and project_name
+            are provided, or if the specified project does not exist, or if the dataset is not
+            used in the specified project.
         errors.UnexpectedStatus
             If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
 
         """
-        if (id is None) == (name is None):
-            raise ValueError("Exactly one of 'id' or 'name' must be provided")
-
-        dataset = self.get(id=id, name=name)  # type: ignore[call-overload]
+        # Get dataset and validate project association if provided
+        # The get() method handles all validation including project checks
+        dataset = self.get(id=id, name=name, project_id=project_id, project_name=project_name)  # type: ignore[call-overload]
 
         if not dataset:
-            raise ValueError(f"Dataset {name} not found")
+            raise ValueError(f"Dataset {name or id} not found")
+
         return delete_dataset_datasets_dataset_id_delete.sync(client=self.config.api_client, dataset_id=dataset.id)
 
     def create(self, name: str, content: DatasetType) -> Dataset:
@@ -459,9 +632,41 @@ class Datasets:
 #
 
 
-def get_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> Optional[Dataset]:
+@overload
+def get_dataset(*, id: str) -> Optional[Dataset]: ...
+
+
+@overload
+def get_dataset(*, id: str, project_id: str) -> Optional[Dataset]: ...
+
+
+@overload
+def get_dataset(*, id: str, project_name: str) -> Optional[Dataset]: ...
+
+
+@overload
+def get_dataset(*, name: str) -> Optional[Dataset]: ...
+
+
+@overload
+def get_dataset(*, name: str, project_id: str) -> Optional[Dataset]: ...
+
+
+@overload
+def get_dataset(*, name: str, project_name: str) -> Optional[Dataset]: ...
+
+
+def get_dataset(
+    *,
+    id: Optional[str] = None,
+    name: Optional[str] = None,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> Optional[Dataset]:
     """
     Retrieves a dataset by id or name (exactly one of `id` or `name` must be provided).
+
+    Optionally validates that the dataset is used in a specific project.
 
     Parameters
     ----------
@@ -469,8 +674,10 @@ def get_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> Opti
         The id of the dataset.
     name : str
         The name of the dataset.
-    with_content : bool
-        Whether to return the content of the dataset. Default is False.
+    project_id : str, optional
+        Validate that the dataset is used in this project by ID. Mutually exclusive with project_name.
+    project_name : str, optional
+        Validate that the dataset is used in this project by name. Mutually exclusive with project_id.
 
     Returns
     -------
@@ -479,23 +686,41 @@ def get_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> Opti
 
     Raises
     ------
+    ValueError
+        If neither or both `id` and `name` are provided, if both project_id and project_name
+        are provided, or if the specified project does not exist, or if the dataset is not
+        used in the specified project.
     errors.UnexpectedStatus
         If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
     httpx.TimeoutException
         If the request takes longer than Client.timeout.
 
+    Examples
+    --------
+    >>> # Get dataset by name
+    >>> dataset = get_dataset(name="my-dataset")
+
+    >>> # Get dataset and validate it's used in a project
+    >>> dataset = get_dataset(name="my-dataset", project_name="My Project")
+
     """
-    return Datasets().get(id=id, name=name)  # type: ignore[call-overload]
+    return Datasets().get(id=id, name=name, project_id=project_id, project_name=project_name)  # type: ignore[call-overload]
 
 
-def list_datasets(limit: Union[Unset, int] = 100) -> list[Dataset]:
+def list_datasets(
+    limit: Union[Unset, int] = 100, *, project_id: Optional[str] = None, project_name: Optional[str] = None
+) -> list[Dataset]:
     """
-    Lists all datasets.
+    Lists all datasets, optionally filtered by project.
 
     Parameters
     ----------
     limit : Union[Unset, int]
         The maximum number of datasets to return. Default is 100.
+    project_id : str, optional
+        Filter datasets used in this project by ID. Mutually exclusive with project_name.
+    project_name : str, optional
+        Filter datasets used in this project by name. Mutually exclusive with project_id.
 
     Returns
     -------
@@ -503,19 +728,54 @@ def list_datasets(limit: Union[Unset, int] = 100) -> list[Dataset]:
         A list of datasets.
 
     Raises
-        ------
-        errors.UnexpectedStatus
-            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException
-            If the request takes longer than Client.timeout.
+    ------
+    ValueError
+        If both project_id and project_name are provided, or if the specified project
+        does not exist.
+    errors.UnexpectedStatus
+        If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+    httpx.TimeoutException
+        If the request takes longer than Client.timeout.
 
     """
-    return Datasets().list(limit=limit)
+    return Datasets().list(limit=limit, project_id=project_id, project_name=project_name)
 
 
-def delete_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> None:
+@overload
+def delete_dataset(*, id: str) -> None: ...
+
+
+@overload
+def delete_dataset(*, id: str, project_id: str) -> None: ...
+
+
+@overload
+def delete_dataset(*, id: str, project_name: str) -> None: ...
+
+
+@overload
+def delete_dataset(*, name: str) -> None: ...
+
+
+@overload
+def delete_dataset(*, name: str, project_id: str) -> None: ...
+
+
+@overload
+def delete_dataset(*, name: str, project_name: str) -> None: ...
+
+
+def delete_dataset(
+    *,
+    id: Optional[str] = None,
+    name: Optional[str] = None,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> None:
     """
     Deletes a dataset by id or name (exactly one of `id` or `name` must be provided).
+
+    Optionally validates that the dataset is used in a specific project before deletion.
 
     Parameters
     ----------
@@ -523,16 +783,34 @@ def delete_dataset(*, id: Optional[str] = None, name: Optional[str] = None) -> N
         The id of the dataset.
     name : str
         The name of the dataset.
+    project_id : str, optional
+        Validate that the dataset is used in this project by ID before deletion.
+        Mutually exclusive with project_name.
+    project_name : str, optional
+        Validate that the dataset is used in this project by name before deletion.
+        Mutually exclusive with project_id.
 
     Raises
     ------
+    ValueError
+        If neither or both `id` and `name` are provided, if both project_id and project_name
+        are provided, or if the specified project does not exist, or if the dataset is not
+        used in the specified project.
     errors.UnexpectedStatus
         If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
     httpx.TimeoutException
         If the request takes longer than Client.timeout.
 
+    Examples
+    --------
+    >>> # Delete dataset by name
+    >>> delete_dataset(name="my-dataset")
+
+    >>> # Delete dataset with project validation
+    >>> delete_dataset(name="my-dataset", project_name="My Project")
+
     """
-    return Datasets().delete(id=id, name=name)  # type: ignore[call-overload]
+    return Datasets().delete(id=id, name=name, project_id=project_id, project_name=project_name)  # type: ignore[call-overload]
 
 
 def create_dataset(name: str, content: DatasetType) -> Dataset:
