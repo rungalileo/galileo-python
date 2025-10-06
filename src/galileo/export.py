@@ -34,6 +34,7 @@ class ExportClient:
     ) -> Iterator[dict[str, Any]]:
         if filters is None:
             filters = []
+
         response = export_records_stream(
             client=self.config.api_client,
             project_id=project_id,
@@ -89,6 +90,7 @@ def export_records(
     """
     if filters is None:
         filters = []
+
     if (log_stream_id is None) == (experiment_id is None):
         raise ValueError("Exactly one of log_stream_id or experiment_id must be provided.")
 
