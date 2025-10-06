@@ -23,15 +23,17 @@ class ExportClient:
     def records(
         self,
         project_id: str,
-        root_type: RootType,
-        filters: list[FilterType],
-        sort: LogRecordsSortClause,
+        root_type: RootType = RootType.SESSION,
+        filters: Optional[list[FilterType]] = None,
+        sort: LogRecordsSortClause = LogRecordsSortClause(column_id="created_at", ascending=False),
         export_format: LLMExportFormat = LLMExportFormat.JSONL,
         log_stream_id: Optional[str] = None,
         experiment_id: Optional[str] = None,
         column_ids: Optional[list[str]] = None,
         redact: bool = True,
     ) -> Iterator[dict[str, Any]]:
+        if filters is None:
+            filters = []
         response = export_records_stream(
             client=self.config.api_client,
             project_id=project_id,
@@ -60,9 +62,9 @@ class ExportClient:
 
 def export_records(
     project_id: str,
-    root_type: RootType,
-    filters: list[FilterType],
-    sort: LogRecordsSortClause,
+    root_type: RootType = RootType.SESSION,
+    filters: Optional[list[FilterType]] = None,
+    sort: LogRecordsSortClause = LogRecordsSortClause(column_id="created_at", ascending=False),
     export_format: LLMExportFormat = LLMExportFormat.JSONL,
     log_stream_id: Optional[str] = None,
     experiment_id: Optional[str] = None,
@@ -85,6 +87,8 @@ def export_records(
     Returns:
         An iterator that yields each record as a dictionary.
     """
+    if filters is None:
+        filters = []
     if (log_stream_id is None) == (experiment_id is None):
         raise ValueError("Exactly one of log_stream_id or experiment_id must be provided.")
 

@@ -35,7 +35,6 @@ def test_export_records_basic(mock_export_records_stream):
             root_type=RootType.TRACE,
             column_ids=column_ids,
             sort=sort,
-            filters=[],
             log_stream_id=str(uuid4()),
         )
     )
@@ -51,25 +50,20 @@ def test_export_records_basic(mock_export_records_stream):
 
 
 @patch("galileo.export.export_records_stream")
-def test_export_records_with_log_stream_id(mock_export_records_stream):
+def test_export_records_with_defaults(mock_export_records_stream):
     project_id = str(uuid4())
     log_stream_id = str(uuid4())
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
-    list(
-        export_records(
-            project_id=project_id,
-            root_type=RootType.TRACE,
-            log_stream_id=log_stream_id,
-            filters=[],
-            sort=LogRecordsSortClause(column_id="created_at", ascending=False),
-        )
-    )
+    list(export_records(project_id=project_id, log_stream_id=log_stream_id))
 
     mock_export_records_stream.assert_called_once()
     request_body = mock_export_records_stream.call_args.kwargs["body"]
     assert request_body.log_stream_id == log_stream_id
+    assert request_body.root_type == RootType.SESSION
+    assert request_body.filters == []
+    assert request_body.sort == LogRecordsSortClause(column_id="created_at", ascending=False)
 
 
 @patch("galileo.export.export_records_stream")
