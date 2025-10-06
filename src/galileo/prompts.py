@@ -5,7 +5,8 @@ from typing import Optional, Union, overload
 
 from galileo import Message
 from galileo.config import GalileoPythonConfig
-from galileo.projects import Projects
+from galileo.projects import Project, Projects
+from galileo.resources.api.projects import get_projects_paginated_projects_paginated_post
 from galileo.resources.api.prompts import (
     create_global_prompt_template_templates_post,
     create_prompt_template_with_version_projects_project_id_templates_post,
@@ -26,6 +27,10 @@ from galileo.resources.models import (
     DatasetData,
     HTTPValidationError,
     ListPromptTemplateParams,
+    ProjectCollectionParams,
+    ProjectType,
+    ProjectTypeFilter,
+    ProjectTypeFilterOperator,
     PromptTemplateNameFilter,
     PromptTemplateNameFilterOperator,
     RenderTemplateRequest,
@@ -685,6 +690,133 @@ def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_n
     raise ValueError("Invalid state: neither id nor name is provided")
 
 
+def _get_all_projects_paginated() -> list[Project]:
+    """
+    Get all projects using the paginated API.
+
+    This replaces the deprecated get_all_projects_projects_all_get API.
+    Fetches all projects across all pages.
+
+    Returns
+    -------
+    list[Project]
+        List of all projects.
+    """
+    config = GalileoPythonConfig.get()
+    projects_list: list[Project] = []
+
+    # Create filter for GEN_AI project type
+    project_type_filter = ProjectTypeFilter(
+        name="type", operator=ProjectTypeFilterOperator.EQ, value=ProjectType.GEN_AI
+    )
+    body = ProjectCollectionParams(filters=[project_type_filter])
+
+    starting_token = 0
+    limit = 100  # Fetch 100 at a time
+
+    while True:
+        try:
+            response = get_projects_paginated_projects_paginated_post.sync(
+                client=config.api_client, body=body, starting_token=starting_token, limit=limit
+            )
+
+            if not response or isinstance(response, HTTPValidationError):
+                break
+
+            # Add all projects from this page
+            for project_data in response.projects:
+                projects_list.append(Project(project=project_data))
+
+            # Check if there are more pages
+            if response.next_starting_token is None or isinstance(response.next_starting_token, Unset):
+                break
+
+            starting_token = response.next_starting_token
+
+        except Exception as e:
+            _logger.warning(f"Error fetching projects page: {e}")
+            break
+
+    _logger.debug(f"Fetched {len(projects_list)} projects using paginated API")
+    return projects_list
+
+
+def _check_name_exists_in_organization(name: str) -> bool:
+    """
+    Check if a prompt template name exists anywhere in the organization.
+
+    Checks both global templates and all project templates across all projects.
+
+    Parameters
+    ----------
+    name : str
+        The template name to check.
+
+    Returns
+    -------
+    bool
+        True if the name exists anywhere, False otherwise.
+    """
+    # Check global templates
+    global_templates = GlobalPromptTemplates().list(name_filter=name, limit=1000)
+    for template in global_templates:
+        if template.name == name:
+            return True
+
+    # Check all projects using paginated API
+    projects = _get_all_projects_paginated()
+
+    _logger.debug(f"Checking {len(projects)} projects for duplicate template name '{name}'")
+
+    for project in projects:
+        try:
+            # Use the direct API call to avoid double project lookup
+            config = GalileoPythonConfig.get()
+            templates_response = get_project_templates_projects_project_id_templates_get.sync(
+                project_id=project.id, client=config.api_client
+            )
+
+            if templates_response and not isinstance(templates_response, HTTPValidationError):
+                for template_data in templates_response:
+                    if template_data.name == name:
+                        return True
+        except Exception as e:
+            # Skip projects we can't access
+            _logger.debug(f"Unable to check templates in project {project.id}: {e}")
+            continue
+
+    return False
+
+
+def _generate_unique_name(base_name: str) -> str:
+    """
+    Generate a unique template name by appending (N) if the base name exists.
+
+    Parameters
+    ----------
+    base_name : str
+        The desired template name.
+
+    Returns
+    -------
+    str
+        A unique name, potentially with (N) appended.
+    """
+    if not _check_name_exists_in_organization(base_name):
+        return base_name
+
+    counter = 1
+    while True:
+        candidate_name = f"{base_name} ({counter})"
+        if not _check_name_exists_in_organization(candidate_name):
+            _logger.info(f"Name '{base_name}' already exists. Using '{candidate_name}' instead.")
+            return candidate_name
+        counter += 1
+        # Safety limit to prevent infinite loops
+        if counter > 1000:
+            raise ValueError(f"Unable to generate unique name for '{base_name}' after 1000 attempts")
+
+
 @overload
 def create_prompt(name: str, template: Union[list[Message], str], *, project_id: str) -> PromptTemplate: ...
 
@@ -763,6 +895,9 @@ def create_prompt(
     if project_id is not None and project_name is not None:
         raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
 
+    # Generate a unique name to ensure organization-wide uniqueness
+    unique_name = _generate_unique_name(name)
+
     # If a project is specified, create a project-specific template
     if project_id is not None or project_name is not None:
         # Get the project to validate it exists and get its ID
@@ -771,8 +906,8 @@ def create_prompt(
             identifier = project_id if project_id else project_name
             raise ValueError(f"Project '{identifier}' does not exist")
 
-        # Create the request body
-        body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
+        # Create the request body with the unique name
+        body = CreatePromptTemplateWithVersionRequestBody(name=unique_name, template=template)
 
         # Make API call directly with the project ID
         config = GalileoPythonConfig.get()
@@ -790,8 +925,8 @@ def create_prompt(
 
         return PromptTemplate(prompt_template=response.parsed)
 
-    # Otherwise, create a global template
-    return GlobalPromptTemplates().create(name=name, template=template)
+    # Otherwise, create a global template with the unique name
+    return GlobalPromptTemplates().create(name=unique_name, template=template)
 
 
 def get_prompts(

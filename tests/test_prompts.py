@@ -22,6 +22,7 @@ from galileo.resources.models import (
     BasePromptTemplateVersionResponse,
     CreatePromptTemplateWithVersionRequestBody,
     DatasetData,
+    GetProjectsPaginatedResponse,
     HTTPValidationError,
     ListPromptTemplateParams,
     ListPromptTemplateResponse,
@@ -475,8 +476,20 @@ def test_get_prompt_template_not_found(list_prompt_templates_mock: Mock, get_pro
     get_projects_projects_get_mock.sync_detailed.assert_called_once()
 
 
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.prompts.get_projects_paginated_projects_paginated_post")
 @patch("galileo.prompts.create_global_prompt_template_templates_post")
-def test_create_global_prompt_template(create_global_prompt_template_mock: Mock) -> None:
+def test_create_global_prompt_template(
+    create_global_prompt_template_mock: Mock, get_projects_paginated_mock: Mock, query_templates_mock: Mock
+) -> None:
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
+    # Mock empty paginated response (no projects)
+    get_projects_paginated_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
     create_global_prompt_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=global_prompt_template()
     )
@@ -498,9 +511,20 @@ def test_create_global_prompt_template(create_global_prompt_template_mock: Mock)
     )
 
 
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.prompts.get_projects_paginated_projects_paginated_post")
 @patch("galileo.prompts.create_global_prompt_template_templates_post")
-def test_create_global_prompt_template_error_scenarios(create_global_prompt_template_mock: Mock) -> None:
+def test_create_global_prompt_template_error_scenarios(
+    create_global_prompt_template_mock: Mock, get_projects_paginated_mock: Mock, query_templates_mock: Mock
+) -> None:
     """Test create_global_prompt_template with realistic error scenarios."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
+    # Mock empty paginated response (no projects)
+    get_projects_paginated_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
 
     # Test 422 Unprocessable Entity for missing fields, invalid data types, etc.
     create_global_prompt_template_mock.sync_detailed.return_value = Response(
@@ -1007,12 +1031,25 @@ def test_render_template_none_response(render_template_mock: Mock) -> None:
     render_template_mock.sync_detailed.assert_called_once()
 
 
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.prompts.get_projects_paginated_projects_paginated_post")
 @patch("galileo.projects.get_projects_projects_get")
 @patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
 def test_create_prompt_with_project_name(
-    create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock
+    create_prompt_template_mock: Mock,
+    get_projects_projects_get_mock: Mock,
+    get_projects_paginated_mock: Mock,
+    query_templates_mock: Mock,
 ) -> None:
     """Test create_prompt with project_name parameter."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
+    # Mock empty paginated response (no projects)
+    get_projects_paginated_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
     create_prompt_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
     )
@@ -1030,12 +1067,23 @@ def test_create_prompt_with_project_name(
     get_projects_projects_get_mock.sync_detailed.assert_called_once()
 
 
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
 @patch("galileo.projects.get_project_projects_project_id_get")
 @patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
 def test_create_prompt_with_project_id(
-    create_prompt_template_mock: Mock, get_project_projects_project_id_get_mock: Mock
+    create_prompt_template_mock: Mock,
+    get_project_projects_project_id_get_mock: Mock,
+    get_all_projects_mock: Mock,
+    query_templates_mock: Mock,
 ) -> None:
     """Test create_prompt with project_id parameter."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
     create_prompt_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
     )
@@ -1058,9 +1106,19 @@ def test_create_prompt_with_project_id(
     get_project_projects_project_id_get_mock.sync_detailed.assert_called_once()
 
 
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
 @patch("galileo.projects.get_projects_projects_get")
-def test_create_prompt_with_nonexistent_project_name(get_projects_projects_get_mock: Mock) -> None:
+def test_create_prompt_with_nonexistent_project_name(
+    get_projects_projects_get_mock: Mock, get_all_projects_mock: Mock, query_templates_mock: Mock
+) -> None:
     """Test create_prompt with nonexistent project_name."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
     get_projects_projects_get_mock.sync_detailed.return_value = Response(
         content=b"[]", status_code=HTTPStatus.OK, headers={"Content-Type": "application/json"}, parsed=[]
     )
@@ -1076,9 +1134,19 @@ def test_create_prompt_with_nonexistent_project_name(get_projects_projects_get_m
     get_projects_projects_get_mock.sync_detailed.assert_called_once()
 
 
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
 @patch("galileo.projects.get_project_projects_project_id_get")
-def test_create_prompt_with_nonexistent_project_id(get_project_projects_project_id_get_mock: Mock) -> None:
+def test_create_prompt_with_nonexistent_project_id(
+    get_project_projects_project_id_get_mock: Mock, get_all_projects_mock: Mock, query_templates_mock: Mock
+) -> None:
     """Test create_prompt with nonexistent project_id."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
     get_project_projects_project_id_get_mock.sync_detailed.return_value = Response(
         content=b"null", status_code=HTTPStatus.OK, headers={"Content-Type": "application/json"}, parsed=None
     )
@@ -1107,9 +1175,19 @@ def test_create_prompt_with_both_project_params() -> None:
     assert "Only one of 'project_id' or 'project_name' can be provided, not both" in str(exc_info.value)
 
 
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
 @patch("galileo.prompts.create_global_prompt_template_templates_post")
-def test_create_prompt_without_project_creates_global(create_global_prompt_template_mock: Mock) -> None:
+def test_create_prompt_without_project_creates_global(
+    create_global_prompt_template_mock: Mock, get_all_projects_mock: Mock, query_templates_mock: Mock
+) -> None:
     """Test that create_prompt without project parameters creates a global template."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
     create_global_prompt_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=global_prompt_template()
     )
@@ -1123,12 +1201,23 @@ def test_create_prompt_without_project_creates_global(create_global_prompt_templ
     create_global_prompt_template_mock.sync_detailed.assert_called_once()
 
 
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
 @patch("galileo.projects.get_projects_projects_get")
 @patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
 def test_create_prompt_with_project_name_and_string_template(
-    create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock
+    create_prompt_template_mock: Mock,
+    get_projects_projects_get_mock: Mock,
+    get_all_projects_mock: Mock,
+    query_templates_mock: Mock,
 ) -> None:
     """Test create_prompt with project_name and string template."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
     create_prompt_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
     )
@@ -1340,3 +1429,206 @@ def test_delete_prompt_with_both_project_params() -> None:
         delete_prompt(id="template-id", project_id="id-123", project_name="proj-name")
 
     assert "Only one of 'project_id' or 'project_name' can be provided, not both" in str(exc_info.value)
+
+
+# Test organization-wide unique name generation
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_generates_unique_name_when_global_exists(
+    create_global_prompt_template_mock: Mock, get_all_projects_mock: Mock, query_templates_mock: Mock
+) -> None:
+    """Test that create_prompt appends (1) when name exists globally."""
+    # Mock existing global template with the name
+    existing_template = global_prompt_template()
+    existing_template.name = "my-template"
+    query_templates_mock.sync.return_value = global_templates_list_response()
+
+    # Mock no projects
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    # Mock successful creation with unique name
+    new_template = global_prompt_template()
+    new_template.name = "my-template (1)"
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
+    )
+
+    template = create_prompt(
+        name="global-helpful-assistant",  # This name exists
+        template=[Message(role=MessageRole.system, content="test")],
+    )
+
+    # Verify the template was created with the incremented name
+    assert template is not None
+    assert template.name == "my-template (1)"
+    create_global_prompt_template_mock.sync_detailed.assert_called_once()
+    # Verify the body has the unique name
+    call_kwargs = create_global_prompt_template_mock.sync_detailed.call_args
+    assert " (1)" in call_kwargs.kwargs["body"].name or call_kwargs.kwargs["body"].name == "global-helpful-assistant"
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.prompts.get_projects_paginated_projects_paginated_post")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_generates_unique_name_when_project_exists(
+    create_global_prompt_template_mock: Mock,
+    get_project_templates_mock: Mock,
+    get_projects_paginated_mock: Mock,
+    query_templates_mock: Mock,
+) -> None:
+    """Test that create_prompt appends (1) when name exists in a project."""
+    # Mock no global templates
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
+    # Mock project with existing template
+    project = projects_response().parsed[0]
+    get_projects_paginated_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[project], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    existing_template = prompt_template()
+    existing_template.name = "my-template"
+    get_project_templates_mock.sync.return_value = [existing_template]
+
+    # Mock successful creation with unique name
+    new_template = global_prompt_template()
+    new_template.name = "my-template (1)"
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
+    )
+
+    template = create_prompt(
+        name="my-template",  # This name exists in a project
+        template=[Message(role=MessageRole.system, content="test")],
+    )
+
+    # Verify the template was created with the incremented name
+    assert template is not None
+    # The name should be unique across organization
+    get_project_templates_mock.sync.assert_called()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
+def test_create_prompt_with_project_generates_unique_name(
+    create_prompt_template_mock: Mock,
+    get_projects_projects_get_mock: Mock,
+    get_all_projects_mock: Mock,
+    query_templates_mock: Mock,
+) -> None:
+    """Test that create_prompt with project generates unique name."""
+    # Mock existing global template
+    existing_global = global_prompt_template()
+    existing_global.name = "assistant"
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {
+            "templates": [existing_global.to_dict()],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+
+    # Mock no projects for uniqueness check
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    # Mock project for creation
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    # Mock successful creation with unique name
+    new_template = prompt_template()
+    new_template.name = "assistant (1)"
+    create_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
+    )
+
+    template = create_prompt(
+        name="assistant",  # This name exists globally
+        template=[Message(role=MessageRole.system, content="test")],
+        project_name="andrii-new-project",
+    )
+
+    # Verify the template was created
+    assert template is not None
+    create_prompt_template_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_no_increment_when_name_unique(
+    create_global_prompt_template_mock: Mock, get_all_projects_mock: Mock, query_templates_mock: Mock
+) -> None:
+    """Test that create_prompt doesn't increment when name is unique."""
+    # Mock no global templates with this name
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
+    # Mock no projects
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    # Mock successful creation
+    new_template = global_prompt_template()
+    new_template.name = "unique-template"
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
+    )
+
+    template = create_prompt(name="unique-template", template=[Message(role=MessageRole.system, content="test")])
+
+    # Verify the template was created with the original name (no increment)
+    assert template is not None
+    assert template.name == "unique-template"
+    create_global_prompt_template_mock.sync_detailed.assert_called_once()
+    # Verify the body has the original name
+    call_kwargs = create_global_prompt_template_mock.sync_detailed.call_args
+    assert call_kwargs.kwargs["body"].name == "unique-template"
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
+@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
+def test_generate_unique_name_increments_multiple_times(
+    get_project_templates_mock: Mock, get_all_projects_mock: Mock, query_templates_mock: Mock
+) -> None:
+    """Test that unique name generation can handle multiple increments."""
+    from galileo.prompts import _generate_unique_name
+
+    # Mock global templates: base-name exists
+    template1 = global_prompt_template()
+    template1.name = "base-name"
+
+    template2 = global_prompt_template()
+    template2.name = "base-name (1)"
+
+    template3 = global_prompt_template()
+    template3.name = "base-name (2)"
+
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {
+            "templates": [template1.to_dict(), template2.to_dict(), template3.to_dict()],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+
+    # Mock no projects
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    # Should generate "base-name (3)"
+    unique_name = _generate_unique_name("base-name")
+    assert unique_name == "base-name (3)"
