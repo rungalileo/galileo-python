@@ -73,6 +73,16 @@ try:
             LLMCallFailedEvent,
             LLMCallStartedEvent,
         )
+        from crewai.utilities.events.memory_events import (  # pyright: ignore[reportMissingImports]
+            MemoryQueryCompletedEvent,
+            MemoryQueryFailedEvent,
+            MemoryQueryStartedEvent,
+            MemoryRetrievalCompletedEvent,
+            MemoryRetrievalStartedEvent,
+            MemorySaveCompletedEvent,
+            MemorySaveFailedEvent,
+            MemorySaveStartedEvent,
+        )
         from crewai.utilities.events.task_events import (  # pyright: ignore[reportMissingImports]
             TaskCompletedEvent,
             TaskFailedEvent,
@@ -84,7 +94,10 @@ try:
             ToolUsageStartedEvent,
         )
 
+        CREWAI_EVENTS_MODULE_AVAILABLE = False
+
     CREWAI_AVAILABLE = True
+
 except ImportError:
     _logger.warning("CrewAI not available, using stubs")
 
