@@ -23,7 +23,7 @@ class ExportClient:
     def records(
         self,
         project_id: str,
-        root_type: RootType = RootType.SESSION,
+        root_type: RootType = RootType.TRACE,
         filters: Optional[list[FilterType]] = None,
         sort: LogRecordsSortClause = LogRecordsSortClause(column_id="created_at", ascending=False),
         export_format: LLMExportFormat = LLMExportFormat.JSONL,
@@ -63,7 +63,7 @@ class ExportClient:
 
 def export_records(
     project_id: str,
-    root_type: RootType = RootType.SESSION,
+    root_type: RootType = RootType.TRACE,
     filters: Optional[list[FilterType]] = None,
     sort: LogRecordsSortClause = LogRecordsSortClause(column_id="created_at", ascending=False),
     export_format: LLMExportFormat = LLMExportFormat.JSONL,
