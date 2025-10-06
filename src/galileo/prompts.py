@@ -745,7 +745,8 @@ def _check_name_exists_in_organization(name: str) -> bool:
     """
     Check if a prompt template name exists anywhere in the organization.
 
-    Checks both global templates and all project templates across all projects.
+    Enforces organization-wide uniqueness by checking both global templates and
+    all project-specific templates across all accessible projects.
 
     Parameters
     ----------
@@ -792,6 +793,9 @@ def _generate_unique_name(base_name: str) -> str:
     """
     Generate a unique template name by appending (N) if the base name exists.
 
+    Ensures organization-wide uniqueness by checking all global and project templates.
+    Automatically increments the suffix until a unique name is found.
+
     Parameters
     ----------
     base_name : str
@@ -800,7 +804,13 @@ def _generate_unique_name(base_name: str) -> str:
     Returns
     -------
     str
-        A unique name, potentially with (N) appended.
+        A unique name. Returns the original name if unique, otherwise appends (1), (2), etc.
+
+    Examples
+    --------
+    - If "my-template" doesn't exist → returns "my-template"
+    - If "my-template" exists → returns "my-template (1)"
+    - If "my-template" and "my-template (1)" exist → returns "my-template (2)"
     """
     if not _check_name_exists_in_organization(base_name):
         return base_name
