@@ -7,6 +7,7 @@ import httpx
 from galileo.config import GalileoPythonConfig
 from galileo.resources.api.projects import (
     create_project_projects_post,
+    delete_project_projects_project_id_delete,
     get_all_projects_projects_all_get,
     get_project_projects_project_id_get,
     get_projects_projects_get,
@@ -48,7 +49,7 @@ class Project:
         type (Union[None, ProjectType, Unset]): The type of the project, typically GEN_AI.
 
     Examples:
-         from galileo.projects import get_project, create_project, list_projects
+         from galileo.projects import get_project, create_project, list_projects, delete_project
 
          # Create a new project
          project = create_project(name="My AI Project")
@@ -57,12 +58,18 @@ class Project:
          project = get_project(name="My AI Project")
 
          # Get a project by ID
-         project = get_project(id="project-id-123")
+         project = get_project(id="8aed99a3-c678-49a3-80e8-2bf914eda7a5")
 
          # List all projects
          projects = list_projects()
          for project in projects:
              print(f"Project: {project.name} (ID: {project.id})")
+
+         # Delete a project by ID
+         success = delete_project(id="8aed99a3-c678-49a3-80e8-2bf914eda7a5")
+
+         # Delete a project by name
+         success = delete_project(name="My AI Project")
     """
 
     created_at: datetime.datetime
@@ -263,6 +270,42 @@ class Projects(DecorateAllMethods):
 
         return Project(project=response)
 
+    def _delete_project(self, project_id: Optional[str] = None, project_name: Optional[str] = None) -> bool:
+        """Internal method to handle project deletion logic."""
+        # First, get the project to verify it exists and is a gen_ai project
+        if project_id:
+            project = self.get(id=project_id)
+            identifier = project_id
+        elif project_name:
+            project = self.get(name=project_name)
+            identifier = project_name
+        else:
+            raise ValueError("Either project_id or project_name must be provided")
+
+        if not project:
+            raise ProjectsAPIException(f"Project '{identifier}' not found")
+
+        if project.type != ProjectType.GEN_AI:
+            raise ProjectsAPIException(
+                f"Project '{project.name}' (ID: {project.id}) is not a gen_ai project (type: {project.type}). Only gen_ai projects can be deleted through this SDK."
+            )
+
+        # Now delete using the project ID
+        detailed_response = delete_project_projects_project_id_delete.sync_detailed(
+            project_id=project.id, client=self.client
+        )
+
+        if detailed_response.status_code != httpx.codes.OK:
+            raise ProjectsAPIException(str(detailed_response.content))
+
+        response = detailed_response.parsed
+
+        if isinstance(response, HTTPValidationError):
+            _logger.error(response)
+            raise ProjectsAPIException(str(response))
+
+        return response is not None
+
 
 #
 # Convenience methods
@@ -348,3 +391,44 @@ def create_project(name: str) -> Project:
 
     """
     return Projects().create(name=name)
+
+
+def delete_project(*, id: Optional[str] = None, name: Optional[str] = None) -> bool:
+    """
+    Deletes a gen_ai project by ID or name (exactly one of `id` or `name` must be provided).
+
+    Parameters
+    ----------
+    id : str, optional
+        The ID of the project to delete.
+    name : str, optional
+        The name of the project to delete.
+
+    Returns
+    -------
+    bool
+        True if the project was successfully deleted, False otherwise.
+
+    Raises
+    ------
+    ValueError
+        If neither or both `id` and `name` are provided.
+    ProjectsAPIException
+        If the server returns an error response or if the project is not a gen_ai project.
+    errors.UnexpectedStatus
+        If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+    httpx.TimeoutException
+        If the request takes longer than Client.timeout.
+
+    Examples
+    --------
+    >>> delete_project(id="8aed99a3-c678-49a3-80e8-2bf914eda7a5")
+    >>> delete_project(name="my-project")
+    """
+    if (id is None) == (name is None):  # Both None or both not None
+        raise ValueError("Exactly one of 'id' or 'name' must be provided")
+
+    if id:
+        return Projects()._delete_project(project_id=id)
+    else:
+        return Projects()._delete_project(project_name=name)
