@@ -310,7 +310,7 @@ def run_experiment(
 
 def create_experiment(
     project_id: Optional[str] = None, experiment_name: Optional[str] = None, project: Optional[str] = None
-) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
+) -> ExperimentResponse:
     """
     Create an experiment with the specified parameters.
 
@@ -323,7 +323,7 @@ def create_experiment(
         project: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
 
     Returns:
-        ExperimentResponse results or ``None`` if not found.
+        ExperimentResponse: The created experiment response.
 
     Raises:
         ValueError: If ``experiment_name`` is not provided, or if the project cannot be resolved from ``project_id`` or ``project``.
@@ -333,7 +333,7 @@ def create_experiment(
     if not experiment_name:
         raise ValueError("experiment_name is required")
 
-    # Resolve project by id, name,  or environment fallbacks
+    # Resolve project by id, name, or environment fallbacks
     project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project)
     if not project_obj:
         if project:
@@ -345,7 +345,7 @@ def create_experiment(
 
 def get_experiment(
     project_id: Optional[str] = None, experiment_name: Optional[str] = None, project: Optional[str] = None
-) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
+) -> Optional[ExperimentResponse]:
     """
     Get an experiment with the specified parameters.
 
@@ -368,7 +368,7 @@ def get_experiment(
     if experiment_name is None or experiment_name == "":
         raise ValueError("experiment_name is required")
 
-    # Resolve project by id, name,  or environment fallbacks
+    # Resolve project by id, name, or environment fallbacks
     project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project)
     if not project_obj:
         if project:
@@ -394,7 +394,7 @@ def get_experiments(
     Raises:
         HTTPValidationError: If there's a validation error in returning a list of ExperimentResponse
     """
-    # Resolve project by id, name,  or environment fallbacks
+    # Resolve project by id, name, or environment fallbacks
     project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project)
     if not project_obj:
         if project:
