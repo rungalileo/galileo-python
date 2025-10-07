@@ -365,7 +365,7 @@ def get_experiment(
         HTTPValidationError: If there's a validation error in returning an ExperimentResponse.
     """
     # Enforce required experiment_name at runtime while keeping signature backward compatible for positional calls.
-    if experiment_name is None or experiment_name == "":
+    if not experiment_name:
         raise ValueError("experiment_name is required")
 
     # Resolve project by id, name, or environment fallbacks
