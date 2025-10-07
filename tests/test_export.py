@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 from unittest.mock import patch
 from uuid import uuid4
 
@@ -67,38 +68,53 @@ def test_export_records_with_defaults(mock_export_records_stream):
     assert request_body.sort == LogRecordsSortClause(column_id="created_at", ascending=False)
 
 
-@patch("galileo.export.LogStreams.get")
+@patch("galileo.export.LogStreams.list")
 @patch("galileo.export.export_records_stream")
-def test_export_records_default_log_stream(mock_export_records_stream, mock_log_streams_get):
+def test_export_records_default_log_stream(mock_export_records_stream, mock_log_streams_list):
     project_id = str(uuid4())
-    default_log_stream_id = str(uuid4())
-    mock_log_stream = LogStream()
-    mock_log_stream.id = default_log_stream_id
-    mock_log_streams_get.return_value = mock_log_stream
+    oldest_log_stream_id = str(uuid4())
+    now = datetime.now()
+
+    # Create mock log streams, ensuring one is clearly the oldest
+    log_stream_1 = LogStream()
+    log_stream_1.id = str(uuid4())
+    log_stream_1.created_at = now
+
+    log_stream_2 = LogStream()
+    log_stream_2.id = oldest_log_stream_id
+    log_stream_2.created_at = now - timedelta(days=1)
+
+    log_stream_3 = LogStream()
+    log_stream_3.id = str(uuid4())
+    log_stream_3.created_at = now + timedelta(days=1)
+
+    # Return them in a non-sorted order
+    mock_log_streams_list.return_value = [log_stream_1, log_stream_2, log_stream_3]
+
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
     list(export_records(project_id=project_id))
 
-    mock_log_streams_get.assert_called_once_with(name="default", project_id=project_id)
+    mock_log_streams_list.assert_called_once_with(project_id=project_id)
     mock_export_records_stream.assert_called_once()
     request_body = mock_export_records_stream.call_args.kwargs["body"]
-    assert request_body.log_stream_id == default_log_stream_id
+    assert request_body.log_stream_id == oldest_log_stream_id
     assert request_body.experiment_id is None
 
 
-@patch("galileo.export.LogStreams.get")
+@patch("galileo.export.LogStreams.list")
 @patch("galileo.export.export_records_stream")
-def test_export_records_no_default_log_stream(mock_export_records_stream, mock_log_streams_get):
+def test_export_records_no_default_log_stream(mock_export_records_stream, mock_log_streams_list):
     project_id = str(uuid4())
-    mock_log_streams_get.return_value = None
+    mock_log_streams_list.return_value = []
     mock_response = httpx.Response(200, content=b"")
     mock_export_records_stream.return_value = mock_response
 
     with pytest.raises(ValueError, match="Exactly one of log_stream_id or experiment_id must be provided."):
         list(export_records(project_id=project_id))
 
-    mock_log_streams_get.assert_called_once_with(name="default", project_id=project_id)
+    mock_log_streams_list.assert_called_once_with(project_id=project_id)
     mock_export_records_stream.assert_not_called()
 
 

@@ -75,6 +75,8 @@ def export_records(
 ) -> Iterator[dict[str, Any]]:
     """Exports records from a Galileo project.
 
+    Defaults to the first logstream if `log_stream_id` and `experiment_id` are not provided.
+
     Args:
         project_id: The unique identifier of the project.
         root_type: The type of records to export.
@@ -93,9 +95,10 @@ def export_records(
         filters = []
 
     if log_stream_id is None and experiment_id is None:
-        log_stream = LogStreams().get(name="default", project_id=project_id)
-        if log_stream:
-            log_stream_id = log_stream.id
+        log_streams = LogStreams().list(project_id=project_id)
+        if log_streams:
+            sorted_log_streams = sorted(log_streams, key=lambda ls: ls.created_at)
+            log_stream_id = sorted_log_streams[0].id
 
     if (log_stream_id is None) == (experiment_id is None):
         raise ValueError("Exactly one of log_stream_id or experiment_id must be provided.")
