@@ -304,6 +304,63 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         self._parent_stack.append(span)
 
+    def _find_span_by_id(self, span_id: uuid.UUID) -> Optional[StepWithChildSpans]:
+        """
+        Recursively search for a span by ID in all traces and nested spans.
+
+        Parameters:
+        ----------
+            span_id: UUID: ID of the span to find.
+
+        Returns:
+        -------
+            Optional[StepWithChildSpans]: The span if found, None otherwise.
+        """
+        def search_in_step(step: StepWithChildSpans) -> Optional[StepWithChildSpans]:
+            if step.id == span_id:
+                return step
+            # Search in child spans if this step can have children
+            if hasattr(step, 'spans'):
+                for child_span in step.spans:
+                    # Only search in spans that can have children
+                    if isinstance(child_span, StepWithChildSpans):
+                        result = search_in_step(child_span)
+                        if result is not None:
+                            return result
+            return None
+
+        # Search through all traces
+        for trace in self.traces:
+            result = search_in_step(trace)
+            if result is not None:
+                return result
+
+        return None
+
+    def _add_child_to_explicit_parent(self, span: Span, parent_id: uuid.UUID) -> None:
+        """
+        Helper to add a span to an explicit parent by ID.
+        Sets parent_id, inherits dataset fields, and adds span to parent.
+
+        Parameters:
+        ----------
+            span: Span: The span to add to the parent.
+            parent_id: UUID: ID of the parent span.
+
+        Raises:
+        -------
+            ValueError: If parent with the given ID is not found.
+        """
+        parent = self._find_span_by_id(parent_id)
+        if parent is None:
+            raise ValueError(f"Parent with id {parent_id} not found")
+
+        span.parent_id = parent_id
+        span.dataset_input = parent.dataset_input
+        span.dataset_output = parent.dataset_output
+        span.dataset_metadata = parent.dataset_metadata
+        parent.add_child_span(span)
+
     @staticmethod
     @nop_sync
     def _get_last_output(node: Union[BaseStep, None]) -> Optional[str]:
@@ -695,6 +752,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         status_code: Optional[int] = None,
         time_to_first_token_ns: Optional[int] = None,
         step_number: Optional[int] = None,
+        parent_id: Optional[uuid.UUID] = None,
     ) -> LlmSpan:
         """
         Add a new llm span to the current parent.
@@ -742,33 +800,60 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 Expected values: 200 (success), 400 (client error), 500 (server error)
             time_to_first_token_ns: Optional[int]: Time until the first token was returned.
             step_number: Optional[int]: Step number of the span.
+            parent_id: Optional[uuid.UUID]: ID of the parent span. If provided, the span will be added to this parent
+                instead of using the stack-based current parent.
         Returns:
         -------
             LlmSpan: The created span.
         """
-        kwargs = {
-            "input": input,
-            "output": output,
-            "model": model,
-            "redacted_input": redacted_input,
-            "redacted_output": redacted_output,
-            "tools": tools,
-            "name": name,
-            "created_at": created_at,
-            "duration_ns": duration_ns,
-            "user_metadata": metadata,
-            "tags": tags,
-            "num_input_tokens": num_input_tokens,
-            "num_output_tokens": num_output_tokens,
-            "total_tokens": total_tokens,
-            "temperature": temperature,
-            "status_code": status_code,
-            "time_to_first_token_ns": time_to_first_token_ns,
-            "step_number": step_number,
-            "id": uuid.uuid4(),
-        }
+        span_id = uuid.uuid4()
 
-        span = super().add_llm_span(**kwargs)
+        if parent_id is not None:
+            # Explicit mode: create span and add to parent by ID
+            span = LlmSpan(
+                input=input,
+                output=output,
+                model=model,
+                redacted_input=redacted_input,
+                redacted_output=redacted_output,
+                tools=tools,
+                name=name,
+                created_at=created_at,
+                user_metadata=metadata,
+                tags=tags,
+                num_input_tokens=num_input_tokens,
+                num_output_tokens=num_output_tokens,
+                total_tokens=total_tokens,
+                temperature=temperature,
+                status_code=status_code,
+                time_to_first_token_ns=time_to_first_token_ns,
+                step_number=step_number,
+                id=span_id,
+            )
+            self._add_child_to_explicit_parent(span, parent_id)
+        else:
+            # Stack mode: delegate to parent class
+            span = super().add_llm_span(
+                input=input,
+                output=output,
+                model=model,
+                redacted_input=redacted_input,
+                redacted_output=redacted_output,
+                tools=tools,
+                name=name,
+                created_at=created_at,
+                duration_ns=duration_ns,
+                user_metadata=metadata,
+                tags=tags,
+                num_input_tokens=num_input_tokens,
+                num_output_tokens=num_output_tokens,
+                total_tokens=total_tokens,
+                temperature=temperature,
+                status_code=status_code,
+                time_to_first_token_ns=time_to_first_token_ns,
+                step_number=step_number,
+                id=span_id,
+            )
 
         if self.mode == "streaming":
             self._ingest_step_streaming(span)
@@ -789,6 +874,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         tags: Optional[list[str]] = None,
         status_code: Optional[int] = None,
         step_number: Optional[int] = None,
+        parent_id: Optional[uuid.UUID] = None,
     ) -> RetrieverSpan:
         """
         Add a new retriever span to the current parent.
@@ -807,6 +893,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             metadata: Optional[dict[str, str]]: Metadata associated with this span.
             status_code: Optional[int]: Status code of the node execution.
             step_number: Optional[int]: Step number of the span.
+            parent_id: Optional[uuid.UUID]: ID of the parent span. If provided, the span will be added to this parent
+                instead of using the stack-based current parent.
         Returns:
         -------
             RetrieverSpan: The created span.
@@ -845,22 +933,40 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         documents = _convert_to_documents(output, "output")
         redacted_documents = _convert_to_documents(redacted_output, "redacted_output")
+        span_id = uuid.uuid4()
 
-        kwargs = {
-            "input": input,
-            "documents": documents,
-            "redacted_input": redacted_input,
-            "redacted_documents": redacted_documents,
-            "name": name,
-            "duration_ns": duration_ns,
-            "created_at": created_at,
-            "user_metadata": metadata,
-            "tags": tags,
-            "status_code": status_code,
-            "step_number": step_number,
-            "id": uuid.uuid4(),
-        }
-        span = super().add_retriever_span(**kwargs)
+        if parent_id is not None:
+            # Explicit mode: create span and add to parent by ID
+            span = RetrieverSpan(
+                input=input,
+                output=documents,
+                redacted_input=redacted_input,
+                redacted_output=redacted_documents,
+                name=name,
+                created_at=created_at,
+                user_metadata=metadata,
+                tags=tags,
+                status_code=status_code,
+                step_number=step_number,
+                id=span_id,
+            )
+            self._add_child_to_explicit_parent(span, parent_id)
+        else:
+            # Stack mode: delegate to parent class
+            span = super().add_retriever_span(
+                input=input,
+                documents=documents,
+                redacted_input=redacted_input,
+                redacted_documents=redacted_documents,
+                name=name,
+                duration_ns=duration_ns,
+                created_at=created_at,
+                user_metadata=metadata,
+                tags=tags,
+                status_code=status_code,
+                step_number=step_number,
+                id=span_id,
+            )
 
         if self.mode == "streaming":
             self._ingest_step_streaming(span)
@@ -882,6 +988,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         status_code: Optional[int] = None,
         tool_call_id: Optional[str] = None,
         step_number: Optional[int] = None,
+        parent_id: Optional[uuid.UUID] = None,
     ) -> ToolSpan:
         """
         Add a new tool span to the current parent.
@@ -911,26 +1018,48 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             tool_call_id: Optional[str]: Tool call ID.
                 Expected format: Unique identifier for the tool call.
             step_number: Optional[int]: Step number of the span.
+            parent_id: Optional[uuid.UUID]: ID of the parent span. If provided, the span will be added to this parent
+                instead of using the stack-based current parent.
         Returns:
         -------
             ToolSpan: The created span.
         """
-        kwargs = {
-            "input": input,
-            "redacted_input": redacted_input,
-            "output": output,
-            "redacted_output": redacted_output,
-            "name": name,
-            "duration_ns": duration_ns,
-            "created_at": created_at,
-            "user_metadata": metadata,
-            "tags": tags,
-            "status_code": status_code,
-            "tool_call_id": tool_call_id,
-            "step_number": step_number,
-            "id": uuid.uuid4(),
-        }
-        span = super().add_tool_span(**kwargs)
+        span_id = uuid.uuid4()
+
+        if parent_id is not None:
+            # Explicit mode: create span and add to parent by ID
+            span = ToolSpan(
+                input=input,
+                redacted_input=redacted_input,
+                output=output,
+                redacted_output=redacted_output,
+                name=name,
+                created_at=created_at,
+                user_metadata=metadata,
+                tags=tags,
+                status_code=status_code,
+                tool_call_id=tool_call_id,
+                step_number=step_number,
+                id=span_id,
+            )
+            self._add_child_to_explicit_parent(span, parent_id)
+        else:
+            # Stack mode: delegate to parent class
+            span = super().add_tool_span(
+                input=input,
+                redacted_input=redacted_input,
+                output=output,
+                redacted_output=redacted_output,
+                name=name,
+                duration_ns=duration_ns,
+                created_at=created_at,
+                user_metadata=metadata,
+                tags=tags,
+                status_code=status_code,
+                tool_call_id=tool_call_id,
+                step_number=step_number,
+                id=span_id,
+            )
 
         if self.mode == "streaming":
             self._ingest_step_streaming(span)
@@ -1013,6 +1142,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         metadata: Optional[dict[str, str]] = None,
         tags: Optional[list[str]] = None,
         step_number: Optional[int] = None,
+        parent_id: Optional[uuid.UUID] = None,
     ) -> WorkflowSpan:
         """
         Add a workflow span to the current parent. This is useful when you want to create a nested workflow span
@@ -1040,24 +1170,46 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             tags: Optional[list[str]]: Tags associated with this span.
                 Expected format: ["tag1", "tag2", "tag3"]
             step_number: Optional[int]: Step number of the span.
+            parent_id: Optional[uuid.UUID]: ID of the parent span. If provided, the span will be added to this parent
+                instead of using the stack-based current parent. Note: When using parent_id, the span will NOT
+                become the new current parent for stack-based operations.
         Returns:
         -------
             WorkflowSpan: The created span.
         """
-        kwargs = {
-            "input": input,
-            "redacted_input": redacted_input,
-            "output": output,
-            "redacted_output": redacted_output,
-            "name": name,
-            "duration_ns": duration_ns,
-            "created_at": created_at,
-            "user_metadata": metadata,
-            "tags": tags,
-            "step_number": step_number,
-            "id": uuid.uuid4(),
-        }
-        span = super().add_workflow_span(**kwargs)
+        span_id = uuid.uuid4()
+
+        if parent_id is not None:
+            # Explicit mode: create span and add to parent by ID
+            # Do NOT push to stack - this span won't become the current parent
+            span = WorkflowSpan(
+                input=input,
+                redacted_input=redacted_input,
+                output=output,
+                redacted_output=redacted_output,
+                name=name,
+                created_at=created_at,
+                user_metadata=metadata,
+                tags=tags,
+                step_number=step_number,
+                id=span_id,
+            )
+            self._add_child_to_explicit_parent(span, parent_id)
+        else:
+            # Stack mode: delegate to parent class (will push to stack)
+            span = super().add_workflow_span(
+                input=input,
+                redacted_input=redacted_input,
+                output=output,
+                redacted_output=redacted_output,
+                name=name,
+                duration_ns=duration_ns,
+                created_at=created_at,
+                user_metadata=metadata,
+                tags=tags,
+                step_number=step_number,
+                id=span_id,
+            )
 
         if self.mode == "streaming":
             self._ingest_step_streaming(span)
@@ -1078,6 +1230,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         tags: Optional[list[str]] = None,
         agent_type: Optional[AgentType] = None,
         step_number: Optional[int] = None,
+        parent_id: Optional[uuid.UUID] = None,
     ) -> AgentSpan:
         """
         Add an agent type span to the current parent.
@@ -1106,26 +1259,49 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 Expected values: AgentType.CLASSIFIER, AgentType.PLANNER, AgentType.REACT,
                 AgentType.REFLECTION, AgentType.ROUTER, AgentType.SUPERVISOR, AgentType.JUDGE, AgentType.DEFAULT
             step_number: Optional[int]: Step number of the span.
+            parent_id: Optional[uuid.UUID]: ID of the parent span. If provided, the span will be added to this parent
+                instead of using the stack-based current parent. Note: When using parent_id, the span will NOT
+                become the new current parent for stack-based operations.
 
         Returns:
         -------
             AgentSpan: The created span.
         """
-        kwargs = {
-            "input": input,
-            "redacted_input": redacted_input,
-            "output": output,
-            "redacted_output": redacted_output,
-            "name": name,
-            "duration_ns": duration_ns,
-            "created_at": created_at,
-            "user_metadata": metadata,
-            "tags": tags,
-            "agent_type": agent_type,
-            "step_number": step_number,
-            "id": uuid.uuid4(),
-        }
-        span = super().add_agent_span(**kwargs)
+        span_id = uuid.uuid4()
+
+        if parent_id is not None:
+            # Explicit mode: create span and add to parent by ID
+            # Do NOT push to stack - this span won't become the current parent
+            span = AgentSpan(
+                input=input,
+                redacted_input=redacted_input,
+                output=output,
+                redacted_output=redacted_output,
+                name=name,
+                created_at=created_at,
+                user_metadata=metadata,
+                tags=tags,
+                agent_type=agent_type,
+                step_number=step_number,
+                id=span_id,
+            )
+            self._add_child_to_explicit_parent(span, parent_id)
+        else:
+            # Stack mode: delegate to parent class (will push to stack)
+            span = super().add_agent_span(
+                input=input,
+                redacted_input=redacted_input,
+                output=output,
+                redacted_output=redacted_output,
+                name=name,
+                duration_ns=duration_ns,
+                created_at=created_at,
+                user_metadata=metadata,
+                tags=tags,
+                agent_type=agent_type,
+                step_number=step_number,
+                id=span_id,
+            )
 
         if self.mode == "streaming":
             self._ingest_step_streaming(span)
