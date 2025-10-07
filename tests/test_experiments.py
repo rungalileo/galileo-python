@@ -226,7 +226,8 @@ class TestExperiments:
         mock_get_with_env_fallbacks.assert_called_once_with(id=None, name="test_project")
 
     @patch("galileo.experiments.create_experiment_projects_project_id_experiments_post")
-    def test_create_experiment_without_project_fails(self, galileo_resources_api_create_experiment: Mock) -> None:
+    @patch("galileo.experiments.Projects.get_with_env_fallbacks", return_value=None)
+    def test_create_experiment_without_project_fails(self, mock_get_with_env_fallbacks: Mock, galileo_resources_api_create_experiment: Mock) -> None:
         now = datetime(2020, 1, 1).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         galileo_resources_api_create_experiment.sync = Mock(
             return_value=ExperimentResponse.from_dict(
