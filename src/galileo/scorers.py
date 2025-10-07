@@ -38,9 +38,10 @@ class Scorers:
         Lists scorers, optionally filtering by name and/or type.
 
         The filters are combined with an AND condition, while the values within the `types`
-        list are combined with an OR condition. For example, calling
-        `list(name="my_scorer", types=[ScorerTypes.llm, ScorerTypes.code])` will return
-        scorers where the name is "my_scorer" AND the type is either "llm" OR "code".
+        list are combined with an OR condition.
+
+        For example, calling `list(name="my_scorer", types=[ScorerTypes.llm, ScorerTypes.code])`
+        will return scorers where the name is "my_scorer" AND the type is either "llm" OR "code".
 
         Args:
             name: Name of the scorer to filter by.
