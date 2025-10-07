@@ -267,6 +267,14 @@ class TestExperiments:
         with pytest.raises(ValueError, match="Project test_project does not exist"):
             create_experiment(project="test_project", experiment_name="test_experiment")
 
+    def test_create_experiment_missing_experiment_name_raises(self) -> None:
+        with pytest.raises(ValueError, match="experiment_name is required"):
+            create_experiment(project="test_project")
+
+    def test_create_experiment_empty_experiment_name_raises(self) -> None:
+        with pytest.raises(ValueError, match="experiment_name is required"):
+            create_experiment(experiment_name="", project="test_project")
+
     @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
     @patch("galileo.experiments.Projects.get_with_env_fallbacks")
     def test_get_experiments_with_project_id(
@@ -326,8 +334,11 @@ class TestExperiments:
 
     def test_get_experiment_missing_experiment_name_raises(self) -> None:
         with pytest.raises(ValueError, match="experiment_name is required"):
-            # type: ignore[arg-type] - intentionally omit experiment_name at runtime
             get_experiment(project_id=str(UUID(int=0)))
+
+    def test_get_experiment_empty_experiment_name_raises(self) -> None:
+        with pytest.raises(ValueError, match="experiment_name is required"):
+            get_experiment(project_id=str(UUID(int=0)), experiment_name="")
 
     @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
     @patch("galileo.experiments.Projects.get_with_env_fallbacks")
