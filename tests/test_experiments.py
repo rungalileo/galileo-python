@@ -953,3 +953,43 @@ class TestExperiments:
         )
 
         assert mock_upsert_tag.call_count == 3
+
+    @patch("galileo.logger.logger.LogStreams")
+    @patch("galileo.logger.logger.Projects")
+    @patch("galileo.logger.logger.Traces")
+    @patch.object(galileo.datasets.Datasets, "get")
+    @patch.object(galileo.experiments.Experiments, "create", return_value=experiment_response())
+    @patch.object(galileo.experiments.Experiments, "get", return_value=experiment_response())
+    @patch.object(galileo.experiments.Projects, "get_with_env_fallbacks", return_value=project())
+    def test_run_experiment_with_dataset_limit(
+        self,
+        mock_get_project: Mock,
+        mock_get_experiment: Mock,
+        mock_create_experiment: Mock,
+        mock_get_dataset: Mock,
+        mock_traces_client: Mock,
+        mock_projects_client: Mock,
+        mock_logstreams_client: Mock,
+        dataset_content_150_rows: DatasetContent,
+        reset_context,
+    ) -> None:
+        """Test that all 150 rows are processed when no dataset_limit is specified."""
+        mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+        setup_mock_projects_client(mock_projects_client)
+        setup_mock_logstreams_client(mock_logstreams_client)
+
+        mock_get_dataset_instance = mock_get_dataset.return_value
+        mock_get_dataset_instance.get_content = MagicMock(return_value=dataset_content_150_rows)
+
+        run_experiment(
+            "test_experiment",
+            project="awesome-new-project",
+            dataset_id=str(UUID(int=0)),
+            function=lambda x: f"output: {x}",
+        )
+
+        mock_get_dataset_instance.get_content.assert_called_with()
+
+        # Verify that all 150 rows were processed by checking the traces
+        payload = mock_traces_client_instance.ingest_traces.call_args[0][0]
+        assert len(payload.traces) == 150
