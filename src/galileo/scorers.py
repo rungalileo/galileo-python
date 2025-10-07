@@ -35,11 +35,16 @@ class Scorers:
 
     def list(self, name: Optional[str] = None, types: Optional[list[ScorerTypes]] = None) -> list[ScorerResponse]:
         """
+        Lists scorers, optionally filtering by name and/or type.
+
         Args:
             name: Name of the scorer to filter by.
             types: List of scorer types to filter by. Defaults to all scorers.
+
         Returns:
-            List of scorers
+            A list of scorers that match the filter criteria. If both `name` and `types`
+            are provided, the filters are combined with an AND condition, meaning only
+            scorers that match both the name and one of the types will be returned.
         """
         filters = [ScorerTypeFilter(value=type_, operator=ScorerTypeFilterOperator.EQ) for type_ in (types or [])]
         if name:
