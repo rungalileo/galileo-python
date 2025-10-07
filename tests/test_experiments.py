@@ -218,7 +218,7 @@ class TestExperiments:
             )
         )
 
-        experiment = create_experiment(project="test_project", experiment_name="test_experiment")
+        experiment = create_experiment(project_name="test_project", experiment_name="test_experiment")
         assert experiment.name == "test_experiment"
         galileo_resources_api_create_experiment.sync.assert_called_once_with(
             project_id=str(UUID(int=0)), client=ANY, body=ANY
@@ -268,15 +268,15 @@ class TestExperiments:
         )
 
         with pytest.raises(ValueError, match="Project test_project does not exist"):
-            create_experiment(project="test_project", experiment_name="test_experiment")
+            create_experiment(project_name="test_project", experiment_name="test_experiment")
 
     def test_create_experiment_missing_experiment_name_raises(self) -> None:
         with pytest.raises(ValueError, match="experiment_name is required"):
-            create_experiment(project="test_project")
+            create_experiment(project_name="test_project")
 
     def test_create_experiment_empty_experiment_name_raises(self) -> None:
         with pytest.raises(ValueError, match="experiment_name is required"):
-            create_experiment(experiment_name="", project="test_project")
+            create_experiment(experiment_name="", project_name="test_project")
 
     @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
     @patch("galileo.experiments.Projects.get_with_env_fallbacks")
@@ -297,7 +297,7 @@ class TestExperiments:
     ) -> None:
         list_experiments_mock.sync = Mock(return_value=[experiment_response()])
         mock_get_with_env_fallbacks.return_value = project()
-        experiments = get_experiments(project="test_project")
+        experiments = get_experiments(project_name="test_project")
         assert len(experiments) == 1
         assert experiments[0].name == experiment_response().name
         list_experiments_mock.sync.assert_called_once_with(project_id=str(UUID(int=0)), client=ANY)
@@ -323,7 +323,7 @@ class TestExperiments:
         mock_get_with_env_fallbacks.return_value = None
 
         with pytest.raises(ValueError, match="Project test_project does not exist"):
-            get_experiments(project="test_project")
+            get_experiments(project_name="test_project")
 
     @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
     @patch("galileo.experiments.Projects.get_with_env_fallbacks")
@@ -365,7 +365,7 @@ class TestExperiments:
         mock_get_with_env_fallbacks.return_value = project()
         list_experiments_mock.sync = Mock(return_value=[experiment_response()])
 
-        exp = get_experiment(project="awesome-new-project", experiment_name=experiment_response().name)
+        exp = get_experiment(project_name="awesome-new-project", experiment_name=experiment_response().name)
 
         assert exp.name == experiment_response().name
         list_experiments_mock.sync.assert_called_once_with(project_id=project().id, client=ANY)
@@ -380,7 +380,7 @@ class TestExperiments:
         list_experiments_mock.sync = Mock(return_value=[experiment_response()])
 
         with pytest.raises(ValueError, match="Project awesome-new-project does not exist"):
-            get_experiment(project="awesome-new-project", experiment_name=experiment_response().name)
+            get_experiment(project_name="awesome-new-project", experiment_name=experiment_response().name)
 
     @patch("galileo.experiments.list_experiments_projects_project_id_experiments_get")
     @patch("galileo.experiments.Projects.get_with_env_fallbacks")

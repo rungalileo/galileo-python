@@ -309,7 +309,7 @@ def run_experiment(
 
 
 def create_experiment(
-    project_id: Optional[str] = None, experiment_name: Optional[str] = None, project: Optional[str] = None
+    project_id: Optional[str] = None, experiment_name: Optional[str] = None, project_name: Optional[str] = None
 ) -> ExperimentResponse:
     """
     Create an experiment with the specified parameters.
@@ -334,17 +334,17 @@ def create_experiment(
         raise ValueError("experiment_name is required")
 
     # Resolve project by id, name, or environment fallbacks
-    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project)
+    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
     if not project_obj:
-        if project:
-            raise ValueError(f"Project {project} does not exist")
+        if project_name:
+            raise ValueError(f"Project {project_name} does not exist")
         raise ValueError("Project not specified and no defaults found")
 
     return Experiments().create(project_obj.id, experiment_name)
 
 
 def get_experiment(
-    project_id: Optional[str] = None, experiment_name: Optional[str] = None, project: Optional[str] = None
+    project_id: Optional[str] = None, experiment_name: Optional[str] = None, project_name: Optional[str] = None
 ) -> Optional[ExperimentResponse]:
     """
     Get an experiment with the specified parameters.
@@ -369,17 +369,17 @@ def get_experiment(
         raise ValueError("experiment_name is required")
 
     # Resolve project by id, name, or environment fallbacks
-    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project)
+    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
     if not project_obj:
-        if project:
-            raise ValueError(f"Project {project} does not exist")
+        if project_name:
+            raise ValueError(f"Project {project_name} does not exist")
         raise ValueError("Project not specified and no defaults found")
 
     return Experiments().get(project_obj.id, experiment_name)
 
 
 def get_experiments(
-    project_id: Optional[str] = None, project: Optional[str] = None
+    project_id: Optional[str] = None, project_name: Optional[str] = None
 ) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:
     """
     Get experiments from the specified Project
@@ -395,10 +395,10 @@ def get_experiments(
         HTTPValidationError: If there's a validation error in returning a list of ExperimentResponse
     """
     # Resolve project by id, name, or environment fallbacks
-    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project)
+    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
     if not project_obj:
-        if project:
-            raise ValueError(f"Project {project} does not exist")
+        if project_name:
+            raise ValueError(f"Project {project_name} does not exist")
         raise ValueError("Project not specified and no defaults found")
 
     return Experiments().list(project_id=project_obj.id)
