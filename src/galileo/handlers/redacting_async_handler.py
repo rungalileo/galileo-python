@@ -3,7 +3,6 @@ from typing import Any, Callable
 
 from galileo.handlers.base_async_handler import GalileoAsyncBaseHandler
 from galileo.logger import GalileoLogger
-from galileo.schema.handlers import Node
 from galileo.utils.serialization import serialize_to_str
 
 _logger = logging.getLogger(__name__)
@@ -19,19 +18,14 @@ class RedactingGalileoAsyncHandler(GalileoAsyncBaseHandler):
 
     Attributes
     ----------
-    redaction_function : Callable[[Dict[str, Node]], Dict[str, Node]]]
-        A function that takes a dictionary of nodes and returns a redacted
-        version of it.
+    redaction_function : Callable[[Any], Any]
+        A function that takes a value and returns a redacted version of it.
     service_account_logger : GalileoLogger
         A GalileoLogger instance configured with service account credentials.
     """
 
     def __init__(
-        self,
-        *args: Any,
-        redaction_function: Callable[[dict[str, Node]], dict[str, Node]],
-        service_account_logger: GalileoLogger,
-        **kwargs: Any,
+        self, *args: Any, redaction_function: Callable[[Any], Any], service_account_logger: GalileoLogger, **kwargs: Any
     ):
         """
         Initializes the RedactingGalileoAsyncHandler.
@@ -40,7 +34,7 @@ class RedactingGalileoAsyncHandler(GalileoAsyncBaseHandler):
         ----------
         *args : Any
             Positional arguments to pass to the parent GalileoAsyncBaseHandler.
-        redaction_function : Callable[[Dict[str, Node]], Dict[str, Node]]]
+        redaction_function : Callable[[Any], Any]
             The function to apply to the trace data for redaction.
         service_account_logger : GalileoLogger
             A pre-configured GalileoLogger instance for the service account.
@@ -60,8 +54,11 @@ class RedactingGalileoAsyncHandler(GalileoAsyncBaseHandler):
             return
 
         # Apply the redaction function to the collected nodes
-        redacted_nodes = self.redaction_function(self._nodes)
-        self._nodes = redacted_nodes  # Replace original nodes with redacted ones
+        for node in self._nodes.values():
+            if "input" in node.span_params:
+                node.span_params["redacted_input"] = self.redaction_function(node.span_params["input"])
+            if "output" in node.span_params:
+                node.span_params["redacted_output"] = self.redaction_function(node.span_params["output"])
 
         # The rest of this method is a re-implementation of the parent's
         # async_commit, but using the `service_account_logger`.
@@ -77,14 +74,20 @@ class RedactingGalileoAsyncHandler(GalileoAsyncBaseHandler):
             return
 
         if self._start_new_trace:
-            self.service_account_logger.start_trace(input=serialize_to_str(root_node.span_params.get("input", "")))
+            self.service_account_logger.start_trace(
+                input=serialize_to_str(root_node.span_params.get("input", "")),
+                redacted_input=serialize_to_str(root_node.span_params.get("redacted_input", "")),
+            )
 
         self.log_node_tree(root_node)
 
         root_output = root_node.span_params.get("output", "")
 
         if self._start_new_trace:
-            self.service_account_logger.conclude(output=serialize_to_str(root_output))
+            redacted_root_output = root_node.span_params.get("redacted_output", "")
+            self.service_account_logger.conclude(
+                output=serialize_to_str(root_output), redacted_output=serialize_to_str(redacted_root_output)
+            )
 
         if self._flush_on_chain_end:
             await self.service_account_logger.async_flush()
