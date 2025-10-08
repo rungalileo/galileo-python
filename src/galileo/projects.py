@@ -9,6 +9,7 @@ from galileo.config import GalileoPythonConfig
 from galileo.resources.api.projects import (
     create_project_projects_post,
     create_user_project_collaborators_projects_project_id_users_post,
+    delete_project_projects_project_id_delete,
     delete_user_project_collaborator_projects_project_id_users_user_id_delete,
     get_all_projects_projects_all_get,
     get_project_projects_project_id_get,
@@ -57,7 +58,7 @@ class Project:
         type (Union[None, ProjectType, Unset]): The type of the project, typically GEN_AI.
 
     Examples:
-         from galileo.projects import get_project, create_project, list_projects
+         from galileo.projects import get_project, create_project, list_projects, delete_project
 
          # Create a new project
          project = create_project(name="My AI Project")
@@ -72,6 +73,12 @@ class Project:
          projects = list_projects()
          for project in projects:
              print(f"Project: {project.name} (ID: {project.id})")
+
+         # Delete a project by name
+         delete_project(name="My AI Project")
+
+         # Delete a project by ID
+         delete_project(id="project-id-123")
     """
 
     created_at: datetime.datetime
@@ -329,6 +336,43 @@ class Projects(DecorateAllMethods):
             raise ValueError(f"Failed to update collaborator for project {project_id}")
         return response
 
+    def delete_project(self, id: Optional[str] = None, name: Optional[str] = None) -> bool:
+        """Internal method to handle project deletion logic."""
+        name = name.strip() if name else None
+        id = id.strip() if id else None
+
+        # Check we have one and only one of project name or Id.
+        if (not name and not id) or (name and id):
+            raise ValueError("Exactly one of 'id' or 'name' must be provided.")
+
+        project = self.get(id=id, name=name)
+        if not project:
+            raise ValueError(f"Project '{id or name}' not found")
+
+        if project.type != ProjectType.GEN_AI:
+            raise ProjectsAPIException(
+                f"Project '{project.name}' (ID: {project.id}) is not a gen_ai project (type: {project.type}). Only gen_ai projects can be deleted through this SDK."
+            )
+
+        # Now delete using the project ID
+        detailed_response = delete_project_projects_project_id_delete.sync_detailed(
+            project_id=project.id, client=self.config.api_client
+        )
+
+        if detailed_response.status_code != httpx.codes.OK:
+            raise ProjectsAPIException(str(detailed_response.content))
+
+        response = detailed_response.parsed
+
+        if response is None:
+            raise ProjectsAPIException(f"Failed to delete project: {project.name}")
+
+        if isinstance(response, HTTPValidationError):
+            _logger.error(response)
+            raise ProjectsAPIException(f"Failed to delete project: {response.detail}")
+
+        return True
+
 
 #
 # Convenience methods
@@ -491,3 +535,40 @@ def update_user_project_collaborator(
         The updated user collaborator object.
     """
     return Projects().update_user_project_collaborator(project_id=project_id, user_id=user_id, role=role)
+
+
+def delete_project(*, id: Optional[str] = None, name: Optional[str] = None) -> bool:
+    """
+    Deletes a gen_ai project by ID or name (exactly one of `id` or `name` must be provided).
+
+    Parameters
+    ----------
+    id : str, optional
+        The ID of the project to delete.
+    name : str, optional
+        The name of the project to delete.
+
+    Returns
+    -------
+    bool
+        True if the project was successfully deleted, False otherwise.
+
+    Raises
+    ------
+    ValueError
+        If neither or both `id` and `name` are provided.
+    ProjectsAPIException
+        If the server returns an error response or if the project is not a gen_ai project.
+    errors.UnexpectedStatus
+        If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+    httpx.TimeoutException
+        If the request takes longer than Client.timeout.
+
+    Examples
+    --------
+    >>> delete_project(id="8aed99a3-c678-49a3-80e8-2bf914eda7a5")
+    >>> delete_project(name="my-project")
+    """
+    result = Projects().delete_project(name=name, id=id)
+    # Convert None (from caught exception) or True to bool
+    return bool(result)
