@@ -73,6 +73,12 @@ class Project:
          projects = list_projects()
          for project in projects:
              print(f"Project: {project.name} (ID: {project.id})")
+
+         # Delete a project by name
+         delete_project(name="My AI Project")
+
+         # Delete a project by ID
+         delete_project(id="project-id-123")
     """
 
     created_at: datetime.datetime
@@ -358,9 +364,12 @@ class Projects(DecorateAllMethods):
 
         response = detailed_response.parsed
 
+        if response is None:
+            raise ProjectsAPIException(f"Failed to delete project: {project.name}")
+
         if isinstance(response, HTTPValidationError):
             _logger.error(response)
-            raise ProjectsAPIException(str(response))
+            raise ProjectsAPIException(f"Failed to delete project: {response.detail}")
 
         return True
 

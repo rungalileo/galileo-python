@@ -189,7 +189,7 @@ class TestProjects:
     ) -> None:
         """Test that delete_project logs warning and returns None when neither id nor name is provided."""
         with caplog.at_level(logging.WARNING):
-            result = Projects().delete_project(id="", name="")
+            result = Projects().delete_project()
 
         assert result is None
         assert "Error occurred during execution: delete_project:" in caplog.text
