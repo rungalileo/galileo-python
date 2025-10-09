@@ -194,3 +194,22 @@ def test_get_scorer_version_success(get_scorer_version_mock: Mock) -> None:
     # Access generated_scorer as a dictionary
     assert result.generated_scorer["name"] == "test_generated_scorer"
     assert result.registered_scorer is None
+
+
+@patch("galileo.scorers.list_scorers_with_filters_scorers_list_post")
+def test_list_with_multiple_types(mock_list_scorers: Mock) -> None:
+    """Test that listing scorers with multiple types uses the ONE_OF operator."""
+    mock_list_scorers.sync.return_value = ListScorersResponse(scorers=[])
+    scorers_client = Scorers()
+    scorers_client.list(types=[ScorerTypes.LLM, ScorerTypes.CODE])
+
+    mock_list_scorers.sync.assert_called_once()
+    call_args = mock_list_scorers.sync.call_args
+    body = call_args.kwargs["body"]
+
+    assert isinstance(body, ListScorersRequest)
+    assert len(body.filters) == 1
+    type_filter = body.filters[0]
+    assert isinstance(type_filter, ScorerTypeFilter)
+    assert type_filter.operator == ScorerTypeFilterOperator.ONE_OF
+    assert type_filter.value == [ScorerTypes.LLM, ScorerTypes.CODE]

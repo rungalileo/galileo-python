@@ -309,34 +309,84 @@ def run_experiment(
 
 
 def create_experiment(
-    project_id: str, experiment_name: str
-) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
-    return Experiments().create(project_id, experiment_name)
+    project_id: Optional[str] = None, experiment_name: Optional[str] = None, project_name: Optional[str] = None
+) -> ExperimentResponse:
+    """
+    Create an experiment with the specified parameters.
+
+    The project can be specified by providing exactly one of the project name (via the 'project' parameter or the GALILEO_PROJECT environment variable)
+    or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
+
+    Args:
+        project_id: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
+        experiment_name: Name of the experiment. Required.
+        project: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
+
+    Returns:
+        ExperimentResponse: The created experiment response.
+
+    Raises:
+        ValueError: If ``experiment_name`` is not provided, or if the project cannot be resolved from ``project_id`` or ``project``.
+        HTTPValidationError: If there's a validation error in returning an ExperimentResponse.
+    """
+    # Enforce required experiment_name at runtime while keeping signature backward compatible for positional calls.
+    if not experiment_name:
+        raise ValueError("experiment_name is required")
+
+    # Resolve project by id, name, or environment fallbacks
+    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+    if not project_obj:
+        if project_name:
+            raise ValueError(f"Project {project_name} does not exist")
+        raise ValueError("Project not specified and no defaults found")
+
+    return Experiments().create(project_obj.id, experiment_name)
 
 
-def get_experiment(project_id: str, experiment_name: str) -> Optional[Union[ExperimentResponse, HTTPValidationError]]:
+def get_experiment(
+    project_id: Optional[str] = None, experiment_name: Optional[str] = None, project_name: Optional[str] = None
+) -> Optional[ExperimentResponse]:
     """
     Get an experiment with the specified parameters.
 
+    The project can be specified by providing exactly one of the project name (via the 'project' parameter or the GALILEO_PROJECT environment variable)
+    or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
+
     Args:
-        project_id: Galileo ID of the project associated with this experiment
-        experiment_name: Name of the experiment
+        project_id: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
+        experiment_name: Name of the experiment. Required.
+        project: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
 
     Returns:
-        ExperimentResponse results
+        ExperimentResponse results or ``None`` if not found.
 
     Raises:
-        HTTPValidationError: If there's a validation error in returning a ExperimentResponse
+        ValueError: If ``experiment_name`` is not provided, or if the project cannot be resolved from ``project_id`` or ``project``.
+        HTTPValidationError: If there's a validation error in returning an ExperimentResponse.
     """
-    return Experiments().get(project_id, experiment_name)
+    # Enforce required experiment_name at runtime while keeping signature backward compatible for positional calls.
+    if not experiment_name:
+        raise ValueError("experiment_name is required")
+
+    # Resolve project by id, name, or environment fallbacks
+    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+    if not project_obj:
+        if project_name:
+            raise ValueError(f"Project {project_name} does not exist")
+        raise ValueError("Project not specified and no defaults found")
+
+    return Experiments().get(project_obj.id, experiment_name)
 
 
-def get_experiments(project_id: str) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:
+def get_experiments(
+    project_id: Optional[str] = None, project_name: Optional[str] = None
+) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:
     """
-    Get an experiments with the specified Project ID.
+    Get experiments from the specified Project
 
     Args:
-        project_id: Galileo ID of the project associated with this experiment
+        project_id: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
+        project: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
 
     Returns:
         List of ExperimentResponse results
@@ -344,4 +394,11 @@ def get_experiments(project_id: str) -> Optional[Union[HTTPValidationError, list
     Raises:
         HTTPValidationError: If there's a validation error in returning a list of ExperimentResponse
     """
-    return Experiments().list(project_id=project_id)
+    # Resolve project by id, name, or environment fallbacks
+    project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)
+    if not project_obj:
+        if project_name:
+            raise ValueError(f"Project {project_name} does not exist")
+        raise ValueError("Project not specified and no defaults found")
+
+    return Experiments().list(project_id=project_obj.id)
