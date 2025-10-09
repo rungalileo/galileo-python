@@ -145,6 +145,7 @@ def create_mock_version_response():
     return BaseScorerVersionResponse.from_dict(
         {
             "id": "b8933a6d-7a65-4ce3-bfe4-b863109a0425",
+            "scorer_id": "b8933a6d-7a65-4ce3-bfe4-b863109a0425",
             "version": 2,
             "model_name": "GPT-4o",
             "num_judges": 3,

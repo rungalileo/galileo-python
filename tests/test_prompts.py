@@ -1211,14 +1211,13 @@ def test_create_prompt_with_project_name_and_string_template(
     assert call_kwargs.kwargs["body"].template == template_str
 
 
-# Test get_prompt() with deprecated project parameters (for backward compatibility)
+# Test get_prompt() with project parameters (for backward compatibility)
 @patch("galileo.prompts.get_global_template_templates_template_id_get")
 def test_get_prompt_with_project_name_and_id(get_template_mock: Mock) -> None:
-    """Test get_prompt with deprecated project_name parameter - should emit warning but work."""
+    """Test get_prompt with project_name parameter - should work (params ignored)."""
     get_template_mock.sync.return_value = prompt_template()
 
-    with pytest.warns(DeprecationWarning, match="project_id.*project_name.*deprecated"):
-        template = get_prompt(id="4793f4b9-eb56-4495-88a9-8cf57bfe737b", project_name="andrii-new-project")
+    template = get_prompt(id="4793f4b9-eb56-4495-88a9-8cf57bfe737b", project_name="andrii-new-project")
 
     assert template is not None
     assert template.name == "andrii-good-prompt"
@@ -1227,13 +1226,12 @@ def test_get_prompt_with_project_name_and_id(get_template_mock: Mock) -> None:
 
 @patch("galileo.prompts.query_templates_templates_query_post")
 def test_get_prompt_with_project_name_and_name(query_templates_mock: Mock) -> None:
-    """Test get_prompt with deprecated project_name parameter by name - should emit warning but work."""
+    """Test get_prompt with project_name parameter by name - should work (params ignored)."""
     query_templates_mock.sync.return_value = ListPromptTemplateResponse(
         templates=[prompt_template()], next_starting_token=None
     )
 
-    with pytest.warns(DeprecationWarning, match="project_id.*project_name.*deprecated"):
-        template = get_prompt(name="andrii-good-prompt", project_name="andrii-new-project")
+    template = get_prompt(name="andrii-good-prompt", project_name="andrii-new-project")
 
     assert template is not None
     assert template.name == "andrii-good-prompt"
@@ -1242,11 +1240,10 @@ def test_get_prompt_with_project_name_and_name(query_templates_mock: Mock) -> No
 
 @patch("galileo.prompts.get_global_template_templates_template_id_get")
 def test_get_prompt_with_deprecated_project_id(get_template_mock: Mock) -> None:
-    """Test get_prompt with deprecated project_id parameter - should emit warning but work."""
+    """Test get_prompt with project_id parameter - should work (params ignored)."""
     get_template_mock.sync.return_value = prompt_template()
 
-    with pytest.warns(DeprecationWarning, match="project_id.*project_name.*deprecated"):
-        template = get_prompt(id="template-id", project_id="proj-123")
+    template = get_prompt(id="template-id", project_id="proj-123")
 
     assert template is not None
     assert template.name == "andrii-good-prompt"
@@ -1255,7 +1252,7 @@ def test_get_prompt_with_deprecated_project_id(get_template_mock: Mock) -> None:
 def test_get_prompt_project_params_are_ignored() -> None:
     """Test that project parameters are ignored (no validation errors for both params)."""
     # Project parameters are now ignored, so no error should be raised for providing both
-    # The function just warns and ignores them
+    # This test documents that the old validation is gone
     pass  # This test documents that the old validation is gone
 
 
@@ -1328,14 +1325,13 @@ def test_get_prompt_project_params_are_ignored() -> None:
 #     assert "Only one of 'project_id' or 'project_name' can be provided, not both" in str(exc_info.value)
 
 
-# Test delete_prompt() with deprecated project parameters (for backward compatibility)
+# Test delete_prompt() with project parameters (for backward compatibility)
 @patch("galileo.prompts.delete_global_template_templates_template_id_delete")
 def test_delete_prompt_with_project_name_and_id(delete_template_mock: Mock) -> None:
-    """Test delete_prompt with deprecated project_name parameter - should emit warning but work."""
+    """Test delete_prompt with project_name parameter - should work (params ignored)."""
     delete_template_mock.sync.return_value = None
 
-    with pytest.warns(DeprecationWarning, match="project_id.*project_name.*deprecated"):
-        delete_prompt(id="template-id-123", project_name="andrii-new-project")
+    delete_prompt(id="template-id-123", project_name="andrii-new-project")
 
     delete_template_mock.sync.assert_called_once()
 
@@ -1343,44 +1339,41 @@ def test_delete_prompt_with_project_name_and_id(delete_template_mock: Mock) -> N
 @patch("galileo.prompts.query_templates_templates_query_post")
 @patch("galileo.prompts.delete_global_template_templates_template_id_delete")
 def test_delete_prompt_with_project_name_and_name(delete_template_mock: Mock, query_templates_mock: Mock) -> None:
-    """Test delete_prompt with deprecated project_name parameter by name - should emit warning but work."""
+    """Test delete_prompt with project_name parameter by name - should work (params ignored)."""
     delete_template_mock.sync.return_value = None
     query_templates_mock.sync.return_value = ListPromptTemplateResponse(
         templates=[prompt_template()], next_starting_token=None
     )
 
-    with pytest.warns(DeprecationWarning, match="project_id.*project_name.*deprecated"):
-        delete_prompt(name="andrii-good-prompt", project_name="andrii-new-project")
+    delete_prompt(name="andrii-good-prompt", project_name="andrii-new-project")
 
     delete_template_mock.sync.assert_called_once()
 
 
 @patch("galileo.prompts.delete_global_template_templates_template_id_delete")
 def test_delete_prompt_with_project_id(delete_template_mock: Mock) -> None:
-    """Test delete_prompt with deprecated project_id parameter - should emit warning but work."""
+    """Test delete_prompt with project_id parameter - should work (params ignored)."""
     delete_template_mock.sync.return_value = None
 
-    with pytest.warns(DeprecationWarning, match="project_id.*project_name.*deprecated"):
-        delete_prompt(id="template-id-123", project_id="e343ea54-4df3-4d0b-9bc5-7e8224be348f")
+    delete_prompt(id="template-id-123", project_id="e343ea54-4df3-4d0b-9bc5-7e8224be348f")
 
     delete_template_mock.sync.assert_called_once()
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")
 def test_delete_prompt_with_project_name_template_not_found(query_templates_mock: Mock) -> None:
-    """Test delete_prompt with deprecated project_name when template is not found."""
+    """Test delete_prompt with project_name when template is not found."""
     query_templates_mock.sync.return_value = ListPromptTemplateResponse(templates=[], next_starting_token=None)
 
-    with pytest.warns(DeprecationWarning, match="project_id.*project_name.*deprecated"):
-        with pytest.raises(ValueError) as exc_info:
-            delete_prompt(name="nonexistent-template", project_name="andrii-new-project")
+    with pytest.raises(ValueError) as exc_info:
+        delete_prompt(name="nonexistent-template", project_name="andrii-new-project")
 
     assert "not found" in str(exc_info.value).lower()
 
 
 def test_delete_prompt_project_params_are_ignored() -> None:
     """Test that project parameters are ignored (no validation errors for both params)."""
-    # Project parameters are now ignored with a warning, so no error for providing both
+    # Project parameters are now ignored, so no error for providing both
     pass  # This test documents that the old validation is gone
 
 
