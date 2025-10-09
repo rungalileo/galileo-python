@@ -14,13 +14,9 @@ from galileo.resources.api.prompts import (
     render_template_render_template_post,
     update_global_template_templates_template_id_patch,
 )
-from galileo.resources.api.prompts.bulk_delete_global_templates_templates_bulk_delete_delete import (
-    sync_detailed as bulk_delete_global_templates_sync_detailed,
-)
 from galileo.resources.models import (
     BasePromptTemplateResponse,
     BasePromptTemplateVersionResponse,
-    BulkDeletePromptTemplatesRequest,
     CreatePromptTemplateWithVersionRequestBody,
     DatasetData,
     HTTPValidationError,
@@ -35,6 +31,7 @@ from galileo.resources.models import (
 )
 from galileo.resources.types import Unset
 from galileo.utils.exceptions import APIException
+from galileo.utils.prompts import generate_unique_name
 
 _logger = logging.getLogger(__name__)
 
@@ -44,26 +41,7 @@ class PromptTemplateAPIException(APIException):
 
 
 def _resolve_project_id(project_id: Optional[str] = None, project_name: Optional[str] = None) -> Optional[str]:
-    """
-    Resolve project_name to project_id if needed.
-
-    Parameters
-    ----------
-    project_id : Optional[str], optional
-        The project ID. If provided, returns this directly.
-    project_name : Optional[str], optional
-        The project name. If provided, looks up the project ID.
-
-    Returns
-    -------
-    Optional[str]
-        The resolved project ID, or None if neither was provided.
-
-    Raises
-    ------
-    ValueError
-        If both project_id and project_name are provided, or if project_name doesn't exist.
-    """
+    """Resolve project_name to project_id if needed. Internal helper function."""
     if project_id and project_name:
         raise ValueError("Cannot provide both 'project_id' and 'project_name'")
 
@@ -78,15 +56,7 @@ def _resolve_project_id(project_id: Optional[str] = None, project_name: Optional
 
 class PromptTemplate(BasePromptTemplateResponse):
     def __init__(self, prompt_template: Union[None, BasePromptTemplateResponse] = None):
-        """
-        Initialize a PromptTemplate instance.
-
-        Parameters
-        ----------
-        prompt_template : Union[None, BasePromptTemplateResponse], optional
-            The prompt template data to initialize from. If None, creates an empty prompt template instance.
-            Defaults to None.
-        """
+        """Initialize a PromptTemplate instance."""
         if prompt_template is not None:
             super().__init__(
                 all_available_versions=prompt_template.all_available_versions,
@@ -268,36 +238,6 @@ class GlobalPromptTemplates:
             delete_global_template_templates_template_id_delete.sync(
                 client=self.config.api_client, template_id=template_id
             )
-
-    def bulk_delete(self, template_ids: builtins.list[str]) -> None:
-        """
-        Delete multiple global prompt templates in bulk.
-
-        Parameters
-        ----------
-        template_ids : list[str]
-            List of template IDs to delete (max 100).
-
-        Raises
-        ------
-        PromptTemplateAPIException
-            If the API request fails or returns an error.
-        ValueError
-            If the template_ids list is empty or contains more than 100 items.
-        """
-        if not template_ids:
-            raise ValueError("template_ids list cannot be empty")
-
-        if len(template_ids) > 100:
-            raise ValueError("Cannot delete more than 100 templates at once")
-
-        body = BulkDeletePromptTemplatesRequest(template_ids=template_ids)
-
-        _logger.debug(f"Bulk deleting {len(template_ids)} templates")
-        response = bulk_delete_global_templates_sync_detailed(client=self.config.api_client, body=body)
-
-        if response.status_code != 200:
-            raise PromptTemplateAPIException(response.content.decode("utf-8"))
 
     def get_version(self, *, template_id: str, version: int) -> Optional[PromptTemplateVersion]:
         _logger.debug(f"Get global template {template_id} version {version}")
@@ -489,15 +429,6 @@ def get_prompt(
     ------
     ValueError
         If neither or both 'id' and 'name' are provided.
-
-    Examples
-    --------
-    >>> # Get global template by ID
-    >>> template = get_prompt(id="template-id-123")
-
-    >>> # Get global template by name
-    >>> template = get_prompt(name="my-template")
-
     """
     # Validate template identifier
     if (id is None) and (name is None):
@@ -552,15 +483,6 @@ def delete_prompt(
     ------
     ValueError
         If neither or both id and name are provided, or if the template is not found.
-
-    Examples
-    --------
-    >>> # Delete global template by ID
-    >>> delete_prompt(id="template-id-123")
-
-    >>> # Delete global template by name
-    >>> delete_prompt(name="my-template")
-
     """
 
     # Validate template identifier
@@ -572,41 +494,6 @@ def delete_prompt(
 
     # Delete global template
     return GlobalPromptTemplates().delete(template_id=id, name=name)  # type: ignore[call-overload]
-
-
-def bulk_delete_prompts(template_ids: builtins.list[str]) -> None:
-    """
-    Delete multiple global prompt templates in bulk.
-
-    This function provides efficient deletion of multiple templates at once.
-    Maximum of 100 templates can be deleted in a single call.
-
-    Parameters
-    ----------
-    template_ids : list[str]
-        List of template IDs to delete (max 100).
-
-    Returns
-    -------
-    None
-
-    Raises
-    ------
-    ValueError
-        If the template_ids list is empty or contains more than 100 items.
-    PromptTemplateAPIException
-        If the API request fails or returns an error.
-
-    Examples
-    --------
-    >>> # Delete multiple templates by their IDs
-    >>> bulk_delete_prompts(["template-id-1", "template-id-2", "template-id-3"])
-
-    >>> # Delete up to 100 templates at once
-    >>> template_ids = [template.id for template in get_prompts(limit=100)]
-    >>> bulk_delete_prompts(template_ids)
-    """
-    return GlobalPromptTemplates().bulk_delete(template_ids=template_ids)
 
 
 @overload
@@ -641,14 +528,6 @@ def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_n
         If neither or both id and name are provided, or if the template is not found.
     PromptTemplateAPIException
         If the API request fails or returns an error.
-
-    Examples
-    --------
-    >>> # Update template by ID
-    >>> template = update_prompt(id="template-id-123", new_name="new-name")
-
-    >>> # Update template by existing name
-    >>> template = update_prompt(name="old-name", new_name="new-name")
     """
     if (id is None) == (name is None):
         raise ValueError("Exactly one of 'id' or 'name' must be provided")
@@ -664,63 +543,32 @@ def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_n
     raise ValueError("Invalid state: neither id nor name is provided")
 
 
-def _check_name_exists_in_organization(name: str) -> bool:
+def create_prompt_template(name: str, project: str, messages: builtins.list[Message]) -> PromptTemplate:
     """
-    Check if a prompt template name exists in the organization.
-
-    Enforces organization-wide uniqueness by checking global templates.
+    Create a new global prompt template.
 
     Parameters
     ----------
     name : str
-        The template name to check.
+        The name for the new template.
+    project : str
+        The project name to associate with this template.
+    messages : list[Message]
+        The template content as a list of Message objects.
 
     Returns
     -------
-    bool
-        True if the name exists, False otherwise.
+    PromptTemplate
+        The created prompt template.
+
+    Raises
+    ------
+    PromptTemplateAPIException
+        If the API request fails or returns an error.
+    ValueError
+        If project doesn't exist.
     """
-    # Check global templates
-    global_templates = GlobalPromptTemplates().list(name_filter=name, limit=1000)
-    return any(template.name == name for template in global_templates)
-
-
-def _generate_unique_name(base_name: str) -> str:
-    """
-    Generate a unique template name by appending (N) if the base name exists.
-
-    Ensures organization-wide uniqueness by checking global templates.
-    Automatically increments the suffix until a unique name is found.
-
-    Parameters
-    ----------
-    base_name : str
-        The desired template name.
-
-    Returns
-    -------
-    str
-        A unique name. Returns the original name if unique, otherwise appends (1), (2), etc.
-
-    Examples
-    --------
-    - If "my-template" doesn't exist → returns "my-template"
-    - If "my-template" exists → returns "my-template (1)"
-    - If "my-template" and "my-template (1)" exist → returns "my-template (2)"
-    """
-    if not _check_name_exists_in_organization(base_name):
-        return base_name
-
-    counter = 1
-    while True:
-        candidate_name = f"{base_name} ({counter})"
-        if not _check_name_exists_in_organization(candidate_name):
-            _logger.info(f"Name '{base_name}' already exists. Using '{candidate_name}' instead.")
-            return candidate_name
-        counter += 1
-        # Safety limit to prevent infinite loops
-        if counter > 1000:
-            raise ValueError(f"Unable to generate unique name for '{base_name}' after 1000 attempts")
+    return create_prompt(name=name, project_name=project, template=messages)
 
 
 def create_prompt(
@@ -758,35 +606,13 @@ def create_prompt(
         If the API request fails or returns an error.
     ValueError
         If both project_id and project_name are provided, or if project_name doesn't exist.
-
-    Examples
-    --------
-    >>> # Create a global template
-    >>> template = create_prompt(
-    ...     name="helpful-assistant",
-    ...     template=[Message(role=MessageRole.SYSTEM, content="You are helpful")]
-    ... )
-
-    >>> # Create a global template associated with a project by ID
-    >>> template = create_prompt(
-    ...     name="project-assistant",
-    ...     template=[Message(role=MessageRole.SYSTEM, content="You are helpful")],
-    ...     project_id="project-123"
-    ... )
-
-    >>> # Create a global template associated with a project by name
-    >>> template = create_prompt(
-    ...     name="project-assistant",
-    ...     template=[Message(role=MessageRole.SYSTEM, content="You are helpful")],
-    ...     project_name="My Project"
-    ... )
     """
     # Resolve project parameters early (validates and converts project_name to project_id)
     # This will raise ValueError if both are provided or if project_name doesn't exist
     resolved_project_id = _resolve_project_id(project_id=project_id, project_name=project_name)
 
     # Generate a unique name to ensure organization-wide uniqueness
-    unique_name = _generate_unique_name(name)
+    unique_name = generate_unique_name(name)
 
     # Create a global template with the unique name and resolved project_id
     # Pass only project_id to avoid duplicate resolution
@@ -825,26 +651,6 @@ def get_prompts(
     ------
     ValueError
         If both project_id and project_name are provided, or if project_name doesn't exist.
-
-    Examples
-    --------
-    >>> # List all global templates
-    >>> templates = get_prompts()
-
-    >>> # List global templates with names containing "assistant"
-    >>> templates = get_prompts(name_filter="assistant")
-
-    >>> # List first 10 global templates
-    >>> templates = get_prompts(limit=10)
-
-    >>> # List templates associated with a specific project by ID
-    >>> templates = get_prompts(project_id="project-123")
-
-    >>> # List templates associated with a specific project by name
-    >>> templates = get_prompts(project_name="My Project")
-
-    >>> # Combine filters
-    >>> templates = get_prompts(name_filter="assistant", project_id="project-123", limit=50)
     """
     # List global templates with optional project filtering
     return GlobalPromptTemplates().list(
@@ -886,20 +692,6 @@ def render_template(
     ------
     PromptTemplateAPIException
         If the API request fails or returns an error.
-
-    Examples
-    --------
-    >>> # Render template with string data
-    >>> response = render_template(
-    ...     template="Hello {{name}}!",
-    ...     data=["Alice", "Bob", "Charlie"]
-    ... )
-
-    >>> # Render template with dataset
-    >>> response = render_template(
-    ...     template="Hello {{name}}!",
-    ...     data="dataset-id-123"
-    ... )
     """
     if isinstance(data, list):
         data = StringData(input_strings=data)

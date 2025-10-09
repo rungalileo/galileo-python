@@ -386,108 +386,6 @@ def render_template_response_second_page():
     )
 
 
-# DEPRECATED: This test uses old project-specific endpoints that are no longer supported.
-# We now use global template endpoints with optional project_id parameter.
-# See test_prompts_global.py for updated tests.
-# @patch("galileo.projects.get_projects_projects_get")
-# @patch("galileo.prompts.create_global_prompt_template_templates_post")
-# def test_create_prompt(create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-#     create_prompt_template_mock.sync_detailed.return_value = Response(
-#         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
-#     )
-#     get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-#     tmpl = create_prompt_template(
-#         name="andrii-good-prompt",
-#         project="andrii-new-project",
-#         messages=[
-#             Message(role=MessageRole.system, content="you are a helpful assistant"),
-#             Message(role=MessageRole.user, content="why is sky blue?"),
-#         ],
-#     )
-#
-#     assert tmpl.name == "andrii-good-prompt"
-#     create_prompt_template_mock.sync_detailed.assert_called_once()
-#     get_projects_projects_get_mock.sync_detailed.assert_called_once()
-
-
-# DEPRECATED: This test uses old project-specific endpoints that are no longer supported.
-# We now use global template endpoints with optional project_id parameter.
-# See test_prompts_global.py for updated tests.
-# @patch("galileo.projects.get_projects_projects_get")
-# @patch("galileo.prompts.create_global_prompt_template_templates_post")
-# def test_create_prompt_bad_request(create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-#     create_prompt_template_mock.sync_detailed.return_value = Response(
-#         content=b'{"detail":"Prompt template with name storyteller-prompt already exists (ID 3e3d48fa-0aae-433c-be2c-b3f7fb53c9e2)."}',
-#         status_code=HTTPStatus.BAD_REQUEST,
-#         headers={},
-#         parsed=None,
-#     )
-#     get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-#     with pytest.raises(PromptTemplateAPIException):
-#         create_prompt_template(
-#             name="andrii-good-prompt",
-#             project="andrii-new-project",
-#             messages=[
-#                 Message(role=MessageRole.system, content="you are a helpful assistant"),
-#                 Message(role=MessageRole.user, content="why is sky blue?"),
-#             ],
-#         )
-#     create_prompt_template_mock.sync_detailed.assert_called_once()
-#     get_projects_projects_get_mock.sync_detailed.assert_called_once()
-
-
-# DEPRECATED: This test uses old project-specific endpoints that are no longer supported.
-# We now use global template endpoints with optional project_id parameter.
-# See test_prompts_global.py for updated tests.
-# @patch("galileo.projects.get_projects_projects_get")
-# @patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-# def test_list_prompts(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-#     list_prompt_templates_mock.sync.return_value = [prompt_template()]
-#     get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-#     templates = list_prompt_templates(project="andrii-new-project")
-#
-#     assert len(templates) == 1
-#     assert templates[0].name == "andrii-good-prompt"
-#
-#     list_prompt_templates_mock.sync.assert_called_once()
-#     get_projects_projects_get_mock.sync_detailed.assert_called_once()
-
-
-# DEPRECATED: This test uses old project-specific endpoints that are no longer supported.
-# We now use global template endpoints with optional project_id parameter.
-# See test_prompts_global.py for updated tests.
-# @patch("galileo.projects.get_projects_projects_get")
-# @patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-# def test_get_prompt_template_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-#     """Test get_prompt_template when template exists."""
-#     list_prompt_templates_mock.sync.return_value = [prompt_template()]
-#     get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-#
-#     template = get_prompt_template(name="andrii-good-prompt", project="andrii-new-project")
-#
-#     assert template is not None
-#     assert template.name == "andrii-good-prompt"
-#     list_prompt_templates_mock.sync.assert_called_once()
-#     get_projects_projects_get_mock.sync_detailed.assert_called_once()
-#
-#
-# DEPRECATED: This test uses old project-specific endpoints that are no longer supported.
-# We now use global template endpoints with optional project_id parameter.
-# See test_prompts_global.py for updated tests.
-# @patch("galileo.projects.get_projects_projects_get")
-# @patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-# def test_get_prompt_template_not_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-#     """Test get_prompt_template when template doesn't exist."""
-#     list_prompt_templates_mock.sync.return_value = [prompt_template()]  # Return a different template
-#     get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-#
-#     template = get_prompt_template(name="nonexistent-template", project="andrii-new-project")
-#
-#     assert template is None
-#     list_prompt_templates_mock.sync.assert_called_once()
-#     get_projects_projects_get_mock.sync_detailed.assert_called_once()
-
-
 @patch("galileo.prompts.query_templates_templates_query_post")
 @patch("galileo.prompts.create_global_prompt_template_templates_post")
 def test_create_global_prompt_template(create_global_prompt_template_mock: Mock, query_templates_mock: Mock) -> None:
@@ -1256,75 +1154,6 @@ def test_get_prompt_project_params_are_ignored() -> None:
     pass  # This test documents that the old validation is gone
 
 
-# DEPRECATED: get_prompts() now uses /templates/query with filters, not project-specific endpoints.
-# Tests need to be rewritten to mock query_templates_templates_query_post instead.
-# @patch("galileo.projects.get_projects_projects_get")
-# @patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-# def test_get_prompts_with_project_name(get_project_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-#     """Test get_prompts with project_name parameter."""
-#     get_project_templates_mock.sync.return_value = [prompt_template()]
-#     get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-#
-#     templates = get_prompts(project_name="andrii-new-project")
-#
-#     assert len(templates) == 1
-#     assert templates[0].name == "andrii-good-prompt"
-#     get_project_templates_mock.sync.assert_called_once()
-#     get_projects_projects_get_mock.sync_detailed.assert_called_once()
-#
-#
-# DEPRECATED: get_prompts() now uses /templates/query with filters, not project-specific endpoints.
-# @patch("galileo.projects.get_project_projects_project_id_get")
-# @patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-# def test_get_prompts_with_project_id(
-#     get_project_templates_mock: Mock, get_project_projects_project_id_get_mock: Mock
-# ) -> None:
-#     """Test get_prompts with project_id parameter."""
-#     get_project_templates_mock.sync.return_value = [prompt_template()]
-#     get_project_projects_project_id_get_mock.sync_detailed.return_value = Response(
-#         content=json.dumps(projects_response().parsed[0].to_dict()).encode("utf-8"),
-#         status_code=HTTPStatus.OK,
-#         headers={"Content-Type": "application/json"},
-#         parsed=projects_response().parsed[0],
-#     )
-#
-#     templates = get_prompts(project_id="e343ea54-4df3-4d0b-9bc5-7e8224be348f")
-#
-#     assert len(templates) == 1
-#     assert templates[0].name == "andrii-good-prompt"
-#     get_project_templates_mock.sync.assert_called_once()
-#     get_project_projects_project_id_get_mock.sync_detailed.assert_called_once()
-#
-#
-# DEPRECATED: get_prompts() now uses /templates/query with filters, not project-specific endpoints.
-# @patch("galileo.projects.get_projects_projects_get")
-# @patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-# def test_get_prompts_with_project_and_name_filter(
-#     get_project_templates_mock: Mock, get_projects_projects_get_mock: Mock
-# ) -> None:
-#     """Test get_prompts with project and name filter."""
-#     template1 = prompt_template()
-#     template2 = prompt_template()
-#     template2.name = "different-template"
-#
-#     get_project_templates_mock.sync.return_value = [template1, template2]
-#     get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-#
-#     templates = get_prompts(name_filter="good", project_name="andrii-new-project")
-#
-#     assert len(templates) == 1
-#     assert templates[0].name == "andrii-good-prompt"
-#
-#
-# DEPRECATED: get_prompts() error handling for both project params is now in _resolve_project_id().
-# def test_get_prompts_with_both_project_params() -> None:
-#     """Test get_prompts with both project parameters (should raise error)."""
-#     with pytest.raises(ValueError) as exc_info:
-#         get_prompts(project_id="id-123", project_name="proj-name")
-#
-#     assert "Only one of 'project_id' or 'project_name' can be provided, not both" in str(exc_info.value)
-
-
 # Test delete_prompt() with project parameters (for backward compatibility)
 @patch("galileo.prompts.delete_global_template_templates_template_id_delete")
 def test_delete_prompt_with_project_name_and_id(delete_template_mock: Mock) -> None:
@@ -1538,7 +1367,7 @@ def test_create_prompt_no_increment_when_name_unique(
 @patch("galileo.prompts.query_templates_templates_query_post")
 def test_generate_unique_name_increments_multiple_times(query_templates_mock: Mock) -> None:
     """Test that unique name generation can handle multiple increments."""
-    from galileo.prompts import _generate_unique_name
+    from galileo.utils.prompts import generate_unique_name
 
     # Mock global templates: base-name, base-name (1), and base-name (2) all exist
     template1 = global_prompt_template()
@@ -1561,5 +1390,5 @@ def test_generate_unique_name_increments_multiple_times(query_templates_mock: Mo
     )
 
     # Should generate "base-name (3)" since base-name, (1), and (2) all exist
-    unique_name = _generate_unique_name("base-name")
+    unique_name = generate_unique_name("base-name")
     assert unique_name == "base-name (3)"
