@@ -19,19 +19,40 @@ def prompt_template_response():
         "id": "template-id-123",
         "name": "test-template",
         "template": '[{"role":"system","content":"test"}]',
+        "all_available_versions": [0],
+        "max_version": 0,
+        "total_versions": 1,
+        "selected_version_id": "version-id-123",
         "created_at": "2024-01-01T00:00:00Z",
         "updated_at": "2024-01-01T00:00:00Z",
-        "selected_version": 1,
-        "selected_version_id": "version-id-123",
-        "versions": [
-            {
-                "id": "version-id-123",
-                "template_id": "template-id-123",
-                "version": 1,
-                "messages": [{"role": "system", "content": "test"}],
-                "raw": False,
-            }
-        ],
+        "created_by_user": {"id": "user-id-123", "email": "test@test.com", "first_name": "Test", "last_name": "User"},
+        "permissions": [],
+        "selected_version": {
+            "id": "version-id-123",
+            "template": '[{"role":"system","content":"test"}]',
+            "version": 0,
+            "content_changed": False,
+            "lines_added": 1,
+            "lines_edited": 0,
+            "lines_removed": 0,
+            "model_changed": False,
+            "settings": {
+                "top_p": 1.0,
+                "temperature": 0.7,
+                "max_tokens": 1000,
+                "presence_penalty": 0.0,
+                "frequency_penalty": 0.0,
+            },
+            "settings_changed": False,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z",
+            "created_by_user": {
+                "id": "user-id-123",
+                "email": "test@test.com",
+                "first_name": "Test",
+                "last_name": "User",
+            },
+        },
     }
 
 
@@ -51,7 +72,7 @@ class TestGlobalPromptTemplates:
         )
 
         # Create template
-        template = create_prompt(name="test-template", template=[Message(role=MessageRole.SYSTEM, content="test")])
+        template = create_prompt(name="test-template", template=[Message(role=MessageRole.system, content="test")])
 
         assert template.name == "test-template"
         assert query_route.called
@@ -100,7 +121,7 @@ class TestGlobalPromptTemplates:
     def test_delete_global_prompt_by_id(self, respx_mock: MockRouter):
         """Test deleting a global prompt template by ID."""
         delete_route = respx_mock.delete("http://localtest:8088/templates/template-id-123").mock(
-            return_value=httpx.Response(200, json={})
+            return_value=httpx.Response(200, json={"message": "Template deleted successfully"})
         )
 
         delete_prompt(id="template-id-123")
@@ -118,7 +139,7 @@ class TestGlobalPromptTemplates:
 
         # Mock delete
         delete_route = respx_mock.delete(f"http://localtest:8088/templates/{prompt_template_response['id']}").mock(
-            return_value=httpx.Response(200, json={})
+            return_value=httpx.Response(200, json={"message": "Template deleted successfully"})
         )
 
         delete_prompt(name="test-template")
@@ -140,7 +161,7 @@ class TestGlobalPromptTemplates:
             return_value=httpx.Response(200, json=new_template)
         )
 
-        template = create_prompt(name="test-template", template=[Message(role=MessageRole.SYSTEM, content="test")])
+        template = create_prompt(name="test-template", template=[Message(role=MessageRole.system, content="test")])
 
         # Should have been renamed to avoid conflict
         assert template.name == "test-template (1)"
