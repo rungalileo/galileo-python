@@ -1531,16 +1531,26 @@ components:
           description: List of node types that can be scored by this scorer. Defaults
             to llm/chat.
           title: Scoreable Node Types
+        scorer_id:
+          format: uuid4
+          title: Scorer Id
+          type: string
         version:
           title: Version
           type: integer
       required:
         - id
         - version
+        - scorer_id
       title: BaseScorerVersionDB
       type: object
     BaseScorerVersionResponse:
       properties:
+        allowed_model:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Allowed Model
         chain_poll_template:
           anyOf:
             - $ref: '#/components/schemas/ChainPollTemplate'
@@ -1597,6 +1607,10 @@ components:
               type: array
             - type: 'null'
           title: Scoreable Node Types
+        scorer_id:
+          format: uuid4
+          title: Scorer Id
+          type: string
         updated_at:
           format: date-time
           title: Updated At
@@ -1607,6 +1621,7 @@ components:
       required:
         - id
         - version
+        - scorer_id
         - created_at
         - updated_at
       title: BaseScorerVersionResponse
@@ -7302,6 +7317,7 @@ components:
             - ne
             - one_of
             - not_in
+            - contains
           title: Operator
           type: string
         value:
@@ -7312,6 +7328,7 @@ components:
                 format: uuid4
                 type: string
               type: array
+            - type: string
           title: Value
       required:
         - value
@@ -12002,6 +12019,7 @@ components:
             - ne
             - one_of
             - not_in
+            - contains
           title: Operator
           type: string
         value:
@@ -12012,6 +12030,7 @@ components:
                 format: uuid4
                 type: string
               type: array
+            - type: string
           title: Value
       required:
         - name
@@ -13368,13 +13387,13 @@ components:
       examples:
         - columns:
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - session
-                - trace
                 - llm
+                - session
+                - retriever
               category: standard
               complex: false
               data_type: text
@@ -13388,13 +13407,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - session
-                - trace
                 - llm
+                - session
+                - retriever
               category: standard
               complex: false
               data_type: text
@@ -13408,13 +13427,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - session
-                - trace
                 - llm
+                - session
+                - retriever
               category: standard
               complex: false
               data_type: text
@@ -13428,13 +13447,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - session
-                - trace
                 - llm
+                - session
+                - retriever
               category: standard
               complex: false
               data_type: timestamp
@@ -13448,12 +13467,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - trace
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: text
@@ -13467,12 +13486,12 @@ components:
               multi_valued: true
               sortable: false
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - trace
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: integer
@@ -13487,13 +13506,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - session
-                - trace
                 - llm
+                - session
+                - retriever
               category: standard
               complex: false
               data_type: text
@@ -13507,12 +13526,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - trace
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: text
@@ -13526,12 +13545,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - trace
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: text
@@ -13545,13 +13564,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - session
-                - trace
                 - llm
+                - session
+                - retriever
               category: standard
               complex: false
               data_type: uuid
@@ -13565,12 +13584,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - trace
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: uuid
@@ -13585,12 +13604,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - trace
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: uuid
@@ -13605,12 +13624,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - trace
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: uuid
@@ -13625,12 +13644,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - trace
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: timestamp
@@ -13644,12 +13663,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - trace
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: boolean
@@ -13663,12 +13682,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - trace
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
-                - trace
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: boolean
@@ -13682,19 +13701,19 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - agent
-                - tool
-                - workflow
-                - retriever
-                - session
                 - trace
-                - llm
-              applicable_types:
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
                 - llm
+                - session
+                - retriever
+              applicable_types:
+                - workflow
+                - agent
+                - tool
+                - llm
+                - retriever
               category: standard
               complex: false
               data_type: text
@@ -13708,11 +13727,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: uuid
@@ -13727,11 +13746,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: uuid
@@ -13745,11 +13764,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
+                - workflow
                 - agent
                 - tool
-                - workflow
-                - retriever
                 - llm
+                - retriever
               category: standard
               complex: false
               data_type: integer
@@ -13763,14 +13782,14 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - classifier
-                - router
                 - judge
-                - planner
                 - default
-                - supervisor
-                - react
                 - reflection
+                - router
+                - classifier
+                - react
+                - planner
+                - supervisor
               applicable_types:
                 - agent
               category: standard
@@ -14115,6 +14134,7 @@ components:
             - ne
             - one_of
             - not_in
+            - contains
           title: Operator
           type: string
         type:
@@ -14130,6 +14150,7 @@ components:
                 format: uuid4
                 type: string
               type: array
+            - type: string
           title: Value
       required:
         - column_id
@@ -14395,7 +14416,7 @@ components:
           num_rows: 2
           paginated: true
           records:
-            - created_at: '2025-10-02T23:33:25.266872Z'
+            - created_at: '2025-10-07T23:17:35.242543Z'
               dataset_metadata: {}
               feedback_rating_info: {}
               id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
@@ -14412,7 +14433,7 @@ components:
               trace_id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               type: trace
               user_metadata: {}
-            - created_at: '2025-10-02T23:33:25.267019Z'
+            - created_at: '2025-10-07T23:17:35.242698Z'
               dataset_metadata: {}
               id: 1edc2401-24b4-448c-a392-b36932293061
               input:
@@ -14685,14 +14706,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           parent_id: 11000011-0000-0000-0000-110000110000
           spans:
-            - created_at: '2025-10-02T23:33:25.236745Z'
+            - created_at: '2025-10-07T23:17:35.210293Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-10-02T23:33:25.220309Z'
+                - created_at: '2025-10-07T23:17:35.194316Z'
                   dataset_metadata: {}
                   id: 22222222-2222-4222-a222-222222222222
                   input:
@@ -15047,14 +15068,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           session_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-10-02T23:33:25.215218Z'
+            - created_at: '2025-10-07T23:17:35.189097Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-10-02T23:33:25.215184Z'
+                - created_at: '2025-10-07T23:17:35.189068Z'
                   dataset_metadata: {}
                   input:
                     - content: 'Question: who is a smart LLM?'
@@ -15072,14 +15093,14 @@ components:
               user_metadata: {}
         - experiment_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-10-02T23:33:25.215675Z'
+            - created_at: '2025-10-07T23:17:35.189530Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-10-02T23:33:25.215645Z'
+                - created_at: '2025-10-07T23:17:35.189500Z'
                   dataset_metadata: {}
                   id: 11111111-1111-4111-a111-111111111111
                   input:
@@ -15808,10 +15829,6 @@ components:
           default: false
           title: Provides Log Probs
           type: boolean
-        reasoning_supported:
-          default: false
-          title: Reasoning Supported
-          type: boolean
         response_prefix_tokens:
           default: 0
           title: Response Prefix Tokens
@@ -16460,6 +16477,7 @@ components:
             - ne
             - one_of
             - not_in
+            - contains
           title: Operator
           type: string
         value:
@@ -16470,6 +16488,7 @@ components:
                 format: uuid4
                 type: string
               type: array
+            - type: string
           title: Value
       required:
         - value
@@ -16611,6 +16630,7 @@ components:
             - ne
             - one_of
             - not_in
+            - contains
           title: Operator
           type: string
         value:
@@ -16621,6 +16641,7 @@ components:
                 format: uuid4
                 type: string
               type: array
+            - type: string
           title: Value
       required:
         - value
@@ -17224,16 +17245,6 @@ components:
           default: 0.0
           title: Frequency Penalty
           type: number
-        input:
-          anyOf:
-            - type: string
-            - type: 'null'
-          title: Input
-        instructions:
-          anyOf:
-            - type: string
-            - type: 'null'
-          title: Instructions
         known_models:
           items:
             $ref: '#/components/schemas/Model'
@@ -17345,6 +17356,7 @@ components:
             - ne
             - one_of
             - not_in
+            - contains
           title: Operator
           type: string
         value:
@@ -17355,6 +17367,7 @@ components:
                 format: uuid4
                 type: string
               type: array
+            - type: string
           title: Value
       required:
         - value
@@ -18415,16 +18428,6 @@ components:
             - type: string
             - type: 'null'
           title: Frequency Penalty
-        input:
-          anyOf:
-            - type: string
-            - type: 'null'
-          title: Input
-        instructions:
-          anyOf:
-            - type: string
-            - type: 'null'
-          title: Instructions
         logprobs:
           anyOf:
             - type: string
@@ -18778,6 +18781,7 @@ components:
             - ne
             - one_of
             - not_in
+            - contains
           title: Operator
           type: string
         value:
@@ -18788,6 +18792,7 @@ components:
                 format: uuid4
                 type: string
               type: array
+            - type: string
           title: Value
       required:
         - value
@@ -19015,6 +19020,10 @@ components:
             type: string
           title: Included Fields
           type: array
+        input_type:
+          anyOf:
+            - $ref: '#/components/schemas/InputTypeEnum'
+            - type: 'null'
         label:
           anyOf:
             - type: string
@@ -19032,6 +19041,17 @@ components:
         name:
           title: Name
           type: string
+        output_type:
+          anyOf:
+            - $ref: '#/components/schemas/OutputTypeEnum'
+            - type: 'null'
+        scoreable_node_types:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Scoreable Node Types
         scorer_type:
           $ref: '#/components/schemas/ScorerTypes'
         tags:
@@ -21541,6 +21561,8 @@ components:
       enum:
         - action_advancement_luna
         - action_completion_luna
+        - agent_efficiency
+        - agent_flow
         - agentic_session_success
         - agentic_workflow_success
         - bleu
@@ -21551,19 +21573,24 @@ components:
         - context_adherence
         - context_adherence_luna
         - context_relevance
+        - conversation_quality
         - correctness
         - ground_truth_adherence
         - input_pii
+        - input_pii_gpt
         - input_sexist
         - input_sexist_luna
         - input_tone
+        - input_tone_gpt
         - input_toxicity
         - input_toxicity_luna
         - instruction_adherence
         - output_pii
+        - output_pii_gpt
         - output_sexist
         - output_sexist_luna
         - output_tone
+        - output_tone_gpt
         - output_toxicity
         - output_toxicity_luna
         - prompt_injection
@@ -21575,6 +21602,7 @@ components:
         - tool_selection_quality
         - tool_selection_quality_luna
         - uncertainty
+        - user_intent_change
       title: CoreScorerName
       type: string
     promptgalileo__schemas__scorer_name__ScorerName:
@@ -27026,6 +27054,15 @@ paths:
             format: uuid4
             title: Scorer Id
             type: string
+        - in: query
+          name: run_id
+          required: false
+          schema:
+            anyOf:
+              - format: uuid4
+                type: string
+              - type: 'null'
+            title: Run Id
         - in: query
           name: starting_token
           required: false

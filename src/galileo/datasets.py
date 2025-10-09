@@ -13,6 +13,7 @@ from galileo.resources.api.datasets import (
     get_dataset_datasets_dataset_id_get,
     get_dataset_synthetic_extend_status_datasets_extend_dataset_id_get,
     get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get,
+    list_dataset_projects_datasets_dataset_id_projects_get,
     list_datasets_datasets_get,
     query_dataset_versions_datasets_dataset_id_versions_query_post,
     query_datasets_datasets_query_post,
@@ -150,6 +151,42 @@ class Dataset(DecorateAllMethods):
         return get_dataset_version_content_datasets_dataset_id_versions_version_index_content_get.sync(
             dataset_id=self.dataset.id, version_index=version_index, client=self.config.api_client
         )
+
+    def list_projects(self, limit: Union[Unset, int] = 100) -> list:
+        """
+        Lists all projects that this dataset is associated with.
+
+        Parameters
+        ----------
+        limit : Union[Unset, int]
+            The maximum number of projects to return. Default is 100.
+
+        Returns
+        -------
+        List[DatasetProject]
+            A list of projects this dataset is used in.
+
+        Raises
+        ------
+        errors.UnexpectedStatus
+            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+        httpx.TimeoutException
+            If the request takes longer than Client.timeout.
+
+        """
+        from galileo.resources.models.list_dataset_projects_response import ListDatasetProjectsResponse
+
+        if not self.dataset:
+            return []
+
+        response: ListDatasetProjectsResponse = list_dataset_projects_datasets_dataset_id_projects_get.sync(
+            dataset_id=self.dataset.id, client=self.config.api_client, limit=limit
+        )
+
+        if not response or not hasattr(response, "projects"):
+            return []
+
+        return response.projects if response.projects else []
 
     def __getattr__(self, attr: str) -> Any:
         """
@@ -455,9 +492,11 @@ class Datasets:
 
         return delete_dataset_datasets_dataset_id_delete.sync(client=self.config.api_client, dataset_id=dataset.id)
 
-    def create(self, name: str, content: DatasetType) -> Dataset:
+    def create(
+        self, name: str, content: DatasetType, *, project_id: Optional[str] = None, project_name: Optional[str] = None
+    ) -> Dataset:
         """
-        Creates a new dataset.
+        Creates a new dataset, optionally associating it with a project.
 
         Parameters
         ----------
@@ -465,6 +504,10 @@ class Datasets:
             The name of the dataset.
         content : DatasetType
             The content of the dataset.
+        project_id : str, optional
+            Associate the dataset with this project by ID. Mutually exclusive with project_name.
+        project_name : str, optional
+            Associate the dataset with this project by name. Mutually exclusive with project_id.
 
         Returns
         -------
@@ -473,12 +516,21 @@ class Datasets:
 
         Raises
         ------
+        ValueError
+            If both project_id and project_name are provided, or if the specified project does not exist.
         errors.UnexpectedStatus
             If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
 
         """
+        # Resolve project if provided
+        resolved_project_id: Optional[str] = None
+        if project_id is not None or project_name is not None:
+            if project_id is not None and project_name is not None:
+                raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
+            resolved_project_id = _resolve_project_id(project_id, project_name)
+
         if isinstance(content, (list, dict)) and len(content) == 0:
             # we want to avoid errors: Invalid CSV data: CSV parse error:
             # Empty CSV file or block: cannot infer number of columns
@@ -490,7 +542,7 @@ class Datasets:
             mime_type=mimetypes.guess_type(file_path)[0] or "application/octet-stream",
         )
 
-        body = BodyCreateDatasetDatasetsPost(file=file, name=name)
+        body = BodyCreateDatasetDatasetsPost(file=file, name=name, project_id=resolved_project_id)
 
         detailed_response = create_dataset_datasets_post.sync_detailed(
             client=self.config.api_client, body=body, format_=dataset_format
@@ -698,14 +750,6 @@ def get_dataset(
     httpx.TimeoutException
         If the request takes longer than Client.timeout.
 
-    Examples
-    --------
-    >>> # Get dataset by name
-    >>> dataset = get_dataset(name="my-dataset")
-
-    >>> # Get dataset and validate it's used in a project
-    >>> dataset = get_dataset(name="my-dataset", project_name="My Project")
-
     """
     return Datasets().get(id=id, name=name, project_id=project_id, project_name=project_name)  # type: ignore[call-overload]
 
@@ -804,21 +848,15 @@ def delete_dataset(
     httpx.TimeoutException
         If the request takes longer than Client.timeout.
 
-    Examples
-    --------
-    >>> # Delete dataset by name
-    >>> delete_dataset(name="my-dataset")
-
-    >>> # Delete dataset with project validation
-    >>> delete_dataset(name="my-dataset", project_name="My Project")
-
     """
     return Datasets().delete(id=id, name=name, project_id=project_id, project_name=project_name)  # type: ignore[call-overload]
 
 
-def create_dataset(name: str, content: DatasetType) -> Dataset:
+def create_dataset(
+    name: str, content: DatasetType, *, project_id: Optional[str] = None, project_name: Optional[str] = None
+) -> Dataset:
     """
-    Creates a new dataset.
+    Creates a new dataset, optionally associating it with a project.
 
     Parameters
     ----------
@@ -826,6 +864,10 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
         The name of the dataset.
     content : DatasetType
         The content of the dataset.
+    project_id : str, optional
+        Associate the dataset with this project by ID. Mutually exclusive with project_name.
+    project_name : str, optional
+        Associate the dataset with this project by name. Mutually exclusive with project_id.
 
     Returns
     -------
@@ -834,13 +876,15 @@ def create_dataset(name: str, content: DatasetType) -> Dataset:
 
     Raises
     ------
+    ValueError
+        If both project_id and project_name are provided, or if the specified project does not exist.
     errors.UnexpectedStatus
         If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
     httpx.TimeoutException
         If the request takes longer than Client.timeout.
 
     """
-    return Datasets().create(name=name, content=content)
+    return Datasets().create(name=name, content=content, project_id=project_id, project_name=project_name)
 
 
 def get_dataset_version_history(
@@ -960,17 +1004,6 @@ def extend_dataset(
     httpx.TimeoutException
         If the request takes longer than Client.timeout.
 
-    Examples
-    --------
-    >>> extended_dataset = extend_dataset(
-    ...     prompt_settings={'model_alias': 'GPT-4o mini'},
-    ...     prompt='Financial planning assistant that helps clients design an investment strategy.',
-    ...     instructions='You are a financial planning assistant that helps clients design an investment strategy.',
-    ...     examples=['I want to invest $1000 per month.'],
-    ...     data_types=['Prompt Injection'],
-    ...     count=3
-    ... )
-    >>> print('Extended dataset:', extended_dataset)
     """
     return Datasets().extend(
         prompt_settings=prompt_settings,
@@ -980,6 +1013,54 @@ def extend_dataset(
         data_types=data_types,
         count=count,
     )
+
+
+def list_dataset_projects(
+    *, dataset_id: Optional[str] = None, dataset_name: Optional[str] = None, limit: Union[Unset, int] = 100
+) -> list:
+    """
+    Lists all projects that a dataset is associated with.
+
+    Parameters
+    ----------
+    dataset_id : str, optional
+        The ID of the dataset.
+    dataset_name : str, optional
+        The name of the dataset.
+    limit : Union[Unset, int]
+        The maximum number of projects to return. Default is 100.
+
+    Returns
+    -------
+    List[DatasetProject]
+        A list of projects the dataset is used in.
+
+    Raises
+    ------
+    ValueError
+        If neither or both `dataset_id` and `dataset_name` are provided, or if the dataset does not exist.
+    errors.UnexpectedStatus
+        If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
+    httpx.TimeoutException
+        If the request takes longer than Client.timeout.
+
+    """
+    if (dataset_id is None) == (dataset_name is None):
+        raise ValueError("Exactly one of 'dataset_id' or 'dataset_name' must be provided")
+
+    if dataset_name is not None:
+        dataset = Datasets().get(name=dataset_name)
+        if dataset is None:
+            raise ValueError(f"Dataset '{dataset_name}' not found")
+        return dataset.list_projects(limit=limit)
+
+    if dataset_id is not None:
+        dataset = Datasets().get(id=dataset_id)
+        if dataset is None:
+            raise ValueError(f"Dataset '{dataset_id}' not found")
+        return dataset.list_projects(limit=limit)
+
+    raise ValueError("Either dataset_id or dataset_name must be provided.")
 
 
 def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":

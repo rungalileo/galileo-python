@@ -14,11 +14,19 @@ from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    scorer_id: str, *, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    scorer_id: str,
+    *,
+    run_id: Union[None, Unset, str] = UNSET,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> dict[str, Any]:
     headers: dict[str, Any] = {}
 
     params: dict[str, Any] = {}
+
+    json_run_id: Union[None, Unset, str]
+    json_run_id = UNSET if isinstance(run_id, Unset) else run_id
+    params["run_id"] = json_run_id
 
     params["starting_token"] = starting_token
 
@@ -65,12 +73,18 @@ def _build_response(
 
 
 def sync_detailed(
-    scorer_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    scorer_id: str,
+    *,
+    client: ApiClient,
+    run_id: Union[None, Unset, str] = UNSET,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> Response[Union[HTTPValidationError, ListScorerVersionsResponse]]:
     """List All Versions For Scorer
 
     Args:
         scorer_id (str):
+        run_id (Union[None, Unset, str]):
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
@@ -82,7 +96,7 @@ def sync_detailed(
         Response[Union[HTTPValidationError, ListScorerVersionsResponse]]
     """
 
-    kwargs = _get_kwargs(scorer_id=scorer_id, starting_token=starting_token, limit=limit)
+    kwargs = _get_kwargs(scorer_id=scorer_id, run_id=run_id, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
 
@@ -90,12 +104,18 @@ def sync_detailed(
 
 
 def sync(
-    scorer_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    scorer_id: str,
+    *,
+    client: ApiClient,
+    run_id: Union[None, Unset, str] = UNSET,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> Optional[Union[HTTPValidationError, ListScorerVersionsResponse]]:
     """List All Versions For Scorer
 
     Args:
         scorer_id (str):
+        run_id (Union[None, Unset, str]):
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
@@ -107,16 +127,24 @@ def sync(
         Union[HTTPValidationError, ListScorerVersionsResponse]
     """
 
-    return sync_detailed(scorer_id=scorer_id, client=client, starting_token=starting_token, limit=limit).parsed
+    return sync_detailed(
+        scorer_id=scorer_id, client=client, run_id=run_id, starting_token=starting_token, limit=limit
+    ).parsed
 
 
 async def asyncio_detailed(
-    scorer_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    scorer_id: str,
+    *,
+    client: ApiClient,
+    run_id: Union[None, Unset, str] = UNSET,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> Response[Union[HTTPValidationError, ListScorerVersionsResponse]]:
     """List All Versions For Scorer
 
     Args:
         scorer_id (str):
+        run_id (Union[None, Unset, str]):
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
@@ -128,7 +156,7 @@ async def asyncio_detailed(
         Response[Union[HTTPValidationError, ListScorerVersionsResponse]]
     """
 
-    kwargs = _get_kwargs(scorer_id=scorer_id, starting_token=starting_token, limit=limit)
+    kwargs = _get_kwargs(scorer_id=scorer_id, run_id=run_id, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
 
@@ -136,12 +164,18 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    scorer_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
+    scorer_id: str,
+    *,
+    client: ApiClient,
+    run_id: Union[None, Unset, str] = UNSET,
+    starting_token: Union[Unset, int] = 0,
+    limit: Union[Unset, int] = 100,
 ) -> Optional[Union[HTTPValidationError, ListScorerVersionsResponse]]:
     """List All Versions For Scorer
 
     Args:
         scorer_id (str):
+        run_id (Union[None, Unset, str]):
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
@@ -154,5 +188,7 @@ async def asyncio(
     """
 
     return (
-        await asyncio_detailed(scorer_id=scorer_id, client=client, starting_token=starting_token, limit=limit)
+        await asyncio_detailed(
+            scorer_id=scorer_id, client=client, run_id=run_id, starting_token=starting_token, limit=limit
+        )
     ).parsed
