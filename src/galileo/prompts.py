@@ -457,7 +457,13 @@ def get_prompt(*, id: str) -> Optional[PromptTemplate]: ...
 def get_prompt(*, name: str) -> Optional[PromptTemplate]: ...
 
 
-def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optional[PromptTemplate]:
+def get_prompt(
+    *,
+    id: Optional[str] = None,
+    name: Optional[str] = None,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> Optional[PromptTemplate]:
     """
     Retrieves a global prompt template.
 
@@ -469,6 +475,10 @@ def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optio
         The unique identifier of the template to retrieve. Defaults to None.
     name : str, optional
         The name of the template to retrieve. Defaults to None.
+    project_id : str, optional
+        Use get_prompts(project_id=...) to filter templates by project. Defaults to None.
+    project_name : str, optional
+        Use get_prompts(project_name=...) to filter templates by project. Defaults to None.
 
     Returns
     -------
@@ -487,6 +497,7 @@ def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optio
 
     >>> # Get global template by name
     >>> template = get_prompt(name="my-template")
+
     """
     # Validate template identifier
     if (id is None) and (name is None):
@@ -512,7 +523,13 @@ def delete_prompt(*, id: str) -> None: ...
 def delete_prompt(*, name: str) -> None: ...
 
 
-def delete_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> None:
+def delete_prompt(
+    *,
+    id: Optional[str] = None,
+    name: Optional[str] = None,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> None:
     """
     Delete a global prompt template by ID or name.
 
@@ -524,6 +541,8 @@ def delete_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> No
         The unique identifier of the template to delete. Defaults to None.
     name : str, optional
         The name of the template to delete. Defaults to None.
+    project_id : str, optional
+    project_name : str, optional
 
     Returns
     -------
@@ -541,7 +560,9 @@ def delete_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> No
 
     >>> # Delete global template by name
     >>> delete_prompt(name="my-template")
+
     """
+
     # Validate template identifier
     if (id is None) and (name is None):
         raise ValueError("Exactly one of 'id' or 'name' must be provided")
@@ -760,12 +781,17 @@ def create_prompt(
     ...     project_name="My Project"
     ... )
     """
+    # Resolve project parameters early (validates and converts project_name to project_id)
+    # This will raise ValueError if both are provided or if project_name doesn't exist
+    resolved_project_id = _resolve_project_id(project_id=project_id, project_name=project_name)
+
     # Generate a unique name to ensure organization-wide uniqueness
     unique_name = _generate_unique_name(name)
 
-    # Create a global template with the unique name and optional project association
+    # Create a global template with the unique name and resolved project_id
+    # Pass only project_id to avoid duplicate resolution
     return GlobalPromptTemplates().create(
-        name=unique_name, template=template, project_id=project_id, project_name=project_name
+        name=unique_name, template=template, project_id=resolved_project_id, project_name=None
     )
 
 
