@@ -255,3 +255,27 @@ class Configuration:
         """
         cls._load_env_file()
         return bool(cls.get_galileo_api_key() and cls.get_console_url())
+
+    @classmethod
+    def get_configuration(cls) -> dict:
+        """
+        Get all current configuration values in a formatted way.
+
+        This method returns a dictionary containing all configuration values.
+
+        Returns:
+            dict: A dictionary containing all configuration
+        """
+        cls._load_env_file()
+
+        galileo_api_key = cls.get_galileo_api_key()
+        openai_api_key = cls.get_openai_api_key()
+        console_url = cls.get_console_url()
+
+        return {
+            "galileo_api_key": galileo_api_key or "Not set",
+            "openai_api_key": openai_api_key or "Not set",
+            "console_url": console_url or "Not set",
+            "is_configured": cls.is_configured(),
+            "env_file_loaded": cls._env_loaded,
+        }
