@@ -23,6 +23,7 @@ class BaseScorerVersionDB:
 
     Attributes:
         id (str):
+        scorer_id (str):
         version (int):
         cot_enabled (Union[None, Unset, bool]): Whether to enable chain of thought for this scorer. Defaults to False
             for llm scorers.
@@ -40,6 +41,7 @@ class BaseScorerVersionDB:
     """
 
     id: str
+    scorer_id: str
     version: int
     cot_enabled: Union[None, Unset, bool] = UNSET
     finetuned_scorer: Union["BaseFinetunedScorerDB", None, Unset] = UNSET
@@ -58,6 +60,8 @@ class BaseScorerVersionDB:
         from ..models.base_registered_scorer_db import BaseRegisteredScorerDB
 
         id = self.id
+
+        scorer_id = self.scorer_id
 
         version = self.version
 
@@ -121,7 +125,7 @@ class BaseScorerVersionDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"id": id, "version": version})
+        field_dict.update({"id": id, "scorer_id": scorer_id, "version": version})
         if cot_enabled is not UNSET:
             field_dict["cot_enabled"] = cot_enabled
         if finetuned_scorer is not UNSET:
@@ -151,6 +155,8 @@ class BaseScorerVersionDB:
 
         d = dict(src_dict)
         id = d.pop("id")
+
+        scorer_id = d.pop("scorer_id")
 
         version = d.pop("version")
 
@@ -279,6 +285,7 @@ class BaseScorerVersionDB:
 
         base_scorer_version_db = cls(
             id=id,
+            scorer_id=scorer_id,
             version=version,
             cot_enabled=cot_enabled,
             finetuned_scorer=finetuned_scorer,

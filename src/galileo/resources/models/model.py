@@ -41,7 +41,6 @@ class Model:
             parameters (right) we want to send in the API
             requests.
         provides_log_probs (Union[Unset, bool]):  Default: False.
-        reasoning_supported (Union[Unset, bool]):  Default: False.
         response_prefix_tokens (Union[Unset, int]):  Default: 0.
         system_supported (Union[Unset, bool]):  Default: False.
         token_limit (Union[None, Unset, int]):
@@ -65,7 +64,6 @@ class Model:
     output_token_limit: Union[None, Unset, int] = UNSET
     params_map: Union[Unset, "RunParamsMap"] = UNSET
     provides_log_probs: Union[Unset, bool] = False
-    reasoning_supported: Union[Unset, bool] = False
     response_prefix_tokens: Union[Unset, int] = 0
     system_supported: Union[Unset, bool] = False
     token_limit: Union[None, Unset, int] = UNSET
@@ -134,8 +132,6 @@ class Model:
 
         provides_log_probs = self.provides_log_probs
 
-        reasoning_supported = self.reasoning_supported
-
         response_prefix_tokens = self.response_prefix_tokens
 
         system_supported = self.system_supported
@@ -179,8 +175,6 @@ class Model:
             field_dict["params_map"] = params_map
         if provides_log_probs is not UNSET:
             field_dict["provides_log_probs"] = provides_log_probs
-        if reasoning_supported is not UNSET:
-            field_dict["reasoning_supported"] = reasoning_supported
         if response_prefix_tokens is not UNSET:
             field_dict["response_prefix_tokens"] = response_prefix_tokens
         if system_supported is not UNSET:
@@ -295,8 +289,6 @@ class Model:
 
         provides_log_probs = d.pop("provides_log_probs", UNSET)
 
-        reasoning_supported = d.pop("reasoning_supported", UNSET)
-
         response_prefix_tokens = d.pop("response_prefix_tokens", UNSET)
 
         system_supported = d.pop("system_supported", UNSET)
@@ -337,7 +329,6 @@ class Model:
             output_token_limit=output_token_limit,
             params_map=params_map,
             provides_log_probs=provides_log_probs,
-            reasoning_supported=reasoning_supported,
             response_prefix_tokens=response_prefix_tokens,
             system_supported=system_supported,
             token_limit=token_limit,
