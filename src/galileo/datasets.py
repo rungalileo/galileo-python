@@ -46,6 +46,7 @@ from galileo.utils.logging import get_logger
 from galileo_core.utils.dataset import DatasetType, parse_dataset
 
 logger = get_logger(__name__)
+MAX_DATASET_ROWS = 100000
 
 
 class DatasetAPIException(APIException):
@@ -82,7 +83,7 @@ class Dataset(DecorateAllMethods):
             return None
 
         content: DatasetContent = get_dataset_content_datasets_dataset_id_content_get.sync(
-            client=self.config.api_client, dataset_id=self.dataset.id
+            client=self.config.api_client, dataset_id=self.dataset.id, limit=MAX_DATASET_ROWS
         )
 
         self.content = content
