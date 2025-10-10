@@ -1,14 +1,75 @@
-from typing import Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
-from galileo.datasets import Dataset, convert_dataset_row_to_record, get_dataset
+from galileo.config import GalileoPythonConfig
+from galileo.projects import Projects
+from galileo.resources.models.dataset_row import DatasetRow
 from galileo.schema.datasets import DatasetRecord
+
+if TYPE_CHECKING:
+    from galileo.datasets import Dataset
+
+
+# Import at module level to avoid circular imports but allow proper patching in tests
+def get_dataset(*args: Any, **kwargs: Any) -> Optional["Dataset"]:
+    """Lazy import wrapper for get_dataset to avoid circular imports."""
+    from galileo.datasets import get_dataset as _get_dataset
+
+    return _get_dataset(*args, **kwargs)
+
+
+def _resolve_project_id(project_id: Optional[str], project_name: Optional[str]) -> str:
+    if project_id is not None and project_name is not None:
+        raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
+
+    if project_name is not None:
+        project = Projects().get(name=project_name)
+        if not project:
+            raise ValueError(f"Project '{project_name}' does not exist")
+        return project.id
+    if project_id is not None:
+        project = Projects().get(id=project_id)
+        if not project:
+            raise ValueError(f"Project '{project_id}' does not exist")
+        return project_id
+    raise ValueError("Either project_id or project_name must be provided")
+
+
+def _validate_dataset_in_project(
+    dataset_id: str, dataset_identifier: str, project_id: str, project_identifier: str, config: GalileoPythonConfig
+) -> None:
+    from galileo.resources.api.datasets import list_dataset_projects_datasets_dataset_id_projects_get
+
+    projects_response = list_dataset_projects_datasets_dataset_id_projects_get.sync(
+        dataset_id=dataset_id, client=config.api_client
+    )
+
+    if not projects_response or not hasattr(projects_response, "projects"):
+        raise ValueError(f"Dataset '{dataset_identifier}' is not used in project '{project_identifier}'")
+
+    project_ids = [p.id for p in projects_response.projects]
+    if project_id not in project_ids:
+        raise ValueError(f"Dataset '{dataset_identifier}' is not used in project '{project_identifier}'")
+
+
+def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
+    values_dict = dataset_row.values_dict.to_dict()
+
+    if "input" not in values_dict or not values_dict["input"]:
+        raise ValueError("Dataset row must have input field")
+
+    return DatasetRecord(
+        id=dataset_row.row_id,
+        input=values_dict["input"],
+        output=values_dict.get("output", None),
+        metadata=values_dict.get("metadata", None),
+    )
 
 
 def load_dataset_and_records(
-    dataset: Union[Dataset, list[Union[dict[str, Any], str]], str, None],
+    dataset: Union["Dataset", list[Union[dict[str, Any], str]], str, None],
     dataset_id: Optional[str],
     dataset_name: Optional[str],
-) -> tuple[Optional[Dataset], list[DatasetRecord]]:
+) -> tuple[Optional["Dataset"], list[DatasetRecord]]:
     """
     Load dataset and records based on provided parameters.
 
@@ -29,7 +90,8 @@ def load_dataset_and_records(
         return get_dataset_and_records(name=dataset_name)
     if dataset and isinstance(dataset, str):
         return get_dataset_and_records(name=dataset)
-    if dataset and isinstance(dataset, Dataset):
+    if dataset and not isinstance(dataset, (str, list)):
+        # Must be a Dataset object
         return dataset, get_records_for_dataset(dataset)
     if dataset and isinstance(dataset, list):
         return None, create_rows_from_records(dataset)
@@ -38,7 +100,7 @@ def load_dataset_and_records(
 
 def get_dataset_and_records(
     id: Optional[str] = None, name: Optional[str] = None
-) -> tuple[Dataset, list[DatasetRecord]]:
+) -> tuple["Dataset", list[DatasetRecord]]:
     if id:
         dataset = get_dataset(id=id)
         if not dataset:
@@ -53,7 +115,7 @@ def get_dataset_and_records(
     return dataset, get_records_for_dataset(dataset)
 
 
-def get_records_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
+def get_records_for_dataset(dataset: "Dataset") -> list[DatasetRecord]:
     content = dataset.get_content()
     if not content:
         raise ValueError("dataset has no content")

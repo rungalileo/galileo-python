@@ -4,7 +4,6 @@ import time
 from typing import Any, Optional, Union, overload
 
 from galileo.config import GalileoPythonConfig
-from galileo.projects import Projects
 from galileo.resources.api.datasets import (
     create_dataset_datasets_post,
     delete_dataset_datasets_dataset_id_delete,
@@ -39,8 +38,8 @@ from galileo.resources.models.synthetic_dataset_extension_request import Synthet
 from galileo.resources.models.synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
 from galileo.resources.types import File, Unset
-from galileo.schema.datasets import DatasetRecord
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.datasets import _resolve_project_id, _validate_dataset_in_project
 from galileo.utils.exceptions import APIException
 from galileo.utils.logging import get_logger
 from galileo_core.utils.dataset import DatasetType, parse_dataset
@@ -91,12 +90,6 @@ class Dataset(DecorateAllMethods):
         return content
 
     def _get_etag(self) -> Optional[str]:
-        """
-        ETag is returned in response headers of API endpoints of the format /datasets.*contents.*
-
-        This is a required parameter to be passed along with all dataset update requests to ensure
-        there isn't a version conflict during updates.
-        """
         if not self.dataset:
             return None
 
@@ -190,86 +183,7 @@ class Dataset(DecorateAllMethods):
         return response.projects if response.projects else []
 
     def __getattr__(self, attr: str) -> Any:
-        """
-        Delegate attribute access to the underlying DatasetDB instance.
-        """
         return getattr(self.dataset, attr)
-
-
-def _resolve_project_id(project_id: Optional[str], project_name: Optional[str]) -> str:
-    """
-    Resolve project identifier to project ID and validate project exists.
-
-    Parameters
-    ----------
-    project_id : str, optional
-        The project ID.
-    project_name : str, optional
-        The project name.
-
-    Returns
-    -------
-    str
-        The resolved project ID.
-
-    Raises
-    ------
-    ValueError
-        If both project_id and project_name are provided, or if the project doesn't exist.
-    """
-    if project_id is not None and project_name is not None:
-        raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
-
-    if project_name is not None:
-        project = Projects().get(name=project_name)
-        if not project:
-            raise ValueError(f"Project '{project_name}' does not exist")
-        return project.id
-    if project_id is not None:
-        project = Projects().get(id=project_id)
-        if not project:
-            raise ValueError(f"Project '{project_id}' does not exist")
-        return project_id
-    raise ValueError("Either project_id or project_name must be provided")
-
-
-def _validate_dataset_in_project(
-    dataset_id: str, dataset_identifier: str, project_id: str, project_identifier: str, config: GalileoPythonConfig
-) -> None:
-    """
-    Validate that a dataset is used in a specific project.
-
-    Parameters
-    ----------
-    dataset_id : str
-        The dataset ID.
-    dataset_identifier : str
-        The dataset name or ID for error messages.
-    project_id : str
-        The project ID to validate against.
-    project_identifier : str
-        The project name or ID for error messages.
-    config : GalileoPythonConfig
-        The Galileo configuration.
-
-    Raises
-    ------
-    ValueError
-        If the dataset is not used in the specified project.
-    """
-    from galileo.resources.api.datasets import list_dataset_projects_datasets_dataset_id_projects_get
-
-    projects_response = list_dataset_projects_datasets_dataset_id_projects_get.sync(
-        dataset_id=dataset_id, client=config.api_client
-    )
-
-    if not projects_response or not hasattr(projects_response, "projects"):
-        raise ValueError(f"Dataset '{dataset_identifier}' is not used in project '{project_identifier}'")
-
-    # Check if our project is in the list
-    project_ids = [p.id for p in projects_response.projects]
-    if project_id not in project_ids:
-        raise ValueError(f"Dataset '{dataset_identifier}' is not used in project '{project_identifier}'")
 
 
 class Datasets:
@@ -1062,17 +976,3 @@ def list_dataset_projects(
         return dataset.list_projects(limit=limit)
 
     raise ValueError("Either dataset_id or dataset_name must be provided.")
-
-
-def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
-    values_dict = dataset_row.values_dict.to_dict()
-
-    if "input" not in values_dict or not values_dict["input"]:
-        raise ValueError("Dataset row must have input field")
-
-    return DatasetRecord(
-        id=dataset_row.row_id,
-        input=values_dict["input"],
-        output=values_dict.get("output", None),
-        metadata=values_dict.get("metadata", None),
-    )
