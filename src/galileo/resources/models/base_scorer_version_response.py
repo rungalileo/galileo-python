@@ -26,8 +26,10 @@ class BaseScorerVersionResponse:
     Attributes:
         created_at (datetime.datetime):
         id (str):
+        scorer_id (str):
         updated_at (datetime.datetime):
         version (int):
+        allowed_model (Union[None, Unset, bool]):
         chain_poll_template (Union['ChainPollTemplate', None, Unset]):
         cot_enabled (Union[None, Unset, bool]):
         finetuned_scorer (Union['FineTunedScorerResponse', None, Unset]):
@@ -43,8 +45,10 @@ class BaseScorerVersionResponse:
 
     created_at: datetime.datetime
     id: str
+    scorer_id: str
     updated_at: datetime.datetime
     version: int
+    allowed_model: Union[None, Unset, bool] = UNSET
     chain_poll_template: Union["ChainPollTemplate", None, Unset] = UNSET
     cot_enabled: Union[None, Unset, bool] = UNSET
     finetuned_scorer: Union["FineTunedScorerResponse", None, Unset] = UNSET
@@ -67,9 +71,14 @@ class BaseScorerVersionResponse:
 
         id = self.id
 
+        scorer_id = self.scorer_id
+
         updated_at = self.updated_at.isoformat()
 
         version = self.version
+
+        allowed_model: Union[None, Unset, bool]
+        allowed_model = UNSET if isinstance(self.allowed_model, Unset) else self.allowed_model
 
         chain_poll_template: Union[None, Unset, dict[str, Any]]
         if isinstance(self.chain_poll_template, Unset):
@@ -139,7 +148,11 @@ class BaseScorerVersionResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"created_at": created_at, "id": id, "updated_at": updated_at, "version": version})
+        field_dict.update(
+            {"created_at": created_at, "id": id, "scorer_id": scorer_id, "updated_at": updated_at, "version": version}
+        )
+        if allowed_model is not UNSET:
+            field_dict["allowed_model"] = allowed_model
         if chain_poll_template is not UNSET:
             field_dict["chain_poll_template"] = chain_poll_template
         if cot_enabled is not UNSET:
@@ -175,9 +188,20 @@ class BaseScorerVersionResponse:
 
         id = d.pop("id")
 
+        scorer_id = d.pop("scorer_id")
+
         updated_at = isoparse(d.pop("updated_at"))
 
         version = d.pop("version")
+
+        def _parse_allowed_model(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        allowed_model = _parse_allowed_model(d.pop("allowed_model", UNSET))
 
         def _parse_chain_poll_template(data: object) -> Union["ChainPollTemplate", None, Unset]:
             if data is None:
@@ -321,8 +345,10 @@ class BaseScorerVersionResponse:
         base_scorer_version_response = cls(
             created_at=created_at,
             id=id,
+            scorer_id=scorer_id,
             updated_at=updated_at,
             version=version,
+            allowed_model=allowed_model,
             chain_poll_template=chain_poll_template,
             cot_enabled=cot_enabled,
             finetuned_scorer=finetuned_scorer,

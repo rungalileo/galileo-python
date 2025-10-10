@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 
 import pytest
 
-from galileo.metrics import Metrics, create_custom_llm_metric, get_metrics
+from galileo.metrics import Metrics, create_custom_llm_metric, delete_metric, get_metrics
 from galileo.resources.models import (
     BucketedMetrics,
     HTTPValidationError,
@@ -221,6 +221,39 @@ class TestMetrics:
         # Verify logging was called
         mock_logger.info.assert_called_once_with("Created custom LLM metric: %s", "test_metric")
 
+    @patch("galileo.metrics.delete_scorer_scorers_scorer_id_delete")
+    @patch("galileo.scorers.Scorers.list")
+    def test_delete_metric_success(self, mock_list_scorers, mock_delete_scorer, mock_scorer_response) -> None:
+        """Test successful deletion of a metric."""
+        mock_list_scorers.return_value = [mock_scorer_response]
+        metrics = Metrics()
+        metrics.delete_metric(name="test_metric")
+
+        mock_list_scorers.assert_called_once_with(name="test_metric")
+        mock_delete_scorer.sync.assert_called_once_with(
+            scorer_id=mock_scorer_response.id, client=metrics.config.api_client
+        )
+
+    @patch("galileo.scorers.Scorers.list")
+    def test_delete_metric_not_found(self, mock_list_scorers) -> None:
+        """Test deleting a metric that does not exist."""
+        mock_list_scorers.return_value = []
+        metrics = Metrics()
+
+        with pytest.raises(ValueError, match="Scorer with name test_metric not found."):
+            metrics.delete_metric(name="test_metric")
+
+    @patch("galileo.metrics.delete_scorer_scorers_scorer_id_delete")
+    @patch("galileo.scorers.Scorers.list")
+    def test_delete_metric_api_failure(self, mock_list_scorers, mock_delete_scorer, mock_scorer_response) -> None:
+        """Test API failure when deleting a metric."""
+        mock_list_scorers.return_value = [mock_scorer_response]
+        mock_delete_scorer.sync.return_value = None
+        metrics = Metrics()
+
+        with pytest.raises(ValueError, match="Failed to delete metric."):
+            metrics.delete_metric(name="test_metric")
+
 
 class TestPublicFunctions:
     """Test cases for public functions."""
@@ -293,6 +326,16 @@ class TestPublicFunctions:
 
         # Verify the result is returned
         assert result == mock_result
+
+    @patch("galileo.metrics.Metrics")
+    def test_delete_metric_function(self, mock_metrics_class) -> None:
+        """Test the public delete_metric function."""
+        mock_metrics_instance = Mock()
+        mock_metrics_class.return_value = mock_metrics_instance
+
+        delete_metric(name="test_metric")
+        mock_metrics_class.assert_called_once()
+        mock_metrics_instance.delete_metric.assert_called_once_with("test_metric")
 
 
 class TestEdgeCases:

@@ -5,6 +5,7 @@ from collections.abc import Iterator
 from typing import Any, Optional
 
 from galileo.config import GalileoPythonConfig
+from galileo.log_streams import LogStreams
 from galileo.resources.api.trace.export_records_projects_project_id_export_records_post import (
     stream_detailed as export_records_stream,
 )
@@ -23,14 +24,18 @@ class ExportClient:
     def records(
         self,
         project_id: str,
-        root_type: RootType,
-        filters: list[FilterType],
-        sort: LogRecordsSortClause,
+        root_type: RootType = RootType.TRACE,
+        filters: Optional[list[FilterType]] = None,
+        sort: LogRecordsSortClause = LogRecordsSortClause(column_id="created_at", ascending=False),
         export_format: LLMExportFormat = LLMExportFormat.JSONL,
         log_stream_id: Optional[str] = None,
         experiment_id: Optional[str] = None,
         column_ids: Optional[list[str]] = None,
+        redact: bool = True,
     ) -> Iterator[dict[str, Any]]:
+        if filters is None:
+            filters = []
+
         response = export_records_stream(
             client=self.config.api_client,
             project_id=project_id,
@@ -42,6 +47,7 @@ class ExportClient:
                 filters=filters,
                 column_ids=column_ids,
                 sort=sort,
+                redact=redact,
             ),
         )
 
@@ -58,15 +64,18 @@ class ExportClient:
 
 def export_records(
     project_id: str,
-    root_type: RootType,
-    filters: list[FilterType],
-    sort: LogRecordsSortClause,
+    root_type: RootType = RootType.TRACE,
+    filters: Optional[list[FilterType]] = None,
+    sort: LogRecordsSortClause = LogRecordsSortClause(column_id="created_at", ascending=False),
     export_format: LLMExportFormat = LLMExportFormat.JSONL,
     log_stream_id: Optional[str] = None,
     experiment_id: Optional[str] = None,
     column_ids: Optional[list[str]] = None,
+    redact: bool = True,
 ) -> Iterator[dict[str, Any]]:
     """Exports records from a Galileo project.
+
+    Defaults to the first logstream if `log_stream_id` and `experiment_id` are not provided.
 
     Args:
         project_id: The unique identifier of the project.
@@ -77,10 +86,20 @@ def export_records(
         filters: A list of filters to apply to the export.
         column_ids: A list of column IDs to include in the export.
         sort: A sort clause to order the exported records.
+        redact: Redact sensitive data from the response.
 
     Returns:
         An iterator that yields each record as a dictionary.
     """
+    if filters is None:
+        filters = []
+
+    if log_stream_id is None and experiment_id is None:
+        log_streams = LogStreams().list(project_id=project_id)
+        if log_streams:
+            sorted_log_streams = sorted(log_streams, key=lambda ls: ls.created_at)
+            log_stream_id = sorted_log_streams[0].id
+
     if (log_stream_id is None) == (experiment_id is None):
         raise ValueError("Exactly one of log_stream_id or experiment_id must be provided.")
 
@@ -93,4 +112,5 @@ def export_records(
         filters=filters,
         column_ids=column_ids,
         sort=sort,
+        redact=redact,
     )

@@ -14,6 +14,8 @@ from galileo.resources.models import (
     ListScorersRequest,
     ListScorersResponse,
     ScorerConfig,
+    ScorerNameFilter,
+    ScorerNameFilterOperator,
     ScorerResponse,
     ScorerTypeFilter,
     ScorerTypeFilterOperator,
@@ -31,16 +33,34 @@ class Scorers:
     def __init__(self) -> None:
         self.config = GalileoPythonConfig.get()
 
-    def list(self, types: Optional[list[ScorerTypes]] = None) -> list[ScorerResponse]:
+    def list(self, name: Optional[str] = None, types: Optional[list[ScorerTypes]] = None) -> list[ScorerResponse]:
         """
+        Lists scorers, optionally filtering by name and/or type.
+
+        The filters are combined with an AND condition, while the values within the `types`
+        list are combined with an OR condition.
+
+        For example, calling `list(name="my_scorer", types=[ScorerTypes.llm, ScorerTypes.code])`
+        will return scorers where the name is "my_scorer" AND the type is either "llm" OR "code".
+
         Args:
+            name: Name of the scorer to filter by.
             types: List of scorer types to filter by. Defaults to all scorers.
+
         Returns:
-            List of scorers
+            A list of scorers that match the filter criteria.
         """
-        body = ListScorersRequest(
-            filters=[ScorerTypeFilter(value=type_, operator=ScorerTypeFilterOperator.EQ) for type_ in (types or [])]
-        )
+        filters = []
+        if types:
+            if len(types) == 1:
+                filters.append(ScorerTypeFilter(value=types[0], operator=ScorerTypeFilterOperator.EQ))
+            else:
+                filters.append(ScorerTypeFilter(value=types, operator=ScorerTypeFilterOperator.ONE_OF))
+
+        if name:
+            filters.append(ScorerNameFilter(value=name, operator=ScorerNameFilterOperator.EQ))
+
+        body = ListScorersRequest(filters=filters)
 
         all_scorers: list[ScorerResponse] = []
         starting_token = 0

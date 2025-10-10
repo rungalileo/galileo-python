@@ -24,8 +24,6 @@ class PromptRunSettings:
         deployment_name (Union[None, Unset, str]):
         echo (Union[Unset, bool]):  Default: False.
         frequency_penalty (Union[Unset, float]):  Default: 0.0.
-        input_ (Union[None, Unset, str]):
-        instructions (Union[None, Unset, str]):
         known_models (Union[Unset, list['Model']]):
         logprobs (Union[Unset, bool]):  Default: True.
         max_tokens (Union[Unset, int]):  Default: 1024.
@@ -47,8 +45,6 @@ class PromptRunSettings:
     deployment_name: Union[None, Unset, str] = UNSET
     echo: Union[Unset, bool] = False
     frequency_penalty: Union[Unset, float] = 0.0
-    input_: Union[None, Unset, str] = UNSET
-    instructions: Union[None, Unset, str] = UNSET
     known_models: Union[Unset, list["Model"]] = UNSET
     logprobs: Union[Unset, bool] = True
     max_tokens: Union[Unset, int] = 1024
@@ -77,12 +73,6 @@ class PromptRunSettings:
         echo = self.echo
 
         frequency_penalty = self.frequency_penalty
-
-        input_: Union[None, Unset, str]
-        input_ = UNSET if isinstance(self.input_, Unset) else self.input_
-
-        instructions: Union[None, Unset, str]
-        instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
 
         known_models: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.known_models, Unset):
@@ -159,10 +149,6 @@ class PromptRunSettings:
             field_dict["echo"] = echo
         if frequency_penalty is not UNSET:
             field_dict["frequency_penalty"] = frequency_penalty
-        if input_ is not UNSET:
-            field_dict["input"] = input_
-        if instructions is not UNSET:
-            field_dict["instructions"] = instructions
         if known_models is not UNSET:
             field_dict["known_models"] = known_models
         if logprobs is not UNSET:
@@ -219,24 +205,6 @@ class PromptRunSettings:
         echo = d.pop("echo", UNSET)
 
         frequency_penalty = d.pop("frequency_penalty", UNSET)
-
-        def _parse_input_(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        input_ = _parse_input_(d.pop("input", UNSET))
-
-        def _parse_instructions(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        instructions = _parse_instructions(d.pop("instructions", UNSET))
 
         known_models = []
         _known_models = d.pop("known_models", UNSET)
@@ -341,8 +309,6 @@ class PromptRunSettings:
             deployment_name=deployment_name,
             echo=echo,
             frequency_penalty=frequency_penalty,
-            input_=input_,
-            instructions=instructions,
             known_models=known_models,
             logprobs=logprobs,
             max_tokens=max_tokens,

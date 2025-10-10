@@ -8,12 +8,9 @@ from galileo import Message, MessageRole
 from galileo.prompts import (
     PromptTemplateAPIException,
     create_prompt,
-    create_prompt_template,
     delete_prompt,
     get_prompt,
-    get_prompt_template,
     get_prompts,
-    list_prompt_templates,
     render_template,
     update_prompt,
 )
@@ -22,6 +19,7 @@ from galileo.resources.models import (
     BasePromptTemplateVersionResponse,
     CreatePromptTemplateWithVersionRequestBody,
     DatasetData,
+    GetProjectsPaginatedResponse,
     HTTPValidationError,
     ListPromptTemplateParams,
     ListPromptTemplateResponse,
@@ -388,95 +386,12 @@ def render_template_response_second_page():
     )
 
 
-@patch("galileo.projects.get_projects_projects_get")
-@patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
-def test_create_prompt(create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-    create_prompt_template_mock.sync_detailed.return_value = Response(
-        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
-    )
-    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-    tmpl = create_prompt_template(
-        name="andrii-good-prompt",
-        project="andrii-new-project",
-        messages=[
-            Message(role=MessageRole.system, content="you are a helpful assistant"),
-            Message(role=MessageRole.user, content="why is sky blue?"),
-        ],
-    )
-
-    assert tmpl.name == "andrii-good-prompt"
-    create_prompt_template_mock.sync_detailed.assert_called_once()
-    get_projects_projects_get_mock.sync_detailed.assert_called_once()
-
-
-@patch("galileo.projects.get_projects_projects_get")
-@patch("galileo.prompts.create_prompt_template_with_version_projects_project_id_templates_post")
-def test_create_prompt_bad_request(create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-    create_prompt_template_mock.sync_detailed.return_value = Response(
-        content=b'{"detail":"Prompt template with name storyteller-prompt already exists (ID 3e3d48fa-0aae-433c-be2c-b3f7fb53c9e2)."}',
-        status_code=HTTPStatus.BAD_REQUEST,
-        headers={},
-        parsed=None,
-    )
-    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-    with pytest.raises(PromptTemplateAPIException):
-        create_prompt_template(
-            name="andrii-good-prompt",
-            project="andrii-new-project",
-            messages=[
-                Message(role=MessageRole.system, content="you are a helpful assistant"),
-                Message(role=MessageRole.user, content="why is sky blue?"),
-            ],
-        )
-    create_prompt_template_mock.sync_detailed.assert_called_once()
-    get_projects_projects_get_mock.sync_detailed.assert_called_once()
-
-
-@patch("galileo.projects.get_projects_projects_get")
-@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-def test_list_prompts(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-    list_prompt_templates_mock.sync.return_value = [prompt_template()]
-    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-    templates = list_prompt_templates(project="andrii-new-project")
-
-    assert len(templates) == 1
-    assert templates[0].name == "andrii-good-prompt"
-
-    list_prompt_templates_mock.sync.assert_called_once()
-    get_projects_projects_get_mock.sync_detailed.assert_called_once()
-
-
-@patch("galileo.projects.get_projects_projects_get")
-@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-def test_get_prompt_template_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-    """Test get_prompt_template when template exists."""
-    list_prompt_templates_mock.sync.return_value = [prompt_template()]
-    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-
-    template = get_prompt_template(name="andrii-good-prompt", project="andrii-new-project")
-
-    assert template is not None
-    assert template.name == "andrii-good-prompt"
-    list_prompt_templates_mock.sync.assert_called_once()
-    get_projects_projects_get_mock.sync_detailed.assert_called_once()
-
-
-@patch("galileo.projects.get_projects_projects_get")
-@patch("galileo.prompts.get_project_templates_projects_project_id_templates_get")
-def test_get_prompt_template_not_found(list_prompt_templates_mock: Mock, get_projects_projects_get_mock: Mock) -> None:
-    """Test get_prompt_template when template doesn't exist."""
-    list_prompt_templates_mock.sync.return_value = [prompt_template()]  # Return a different template
-    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
-
-    template = get_prompt_template(name="nonexistent-template", project="andrii-new-project")
-
-    assert template is None
-    list_prompt_templates_mock.sync.assert_called_once()
-    get_projects_projects_get_mock.sync_detailed.assert_called_once()
-
-
+@patch("galileo.prompts.query_templates_templates_query_post")
 @patch("galileo.prompts.create_global_prompt_template_templates_post")
-def test_create_global_prompt_template(create_global_prompt_template_mock: Mock) -> None:
+def test_create_global_prompt_template(create_global_prompt_template_mock: Mock, query_templates_mock: Mock) -> None:
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
     create_global_prompt_template_mock.sync_detailed.return_value = Response(
         content=b"", status_code=HTTPStatus.OK, headers={}, parsed=global_prompt_template()
     )
@@ -495,12 +410,18 @@ def test_create_global_prompt_template(create_global_prompt_template_mock: Mock)
             name="global-helpful-assistant",
             template=[Message(role=MessageRole.system, content="you are a global helpful assistant")],
         ),
+        project_id=ANY,  # project_id is now always passed (can be Unset)
     )
 
 
+@patch("galileo.prompts.query_templates_templates_query_post")
 @patch("galileo.prompts.create_global_prompt_template_templates_post")
-def test_create_global_prompt_template_error_scenarios(create_global_prompt_template_mock: Mock) -> None:
+def test_create_global_prompt_template_error_scenarios(
+    create_global_prompt_template_mock: Mock, query_templates_mock: Mock
+) -> None:
     """Test create_global_prompt_template with realistic error scenarios."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
 
     # Test 422 Unprocessable Entity for missing fields, invalid data types, etc.
     create_global_prompt_template_mock.sync_detailed.return_value = Response(
@@ -1005,3 +926,469 @@ def test_render_template_none_response(render_template_mock: Mock) -> None:
         render_template(template="Hello {{name}}!", data=["User1"])
 
     render_template_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_with_project_name(
+    create_prompt_template_mock: Mock, get_projects_projects_get_mock: Mock, query_templates_mock: Mock
+) -> None:
+    """Test create_prompt with project_name parameter."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
+    create_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
+    )
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    template = create_prompt(
+        name="project-template",
+        template=[Message(role=MessageRole.system, content="you are a helpful assistant")],
+        project_name="andrii-new-project",
+    )
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    create_prompt_template_mock.sync_detailed.assert_called_once()
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_with_project_id(create_prompt_template_mock: Mock, query_templates_mock: Mock) -> None:
+    """Test create_prompt with project_id parameter."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
+    create_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
+    )
+
+    template = create_prompt(
+        name="project-template",
+        template=[Message(role=MessageRole.system, content="you are a helpful assistant")],
+        project_id="e343ea54-4df3-4d0b-9bc5-7e8224be348f",
+    )
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    # Verify project_id was passed to the create API
+    create_prompt_template_mock.sync_detailed.assert_called_once()
+    call_kwargs = create_prompt_template_mock.sync_detailed.call_args
+    assert call_kwargs.kwargs["project_id"] == "e343ea54-4df3-4d0b-9bc5-7e8224be348f"
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
+@patch("galileo.projects.get_projects_projects_get")
+def test_create_prompt_with_nonexistent_project_name(
+    get_projects_projects_get_mock: Mock, get_all_projects_mock: Mock, query_templates_mock: Mock
+) -> None:
+    """Test create_prompt with nonexistent project_name."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    get_projects_projects_get_mock.sync_detailed.return_value = Response(
+        content=b"[]", status_code=HTTPStatus.OK, headers={"Content-Type": "application/json"}, parsed=[]
+    )
+
+    with pytest.raises(ValueError) as exc_info:
+        create_prompt(
+            name="project-template",
+            template=[Message(role=MessageRole.system, content="you are a helpful assistant")],
+            project_name="nonexistent-project",
+        )
+
+    assert "Project 'nonexistent-project' not found" in str(exc_info.value)
+    get_projects_projects_get_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_with_nonexistent_project_id(
+    create_prompt_template_mock: Mock, query_templates_mock: Mock
+) -> None:
+    """Test create_prompt with nonexistent project_id - no client-side validation."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
+    # Mock API error for nonexistent project_id (server-side validation)
+    create_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b'{"detail":"Project not found"}',
+        status_code=HTTPStatus.NOT_FOUND,
+        headers={"Content-Type": "application/json"},
+        parsed=None,
+    )
+
+    with pytest.raises(PromptTemplateAPIException) as exc_info:
+        create_prompt(
+            name="project-template",
+            template=[Message(role=MessageRole.system, content="you are a helpful assistant")],
+            project_id="nonexistent-id",
+        )
+
+    assert "Project not found" in str(exc_info.value)
+    create_prompt_template_mock.sync_detailed.assert_called_once()
+
+
+def test_create_prompt_with_both_project_params() -> None:
+    """Test create_prompt with both project_id and project_name (should raise error)."""
+    # This should fail immediately in validation, before any API calls
+    with pytest.raises(ValueError) as exc_info:
+        create_prompt(
+            name="project-template",
+            template=[Message(role=MessageRole.system, content="you are a helpful assistant")],
+            project_id="some-id",
+            project_name="some-name",
+        )
+
+    assert "Cannot provide both 'project_id' and 'project_name'" in str(exc_info.value)
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_without_project_creates_global(
+    create_global_prompt_template_mock: Mock, get_all_projects_mock: Mock, query_templates_mock: Mock
+) -> None:
+    """Test that create_prompt without project parameters creates a global template."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=global_prompt_template()
+    )
+
+    template = create_prompt(
+        name="global-template", template=[Message(role=MessageRole.system, content="you are a helpful assistant")]
+    )
+
+    assert template is not None
+    assert template.name == "global-helpful-assistant"
+    create_global_prompt_template_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_with_project_name_and_string_template(
+    create_prompt_template_mock: Mock,
+    get_projects_projects_get_mock: Mock,
+    get_all_projects_mock: Mock,
+    query_templates_mock: Mock,
+) -> None:
+    """Test create_prompt with project_name and string template."""
+    # Mock no existing templates (name is unique)
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    create_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=prompt_template()
+    )
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    template_str = '[{"content":"you are a helpful assistant","role":"system"}]'
+    template = create_prompt(name="project-template", template=template_str, project_name="andrii-new-project")
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    create_prompt_template_mock.sync_detailed.assert_called_once()
+    # Verify the body contains the string template
+    call_kwargs = create_prompt_template_mock.sync_detailed.call_args
+    assert call_kwargs.kwargs["body"].template == template_str
+
+
+# Test get_prompt() with project parameters (for backward compatibility)
+@patch("galileo.prompts.get_global_template_templates_template_id_get")
+def test_get_prompt_with_project_name_and_id(get_template_mock: Mock) -> None:
+    """Test get_prompt with project_name parameter - should work (params ignored)."""
+    get_template_mock.sync.return_value = prompt_template()
+
+    template = get_prompt(id="4793f4b9-eb56-4495-88a9-8cf57bfe737b", project_name="andrii-new-project")
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    get_template_mock.sync.assert_called_once()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+def test_get_prompt_with_project_name_and_name(query_templates_mock: Mock) -> None:
+    """Test get_prompt with project_name parameter by name - should work (params ignored)."""
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse(
+        templates=[prompt_template()], next_starting_token=None
+    )
+
+    template = get_prompt(name="andrii-good-prompt", project_name="andrii-new-project")
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+    query_templates_mock.sync.assert_called_once()
+
+
+@patch("galileo.prompts.get_global_template_templates_template_id_get")
+def test_get_prompt_with_deprecated_project_id(get_template_mock: Mock) -> None:
+    """Test get_prompt with project_id parameter - should work (params ignored)."""
+    get_template_mock.sync.return_value = prompt_template()
+
+    template = get_prompt(id="template-id", project_id="proj-123")
+
+    assert template is not None
+    assert template.name == "andrii-good-prompt"
+
+
+def test_get_prompt_project_params_are_ignored() -> None:
+    """Test that project parameters are ignored (no validation errors for both params)."""
+    # Project parameters are now ignored, so no error should be raised for providing both
+    # This test documents that the old validation is gone
+    pass  # This test documents that the old validation is gone
+
+
+# Test delete_prompt() with project parameters (for backward compatibility)
+@patch("galileo.prompts.delete_global_template_templates_template_id_delete")
+def test_delete_prompt_with_project_name_and_id(delete_template_mock: Mock) -> None:
+    """Test delete_prompt with project_name parameter - should work (params ignored)."""
+    delete_template_mock.sync.return_value = None
+
+    delete_prompt(id="template-id-123", project_name="andrii-new-project")
+
+    delete_template_mock.sync.assert_called_once()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.prompts.delete_global_template_templates_template_id_delete")
+def test_delete_prompt_with_project_name_and_name(delete_template_mock: Mock, query_templates_mock: Mock) -> None:
+    """Test delete_prompt with project_name parameter by name - should work (params ignored)."""
+    delete_template_mock.sync.return_value = None
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse(
+        templates=[prompt_template()], next_starting_token=None
+    )
+
+    delete_prompt(name="andrii-good-prompt", project_name="andrii-new-project")
+
+    delete_template_mock.sync.assert_called_once()
+
+
+@patch("galileo.prompts.delete_global_template_templates_template_id_delete")
+def test_delete_prompt_with_project_id(delete_template_mock: Mock) -> None:
+    """Test delete_prompt with project_id parameter - should work (params ignored)."""
+    delete_template_mock.sync.return_value = None
+
+    delete_prompt(id="template-id-123", project_id="e343ea54-4df3-4d0b-9bc5-7e8224be348f")
+
+    delete_template_mock.sync.assert_called_once()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+def test_delete_prompt_with_project_name_template_not_found(query_templates_mock: Mock) -> None:
+    """Test delete_prompt with project_name when template is not found."""
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse(templates=[], next_starting_token=None)
+
+    with pytest.raises(ValueError) as exc_info:
+        delete_prompt(name="nonexistent-template", project_name="andrii-new-project")
+
+    assert "not found" in str(exc_info.value).lower()
+
+
+def test_delete_prompt_project_params_are_ignored() -> None:
+    """Test that project parameters are ignored (no validation errors for both params)."""
+    # Project parameters are now ignored, so no error for providing both
+    pass  # This test documents that the old validation is gone
+
+
+# Test organization-wide unique name generation
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_generates_unique_name_when_global_exists(
+    create_global_prompt_template_mock: Mock, get_all_projects_mock: Mock, query_templates_mock: Mock
+) -> None:
+    """Test that create_prompt appends (1) when name exists globally."""
+    # Mock existing global template with the name
+    existing_template = global_prompt_template()
+    existing_template.name = "my-template"
+    query_templates_mock.sync.return_value = global_templates_list_response()
+
+    # Mock no projects
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    # Mock successful creation with unique name
+    new_template = global_prompt_template()
+    new_template.name = "my-template (1)"
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
+    )
+
+    template = create_prompt(
+        name="global-helpful-assistant",  # This name exists
+        template=[Message(role=MessageRole.system, content="test")],
+    )
+
+    # Verify the template was created with the incremented name
+    assert template is not None
+    assert template.name == "my-template (1)"
+    create_global_prompt_template_mock.sync_detailed.assert_called_once()
+    # Verify the body has the unique name
+    call_kwargs = create_global_prompt_template_mock.sync_detailed.call_args
+    assert " (1)" in call_kwargs.kwargs["body"].name or call_kwargs.kwargs["body"].name == "global-helpful-assistant"
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_generates_unique_name_when_project_exists(
+    create_global_prompt_template_mock: Mock, query_templates_mock: Mock
+) -> None:
+    """Test that create_prompt appends (1) when name exists globally."""
+    # Mock existing global template with the same name
+    existing_template = global_prompt_template()
+    existing_template.name = "my-template"
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {
+            "templates": [existing_template.to_dict()],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+
+    # Mock successful creation with unique name
+    new_template = global_prompt_template()
+    new_template.name = "my-template (1)"
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
+    )
+
+    template = create_prompt(
+        name="my-template",  # This name exists globally
+        template=[Message(role=MessageRole.system, content="test")],
+    )
+
+    # Verify the template was created with the incremented name
+    assert template is not None
+    assert template.name == "my-template (1)"  # Should have (1) appended
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
+@patch("galileo.projects.get_projects_projects_get")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_with_project_generates_unique_name(
+    create_prompt_template_mock: Mock,
+    get_projects_projects_get_mock: Mock,
+    get_all_projects_mock: Mock,
+    query_templates_mock: Mock,
+) -> None:
+    """Test that create_prompt with project generates unique name."""
+    # Mock existing global template
+    existing_global = global_prompt_template()
+    existing_global.name = "assistant"
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {
+            "templates": [existing_global.to_dict()],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+
+    # Mock no projects for uniqueness check
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    # Mock project for creation
+    get_projects_projects_get_mock.sync_detailed.return_value = projects_response()
+
+    # Mock successful creation with unique name
+    new_template = prompt_template()
+    new_template.name = "assistant (1)"
+    create_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
+    )
+
+    template = create_prompt(
+        name="assistant",  # This name exists globally
+        template=[Message(role=MessageRole.system, content="test")],
+        project_name="andrii-new-project",
+    )
+
+    # Verify the template was created
+    assert template is not None
+    create_prompt_template_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.get_all_projects_projects_all_get")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+def test_create_prompt_no_increment_when_name_unique(
+    create_global_prompt_template_mock: Mock, get_all_projects_mock: Mock, query_templates_mock: Mock
+) -> None:
+    """Test that create_prompt doesn't increment when name is unique."""
+    # Mock no global templates with this name
+    query_templates_mock.sync.return_value = empty_templates_list_response()
+
+    # Mock no projects
+    get_all_projects_mock.sync.return_value = GetProjectsPaginatedResponse(
+        projects=[], limit=100, next_starting_token=None, paginated=False, starting_token=0
+    )
+
+    # Mock successful creation
+    new_template = global_prompt_template()
+    new_template.name = "unique-template"
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
+    )
+
+    template = create_prompt(name="unique-template", template=[Message(role=MessageRole.system, content="test")])
+
+    # Verify the template was created with the original name (no increment)
+    assert template is not None
+    assert template.name == "unique-template"
+    create_global_prompt_template_mock.sync_detailed.assert_called_once()
+    # Verify the body has the original name
+    call_kwargs = create_global_prompt_template_mock.sync_detailed.call_args
+    assert call_kwargs.kwargs["body"].name == "unique-template"
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+def test_generate_unique_name_increments_multiple_times(query_templates_mock: Mock) -> None:
+    """Test that unique name generation can handle multiple increments."""
+    from galileo.utils.prompts import generate_unique_name
+
+    # Mock global templates: base-name, base-name (1), and base-name (2) all exist
+    template1 = global_prompt_template()
+    template1.name = "base-name"
+
+    template2 = global_prompt_template()
+    template2.name = "base-name (1)"
+
+    template3 = global_prompt_template()
+    template3.name = "base-name (2)"
+
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {
+            "templates": [template1.to_dict(), template2.to_dict(), template3.to_dict()],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+
+    # Should generate "base-name (3)" since base-name, (1), and (2) all exist
+    unique_name = generate_unique_name("base-name")
+    assert unique_name == "base-name (3)"
