@@ -20,7 +20,7 @@ try:
     CREWAI_VERSION = Version(CREWAI_VERSION)
     CREWAI_EVENTS_MODULE_AVAILABLE = Version("0.177.0") <= CREWAI_VERSION
     if CREWAI_EVENTS_MODULE_AVAILABLE:
-        from crewai.events.base_event_listener import BaseEventListener  # pyright: ignore[reportMissingImports]
+        from crewai.events.base_event_listener import BaseEventListener
         from crewai.events.types.agent_events import (  # pyright: ignore[reportMissingImports]
             AgentExecutionCompletedEvent,
             AgentExecutionErrorEvent,
@@ -35,6 +35,16 @@ try:
             LLMCallCompletedEvent,
             LLMCallFailedEvent,
             LLMCallStartedEvent,
+        )
+        from crewai.events.types.memory_events import (  # pyright: ignore[reportMissingImports]
+            MemoryQueryCompletedEvent,
+            MemoryQueryFailedEvent,
+            MemoryQueryStartedEvent,
+            MemoryRetrievalCompletedEvent,
+            MemoryRetrievalStartedEvent,
+            MemorySaveCompletedEvent,
+            MemorySaveFailedEvent,
+            MemorySaveStartedEvent,
         )
         from crewai.events.types.task_events import (  # pyright: ignore[reportMissingImports]
             TaskCompletedEvent,
@@ -63,6 +73,16 @@ try:
             LLMCallFailedEvent,
             LLMCallStartedEvent,
         )
+        from crewai.utilities.events.memory_events import (  # pyright: ignore[reportMissingImports]
+            MemoryQueryCompletedEvent,
+            MemoryQueryFailedEvent,
+            MemoryQueryStartedEvent,
+            MemoryRetrievalCompletedEvent,
+            MemoryRetrievalStartedEvent,
+            MemorySaveCompletedEvent,
+            MemorySaveFailedEvent,
+            MemorySaveStartedEvent,
+        )
         from crewai.utilities.events.task_events import (  # pyright: ignore[reportMissingImports]
             TaskCompletedEvent,
             TaskFailedEvent,
@@ -74,11 +94,17 @@ try:
             ToolUsageStartedEvent,
         )
 
+        CREWAI_EVENTS_MODULE_AVAILABLE = False
+
     CREWAI_AVAILABLE = True
+
 except ImportError:
     _logger.warning("CrewAI not available, using stubs")
+
     BaseEventListener = object
+
     CREWAI_AVAILABLE = False
+    CREWAI_EVENTS_MODULE_AVAILABLE = False
 
 try:
     import litellm
@@ -90,7 +116,7 @@ except ImportError:
     LITE_LLM_AVAILABLE = False
 
 
-class CrewAIEventListener(BaseEventListener):
+class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTypeIssues]
     """
     CrewAI event listener for logging traces to the Galileo platform.
 
@@ -193,8 +219,67 @@ class CrewAIEventListener(BaseEventListener):
         def on_llm_call_failed(source: Any, event: LLMCallFailedEvent) -> None:
             self._handle_llm_call_failed(source, event)
 
+        # Memory event handlers (only available in CrewAI >= 0.177.0)
+        if CREWAI_EVENTS_MODULE_AVAILABLE:
+
+            @crewai_event_bus.on(MemoryQueryStartedEvent)
+            def on_memory_query_started(source: Any, event: MemoryQueryStartedEvent) -> None:
+                self._handle_memory_query_started(source, event)
+
+            @crewai_event_bus.on(MemoryQueryCompletedEvent)
+            def on_memory_query_completed(source: Any, event: MemoryQueryCompletedEvent) -> None:
+                self._handle_memory_query_completed(source, event)
+
+            @crewai_event_bus.on(MemoryQueryFailedEvent)
+            def on_memory_query_failed(source: Any, event: MemoryQueryFailedEvent) -> None:
+                self._handle_memory_query_failed(source, event)
+
+            @crewai_event_bus.on(MemorySaveStartedEvent)
+            def on_memory_save_started(source: Any, event: MemorySaveStartedEvent) -> None:
+                self._handle_memory_save_started(source, event)
+
+            @crewai_event_bus.on(MemorySaveCompletedEvent)
+            def on_memory_save_completed(source: Any, event: MemorySaveCompletedEvent) -> None:
+                self._handle_memory_save_completed(source, event)
+
+            @crewai_event_bus.on(MemorySaveFailedEvent)
+            def on_memory_save_failed(source: Any, event: MemorySaveFailedEvent) -> None:
+                self._handle_memory_save_failed(source, event)
+
+            @crewai_event_bus.on(MemoryRetrievalStartedEvent)
+            def on_memory_retrieval_started(source: Any, event: MemoryRetrievalStartedEvent) -> None:
+                self._handle_memory_retrieval_started(source, event)
+
+            @crewai_event_bus.on(MemoryRetrievalCompletedEvent)
+            def on_memory_retrieval_completed(source: Any, event: MemoryRetrievalCompletedEvent) -> None:
+                self._handle_memory_retrieval_completed(source, event)
+
     def _generate_run_id(self, source: Any, event: Any) -> UUID:
         """Generate a consistent UUID for event tracing."""
+
+        # Memory event specific ID generation
+        if hasattr(event, "query"):  # Memory query events
+            source_type = event.source_type if hasattr(event, "source_type") else ""
+            query_str = f"memory_query_{event.query}_{source_type}_{getattr(event, 'agent_id', '')}_{getattr(event, 'limit', '')}_{getattr(event, 'score_threshold', '')}"
+            hash_obj = hashlib.md5(query_str.encode())
+            digest = hash_obj.hexdigest()
+            return UUID(digest)
+
+        if hasattr(event, "value") and getattr(event, "type", "").startswith("memory_save"):  # Memory save events
+            save_str = f"memory_save_{getattr(event, 'agent_id', '')}_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_role', '')}"
+            hash_obj = hashlib.md5(save_str.encode())
+            digest = hash_obj.hexdigest()
+            return UUID(digest)
+
+        if (
+            hasattr(event, "memory_content") or getattr(event, "type", "") == "memory_retrieval_started"
+        ):  # Memory retrieval events
+            # Use consistent fields for all retrieval events (started/completed) - exclude memory_content to ensure same ID
+            retrieval_str = f"memory_retrieval_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_id', '')}"
+            hash_obj = hashlib.md5(retrieval_str.encode())
+            digest = hash_obj.hexdigest()
+            return UUID(digest)
+
         if hasattr(source, "id") and source.id:
             return source.id
 
@@ -474,6 +559,131 @@ class CrewAIEventListener(BaseEventListener):
         self._handler.end_node(
             run_id=run_id, output=f"Error: {getattr(event, 'error', 'Unknown error')}", metadata=metadata
         )
+
+    # Memory event handlers
+    def _handle_memory_query_started(self, source: Any, event: "MemoryQueryStartedEvent") -> None:
+        """Handle memory query start."""
+        run_id = self._generate_run_id(source, event)
+        parent_run_id = self._to_uuid(getattr(event, "agent_id", None))
+        parent_node = self._handler.get_node(parent_run_id) if parent_run_id else None
+
+        if not parent_node and parent_run_id:
+            task_id = getattr(event, "task_id", None)
+            if task_id:
+                task_run_id = self._to_uuid(task_id)
+                parent_node = self._handler.get_node(task_run_id) if task_run_id else None
+                if parent_node:
+                    self._handler.start_node(
+                        node_type=NodeType.AGENT.value,
+                        parent_run_id=task_run_id,
+                        run_id=parent_run_id,
+                        name=getattr(event, "agent_role", "Unknown Agent"),
+                        input=serialize_to_str(event.query),
+                    )
+
+        metadata = self._extract_metadata(event)
+        metadata["query"] = event.query
+        metadata["limit"] = event.limit
+        if event.score_threshold is not None:
+            metadata["score_threshold"] = event.score_threshold
+        if hasattr(event, "agent_role") and event.agent_role:
+            metadata["agent_role"] = event.agent_role
+
+        self._handler.start_node(
+            node_type=NodeType.RETRIEVER.value,
+            parent_run_id=parent_run_id,
+            run_id=run_id,
+            name="Memory Query",
+            input=serialize_to_str(event.query),
+            metadata=metadata,
+        )
+
+    def _handle_memory_query_completed(self, source: Any, event: "MemoryQueryCompletedEvent") -> None:
+        """Handle memory query completion."""
+        run_id = self._generate_run_id(source, event)
+
+        metadata = self._extract_metadata(event)
+        metadata["query_time_ms"] = event.query_time_ms
+        metadata["results_count"] = len(event.results) if hasattr(event.results, "__len__") else 0
+
+        output = serialize_to_str(event.results) if event.results else "No results found"
+        self._handler.end_node(run_id=run_id, output=output, metadata=metadata)
+
+    def _handle_memory_query_failed(self, source: Any, event: "MemoryQueryFailedEvent") -> None:
+        """Handle memory query failure."""
+        run_id = self._generate_run_id(source, event)
+
+        metadata = self._extract_metadata(event)
+        metadata["error"] = event.error
+
+        self._handler.end_node(run_id=run_id, output=f"Memory query failed: {event.error}", metadata=metadata)
+
+    def _handle_memory_save_started(self, source: Any, event: "MemorySaveStartedEvent") -> None:
+        """Handle memory save start."""
+        run_id = self._generate_run_id(source, event)
+        parent_run_id = self._to_uuid(getattr(event, "agent_id", None))
+
+        metadata = self._extract_metadata(event)
+        if hasattr(event, "metadata") and event.metadata:
+            metadata.update(event.metadata)
+        if hasattr(event, "agent_role") and event.agent_role:
+            metadata["agent_role"] = event.agent_role
+
+        input_value = event.value if event.value else "Memory content"
+
+        self._handler.start_node(
+            node_type=NodeType.CHAIN.value,
+            parent_run_id=parent_run_id,
+            run_id=run_id,
+            name="Memory Save",
+            input=serialize_to_str(input_value),
+            metadata=metadata,
+        )
+
+    def _handle_memory_save_completed(self, source: Any, event: "MemorySaveCompletedEvent") -> None:
+        """Handle memory save completion."""
+        run_id = self._generate_run_id(source, event)
+
+        metadata = self._extract_metadata(event)
+        metadata["save_time_ms"] = event.save_time_ms
+
+        self._handler.end_node(run_id=run_id, output=f"Memory saved successfully: {event.value}", metadata=metadata)
+
+    def _handle_memory_save_failed(self, source: Any, event: "MemorySaveFailedEvent") -> None:
+        """Handle memory save failure."""
+        run_id = self._generate_run_id(source, event)
+
+        metadata = self._extract_metadata(event)
+        metadata["error"] = event.error
+
+        self._handler.end_node(run_id=run_id, output=f"Memory save failed: {event.error}", metadata=metadata)
+
+    def _handle_memory_retrieval_started(self, source: Any, event: "MemoryRetrievalStartedEvent") -> None:
+        """Handle memory retrieval start."""
+        run_id = self._generate_run_id(source, event)
+        parent_run_id = self._to_uuid(getattr(event, "task_id", None))
+
+        metadata = self._extract_metadata(event)
+        if hasattr(event, "task_id") and event.task_id:
+            metadata["task_id"] = event.task_id
+
+        self._handler.start_node(
+            node_type=NodeType.CHAIN.value,
+            parent_run_id=parent_run_id,
+            run_id=run_id,
+            name="Memory Retrieval",
+            input="Retrieving relevant memories for task",
+            metadata=metadata,
+        )
+
+    def _handle_memory_retrieval_completed(self, source: Any, event: "MemoryRetrievalCompletedEvent") -> None:
+        """Handle memory retrieval completion."""
+        run_id = self._generate_run_id(source, event)
+
+        metadata = self._extract_metadata(event)
+        metadata["retrieval_time_ms"] = event.retrieval_time_ms
+
+        self._handler.end_node(run_id=run_id, output=serialize_to_str(event.memory_content), metadata=metadata)
 
     def lite_llm_usage_callback(
         self,
