@@ -38,8 +38,9 @@ from galileo.resources.models.synthetic_dataset_extension_request import Synthet
 from galileo.resources.models.synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
 from galileo.resources.types import File, Unset
+from galileo.schema.datasets import DatasetRecord
 from galileo.utils.catch_log import DecorateAllMethods
-from galileo.utils.datasets import _resolve_project_id, _validate_dataset_in_project
+from galileo.utils.datasets import resolve_project_id, validate_dataset_in_project
 from galileo.utils.exceptions import APIException
 from galileo.utils.logging import get_logger
 from galileo_core.utils.dataset import DatasetType, parse_dataset
@@ -229,7 +230,7 @@ class Datasets:
             return [Dataset(dataset_db=dataset) for dataset in datasets.datasets] if datasets else []
 
         # Resolve project identifier to ID
-        resolved_project_id = _resolve_project_id(project_id, project_name)
+        resolved_project_id = resolve_project_id(project_id, project_name)
 
         # Use query endpoint with project filter
         project_filter = DatasetUsedInProjectFilter(value=resolved_project_id)
@@ -329,8 +330,8 @@ class Datasets:
 
         # Validate project association if project parameters provided
         if project_id is not None or project_name is not None:
-            resolved_project_id = _resolve_project_id(project_id, project_name)
-            _validate_dataset_in_project(
+            resolved_project_id = resolve_project_id(project_id, project_name)
+            validate_dataset_in_project(
                 dataset_id=dataset.id,
                 dataset_identifier=name or id,  # type: ignore[arg-type]
                 project_id=resolved_project_id,
@@ -444,7 +445,7 @@ class Datasets:
         if project_id is not None or project_name is not None:
             if project_id is not None and project_name is not None:
                 raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
-            resolved_project_id = _resolve_project_id(project_id, project_name)
+            resolved_project_id = resolve_project_id(project_id, project_name)
 
         if isinstance(content, (list, dict)) and len(content) == 0:
             # we want to avoid errors: Invalid CSV data: CSV parse error:
@@ -976,3 +977,35 @@ def list_dataset_projects(
         return dataset.list_projects(limit=limit)
 
     raise ValueError("Either dataset_id or dataset_name must be provided.")
+
+
+def convert_dataset_row_to_record(dataset_row: DatasetRow) -> DatasetRecord:
+    """
+    Converts a DatasetRow to a DatasetRecord.
+
+    Parameters
+    ----------
+    dataset_row : DatasetRow
+        The dataset row to convert.
+
+    Returns
+    -------
+    DatasetRecord
+        The converted dataset record.
+
+    Raises
+    ------
+    ValueError
+        If the dataset row does not have an input field.
+    """
+    values_dict = dataset_row.values_dict.to_dict()
+
+    if "input" not in values_dict or not values_dict["input"]:
+        raise ValueError("Dataset row must have input field")
+
+    return DatasetRecord(
+        id=dataset_row.row_id,
+        input=values_dict["input"],
+        output=values_dict.get("output", None),
+        metadata=values_dict.get("metadata", None),
+    )

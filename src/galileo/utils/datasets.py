@@ -2,22 +2,13 @@ from typing import TYPE_CHECKING, Any, Optional, Union
 
 from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
-from galileo.resources.models.dataset_row import DatasetRow
 from galileo.schema.datasets import DatasetRecord
 
 if TYPE_CHECKING:
     from galileo.datasets import Dataset
 
 
-# Import at module level to avoid circular imports but allow proper patching in tests
-def get_dataset(*args: Any, **kwargs: Any) -> Optional["Dataset"]:
-    """Lazy import wrapper for get_dataset to avoid circular imports."""
-    from galileo.datasets import get_dataset as _get_dataset
-
-    return _get_dataset(*args, **kwargs)
-
-
-def _resolve_project_id(project_id: Optional[str], project_name: Optional[str]) -> str:
+def resolve_project_id(project_id: Optional[str], project_name: Optional[str]) -> str:
     if project_id is not None and project_name is not None:
         raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
 
@@ -34,7 +25,7 @@ def _resolve_project_id(project_id: Optional[str], project_name: Optional[str]) 
     raise ValueError("Either project_id or project_name must be provided")
 
 
-def _validate_dataset_in_project(
+def validate_dataset_in_project(
     dataset_id: str, dataset_identifier: str, project_id: str, project_identifier: str, config: GalileoPythonConfig
 ) -> None:
     from galileo.resources.api.datasets import list_dataset_projects_datasets_dataset_id_projects_get
@@ -49,20 +40,6 @@ def _validate_dataset_in_project(
     project_ids = [p.id for p in projects_response.projects]
     if project_id not in project_ids:
         raise ValueError(f"Dataset '{dataset_identifier}' is not used in project '{project_identifier}'")
-
-
-def convert_dataset_row_to_record(dataset_row: DatasetRow) -> "DatasetRecord":
-    values_dict = dataset_row.values_dict.to_dict()
-
-    if "input" not in values_dict or not values_dict["input"]:
-        raise ValueError("Dataset row must have input field")
-
-    return DatasetRecord(
-        id=dataset_row.row_id,
-        input=values_dict["input"],
-        output=values_dict.get("output", None),
-        metadata=values_dict.get("metadata", None),
-    )
 
 
 def load_dataset_and_records(
@@ -101,6 +78,8 @@ def load_dataset_and_records(
 def get_dataset_and_records(
     id: Optional[str] = None, name: Optional[str] = None
 ) -> tuple["Dataset", list[DatasetRecord]]:
+    from galileo.datasets import get_dataset
+
     if id:
         dataset = get_dataset(id=id)
         if not dataset:
@@ -116,6 +95,8 @@ def get_dataset_and_records(
 
 
 def get_records_for_dataset(dataset: "Dataset") -> list[DatasetRecord]:
+    from galileo.datasets import convert_dataset_row_to_record
+
     content = dataset.get_content()
     if not content:
         raise ValueError("dataset has no content")
