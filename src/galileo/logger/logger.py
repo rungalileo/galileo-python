@@ -1,5 +1,6 @@
 import atexit
 import copy
+import inspect
 import json
 import logging
 import time
@@ -7,7 +8,7 @@ import uuid
 from collections import deque
 from datetime import datetime
 from os import getenv
-from typing import Any, Literal, Optional, Union
+from typing import Any, Callable, Literal, Optional, Union
 
 import backoff
 from pydantic import ValidationError
@@ -149,6 +150,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         span_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
         experimental: Optional[dict[str, str]] = None,
+        ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
     ) -> None:
         """
         Initializes the logger
@@ -203,6 +205,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         if local_metrics:
             self.local_metrics = local_metrics
+
+        self._ingestion_hook = ingestion_hook
 
         if self.mode == "streaming":
             self._max_retries = STREAMING_MAX_RETRIES
@@ -1243,7 +1247,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         traces_ingest_request = TracesIngestRequest(
             traces=logged_traces, session_id=self.session_id, experiment_id=self.experiment_id
         )
-        await self._traces_client.ingest_traces(traces_ingest_request)
+
+        if self._ingestion_hook:
+            if inspect.iscoroutinefunction(self._ingestion_hook):
+                await self._ingestion_hook(traces_ingest_request)
+            else:
+                self._ingestion_hook(traces_ingest_request)
+        else:
+            await self._traces_client.ingest_traces(traces_ingest_request)
 
         self._logger.info(f"Successfully flushed {trace_count} {'trace' if trace_count == 1 else 'traces'}.")
 
@@ -1393,3 +1404,21 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._logger.info("Clearing the current session from the logger...")
         self.session_id = None
         self._logger.info("Current session cleared.")
+
+    @nop_async
+    async def async_ingest_traces(self, ingest_request: TracesIngestRequest) -> None:
+        """
+        Async ingest traces to Galileo.
+
+        Can be used in combination with the `ingestion_hook` to ingest modified traces.
+        """
+        await self._traces_client.ingest_traces(ingest_request)
+
+    @nop_sync
+    def ingest_traces(self, ingest_request: TracesIngestRequest) -> None:
+        """
+        Ingest traces to Galileo.
+
+        Can be used in combination with the `ingestion_hook` to ingest modified traces.
+        """
+        return async_run(self.async_ingest_traces(ingest_request))
