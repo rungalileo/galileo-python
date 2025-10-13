@@ -35,6 +35,15 @@ def test_galileo_logger_exceptions() -> None:
         GalileoLogger(project="my_project", log_stream="my_log_stream", experiment_id="my_experiment_id")
     assert str(exc_info.value) == "User cannot specify both a log stream and an experiment."
 
+    with pytest.raises(Exception) as exc_info:
+        GalileoLogger(
+            project="my_project",
+            log_stream="my_log_stream",
+            experimental={"mode": "streaming"},
+            ingestion_hook=lambda x: None,
+        )
+    assert str(exc_info.value) == "ingestion_hook can only be used in batch mode"
+
 
 @patch("galileo.logger.logger.Traces")
 def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog, enable_galileo_logging) -> None:

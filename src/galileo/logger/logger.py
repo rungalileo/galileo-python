@@ -171,6 +171,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         mode_str = experimental.get("mode", "batch")
         self.mode: LoggerModeType = mode_str
 
+        self._ingestion_hook = ingestion_hook
+        if self._ingestion_hook and self.mode != "batch":
+            raise GalileoLoggerException("ingestion_hook can only be used in batch mode")
+
         project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
         log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
