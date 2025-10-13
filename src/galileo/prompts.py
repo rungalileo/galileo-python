@@ -497,11 +497,7 @@ def delete_prompt(
     """
     # Warn about deprecated parameters
     if project_id is not None or project_name is not None:
-        warnings.warn(
-            "project_id and project_name parameters are deprecated.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        warnings.warn("project_id and project_name parameters are deprecated.", DeprecationWarning, stacklevel=2)
 
     # Validate template identifier
     if (id is None) and (name is None):
@@ -750,11 +746,7 @@ def list_prompt_templates(project: str) -> builtins.list[PromptTemplate]:
     list[PromptTemplate]
         List of prompt templates associated with the project.
     """
-    warnings.warn(
-        "list_prompt_templates is deprecated, use get_prompts instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+    warnings.warn("list_prompt_templates is deprecated, use get_prompts instead.", DeprecationWarning, stacklevel=2)
     return get_prompts(project_name=project)
 
 
@@ -779,11 +771,7 @@ def get_prompt_template(name: str, project: str) -> Optional[PromptTemplate]:
     Optional[PromptTemplate]
         The template if found, None otherwise.
     """
-    warnings.warn(
-        "get_prompt_template is deprecated, use get_prompt instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+    warnings.warn("get_prompt_template is deprecated, use get_prompt instead.", DeprecationWarning, stacklevel=2)
     return get_prompt(name=name)
 
 
@@ -806,11 +794,7 @@ class PromptTemplates:
         project : str
             The project name.
         """
-        warnings.warn(
-            "PromptTemplates is deprecated, use get_prompts instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
+        warnings.warn("PromptTemplates is deprecated, use get_prompts instead.", DeprecationWarning, stacklevel=2)
         self.project_name = project
 
     def list(self) -> builtins.list[PromptTemplate]:

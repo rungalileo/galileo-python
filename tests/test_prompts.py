@@ -1505,14 +1505,18 @@ def test_get_prompt_with_project_params_deprecated(get_template_mock: Mock) -> N
     get_template_mock.sync.return_value = template
 
     # Using project_id should emit warning
-    with pytest.warns(DeprecationWarning, match="project_id and project_name parameters are deprecated, use get_prompts instead"):
+    with pytest.warns(
+        DeprecationWarning, match="project_id and project_name parameters are deprecated, use get_prompts instead"
+    ):
         result = get_prompt(id=template.id, project_id="some-project-id")
-    
+
     assert result is not None
     assert result.name == "my-template"
 
     # Using project_name should emit warning
-    with pytest.warns(DeprecationWarning, match="project_id and project_name parameters are deprecated, use get_prompts instead"):
+    with pytest.warns(
+        DeprecationWarning, match="project_id and project_name parameters are deprecated, use get_prompts instead"
+    ):
         result = get_prompt(id=template.id, project_name="Some Project")
 
     assert result is not None
@@ -1531,7 +1535,7 @@ def test_delete_prompt_with_project_params_deprecated(get_template_mock: Mock, d
     # Using project_id should emit warning
     with pytest.warns(DeprecationWarning, match="project_id and project_name parameters are deprecated"):
         delete_prompt(id=template.id, project_id="some-project-id")
-    
+
     delete_template_mock.sync.assert_called_once()
     delete_template_mock.reset_mock()
 
