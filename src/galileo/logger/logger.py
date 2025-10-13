@@ -210,8 +210,6 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if local_metrics:
             self.local_metrics = local_metrics
 
-        self._ingestion_hook = ingestion_hook
-
         if self.mode == "streaming":
             self._max_retries = STREAMING_MAX_RETRIES
             self._task_handler = ThreadPoolTaskHandler()
