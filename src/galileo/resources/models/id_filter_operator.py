@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class IDFilterOperator(str, Enum):
+    CONTAINS = "contains"
     EQ = "eq"
     NE = "ne"
     NOT_IN = "not_in"

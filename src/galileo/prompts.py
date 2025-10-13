@@ -8,12 +8,9 @@ from galileo.config import GalileoPythonConfig
 from galileo.projects import Projects
 from galileo.resources.api.prompts import (
     create_global_prompt_template_templates_post,
-    create_prompt_template_with_version_projects_project_id_templates_post,
     delete_global_template_templates_template_id_delete,
     get_global_template_templates_template_id_get,
     get_global_template_version_templates_template_id_versions_version_get,
-    get_project_templates_projects_project_id_templates_get,
-    get_template_from_project_projects_project_id_templates_template_id_get,
     query_templates_templates_query_post,
     render_template_render_template_post,
     update_global_template_templates_template_id_patch,
@@ -27,6 +24,7 @@ from galileo.resources.models import (
     ListPromptTemplateParams,
     PromptTemplateNameFilter,
     PromptTemplateNameFilterOperator,
+    PromptTemplateUsedInProjectFilter,
     RenderTemplateRequest,
     RenderTemplateResponse,
     StringData,
@@ -34,6 +32,7 @@ from galileo.resources.models import (
 )
 from galileo.resources.types import Unset
 from galileo.utils.exceptions import APIException
+from galileo.utils.prompts import generate_unique_name
 
 _logger = logging.getLogger(__name__)
 
@@ -42,17 +41,23 @@ class PromptTemplateAPIException(APIException):
     pass
 
 
+def _resolve_project_id(project_id: Optional[str] = None, project_name: Optional[str] = None) -> Optional[str]:
+    """Resolve project_name to project_id if needed. Internal helper function."""
+    if project_id and project_name:
+        raise ValueError("Cannot provide both 'project_id' and 'project_name'")
+
+    if project_name:
+        project = Projects().get(name=project_name)
+        if not project:
+            raise ValueError(f"Project '{project_name}' not found")
+        return project.id
+
+    return project_id
+
+
 class PromptTemplate(BasePromptTemplateResponse):
     def __init__(self, prompt_template: Union[None, BasePromptTemplateResponse] = None):
-        """
-        Initialize a PromptTemplate instance.
-
-        Parameters
-        ----------
-        prompt_template : Union[None, BasePromptTemplateResponse], optional
-            The prompt template data to initialize from. If None, creates an empty prompt template instance.
-            Defaults to None.
-        """
+        """Initialize a PromptTemplate instance."""
         if prompt_template is not None:
             super().__init__(
                 all_available_versions=prompt_template.all_available_versions,
@@ -95,70 +100,6 @@ class PromptTemplateVersion(BasePromptTemplateVersionResponse):
             self.additional_properties = prompt_template_version.additional_properties.copy()
 
 
-class PromptTemplates:
-    config: GalileoPythonConfig
-
-    def __init__(self) -> None:
-        self.config = GalileoPythonConfig.get()
-
-    def list(self, project_name: str) -> list[PromptTemplate]:
-        project = Projects().get(name=project_name)
-        if not project:
-            raise ValueError(f"Project {project_name} does not exist")
-
-        templates = get_project_templates_projects_project_id_templates_get.sync(
-            # TODO: remove type ignore, when migrated to proper AuthenticatedClient
-            project_id=project.id,
-            client=self.config.api_client,
-        )
-
-        if not templates or isinstance(templates, HTTPValidationError):
-            return []
-
-        return [PromptTemplate(prompt_template=prompt_template) for prompt_template in templates]
-
-    def get(self, *, project_name: str, template_id: str) -> Optional[PromptTemplate]:
-        project = Projects().get(name=project_name)
-        if not project:
-            raise ValueError(f"Project {project_name} does not exist")
-
-        _logger.debug(f"Get template {template_id} from project {project.id}")
-        template = get_template_from_project_projects_project_id_templates_template_id_get.sync(
-            # TODO: remove type ignore, when migrated to proper AuthenticatedClient
-            project_id=project.id,
-            template_id=template_id,
-            client=self.config.api_client,
-        )
-
-        if not template or isinstance(template, HTTPValidationError):
-            return None
-
-        return PromptTemplate(prompt_template=template)
-
-    def create(
-        self, name: str, project_name: str, template: Union[builtins.list[Message], str]
-    ) -> Optional[PromptTemplate]:
-        project = Projects().get(name=project_name)
-        if not project:
-            raise ValueError(f"Project {project_name} does not exist")
-
-        body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
-
-        _logger.debug(f"{body}")
-        response = create_prompt_template_with_version_projects_project_id_templates_post.sync_detailed(
-            project_id=project.id, client=self.config.api_client, body=body
-        )
-
-        if response.status_code != 200:
-            raise PromptTemplateAPIException(response.content.decode("utf-8"))
-
-        if not response.parsed or isinstance(response.parsed, HTTPValidationError):
-            _logger.error(response)
-            raise PromptTemplateAPIException(response.content.decode("utf-8"))
-
-        return PromptTemplate(prompt_template=response.parsed)
-
-
 class GlobalPromptTemplates:
     config: GalileoPythonConfig
 
@@ -166,13 +107,57 @@ class GlobalPromptTemplates:
         self.config = GalileoPythonConfig.get()
 
     def list(
-        self, *, name_filter: Optional[str] = None, limit: Union[Unset, int] = 100, starting_token: int = 0
-    ) -> list[PromptTemplate]:
+        self,
+        *,
+        name_filter: Optional[str] = None,
+        project_id: Optional[str] = None,
+        project_name: Optional[str] = None,
+        limit: Union[Unset, int] = 100,
+        starting_token: int = 0,
+    ) -> builtins.list[PromptTemplate]:
+        """
+        List global prompt templates with optional filtering.
+
+        Parameters
+        ----------
+        name_filter : Optional[str], optional
+            Filter templates by name containing this string. Defaults to None.
+        project_id : Optional[str], optional
+            Filter templates by project ID. Returns templates used in the specified project. Defaults to None.
+        project_name : Optional[str], optional
+            Filter templates by project name. Returns templates used in the specified project. Defaults to None.
+            Cannot be used together with project_id.
+        limit : Union[Unset, int], optional
+            Maximum number of templates to return. Defaults to 100.
+        starting_token : int, optional
+            Starting token for pagination. Defaults to 0.
+
+        Returns
+        -------
+        list[PromptTemplate]
+            List of prompt templates matching the criteria.
+
+        Raises
+        ------
+        ValueError
+            If both project_id and project_name are provided, or if project_name doesn't exist.
+        """
+        # Resolve project_name to project_id if needed
+        resolved_project_id = _resolve_project_id(project_id=project_id, project_name=project_name)
+
         params = ListPromptTemplateParams()
+        filters = []
+
         if name_filter:
-            params.filters = [
+            filters.append(
                 PromptTemplateNameFilter(operator=PromptTemplateNameFilterOperator.CONTAINS, value=name_filter)
-            ]
+            )
+
+        if resolved_project_id:
+            filters.append(PromptTemplateUsedInProjectFilter(value=resolved_project_id))
+
+        if filters:
+            params.filters = filters
 
         response = query_templates_templates_query_post.sync(
             client=self.config.api_client, body=params, limit=limit, starting_token=starting_token
@@ -226,6 +211,21 @@ class GlobalPromptTemplates:
     def delete(self, *, name: str) -> None: ...
 
     def delete(self, *, template_id: Optional[str] = None, name: Optional[str] = None) -> None:
+        """
+        Delete a global prompt template by ID or name.
+
+        Parameters
+        ----------
+        template_id : Optional[str], optional
+            The unique identifier of the template to delete. Defaults to None.
+        name : Optional[str], optional
+            The name of the template to delete. Defaults to None.
+
+        Raises
+        ------
+        ValueError
+            If neither or both template_id and name are provided, or if the template is not found.
+        """
         if (template_id is None) == (name is None):
             raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
@@ -251,11 +251,49 @@ class GlobalPromptTemplates:
 
         return PromptTemplateVersion(prompt_template_version=template_version)
 
-    def create(self, name: str, template: Union[builtins.list[Message], str]) -> PromptTemplate:
+    def create(
+        self,
+        name: str,
+        template: Union[builtins.list[Message], str],
+        project_id: Optional[str] = None,
+        project_name: Optional[str] = None,
+    ) -> PromptTemplate:
+        """
+        Create a new global prompt template.
+
+        Parameters
+        ----------
+        name : str
+            The name for the new template.
+        template : Union[list[Message], str]
+            The template content. Can be either a list of Message objects or a JSON string.
+        project_id : Optional[str], optional
+            The project ID to associate with this template. Defaults to None.
+        project_name : Optional[str], optional
+            The project name to associate with this template. Defaults to None.
+            Cannot be used together with project_id.
+
+        Returns
+        -------
+        PromptTemplate
+            The created prompt template.
+
+        Raises
+        ------
+        PromptTemplateAPIException
+            If the API request fails or returns an error.
+        ValueError
+            If both project_id and project_name are provided, or if project_name doesn't exist.
+        """
+        # Resolve project_name to project_id if needed
+        resolved_project_id = _resolve_project_id(project_id=project_id, project_name=project_name)
+
         body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
 
-        _logger.debug(f"Creating global template: {body}")
-        response = create_global_prompt_template_templates_post.sync_detailed(client=self.config.api_client, body=body)
+        _logger.debug(f"Creating global template: {body} with project_id: {resolved_project_id}")
+        response = create_global_prompt_template_templates_post.sync_detailed(
+            client=self.config.api_client, body=body, project_id=resolved_project_id if resolved_project_id else Unset()
+        )
 
         if response.status_code != 200:
             raise PromptTemplateAPIException(response.content.decode("utf-8"))
@@ -352,27 +390,6 @@ class GlobalPromptTemplates:
         return response.parsed
 
 
-def create_prompt_template(name: str, project: str, messages: Union[list[Message], str]) -> Optional[PromptTemplate]:
-    warnings.warn("create_prompt_template is deprecated, use create_prompt instead.", DeprecationWarning, stacklevel=2)
-    return PromptTemplates().create(name=name, project_name=project, template=messages)
-
-
-def get_prompt_template(project: str, name: str) -> Optional[PromptTemplate]:
-    warnings.warn("get_prompt_template is deprecated, use get_prompt instead.", DeprecationWarning, stacklevel=2)
-    prompt_templates = PromptTemplates().list(project_name=project)
-    for prompt_template in prompt_templates:
-        if prompt_template.name == name:
-            _logger.info(f"Get template {prompt_template}")
-            return prompt_template
-    _logger.warning(f"Template {name} not found in project {project}")
-    return None
-
-
-def list_prompt_templates(project: str) -> list[PromptTemplate]:
-    warnings.warn("list_prompt_templates is deprecated, use get_prompts instead.", DeprecationWarning, stacklevel=2)
-    return PromptTemplates().list(project_name=project)
-
-
 @overload
 def get_prompt(*, id: str) -> Optional[PromptTemplate]: ...
 
@@ -381,7 +398,13 @@ def get_prompt(*, id: str) -> Optional[PromptTemplate]: ...
 def get_prompt(*, name: str) -> Optional[PromptTemplate]: ...
 
 
-def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optional[PromptTemplate]:
+def get_prompt(
+    *,
+    id: Optional[str] = None,
+    name: Optional[str] = None,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> Optional[PromptTemplate]:
     """
     Retrieves a global prompt template.
 
@@ -393,6 +416,10 @@ def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optio
         The unique identifier of the template to retrieve. Defaults to None.
     name : str, optional
         The name of the template to retrieve. Defaults to None.
+    project_id : str, optional
+        **Deprecated.** This parameter is ignored. Use get_prompts(project_id=...) to filter templates by project.
+    project_name : str, optional
+        **Deprecated.** This parameter is ignored. Use get_prompts(project_name=...) to filter templates by project.
 
     Returns
     -------
@@ -404,12 +431,22 @@ def get_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> Optio
     ValueError
         If neither or both 'id' and 'name' are provided.
     """
+    # Warn about deprecated parameters
+    if project_id is not None or project_name is not None:
+        warnings.warn(
+            "project_id and project_name parameters are deprecated, use get_prompts instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    # Validate template identifier
     if (id is None) and (name is None):
         raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
     if (id is not None) and (name is not None):
         raise ValueError("Exactly one of 'id' or 'name' must be provided")
 
+    # Get global template
     prompt_template = GlobalPromptTemplates().get(template_id=id) if id else GlobalPromptTemplates().get(name=name)  # type: ignore[arg-type]
 
     if not prompt_template:
@@ -426,16 +463,28 @@ def delete_prompt(*, id: str) -> None: ...
 def delete_prompt(*, name: str) -> None: ...
 
 
-def delete_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> None:
+def delete_prompt(
+    *,
+    id: Optional[str] = None,
+    name: Optional[str] = None,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> None:
     """
     Delete a global prompt template by ID or name.
 
+    You must provide either 'id' or 'name', but not both.
+
     Parameters
     ----------
-    id : str
+    id : str, optional
         The unique identifier of the template to delete. Defaults to None.
-    name : str
+    name : str, optional
         The name of the template to delete. Defaults to None.
+    project_id : str, optional
+        **Deprecated.** This parameter is ignored.
+    project_name : str, optional
+        **Deprecated.** This parameter is ignored.
 
     Returns
     -------
@@ -446,6 +495,18 @@ def delete_prompt(*, id: Optional[str] = None, name: Optional[str] = None) -> No
     ValueError
         If neither or both id and name are provided, or if the template is not found.
     """
+    # Warn about deprecated parameters
+    if project_id is not None or project_name is not None:
+        warnings.warn("project_id and project_name parameters are deprecated.", DeprecationWarning, stacklevel=2)
+
+    # Validate template identifier
+    if (id is None) and (name is None):
+        raise ValueError("Exactly one of 'id' or 'name' must be provided")
+
+    if (id is not None) and (name is not None):
+        raise ValueError("Exactly one of 'id' or 'name' must be provided")
+
+    # Delete global template
     return GlobalPromptTemplates().delete(template_id=id, name=name)  # type: ignore[call-overload]
 
 
@@ -481,14 +542,6 @@ def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_n
         If neither or both id and name are provided, or if the template is not found.
     PromptTemplateAPIException
         If the API request fails or returns an error.
-
-    Examples
-    --------
-    >>> # Update template by ID
-    >>> template = update_prompt(id="template-id-123", new_name="new-name")
-
-    >>> # Update template by existing name
-    >>> template = update_prompt(name="old-name", new_name="new-name")
     """
     if (id is None) == (name is None):
         raise ValueError("Exactly one of 'id' or 'name' must be provided")
@@ -504,17 +557,21 @@ def update_prompt(*, id: Optional[str] = None, name: Optional[str] = None, new_n
     raise ValueError("Invalid state: neither id nor name is provided")
 
 
-def create_prompt(name: str, template: Union[list[Message], str]) -> PromptTemplate:
+def create_prompt_template(name: str, project: str, messages: builtins.list[Message]) -> PromptTemplate:
     """
     Create a new global prompt template.
+
+    .. deprecated::
+        Use :func:`create_prompt` instead.
 
     Parameters
     ----------
     name : str
         The name for the new template.
-    template : Union[list[Message], str]
-        The template content. Can be either a list of Message objects or a JSON string
-        representing the message structure.
+    project : str
+        The project name to associate with this template.
+    messages : list[Message]
+        The template content as a list of Message objects.
 
     Returns
     -------
@@ -525,11 +582,69 @@ def create_prompt(name: str, template: Union[list[Message], str]) -> PromptTempl
     ------
     PromptTemplateAPIException
         If the API request fails or returns an error.
+    ValueError
+        If project doesn't exist.
     """
-    return GlobalPromptTemplates().create(name=name, template=template)
+    warnings.warn("create_prompt_template is deprecated, use create_prompt instead.", DeprecationWarning, stacklevel=2)
+    return create_prompt(name=name, project_name=project, template=messages)
 
 
-def get_prompts(name_filter: Optional[str] = None, limit: Union[Unset, int] = 100) -> list[PromptTemplate]:
+def create_prompt(
+    name: str,
+    template: Union[builtins.list[Message], str],
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+) -> PromptTemplate:
+    """
+    Create a new global prompt template.
+
+    Parameters
+    ----------
+    name : str
+        The name for the new template.
+    template : Union[list[Message], str]
+        The template content. Can be either a list of Message objects or a JSON string
+        representing the message structure.
+    project_id : Optional[str], optional
+        The project ID to associate with this template. When provided, the template
+        will be linked to the specified project. Defaults to None.
+    project_name : Optional[str], optional
+        The project name to associate with this template. When provided, the template
+        will be linked to the specified project. Defaults to None.
+        Cannot be used together with project_id.
+
+    Returns
+    -------
+    PromptTemplate
+        The created prompt template.
+
+    Raises
+    ------
+    PromptTemplateAPIException
+        If the API request fails or returns an error.
+    ValueError
+        If both project_id and project_name are provided, or if project_name doesn't exist.
+    """
+    # Resolve project parameters early (validates and converts project_name to project_id)
+    # This will raise ValueError if both are provided or if project_name doesn't exist
+    resolved_project_id = _resolve_project_id(project_id=project_id, project_name=project_name)
+
+    # Generate a unique name to ensure organization-wide uniqueness
+    unique_name = generate_unique_name(name)
+
+    # Create a global template with the unique name and resolved project_id
+    # Pass only project_id to avoid duplicate resolution
+    return GlobalPromptTemplates().create(
+        name=unique_name, template=template, project_id=resolved_project_id, project_name=None
+    )
+
+
+def get_prompts(
+    name_filter: Optional[str] = None,
+    project_id: Optional[str] = None,
+    project_name: Optional[str] = None,
+    limit: Union[Unset, int] = 100,
+) -> builtins.list[PromptTemplate]:
     """
     List global prompt templates with optional filtering.
 
@@ -537,6 +652,11 @@ def get_prompts(name_filter: Optional[str] = None, limit: Union[Unset, int] = 10
     ----------
     name_filter : Optional[str], optional
         Filter templates by name containing this string. Defaults to None (no filtering).
+    project_id : Optional[str], optional
+        Filter templates by project ID. Returns templates used in the specified project. Defaults to None.
+    project_name : Optional[str], optional
+        Filter templates by project name. Returns templates used in the specified project. Defaults to None.
+        Cannot be used together with project_id.
     limit : Union[Unset, int], optional
         Maximum number of templates to return. Defaults to 100.
 
@@ -545,18 +665,15 @@ def get_prompts(name_filter: Optional[str] = None, limit: Union[Unset, int] = 10
     list[PromptTemplate]
         List of prompt templates matching the criteria.
 
-    Examples
-    --------
-    >>> # List all global templates
-    >>> templates = get_prompts()
-
-    >>> # List templates with names containing "assistant"
-    >>> templates = get_prompts(name_filter="assistant")
-
-    >>> # List first 10 templates
-    >>> templates = get_prompts(limit=10)
+    Raises
+    ------
+    ValueError
+        If both project_id and project_name are provided, or if project_name doesn't exist.
     """
-    return GlobalPromptTemplates().list(name_filter=name_filter, limit=limit)
+    # List global templates with optional project filtering
+    return GlobalPromptTemplates().list(
+        name_filter=name_filter, project_id=project_id, project_name=project_name, limit=limit
+    )
 
 
 def render_template(
@@ -593,20 +710,6 @@ def render_template(
     ------
     PromptTemplateAPIException
         If the API request fails or returns an error.
-
-    Examples
-    --------
-    >>> # Render template with string data
-    >>> response = render_template(
-    ...     template="Hello {{name}}!",
-    ...     data=["Alice", "Bob", "Charlie"]
-    ... )
-
-    >>> # Render template with dataset
-    >>> response = render_template(
-    ...     template="Hello {{name}}!",
-    ...     data="dataset-id-123"
-    ... )
     """
     if isinstance(data, list):
         data = StringData(input_strings=data)
@@ -618,3 +721,134 @@ def render_template(
     return GlobalPromptTemplates().render_template(
         template=template, data=data, starting_token=starting_token, limit=limit
     )
+
+
+# ================================
+# Deprecated Functions & Classes
+# ================================
+
+
+def list_prompt_templates(project: str) -> builtins.list[PromptTemplate]:
+    """
+    List prompt templates for a project.
+
+    .. deprecated::
+        Use :func:`get_prompts` with ``project_name`` parameter instead.
+        This function is deprecated and will be removed in a future version.
+
+    Parameters
+    ----------
+    project : str
+        The project name to filter templates by.
+
+    Returns
+    -------
+    list[PromptTemplate]
+        List of prompt templates associated with the project.
+    """
+    warnings.warn("list_prompt_templates is deprecated, use get_prompts instead.", DeprecationWarning, stacklevel=2)
+    return get_prompts(project_name=project)
+
+
+def get_prompt_template(name: str, project: str) -> Optional[PromptTemplate]:
+    """
+    Get a prompt template by name from a specific project.
+
+    .. deprecated::
+        Use :func:`get_prompt` with ``name`` parameter or :func:`get_prompts` with
+        ``project_name`` parameter instead. This function is deprecated and will be
+        removed in a future version.
+
+    Parameters
+    ----------
+    name : str
+        The name of the template.
+    project : str
+        The project name (ignored - templates are now global).
+
+    Returns
+    -------
+    Optional[PromptTemplate]
+        The template if found, None otherwise.
+    """
+    warnings.warn("get_prompt_template is deprecated, use get_prompt instead.", DeprecationWarning, stacklevel=2)
+    return get_prompt(name=name)
+
+
+class PromptTemplates:
+    """
+    Class for managing project-specific prompt templates.
+
+    .. deprecated::
+        This class is deprecated as templates are now global. Use the module-level
+        functions :func:`get_prompts`, :func:`create_prompt`, etc. instead.
+        This class will be removed in a future version.
+    """
+
+    def __init__(self, project: str):
+        """
+        Initialize PromptTemplates for a specific project.
+
+        Parameters
+        ----------
+        project : str
+            The project name.
+        """
+        warnings.warn("PromptTemplates is deprecated, use get_prompts instead.", DeprecationWarning, stacklevel=2)
+        self.project_name = project
+
+    def list(self) -> builtins.list[PromptTemplate]:
+        """
+        List templates for this project.
+
+        Returns
+        -------
+        list[PromptTemplate]
+            List of templates associated with the project.
+        """
+        return get_prompts(project_name=self.project_name)
+
+    def get(self, *, name: str) -> Optional[PromptTemplate]:
+        """
+        Get a template by name from this project.
+
+        Parameters
+        ----------
+        name : str
+            The template name.
+
+        Returns
+        -------
+        Optional[PromptTemplate]
+            The template if found, None otherwise.
+        """
+        return get_prompt(name=name)
+
+    def create(self, name: str, template: Union[builtins.list[Message], str]) -> PromptTemplate:
+        """
+        Create a template in this project.
+
+        Parameters
+        ----------
+        name : str
+            The template name.
+        template : Union[list[Message], str]
+            The template content.
+
+        Returns
+        -------
+        PromptTemplate
+            The created template.
+        """
+        return create_prompt(name=name, template=template, project_name=self.project_name)
+
+    def delete(self, *, name: str) -> None:
+        """
+        Delete a template by name from this project.
+
+        Parameters
+        ----------
+        name : str
+            The template name.
+        """
+        return delete_prompt(name=name)

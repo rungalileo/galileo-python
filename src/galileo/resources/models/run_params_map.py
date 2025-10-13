@@ -19,8 +19,6 @@ class RunParamsMap:
             deployment_name (Union[None, Unset, str]):
             echo (Union[None, Unset, str]):
             frequency_penalty (Union[None, Unset, str]):
-            input_ (Union[None, Unset, str]):
-            instructions (Union[None, Unset, str]):
             logprobs (Union[None, Unset, str]):
             max_tokens (Union[None, Unset, str]):
             model (Union[None, Unset, str]):
@@ -42,8 +40,6 @@ class RunParamsMap:
     deployment_name: Union[None, Unset, str] = UNSET
     echo: Union[None, Unset, str] = UNSET
     frequency_penalty: Union[None, Unset, str] = UNSET
-    input_: Union[None, Unset, str] = UNSET
-    instructions: Union[None, Unset, str] = UNSET
     logprobs: Union[None, Unset, str] = UNSET
     max_tokens: Union[None, Unset, str] = UNSET
     model: Union[None, Unset, str] = UNSET
@@ -73,12 +69,6 @@ class RunParamsMap:
 
         frequency_penalty: Union[None, Unset, str]
         frequency_penalty = UNSET if isinstance(self.frequency_penalty, Unset) else self.frequency_penalty
-
-        input_: Union[None, Unset, str]
-        input_ = UNSET if isinstance(self.input_, Unset) else self.input_
-
-        instructions: Union[None, Unset, str]
-        instructions = UNSET if isinstance(self.instructions, Unset) else self.instructions
 
         logprobs: Union[None, Unset, str]
         logprobs = UNSET if isinstance(self.logprobs, Unset) else self.logprobs
@@ -136,10 +126,6 @@ class RunParamsMap:
             field_dict["echo"] = echo
         if frequency_penalty is not UNSET:
             field_dict["frequency_penalty"] = frequency_penalty
-        if input_ is not UNSET:
-            field_dict["input"] = input_
-        if instructions is not UNSET:
-            field_dict["instructions"] = instructions
         if logprobs is not UNSET:
             field_dict["logprobs"] = logprobs
         if max_tokens is not UNSET:
@@ -212,24 +198,6 @@ class RunParamsMap:
             return cast(Union[None, Unset, str], data)
 
         frequency_penalty = _parse_frequency_penalty(d.pop("frequency_penalty", UNSET))
-
-        def _parse_input_(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        input_ = _parse_input_(d.pop("input", UNSET))
-
-        def _parse_instructions(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        instructions = _parse_instructions(d.pop("instructions", UNSET))
 
         def _parse_logprobs(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -371,8 +339,6 @@ class RunParamsMap:
             deployment_name=deployment_name,
             echo=echo,
             frequency_penalty=frequency_penalty,
-            input_=input_,
-            instructions=instructions,
             logprobs=logprobs,
             max_tokens=max_tokens,
             model=model,

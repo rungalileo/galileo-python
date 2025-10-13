@@ -6,7 +6,9 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..models.input_type_enum import InputTypeEnum
 from ..models.model_type import ModelType
+from ..models.output_type_enum import OutputTypeEnum
 from ..models.scorer_types import ScorerTypes
 from ..types import UNSET, Unset
 
@@ -35,9 +37,12 @@ class ScorerResponse:
         ground_truth (Union[None, Unset, bool]):
         included_fields (Union[Unset, list[str]]): Fields that can be used in the scorer to configure it. i.e. model,
             num_judges, etc. This enables the ui to know which fields a user can configure when they're setting a scorer
+        input_type (Union[InputTypeEnum, None, Unset]):
         label (Union[None, Unset, str]):  Default: ''.
         latest_version (Union['BaseScorerVersionDB', None, Unset]):
         model_type (Union[ModelType, None, Unset]):
+        output_type (Union[None, OutputTypeEnum, Unset]):
+        scoreable_node_types (Union[None, Unset, list[str]]):
         updated_at (Union[None, Unset, datetime.datetime]):
         user_prompt (Union[None, Unset, str]):
     """
@@ -54,9 +59,12 @@ class ScorerResponse:
     description: Union[None, Unset, str] = UNSET
     ground_truth: Union[None, Unset, bool] = UNSET
     included_fields: Union[Unset, list[str]] = UNSET
+    input_type: Union[InputTypeEnum, None, Unset] = UNSET
     label: Union[None, Unset, str] = ""
     latest_version: Union["BaseScorerVersionDB", None, Unset] = UNSET
     model_type: Union[ModelType, None, Unset] = UNSET
+    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
+    scoreable_node_types: Union[None, Unset, list[str]] = UNSET
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
     user_prompt: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -113,6 +121,14 @@ class ScorerResponse:
         if not isinstance(self.included_fields, Unset):
             included_fields = self.included_fields
 
+        input_type: Union[None, Unset, str]
+        if isinstance(self.input_type, Unset):
+            input_type = UNSET
+        elif isinstance(self.input_type, InputTypeEnum):
+            input_type = self.input_type.value
+        else:
+            input_type = self.input_type
+
         label: Union[None, Unset, str]
         label = UNSET if isinstance(self.label, Unset) else self.label
 
@@ -131,6 +147,23 @@ class ScorerResponse:
             model_type = self.model_type.value
         else:
             model_type = self.model_type
+
+        output_type: Union[None, Unset, str]
+        if isinstance(self.output_type, Unset):
+            output_type = UNSET
+        elif isinstance(self.output_type, OutputTypeEnum):
+            output_type = self.output_type.value
+        else:
+            output_type = self.output_type
+
+        scoreable_node_types: Union[None, Unset, list[str]]
+        if isinstance(self.scoreable_node_types, Unset):
+            scoreable_node_types = UNSET
+        elif isinstance(self.scoreable_node_types, list):
+            scoreable_node_types = self.scoreable_node_types
+
+        else:
+            scoreable_node_types = self.scoreable_node_types
 
         updated_at: Union[None, Unset, str]
         if isinstance(self.updated_at, Unset):
@@ -162,12 +195,18 @@ class ScorerResponse:
             field_dict["ground_truth"] = ground_truth
         if included_fields is not UNSET:
             field_dict["included_fields"] = included_fields
+        if input_type is not UNSET:
+            field_dict["input_type"] = input_type
         if label is not UNSET:
             field_dict["label"] = label
         if latest_version is not UNSET:
             field_dict["latest_version"] = latest_version
         if model_type is not UNSET:
             field_dict["model_type"] = model_type
+        if output_type is not UNSET:
+            field_dict["output_type"] = output_type
+        if scoreable_node_types is not UNSET:
+            field_dict["scoreable_node_types"] = scoreable_node_types
         if updated_at is not UNSET:
             field_dict["updated_at"] = updated_at
         if user_prompt is not UNSET:
@@ -275,6 +314,22 @@ class ScorerResponse:
 
         included_fields = cast(list[str], d.pop("included_fields", UNSET))
 
+        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return InputTypeEnum(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[InputTypeEnum, None, Unset], data)
+
+        input_type = _parse_input_type(d.pop("input_type", UNSET))
+
         def _parse_label(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -316,6 +371,38 @@ class ScorerResponse:
 
         model_type = _parse_model_type(d.pop("model_type", UNSET))
 
+        def _parse_output_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return OutputTypeEnum(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, OutputTypeEnum, Unset], data)
+
+        output_type = _parse_output_type(d.pop("output_type", UNSET))
+
+        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
+
         def _parse_updated_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
                 return data
@@ -354,9 +441,12 @@ class ScorerResponse:
             description=description,
             ground_truth=ground_truth,
             included_fields=included_fields,
+            input_type=input_type,
             label=label,
             latest_version=latest_version,
             model_type=model_type,
+            output_type=output_type,
+            scoreable_node_types=scoreable_node_types,
             updated_at=updated_at,
             user_prompt=user_prompt,
         )
