@@ -1494,7 +1494,7 @@ async def test_ingestion_hook_async(
     logger.conclude(output="output")
     await logger.async_flush()
 
-    ingestion_hook.assert_awaited_once()
+    ingestion_hook.assert_called_once()
     mock_traces_client_instance.ingest_traces.assert_not_called()
     payload = ingestion_hook.call_args.args[0]
     assert isinstance(payload, TracesIngestRequest)
