@@ -1392,3 +1392,302 @@ def test_generate_unique_name_increments_multiple_times(query_templates_mock: Mo
     # Should generate "base-name (3)" since base-name, (1), and (2) all exist
     unique_name = generate_unique_name("base-name")
     assert unique_name == "base-name (3)"
+
+
+# ================================
+# Backward Compatibility Tests
+# ================================
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.Projects.get")
+def test_list_prompt_templates_deprecated(mock_projects_get: Mock, query_templates_mock: Mock) -> None:
+    """Test that list_prompt_templates() still works but emits deprecation warning."""
+    from galileo.prompts import list_prompt_templates
+
+    # Mock the project
+    mock_project = Mock()
+    mock_project.id = "project-123"
+    mock_projects_get.return_value = mock_project
+
+    # Mock the response
+    template = global_prompt_template()
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {
+            "templates": [template.to_dict()],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+
+    # Should work but emit deprecation warning
+    with pytest.warns(DeprecationWarning, match="list_prompt_templates is deprecated, use get_prompts instead"):
+        templates = list_prompt_templates(project="My Project")
+
+    assert len(templates) == 1
+    assert templates[0].name == template.name
+    # Verify it called with project_name filter
+    query_templates_mock.sync.assert_called_once()
+
+
+@patch("galileo.prompts.get_global_template_templates_template_id_get")
+@patch("galileo.prompts.query_templates_templates_query_post")
+def test_get_prompt_template_deprecated(query_templates_mock: Mock, get_template_mock: Mock) -> None:
+    """Test that get_prompt_template() still works but emits deprecation warning."""
+    from galileo.prompts import get_prompt_template
+
+    # Mock the response
+    template = global_prompt_template()
+    template.name = "my-template"
+
+    # Mock query to find by name
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {
+            "templates": [template.to_dict()],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+
+    get_template_mock.sync.return_value = template
+
+    # Should work but emit deprecation warning
+    with pytest.warns(DeprecationWarning, match="get_prompt_template is deprecated, use get_prompt instead"):
+        result = get_prompt_template(name="my-template", project="My Project")
+
+    assert result is not None
+    assert result.name == "my-template"
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.Projects.get")
+def test_prompt_templates_class_deprecated(mock_projects_get: Mock, query_templates_mock: Mock) -> None:
+    """Test that PromptTemplates class still works but emits deprecation warning."""
+    from galileo.prompts import PromptTemplates
+
+    # Mock the project
+    mock_project = Mock()
+    mock_project.id = "project-123"
+    mock_projects_get.return_value = mock_project
+
+    # Mock the response
+    template = global_prompt_template()
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {
+            "templates": [template.to_dict()],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+
+    # Should work but emit deprecation warning on instantiation
+    with pytest.warns(DeprecationWarning, match="PromptTemplates is deprecated, use get_prompts instead"):
+        templates_obj = PromptTemplates(project="My Project")
+
+    # Methods should work without additional warnings
+    templates_list = templates_obj.list()
+    assert len(templates_list) == 1
+    assert templates_list[0].name == template.name
+
+
+@patch("galileo.prompts.get_global_template_templates_template_id_get")
+def test_get_prompt_with_project_params_deprecated(get_template_mock: Mock) -> None:
+    """Test that get_prompt() with project params emits deprecation warning."""
+    # Mock the response
+    template = global_prompt_template()
+    template.name = "my-template"
+    get_template_mock.sync.return_value = template
+
+    # Using project_id should emit warning
+    with pytest.warns(DeprecationWarning, match="project_id and project_name parameters are deprecated, use get_prompts instead"):
+        result = get_prompt(id=template.id, project_id="some-project-id")
+    
+    assert result is not None
+    assert result.name == "my-template"
+
+    # Using project_name should emit warning
+    with pytest.warns(DeprecationWarning, match="project_id and project_name parameters are deprecated, use get_prompts instead"):
+        result = get_prompt(id=template.id, project_name="Some Project")
+
+    assert result is not None
+    assert result.name == "my-template"
+
+
+@patch("galileo.prompts.delete_global_template_templates_template_id_delete")
+@patch("galileo.prompts.get_global_template_templates_template_id_get")
+def test_delete_prompt_with_project_params_deprecated(get_template_mock: Mock, delete_template_mock: Mock) -> None:
+    """Test that delete_prompt() with project params emits deprecation warning."""
+    # Mock the response
+    template = global_prompt_template()
+    get_template_mock.sync.return_value = template
+    delete_template_mock.sync.return_value = None
+
+    # Using project_id should emit warning
+    with pytest.warns(DeprecationWarning, match="project_id and project_name parameters are deprecated"):
+        delete_prompt(id=template.id, project_id="some-project-id")
+    
+    delete_template_mock.sync.assert_called_once()
+    delete_template_mock.reset_mock()
+
+    # Using project_name should emit warning
+    with pytest.warns(DeprecationWarning, match="project_id and project_name parameters are deprecated"):
+        delete_prompt(id=template.id, project_name="Some Project")
+
+    delete_template_mock.sync.assert_called_once()
+
+
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.Projects.get")
+def test_create_prompt_template_still_works(
+    mock_projects_get: Mock, query_templates_mock: Mock, create_global_prompt_template_mock: Mock
+) -> None:
+    """Test that the old create_prompt_template() function still works but emits deprecation warning."""
+    from galileo.prompts import create_prompt_template
+
+    # Mock the project
+    mock_project = Mock()
+    mock_project.id = "project-123"
+    mock_projects_get.return_value = mock_project
+
+    # Mock no existing templates
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {"templates": [], "limit": 100, "next_starting_token": None, "paginated": False, "starting_token": 0}
+    )
+
+    # Mock successful creation
+    new_template = global_prompt_template()
+    new_template.name = "test-template"
+    create_global_prompt_template_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
+    )
+
+    # Should work but emit deprecation warning
+    with pytest.warns(DeprecationWarning, match="create_prompt_template is deprecated, use create_prompt instead"):
+        template = create_prompt_template(
+            name="test-template", project="My Project", messages=[Message(role=MessageRole.system, content="test")]
+        )
+
+    assert template is not None
+    assert template.name == "test-template"
+    create_global_prompt_template_mock.sync_detailed.assert_called_once()
+
+
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.prompts.create_global_prompt_template_templates_post")
+@patch("galileo.projects.Projects.get")
+def test_prompt_templates_create_method(mock_projects_get: Mock, create_mock: Mock, query_templates_mock: Mock) -> None:
+    """Test that PromptTemplates.create() method works."""
+    from galileo.prompts import PromptTemplates
+
+    # Mock the project
+    mock_project = Mock()
+    mock_project.id = "project-123"
+    mock_projects_get.return_value = mock_project
+
+    # Mock no existing templates
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {"templates": [], "limit": 100, "next_starting_token": None, "paginated": False, "starting_token": 0}
+    )
+
+    # Mock successful creation
+    new_template = global_prompt_template()
+    new_template.name = "test-template"
+    create_mock.sync_detailed.return_value = Response(
+        content=b"", status_code=HTTPStatus.OK, headers={}, parsed=new_template
+    )
+
+    # Instantiate (will emit warning)
+    with pytest.warns(DeprecationWarning):
+        templates_obj = PromptTemplates(project="My Project")
+
+    # Create should work
+    template = templates_obj.create(name="test-template", template=[Message(role=MessageRole.system, content="test")])
+
+    assert template is not None
+    assert template.name == "test-template"
+
+
+@patch("galileo.prompts.get_global_template_templates_template_id_get")
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.Projects.get")
+def test_prompt_templates_get_method(mock_projects_get: Mock, query_templates_mock: Mock, get_mock: Mock) -> None:
+    """Test that PromptTemplates.get() method works."""
+    from galileo.prompts import PromptTemplates
+
+    # Mock the project
+    mock_project = Mock()
+    mock_project.id = "project-123"
+    mock_projects_get.return_value = mock_project
+
+    # Mock the response
+    template = global_prompt_template()
+    template.name = "my-template"
+
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {
+            "templates": [template.to_dict()],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+    get_mock.sync.return_value = template
+
+    # Instantiate (will emit warning)
+    with pytest.warns(DeprecationWarning):
+        templates_obj = PromptTemplates(project="My Project")
+
+    # Get should work
+    result = templates_obj.get(name="my-template")
+
+    assert result is not None
+    assert result.name == "my-template"
+
+
+@patch("galileo.prompts.delete_global_template_templates_template_id_delete")
+@patch("galileo.prompts.get_global_template_templates_template_id_get")
+@patch("galileo.prompts.query_templates_templates_query_post")
+@patch("galileo.projects.Projects.get")
+def test_prompt_templates_delete_method(
+    mock_projects_get: Mock, query_templates_mock: Mock, get_mock: Mock, delete_mock: Mock
+) -> None:
+    """Test that PromptTemplates.delete() method works."""
+    from galileo.prompts import PromptTemplates
+
+    # Mock the project
+    mock_project = Mock()
+    mock_project.id = "project-123"
+    mock_projects_get.return_value = mock_project
+
+    # Mock the response
+    template = global_prompt_template()
+    template.name = "my-template"
+
+    query_templates_mock.sync.return_value = ListPromptTemplateResponse.from_dict(
+        {
+            "templates": [template.to_dict()],
+            "limit": 100,
+            "next_starting_token": None,
+            "paginated": False,
+            "starting_token": 0,
+        }
+    )
+    get_mock.sync.return_value = template
+    delete_mock.sync.return_value = None
+
+    # Instantiate (will emit warning)
+    with pytest.warns(DeprecationWarning):
+        templates_obj = PromptTemplates(project="My Project")
+
+    # Delete should work
+    templates_obj.delete(name="my-template")
+
+    delete_mock.sync.assert_called_once()
