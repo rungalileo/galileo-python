@@ -8,11 +8,14 @@ from typing import Any, Callable
 def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception: type[Exception] = Exception) -> Any:
     """
     A function wrapper that catches exceptions and logs them to the logger.
-    Args:
-        exception:
-        logger:
 
-    Returns:
+    Parameters
+    ----------
+    exception
+    logger
+
+    Returns
+    -------
 
     """
 
@@ -36,11 +39,14 @@ def async_warn_catch_exception(
 ) -> Any:
     """
     A function wrapper that catches exceptions and logs them to the logger.
-    Args:
-        exception:
-        logger:
 
-    Returns:
+    Parameters
+    ----------
+    exception
+    logger
+
+    Returns
+    -------
 
     """
 

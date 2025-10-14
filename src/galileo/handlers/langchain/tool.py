@@ -30,16 +30,24 @@ class ProtectTool(BaseTool):
     configured with specific rulesets and linked to a Galileo project and stage for
     monitoring and management.
 
-    It accepts an input and/or output as arguments (parsed by a Pydantic model) and returns a JSON-serialized ``Response`` object from the Protect API.
+    It accepts an input and/or output as arguments (parsed by a Pydantic model) and returns a JSON-serialized `Response` object from the Protect API.
 
-    Attributes:
-        prioritized_rulesets: An optional sequence of ``Ruleset`` objects to apply.
-        project_id: The UUID of the Galileo project this tool is associated with.
-        project_name: The name of the Galileo project.
-        stage_name: The name of the Protect stage to use for this tool.
-        stage_id: The UUID of the Protect stage.
-        stage_version: The version of the Protect stage to use.
-        timeout: The timeout in seconds for the API request.
+    Attributes
+    ----------
+    prioritized_rulesets:
+        An optional sequence of `Ruleset` objects to apply.
+    project_id:
+        The UUID of the Galileo project this tool is associated with.
+    project_name:
+        The name of the Galileo project.
+    stage_name:
+        The name of the Protect stage to use for this tool.
+    stage_id:
+        The UUID of the Protect stage.
+    stage_version:
+        The version of the Protect stage to use.
+    timeout:
+        The timeout in seconds for the API request.
     """
 
     name: str = "GalileoProtect"
@@ -108,7 +116,8 @@ class ProtectParser(BaseModel):
     If the Protect API response is 'triggered', it returns the response text.
     Otherwise, it invokes a fallback chain.
 
-    Attributes:
+    Attributes
+    ----------
         chain: The ``Runnable`` to invoke if the Protect invocation is not triggered.
         ignore_trigger: If True, always invoke the fallback chain.
         echo_output: If True, print the raw Protect API response to the console.
@@ -132,10 +141,14 @@ class ProtectParser(BaseModel):
         If JSON parsing fails, it assumes the input is not from ``ProtectTool`` and
         invokes the fallback chain directly with the raw input.
 
-        Args:
-            response_raw_json: Expects the output from the ``ProtectTool``.
+        Parameters
+        ----------
+        response_raw_json: str
+            Expects the output from the ``ProtectTool``.
 
-        Returns:
+        Returns
+        -------
+        str
             The text from the Protect response if triggered, or the result of invoking
             the fallback chain.
         """

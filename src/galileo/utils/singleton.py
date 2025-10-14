@@ -30,8 +30,10 @@ class GalileoLoggerSingleton:
         """
         Override __new__ to ensure only one instance of GalileoLoggerSingleton is created.
 
-        Returns:
-            GalileoLoggerSingleton: The singleton instance.
+        Returns
+        -------
+        GalileoLoggerSingleton
+            The singleton instance.
         """
         if not cls._instance:
             with cls._lock:
@@ -52,13 +54,21 @@ class GalileoLoggerSingleton:
         from environment variables (GALILEO_PROJECT and GALILEO_LOG_STREAM). If still
         None, defaults to "default".
 
-        Args:
-            project (Optional[str]): The project name.
-            log_stream (Optional[str]): The log stream name.
-            experiment_id (Optional[str]): The experiment ID.
-            mode (Optional[str]): The logger mode.
-        Returns:
-            Tuple[str, str, str, str]: A tuple key (project, log_stream, experiment_id, mode) used for caching.
+        Parameters
+        ----------
+        project: (Optional[str])
+            The project name.
+        log_stream: (Optional[str])
+            The log stream name.
+        experiment_id: (Optional[str])
+            The experiment ID.
+        mode: (Optional[str])
+            The logger mode.
+
+        Returns
+        -------
+        Tuple[str, str, str, str]
+            A tuple key (project, log_stream, experiment_id, mode) used for caching.
         """
         _logger.debug("current thread is %s", threading.current_thread().name)
 
@@ -92,15 +102,22 @@ class GalileoLoggerSingleton:
         checks if a logger exists in the cache, and if not, creates a new GalileoLogger.
         The creation and caching are done in a thread-safe manner.
 
-        Args:
-            project (Optional[str], optional): The project name. Defaults to None.
-            log_stream (Optional[str], optional): The log stream name. Defaults to None.
-            experiment_id (Optional[str], optional): The experiment ID. Defaults to None.
-            local_metrics (Optional[list[LocalScorerConfig]], optional): Local scorers to run on traces/spans.
-                Only used if initializing a new logger, ignored otherwise.  Defaults to None.
+        Parameters
+        ----------
+        project (Optional[str], optional)
+            The project name. Defaults to None.
+        log_stream (Optional[str], optional)
+            The log stream name. Defaults to None.
+        experiment_id (Optional[str], optional)
+            The experiment ID. Defaults to None.
+        local_metrics (Optional[list[LocalScorerConfig]], optional)
+            Local scorers to run on traces/spans.
+            Only used if initializing a new logger, ignored otherwise.  Defaults to None.
 
-        Returns:
-            GalileoLogger: An instance of GalileoLogger corresponding to the key.
+        Returns
+        -------
+        GalileoLogger
+            An instance of GalileoLogger corresponding to the key.
         """
         # Compute the key based on provided parameters or environment variables.
         key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id, mode)
@@ -141,10 +158,14 @@ class GalileoLoggerSingleton:
         """
         Reset (terminate and remove) one or all GalileoLogger instances.
 
-        Args:
-            project (Optional[str], optional): The project name. Defaults to None.
-            log_stream (Optional[str], optional): The log stream name. Defaults to None.
-            experiment_id (Optional[str], optional): The experiment ID. Defaults to None.
+        Parameters
+        ----------
+        project (Optional[str], optional)
+            The project name. Defaults to None.
+        log_stream (Optional[str], optional)
+            The log stream name. Defaults to None.
+        experiment_id (Optional[str], optional)
+            The experiment ID. Defaults to None.
         """
         with self._lock:
             # Terminate and remove a specific logger.
@@ -154,9 +175,7 @@ class GalileoLoggerSingleton:
                 del self._galileo_loggers[key]
 
     def reset_all(self) -> None:
-        """
-        Reset (terminate and remove) all GalileoLogger instances.
-        """
+        """Reset (terminate and remove) all GalileoLogger instances."""
         with self._lock:
             # Terminate and clear all logger instances.
             for logger in self._galileo_loggers.values():
@@ -177,10 +196,13 @@ class GalileoLoggerSingleton:
         and cleared. Otherwise, only the specific logger corresponding to the provided
         key (project, log_stream) is flushed and removed.
 
-        Args:
-            project (Optional[str], optional): The project name. Defaults to None.
-            log_stream (Optional[str], optional): The log stream name. Defaults to None.
-            experiment_id (Optional[str], optional): The experiment ID. Defaults to None.
+        Parameters
+        project (Optional[str], optional)
+            The project name. Defaults to None.
+        log_stream (Optional[str], optional)
+            The log stream name. Defaults to None.
+        experiment_id (Optional[str], optional)
+            The experiment ID. Defaults to None.
         """
         with self._lock:
             # Terminate and remove a specific logger.
@@ -189,9 +211,7 @@ class GalileoLoggerSingleton:
                 self._galileo_loggers[key].flush()
 
     def flush_all(self) -> None:
-        """
-        Flush (upload and clear) all GalileoLogger instances.
-        """
+        """Flush (upload and clear) all GalileoLogger instances."""
         with self._lock:
             # Terminate and clear all logger instances.
             for logger in self._galileo_loggers.values():
@@ -201,9 +221,10 @@ class GalileoLoggerSingleton:
         """
         Retrieve a copy of the dictionary containing all active loggers.
 
-        Returns:
-            Dict[Tuple[str, str, str], GalileoLogger]: A dictionary mapping keys
-            (project, log_stream) to their corresponding GalileoLogger instances.
+        Returns
+        -------
+        Dict[Tuple[str, str, str], GalileoLogger]:
+            A dictionary mapping keys (project, log_stream) to their corresponding GalileoLogger instances.
         """
         # Return a shallow copy of the loggers dictionary to prevent external modifications.
         return dict(self._galileo_loggers)

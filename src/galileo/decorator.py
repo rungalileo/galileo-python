@@ -119,7 +119,8 @@ class GalileoDecorator:
 
         Returns
         -------
-            GalileoDecorator: The decorator instance for use in a with statement
+        GalileoDecorator
+            The decorator instance for use in a with statement
         """
         # Nothing to do here since __call__ has already set up the context
         return self  # Allows `as galileo` usage
@@ -132,10 +133,14 @@ class GalileoDecorator:
 
         Flushes the current logger instance and restores the previous context state.
 
-        Args:
-            exc_type: Exception type if an exception was raised in the context
-            exc_value: Exception value if an exception was raised in the context
-            traceback: Traceback if an exception was raised in the context
+        Parameters
+        ----------
+        exc_type
+            Exception type if an exception was raised in the context
+        exc_value
+            Exception value if an exception was raised in the context
+        traceback
+            Traceback if an exception was raised in the context
         """
         # Flush the logger instance
         self.get_logger_instance(
@@ -163,13 +168,18 @@ class GalileoDecorator:
             # Code to be traced
         ```
 
-        Args:
-            project: The project name to use for this context
-            log_stream: The log stream name to use for this context
-            experiment_id: The experiment ID to use for this context
+        Parameters
+        ----------
+        project
+            The project name to use for this context
+        log_stream: The log stream name to use for this context
+            The log stream name to use for this context
+        experiment_id
+            The experiment ID to use for this context
 
         Returns
         -------
+        GalileoDecorator
             The decorator instance for use in a with statement
         """
         # Push current values onto the stacks
@@ -231,16 +241,22 @@ class GalileoDecorator:
         - @log
         - @log(name="my_function", span_type="llm")
 
-        Args:
-            func: The function to decorate (when used without parentheses)
-            name: Optional custom name for the span (defaults to function name)
-            span_type: Optional span type ("llm", "retriever", "tool", "workflow", "agent")
-            params: Optional parameter mapping for extracting specific values
-            dataset_record: Optional parameter for dataset values.  This is used by the local experiment module to set the dataset fields on the trace/spans and not generally provided for logging to log streams.
+        Parameters
+        ----------
+        func
+            The function to decorate (when used without parentheses)
+        name
+            Optional custom name for the span (defaults to function name)
+        span_type
+            Optional span type ("llm", "retriever", "tool", "workflow", "agent")
+        params
+            Optional parameter mapping for extracting specific values
+        dataset_record
+            Optional parameter for dataset values.  This is used by the local experiment module to set the dataset fields on the trace/spans and not generally provided for logging to log streams.
 
         Returns
         -------
-            A decorated function that logs its execution
+        A decorated function that logs its execution
         """
 
         def decorator(func: Callable[P, R]) -> Callable[P, R]:
@@ -268,15 +284,20 @@ class GalileoDecorator:
         """
         Internal method to handle logging for async functions.
 
-        Args:
-            func: The async function to decorate
-            name: Custom name for the span
-            span_type: Type of span to create
-            params: Parameter mapping for extracting specific values
+        Parameters
+        ----------
+        func
+            The async function to decorate
+        name
+            Custom name for the span
+        span_type
+            Type of span to create
+        params
+            Parameter mapping for extracting specific values
 
         Returns
         -------
-            Decorated async function that logs its execution
+        Decorated async function that logs its execution
         """
 
         @wraps(func)
@@ -317,11 +338,16 @@ class GalileoDecorator:
         """
         Internal method to handle logging for synchronous functions.
 
-        Args:
-            func: The function to decorate
-            name: Custom name for the span
-            span_type: Type of span to create
-            params: Parameter mapping for extracting specific values
+        Parameters
+        ----------
+        func
+            The function to decorate
+        name
+            Custom name for the span
+        span_type
+            Type of span to create
+        params
+            Parameter mapping for extracting specific values
 
         Returns
         -------
@@ -358,12 +384,15 @@ class GalileoDecorator:
         """
         Check if a callable is likely a class or instance method based on its signature.
 
-        Args:
-            func: The function to check
+        Parameters
+        ----------
+        func
+            The function to check
 
         Returns
         -------
-            bool: True if 'cls' or 'self' is in the callable's parameters, False otherwise
+        bool
+            True if 'cls' or 'self' is in the callable's parameters, False otherwise
         """
         return "self" in inspect.signature(func).parameters or "cls" in inspect.signature(func).parameters
 
@@ -383,18 +412,26 @@ class GalileoDecorator:
 
         This method extracts and processes function arguments to create span parameters.
 
-        Args:
-            func: The function being decorated
-            name: Name for the span
-            span_type: Type of span to create
-            params: Parameter mapping for extracting specific values
-            is_method: Whether the function is a method
-            func_args: Positional arguments passed to the function
-            func_kwargs: Keyword arguments passed to the function
+        Parameters
+        ----------
+        func
+            The function being decorated
+        name
+            Name for the span
+        span_type
+            Type of span to create
+        params
+            Parameter mapping for extracting specific values
+        is_method
+            Whether the function is a method
+        func_args
+            Positional arguments passed to the function
+        func_kwargs
+            Keyword arguments passed to the function
 
         Returns
         -------
-            Dictionary of parameters for the span, or None if preparation fails
+        Dictionary of parameters for the span, or None if preparation fails
         """
         if func_kwargs is None:
             func_kwargs = {}
@@ -451,15 +488,20 @@ class GalileoDecorator:
         """
         Merge positional and keyword arguments into a single dictionary.
 
-        Args:
-            func: The function being decorated
-            is_method: Whether the function is a method
-            func_args: Positional arguments passed to the function
-            func_kwargs: Keyword arguments passed to the function
+        Parameters
+        ----------
+        func
+            The function being decorated
+        is_method
+            Whether the function is a method
+        func_args
+            Positional arguments passed to the function
+        func_kwargs
+            Keyword arguments passed to the function
 
         Returns
         -------
-            Dictionary containing all arguments with their parameter names as keys
+        Dictionary containing all arguments with their parameter names as keys
         """
         try:
             # Get the actual function, handling wrapped functions
@@ -491,12 +533,14 @@ class GalileoDecorator:
         """
         Return the parameter names available for each span type.
 
-        Args:
-            span_type: The type of span ("llm", "retriever", "tool", "workflow", "agent")
+        Parameters
+        ----------
+        span_type
+            The type of span ("llm", "retriever", "tool", "workflow", "agent")
 
         Returns
         -------
-            List of parameter names that can be used with the specified span type
+        List of parameter names that can be used with the specified span type
         """
         common_params = ["name", "input", "metadata", "tags"]
         span_params = {
@@ -514,9 +558,12 @@ class GalileoDecorator:
         """
         Prepare the call for logging by setting up trace and span contexts.
 
-        Args:
-            span_type: Type of span to create
-            span_params: Parameters for the span
+        Parameters
+        ----------
+        span_type
+            Type of span to create
+        span_params
+            Parameters for the span
         """
         client_instance = self.get_logger_instance()
         _logger.debug(f"client_instance {id(client_instance)} {client_instance}")
@@ -559,14 +606,18 @@ class GalileoDecorator:
         """
         Extract input from function arguments.
 
-        Args:
-            is_method: Whether the function is a method
-            func_args: Positional arguments passed to the function
-            func_kwargs: Keyword arguments passed to the function
+        Parameters
+        ----------
+        is_method
+            Whether the function is a method
+        func_args
+            Positional arguments passed to the function
+        func_kwargs
+            Keyword arguments passed to the function
 
         Returns
         -------
-            Serialized representation of the function arguments
+        Serialized representation of the function arguments
         """
         # Remove implicitly passed "self" or "cls" argument for instance or class methods
         if func_kwargs is None:
@@ -586,14 +637,18 @@ class GalileoDecorator:
         This method determines how to handle different types of results (normal values,
         generators, async generators) and logs them accordingly.
 
-        Args:
-            span_type: Type of span
-            span_params: Parameters for the span
-            result: Result of the function call
+        Parameters
+        ----------
+        span_type
+            Type of span
+        span_params
+            Parameters for the span
+        result
+            Result of the function call
 
         Returns
         -------
-            The original result, possibly wrapped if it's a generator
+        The original result, possibly wrapped if it's a generator
         """
         if inspect.isgenerator(result):
             return self._wrap_sync_generator_result(span_type, span_params, result)
@@ -608,14 +663,18 @@ class GalileoDecorator:
         This method processes the result and creates the appropriate span or concludes
         the current span based on the span type.
 
-        Args:
-            span_type: Type of span
-            span_params: Parameters for the span
-            result: Result of the function call
+        Parameters
+        ----------
+            span_type
+                Type of span
+            span_params
+                Parameters for the span
+            result
+                Result of the function call
 
         Returns
         -------
-            The original result
+        The original result
         """
         try:
             output = span_params.get("output")
@@ -700,14 +759,18 @@ class GalileoDecorator:
         This method collects all items yielded by the generator and logs them
         as a single result when the generator is exhausted.
 
-        Args:
-            span_type: Type of span
-            span_params: Parameters for the span
-            generator: The generator to wrap
+        Parameters
+        -----------
+        span_type
+            Type of span
+        span_params
+            Parameters for the span
+        generator
+            The generator to wrap
 
         Returns
         -------
-            A wrapped generator that yields the same items as the original
+        A wrapped generator that yields the same items as the original
         """
         items = []
 
@@ -735,14 +798,18 @@ class GalileoDecorator:
         This method collects all items yielded by the async generator and logs them
         as a single result when the generator is exhausted.
 
-        Args:
-            span_type: Type of span
-            span_params: Parameters for the span
-            generator: The async generator to wrap
+        Parameters
+        -----------
+        span_type
+            Type of span
+        span_params
+            Parameters for the span
+        generator
+            The async generator to wrap
 
         Returns
         -------
-            A wrapped async generator that yields the same items as the original
+        A wrapped async generator that yields the same items as the original
         """
         items = []
 
@@ -767,13 +834,16 @@ class GalileoDecorator:
         """
         Get the Galileo Logger instance for the current decorator context.
 
-        Args:
-            project: Optional project name to use
-            log_stream: Optional log stream name to use
+        Parameters
+        ----------
+        project
+            Optional project name to use
+        log_stream
+            Optional log stream name to use
 
         Returns
         -------
-            GalileoLogger instance configured with the specified project and log stream
+        GalileoLogger instance configured with the specified project and log stream
         """
         return GalileoLoggerSingleton().get(
             project=project or _project_context.get(),
@@ -787,7 +857,8 @@ class GalileoDecorator:
 
         Returns
         -------
-            str | None: The current project context
+        str | None
+            The current project context
         """
         return _project_context.get()
 
@@ -797,7 +868,8 @@ class GalileoDecorator:
 
         Returns
         -------
-            str | None: The current log stream context
+        str | None
+            The current log stream context
         """
         return _log_stream_context.get()
 
@@ -807,7 +879,8 @@ class GalileoDecorator:
 
         Returns
         -------
-            List[WorkflowSpan]: The current span stack
+        List[WorkflowSpan]
+            The current span stack
         """
         return _get_or_init_list(_span_stack_context)
 
@@ -817,7 +890,8 @@ class GalileoDecorator:
 
         Returns
         -------
-            Trace | None: The current trace
+        Trace | None
+            The current trace
         """
         return _trace_context.get()
 
@@ -825,8 +899,9 @@ class GalileoDecorator:
         """
         Retrieve the current mode from context.
 
-        Returns:
-            str
+        Returns
+        -------
+        str
         """
         return _mode_context.get()
 
@@ -838,9 +913,12 @@ class GalileoDecorator:
 
         If no project or log stream is provided, then the currently initialized context is used.
 
-        Args:
-            project: The project name. Defaults to None.
-            log_stream: The log stream name. Defaults to None.
+        Parameters
+        ----------
+        project
+            The project name. Defaults to None.
+        log_stream
+            The log stream name. Defaults to None.
         """
         self.get_logger_instance(project=project, log_stream=log_stream, experiment_id=experiment_id).flush()
 
@@ -906,11 +984,16 @@ class GalileoDecorator:
         This method resets the existing active context with a new context with
         the specified project and log stream.
 
-        Args:
-            project: The project name. Defaults to None.
-            log_stream: The log stream name. Defaults to None.
-            experiment_id: The experiment id. Defaults to None.
-            local_metrics: Local metrics configs to run on the traces/spans before submitting them for ingestion.  Defaults to None.
+        Parameters
+        ----------
+        project
+            The project name. Defaults to None.
+        log_stream
+            The log stream name. Defaults to None.
+        experiment_id
+            The experiment id. Defaults to None.
+        local_metrics
+            Local metrics configs to run on the traces/spans before submitting them for ingestion.  Defaults to None.
         """
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
         GalileoLoggerSingleton().get(
@@ -929,13 +1012,19 @@ class GalileoDecorator:
         """
         Start a session in the active context logger instance.
 
-        Args:
-            name: The name of the session. If not provided, a session name will be generated automatically.
-            previous_session_id: The id of the previous session. Defaults to None.
-            external_id: The external id of the session. Defaults to None.
+        Parameters
+        ----------
+        name
+            The name of the session. If not provided, a session name will be generated automatically.
+        previous_session_id
+            The id of the previous session. Defaults to None.
+        external_id
+            The external id of the session. Defaults to None.
 
-        Returns:
-            str: The id of the newly created session.
+        Returns
+        -------
+        str
+            The id of the newly created session.
         """
         return self.get_logger_instance().start_session(
             name=name, previous_session_id=previous_session_id, external_id=external_id
@@ -949,8 +1038,10 @@ class GalileoDecorator:
         """
         Set the session in the active context logger instance. This is useful when you want to continue logging to an existing session.
 
-        Args:
-            session_id: The id of the session to set.
+        Parameters
+        ----------
+        session_id
+            The id of the session to set.
         """
         self.get_logger_instance().set_session(session_id)
 

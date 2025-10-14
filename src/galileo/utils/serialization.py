@@ -47,9 +47,7 @@ def map_langchain_role(role: str) -> str:
 
 
 class EventSerializer(JSONEncoder):
-    """
-    Custom JSON encoder to assist in the serialization of a wide range of objects.
-    """
+    """Custom JSON encoder to assist in the serialization of a wide range of objects."""
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
@@ -270,7 +268,5 @@ def convert_to_string_dict(input_: dict) -> dict[str, str]:
 
 
 def convert_time_delta_to_ns(time_delta: dt.timedelta) -> int:
-    """
-    Convert a timedelta object to nanoseconds.
-    """
+    """Convert a timedelta object to nanoseconds."""
     return int(time_delta.total_seconds() * 1e9)

@@ -43,12 +43,16 @@ class Scorers:
         For example, calling `list(name="my_scorer", types=[ScorerTypes.llm, ScorerTypes.code])`
         will return scorers where the name is "my_scorer" AND the type is either "llm" OR "code".
 
-        Args:
-            name: Name of the scorer to filter by.
-            types: List of scorer types to filter by. Defaults to all scorers.
+        Parameters
+        ----------
+        name
+            Name of the scorer to filter by.
+        types
+            List of scorer types to filter by. Defaults to all scorers.
 
-        Returns:
-            A list of scorers that match the filter criteria.
+        Returns
+        -------
+        A list of scorers that match the filter criteria.
         """
         filters = []
         if types:
@@ -84,13 +88,16 @@ class Scorers:
 
     def get_scorer_version(self, scorer_id: UUID, version: int) -> Union[Unset, BaseScorerVersionResponse]:
         """
-        Args:
-            name: str
-                Name of the scorer
-            version: int
-                Version of the scorer.
-        Returns:
-            Scorer response if found, otherwise None
+        Parameters
+        ----------
+        name: str
+            Name of the scorer
+        version: int
+            Version of the scorer.
+
+        Returns
+        -------
+        Scorer response if found, otherwise None.
         """
         return get_scorer_version_or_latest_scorers_scorer_id_version_get.sync(
             scorer_id=scorer_id, version=version, client=self.config.api_client
@@ -107,12 +114,18 @@ class ScorerSettings:
         self, project_id: str, run_id: str, scorers: list[ScorerConfig]
     ) -> Optional[Union[HTTPValidationError, RunScorerSettingsResponse]]:
         """
-        Args:
-            project_id: ID of the project
-            run_id: ID of the run
-            scorers: List of scorer configurations
-        Returns:
-            Upserted scorer settings
+        Parameters
+        ----------
+        project_id
+            ID of the project
+        run_id
+            ID of the run
+        scorers
+            List of scorer configurations
+
+        Returns
+        -------
+        Upserted scorer settings.
         """
         return upsert_scorers_config_projects_project_id_runs_run_id_scorer_settings_post.sync(
             project_id=project_id,

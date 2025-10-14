@@ -165,45 +165,45 @@ class LogStream(LogStreamResponse):
         --------
         Basic usage with built-in metrics:
 
-        .. code-block:: python
+        ```python
+        from galileo.log_streams import LogStreams
+        from galileo.schema.metrics import GalileoScorers
 
-            from galileo.log_streams import LogStreams
-            from galileo.schema.metrics import GalileoScorers
+        # Get a log stream first
+        log_streams = LogStreams()
+        log_stream = log_streams.get(name="Production Logs", project_name="My AI Project")
 
-            # Get a log stream first
-            log_streams = LogStreams()
-            log_stream = log_streams.get(name="Production Logs", project_name="My AI Project")
+        # Enable metrics directly - clean and intuitive!
+        local_metrics = log_stream.enable_metrics([
+            GalileoScorers.correctness,
+            GalileoScorers.completeness,
+            "context_relevance",
+            "toxicity"
+        ])
 
-            # Enable metrics directly - clean and intuitive!
-            local_metrics = log_stream.enable_metrics([
-                GalileoScorers.correctness,
-                GalileoScorers.completeness,
-                "context_relevance",
-                "toxicity"
-            ])
-
-            logger.info(f"Server-side metrics enabled automatically")
-            logger.info(f"Need to process {len(local_metrics)} local metrics")
+        logger.info(f"Server-side metrics enabled automatically")
+        logger.info(f"Need to process {len(local_metrics)} local metrics")
+        ```
 
         Advanced usage with custom metrics:
 
-        .. code-block:: python
+        ```python
+        from galileo.schema.metrics import Metric, LocalMetricConfig
 
-            from galileo.schema.metrics import Metric, LocalMetricConfig
+        def custom_scorer(trace_or_span):
+            return 0.75  # Your scoring logic
 
-            def custom_scorer(trace_or_span):
-                return 0.75  # Your scoring logic
+        local_metrics = log_stream.enable_metrics([
+            GalileoScorers.correctness,
+            "completeness",
+            Metric(name="domain_relevance", version=3),
+            LocalMetricConfig(name="custom_metric", scorer_fn=custom_scorer)
+        ])
 
-            local_metrics = log_stream.enable_metrics([
-                GalileoScorers.correctness,
-                "completeness",
-                Metric(name="domain_relevance", version=3),
-                LocalMetricConfig(name="custom_metric", scorer_fn=custom_scorer)
-            ])
-
-            # Process local metrics if any
-            for local_metric in local_metrics:
-                logger.info(f"Need to process local metric: {local_metric.name}")
+        # Process local metrics if any
+        for local_metric in local_metrics:
+            logger.info(f"Need to process local metric: {local_metric.name}")
+        ```
 
         Notes
         -----
@@ -388,7 +388,6 @@ class LogStreams(DecorateAllMethods):
         httpx.TimeoutException
             If the request takes longer than Client.timeout.
         """
-
         if (project_id is None) == (project_name is None):
             raise ValueError("Exactly one of 'project_id' or 'project_name' must be provided")
 
@@ -452,6 +451,7 @@ class LogStreams(DecorateAllMethods):
 
         Examples
         --------
+        ```python
         # Enable built-in metrics with explicit parameters
         from galileo.log_streams import LogStreams
         from galileo.schema.metrics import GalileoScorers
@@ -489,6 +489,7 @@ class LogStreams(DecorateAllMethods):
                 LocalMetricConfig(name="local_scorer", scorer_fn=custom_scorer)
             ]
         )
+        ```
         """
         # Apply environment variable fallbacks
         project_name = project_name or os.getenv("GALILEO_PROJECT")
@@ -655,6 +656,7 @@ def enable_metrics(
 
     Examples
     --------
+    ```python
     # Enable built-in metrics with explicit parameters
     from galileo.log_streams import enable_metrics
     from galileo.schema.metrics import GalileoScorers
@@ -715,5 +717,6 @@ def enable_metrics(
         # Process local metrics
         for local_metric in local_metrics:
             logger.info(f"Process local metric: {local_metric.name}")
+    ```
     """
     return LogStreams().enable_metrics(log_stream_name=log_stream_name, project_name=project_name, metrics=metrics)

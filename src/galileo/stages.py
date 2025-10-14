@@ -24,9 +24,7 @@ from galileo_core.utils.name import ts_name
 def _get_validated_project_id(
     project_id: Optional[Union[str, UUID4]] = None, project_name: Optional[str] = None
 ) -> str:
-    """
-    Resolves project ID from either project_id or project_name.
-    """
+    """Resolves project ID from either project_id or project_name."""
     # If the project Id is a UUID4, convert to string.
     if project_id is not None and type(project_id).__name__ == "UUID":
         project_id = str(project_id)
@@ -197,18 +195,27 @@ def create_protect_stage(
 ) -> Optional[StageDB]:
     """Creates a new stage.
 
-    Args:
-        project_id: The ID of the project.
-        project_name: Name of the project. If `project_id` is not provided,
-                      this will be used to look up the project.
-        name: Name of the stage. Defaults to a generated name.
-        stage_type: Type of the stage.
-        pause: Whether the stage should be created in a paused state.
-        prioritized_rulesets: List of rulesets for the stage.
-        description: Description for the stage.
+    Parameters
+    ----------
+    project_id
+        The ID of the project.
+    project_name
+        Name of the project. If `project_id` is not provided,
+        this will be used to look up the project.
+    name
+        Name of the stage. Defaults to a generated name.
+    stage_type
+        Type of the stage.
+    pause
+        Whether the stage should be created in a paused state.
+    prioritized_rulesets
+        List of rulesets for the stage.
+    description
+        Description for the stage.
 
-    Returns:
-        The newly created Stage.
+    Returns
+    -------
+    The newly created Stage.
     """
     return Stages().create(
         project_id=project_id,
@@ -229,16 +236,22 @@ def get_protect_stage(
 ) -> Optional[StageDB]:
     """Retrieves a stage by its ID or name, within a given project.
 
-    Args:
-        project_id: ID of the project.
-        project_name: Name of the project. If `project_id` is not provided,
-                      this will be used to look up the project.
-        stage_id: ID of the stage to retrieve.
-        stage_name: Name of the stage to retrieve. If `stage_id` is not provided,
-                    this will be used (in conjunction with project ID/name).
+    Parameters
+    ----------
+    project_id
+        ID of the project.
+    project_name
+        Name of the project. If `project_id` is not provided,
+        this will be used to look up the project.
+    stage_id
+        ID of the stage to retrieve.
+    stage_name
+        Name of the stage to retrieve. If `stage_id` is not provided,
+        this will be used (in conjunction with project ID/name).
 
-    Returns:
-        The fetched Stage.
+    Returns
+    -------
+    The fetched Stage.
     """
     return Stages().get(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
 
@@ -252,17 +265,24 @@ def update_protect_stage(
 ) -> Optional[StageDB]:
     """Updates a stage's rulesets, creating a new version.
 
-    Args:
-        project_id: ID of the project.
-        project_name: Name of the project. If `project_id` is not provided,
-                      this will be used to look up the project.
-        stage_id: ID of the stage to update.
-        stage_name: Name of the stage to update. If `stage_id` is not provided,
-                    this will be used (in conjunction with project ID/name).
-        prioritized_rulesets: New list of prioritized rulesets for the stage.
-                              If `None`, effectively clears existing rulesets.
+    Parameters
+    ----------
+    project_id
+        ID of the project.
+    project_name
+        Name of the project. If `project_id` is not provided,
+        this will be used to look up the project.
+    stage_id
+        ID of the stage to update.
+    stage_name
+        Name of the stage to update. If `stage_id` is not provided,
+        this will be used (in conjunction with project ID/name).
+    prioritized_rulesets
+        New list of prioritized rulesets for the stage.
+        If `None`, effectively clears existing rulesets.
 
-    Returns:
+    Returns
+    -------
         The updated Stage.
     """
     return Stages().update(
@@ -284,16 +304,21 @@ def pause_protect_stage(
 
     Pauses a stage using either its ID or name within the context of a project.
 
-    Args:
-        project_id: ID of the project containing the stage.
-        project_name: Name of the project containing the stage.
-                      (Used if `project_id` is not provided).
-        stage_id: ID of the stage to pause.
-        stage_name: Name of the stage to pause.
-                    (Used if `stage_id` is not provided).
+    Parameters
+    ----------
+    project_id
+        ID of the project containing the stage.
+    project_name
+        Name of the project containing the stage.
+        (Used if `project_id` is not provided).
+    stage_id
+        ID of the stage to pause.
+    stage_name
+        Name of the stage to pause. (Used if `stage_id` is not provided).
 
-    Returns:
-        The Stage with its updated pause state.
+    Returns
+    -------
+    The Stage with its updated pause state.
     """
     return Stages().pause(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
 
@@ -308,15 +333,20 @@ def resume_protect_stage(
 
     Resumes a stage using either its ID or name within the context of a project.
 
-    Args:
-        project_id: ID of the project containing the stage.
-        project_name: Name of the project containing the stage.
-                      (Used if `project_id` is not provided).
-        stage_id: ID of the stage to resume.
-        stage_name: Name of the stage to resume.
-                    (Used if `stage_id` is not provided).
+    Parameters
+    ----------
+    project_id
+        ID of the project containing the stage.
+    project_name
+        Name of the project containing the stage.
+        (Used if `project_id` is not provided).
+    stage_id
+        ID of the stage to resume.
+    stage_name
+        Name of the stage to resume. (Used if `stage_id` is not provided).
 
-    Returns:
+    Returns
+    -------
         The Stage with its updated pause state.
     """
     return Stages().resume(project_id=project_id, project_name=project_name, stage_id=stage_id, stage_name=stage_name)
