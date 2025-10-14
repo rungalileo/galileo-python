@@ -51,7 +51,7 @@ jobs:
       - name: Update SDK docs
         run: |
           rm -rf ./docs-official/sdk-api/python/reference
-          cp -r ./galileo-python/.generated_docs/ ./docs-official/sdk-api/python/
+          cp -r ./galileo-python/.generated_docs/reference ./docs-official/sdk-api/python/
 
       # Commit the changes to the branch, and push
       - name: Commit changes
