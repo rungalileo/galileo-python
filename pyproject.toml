@@ -200,6 +200,7 @@ ignore = [
 ]
 "scripts/**/*.py" = [
     "T201",     # Print statements (allowed in scripts)
+    "BLE001",   # Catching too general exception (utility scripts need flexibility)
 ]
 
 [tool.ruff.lint.isort]
