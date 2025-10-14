@@ -208,7 +208,11 @@ def extract_docstrings_from_file(path: Path) -> FileDoc:
                     ret_src = " -> " + ast.unparse(node.returns)
                 except Exception:
                     ret_src = ""
-            sig = f"def {node.name}{args_src}{ret_src}"
+                    # Check if this is an async function
+
+            is_async = isinstance(node, ast.AsyncFunctionDef)
+            async_prefix = "async " if is_async else ""
+            sig = f"{async_prefix}def {node.name}{args_src}{ret_src}"
 
             # Wrap signature if needed
             if args_src.startswith("(") and len(args_src) > 2:
@@ -248,10 +252,10 @@ def extract_docstrings_from_file(path: Path) -> FileDoc:
             if (not params) or len(sig) <= 85:
                 return sig
 
-            indent = " " * (len(f"def {node.name}("))
+            indent = " " * (len(f"{async_prefix}def {node.name}("))
             first_param = params[0]
             other_params = params[1:]
-            wrapped = [f"def {node.name}({first_param},"]
+            wrapped = [f"{async_prefix}def {node.name}({first_param},"]
             for i, p in enumerate(other_params):
                 if i == len(other_params) - 1:
                     wrapped.append(f"{indent}{p}){ret_src}")
