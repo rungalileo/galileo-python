@@ -760,4 +760,4 @@ if __name__ == "__main__":
     ignore = ["__pycache__", "constants", "resources", "schema"]
 
     details = parse_source(SOURCE, to_ignore=ignore)
-    build_docs(details, SOURCE, "./.generated_docs")
+    build_docs(details, SOURCE, "./.generated_docs/reference")
