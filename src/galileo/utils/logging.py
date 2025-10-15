@@ -29,6 +29,9 @@ def is_concludable_span_type(span_type: SPAN_TYPE) -> bool:
     return span_type in ["workflow", "agent"]
 
 
+## TODO: Move the functionality below to the proper utils file.
+
+
 def _is_logger_configured(logger: logging.Logger) -> bool:
     """
     Check if a logger has been explicitly configured by the user.
