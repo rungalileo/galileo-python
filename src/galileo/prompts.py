@@ -1,5 +1,6 @@
 import builtins
 import logging
+import warnings
 from typing import Optional, Union, overload
 
 from galileo import Message
@@ -406,9 +407,9 @@ def get_prompt(
     name : str, optional
         The name of the template to retrieve. Defaults to None.
     project_id : str, optional
-        Use get_prompts(project_id=...) to filter templates by project. Defaults to None.
+        **Deprecated.** This parameter is ignored. Use get_prompts(project_id=...) to filter templates by project.
     project_name : str, optional
-        Use get_prompts(project_name=...) to filter templates by project. Defaults to None.
+        **Deprecated.** This parameter is ignored. Use get_prompts(project_name=...) to filter templates by project.
 
     Returns
     -------
@@ -420,6 +421,14 @@ def get_prompt(
     ValueError
         If neither or both 'id' and 'name' are provided.
     """
+    # Warn about deprecated parameters
+    if project_id is not None or project_name is not None:
+        warnings.warn(
+            "project_id and project_name parameters are deprecated, use get_prompts instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
     # Validate template identifier
     if (id is None) and (name is None):
         raise ValueError("Exactly one of 'id' or 'name' must be provided")
@@ -463,7 +472,9 @@ def delete_prompt(
     name : str, optional
         The name of the template to delete. Defaults to None.
     project_id : str, optional
+        **Deprecated.** This parameter is ignored.
     project_name : str, optional
+        **Deprecated.** This parameter is ignored.
 
     Returns
     -------
@@ -474,6 +485,9 @@ def delete_prompt(
     ValueError
         If neither or both id and name are provided, or if the template is not found.
     """
+    # Warn about deprecated parameters
+    if project_id is not None or project_name is not None:
+        warnings.warn("project_id and project_name parameters are deprecated.", DeprecationWarning, stacklevel=2)
 
     # Validate template identifier
     if (id is None) and (name is None):
@@ -537,6 +551,9 @@ def create_prompt_template(name: str, project: str, messages: builtins.list[Mess
     """
     Create a new global prompt template.
 
+    .. deprecated::
+        Use :func:`create_prompt` instead.
+
     Parameters
     ----------
     name : str
@@ -558,6 +575,7 @@ def create_prompt_template(name: str, project: str, messages: builtins.list[Mess
     ValueError
         If project doesn't exist.
     """
+    warnings.warn("create_prompt_template is deprecated, use create_prompt instead.", DeprecationWarning, stacklevel=2)
     return create_prompt(name=name, project_name=project, template=messages)
 
 
@@ -695,3 +713,134 @@ def render_template(
     return GlobalPromptTemplates().render_template(
         template=template, data=data, starting_token=starting_token, limit=limit
     )
+
+
+# ================================
+# Deprecated Functions & Classes
+# ================================
+
+
+def list_prompt_templates(project: str) -> builtins.list[PromptTemplate]:
+    """
+    List prompt templates for a project.
+
+    .. deprecated::
+        Use :func:`get_prompts` with ``project_name`` parameter instead.
+        This function is deprecated and will be removed in a future version.
+
+    Parameters
+    ----------
+    project : str
+        The project name to filter templates by.
+
+    Returns
+    -------
+    list[PromptTemplate]
+        List of prompt templates associated with the project.
+    """
+    warnings.warn("list_prompt_templates is deprecated, use get_prompts instead.", DeprecationWarning, stacklevel=2)
+    return get_prompts(project_name=project)
+
+
+def get_prompt_template(name: str, project: str) -> Optional[PromptTemplate]:
+    """
+    Get a prompt template by name from a specific project.
+
+    .. deprecated::
+        Use :func:`get_prompt` with ``name`` parameter or :func:`get_prompts` with
+        ``project_name`` parameter instead. This function is deprecated and will be
+        removed in a future version.
+
+    Parameters
+    ----------
+    name : str
+        The name of the template.
+    project : str
+        The project name (ignored - templates are now global).
+
+    Returns
+    -------
+    Optional[PromptTemplate]
+        The template if found, None otherwise.
+    """
+    warnings.warn("get_prompt_template is deprecated, use get_prompt instead.", DeprecationWarning, stacklevel=2)
+    return get_prompt(name=name)
+
+
+class PromptTemplates:
+    """
+    Class for managing project-specific prompt templates.
+
+    .. deprecated::
+        This class is deprecated as templates are now global. Use the module-level
+        functions :func:`get_prompts`, :func:`create_prompt`, etc. instead.
+        This class will be removed in a future version.
+    """
+
+    def __init__(self, project: str):
+        """
+        Initialize PromptTemplates for a specific project.
+
+        Parameters
+        ----------
+        project : str
+            The project name.
+        """
+        warnings.warn("PromptTemplates is deprecated, use get_prompts instead.", DeprecationWarning, stacklevel=2)
+        self.project_name = project
+
+    def list(self) -> builtins.list[PromptTemplate]:
+        """
+        List templates for this project.
+
+        Returns
+        -------
+        list[PromptTemplate]
+            List of templates associated with the project.
+        """
+        return get_prompts(project_name=self.project_name)
+
+    def get(self, *, name: str) -> Optional[PromptTemplate]:
+        """
+        Get a template by name from this project.
+
+        Parameters
+        ----------
+        name : str
+            The template name.
+
+        Returns
+        -------
+        Optional[PromptTemplate]
+            The template if found, None otherwise.
+        """
+        return get_prompt(name=name)
+
+    def create(self, name: str, template: Union[builtins.list[Message], str]) -> PromptTemplate:
+        """
+        Create a template in this project.
+
+        Parameters
+        ----------
+        name : str
+            The template name.
+        template : Union[list[Message], str]
+            The template content.
+
+        Returns
+        -------
+        PromptTemplate
+            The created template.
+        """
+        return create_prompt(name=name, template=template, project_name=self.project_name)
+
+    def delete(self, *, name: str) -> None:
+        """
+        Delete a template by name from this project.
+
+        Parameters
+        ----------
+        name : str
+            The template name.
+        """
+        return delete_prompt(name=name)
