@@ -197,6 +197,7 @@ class GalileoLoggerSingleton:
         key (project, log_stream) is flushed and removed.
 
         Parameters
+        ----------
         project (Optional[str], optional)
             The project name. Defaults to None.
         log_stream (Optional[str], optional)

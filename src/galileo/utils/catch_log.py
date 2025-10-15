@@ -16,7 +16,7 @@ def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception
 
     Returns
     -------
-
+    Callable
     """
 
     def wrapper(f: Callable) -> Callable:
@@ -47,7 +47,7 @@ def async_warn_catch_exception(
 
     Returns
     -------
-
+    Callable
     """
 
     def wrapper(f: Callable) -> Callable:

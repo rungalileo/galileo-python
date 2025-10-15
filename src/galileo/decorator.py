@@ -760,7 +760,7 @@ class GalileoDecorator:
         as a single result when the generator is exhausted.
 
         Parameters
-        -----------
+        ----------
         span_type
             Type of span
         span_params
@@ -799,7 +799,7 @@ class GalileoDecorator:
         as a single result when the generator is exhausted.
 
         Parameters
-        -----------
+        ----------
         span_type
             Type of span
         span_params

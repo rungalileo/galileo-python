@@ -61,19 +61,19 @@ class ExperimentTags(DecorateAllMethods):
          Get all tags for a specific experiment.
 
         Parameters
-         ----------
+        ----------
          project_id
              The project ID
          experiment_id
              The experiment ID
 
-         Returns
-         -------
+        Returns
+        -------
          list[ExperimentTag]
              List of tags associated with the experiment
 
-         Raises
-         ------
+        Raises
+        ------
          ExperimentTagsAPIException
              If the API call fails
          ValueError
