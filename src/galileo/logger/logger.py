@@ -529,11 +529,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         input: StepAllowedInputType
             Input to the node.
             Expected format: String or sequence of Message objects.
-            Examples -
+            Examples:
                 - String: "User query: What is the weather today?"
                 - Messages: `[Message(content="Hello", role=MessageRole.user)]`
         redacted_input: Optional[StepAllowedInputType]
-            Redacted input to the node.
+            Input that removes any sensitive information (redacted input).
             Same format as input parameter.
         name: Optional[str]
             Name of the trace.
