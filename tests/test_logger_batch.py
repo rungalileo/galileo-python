@@ -35,6 +35,15 @@ def test_galileo_logger_exceptions() -> None:
         GalileoLogger(project="my_project", log_stream="my_log_stream", experiment_id="my_experiment_id")
     assert str(exc_info.value) == "User cannot specify both a log stream and an experiment."
 
+    with pytest.raises(Exception) as exc_info:
+        GalileoLogger(
+            project="my_project",
+            log_stream="my_log_stream",
+            experimental={"mode": "streaming"},
+            ingestion_hook=lambda x: None,
+        )
+    assert str(exc_info.value) == "ingestion_hook can only be used in batch mode"
+
 
 @patch("galileo.logger.logger.Traces")
 def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog, enable_galileo_logging) -> None:
@@ -1442,3 +1451,118 @@ def test_logger_init_with_project_id_and_experiment_id(
     assert logger.project_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9a"
     assert logger.log_stream_id is None
     assert logger.experiment_id == "6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9b"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_ingestion_hook_sync(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingestion_hook = Mock()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=ingestion_hook)
+    logger.start_trace(input="input")
+    logger.conclude(output="output")
+    logger.flush()
+
+    ingestion_hook.assert_called_once()
+    mock_traces_client_instance.ingest_traces.assert_not_called()
+    payload = ingestion_hook.call_args.args[0]
+    assert isinstance(payload, TracesIngestRequest)
+    assert len(payload.traces) == 1
+    assert payload.traces[0].input == "input"
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_ingestion_hook_async(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    ingestion_hook = AsyncMock()
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", ingestion_hook=ingestion_hook)
+    logger.start_trace(input="input")
+    logger.conclude(output="output")
+    await logger.async_flush()
+
+    ingestion_hook.assert_called_once()
+    mock_traces_client_instance.ingest_traces.assert_not_called()
+    payload = ingestion_hook.call_args.args[0]
+    assert isinstance(payload, TracesIngestRequest)
+    assert len(payload.traces) == 1
+    assert payload.traces[0].input == "input"
+
+
+@pytest.mark.asyncio
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+async def test_ingest_traces_methods(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    trace = Trace(id=uuid4(), input="input", output="output")
+    ingest_request = TracesIngestRequest(traces=[trace])
+
+    await logger.async_ingest_traces(ingest_request)
+    mock_traces_client_instance.ingest_traces.assert_awaited_once_with(ingest_request)
+
+    logger.ingest_traces(ingest_request)
+    assert mock_traces_client_instance.ingest_traces.call_count == 2
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_ingestion_hook_with_real_redaction(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """
+    Tests the ingestion hook with a real redaction function to ensure the
+    end-to-end flow works as expected.
+    """
+    # 1. Setup the final destination mock
+    # This mock will capture the data *after* it has been processed by the hook.
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    # 2. Define the ingestor logger and the redaction hook
+    # This logger is what the hook will use to send the redacted data.
+    ingestor_logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    def redact_and_forward(ingest_request: TracesIngestRequest):
+        """A real hook that redacts data and forwards it."""
+        modified_request = ingest_request.model_copy(deep=True)
+        for trace in modified_request.traces:
+            if isinstance(trace.input, str):
+                trace.input = trace.input.replace("secret_password", "[REDACTED]")
+        ingestor_logger.ingest_traces(modified_request)
+
+    # 3. Setup the collector logger with the real hook
+    collector_logger = GalileoLogger(
+        project="my_project", log_stream="my_log_stream", ingestion_hook=redact_and_forward
+    )
+
+    # 4. Log a trace with sensitive data
+    collector_logger.start_trace(input="This is a secret_password")
+    collector_logger.conclude(output="some_output")
+    collector_logger.flush()
+
+    # 5. Assert that the final data received was redacted
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert payload.traces[0].input == "This is a [REDACTED]"

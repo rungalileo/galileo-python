@@ -948,3 +948,20 @@ class TestGalileoAsyncCallback:
         assert input_data[0]["tool_calls"] == [
             {"id": "call_1", "type": "function", "function": {"name": "search", "arguments": "{}"}}
         ]
+
+    @mark.asyncio
+    async def test_on_chain_end_with_ingestion_hook(self, galileo_logger: GalileoLogger) -> None:
+        """Test that the ingestion hook is called on chain end."""
+        run_id = uuid.uuid4()
+        mock_hook = Mock()
+        callback = GalileoAsyncCallback(
+            galileo_logger=galileo_logger, flush_on_chain_end=True, ingestion_hook=mock_hook
+        )
+        # Mock the underlying traces client to ensure it's not called directly
+        with patch.object(galileo_logger, "_traces_client") as mock_traces_client:
+            await callback.on_chain_start(
+                serialized={"name": "TestChain"}, inputs='{"query": "test question"}', run_id=run_id
+            )
+            await callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
+            mock_hook.assert_called_once()
+            mock_traces_client.ingest_traces.assert_not_called()

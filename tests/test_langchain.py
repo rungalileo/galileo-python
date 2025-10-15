@@ -9,7 +9,7 @@ from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.outputs import ChatGeneration, LLMResult
 
-from galileo import Message, MessageRole
+from galileo import Message, MessageRole, galileo_context
 from galileo.handlers.langchain import GalileoCallback
 from galileo.logger.logger import GalileoLogger
 from galileo_core.schemas.shared.document import Document as GalileoDocument
@@ -966,3 +966,33 @@ class TestGalileoCallback:
         assert input_data[0]["tool_calls"] == [
             {"id": "call_1", "type": "function", "function": {"name": "search", "arguments": "{}"}}
         ]
+
+
+class TestGalileoCallbackWithIngestionHook:
+    @pytest.fixture(autouse=True)
+    def logger_mocks(self):
+        with (
+            patch("galileo.logger.logger.LogStreams") as mock_logstreams,
+            patch("galileo.logger.logger.Projects") as mock_projects,
+            patch("galileo.logger.logger.Traces") as mock_traces,
+        ):
+            setup_mock_traces_client(mock_traces)
+            setup_mock_projects_client(mock_projects)
+            setup_mock_logstreams_client(mock_logstreams)
+            yield
+
+    @pytest.mark.parametrize(
+        "callback_builder",
+        [
+            lambda hook: GalileoCallback(ingestion_hook=hook),
+            lambda hook: GalileoCallback(galileo_logger=GalileoLogger(), ingestion_hook=hook),
+            lambda hook: GalileoCallback(galileo_logger=galileo_context.get_logger_instance(), ingestion_hook=hook),
+        ],
+    )
+    def test_on_chain_end_with_ingestion_hook(self, callback_builder):
+        run_id = uuid.uuid4()
+        mock_hook = Mock()
+        callback = callback_builder(mock_hook)
+        callback.on_chain_start(serialized={"name": "TestChain"}, inputs='{"query": "test question"}', run_id=run_id)
+        callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
+        mock_hook.assert_called_once()
