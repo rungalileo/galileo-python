@@ -36,7 +36,7 @@ jobs:
       - name: Install Docstring Parser
         run: pip install docstring-parser>=0.17.0
 
-        # Build the docs using our script
+      # Build the docs using our script
       - name: Build Docs
         working-directory: ./galileo-python
         run: |
