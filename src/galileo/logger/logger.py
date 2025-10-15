@@ -1,5 +1,6 @@
 import atexit
 import copy
+import inspect
 import json
 import logging
 import time
@@ -7,7 +8,7 @@ import uuid
 from collections import deque
 from datetime import datetime
 from os import getenv
-from typing import Any, Literal, Optional, Union
+from typing import Any, Callable, Literal, Optional, Union
 
 import backoff
 from pydantic import ValidationError
@@ -149,6 +150,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         span_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
         experimental: Optional[dict[str, str]] = None,
+        ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
     ) -> None:
         """
         Initializes the logger
@@ -163,11 +165,20 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             span_id: Span ID. Used to initialize the logger with an existing workflow or agent span. Note: This can only be used in "streaming" mode.
             local_metrics: Local metrics
             mode: Logger mode (batch or streaming)
+            ingestion_hook: A callable that intercepts trace data before ingestion.
+                This hook is called when the logger is flushed and can be a
+                synchronous or asynchronous function. This is useful for implementing
+                custom logic such as data redaction before the traces are sent to
+                Galileo via the `ingest_traces` method.
         """
         super().__init__()
         experimental = experimental or {}
         mode_str = experimental.get("mode", "batch")
         self.mode: LoggerModeType = mode_str
+
+        self._ingestion_hook = ingestion_hook
+        if self._ingestion_hook and self.mode != "batch":
+            raise GalileoLoggerException("ingestion_hook can only be used in batch mode")
 
         project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
         log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
@@ -1243,7 +1254,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         traces_ingest_request = TracesIngestRequest(
             traces=logged_traces, session_id=self.session_id, experiment_id=self.experiment_id
         )
-        await self._traces_client.ingest_traces(traces_ingest_request)
+
+        if self._ingestion_hook:
+            if inspect.iscoroutinefunction(self._ingestion_hook):
+                await self._ingestion_hook(traces_ingest_request)
+            else:
+                self._ingestion_hook(traces_ingest_request)
+        else:
+            await self._traces_client.ingest_traces(traces_ingest_request)
 
         self._logger.info(f"Successfully flushed {trace_count} {'trace' if trace_count == 1 else 'traces'}.")
 
@@ -1393,3 +1411,21 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         self._logger.info("Clearing the current session from the logger...")
         self.session_id = None
         self._logger.info("Current session cleared.")
+
+    @nop_async
+    async def async_ingest_traces(self, ingest_request: TracesIngestRequest) -> None:
+        """
+        Async ingest traces to Galileo.
+
+        Can be used in combination with the `ingestion_hook` to ingest modified traces.
+        """
+        await self._traces_client.ingest_traces(ingest_request)
+
+    @nop_sync
+    def ingest_traces(self, ingest_request: TracesIngestRequest) -> None:
+        """
+        Ingest traces to Galileo.
+
+        Can be used in combination with the `ingestion_hook` to ingest modified traces.
+        """
+        return async_run(self.async_ingest_traces(ingest_request))
