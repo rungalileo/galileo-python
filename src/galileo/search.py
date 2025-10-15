@@ -80,17 +80,26 @@ def get_spans(
 ) -> LogRecordsQueryResponse:
     """Queries for spans in a project.
 
-    Args:
-        project_id: The unique identifier of the project.
-        experiment_id: Filter records by a specific experiment ID.
-        log_stream_id: Filter records by a specific run ID.
-        filters: A list of filters to apply to the query.
-        sort: A sort clause to order the query results.
-        limit: The maximum number of records to return.
-        starting_token: The token for the next page of results.
+    Parameters
+    ----------
+    project_id
+        The unique identifier of the project.
+    experiment_id
+        Filter records by a specific experiment ID.
+    log_stream_id
+        Filter records by a specific run ID.
+    filters
+        A list of filters to apply to the query.
+    sort
+        A sort clause to order the query results.
+    limit
+        The maximum number of records to return.
+    starting_token
+        The token for the next page of results.
 
-    Returns:
-        A LogRecordsQueryResponse object containing the query results.
+    Returns
+    -------
+    A LogRecordsQueryResponse object containing the query results.
     """
     return Search().query(
         project_id=project_id,
@@ -115,17 +124,26 @@ def get_traces(
 ) -> LogRecordsQueryResponse:
     """Queries for traces in a project.
 
-    Args:
-        project_id: The unique identifier of the project.
-        experiment_id: Filter records by a specific experiment ID.
-        log_stream_id: Filter records by a specific run ID.
-        filters: A list of filters to apply to the query.
-        sort: A sort clause to order the query results.
-        limit: The maximum number of records to return.
-        starting_token: The token for the next page of results.
+    Parameters
+    ----------
+    project_id
+        The unique identifier of the project.
+    experiment_id
+        Filter records by a specific experiment ID.
+    log_stream_id
+        Filter records by a specific run ID.
+    filters
+        A list of filters to apply to the query.
+    sort
+        A sort clause to order the query results.
+    limit
+        The maximum number of records to return.
+    starting_token
+        The token for the next page of results.
 
-    Returns:
-        A LogRecordsQueryResponse object containing the query results.
+    Returns
+    -------
+    A LogRecordsQueryResponse object containing the query results.
     """
     return Search().query(
         project_id=project_id,
@@ -150,17 +168,26 @@ def get_sessions(
 ) -> LogRecordsQueryResponse:
     """Queries for sessions in a project.
 
-    Args:
-        project_id: The unique identifier of the project.
-        experiment_id: Filter records by a specific experiment ID.
-        log_stream_id: Filter records by a specific run ID.
-        filters: A list of filters to apply to the query.
-        sort: A sort clause to order the query results.
-        limit: The maximum number of records to return.
-        starting_token: The token for the next page of results.
+    Parameters
+    ----------
+    project_id
+        The unique identifier of the project.
+    experiment_id
+        Filter records by a specific experiment ID.
+    log_stream_id
+        Filter records by a specific run ID.
+    filters
+        A list of filters to apply to the query.
+    sort
+        A sort clause to order the query results.
+    limit
+        The maximum number of records to return.
+    starting_token
+        The token for the next page of results.
 
-    Returns:
-        A LogRecordsQueryResponse object containing the query results.
+    Returns
+    -------
+    A LogRecordsQueryResponse object containing the query results.
     """
     return Search().query(
         project_id=project_id,

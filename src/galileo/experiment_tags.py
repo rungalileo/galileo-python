@@ -58,18 +58,26 @@ class ExperimentTags(DecorateAllMethods):
 
     def get_experiment_tags(self, project_id: str, experiment_id: str) -> list[ExperimentTag]:
         """
-        Get all tags for a specific experiment.
+         Get all tags for a specific experiment.
 
-        Args:
-            project_id: The project ID
-            experiment_id: The experiment ID
+        Parameters
+        ----------
+         project_id
+             The project ID
+         experiment_id
+             The experiment ID
 
-        Returns:
-            list[ExperimentTag]: List of tags associated with the experiment
+        Returns
+        -------
+         list[ExperimentTag]
+             List of tags associated with the experiment
 
-        Raises:
-            ExperimentTagsAPIException: If the API call fails
-            ValueError: If the experiment is not found
+        Raises
+        ------
+         ExperimentTagsAPIException
+             If the API call fails
+         ValueError
+             If the experiment is not found
         """
         response = get_experiment_tags_projects_project_id_experiments_experiment_id_tags_get.sync(
             project_id=project_id, experiment_id=experiment_id, client=self.config.api_client
@@ -86,19 +94,30 @@ class ExperimentTags(DecorateAllMethods):
         """
         Upsert a tag for a specific experiment.
 
-        Args:
-            project_id: The project ID
-            experiment_id: The experiment ID
-            key: The tag key
-            value: The tag value
-            tag_type: The type of tag (default: "generic")
+        Parameters
+        ----------
+        project_id
+            The project ID
+        experiment_id
+            The experiment ID
+        key
+            The tag key
+        value
+            The tag value
+        tag_type
+            The type of tag (default: "generic")
 
-        Returns:
-            ExperimentTag: The created or updated tag
+        Returns
+        -------
+        ExperimentTag
+            The created or updated tag
 
-        Raises:
-            ExperimentTagsAPIException: If the API call fails
-            ValueError: If the experiment is not found
+        Raises
+        ------
+        ExperimentTagsAPIException
+            If the API call fails
+        ValueError
+            If the experiment is not found
         """
         request_body = RunTagCreateRequest(key=key, value=value, tag_type=tag_type)
 
@@ -118,17 +137,26 @@ class ExperimentTags(DecorateAllMethods):
         """
         Delete a specific tag from an experiment.
 
-        Args:
-            project_id: The project ID
-            experiment_id: The experiment ID
-            tag_id: The tag ID to delete
+        Parameters
+        ----------
+        project_id
+            The project ID
+        experiment_id
+            The experiment ID
+        tag_id
+            The tag ID to delete
 
-        Returns:
-            dict[str, str]: Success message
+        Returns
+        -------
+        dict[str, str]
+            Success message
 
-        Raises:
-            ExperimentTagsAPIException: If the API call fails
-            ValueError: If the experiment or tag is not found
+        Raises
+        ------
+        ExperimentTagsAPIException
+            If the API call fails
+        ValueError
+            If the experiment or tag is not found
         """
         response = delete_experiment_tag_projects_project_id_experiments_experiment_id_tags_tag_id_delete.sync(
             project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=self.config.api_client
@@ -150,16 +178,24 @@ def get_experiment_tags(project_id: str, experiment_id: str) -> list[ExperimentT
     """
     Get all tags for a specific experiment.
 
-    Args:
-        project_id: The project ID
-        experiment_id: The experiment ID
+    Parameters
+    ----------
+    project_id
+        The project ID
+    experiment_id
+        The experiment ID
 
-    Returns:
-        list[ExperimentTag]: List of tags associated with the experiment
+    Returns
+    -------
+    list[ExperimentTag]
+        List of tags associated with the experiment
 
-    Raises:
-        ExperimentTagsAPIException: If the API call fails
-        ValueError: If the experiment is not found
+    Raises
+    ------
+    ExperimentTagsAPIException
+        If the API call fails
+    ValueError
+        If the experiment is not found
     """
     return ExperimentTags().get_experiment_tags(project_id, experiment_id)
 
@@ -170,19 +206,30 @@ def upsert_experiment_tag(
     """
     Upsert (create or update) a tag for a specific experiment.
 
-    Args:
-        project_id: The project ID
-        experiment_id: The experiment ID
-        key: The tag key
-        value: The tag value
-        tag_type: The type of tag (default: "generic")
+    Parameters
+    ----------
+    project_id
+        The project ID
+    experiment_id
+        The experiment ID
+    key
+        The tag key
+    value
+        The tag value
+    tag_type
+        The type of tag (default: "generic")
 
-    Returns:
-        ExperimentTag: The created or updated tag
+    Returns
+    -------
+    ExperimentTag
+        The created or updated tag
 
-    Raises:
-        ExperimentTagsAPIException: If the API call fails
-        ValueError: If the experiment is not found
+    Raises
+    ------
+    ExperimentTagsAPIException
+        If the API call fails
+    ValueError
+        If the experiment is not found
     """
     return ExperimentTags().upsert_experiment_tag(project_id, experiment_id, key, value, tag_type)
 
@@ -191,16 +238,25 @@ def delete_experiment_tag(project_id: str, experiment_id: str, tag_id: str) -> d
     """
     Delete a specific tag from an experiment.
 
-    Args:
-        project_id: The project ID
-        experiment_id: The experiment ID
-        tag_id: The tag ID to delete
+    Parameters
+    ----------
+    project_id
+        The project ID
+    experiment_id
+        The experiment ID
+    tag_id
+        The tag ID to delete
 
-    Returns:
-        dict[str, str]: Success message
+    Returns
+    -------
+    dict[str, str]
+        Success message
 
-    Raises:
-        ExperimentTagsAPIException: If the API call fails
-        ValueError: If the experiment or tag is not found
+    Raises
+    ------
+    ExperimentTagsAPIException
+        If the API call fails
+    ValueError
+        If the experiment or tag is not found
     """
     return ExperimentTags().delete_experiment_tag(project_id, experiment_id, tag_id)

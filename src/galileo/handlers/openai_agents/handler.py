@@ -40,6 +40,7 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
     def __init__(self, galileo_logger: Optional[GalileoLogger] = None, flush_on_trace_end: bool = True):
         """
         OpenAI Agents TracingProcessor for logging traces to Galileo.
+
         Parameters
         ----------
         galileo_logger : Optional[GalileoLogger]
@@ -56,7 +57,6 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
 
     def on_trace_start(self, trace: Trace) -> None:
         """Called when an OpenAI Agent trace starts."""
-
         node = Node(
             node_type="agent",
             run_id=trace.trace_id,
@@ -213,7 +213,6 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
 
     def on_span_start(self, span: Span[Any]) -> None:
         """Called when an OpenAI Agent span starts."""
-
         span_id = span.span_id
         trace_id = span.trace_id
         parent_id = span.parent_id or span.trace_id  # Parent is previous span or root trace
@@ -277,7 +276,6 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
 
     def on_span_end(self, span: Span[Any]) -> None:
         """Called when an OpenAI Agent span ends."""
-
         span_id = span.span_id
         node = self._nodes.get(span_id)
         if not node:

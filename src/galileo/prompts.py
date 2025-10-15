@@ -552,7 +552,7 @@ def create_prompt_template(name: str, project: str, messages: builtins.list[Mess
     Create a new global prompt template.
 
     .. deprecated::
-        Use :func:`create_prompt` instead.
+        Use `create_prompt` instead.
 
     Parameters
     ----------
@@ -725,7 +725,7 @@ def list_prompt_templates(project: str) -> builtins.list[PromptTemplate]:
     List prompt templates for a project.
 
     .. deprecated::
-        Use :func:`get_prompts` with ``project_name`` parameter instead.
+        Use `get_prompts` with ``project_name`` parameter instead.
         This function is deprecated and will be removed in a future version.
 
     Parameters
@@ -747,7 +747,7 @@ def get_prompt_template(name: str, project: str) -> Optional[PromptTemplate]:
     Get a prompt template by name from a specific project.
 
     .. deprecated::
-        Use :func:`get_prompt` with ``name`` parameter or :func:`get_prompts` with
+        Use `get_prompt` with ``name`` parameter or `get_prompts` with
         ``project_name`` parameter instead. This function is deprecated and will be
         removed in a future version.
 
@@ -773,7 +773,7 @@ class PromptTemplates:
 
     .. deprecated::
         This class is deprecated as templates are now global. Use the module-level
-        functions :func:`get_prompts`, :func:`create_prompt`, etc. instead.
+        functions `get_prompts`, `create_prompt`, etc. instead.
         This class will be removed in a future version.
     """
 

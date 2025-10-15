@@ -32,16 +32,23 @@ def load_dataset_and_records(
     """
     Load dataset and records based on provided parameters.
 
-    Args:
-        dataset: Dataset object, list of records, or dataset name
-        dataset_id: ID of the dataset
-        dataset_name: Name of the dataset
+    Parameters
+    ----------
+    dataset:
+        Dataset object, list of records, or dataset name
+    dataset_id:
+        ID of the dataset
+    dataset_name:
+        Name of the dataset
 
-    Returns:
-        Tuple containing (Dataset object or None, records list)
+    Returns
+    -------
+    Tuple containing (Dataset object or None, records list)
 
-    Raises:
-        ValueError: If no dataset information is provided or dataset doesn't exist
+    Raises
+    ------
+    ValueError
+            If no dataset information is provided or dataset doesn't exist
     """
     if dataset_id:
         return get_dataset_and_records(id=dataset_id)

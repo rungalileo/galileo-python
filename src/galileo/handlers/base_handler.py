@@ -1,12 +1,13 @@
 import logging
 import time
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 from uuid import UUID
 
 from galileo import galileo_context
 from galileo.logger import GalileoLogger
 from galileo.schema.handlers import INTEGRATION, NODE_TYPE, Node
+from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.serialization import convert_to_string_dict, serialize_to_str
 
 _logger = logging.getLogger(__name__)
@@ -40,8 +41,11 @@ class GalileoBaseHandler:
         galileo_logger: Optional[GalileoLogger] = None,
         start_new_trace: bool = True,
         flush_on_chain_end: bool = True,
+        ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
     ):
         self._galileo_logger: GalileoLogger = galileo_logger or galileo_context.get_logger_instance()
+        if ingestion_hook:
+            self._galileo_logger._ingestion_hook = ingestion_hook
         self._start_new_trace: bool = start_new_trace
         self._flush_on_chain_end: bool = flush_on_chain_end
         self._nodes: dict[str, Node] = {}
@@ -49,9 +53,7 @@ class GalileoBaseHandler:
         self._integration: INTEGRATION = integration
 
     def commit(self) -> None:
-        """
-        Commit the nodes to the trace using the Galileo Logger. Optionally flush the trace.
-        """
+        """Commit the nodes to the trace using the Galileo Logger. Optionally flush the trace."""
         if not self._nodes:
             _logger.warning("No nodes to commit")
             return

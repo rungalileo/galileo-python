@@ -9,6 +9,7 @@ Note that the original OpenAI package is still required as a project dependency 
 
 Examples
 --------
+```python
 # Import the wrapped OpenAI client instead of the original
 from galileo.openai import openai
 
@@ -35,6 +36,7 @@ with galileo_context(project="my-project", log_stream="my-log-stream"):
             {"role": "user", "content": "Tell me about the solar system."}
         ]
     )
+```
 """
 
 import logging

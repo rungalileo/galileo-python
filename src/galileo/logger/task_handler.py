@@ -11,9 +11,7 @@ TaskStatus = Literal["not_found", "pending", "running", "completed", "failed"]
 
 
 class ThreadPoolTaskHandler:
-    """
-    A task handler that manages dependencies and executes tasks in a thread pool.
-    """
+    """A task handler that manages dependencies and executes tasks in a thread pool."""
 
     _pool: EventLoopThreadPool
     _tasks: dict[str, dict]
@@ -25,9 +23,7 @@ class ThreadPoolTaskHandler:
         self._pool = EventLoopThreadPool(num_threads=num_threads)
 
     def _handle_task_completion(self, task_id: str) -> None:
-        """
-        Handle the completion of a task, triggering any children.
-        """
+        """Handle the completion of a task, triggering any children."""
         # Find all child tasks that depend on this task
         for _child_task_id, task in list(self._tasks.items()):
             if task.get("parent_task_id") == task_id and task.get("callback"):
@@ -45,12 +41,18 @@ class ThreadPoolTaskHandler:
         """
         Track a submitted future.
 
-        Args:
-            task_id: The ID of the task.
-            future: The future to track.
-            start_time: The start time of the task.
-            parent_task_id: The ID of the parent task.
-            callback: The callback to run when the task is completed.
+        Parameters
+        ----------
+        task_id: str
+            The ID of the task.
+        future: Optional[Future]
+            The future to track.
+        start_time: Optional[float]
+            The start time of the task.
+        parent_task_id: Optional[str]
+            The ID of the parent task.
+        callback: Optional[Callable]
+            The callback to run when the task is completed.
         """
         self._tasks[task_id] = {
             "future": future,
@@ -66,10 +68,14 @@ class ThreadPoolTaskHandler:
         """
         Submit a task to the thread pool.
 
-        Args:
-            task_id: The ID of the task.
-            async_fn: The async function to submit to the thread pool.
-            dependent_on_prev: Whether the task depends on the previous task.
+        Parameters
+        ----------
+        task_id: str
+            The ID of the task.
+        async_fn: Union[Callable[[], Awaitable[Any]], Coroutine]
+            The async function to submit to the thread pool.
+        dependent_on_prev: bool
+            Whether the task depends on the previous task.
         """
 
         def _submit(*args) -> None:
@@ -93,17 +99,17 @@ class ThreadPoolTaskHandler:
             _submit()
 
     def get_children(self, parent_task_id: str) -> list[dict]:
-        """
-        Get the children of a task.
-        """
+        """Get the children of a task."""
         return [task for _, task in self._tasks.items() if task.get("parent_task_id") == parent_task_id]
 
     def increment_retry(self, task_id: str) -> None:
         """
         Increment the retry count for a task.
 
-        Args:
-            task_id: The ID of the task.
+        Parameters
+        ----------
+        task_id: str
+            The ID of the task.
         """
         self._retry_counts[task_id] = self._retry_counts.get(task_id, 0) + 1
 
@@ -111,10 +117,14 @@ class ThreadPoolTaskHandler:
         """
         Returns the status of a task.
 
-        Args:
-            task_id: The ID of the task.
+        Parameters
+        ----------
+        task_id: str
+            The ID of the task.
 
-        Returns:
+        Returns
+        -------
+        TaskStatus
             The status of the task.
         """
         if task_id not in self._tasks:
@@ -139,22 +149,22 @@ class ThreadPoolTaskHandler:
             return "failed"
 
     def get_result(self, task_id: str) -> Any:
-        """Get result if task completed, otherwise raises exception"""
+        """Get result if task completed, otherwise raises exception."""
         if task_id not in self._tasks:
             raise ValueError(f"Task {task_id} not found")
         return self._tasks[task_id]["future"].result()
 
     def get_retry_count(self, task_id: str) -> int:
-        """
-        Get the retry count for a task.
-        """
+        """Get the retry count for a task."""
         return self._retry_counts.get(task_id, 0)
 
     def all_tasks_completed(self) -> bool:
         """
         Check if all tasks are completed.
 
-        Returns:
+        Returns
+        -------
+        bool
             True if all tasks are completed, False otherwise.
         """
         return all(self.get_status(task_id) not in ["running", "pending"] for task_id in self._tasks)

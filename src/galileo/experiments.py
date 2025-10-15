@@ -212,24 +212,39 @@ def run_experiment(
 
     The project can be specified by providing exactly one of the project name (via the 'project' parameter or the GALILEO_PROJECT environment variable) or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
 
-    Args:
-        experiment_name: Name of the experiment
-        prompt_template: Template for prompts
-        prompt_settings: Settings for prompt runs
-        project: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
-        project_id: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
-        dataset: Dataset object, list of records, or dataset name
-        dataset_id: ID of the dataset
-        dataset_name: Name of the dataset
-        metrics: List of metrics to evaluate
-        function: Optional function to run with the experiment
-        experiment_tags: Optional dictionary of key-value pairs to tag the experiment with
+    Parameters
+    ----------
+    experiment_name
+        Name of the experiment
+    prompt_template
+        Template for prompts
+    prompt_settings
+        Settings for prompt runs
+    project
+        Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
+    project_id
+        Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
+    dataset
+        Dataset object, list of records, or dataset name
+    dataset_id
+        ID of the dataset
+    dataset_name
+        Name of the dataset
+    metrics
+        List of metrics to evaluate
+    function
+        Optional function to run with the experiment
+    experiment_tags
+        Optional dictionary of key-value pairs to tag the experiment with
 
-    Returns:
-        Experiment run results
+    Returns
+    -------
+    Experiment run results
 
-    Raises:
-        ValueError: If required parameters are missing or invalid
+    Raises
+    ------
+    ValueError
+        If required parameters are missing or invalid
     """
     # Load dataset and records
     dataset_obj, records = load_dataset_and_records(dataset, dataset_id, dataset_name)
@@ -317,17 +332,26 @@ def create_experiment(
     The project can be specified by providing exactly one of the project name (via the 'project' parameter or the GALILEO_PROJECT environment variable)
     or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
 
-    Args:
-        project_id: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
-        experiment_name: Name of the experiment. Required.
-        project: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
+    Parameters
+    ----------
+    project_id
+        Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using project
+    experiment_name
+        Name of the experiment. Required.
+    project
+        Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using project_id
 
-    Returns:
-        ExperimentResponse: The created experiment response.
+    Returns
+    -------
+    ExperimentResponse
+        The created experiment response.
 
-    Raises:
-        ValueError: If ``experiment_name`` is not provided, or if the project cannot be resolved from ``project_id`` or ``project``.
-        HTTPValidationError: If there's a validation error in returning an ExperimentResponse.
+    Raises
+    ------
+    ValueError
+        If `experiment_name` is not provided, or if the project cannot be resolved from `project_id` or `project`.
+    HTTPValidationError
+        If there's a validation error in returning an ExperimentResponse.
     """
     # Enforce required experiment_name at runtime while keeping signature backward compatible for positional calls.
     if not experiment_name:
@@ -352,17 +376,25 @@ def get_experiment(
     The project can be specified by providing exactly one of the project name (via the 'project' parameter or the GALILEO_PROJECT environment variable)
     or the project ID (via the 'project_id' parameter or the GALILEO_PROJECT_ID environment variable).
 
-    Args:
-        project_id: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
-        experiment_name: Name of the experiment. Required.
-        project: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
+    Parameters
+    ----------
+    project_id
+        Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
+    experiment_name
+        Name of the experiment. Required.
+    project_name
+        Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
 
-    Returns:
-        ExperimentResponse results or ``None`` if not found.
+    Returns
+    -------
+    ExperimentResponse results or ``None`` if not found.
 
-    Raises:
-        ValueError: If ``experiment_name`` is not provided, or if the project cannot be resolved from ``project_id`` or ``project``.
-        HTTPValidationError: If there's a validation error in returning an ExperimentResponse.
+    Raises
+    ------
+    ValueError
+        If ``experiment_name`` is not provided, or if the project cannot be resolved from ``project_id`` or ``project``.
+    HTTPValidationError
+        If there's a validation error in returning an ExperimentResponse.
     """
     # Enforce required experiment_name at runtime while keeping signature backward compatible for positional calls.
     if not experiment_name:
@@ -382,17 +414,23 @@ def get_experiments(
     project_id: Optional[str] = None, project_name: Optional[str] = None
 ) -> Optional[Union[HTTPValidationError, list[ExperimentResponse]]]:
     """
-    Get experiments from the specified Project
+    Get experiments from the specified Project.
 
-    Args:
-        project_id: Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
-        project: Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
+    Parameters
+    ----------
+    project_id
+        Optional project Id. Takes preference over the GALILEO_PROJECT_ID environment variable. Leave empty if using ``project``
+    project_name
+        Optional project name. Takes preference over the GALILEO_PROJECT environment variable. Leave empty if using ``project_id``
 
-    Returns:
-        List of ExperimentResponse results
+    Returns
+    -------
+    List of ExperimentResponse results
 
-    Raises:
-        HTTPValidationError: If there's a validation error in returning a list of ExperimentResponse
+    Raises
+    ------
+    HTTPValidationError
+        If there's a validation error in returning a list of ExperimentResponse
     """
     # Resolve project by id, name, or environment fallbacks
     project_obj = Projects().get_with_env_fallbacks(id=project_id, name=project_name)

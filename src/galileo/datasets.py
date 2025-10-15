@@ -93,6 +93,12 @@ class Dataset(DecorateAllMethods):
         return content
 
     def _get_etag(self) -> Optional[str]:
+        """
+        ETag is returned in response headers of API endpoints of the format /datasets.*contents.*.
+
+        This is a required parameter to be passed along with all dataset update requests to ensure
+        there isn't a version conflict during updates.
+        """
         if not self.dataset:
             return None
 
@@ -184,6 +190,7 @@ class Dataset(DecorateAllMethods):
         return response.projects if response.projects else []
 
     def __getattr__(self, attr: str) -> Any:
+      """Delegate attribute access to the underlying DatasetDB instance."""
         return getattr(self.dataset, attr)
 
 
@@ -490,7 +497,7 @@ class Datasets:
         ----------
         prompt_settings : Dict[str, Any], optional
             Settings for the prompt generation. Should contain 'model_alias' key.
-            Example: {'model_alias': 'GPT-4o mini'}
+            Example: `{'model_alias': 'GPT-4o mini'}`
         prompt : str, optional
             A description of the assistant's role.
         instructions : str, optional
@@ -892,7 +899,7 @@ def extend_dataset(
     ----------
     prompt_settings : Dict[str, Any], optional
         Settings for the prompt generation. Should contain 'model_alias' key.
-        Example: {'model_alias': 'GPT-4o mini'}
+        Example: `{'model_alias': 'GPT-4o mini'}`
     prompt : str, optional
         A description of the assistant's role.
     instructions : str, optional
