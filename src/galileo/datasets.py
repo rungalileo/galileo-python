@@ -190,7 +190,7 @@ class Dataset(DecorateAllMethods):
         return response.projects if response.projects else []
 
     def __getattr__(self, attr: str) -> Any:
-      """Delegate attribute access to the underlying DatasetDB instance."""
+        """Delegate attribute access to the underlying DatasetDB instance."""
         return getattr(self.dataset, attr)
 
 
