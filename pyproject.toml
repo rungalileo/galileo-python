@@ -133,6 +133,8 @@ select = [
     "ANN001", "ANN201", "ANN202", "ANN205", "ANN206",
     # Flake8-print (no print statements in production code)
     "T201",
+    # pydocstyle (docstring conventions)
+    "D",
 ]
 ignore = [
     # Ignore overly strict rules (aligned with popular frameworks)
@@ -169,6 +171,18 @@ ignore = [
     "S311",     # Standard pseudo-random generators (false positive for backoff/timing)
     "S324",     # Insecure hash functions (sometimes needed for non-crypto)
     "PLR0914",  # Too many local variables
+    # Docstring rules - allow missing docstrings but enforce format when present
+    "D100",     # Missing docstring in public module
+    "D101",     # Missing docstring in public class
+    "D102",     # Missing docstring in public method
+    "D103",     # Missing docstring in public function
+    "D104",     # Missing docstring in public package
+    "D105",     # Missing docstring in magic method
+    "D106",     # Missing docstring in public nested class
+    "D107",     # Missing docstring in __init__
+    "D205",     # 1 blank line required between summary line and description
+    "D401",     # First line of docstring should be in imperative mood
+    "D404",     # First word of the docstring should not be "This"
 ]
 
 [tool.ruff.lint.per-file-ignores]
@@ -193,13 +207,17 @@ ignore = [
     "B017",     # Do not assert blind exception (needed for pytest.raises)
     "PT",       # Pytest style rules (can be overly strict)
     "T201",     # Print statements (allowed in tests for debugging)
+    "D",        # All docstring rules (not critical for tests)
 ]
 # Allow print statements in examples (they're documentation) and scripts (utility tools)
 "examples/**/*.py" = [
     "T201",     # Print statements (allowed in examples)
+    "D",        # All docstring rules (examples focus on usage, not documentation)
 ]
 "scripts/**/*.py" = [
     "T201",     # Print statements (allowed in scripts)
+    "BLE001",   # Catching too general exception (utility scripts need flexibility)
+    "D",        # All docstring rules (scripts are utility tools)
 ]
 
 [tool.ruff.lint.isort]

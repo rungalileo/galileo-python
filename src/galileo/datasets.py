@@ -89,7 +89,7 @@ class Dataset(DecorateAllMethods):
 
     def _get_etag(self) -> Optional[str]:
         """
-        ETag is returned in response headers of API endpoints of the format /datasets.*contents.*
+        ETag is returned in response headers of API endpoints of the format /datasets.*contents.*.
 
         This is a required parameter to be passed along with all dataset update requests to ensure
         there isn't a version conflict during updates.
@@ -151,9 +151,7 @@ class Dataset(DecorateAllMethods):
         )
 
     def __getattr__(self, attr: str) -> Any:
-        """
-        Delegate attribute access to the underlying DatasetDB instance.
-        """
+        """Delegate attribute access to the underlying DatasetDB instance."""
         return getattr(self.dataset, attr)
 
 
@@ -346,7 +344,7 @@ class Datasets:
         ----------
         prompt_settings : Dict[str, Any], optional
             Settings for the prompt generation. Should contain 'model_alias' key.
-            Example: {'model_alias': 'GPT-4o mini'}
+            Example: `{'model_alias': 'GPT-4o mini'}`
         prompt : str, optional
             A description of the assistant's role.
         instructions : str, optional
@@ -504,7 +502,7 @@ def list_datasets(limit: Union[Unset, int] = 100) -> list[Dataset]:
         A list of datasets.
 
     Raises
-        ------
+    ------
         errors.UnexpectedStatus
             If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException
@@ -651,7 +649,7 @@ def extend_dataset(
     ----------
     prompt_settings : Dict[str, Any], optional
         Settings for the prompt generation. Should contain 'model_alias' key.
-        Example: {'model_alias': 'GPT-4o mini'}
+        Example: `{'model_alias': 'GPT-4o mini'}`
     prompt : str, optional
         A description of the assistant's role.
     instructions : str, optional

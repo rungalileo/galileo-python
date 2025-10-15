@@ -27,9 +27,7 @@ class GalileoAsyncBaseHandler(GalileoBaseHandler):
     """
 
     async def async_commit(self) -> None:
-        """
-        Commit the nodes to the trace using the Galileo Logger. Optionally flush the trace.
-        """
+        """Commit the nodes to the trace using the Galileo Logger. Optionally flush the trace."""
         if not self._nodes:
             _logger.warning("No nodes to commit")
             return

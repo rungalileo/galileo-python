@@ -1,5 +1,5 @@
 """
-Galileo Future API
+Galileo Future API.
 
 This package provides the next-generation object-centric API for Galileo.
 """

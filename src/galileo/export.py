@@ -77,19 +77,30 @@ def export_records(
 
     Defaults to the first logstream if `log_stream_id` and `experiment_id` are not provided.
 
-    Args:
-        project_id: The unique identifier of the project.
-        root_type: The type of records to export.
-        export_format: The desired format for the exported data.
-        log_stream_id: Filter records by a specific run ID.
-        experiment_id: Filter records by a specific experiment ID.
-        filters: A list of filters to apply to the export.
-        column_ids: A list of column IDs to include in the export.
-        sort: A sort clause to order the exported records.
-        redact: Redact sensitive data from the response.
+    Parameters
+    ----------
+    project_id
+        The unique identifier of the project.
+    root_type
+        The type of records to export.
+    export_format
+        The desired format for the exported data.
+    log_stream_id
+        Filter records by a specific run ID.
+    experiment_id
+        Filter records by a specific experiment ID.
+    filters
+        A list of filters to apply to the export.
+    column_ids
+        A list of column IDs to include in the export.
+    sort
+        A sort clause to order the exported records.
+    redact
+        Redact sensitive data from the response.
 
-    Returns:
-        An iterator that yields each record as a dictionary.
+    Returns
+    -------
+    An iterator that yields each record as a dictionary.
     """
     if filters is None:
         filters = []

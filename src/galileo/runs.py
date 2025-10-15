@@ -48,13 +48,20 @@ def update_scorer_settings(
 ) -> RunScorerSettingsResponse:
     """Updates the scorer settings for a specific run.
 
-    Args:
-        project_id: The unique identifier of the project.
-        run_id: The unique identifier of the run.
-        scorers: A list of scorer configurations to apply to the run.
-        segment_filters: A list of segment filters to apply to the run.
+    Parameters
+    ----------
+    project_id
+        The unique identifier of the project.
+    run_id
+        The unique identifier of the run.
+    scorers
+        A list of scorer configurations to apply to the run.
+    segment_filters
+        A list of segment filters to apply to the run.
 
-    Returns:
+    Returns
+    -------
+    RunScorerSettingsResponse
         A RunScorerSettingsResponse object containing the updated settings.
     """
     return Runs().update_scorer_settings(

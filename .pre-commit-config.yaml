@@ -14,6 +14,7 @@ repos:
     rev: "v0.9.7"
     hooks:
       - id: ruff
+        args: [--fix]
       - id: ruff-format
   # We run `mypy` as a local hook because otherwise it doesn't validate against the
   # pacakges' types and arguments. Or we'd need to install all of the dependencies again

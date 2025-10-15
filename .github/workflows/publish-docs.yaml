@@ -15,12 +15,12 @@ jobs:
     steps:
       # Checkout both this repo, and the docs official repo
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           path: ./galileo-python
 
       - name: Check out Docs repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: rungalileo/docs-official
           path: ./docs-official
@@ -28,23 +28,19 @@ jobs:
 
       # Install Python
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: 3.11
 
-      # Install pydoc-markdown to generate the documentation
-      - name: Install PyDoc
-        run: pipx install pydoc-markdown
+      # Install docstring_parser
+      - name: Install Docstring Parser
+        run: pip install docstring-parser>=0.17.0
 
-      # Generate the docs using PyDoc. We have to run two configurations as the handlers module isn't generated
-      # by default for some reason, so we have to run a second configuration for that
-      # Then convert from md to mdx, and do some other tweaks to make them work with our docs
+      # Build the docs using our script
       - name: Build Docs
         working-directory: ./galileo-python
         run: |
-          pydoc-markdown
-          pydoc-markdown pydoc-markdown-handlers.yml
-          python ./scripts/convert-md-to-mdx.py
+          python ./scripts/create_docs.py
 
       # Create a branch in the docs-official repo using the current branch name and the current date
       - name: Create a branch
@@ -55,7 +51,6 @@ jobs:
       - name: Update SDK docs
         run: |
           rm -rf ./docs-official/sdk-api/python/reference
-          rm -f ./galileo-python/.generated_docs/reference/sidebar.json
           cp -r ./galileo-python/.generated_docs/reference ./docs-official/sdk-api/python/
 
       # Commit the changes to the branch, and push

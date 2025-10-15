@@ -1,4 +1,4 @@
-"""Galileo"""
+"""Galileo."""
 
 # flake8: noqa: F401
 # ruff: noqa: F401

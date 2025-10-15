@@ -256,7 +256,6 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
 
     def _generate_run_id(self, source: Any, event: Any) -> UUID:
         """Generate a consistent UUID for event tracing."""
-
         # Memory event specific ID generation
         if hasattr(event, "query"):  # Memory query events
             source_type = event.source_type if hasattr(event, "source_type") else ""

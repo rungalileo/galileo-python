@@ -61,21 +61,32 @@ class Metrics:
         """
         Create a custom LLM metric.
 
-        Args:
-            name (str): Name of the metric.
-            user_prompt (str): User prompt for the metric.
-            node_level (StepType): Node level for the metric.
-            cot_enabled (bool): Whether chain-of-thought is enabled.
-            model_name (str): Model name to use.
-            num_judges (int): Number of judges for the metric.
-            description (str): Description of the metric.
-            tags (List[str]): Tags associated with the metric.
-            output_type (OutputTypeEnum): Output type for the metric.
+        Parameters
+        ----------
+        name: str
+            Name of the metric.
+        user_prompt: str
+            User prompt for the metric.
+        node_level: StepType
+            Node level for the metric.
+        cot_enabled: bool
+            Whether chain-of-thought is enabled.
+        model_name: str
+            Model name to use.
+        num_judges: int
+            Number of judges for the metric.
+        description: str
+            Description of the metric.
+        tags: List[str]
+            Tags associated with the metric.
+        output_type: OutputTypeEnum
+            Output type for the metric.
 
-        Returns:
-            BaseScorerVersionResponse: Response containing the created metric details.
+        Returns
+        -------
+        BaseScorerVersionResponse
+            Response containing the created metric details.
         """
-
         if tags is None:
             tags = []
         create_scorer_request = CreateScorerRequest(
@@ -151,19 +162,31 @@ def create_custom_llm_metric(
     """
     Create a custom LLM metric.
 
-    Args:
-        name (str): Name of the metric.
-        user_prompt (str): User prompt for the metric.
-        node_level (StepType): Node level for the metric.
-        cot_enabled (bool): Whether chain-of-thought is enabled.
-        model_name (str): Model name to use.
-        num_judges (int): Number of judges for the metric.
-        description (str): Description of the metric.
-        tags (List[str]): Tags associated with the metric.
-        output_type (OutputTypeEnum): Output type for the metric.
+    Parameters
+    ----------
+    name: str
+        Name of the metric.
+    user_prompt: str
+        User prompt for the metric.
+    node_level: StepType
+        Node level for the metric.
+    cot_enabled: bool
+        Whether chain-of-thought is enabled.
+    model_name: str
+        Model name to use.
+    num_judges: int
+        Number of judges for the metric.
+    description: str
+        Description of the metric.
+    tags: List[str]
+        Tags associated with the metric.
+    output_type: OutputTypeEnum
+        Output type for the metric.
 
-    Returns:
-        BaseScorerVersionResponse: Response containing the created metric details.
+    Returns
+    -------
+    BaseScorerVersionResponse
+        Response containing the created metric details.
     """
     if tags is None:
         tags = []
@@ -184,17 +207,28 @@ def get_metrics(
 ) -> LogRecordsMetricsResponse:
     """Queries for metrics in a project.
 
-    Args:
-        project_id: The unique identifier of the project.
-        start_time: The start of the time range for the query.
-        end_time: The end of the time range for the query.
-        experiment_id: Filter records by a specific experiment ID.
-        log_stream_id: Filter records by a specific run ID.
-        filters: A list of filters to apply to the query.
-        group_by: The field to group the results by.
-        interval: The time interval for the query in seconds.
+    Parameters
+    ----------
+    project_id
+        The unique identifier of the project.
+    start_time
+        The start of the time range for the query.
+    end_time
+        The end of the time range for the query.
+    experiment_id
+        Filter records by a specific experiment ID.
+    log_stream_id
+        Filter records by a specific run ID.
+    filters
+        A list of filters to apply to the query.
+    group_by
+        The field to group the results by.
+    interval
+        The time interval for the query in seconds.
 
-    Returns:
+    Returns
+    -------
+    LogRecordsMetricsResponse
         A LogRecordsMetricsResponse object containing the query results, or None if the query fails.
     """
     return Metrics().query(
@@ -213,7 +247,9 @@ def delete_metric(name: str) -> None:
     """
     Deletes a metric by its name.
 
-    Args:
-        name: The name of the metric to delete.
+    Parameters
+    ----------
+    name
+        The name of the metric to delete.
     """
     Metrics().delete_metric(name)

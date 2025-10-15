@@ -49,9 +49,12 @@ def get_run_scorer_jobs(project_id: str, run_id: str) -> list[JobDB]:
 def scorer_jobs_status(project_id: str, run_id: str) -> None:
     """Gets the status of all scorer jobs for a given project and run.
 
-    Args:
-        project_id: The unique identifier of the project.
-        run_id: The unique identifier of the run.
+    Parameters
+    ----------
+    project_id
+        The unique identifier of the project.
+    run_id
+        The unique identifier of the run.
     """
     scorer_jobs = get_run_scorer_jobs(project_id, run_id)
     for job in scorer_jobs:
@@ -81,13 +84,18 @@ def scorer_jobs_status(project_id: str, run_id: str) -> None:
 def job_progress(job_id: str, project_id: str, run_id: str) -> UUID4:
     """Monitors the progress of a job and displays a progress bar.
 
-    Args:
-        job_id: The unique identifier of the job to monitor.
-        project_id: The unique identifier of the project.
-        run_id: The unique identifier of the run.
+    Parameters
+    ----------
+    job_id
+        The unique identifier of the job to monitor.
+    project_id
+        The unique identifier of the project.
+    run_id
+        The unique identifier of the run.
 
-    Returns:
-        The unique identifier of the completed job.
+    Returns
+    -------
+    The unique identifier of the completed job.
     """
     job_status = get_job(job_id)
     backoff = random.random()

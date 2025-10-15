@@ -81,22 +81,34 @@ async def ainvoke_protect(
 
     Project ID and stage name, or stage ID should be provided for all invocations.
 
-    Args:
-        payload: Payload to be processed.
-        prioritized_rulesets: Prioritized rulesets to be used for processing.
-            These should only be provided if using a local stage. Defaults to an
-            empty list if None.
-        project_id: ID of the project.
-        project_name: Name of the project.
-        stage_id: ID of the stage.
-        stage_name: Name of the stage.
-        stage_version: Version of the stage.
-        timeout: Timeout for the request in seconds. Defaults to TIMEOUT_SECS.
-        metadata: Metadata to be added when responding.
-        headers: Headers to be added to the response.
+    Parameters
+    ----------
+    payload
+        Payload to be processed.
+    prioritized_rulesets
+        Prioritized rulesets to be used for processing.
+        These should only be provided if using a local stage. Defaults to an
+        empty list if None.
+    project_id
+        ID of the project.
+    project_name
+        Name of the project.
+    stage_id
+        ID of the stage.
+    stage_name
+        Name of the stage.
+    stage_version
+        Version of the stage.
+    timeout
+        Timeout for the request in seconds. Defaults to TIMEOUT_SECS.
+    metadata
+        Metadata to be added when responding.
+    headers
+        Headers to be added to the response.
 
-    Returns:
-        Protect invoke results.
+    Returns
+    -------
+    Protect invoke results.
     """
     return await Protect().ainvoke(
         payload=payload,
@@ -132,22 +144,34 @@ def invoke_protect(
 
     Project ID and stage name, or stage ID should be provided for all invocations.
 
-    Args:
-        payload: Payload to be processed.
-        prioritized_rulesets: Prioritized rulesets to be used for processing.
-            These should only be provided if using a local stage. Defaults to an
-            empty list if None.
-        project_id: ID of the project.
-        project_name: Name of the project.
-        stage_id: ID of the stage.
-        stage_name: Name of the stage.
-        stage_version: Version of the stage.
-        timeout: Timeout for the request in seconds. Defaults to TIMEOUT_SECS.
-        metadata: Metadata to be added when responding.
-        headers: Headers to be added to the response.
+    Parameters
+    ----------
+    payload
+        Payload to be processed.
+    prioritized_rulesets
+        Prioritized rulesets to be used for processing.
+        These should only be provided if using a local stage. Defaults to an
+        empty list if None.
+    project_id
+        ID of the project.
+    project_name
+        Name of the project.
+    stage_id
+        ID of the stage.
+    stage_name
+        Name of the stage.
+    stage_version
+        Version of the stage.
+    timeout
+        Timeout for the request in seconds. Defaults to TIMEOUT_SECS.
+    metadata
+        Metadata to be added when responding.
+    headers
+        Headers to be added to the response.
 
-    Returns:
-        Protect invoke results.
+    Returns
+    -------
+    Protect invoke results.
     """
     return async_run(
         ainvoke_protect(
