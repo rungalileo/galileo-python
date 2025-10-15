@@ -1004,7 +1004,7 @@ def test_create_prompt_with_nonexistent_project_name(
             project_name="nonexistent-project",
         )
 
-    assert "Project 'nonexistent-project' not found" in str(exc_info.value)
+    assert "Project 'nonexistent-project' does not exist" in str(exc_info.value)
     get_projects_projects_get_mock.sync_detailed.assert_called_once()
 
 
@@ -1047,7 +1047,7 @@ def test_create_prompt_with_both_project_params() -> None:
             project_name="some-name",
         )
 
-    assert "Cannot provide both 'project_id' and 'project_name'" in str(exc_info.value)
+    assert "Only one of 'project_id' or 'project_name' can be provided" in str(exc_info.value)
 
 
 @patch("galileo.prompts.query_templates_templates_query_post")

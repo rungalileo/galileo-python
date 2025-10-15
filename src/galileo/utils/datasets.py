@@ -1,28 +1,10 @@
 from typing import TYPE_CHECKING, Any, Optional, Union
 
 from galileo.config import GalileoPythonConfig
-from galileo.projects import Projects
 from galileo.schema.datasets import DatasetRecord
 
 if TYPE_CHECKING:
     from galileo.datasets import Dataset
-
-
-def resolve_project_id(project_id: Optional[str], project_name: Optional[str]) -> str:
-    if project_id is not None and project_name is not None:
-        raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
-
-    if project_name is not None:
-        project = Projects().get(name=project_name)
-        if not project:
-            raise ValueError(f"Project '{project_name}' does not exist")
-        return project.id
-    if project_id is not None:
-        project = Projects().get(id=project_id)
-        if not project:
-            raise ValueError(f"Project '{project_id}' does not exist")
-        return project_id
-    raise ValueError("Either project_id or project_name must be provided")
 
 
 def validate_dataset_in_project(

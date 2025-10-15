@@ -4,7 +4,6 @@ from typing import Optional, Union, overload
 
 from galileo import Message
 from galileo.config import GalileoPythonConfig
-from galileo.projects import Projects
 from galileo.resources.api.prompts import (
     create_global_prompt_template_templates_post,
     delete_global_template_templates_template_id_delete,
@@ -31,6 +30,7 @@ from galileo.resources.models import (
 )
 from galileo.resources.types import Unset
 from galileo.utils.exceptions import APIException
+from galileo.utils.projects import resolve_project_id
 from galileo.utils.prompts import generate_unique_name
 
 _logger = logging.getLogger(__name__)
@@ -38,20 +38,6 @@ _logger = logging.getLogger(__name__)
 
 class PromptTemplateAPIException(APIException):
     pass
-
-
-def _resolve_project_id(project_id: Optional[str] = None, project_name: Optional[str] = None) -> Optional[str]:
-    """Resolve project_name to project_id if needed. Internal helper function."""
-    if project_id and project_name:
-        raise ValueError("Cannot provide both 'project_id' and 'project_name'")
-
-    if project_name:
-        project = Projects().get(name=project_name)
-        if not project:
-            raise ValueError(f"Project '{project_name}' not found")
-        return project.id
-
-    return project_id
 
 
 class PromptTemplate(BasePromptTemplateResponse):
@@ -142,7 +128,9 @@ class GlobalPromptTemplates:
             If both project_id and project_name are provided, or if project_name doesn't exist.
         """
         # Resolve project_name to project_id if needed
-        resolved_project_id = _resolve_project_id(project_id=project_id, project_name=project_name)
+        resolved_project_id = resolve_project_id(
+            project_id=project_id, project_name=project_name, allow_none=True, validate=False
+        )
 
         params = ListPromptTemplateParams()
         filters = []
@@ -285,7 +273,9 @@ class GlobalPromptTemplates:
             If both project_id and project_name are provided, or if project_name doesn't exist.
         """
         # Resolve project_name to project_id if needed
-        resolved_project_id = _resolve_project_id(project_id=project_id, project_name=project_name)
+        resolved_project_id = resolve_project_id(
+            project_id=project_id, project_name=project_name, allow_none=True, validate=False
+        )
 
         body = CreatePromptTemplateWithVersionRequestBody(name=name, template=template)
 
@@ -609,7 +599,9 @@ def create_prompt(
     """
     # Resolve project parameters early (validates and converts project_name to project_id)
     # This will raise ValueError if both are provided or if project_name doesn't exist
-    resolved_project_id = _resolve_project_id(project_id=project_id, project_name=project_name)
+    resolved_project_id = resolve_project_id(
+        project_id=project_id, project_name=project_name, allow_none=True, validate=False
+    )
 
     # Generate a unique name to ensure organization-wide uniqueness
     unique_name = generate_unique_name(name)

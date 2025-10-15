@@ -31,6 +31,7 @@ from galileo.resources.models.dataset_used_in_project_filter import DatasetUsedI
 from galileo.resources.models.http_validation_error import HTTPValidationError
 from galileo.resources.models.job_progress import JobProgress
 from galileo.resources.models.list_dataset_params import ListDatasetParams
+from galileo.resources.models.list_dataset_projects_response import ListDatasetProjectsResponse
 from galileo.resources.models.list_dataset_response import ListDatasetResponse
 from galileo.resources.models.prompt_run_settings import PromptRunSettings
 from galileo.resources.models.synthetic_data_types import SyntheticDataTypes
@@ -40,9 +41,10 @@ from galileo.resources.models.update_dataset_content_request import UpdateDatase
 from galileo.resources.types import File, Unset
 from galileo.schema.datasets import DatasetRecord
 from galileo.utils.catch_log import DecorateAllMethods
-from galileo.utils.datasets import resolve_project_id, validate_dataset_in_project
+from galileo.utils.datasets import validate_dataset_in_project
 from galileo.utils.exceptions import APIException
 from galileo.utils.logging import get_logger
+from galileo.utils.projects import resolve_project_id
 from galileo_core.utils.dataset import DatasetType, parse_dataset
 
 logger = get_logger(__name__)
@@ -169,8 +171,6 @@ class Dataset(DecorateAllMethods):
             If the request takes longer than Client.timeout.
 
         """
-        from galileo.resources.models.list_dataset_projects_response import ListDatasetProjectsResponse
-
         if not self.dataset:
             return []
 
@@ -231,6 +231,7 @@ class Datasets:
 
         # Resolve project identifier to ID
         resolved_project_id = resolve_project_id(project_id, project_name)
+        assert resolved_project_id is not None  # resolve_project_id raises if both params are None
 
         # Use query endpoint with project filter
         project_filter = DatasetUsedInProjectFilter(value=resolved_project_id)
@@ -331,6 +332,7 @@ class Datasets:
         # Validate project association if project parameters provided
         if project_id is not None or project_name is not None:
             resolved_project_id = resolve_project_id(project_id, project_name)
+            assert resolved_project_id is not None  # resolve_project_id raises if both params are None
             validate_dataset_in_project(
                 dataset_id=dataset.id,
                 dataset_identifier=name or id,  # type: ignore[arg-type]
@@ -443,9 +445,8 @@ class Datasets:
         # Resolve project if provided
         resolved_project_id: Optional[str] = None
         if project_id is not None or project_name is not None:
-            if project_id is not None and project_name is not None:
-                raise ValueError("Only one of 'project_id' or 'project_name' can be provided, not both")
             resolved_project_id = resolve_project_id(project_id, project_name)
+            assert resolved_project_id is not None  # resolve_project_id raises if both params are none
 
         if isinstance(content, (list, dict)) and len(content) == 0:
             # we want to avoid errors: Invalid CSV data: CSV parse error:
