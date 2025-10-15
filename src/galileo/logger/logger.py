@@ -633,7 +633,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Input that removes any sensitive information (redacted input to the node).
             Same format as input parameter.
         redacted_output: Optional[LlmSpanAllowedOutputType]
-            Output that removes any sensitive information (redacted output to the node).
+            Output that removes any sensitive information (redacted output of the node).
             Same format as output parameter.
         tools: Optional[List[dict]]
             List of available tools passed to LLM on invocation.
