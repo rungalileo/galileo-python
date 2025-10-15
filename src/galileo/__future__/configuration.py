@@ -123,14 +123,17 @@ class Configuration(metaclass=ConfigurationMeta):
     Uses a data-driven approach with keys defined in CONFIGURATION_KEYS.
     Automatically syncs with environment variables and loads .env files.
 
-    Examples:
-        Configuration.galileo_api_key = "key"
-        Configuration.console_url = "https://console.galileo.ai"
+    Examples
+    --------
+    ```python
+    Configuration.galileo_api_key = "key"
+    Configuration.console_url = "https://console.galileo.ai"
 
-        if Configuration.is_configured():
-            Configuration.connect()
+    if Configuration.is_configured():
+        Configuration.connect()
 
-        config = Configuration.get_configuration()
+    config = Configuration.get_configuration()
+    ```
     """
 
     _env_loaded: bool = False
