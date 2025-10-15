@@ -165,6 +165,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             span_id: Span ID. Used to initialize the logger with an existing workflow or agent span. Note: This can only be used in "streaming" mode.
             local_metrics: Local metrics
             mode: Logger mode (batch or streaming)
+            ingestion_hook: A callable that intercepts trace data before ingestion.
+                This hook is called when the logger is flushed and can be a
+                synchronous or asynchronous function. This is useful for implementing
+                custom logic such as data redaction before the traces are sent to
+                Galileo via the `ingest_traces` method.
         """
         super().__init__()
         experimental = experimental or {}

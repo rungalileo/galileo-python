@@ -1522,3 +1522,47 @@ async def test_ingest_traces_methods(
 
     logger.ingest_traces(ingest_request)
     assert mock_traces_client_instance.ingest_traces.call_count == 2
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_ingestion_hook_with_real_redaction(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """
+    Tests the ingestion hook with a real redaction function to ensure the
+    end-to-end flow works as expected.
+    """
+    # 1. Setup the final destination mock
+    # This mock will capture the data *after* it has been processed by the hook.
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    # 2. Define the ingestor logger and the redaction hook
+    # This logger is what the hook will use to send the redacted data.
+    ingestor_logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+
+    def redact_and_forward(ingest_request: TracesIngestRequest):
+        """A real hook that redacts data and forwards it."""
+        modified_request = ingest_request.model_copy(deep=True)
+        for trace in modified_request.traces:
+            if isinstance(trace.input, str):
+                trace.input = trace.input.replace("secret_password", "[REDACTED]")
+        ingestor_logger.ingest_traces(modified_request)
+
+    # 3. Setup the collector logger with the real hook
+    collector_logger = GalileoLogger(
+        project="my_project", log_stream="my_log_stream", ingestion_hook=redact_and_forward
+    )
+
+    # 4. Log a trace with sensitive data
+    collector_logger.start_trace(input="This is a secret_password")
+    collector_logger.conclude(output="some_output")
+    collector_logger.flush()
+
+    # 5. Assert that the final data received was redacted
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    assert payload.traces[0].input == "This is a [REDACTED]"

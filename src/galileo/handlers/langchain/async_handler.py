@@ -1,7 +1,7 @@
 import json
 import logging
 import time
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 from uuid import UUID
 
 from galileo.handlers.base_async_handler import GalileoAsyncBaseHandler
@@ -9,6 +9,7 @@ from galileo.handlers.langchain.handler import GalileoCallback
 from galileo.handlers.langchain.utils import get_agent_name, is_agent_node
 from galileo.logger import GalileoLogger
 from galileo.schema.handlers import NODE_TYPE
+from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.serialization import EventSerializer, serialize_to_str
 
 _logger = logging.getLogger(__name__)
@@ -44,12 +45,14 @@ class GalileoAsyncCallback(AsyncCallbackHandler):
         galileo_logger: Optional[GalileoLogger] = None,
         start_new_trace: bool = True,
         flush_on_chain_end: bool = True,
+        ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
     ):
         self._handler = GalileoAsyncBaseHandler(
             flush_on_chain_end=flush_on_chain_end,
             start_new_trace=start_new_trace,
             galileo_logger=galileo_logger,
             integration="langchain",
+            ingestion_hook=ingestion_hook,
         )
 
     async def on_chain_start(
