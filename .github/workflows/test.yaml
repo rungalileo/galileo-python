@@ -24,7 +24,7 @@ jobs:
         run: pipx install poetry==${{ vars.POETRY_V2_VERSION }}
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           cache: "poetry"
           python-version: ${{ matrix.python-version }}
