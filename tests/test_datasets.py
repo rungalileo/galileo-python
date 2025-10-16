@@ -37,7 +37,7 @@ from galileo.resources.models import (
 from galileo.resources.models.dataset_row import DatasetRow
 from galileo.resources.models.dataset_row_values_dict import DatasetRowValuesDict
 from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.types import Response
+from galileo.resources.types import UNSET, Response
 from galileo.schema.datasets import DatasetRecord
 
 
@@ -186,7 +186,7 @@ def test_create_dataset_with_empty_list(create_dataset_datasets_post_mock: Mock)
     create_dataset(name="my_dataset_name", content=[])
     create_dataset_datasets_post_mock.sync_detailed.assert_called_once_with(
         client=ANY,
-        body=BodyCreateDatasetDatasetsPost(draft=False, file=ANY, name="my_dataset_name", project_id=None),
+        body=BodyCreateDatasetDatasetsPost(draft=False, file=ANY, name="my_dataset_name", project_id=UNSET),
         format_=DatasetFormat.JSONL,
     )
 
@@ -217,7 +217,7 @@ def test_create_dataset_with_empty_dict(create_dataset_datasets_post_mock: Mock)
     create_dataset(name="my_dataset_name", content={})
     create_dataset_datasets_post_mock.sync_detailed.assert_called_once_with(
         client=ANY,
-        body=BodyCreateDatasetDatasetsPost(draft=False, file=ANY, name="my_dataset_name", project_id=None),
+        body=BodyCreateDatasetDatasetsPost(draft=False, file=ANY, name="my_dataset_name", project_id=UNSET),
         format_=DatasetFormat.JSONL,
     )
 
@@ -1106,6 +1106,59 @@ def test_create_dataset_with_nonexistent_project(get_project_mock: Mock) -> None
 
     with pytest.raises(ValueError, match="Project 'nonexistent-project' does not exist"):
         create_dataset(name="test-dataset", content=[{"input": "test"}], project_id="nonexistent-project")
+
+
+@patch("galileo.datasets.create_dataset_datasets_post")
+def test_create_dataset_without_project_uses_unset(create_dataset_mock: Mock) -> None:
+    """Test that creating a dataset without project_id uses UNSET, not None.
+
+    This prevents the string 'None' from being sent to the API which would
+    cause a 422 validation error.
+    """
+    from galileo.datasets import create_dataset
+
+    # Mock successful dataset creation
+    create_dataset_mock.sync_detailed.return_value = Response(
+        content=b'{"id":"test-id","name":"test-dataset","draft":false}',
+        status_code=HTTPStatus.OK,
+        headers={},
+        parsed=DatasetDB.from_dict(
+            {
+                "draft": False,
+                "column_names": ["input", "output"],
+                "created_at": "2025-03-10T15:25:03.088471+00:00",
+                "created_by_user": {"id": "test-user-id"},
+                "current_version_index": 1,
+                "id": "test-id",
+                "name": "test-dataset",
+                "updated_at": "2025-03-26T12:00:44.558105+00:00",
+                "num_rows": 1,
+                "project_count": 0,
+                "permissions": [],
+            }
+        ),
+    )
+
+    # Create dataset without project_id
+    create_dataset(name="test-dataset", content=[{"input": "test", "output": "result"}])
+
+    # Verify that UNSET is used for project_id, not None
+    call_args = create_dataset_mock.sync_detailed.call_args
+    body_arg = call_args.kwargs["body"]
+
+    # The body should have project_id=UNSET (not None)
+    assert body_arg.project_id is UNSET, f"Expected UNSET, got {body_arg.project_id}"
+
+    # Verify multipart form data doesn't include "None" string
+    multipart_data = body_arg.to_multipart()
+    for field_name, field_value in multipart_data:
+        if field_name == "project_id":
+            pytest.fail("project_id should not be in multipart form data when UNSET")
+        # Also check that no field contains the string "None"
+        if isinstance(field_value, tuple) and len(field_value) >= 2:
+            field_content = field_value[1]
+            if isinstance(field_content, bytes) and field_content == b"None":
+                pytest.fail(f"Field {field_name} contains string 'None' which would cause 422 error")
 
 
 @patch("galileo.resources.api.datasets.list_dataset_projects_datasets_dataset_id_projects_get.sync")

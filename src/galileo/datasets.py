@@ -38,7 +38,7 @@ from galileo.resources.models.synthetic_data_types import SyntheticDataTypes
 from galileo.resources.models.synthetic_dataset_extension_request import SyntheticDatasetExtensionRequest
 from galileo.resources.models.synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
 from galileo.resources.models.update_dataset_content_request import UpdateDatasetContentRequest
-from galileo.resources.types import File, Unset
+from galileo.resources.types import UNSET, File, Unset
 from galileo.schema.datasets import DatasetRecord
 from galileo.utils.catch_log import DecorateAllMethods
 from galileo.utils.datasets import validate_dataset_in_project
@@ -450,7 +450,7 @@ class Datasets:
 
         """
         # Resolve project if provided
-        resolved_project_id: Optional[str] = None
+        resolved_project_id: Union[str, type[Unset], None] = UNSET
         if project_id is not None or project_name is not None:
             resolved_project_id = resolve_project_id(project_id, project_name)
             assert resolved_project_id is not None  # resolve_project_id raises if both params are none
