@@ -16,7 +16,8 @@ T = TypeVar("T", bound="DatasetUpdateRow")
 @_attrs_define
 class DatasetUpdateRow:
     """
-    Attributes:
+    Attributes
+    ----------
         row_id (str):
         values (DatasetUpdateRowValues):
         edit_type (Union[Literal['update_row'], Unset]):  Default: 'update_row'.

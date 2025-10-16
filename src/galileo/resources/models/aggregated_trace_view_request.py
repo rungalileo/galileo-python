@@ -20,7 +20,8 @@ T = TypeVar("T", bound="AggregatedTraceViewRequest")
 @_attrs_define
 class AggregatedTraceViewRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         log_stream_id (str): Log stream id associated with the traces.
         filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsDateFilter', 'LogRecordsIDFilter',
             'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]): Filters to apply on the traces. Note: Only trace-level

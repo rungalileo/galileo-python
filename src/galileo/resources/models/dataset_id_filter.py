@@ -13,7 +13,8 @@ T = TypeVar("T", bound="DatasetIDFilter")
 @_attrs_define
 class DatasetIDFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (Union[list[str], str]):
         name (Union[Literal['id'], Unset]):  Default: 'id'.
         operator (Union[Unset, DatasetIDFilterOperator]):  Default: DatasetIDFilterOperator.EQ.

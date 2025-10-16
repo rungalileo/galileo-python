@@ -32,7 +32,8 @@ T = TypeVar("T", bound="ExtendedRetrieverSpanRecordWithChildren")
 @_attrs_define
 class ExtendedRetrieverSpanRecordWithChildren:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Galileo ID of the session, trace or span
         parent_id (str): Galileo ID of the parent of this span
         project_id (str): Galileo ID of the project associated with this trace or span

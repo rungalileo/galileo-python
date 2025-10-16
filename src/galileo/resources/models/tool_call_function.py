@@ -10,7 +10,8 @@ T = TypeVar("T", bound="ToolCallFunction")
 @_attrs_define
 class ToolCallFunction:
     """
-    Attributes:
+    Attributes
+    ----------
         arguments (str):
         name (str):
     """

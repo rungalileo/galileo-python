@@ -16,7 +16,8 @@ T = TypeVar("T", bound="LogRecordsAvailableColumnsResponse")
 @_attrs_define
 class LogRecordsAvailableColumnsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         columns (Union[Unset, list['ColumnInfo']]):
     """
 

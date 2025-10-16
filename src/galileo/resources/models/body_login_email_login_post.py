@@ -12,7 +12,8 @@ T = TypeVar("T", bound="BodyLoginEmailLoginPost")
 @_attrs_define
 class BodyLoginEmailLoginPost:
     """
-    Attributes:
+    Attributes
+    ----------
         password (str):
         username (str):
         client_id (Union[None, Unset, str]):

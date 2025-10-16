@@ -10,7 +10,8 @@ T = TypeVar("T", bound="CustomFunctionFilter")
 @_attrs_define
 class CustomFunctionFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, str]):
     """
 

@@ -14,7 +14,8 @@ T = TypeVar("T", bound="LogStreamResponse")
 @_attrs_define
 class LogStreamResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         id (str):
         name (str):

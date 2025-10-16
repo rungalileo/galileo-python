@@ -12,7 +12,8 @@ T = TypeVar("T", bound="JobProgress")
 @_attrs_define
 class JobProgress:
     """
-    Attributes:
+    Attributes
+    ----------
         progress_message (Union[None, Unset, str]):
         steps_completed (Union[None, Unset, int]):
         steps_total (Union[None, Unset, int]):

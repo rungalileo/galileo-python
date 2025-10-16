@@ -16,7 +16,8 @@ T = TypeVar("T", bound="DatasetAppendRow")
 @_attrs_define
 class DatasetAppendRow:
     """
-    Attributes:
+    Attributes
+    ----------
         values (DatasetAppendRowValues):
         edit_type (Union[Literal['append_row'], Unset]):  Default: 'append_row'.
         row_id (Union[None, Unset, str]):

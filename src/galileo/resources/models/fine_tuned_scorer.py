@@ -17,7 +17,8 @@ T = TypeVar("T", bound="FineTunedScorer")
 @_attrs_define
 class FineTunedScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
         id (Union[None, Unset, str]):
         name (Union[None, Unset, str]):

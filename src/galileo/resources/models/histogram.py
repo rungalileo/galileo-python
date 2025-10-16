@@ -16,11 +16,12 @@ T = TypeVar("T", bound="Histogram")
 @_attrs_define
 class Histogram:
     """
-    Attributes:
+    Attributes
+    ----------
         buckets (list['HistogramBucket']): List of histogram buckets containing the binned data
         edges (list[float]): List of bin edges (monotonically increasing, length = number of buckets + 1)
         strategy (HistogramStrategy):
-        total (int): Total number of data points in the histogram
+        total (int): Total number of data points in the histogram.
     """
 
     buckets: list["HistogramBucket"]

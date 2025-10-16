@@ -19,7 +19,8 @@ T = TypeVar("T", bound="UserCollaborator")
 @_attrs_define
 class UserCollaborator:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         email (str):
         first_name (Union[None, str]):

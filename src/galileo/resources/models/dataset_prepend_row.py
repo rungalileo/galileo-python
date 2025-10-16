@@ -16,7 +16,8 @@ T = TypeVar("T", bound="DatasetPrependRow")
 @_attrs_define
 class DatasetPrependRow:
     """
-    Attributes:
+    Attributes
+    ----------
         values (DatasetPrependRowValues):
         edit_type (Union[Literal['prepend_row'], Unset]):  Default: 'prepend_row'.
         row_id (Union[None, Unset, str]):

@@ -22,7 +22,8 @@ T = TypeVar("T", bound="FeedbackRatingDB")
 @_attrs_define
 class FeedbackRatingDB:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         created_by (Union[None, str]):
         rating (Union['LikeDislikeRating', 'ScoreRating', 'StarRating', 'TagsRating', 'TextRating']):

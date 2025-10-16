@@ -74,7 +74,7 @@ def sync_detailed(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
-    """List Projects For Scorer Version Route
+    """List Projects For Scorer Version Route.
 
      List all projects associated with a specific scorer version.
 
@@ -84,14 +84,15 @@ def sync_detailed(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(
         scorer_version_id=scorer_version_id, scorer_id=scorer_id, starting_token=starting_token, limit=limit
     )
@@ -109,7 +110,7 @@ def sync(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
-    """List Projects For Scorer Version Route
+    """List Projects For Scorer Version Route.
 
      List all projects associated with a specific scorer version.
 
@@ -119,14 +120,15 @@ def sync(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[GetProjectsPaginatedResponseV2, HTTPValidationError]
     """
-
     return sync_detailed(
         scorer_version_id=scorer_version_id,
         client=client,
@@ -144,7 +146,7 @@ async def asyncio_detailed(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
-    """List Projects For Scorer Version Route
+    """List Projects For Scorer Version Route.
 
      List all projects associated with a specific scorer version.
 
@@ -154,14 +156,15 @@ async def asyncio_detailed(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(
         scorer_version_id=scorer_version_id, scorer_id=scorer_id, starting_token=starting_token, limit=limit
     )
@@ -179,7 +182,7 @@ async def asyncio(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[GetProjectsPaginatedResponseV2, HTTPValidationError]]:
-    """List Projects For Scorer Version Route
+    """List Projects For Scorer Version Route.
 
      List all projects associated with a specific scorer version.
 
@@ -189,14 +192,15 @@ async def asyncio(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[GetProjectsPaginatedResponseV2, HTTPValidationError]
     """
-
     return (
         await asyncio_detailed(
             scorer_version_id=scorer_version_id,

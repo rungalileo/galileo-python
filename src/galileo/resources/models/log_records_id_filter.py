@@ -13,7 +13,8 @@ T = TypeVar("T", bound="LogRecordsIDFilter")
 @_attrs_define
 class LogRecordsIDFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         column_id (str): ID of the column to filter.
         value (Union[list[str], str]):
         operator (Union[Unset, LogRecordsIDFilterOperator]):  Default: LogRecordsIDFilterOperator.EQ.

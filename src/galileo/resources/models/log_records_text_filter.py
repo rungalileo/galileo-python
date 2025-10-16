@@ -13,7 +13,8 @@ T = TypeVar("T", bound="LogRecordsTextFilter")
 @_attrs_define
 class LogRecordsTextFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         column_id (str): ID of the column to filter.
         operator (LogRecordsTextFilterOperator):
         value (Union[list[str], str]):

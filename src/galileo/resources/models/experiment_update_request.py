@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ExperimentUpdateRequest")
 @_attrs_define
 class ExperimentUpdateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
         task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
     """

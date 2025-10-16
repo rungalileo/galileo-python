@@ -13,7 +13,8 @@ T = TypeVar("T", bound="MapFilter")
 class MapFilter:
     """Filters for string items in a map / dictionary.
 
-    Attributes:
+    Attributes
+    ----------
         key (str):
         name (Union[None, str]):
         operator (MapFilterOperator):

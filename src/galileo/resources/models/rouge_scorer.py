@@ -17,7 +17,8 @@ T = TypeVar("T", bound="RougeScorer")
 @_attrs_define
 class RougeScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
         name (Union[Literal['rouge'], Unset]):  Default: 'rouge'.

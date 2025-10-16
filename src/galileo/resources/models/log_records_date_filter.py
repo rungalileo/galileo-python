@@ -15,7 +15,8 @@ T = TypeVar("T", bound="LogRecordsDateFilter")
 @_attrs_define
 class LogRecordsDateFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         column_id (str): ID of the column to filter.
         operator (LogRecordsDateFilterOperator):
         value (datetime.datetime):

@@ -22,7 +22,8 @@ T = TypeVar("T", bound="ProjectDB")
 @_attrs_define
 class ProjectDB:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         created_by (str):
         created_by_user (UserInfo): A user's basic information, used for display purposes.

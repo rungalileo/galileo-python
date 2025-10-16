@@ -17,7 +17,8 @@ T = TypeVar("T", bound="SystemMetricInfo")
 @_attrs_define
 class SystemMetricInfo:
     """
-    Attributes:
+    Attributes
+    ----------
         label (str): Human-readable display name for the metric
         name (str): Unique identifier for the metric
         histogram (Union['Histogram', None, Unset]): Histogram representation of the metric distribution
@@ -30,7 +31,7 @@ class SystemMetricInfo:
         p75 (Union[None, Unset, float]): 75th percentile (third quartile) of the metric values
         p95 (Union[None, Unset, float]): 95th percentile of the metric values
         unit (Union[DataUnit, None, Unset]): Unit of measurement, if any
-        values (Union[Unset, list[float]]): Raw metric values used to compute statistics and histograms
+        values (Union[Unset, list[float]]): Raw metric values used to compute statistics and histograms.
     """
 
     label: str

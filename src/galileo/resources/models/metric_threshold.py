@@ -12,7 +12,8 @@ T = TypeVar("T", bound="MetricThreshold")
 @_attrs_define
 class MetricThreshold:
     """
-    Attributes:
+    Attributes
+    ----------
         buckets (Union[Unset, list[Union[float, int]]]): Threshold buckets for the column. If the column is a metric,
             these are the thresholds for the column.
         display_value_levels (Union[Unset, list[str]]): Ordered list of strings that raw values get transformed to for

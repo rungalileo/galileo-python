@@ -7,6 +7,9 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.chunk_attribution_utilization_template_response_schema_type_0 import (
+        ChunkAttributionUtilizationTemplateResponseSchemaType0,
+    )
     from ..models.few_shot_example import FewShotExample
 
 
@@ -16,12 +19,15 @@ T = TypeVar("T", bound="ChunkAttributionUtilizationTemplate")
 @_attrs_define
 class ChunkAttributionUtilizationTemplate:
     r"""
-    Attributes:
+    Attributes
+    ----------
         explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
             explanation. Default: 'explanation'.
         metric_description (Union[None, Unset, str]): Description of what the metric should do.
         metric_few_shot_examples (Union[Unset, list['FewShotExample']]): Few-shot examples for the metric.
         metric_system_prompt (Union[None, Unset, str]): System prompt for the metric.
+        response_schema (Union['ChunkAttributionUtilizationTemplateResponseSchemaType0', None, Unset]): Response schema
+            for the output
         template (Union[Unset, str]):  Default: 'I asked someone to answer a question based on one or more documents.
             You will tell me which of the documents their answer was sourced from, and which specific sentences from the
             documents they used.\n\nHere are the documents, with each document split up into sentences. Each sentence is
@@ -42,6 +48,7 @@ class ChunkAttributionUtilizationTemplate:
     metric_description: Union[None, Unset, str] = UNSET
     metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
     metric_system_prompt: Union[None, Unset, str] = UNSET
+    response_schema: Union["ChunkAttributionUtilizationTemplateResponseSchemaType0", None, Unset] = UNSET
     template: Union[Unset, str] = (
         "I asked someone to answer a question based on one or more documents. You will tell me which of the documents their answer was sourced from, and which specific sentences from the documents they used.\n\nHere are the documents, with each document split up into sentences. Each sentence is given a unique key, such as '0a' for the first sentence of Document 0. You'll use these keys in your response to identify which sentences were used.\n\n```\n{chunks}\n```\n\nThe question was:\n\n```\n{question}\n```\n\nTheir response was:\n\n```\n{response}\n```\n\nRespond with a JSON object matching this schema:\n\n```\n{{\n  \\\"source_sentence_keys\\\": [string]\n}}\n```\n\nThe source_sentence_keys field is a list identifying the sentences in the documents that were used to construct the answer. Each entry MUST be a sentence key, such as '0a', that appears in the document list above. Include the key of every sentence that was used to construct the answer, even if it was not used in its entirety. Omit keys for sentences that were not used, and could have been removed from the document without affecting the answer.\n\nYou must respond with a valid JSON string."
     )
@@ -49,6 +56,10 @@ class ChunkAttributionUtilizationTemplate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.chunk_attribution_utilization_template_response_schema_type_0 import (
+            ChunkAttributionUtilizationTemplateResponseSchemaType0,
+        )
+
         explanation_field_name = self.explanation_field_name
 
         metric_description: Union[None, Unset, str]
@@ -63,6 +74,14 @@ class ChunkAttributionUtilizationTemplate:
 
         metric_system_prompt: Union[None, Unset, str]
         metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
+
+        response_schema: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.response_schema, Unset):
+            response_schema = UNSET
+        elif isinstance(self.response_schema, ChunkAttributionUtilizationTemplateResponseSchemaType0):
+            response_schema = self.response_schema.to_dict()
+        else:
+            response_schema = self.response_schema
 
         template = self.template
 
@@ -79,6 +98,8 @@ class ChunkAttributionUtilizationTemplate:
             field_dict["metric_few_shot_examples"] = metric_few_shot_examples
         if metric_system_prompt is not UNSET:
             field_dict["metric_system_prompt"] = metric_system_prompt
+        if response_schema is not UNSET:
+            field_dict["response_schema"] = response_schema
         if template is not UNSET:
             field_dict["template"] = template
         if value_field_name is not UNSET:
@@ -88,6 +109,9 @@ class ChunkAttributionUtilizationTemplate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.chunk_attribution_utilization_template_response_schema_type_0 import (
+            ChunkAttributionUtilizationTemplateResponseSchemaType0,
+        )
         from ..models.few_shot_example import FewShotExample
 
         d = dict(src_dict)
@@ -118,6 +142,24 @@ class ChunkAttributionUtilizationTemplate:
 
         metric_system_prompt = _parse_metric_system_prompt(d.pop("metric_system_prompt", UNSET))
 
+        def _parse_response_schema(
+            data: object,
+        ) -> Union["ChunkAttributionUtilizationTemplateResponseSchemaType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ChunkAttributionUtilizationTemplateResponseSchemaType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["ChunkAttributionUtilizationTemplateResponseSchemaType0", None, Unset], data)
+
+        response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
+
         template = d.pop("template", UNSET)
 
         value_field_name = d.pop("value_field_name", UNSET)
@@ -127,6 +169,7 @@ class ChunkAttributionUtilizationTemplate:
             metric_description=metric_description,
             metric_few_shot_examples=metric_few_shot_examples,
             metric_system_prompt=metric_system_prompt,
+            response_schema=response_schema,
             template=template,
             value_field_name=value_field_name,
         )

@@ -15,7 +15,8 @@ T = TypeVar("T", bound="AggregatedTraceViewGraph")
 @_attrs_define
 class AggregatedTraceViewGraph:
     """
-    Attributes:
+    Attributes
+    ----------
         edges (list['AggregatedTraceViewEdge']):
         nodes (list['AggregatedTraceViewNode']):
     """

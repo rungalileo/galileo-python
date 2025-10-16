@@ -13,7 +13,8 @@ T = TypeVar("T", bound="StageDB")
 @_attrs_define
 class StageDB:
     """
-    Attributes:
+    Attributes
+    ----------
         created_by (str):
         id (str):
         name (str): Name of the stage. Must be unique within the project.

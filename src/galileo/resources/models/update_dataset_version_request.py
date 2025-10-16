@@ -12,7 +12,8 @@ T = TypeVar("T", bound="UpdateDatasetVersionRequest")
 @_attrs_define
 class UpdateDatasetVersionRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, Unset, str]):
     """
 

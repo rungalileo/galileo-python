@@ -5,6 +5,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.input_type_enum import InputTypeEnum
+from ..models.luna_input_type_enum import LunaInputTypeEnum
+from ..models.luna_output_type_enum import LunaOutputTypeEnum
 from ..models.node_type import NodeType
 from ..models.output_type_enum import OutputTypeEnum
 from ..models.scorer_name import ScorerName
@@ -13,6 +15,12 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.customized_prompt_injection_gpt_scorer_aggregates_type_0 import (
         CustomizedPromptInjectionGPTScorerAggregatesType0,
+    )
+    from ..models.customized_prompt_injection_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+        CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0,
+    )
+    from ..models.customized_prompt_injection_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+        CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1,
     )
     from ..models.customized_prompt_injection_gpt_scorer_extra_type_0 import (
         CustomizedPromptInjectionGPTScorerExtraType0,
@@ -28,12 +36,15 @@ T = TypeVar("T", bound="CustomizedPromptInjectionGPTScorer")
 @_attrs_define
 class CustomizedPromptInjectionGPTScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         aggregate_keys (Union[Unset, list[str]]):
         aggregates (Union['CustomizedPromptInjectionGPTScorerAggregatesType0', None, Unset]):
         can_copy_to_llm (Union[None, Unset, bool]):
         chainpoll_template (Union[Unset, PromptInjectionTemplate]): Template for the prompt injection metric,
             containing all the info necessary to send the prompt injection prompt.
+        class_name_to_vocab_ix (Union['CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0',
+            'CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1', None, Unset]):
         cot_enabled (Union[None, Unset, bool]):
         description (Union[None, Unset, str]):
         extra (Union['CustomizedPromptInjectionGPTScorerExtraType0', None, Unset]):
@@ -43,6 +54,8 @@ class CustomizedPromptInjectionGPTScorer:
         indices (Union[None, Unset, list[int]]):
         input_type (Union[InputTypeEnum, None, Unset]):
         lora_task_id (Union[None, Unset, int]):
+        luna_input_type (Union[LunaInputTypeEnum, None, Unset]):
+        luna_output_type (Union[LunaOutputTypeEnum, None, Unset]):
         metric_name (Union[None, Unset, str]):
         model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
         name (Union[Literal['prompt_injection'], Unset]):  Default: 'prompt_injection'.
@@ -62,6 +75,12 @@ class CustomizedPromptInjectionGPTScorer:
     aggregates: Union["CustomizedPromptInjectionGPTScorerAggregatesType0", None, Unset] = UNSET
     can_copy_to_llm: Union[None, Unset, bool] = UNSET
     chainpoll_template: Union[Unset, "PromptInjectionTemplate"] = UNSET
+    class_name_to_vocab_ix: Union[
+        "CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0",
+        "CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1",
+        None,
+        Unset,
+    ] = UNSET
     cot_enabled: Union[None, Unset, bool] = UNSET
     description: Union[None, Unset, str] = UNSET
     extra: Union["CustomizedPromptInjectionGPTScorerExtraType0", None, Unset] = UNSET
@@ -71,6 +90,8 @@ class CustomizedPromptInjectionGPTScorer:
     indices: Union[None, Unset, list[int]] = UNSET
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
     lora_task_id: Union[None, Unset, int] = UNSET
+    luna_input_type: Union[LunaInputTypeEnum, None, Unset] = UNSET
+    luna_output_type: Union[LunaOutputTypeEnum, None, Unset] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
     model_alias: Union[Unset, str] = "gpt-4.1-mini"
     name: Union[Literal["prompt_injection"], Unset] = "prompt_injection"
@@ -88,6 +109,12 @@ class CustomizedPromptInjectionGPTScorer:
     def to_dict(self) -> dict[str, Any]:
         from ..models.customized_prompt_injection_gpt_scorer_aggregates_type_0 import (
             CustomizedPromptInjectionGPTScorerAggregatesType0,
+        )
+        from ..models.customized_prompt_injection_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+            CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0,
+        )
+        from ..models.customized_prompt_injection_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+            CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1,
         )
         from ..models.customized_prompt_injection_gpt_scorer_extra_type_0 import (
             CustomizedPromptInjectionGPTScorerExtraType0,
@@ -112,6 +139,20 @@ class CustomizedPromptInjectionGPTScorer:
         chainpoll_template: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.chainpoll_template, Unset):
             chainpoll_template = self.chainpoll_template.to_dict()
+
+        class_name_to_vocab_ix: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.class_name_to_vocab_ix, Unset):
+            class_name_to_vocab_ix = UNSET
+        elif isinstance(
+            self.class_name_to_vocab_ix,
+            (
+                CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0,
+                CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1,
+            ),
+        ):
+            class_name_to_vocab_ix = self.class_name_to_vocab_ix.to_dict()
+        else:
+            class_name_to_vocab_ix = self.class_name_to_vocab_ix
 
         cot_enabled: Union[None, Unset, bool]
         cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
@@ -169,6 +210,22 @@ class CustomizedPromptInjectionGPTScorer:
 
         lora_task_id: Union[None, Unset, int]
         lora_task_id = UNSET if isinstance(self.lora_task_id, Unset) else self.lora_task_id
+
+        luna_input_type: Union[None, Unset, str]
+        if isinstance(self.luna_input_type, Unset):
+            luna_input_type = UNSET
+        elif isinstance(self.luna_input_type, LunaInputTypeEnum):
+            luna_input_type = self.luna_input_type.value
+        else:
+            luna_input_type = self.luna_input_type
+
+        luna_output_type: Union[None, Unset, str]
+        if isinstance(self.luna_output_type, Unset):
+            luna_output_type = UNSET
+        elif isinstance(self.luna_output_type, LunaOutputTypeEnum):
+            luna_output_type = self.luna_output_type.value
+        else:
+            luna_output_type = self.luna_output_type
 
         metric_name: Union[None, Unset, str]
         metric_name = UNSET if isinstance(self.metric_name, Unset) else self.metric_name
@@ -236,6 +293,8 @@ class CustomizedPromptInjectionGPTScorer:
             field_dict["can_copy_to_llm"] = can_copy_to_llm
         if chainpoll_template is not UNSET:
             field_dict["chainpoll_template"] = chainpoll_template
+        if class_name_to_vocab_ix is not UNSET:
+            field_dict["class_name_to_vocab_ix"] = class_name_to_vocab_ix
         if cot_enabled is not UNSET:
             field_dict["cot_enabled"] = cot_enabled
         if description is not UNSET:
@@ -254,6 +313,10 @@ class CustomizedPromptInjectionGPTScorer:
             field_dict["input_type"] = input_type
         if lora_task_id is not UNSET:
             field_dict["lora_task_id"] = lora_task_id
+        if luna_input_type is not UNSET:
+            field_dict["luna_input_type"] = luna_input_type
+        if luna_output_type is not UNSET:
+            field_dict["luna_output_type"] = luna_output_type
         if metric_name is not UNSET:
             field_dict["metric_name"] = metric_name
         if model_alias is not UNSET:
@@ -285,6 +348,12 @@ class CustomizedPromptInjectionGPTScorer:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.customized_prompt_injection_gpt_scorer_aggregates_type_0 import (
             CustomizedPromptInjectionGPTScorerAggregatesType0,
+        )
+        from ..models.customized_prompt_injection_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+            CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0,
+        )
+        from ..models.customized_prompt_injection_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+            CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1,
         )
         from ..models.customized_prompt_injection_gpt_scorer_extra_type_0 import (
             CustomizedPromptInjectionGPTScorerExtraType0,
@@ -327,6 +396,44 @@ class CustomizedPromptInjectionGPTScorer:
             chainpoll_template = UNSET
         else:
             chainpoll_template = PromptInjectionTemplate.from_dict(_chainpoll_template)
+
+        def _parse_class_name_to_vocab_ix(
+            data: object,
+        ) -> Union[
+            "CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0",
+            "CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1",
+            None,
+            Unset,
+        ]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union[
+                    "CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0",
+                    "CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1",
+                    None,
+                    Unset,
+                ],
+                data,
+            )
+
+        class_name_to_vocab_ix = _parse_class_name_to_vocab_ix(d.pop("class_name_to_vocab_ix", UNSET))
 
         def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
             if data is None:
@@ -456,6 +563,38 @@ class CustomizedPromptInjectionGPTScorer:
 
         lora_task_id = _parse_lora_task_id(d.pop("lora_task_id", UNSET))
 
+        def _parse_luna_input_type(data: object) -> Union[LunaInputTypeEnum, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return LunaInputTypeEnum(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[LunaInputTypeEnum, None, Unset], data)
+
+        luna_input_type = _parse_luna_input_type(d.pop("luna_input_type", UNSET))
+
+        def _parse_luna_output_type(data: object) -> Union[LunaOutputTypeEnum, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return LunaOutputTypeEnum(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[LunaOutputTypeEnum, None, Unset], data)
+
+        luna_output_type = _parse_luna_output_type(d.pop("luna_output_type", UNSET))
+
         def _parse_metric_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -563,6 +702,7 @@ class CustomizedPromptInjectionGPTScorer:
             aggregates=aggregates,
             can_copy_to_llm=can_copy_to_llm,
             chainpoll_template=chainpoll_template,
+            class_name_to_vocab_ix=class_name_to_vocab_ix,
             cot_enabled=cot_enabled,
             description=description,
             extra=extra,
@@ -572,6 +712,8 @@ class CustomizedPromptInjectionGPTScorer:
             indices=indices,
             input_type=input_type,
             lora_task_id=lora_task_id,
+            luna_input_type=luna_input_type,
+            luna_output_type=luna_output_type,
             metric_name=metric_name,
             model_alias=model_alias,
             name=name,

@@ -14,7 +14,8 @@ T = TypeVar("T", bound="BodyCreateDatasetDatasetsPost")
 @_attrs_define
 class BodyCreateDatasetDatasetsPost:
     """
-    Attributes:
+    Attributes
+    ----------
         append_suffix_if_duplicate (Union[Unset, bool]):  Default: False.
         copy_from_dataset_id (Union[None, Unset, str]):
         copy_from_dataset_version_index (Union[None, Unset, int]):

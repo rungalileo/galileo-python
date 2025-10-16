@@ -14,7 +14,8 @@ T = TypeVar("T", bound="PromptOptimizationConfiguration")
 class PromptOptimizationConfiguration:
     """Configuration for prompt optimization.
 
-    Attributes:
+    Attributes
+    ----------
         evaluation_criteria (str):
         evaluation_model_alias (str):
         generation_model_alias (str):

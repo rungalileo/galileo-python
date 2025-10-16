@@ -72,7 +72,7 @@ def sync_detailed(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[DatasetContent, HTTPValidationError]]:
-    """Get Dataset Version Content
+    """Get Dataset Version Content.
 
     Args:
         dataset_id (str):
@@ -80,14 +80,15 @@ def sync_detailed(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[DatasetContent, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -103,7 +104,7 @@ def sync(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[DatasetContent, HTTPValidationError]]:
-    """Get Dataset Version Content
+    """Get Dataset Version Content.
 
     Args:
         dataset_id (str):
@@ -111,14 +112,15 @@ def sync(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[DatasetContent, HTTPValidationError]
     """
-
     return sync_detailed(
         dataset_id=dataset_id, version_index=version_index, client=client, starting_token=starting_token, limit=limit
     ).parsed
@@ -132,7 +134,7 @@ async def asyncio_detailed(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[DatasetContent, HTTPValidationError]]:
-    """Get Dataset Version Content
+    """Get Dataset Version Content.
 
     Args:
         dataset_id (str):
@@ -140,14 +142,15 @@ async def asyncio_detailed(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[DatasetContent, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -163,7 +166,7 @@ async def asyncio(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[DatasetContent, HTTPValidationError]]:
-    """Get Dataset Version Content
+    """Get Dataset Version Content.
 
     Args:
         dataset_id (str):
@@ -171,14 +174,15 @@ async def asyncio(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[DatasetContent, HTTPValidationError]
     """
-
     return (
         await asyncio_detailed(
             dataset_id=dataset_id,

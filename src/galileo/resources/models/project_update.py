@@ -13,7 +13,8 @@ T = TypeVar("T", bound="ProjectUpdate")
 @_attrs_define
 class ProjectUpdate:
     """
-    Attributes:
+    Attributes
+    ----------
         created_by (Union[None, Unset, str]):
         description (Union[None, Unset, str]):
         labels (Union[None, Unset, list[str]]):

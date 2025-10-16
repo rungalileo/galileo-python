@@ -16,7 +16,8 @@ T = TypeVar("T", bound="ExperimentMetricsResponse")
 @_attrs_define
 class ExperimentMetricsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         metrics (Union[Unset, list['BucketedMetric']]): List of metrics for the experiment, including categorical and
             quartile metrics.
     """

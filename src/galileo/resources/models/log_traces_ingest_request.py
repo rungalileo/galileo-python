@@ -18,7 +18,8 @@ T = TypeVar("T", bound="LogTracesIngestRequest")
 class LogTracesIngestRequest:
     """Request model for ingesting traces.
 
-    Attributes:
+    Attributes
+    ----------
         traces (list['Trace']): List of traces to log.
         client_version (Union[None, Unset, str]):
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.

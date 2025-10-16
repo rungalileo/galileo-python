@@ -14,7 +14,8 @@ T = TypeVar("T", bound="MetricsTestingAvailableColumnsRequest")
 class MetricsTestingAvailableColumnsRequest:
     """Request to get the available columns for the metrics testing table.
 
-    Attributes:
+    Attributes
+    ----------
         name (str): Name of the metric that we are testing.
         cot_enabled (Union[Unset, bool]): Whether the metrics testing table is using chain of thought (CoT) enabled
             scorers. If True, the columns will be generated for CoT enabled scorers. Default: False.

@@ -13,7 +13,8 @@ T = TypeVar("T", bound="ScorerTypeFilter")
 @_attrs_define
 class ScorerTypeFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (ScorerTypeFilterOperator):
         value (Union[list[str], str]):
         name (Union[Literal['scorer_type'], Unset]):  Default: 'scorer_type'.

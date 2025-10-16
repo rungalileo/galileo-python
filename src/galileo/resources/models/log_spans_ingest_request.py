@@ -22,7 +22,8 @@ T = TypeVar("T", bound="LogSpansIngestRequest")
 class LogSpansIngestRequest:
     """Request model for ingesting spans.
 
-    Attributes:
+    Attributes
+    ----------
         parent_id (str): Parent trace or span id.
         spans (list[Union['AgentSpan', 'LlmSpan', 'RetrieverSpan', 'ToolSpan', 'WorkflowSpan']]): List of spans to log.
         trace_id (str): Trace id associated with the spans.

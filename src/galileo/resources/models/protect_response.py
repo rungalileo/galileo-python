@@ -18,7 +18,8 @@ T = TypeVar("T", bound="ProtectResponse")
 class ProtectResponse:
     """Protect response schema with custom OpenAPI title.
 
-    Attributes:
+    Attributes
+    ----------
         text (str): Text from the request after processing the rules.
         trace_metadata (TraceMetadata):
         status (Union[Unset, ExecutionStatus]): Status of the execution.

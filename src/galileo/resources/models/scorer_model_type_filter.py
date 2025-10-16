@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ScorerModelTypeFilter")
 @_attrs_define
 class ScorerModelTypeFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Union[Literal['model_type'], Unset]):  Default: 'model_type'.
     """
 

@@ -51,19 +51,20 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Response[Union[HTTPValidationError, Token]]:
-    """Login Email
+    """Login Email.
 
     Args:
         body (BodyLoginEmailLoginPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, Token]]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -72,38 +73,40 @@ def sync_detailed(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Respon
 
 
 def sync(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Optional[Union[HTTPValidationError, Token]]:
-    """Login Email
+    """Login Email.
 
     Args:
         body (BodyLoginEmailLoginPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, Token]
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BodyLoginEmailLoginPost
 ) -> Response[Union[HTTPValidationError, Token]]:
-    """Login Email
+    """Login Email.
 
     Args:
         body (BodyLoginEmailLoginPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, Token]]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -112,17 +115,18 @@ async def asyncio_detailed(
 
 
 async def asyncio(*, client: ApiClient, body: BodyLoginEmailLoginPost) -> Optional[Union[HTTPValidationError, Token]]:
-    """Login Email
+    """Login Email.
 
     Args:
         body (BodyLoginEmailLoginPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, Token]
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

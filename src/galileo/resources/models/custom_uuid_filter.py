@@ -10,7 +10,8 @@ T = TypeVar("T", bound="CustomUUIDFilter")
 @_attrs_define
 class CustomUUIDFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, str]):
         value (str):
     """

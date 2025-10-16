@@ -13,7 +13,8 @@ T = TypeVar("T", bound="ProjectRunsFilter")
 @_attrs_define
 class ProjectRunsFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (ProjectRunsFilterOperator):
         value (Union[float, int, list[float], list[int]]):
         name (Union[Literal['runs'], Unset]):  Default: 'runs'.

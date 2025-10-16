@@ -11,7 +11,8 @@ T = TypeVar("T", bound="BulkDeleteFailure")
 class BulkDeleteFailure:
     """Details about a failed deletion.
 
-    Attributes:
+    Attributes
+    ----------
         dataset_id (str):
         dataset_name (str):
         reason (str):

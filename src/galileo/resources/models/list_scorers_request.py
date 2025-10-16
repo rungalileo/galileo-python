@@ -25,7 +25,8 @@ T = TypeVar("T", bound="ListScorersRequest")
 @_attrs_define
 class ListScorersRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[Unset, list[Union['ScorerCreatedAtFilter', 'ScorerCreatorFilter', 'ScorerLabelFilter',
             'ScorerModelTypeFilter', 'ScorerNameFilter', 'ScorerTagsFilter', 'ScorerTypeFilter',
             'ScorerUpdatedAtFilter']]]):

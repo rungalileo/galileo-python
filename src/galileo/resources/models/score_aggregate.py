@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ScoreAggregate")
 @_attrs_define
 class ScoreAggregate:
     """
-    Attributes:
+    Attributes
+    ----------
         average (float):
         unrated_count (int):
         feedback_type (Union[Literal['score'], Unset]):  Default: 'score'.

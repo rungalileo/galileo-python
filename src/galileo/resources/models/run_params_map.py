@@ -14,7 +14,8 @@ class RunParamsMap:
     """Maps the internal settings parameters (left) to the serialized parameters (right) we want to send in the API
     requests.
 
-        Attributes:
+    Attributes
+    ----------
             api_version (Union[None, Unset, str]):
             deployment_name (Union[None, Unset, str]):
             echo (Union[None, Unset, str]):

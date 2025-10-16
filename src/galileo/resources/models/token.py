@@ -12,7 +12,8 @@ T = TypeVar("T", bound="Token")
 @_attrs_define
 class Token:
     """
-    Attributes:
+    Attributes
+    ----------
         access_token (str):
         token_type (Union[Unset, str]):  Default: 'bearer'.
     """

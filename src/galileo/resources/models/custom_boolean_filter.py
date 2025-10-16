@@ -10,7 +10,8 @@ T = TypeVar("T", bound="CustomBooleanFilter")
 @_attrs_define
 class CustomBooleanFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, str]):
         value (bool):
     """

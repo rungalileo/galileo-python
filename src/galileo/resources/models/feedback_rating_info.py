@@ -12,7 +12,8 @@ T = TypeVar("T", bound="FeedbackRatingInfo")
 @_attrs_define
 class FeedbackRatingInfo:
     """
-    Attributes:
+    Attributes
+    ----------
         explanation (Union[None, str]):
         feedback_type (FeedbackType):
         value (Union[bool, int, list[str], str]):

@@ -12,7 +12,8 @@ T = TypeVar("T", bound="CustomNumberFilter")
 @_attrs_define
 class CustomNumberFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, str]):
         operator (CustomNumberFilterOperator):
         value (Union[float, int, list[float], list[int]]):

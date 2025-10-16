@@ -12,7 +12,8 @@ T = TypeVar("T", bound="Payload")
 @_attrs_define
 class Payload:
     """
-    Attributes:
+    Attributes
+    ----------
         input_ (Union[None, Unset, str]): Input text to be processed.
         output (Union[None, Unset, str]): Output text to be processed.
     """

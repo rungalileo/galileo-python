@@ -16,7 +16,8 @@ T = TypeVar("T", bound="ListGroupCollaboratorsResponse")
 @_attrs_define
 class ListGroupCollaboratorsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         collaborators (list['GroupCollaborator']):
         limit (Union[Unset, int]):  Default: 100.
         next_starting_token (Union[None, Unset, int]):

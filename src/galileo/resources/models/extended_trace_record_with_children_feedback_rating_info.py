@@ -13,7 +13,7 @@ T = TypeVar("T", bound="ExtendedTraceRecordWithChildrenFeedbackRatingInfo")
 
 @_attrs_define
 class ExtendedTraceRecordWithChildrenFeedbackRatingInfo:
-    """Feedback information related to the trace"""
+    """Feedback information related to the trace."""
 
     additional_properties: dict[str, "FeedbackRatingInfo"] = _attrs_field(init=False, factory=dict)
 

@@ -12,7 +12,8 @@ T = TypeVar("T", bound="RenderedTemplate")
 @_attrs_define
 class RenderedTemplate:
     """
-    Attributes:
+    Attributes
+    ----------
         result (str):
         warning (Union[None, Unset, str]):
     """

@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ExperimentPlayground")
 @_attrs_define
 class ExperimentPlayground:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, Unset, str]):
         playground_id (Union[None, Unset, str]):
     """

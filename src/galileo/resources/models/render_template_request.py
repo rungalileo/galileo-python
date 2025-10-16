@@ -15,7 +15,8 @@ T = TypeVar("T", bound="RenderTemplateRequest")
 @_attrs_define
 class RenderTemplateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         data (Union['DatasetData', 'StringData']):
         template (str):
     """

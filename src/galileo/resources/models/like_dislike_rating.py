@@ -12,7 +12,8 @@ T = TypeVar("T", bound="LikeDislikeRating")
 @_attrs_define
 class LikeDislikeRating:
     """
-    Attributes:
+    Attributes
+    ----------
         value (bool):
         feedback_type (Union[Literal['like_dislike'], Unset]):  Default: 'like_dislike'.
     """

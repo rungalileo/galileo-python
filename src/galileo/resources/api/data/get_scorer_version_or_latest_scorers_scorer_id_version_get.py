@@ -63,20 +63,21 @@ def _build_response(
 def sync_detailed(
     scorer_id: str, *, client: ApiClient, version: Union[Unset, int] = UNSET
 ) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
-    """Get Scorer Version Or Latest
+    """Get Scorer Version Or Latest.
 
     Args:
         scorer_id (str):
         version (Union[Unset, int]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BaseScorerVersionResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(scorer_id=scorer_id, version=version)
 
     response = client.request(**kwargs)
@@ -87,40 +88,42 @@ def sync_detailed(
 def sync(
     scorer_id: str, *, client: ApiClient, version: Union[Unset, int] = UNSET
 ) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
-    """Get Scorer Version Or Latest
+    """Get Scorer Version Or Latest.
 
     Args:
         scorer_id (str):
         version (Union[Unset, int]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BaseScorerVersionResponse, HTTPValidationError]
     """
-
     return sync_detailed(scorer_id=scorer_id, client=client, version=version).parsed
 
 
 async def asyncio_detailed(
     scorer_id: str, *, client: ApiClient, version: Union[Unset, int] = UNSET
 ) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
-    """Get Scorer Version Or Latest
+    """Get Scorer Version Or Latest.
 
     Args:
         scorer_id (str):
         version (Union[Unset, int]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BaseScorerVersionResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(scorer_id=scorer_id, version=version)
 
     response = await client.arequest(**kwargs)
@@ -131,18 +134,19 @@ async def asyncio_detailed(
 async def asyncio(
     scorer_id: str, *, client: ApiClient, version: Union[Unset, int] = UNSET
 ) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
-    """Get Scorer Version Or Latest
+    """Get Scorer Version Or Latest.
 
     Args:
         scorer_id (str):
         version (Union[Unset, int]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BaseScorerVersionResponse, HTTPValidationError]
     """
-
     return (await asyncio_detailed(scorer_id=scorer_id, client=client, version=version)).parsed

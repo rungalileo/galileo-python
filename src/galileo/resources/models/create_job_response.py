@@ -69,7 +69,8 @@ T = TypeVar("T", bound="CreateJobResponse")
 @_attrs_define
 class CreateJobResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         link (str):
         message (str):
         project_id (str):

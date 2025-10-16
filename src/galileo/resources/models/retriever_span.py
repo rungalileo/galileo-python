@@ -25,7 +25,8 @@ T = TypeVar("T", bound="RetrieverSpan")
 @_attrs_define
 class RetrieverSpan:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, RetrieverSpanDatasetMetadata]): Metadata from the dataset associated with this

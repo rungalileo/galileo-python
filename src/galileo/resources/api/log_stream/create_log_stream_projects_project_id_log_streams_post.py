@@ -61,7 +61,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogStreamCreateRequest
 ) -> Response[Union[HTTPValidationError, LogStreamResponse]]:
-    """Create Log Stream
+    """Create Log Stream.
 
      Create a new log stream for a project.
 
@@ -69,14 +69,15 @@ def sync_detailed(
         project_id (str):
         body (LogStreamCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, LogStreamResponse]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = client.request(**kwargs)
@@ -87,7 +88,7 @@ def sync_detailed(
 def sync(
     project_id: str, *, client: ApiClient, body: LogStreamCreateRequest
 ) -> Optional[Union[HTTPValidationError, LogStreamResponse]]:
-    """Create Log Stream
+    """Create Log Stream.
 
      Create a new log stream for a project.
 
@@ -95,21 +96,22 @@ def sync(
         project_id (str):
         body (LogStreamCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, LogStreamResponse]
     """
-
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogStreamCreateRequest
 ) -> Response[Union[HTTPValidationError, LogStreamResponse]]:
-    """Create Log Stream
+    """Create Log Stream.
 
      Create a new log stream for a project.
 
@@ -117,14 +119,15 @@ async def asyncio_detailed(
         project_id (str):
         body (LogStreamCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, LogStreamResponse]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -135,7 +138,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogStreamCreateRequest
 ) -> Optional[Union[HTTPValidationError, LogStreamResponse]]:
-    """Create Log Stream
+    """Create Log Stream.
 
      Create a new log stream for a project.
 
@@ -143,12 +146,13 @@ async def asyncio(
         project_id (str):
         body (LogStreamCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, LogStreamResponse]
     """
-
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

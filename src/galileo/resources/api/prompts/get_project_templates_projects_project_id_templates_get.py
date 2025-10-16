@@ -63,7 +63,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, *, client: ApiClient
 ) -> Response[Union[HTTPValidationError, list["BasePromptTemplateResponse"]]]:
-    """Get Project Templates
+    """Get Project Templates.
 
      Get all prompt templates for a project.
 
@@ -82,14 +82,15 @@ def sync_detailed(
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, list['BasePromptTemplateResponse']]]
     """
-
     kwargs = _get_kwargs(project_id=project_id)
 
     response = client.request(**kwargs)
@@ -100,7 +101,7 @@ def sync_detailed(
 def sync(
     project_id: str, *, client: ApiClient
 ) -> Optional[Union[HTTPValidationError, list["BasePromptTemplateResponse"]]]:
-    """Get Project Templates
+    """Get Project Templates.
 
      Get all prompt templates for a project.
 
@@ -119,21 +120,22 @@ def sync(
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, list['BasePromptTemplateResponse']]
     """
-
     return sync_detailed(project_id=project_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient
 ) -> Response[Union[HTTPValidationError, list["BasePromptTemplateResponse"]]]:
-    """Get Project Templates
+    """Get Project Templates.
 
      Get all prompt templates for a project.
 
@@ -152,14 +154,15 @@ async def asyncio_detailed(
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, list['BasePromptTemplateResponse']]]
     """
-
     kwargs = _get_kwargs(project_id=project_id)
 
     response = await client.arequest(**kwargs)
@@ -170,7 +173,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, *, client: ApiClient
 ) -> Optional[Union[HTTPValidationError, list["BasePromptTemplateResponse"]]]:
-    """Get Project Templates
+    """Get Project Templates.
 
      Get all prompt templates for a project.
 
@@ -189,12 +192,13 @@ async def asyncio(
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, list['BasePromptTemplateResponse']]
     """
-
     return (await asyncio_detailed(project_id=project_id, client=client)).parsed

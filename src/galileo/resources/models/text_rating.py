@@ -12,7 +12,8 @@ T = TypeVar("T", bound="TextRating")
 @_attrs_define
 class TextRating:
     """
-    Attributes:
+    Attributes
+    ----------
         value (str):
         feedback_type (Union[Literal['text'], Unset]):  Default: 'text'.
     """

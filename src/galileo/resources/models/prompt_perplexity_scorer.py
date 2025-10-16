@@ -17,7 +17,8 @@ T = TypeVar("T", bound="PromptPerplexityScorer")
 @_attrs_define
 class PromptPerplexityScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
         name (Union[Literal['prompt_perplexity'], Unset]):  Default: 'prompt_perplexity'.

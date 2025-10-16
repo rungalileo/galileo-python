@@ -18,7 +18,8 @@ T = TypeVar("T", bound="CreateLLMScorerVersionRequest")
 @_attrs_define
 class CreateLLMScorerVersionRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         chain_poll_template (Union['ChainPollTemplate', None, Unset]):
         cot_enabled (Union[None, Unset, bool]):
         input_type (Union[InputTypeEnum, None, Unset]):

@@ -23,7 +23,8 @@ T = TypeVar("T", bound="ScorerConfig")
 class ScorerConfig:
     """Used for configuring a scorer for a scorer job.
 
-    Attributes:
+    Attributes
+    ----------
         id (str):
         scorer_type (ScorerTypes):
         cot_enabled (Union[None, Unset, bool]): Whether to enable chain of thought for this scorer. Defaults to False

@@ -29,7 +29,8 @@ T = TypeVar("T", bound="ProjectCollectionParams")
 @_attrs_define
 class ProjectCollectionParams:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[Unset, list[Union['ProjectBookmarkFilter', 'ProjectCreatedAtFilter', 'ProjectCreatorFilter',
             'ProjectIDFilter', 'ProjectNameFilter', 'ProjectRunsFilter', 'ProjectTypeFilter', 'ProjectUpdatedAtFilter']]]):
         sort (Union['ProjectBookmarkSort', 'ProjectCreatedAtSort', 'ProjectNameSort', 'ProjectRunsSort',

@@ -12,7 +12,8 @@ T = TypeVar("T", bound="Segment")
 @_attrs_define
 class Segment:
     """
-    Attributes:
+    Attributes
+    ----------
         end (int):
         start (int):
         value (Union[float, int, str]):

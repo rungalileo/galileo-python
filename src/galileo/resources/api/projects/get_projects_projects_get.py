@@ -84,7 +84,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
 ) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects
+    """Get Projects.
 
      Gets projects for a user.
 
@@ -96,14 +96,15 @@ def sync_detailed(
         project_name (Union[None, Unset, str]):
         type_ (Union[None, ProjectType, Unset]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, list['ProjectDB']]]
     """
-
     kwargs = _get_kwargs(project_name=project_name, type_=type_)
 
     response = client.request(**kwargs)
@@ -114,7 +115,7 @@ def sync_detailed(
 def sync(
     *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects
+    """Get Projects.
 
      Gets projects for a user.
 
@@ -126,21 +127,22 @@ def sync(
         project_name (Union[None, Unset, str]):
         type_ (Union[None, ProjectType, Unset]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, list['ProjectDB']]
     """
-
     return sync_detailed(client=client, project_name=project_name, type_=type_).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
 ) -> Response[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects
+    """Get Projects.
 
      Gets projects for a user.
 
@@ -152,14 +154,15 @@ async def asyncio_detailed(
         project_name (Union[None, Unset, str]):
         type_ (Union[None, ProjectType, Unset]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, list['ProjectDB']]]
     """
-
     kwargs = _get_kwargs(project_name=project_name, type_=type_)
 
     response = await client.arequest(**kwargs)
@@ -170,7 +173,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, project_name: Union[None, Unset, str] = UNSET, type_: Union[None, ProjectType, Unset] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["ProjectDB"]]]:
-    """Get Projects
+    """Get Projects.
 
      Gets projects for a user.
 
@@ -182,12 +185,13 @@ async def asyncio(
         project_name (Union[None, Unset, str]):
         type_ (Union[None, ProjectType, Unset]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, list['ProjectDB']]
     """
-
     return (await asyncio_detailed(client=client, project_name=project_name, type_=type_)).parsed

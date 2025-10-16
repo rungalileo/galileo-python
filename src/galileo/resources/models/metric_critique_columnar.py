@@ -14,7 +14,8 @@ T = TypeVar("T", bound="MetricCritiqueColumnar")
 @_attrs_define
 class MetricCritiqueColumnar:
     """
-    Attributes:
+    Attributes
+    ----------
         critique_info (MetricCritiqueContent):
         id (str):
         is_computed (bool):

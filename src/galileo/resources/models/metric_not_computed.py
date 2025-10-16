@@ -13,7 +13,8 @@ T = TypeVar("T", bound="MetricNotComputed")
 @_attrs_define
 class MetricNotComputed:
     """
-    Attributes:
+    Attributes
+    ----------
         message (Union[Unset, str]):  Default: 'Metric not computed.'.
         scorer_type (Union[None, ScorerType, Unset]):
         status_type (Union[Literal['not_computed'], Unset]):  Default: 'not_computed'.

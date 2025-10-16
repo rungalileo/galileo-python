@@ -12,7 +12,8 @@ T = TypeVar("T", bound="SessionCreateResponse")
 @_attrs_define
 class SessionCreateResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Session id associated with the session.
         name (Union[None, str]): Name of the session.
         project_id (str): Project id associated with the session.

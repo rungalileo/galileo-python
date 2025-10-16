@@ -49,7 +49,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(project_id: str, group_id: str, *, client: ApiClient) -> Response[Union[Any, HTTPValidationError]]:
-    """Delete Group Project Collaborator
+    """Delete Group Project Collaborator.
 
      Remove a group's access to a project.
 
@@ -57,14 +57,15 @@ def sync_detailed(project_id: str, group_id: str, *, client: ApiClient) -> Respo
         project_id (str):
         group_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, group_id=group_id)
 
     response = client.request(**kwargs)
@@ -73,7 +74,7 @@ def sync_detailed(project_id: str, group_id: str, *, client: ApiClient) -> Respo
 
 
 def sync(project_id: str, group_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
-    """Delete Group Project Collaborator
+    """Delete Group Project Collaborator.
 
      Remove a group's access to a project.
 
@@ -81,21 +82,22 @@ def sync(project_id: str, group_id: str, *, client: ApiClient) -> Optional[Union
         project_id (str):
         group_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return sync_detailed(project_id=project_id, group_id=group_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, group_id: str, *, client: ApiClient
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Delete Group Project Collaborator
+    """Delete Group Project Collaborator.
 
      Remove a group's access to a project.
 
@@ -103,14 +105,15 @@ async def asyncio_detailed(
         project_id (str):
         group_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, group_id=group_id)
 
     response = await client.arequest(**kwargs)
@@ -119,7 +122,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(project_id: str, group_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
-    """Delete Group Project Collaborator
+    """Delete Group Project Collaborator.
 
      Remove a group's access to a project.
 
@@ -127,12 +130,13 @@ async def asyncio(project_id: str, group_id: str, *, client: ApiClient) -> Optio
         project_id (str):
         group_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return (await asyncio_detailed(project_id=project_id, group_id=group_id, client=client)).parsed

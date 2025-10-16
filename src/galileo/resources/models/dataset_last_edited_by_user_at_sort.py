@@ -12,7 +12,8 @@ T = TypeVar("T", bound="DatasetLastEditedByUserAtSort")
 @_attrs_define
 class DatasetLastEditedByUserAtSort:
     """
-    Attributes:
+    Attributes
+    ----------
         value (str):
         ascending (Union[Unset, bool]):  Default: True.
         name (Union[Literal['last_edited_by_user_at'], Unset]):  Default: 'last_edited_by_user_at'.

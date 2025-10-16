@@ -26,7 +26,8 @@ T = TypeVar("T", bound="WorkflowSpan")
 @_attrs_define
 class WorkflowSpan:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, WorkflowSpanDatasetMetadata]): Metadata from the dataset associated with this

@@ -71,21 +71,22 @@ def sync_detailed(
     stage_name: Union[None, Unset, str] = UNSET,
     stage_id: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[HTTPValidationError, StageDB]]:
-    """Get Stage
+    """Get Stage.
 
     Args:
         project_id (str):
         stage_name (Union[None, Unset, str]):
         stage_id (Union[None, Unset, str]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, StageDB]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, stage_name=stage_name, stage_id=stage_id)
 
     response = client.request(**kwargs)
@@ -100,21 +101,22 @@ def sync(
     stage_name: Union[None, Unset, str] = UNSET,
     stage_id: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[HTTPValidationError, StageDB]]:
-    """Get Stage
+    """Get Stage.
 
     Args:
         project_id (str):
         stage_name (Union[None, Unset, str]):
         stage_id (Union[None, Unset, str]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, StageDB]
     """
-
     return sync_detailed(project_id=project_id, client=client, stage_name=stage_name, stage_id=stage_id).parsed
 
 
@@ -125,21 +127,22 @@ async def asyncio_detailed(
     stage_name: Union[None, Unset, str] = UNSET,
     stage_id: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[HTTPValidationError, StageDB]]:
-    """Get Stage
+    """Get Stage.
 
     Args:
         project_id (str):
         stage_name (Union[None, Unset, str]):
         stage_id (Union[None, Unset, str]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, StageDB]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, stage_name=stage_name, stage_id=stage_id)
 
     response = await client.arequest(**kwargs)
@@ -154,21 +157,22 @@ async def asyncio(
     stage_name: Union[None, Unset, str] = UNSET,
     stage_id: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[HTTPValidationError, StageDB]]:
-    """Get Stage
+    """Get Stage.
 
     Args:
         project_id (str):
         stage_name (Union[None, Unset, str]):
         stage_id (Union[None, Unset, str]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, StageDB]
     """
-
     return (
         await asyncio_detailed(project_id=project_id, client=client, stage_name=stage_name, stage_id=stage_id)
     ).parsed

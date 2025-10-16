@@ -16,7 +16,8 @@ T = TypeVar("T", bound="ListDatasetVersionParams")
 @_attrs_define
 class ListDatasetVersionParams:
     """
-    Attributes:
+    Attributes
+    ----------
         sort (Union['DatasetVersionIndexSort', None, Unset]):
     """
 

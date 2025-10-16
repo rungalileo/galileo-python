@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -8,6 +8,9 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.few_shot_example import FewShotExample
+    from ..models.instruction_adherence_template_response_schema_type_0 import (
+        InstructionAdherenceTemplateResponseSchemaType0,
+    )
 
 
 T = TypeVar("T", bound="InstructionAdherenceTemplate")
@@ -16,7 +19,8 @@ T = TypeVar("T", bound="InstructionAdherenceTemplate")
 @_attrs_define
 class InstructionAdherenceTemplate:
     r"""
-    Attributes:
+    Attributes
+    ----------
         explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
             explanation. Default: 'explanation'.
         metric_description (Union[Unset, str]):  Default: 'I have a chatbot application.\nMy system prompt contains a
@@ -45,6 +49,8 @@ class InstructionAdherenceTemplate:
             relevant instructions and explain whether the latest response adheres to each of them.\n\n\\"is_consistent\\":
             `true` if the latest response is consistent with the instructions, `false` otherwise.\n\nYou must respond with a
             valid JSON string.'.
+        response_schema (Union['InstructionAdherenceTemplateResponseSchemaType0', None, Unset]): Response schema for the
+            output
         template (Union[Unset, str]):  Default: 'Prompt JSON:\n\n```\n{query_json}\n```\n\nResponse
             JSON:\n\n```\n{response_json}\n```'.
         value_field_name (Union[Unset, str]):  Default: 'is_consistent'.
@@ -58,6 +64,7 @@ class InstructionAdherenceTemplate:
     metric_system_prompt: Union[Unset, str] = (
         'The user will provide you with a prompt that was sent to a chatbot system, and the chatbot\'s latest response. Both will be provided as JSON strings.\n\nIn some cases, the prompt may be split up into multiple messages. If so, each message will begin with one of the following prefixes:\n\n- \\"System: \\"\n- \\"Human: \\"\n- \\"AI: \\"\n\nIf you see these prefixes, pay attention to them because they indicate where messages begin and end. Messages prefixed with \\"System: \\" contain system instructions which the chatbot should follow. Messages prefixed with \\"Human: \\" are user input. Messages prefixed with \\"AI: \\" are system responses to user input.\nIf you do not see these prefixes, treat the prompt as though it was a single user input message prefixed with \\"Human: \\".\n\nYour task is to determine whether the latest response from the chatbot is consistent with the instructions provided in the system prompt (if there is one) or in the first user message (if there is no system prompt).\n\nFocus only on the latest response and the instructions. Do not consider the chat history or any previous messages from the chatbot.\n\nThink step by step, and explain your reasoning carefully.\nState your observations first, before drawing any conclusions.\n\nRespond in the following JSON format:\n\n```\n{\n    \\"explanation\\": string,\n    \\"is_consistent\\": boolean\n}\n```\n\n\\"explanation\\": Your step-by-step reasoning process. List out the relevant instructions and explain whether the latest response adheres to each of them.\n\n\\"is_consistent\\": `true` if the latest response is consistent with the instructions, `false` otherwise.\n\nYou must respond with a valid JSON string.'
     )
+    response_schema: Union["InstructionAdherenceTemplateResponseSchemaType0", None, Unset] = UNSET
     template: Union[Unset, str] = (
         "Prompt JSON:\n\n```\n{query_json}\n```\n\nResponse JSON:\n\n```\n{response_json}\n```"
     )
@@ -65,6 +72,10 @@ class InstructionAdherenceTemplate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.instruction_adherence_template_response_schema_type_0 import (
+            InstructionAdherenceTemplateResponseSchemaType0,
+        )
+
         explanation_field_name = self.explanation_field_name
 
         metric_description = self.metric_description
@@ -77,6 +88,14 @@ class InstructionAdherenceTemplate:
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
         metric_system_prompt = self.metric_system_prompt
+
+        response_schema: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.response_schema, Unset):
+            response_schema = UNSET
+        elif isinstance(self.response_schema, InstructionAdherenceTemplateResponseSchemaType0):
+            response_schema = self.response_schema.to_dict()
+        else:
+            response_schema = self.response_schema
 
         template = self.template
 
@@ -93,6 +112,8 @@ class InstructionAdherenceTemplate:
             field_dict["metric_few_shot_examples"] = metric_few_shot_examples
         if metric_system_prompt is not UNSET:
             field_dict["metric_system_prompt"] = metric_system_prompt
+        if response_schema is not UNSET:
+            field_dict["response_schema"] = response_schema
         if template is not UNSET:
             field_dict["template"] = template
         if value_field_name is not UNSET:
@@ -103,6 +124,9 @@ class InstructionAdherenceTemplate:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.few_shot_example import FewShotExample
+        from ..models.instruction_adherence_template_response_schema_type_0 import (
+            InstructionAdherenceTemplateResponseSchemaType0,
+        )
 
         d = dict(src_dict)
         explanation_field_name = d.pop("explanation_field_name", UNSET)
@@ -118,6 +142,24 @@ class InstructionAdherenceTemplate:
 
         metric_system_prompt = d.pop("metric_system_prompt", UNSET)
 
+        def _parse_response_schema(
+            data: object,
+        ) -> Union["InstructionAdherenceTemplateResponseSchemaType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return InstructionAdherenceTemplateResponseSchemaType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["InstructionAdherenceTemplateResponseSchemaType0", None, Unset], data)
+
+        response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
+
         template = d.pop("template", UNSET)
 
         value_field_name = d.pop("value_field_name", UNSET)
@@ -127,6 +169,7 @@ class InstructionAdherenceTemplate:
             metric_description=metric_description,
             metric_few_shot_examples=metric_few_shot_examples,
             metric_system_prompt=metric_system_prompt,
+            response_schema=response_schema,
             template=template,
             value_field_name=value_field_name,
         )

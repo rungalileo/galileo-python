@@ -12,7 +12,8 @@ T = TypeVar("T", bound="MessagesListItem")
 @_attrs_define
 class MessagesListItem:
     """
-    Attributes:
+    Attributes
+    ----------
         content (str):
         role (Union[MessagesListItemRole, str]):
     """

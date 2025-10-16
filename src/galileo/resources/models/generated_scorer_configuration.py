@@ -13,7 +13,8 @@ T = TypeVar("T", bound="GeneratedScorerConfiguration")
 @_attrs_define
 class GeneratedScorerConfiguration:
     """
-    Attributes:
+    Attributes
+    ----------
         cot_enabled (Union[Unset, bool]): Whether chain of thought is enabled for this scorer. Default: False.
         ground_truth (Union[Unset, bool]): Whether ground truth is enabled for this scorer. Default: False.
         model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.

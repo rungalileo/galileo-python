@@ -14,7 +14,8 @@ T = TypeVar("T", bound="MetadataFilter")
 class MetadataFilter:
     """Filters on metadata key-value pairs in scorer jobs.
 
-    Attributes:
+    Attributes
+    ----------
         key (str):
         operator (MetadataFilterOperator):
         value (Union[list[str], str]):

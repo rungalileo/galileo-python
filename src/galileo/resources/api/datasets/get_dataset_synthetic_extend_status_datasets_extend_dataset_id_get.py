@@ -54,19 +54,20 @@ def _build_response(
 
 
 def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[HTTPValidationError, JobProgress]]:
-    """Get Dataset Synthetic Extend Status
+    """Get Dataset Synthetic Extend Status.
 
     Args:
         dataset_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, JobProgress]]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id)
 
     response = client.request(**kwargs)
@@ -75,36 +76,38 @@ def sync_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[HTTPV
 
 
 def sync(dataset_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, JobProgress]]:
-    """Get Dataset Synthetic Extend Status
+    """Get Dataset Synthetic Extend Status.
 
     Args:
         dataset_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, JobProgress]
     """
-
     return sync_detailed(dataset_id=dataset_id, client=client).parsed
 
 
 async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[Union[HTTPValidationError, JobProgress]]:
-    """Get Dataset Synthetic Extend Status
+    """Get Dataset Synthetic Extend Status.
 
     Args:
         dataset_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, JobProgress]]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id)
 
     response = await client.arequest(**kwargs)
@@ -113,17 +116,18 @@ async def asyncio_detailed(dataset_id: str, *, client: ApiClient) -> Response[Un
 
 
 async def asyncio(dataset_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, JobProgress]]:
-    """Get Dataset Synthetic Extend Status
+    """Get Dataset Synthetic Extend Status.
 
     Args:
         dataset_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, JobProgress]
     """
-
     return (await asyncio_detailed(dataset_id=dataset_id, client=client)).parsed

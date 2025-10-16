@@ -60,7 +60,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Update Dataset Content
+    """Update Dataset Content.
 
      Update the content of a dataset.
 
@@ -89,14 +89,15 @@ def sync_detailed(
             with row edits.
                 - EditMode.global_edit
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, if_match=if_match)
 
     response = client.request(**kwargs)
@@ -107,7 +108,7 @@ def sync_detailed(
 def sync(
     dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Update Dataset Content
+    """Update Dataset Content.
 
      Update the content of a dataset.
 
@@ -136,21 +137,22 @@ def sync(
             with row edits.
                 - EditMode.global_edit
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return sync_detailed(dataset_id=dataset_id, client=client, body=body, if_match=if_match).parsed
 
 
 async def asyncio_detailed(
     dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Update Dataset Content
+    """Update Dataset Content.
 
      Update the content of a dataset.
 
@@ -179,14 +181,15 @@ async def asyncio_detailed(
             with row edits.
                 - EditMode.global_edit
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body, if_match=if_match)
 
     response = await client.arequest(**kwargs)
@@ -197,7 +200,7 @@ async def asyncio_detailed(
 async def asyncio(
     dataset_id: str, *, client: ApiClient, body: UpdateDatasetContentRequest, if_match: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Update Dataset Content
+    """Update Dataset Content.
 
      Update the content of a dataset.
 
@@ -226,12 +229,13 @@ async def asyncio(
             with row edits.
                 - EditMode.global_edit
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return (await asyncio_detailed(dataset_id=dataset_id, client=client, body=body, if_match=if_match)).parsed

@@ -16,7 +16,8 @@ T = TypeVar("T", bound="ListDatasetResponse")
 @_attrs_define
 class ListDatasetResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         datasets (Union[Unset, list['DatasetDB']]):
         limit (Union[Unset, int]):  Default: 100.
         next_starting_token (Union[None, Unset, int]):

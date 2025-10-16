@@ -12,7 +12,8 @@ T = TypeVar("T", bound="DatasetContentSortClause")
 @_attrs_define
 class DatasetContentSortClause:
     """
-    Attributes:
+    Attributes
+    ----------
         column_name (str):
         ascending (Union[Unset, bool]):  Default: True.
     """

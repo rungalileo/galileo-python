@@ -17,7 +17,8 @@ T = TypeVar("T", bound="FeedbackAggregate")
 @_attrs_define
 class FeedbackAggregate:
     """
-    Attributes:
+    Attributes
+    ----------
         aggregate (Union['LikeDislikeAggregate', 'ScoreAggregate', 'StarAggregate', 'TagsAggregate']):
     """
 

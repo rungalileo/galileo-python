@@ -10,7 +10,8 @@ T = TypeVar("T", bound="GeneratedScorerValidationResponse")
 @_attrs_define
 class GeneratedScorerValidationResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         task_result_id (str):
     """
 

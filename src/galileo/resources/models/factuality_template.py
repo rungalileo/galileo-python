@@ -7,6 +7,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.factuality_template_response_schema_type_0 import FactualityTemplateResponseSchemaType0
     from ..models.few_shot_example import FewShotExample
 
 
@@ -16,7 +17,8 @@ T = TypeVar("T", bound="FactualityTemplate")
 @_attrs_define
 class FactualityTemplate:
     r"""
-    Attributes:
+    Attributes
+    ----------
         explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
             explanation. Default: 'explanation'.
         metric_description (Union[None, Unset, str]): Description of what the metric should do.
@@ -44,6 +46,7 @@ class FactualityTemplate:
             For example, in code generation tasks, you might break down the response into individual functions or lines of
             code.\n- Work step by step, and do not give an overall assessment of the response until the end of your
             explanation.'.
+        response_schema (Union['FactualityTemplateResponseSchemaType0', None, Unset]): Response schema for the output
         template (Union[Unset, str]):  Default: 'The prompt was:\n\n```\n{query}\n```\n\nThe response
             was:\n\n```\n{response}\n```\n\nRespond with a JSON object having two fields: `explanation` (string) and
             `was_factual` (boolean). Everything in your response should be valid JSON.\n\nREMEMBER: if the prompt asks the
@@ -59,6 +62,7 @@ class FactualityTemplate:
     metric_system_prompt: Union[Unset, str] = (
         '# Task\n\nYou will be given a prompt that was sent to a large language model (LLM), and the LLM\'s response. Your task is to assess whether the response is factually correct.\n\n## Task output format\n\nYou must respond in the following JSON format:\n\n```\n{\n    \\"explanation\\": string\n    \\"was_factual\\": boolean\n}\n```\n\n\\"explanation\\": Your step-by-step reasoning process. List out the claims made in the response, and for each claim, provide a detailed explanation of why that claim is or is not factual.\n\n\\"was_factual\\": `true` if the response was completely factually correct according to the instructions above, `false` otherwise.\n\nYou must respond with a valid JSON string.\n\n## Task guidelines\n\n### Input format\n\nIn some cases, the prompt may include multiple messages of chat history. If so, each message will begin with one of the following prefixes:\n\n- \\"System: \\"\n- \\"Human: \\"\n- \\"AI: \\"\n\n### How to determine the value of `was_factual`\n\n- was_factual should be false if anything in the response is factually incorrect, and true otherwise.\n- If the response omits some useful information, but does not include any falsehoods, was_factual should be true.\n- The prompt itself may contain false information. If the response repeats this false information, was_factual should be false. In other words, do not assume that the prompt is factually correct when evaluating the response.\n- If the prompt and response involve a domain where the concept of \\"factual accuracy\\" doesn\'t strictly apply, assess whatever quality of the response is most intuitively similar to factual accuracy. For example, if the prompt asks the LLM to write code, assess whether the code is free of syntax errors and implements the intended logic.\n\n### Writing the explanation\n\n- As stated above, a typical explanation should list out the claims made in the response, and for each claim, provide a detailed explanation of why that claim is or is not factual.\n- If the response doesn\'t make claims per se, break down the response into constituent parts in the most natural way given its content. For example, in code generation tasks, you might break down the response into individual functions or lines of code.\n- Work step by step, and do not give an overall assessment of the response until the end of your explanation.'
     )
+    response_schema: Union["FactualityTemplateResponseSchemaType0", None, Unset] = UNSET
     template: Union[Unset, str] = (
         'The prompt was:\n\n```\n{query}\n```\n\nThe response was:\n\n```\n{response}\n```\n\nRespond with a JSON object having two fields: `explanation` (string) and `was_factual` (boolean). Everything in your response should be valid JSON.\n\nREMEMBER: if the prompt asks the LLM to compose an answer on the basis of a \\"context\\" or other reference text or texts, you MUST IGNORE these texts when evaluating the response. Evaluate the response as though the reference texts were NOT provided. Do NOT refer to these texts in your evaluation.'
     )
@@ -66,6 +70,8 @@ class FactualityTemplate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.factuality_template_response_schema_type_0 import FactualityTemplateResponseSchemaType0
+
         explanation_field_name = self.explanation_field_name
 
         metric_description: Union[None, Unset, str]
@@ -79,6 +85,14 @@ class FactualityTemplate:
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
         metric_system_prompt = self.metric_system_prompt
+
+        response_schema: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.response_schema, Unset):
+            response_schema = UNSET
+        elif isinstance(self.response_schema, FactualityTemplateResponseSchemaType0):
+            response_schema = self.response_schema.to_dict()
+        else:
+            response_schema = self.response_schema
 
         template = self.template
 
@@ -95,6 +109,8 @@ class FactualityTemplate:
             field_dict["metric_few_shot_examples"] = metric_few_shot_examples
         if metric_system_prompt is not UNSET:
             field_dict["metric_system_prompt"] = metric_system_prompt
+        if response_schema is not UNSET:
+            field_dict["response_schema"] = response_schema
         if template is not UNSET:
             field_dict["template"] = template
         if value_field_name is not UNSET:
@@ -104,6 +120,7 @@ class FactualityTemplate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.factuality_template_response_schema_type_0 import FactualityTemplateResponseSchemaType0
         from ..models.few_shot_example import FewShotExample
 
         d = dict(src_dict)
@@ -127,6 +144,22 @@ class FactualityTemplate:
 
         metric_system_prompt = d.pop("metric_system_prompt", UNSET)
 
+        def _parse_response_schema(data: object) -> Union["FactualityTemplateResponseSchemaType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return FactualityTemplateResponseSchemaType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["FactualityTemplateResponseSchemaType0", None, Unset], data)
+
+        response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
+
         template = d.pop("template", UNSET)
 
         value_field_name = d.pop("value_field_name", UNSET)
@@ -136,6 +169,7 @@ class FactualityTemplate:
             metric_description=metric_description,
             metric_few_shot_examples=metric_few_shot_examples,
             metric_system_prompt=metric_system_prompt,
+            response_schema=response_schema,
             template=template,
             value_field_name=value_field_name,
         )

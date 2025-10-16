@@ -23,7 +23,8 @@ T = TypeVar("T", bound="Permission")
 @_attrs_define
 class Permission:
     """
-    Attributes:
+    Attributes
+    ----------
         action (Union[ApiKeyAction, DatasetAction, FineTunedScorerAction, GeneratedScorerAction, GroupAction,
             GroupMemberAction, IntegrationAction, OrganizationAction, ProjectAction, RegisteredScorerAction, UserAction]):
         allowed (bool):

@@ -12,7 +12,8 @@ T = TypeVar("T", bound="UpsertDatasetContentRequest")
 @_attrs_define
 class UpsertDatasetContentRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         dataset_id (str): The ID of the dataset to copy content from.
         version_index (Union[None, Unset, int]): The version index of the dataset to copy content from. If not provided,
             the content will be copied from the latest version of the dataset.

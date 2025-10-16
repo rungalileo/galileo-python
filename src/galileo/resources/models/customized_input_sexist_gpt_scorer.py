@@ -5,6 +5,8 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.input_type_enum import InputTypeEnum
+from ..models.luna_input_type_enum import LunaInputTypeEnum
+from ..models.luna_output_type_enum import LunaOutputTypeEnum
 from ..models.node_type import NodeType
 from ..models.output_type_enum import OutputTypeEnum
 from ..models.scorer_name import ScorerName
@@ -13,6 +15,12 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.customized_input_sexist_gpt_scorer_aggregates_type_0 import (
         CustomizedInputSexistGPTScorerAggregatesType0,
+    )
+    from ..models.customized_input_sexist_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+        CustomizedInputSexistGPTScorerClassNameToVocabIxType0,
+    )
+    from ..models.customized_input_sexist_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+        CustomizedInputSexistGPTScorerClassNameToVocabIxType1,
     )
     from ..models.customized_input_sexist_gpt_scorer_extra_type_0 import CustomizedInputSexistGPTScorerExtraType0
     from ..models.input_sexist_template import InputSexistTemplate
@@ -26,12 +34,15 @@ T = TypeVar("T", bound="CustomizedInputSexistGPTScorer")
 @_attrs_define
 class CustomizedInputSexistGPTScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         aggregate_keys (Union[Unset, list[str]]):
         aggregates (Union['CustomizedInputSexistGPTScorerAggregatesType0', None, Unset]):
         can_copy_to_llm (Union[None, Unset, bool]):
         chainpoll_template (Union[Unset, InputSexistTemplate]): Template for the sexism metric,
             containing all the info necessary to send the sexism prompt.
+        class_name_to_vocab_ix (Union['CustomizedInputSexistGPTScorerClassNameToVocabIxType0',
+            'CustomizedInputSexistGPTScorerClassNameToVocabIxType1', None, Unset]):
         cot_enabled (Union[None, Unset, bool]):
         description (Union[None, Unset, str]):
         extra (Union['CustomizedInputSexistGPTScorerExtraType0', None, Unset]):
@@ -41,6 +52,8 @@ class CustomizedInputSexistGPTScorer:
         indices (Union[None, Unset, list[int]]):
         input_type (Union[InputTypeEnum, None, Unset]):
         lora_task_id (Union[None, Unset, int]):
+        luna_input_type (Union[LunaInputTypeEnum, None, Unset]):
+        luna_output_type (Union[LunaOutputTypeEnum, None, Unset]):
         metric_name (Union[None, Unset, str]):
         model_alias (Union[Unset, str]):  Default: 'gpt-4.1-mini'.
         name (Union[Literal['input_sexist'], Unset]):  Default: 'input_sexist'.
@@ -59,6 +72,12 @@ class CustomizedInputSexistGPTScorer:
     aggregates: Union["CustomizedInputSexistGPTScorerAggregatesType0", None, Unset] = UNSET
     can_copy_to_llm: Union[None, Unset, bool] = UNSET
     chainpoll_template: Union[Unset, "InputSexistTemplate"] = UNSET
+    class_name_to_vocab_ix: Union[
+        "CustomizedInputSexistGPTScorerClassNameToVocabIxType0",
+        "CustomizedInputSexistGPTScorerClassNameToVocabIxType1",
+        None,
+        Unset,
+    ] = UNSET
     cot_enabled: Union[None, Unset, bool] = UNSET
     description: Union[None, Unset, str] = UNSET
     extra: Union["CustomizedInputSexistGPTScorerExtraType0", None, Unset] = UNSET
@@ -68,6 +87,8 @@ class CustomizedInputSexistGPTScorer:
     indices: Union[None, Unset, list[int]] = UNSET
     input_type: Union[InputTypeEnum, None, Unset] = UNSET
     lora_task_id: Union[None, Unset, int] = UNSET
+    luna_input_type: Union[LunaInputTypeEnum, None, Unset] = UNSET
+    luna_output_type: Union[LunaOutputTypeEnum, None, Unset] = UNSET
     metric_name: Union[None, Unset, str] = UNSET
     model_alias: Union[Unset, str] = "gpt-4.1-mini"
     name: Union[Literal["input_sexist"], Unset] = "input_sexist"
@@ -85,6 +106,12 @@ class CustomizedInputSexistGPTScorer:
     def to_dict(self) -> dict[str, Any]:
         from ..models.customized_input_sexist_gpt_scorer_aggregates_type_0 import (
             CustomizedInputSexistGPTScorerAggregatesType0,
+        )
+        from ..models.customized_input_sexist_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+            CustomizedInputSexistGPTScorerClassNameToVocabIxType0,
+        )
+        from ..models.customized_input_sexist_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+            CustomizedInputSexistGPTScorerClassNameToVocabIxType1,
         )
         from ..models.customized_input_sexist_gpt_scorer_extra_type_0 import CustomizedInputSexistGPTScorerExtraType0
         from ..models.node_name_filter import NodeNameFilter
@@ -107,6 +134,20 @@ class CustomizedInputSexistGPTScorer:
         chainpoll_template: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.chainpoll_template, Unset):
             chainpoll_template = self.chainpoll_template.to_dict()
+
+        class_name_to_vocab_ix: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.class_name_to_vocab_ix, Unset):
+            class_name_to_vocab_ix = UNSET
+        elif isinstance(
+            self.class_name_to_vocab_ix,
+            (
+                CustomizedInputSexistGPTScorerClassNameToVocabIxType0,
+                CustomizedInputSexistGPTScorerClassNameToVocabIxType1,
+            ),
+        ):
+            class_name_to_vocab_ix = self.class_name_to_vocab_ix.to_dict()
+        else:
+            class_name_to_vocab_ix = self.class_name_to_vocab_ix
 
         cot_enabled: Union[None, Unset, bool]
         cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
@@ -164,6 +205,22 @@ class CustomizedInputSexistGPTScorer:
 
         lora_task_id: Union[None, Unset, int]
         lora_task_id = UNSET if isinstance(self.lora_task_id, Unset) else self.lora_task_id
+
+        luna_input_type: Union[None, Unset, str]
+        if isinstance(self.luna_input_type, Unset):
+            luna_input_type = UNSET
+        elif isinstance(self.luna_input_type, LunaInputTypeEnum):
+            luna_input_type = self.luna_input_type.value
+        else:
+            luna_input_type = self.luna_input_type
+
+        luna_output_type: Union[None, Unset, str]
+        if isinstance(self.luna_output_type, Unset):
+            luna_output_type = UNSET
+        elif isinstance(self.luna_output_type, LunaOutputTypeEnum):
+            luna_output_type = self.luna_output_type.value
+        else:
+            luna_output_type = self.luna_output_type
 
         metric_name: Union[None, Unset, str]
         metric_name = UNSET if isinstance(self.metric_name, Unset) else self.metric_name
@@ -231,6 +288,8 @@ class CustomizedInputSexistGPTScorer:
             field_dict["can_copy_to_llm"] = can_copy_to_llm
         if chainpoll_template is not UNSET:
             field_dict["chainpoll_template"] = chainpoll_template
+        if class_name_to_vocab_ix is not UNSET:
+            field_dict["class_name_to_vocab_ix"] = class_name_to_vocab_ix
         if cot_enabled is not UNSET:
             field_dict["cot_enabled"] = cot_enabled
         if description is not UNSET:
@@ -249,6 +308,10 @@ class CustomizedInputSexistGPTScorer:
             field_dict["input_type"] = input_type
         if lora_task_id is not UNSET:
             field_dict["lora_task_id"] = lora_task_id
+        if luna_input_type is not UNSET:
+            field_dict["luna_input_type"] = luna_input_type
+        if luna_output_type is not UNSET:
+            field_dict["luna_output_type"] = luna_output_type
         if metric_name is not UNSET:
             field_dict["metric_name"] = metric_name
         if model_alias is not UNSET:
@@ -280,6 +343,12 @@ class CustomizedInputSexistGPTScorer:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.customized_input_sexist_gpt_scorer_aggregates_type_0 import (
             CustomizedInputSexistGPTScorerAggregatesType0,
+        )
+        from ..models.customized_input_sexist_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+            CustomizedInputSexistGPTScorerClassNameToVocabIxType0,
+        )
+        from ..models.customized_input_sexist_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+            CustomizedInputSexistGPTScorerClassNameToVocabIxType1,
         )
         from ..models.customized_input_sexist_gpt_scorer_extra_type_0 import CustomizedInputSexistGPTScorerExtraType0
         from ..models.input_sexist_template import InputSexistTemplate
@@ -320,6 +389,44 @@ class CustomizedInputSexistGPTScorer:
             chainpoll_template = UNSET
         else:
             chainpoll_template = InputSexistTemplate.from_dict(_chainpoll_template)
+
+        def _parse_class_name_to_vocab_ix(
+            data: object,
+        ) -> Union[
+            "CustomizedInputSexistGPTScorerClassNameToVocabIxType0",
+            "CustomizedInputSexistGPTScorerClassNameToVocabIxType1",
+            None,
+            Unset,
+        ]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return CustomizedInputSexistGPTScorerClassNameToVocabIxType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return CustomizedInputSexistGPTScorerClassNameToVocabIxType1.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(
+                Union[
+                    "CustomizedInputSexistGPTScorerClassNameToVocabIxType0",
+                    "CustomizedInputSexistGPTScorerClassNameToVocabIxType1",
+                    None,
+                    Unset,
+                ],
+                data,
+            )
+
+        class_name_to_vocab_ix = _parse_class_name_to_vocab_ix(d.pop("class_name_to_vocab_ix", UNSET))
 
         def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
             if data is None:
@@ -449,6 +556,38 @@ class CustomizedInputSexistGPTScorer:
 
         lora_task_id = _parse_lora_task_id(d.pop("lora_task_id", UNSET))
 
+        def _parse_luna_input_type(data: object) -> Union[LunaInputTypeEnum, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return LunaInputTypeEnum(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[LunaInputTypeEnum, None, Unset], data)
+
+        luna_input_type = _parse_luna_input_type(d.pop("luna_input_type", UNSET))
+
+        def _parse_luna_output_type(data: object) -> Union[LunaOutputTypeEnum, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return LunaOutputTypeEnum(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[LunaOutputTypeEnum, None, Unset], data)
+
+        luna_output_type = _parse_luna_output_type(d.pop("luna_output_type", UNSET))
+
         def _parse_metric_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -556,6 +695,7 @@ class CustomizedInputSexistGPTScorer:
             aggregates=aggregates,
             can_copy_to_llm=can_copy_to_llm,
             chainpoll_template=chainpoll_template,
+            class_name_to_vocab_ix=class_name_to_vocab_ix,
             cot_enabled=cot_enabled,
             description=description,
             extra=extra,
@@ -565,6 +705,8 @@ class CustomizedInputSexistGPTScorer:
             indices=indices,
             input_type=input_type,
             lora_task_id=lora_task_id,
+            luna_input_type=luna_input_type,
+            luna_output_type=luna_output_type,
             metric_name=metric_name,
             model_alias=model_alias,
             name=name,

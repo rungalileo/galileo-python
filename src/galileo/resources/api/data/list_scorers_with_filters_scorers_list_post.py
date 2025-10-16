@@ -76,21 +76,22 @@ def sync_detailed(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
-    """List Scorers With Filters
+    """List Scorers With Filters.
 
     Args:
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
         body (ListScorersRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, ListScorersResponse]]
     """
-
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -105,21 +106,22 @@ def sync(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
-    """List Scorers With Filters
+    """List Scorers With Filters.
 
     Args:
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
         body (ListScorersRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, ListScorersResponse]
     """
-
     return sync_detailed(client=client, body=body, starting_token=starting_token, limit=limit).parsed
 
 
@@ -130,21 +132,22 @@ async def asyncio_detailed(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[HTTPValidationError, ListScorersResponse]]:
-    """List Scorers With Filters
+    """List Scorers With Filters.
 
     Args:
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
         body (ListScorersRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, ListScorersResponse]]
     """
-
     kwargs = _get_kwargs(body=body, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -159,19 +162,20 @@ async def asyncio(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[HTTPValidationError, ListScorersResponse]]:
-    """List Scorers With Filters
+    """List Scorers With Filters.
 
     Args:
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
         body (ListScorersRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, ListScorersResponse]
     """
-
     return (await asyncio_detailed(client=client, body=body, starting_token=starting_token, limit=limit)).parsed

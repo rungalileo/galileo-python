@@ -24,7 +24,8 @@ T = TypeVar("T", bound="ToolSpan")
 @_attrs_define
 class ToolSpan:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
         dataset_metadata (Union[Unset, ToolSpanDatasetMetadata]): Metadata from the dataset associated with this trace

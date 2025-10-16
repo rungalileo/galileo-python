@@ -23,9 +23,10 @@ class UpdateDatasetContentRequest:
         - EditMode.id: The edit is performed on the index (numeric index). DEPRECATED
         - EditMode.row_id: The edit is performed on the row_id of the row.
     - Global edits: These edits are performed on the entire dataset and should not be mixed with row edits.
-        - EditMode.global_edit
+        - EditMode.global_edit.
 
-        Attributes:
+    Attributes
+    ----------
             edits (list[Union['DatasetAppendRow', 'DatasetDeleteRow', 'DatasetFilterRows', 'DatasetPrependRow',
                 'DatasetUpdateRow']]):
     """

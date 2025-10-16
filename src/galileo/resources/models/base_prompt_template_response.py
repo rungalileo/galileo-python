@@ -22,7 +22,8 @@ T = TypeVar("T", bound="BasePromptTemplateResponse")
 class BasePromptTemplateResponse:
     """Response from API to get a prompt template version.
 
-    Attributes:
+    Attributes
+    ----------
         all_available_versions (list[int]):
         created_at (datetime.datetime):
         created_by_user (Union['UserInfo', None]):

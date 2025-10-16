@@ -10,10 +10,11 @@ T = TypeVar("T", bound="HistogramBucket")
 @_attrs_define
 class HistogramBucket:
     """
-    Attributes:
+    Attributes
+    ----------
         count (int): Number of data points that fall within this bucket
         lower (float): Lower bound of the histogram bucket (inclusive)
-        upper (float): Upper bound of the histogram bucket (exclusive, but inclusive for the last bucket)
+        upper (float): Upper bound of the histogram bucket (exclusive, but inclusive for the last bucket).
     """
 
     count: int

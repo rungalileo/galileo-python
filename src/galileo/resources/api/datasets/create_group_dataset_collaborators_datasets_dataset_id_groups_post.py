@@ -71,7 +71,7 @@ def _build_response(
 def sync_detailed(
     dataset_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
 ) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
-    """Create Group Dataset Collaborators
+    """Create Group Dataset Collaborators.
 
      Share a dataset with groups.
 
@@ -79,14 +79,15 @@ def sync_detailed(
         dataset_id (str):
         body (list['GroupCollaboratorCreate']):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, list['GroupCollaborator']]]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
 
     response = client.request(**kwargs)
@@ -97,7 +98,7 @@ def sync_detailed(
 def sync(
     dataset_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
 ) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
-    """Create Group Dataset Collaborators
+    """Create Group Dataset Collaborators.
 
      Share a dataset with groups.
 
@@ -105,21 +106,22 @@ def sync(
         dataset_id (str):
         body (list['GroupCollaboratorCreate']):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, list['GroupCollaborator']]
     """
-
     return sync_detailed(dataset_id=dataset_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     dataset_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
 ) -> Response[Union[HTTPValidationError, list["GroupCollaborator"]]]:
-    """Create Group Dataset Collaborators
+    """Create Group Dataset Collaborators.
 
      Share a dataset with groups.
 
@@ -127,14 +129,15 @@ async def asyncio_detailed(
         dataset_id (str):
         body (list['GroupCollaboratorCreate']):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, list['GroupCollaborator']]]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -145,7 +148,7 @@ async def asyncio_detailed(
 async def asyncio(
     dataset_id: str, *, client: ApiClient, body: list["GroupCollaboratorCreate"]
 ) -> Optional[Union[HTTPValidationError, list["GroupCollaborator"]]]:
-    """Create Group Dataset Collaborators
+    """Create Group Dataset Collaborators.
 
      Share a dataset with groups.
 
@@ -153,12 +156,13 @@ async def asyncio(
         dataset_id (str):
         body (list['GroupCollaboratorCreate']):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, list['GroupCollaborator']]
     """
-
     return (await asyncio_detailed(dataset_id=dataset_id, client=client, body=body)).parsed

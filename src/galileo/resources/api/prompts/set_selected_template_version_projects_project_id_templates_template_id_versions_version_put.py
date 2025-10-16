@@ -56,21 +56,22 @@ def _build_response(
 def sync_detailed(
     project_id: str, template_id: str, version: int, *, client: ApiClient
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Set Selected Template Version
+    """Set Selected Template Version.
 
     Args:
         project_id (str):
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
 
     response = client.request(**kwargs)
@@ -81,42 +82,44 @@ def sync_detailed(
 def sync(
     project_id: str, template_id: str, version: int, *, client: ApiClient
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Set Selected Template Version
+    """Set Selected Template Version.
 
     Args:
         project_id (str):
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
-
     return sync_detailed(project_id=project_id, template_id=template_id, version=version, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, template_id: str, version: int, *, client: ApiClient
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Set Selected Template Version
+    """Set Selected Template Version.
 
     Args:
         project_id (str):
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
 
     response = await client.arequest(**kwargs)
@@ -127,21 +130,22 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, template_id: str, version: int, *, client: ApiClient
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Set Selected Template Version
+    """Set Selected Template Version.
 
     Args:
         project_id (str):
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
-
     return (
         await asyncio_detailed(project_id=project_id, template_id=template_id, version=version, client=client)
     ).parsed

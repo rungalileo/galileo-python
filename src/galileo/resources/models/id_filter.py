@@ -14,7 +14,8 @@ T = TypeVar("T", bound="IDFilter")
 class IDFilter:
     """Filters on a UUID field.
 
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, str]):
         value (Union[list[str], str]):
         operator (Union[Unset, IDFilterOperator]):  Default: IDFilterOperator.EQ.

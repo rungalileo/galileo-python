@@ -21,7 +21,8 @@ class CreatePromptTemplateWithVersionRequestBody:
 
     This is only used for parsing the body from the request.
 
-        Attributes:
+    Attributes
+    ----------
             name (Union['Name', str]):
             template (Union[list['MessagesListItem'], str]):
             hidden (Union[Unset, bool]):  Default: False.

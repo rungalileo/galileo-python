@@ -23,7 +23,8 @@ T = TypeVar("T", bound="BaseScorerVersionResponse")
 @_attrs_define
 class BaseScorerVersionResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         id (str):
         scorer_id (str):

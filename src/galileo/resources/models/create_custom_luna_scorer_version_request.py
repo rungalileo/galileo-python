@@ -13,7 +13,8 @@ T = TypeVar("T", bound="CreateCustomLunaScorerVersionRequest")
 @_attrs_define
 class CreateCustomLunaScorerVersionRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         lora_task_id (int):
         prompt (str):
         executor (Union[CoreScorerName, None, Unset]): Executor pipeline. Defaults to finetuned scorer pipeline but can

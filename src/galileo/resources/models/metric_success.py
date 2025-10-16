@@ -25,7 +25,8 @@ T = TypeVar("T", bound="MetricSuccess")
 @_attrs_define
 class MetricSuccess:
     """
-    Attributes:
+    Attributes
+    ----------
         value (Union['Document', 'FeedbackAggregate', 'FeedbackRatingDB', 'HallucinationSegment', 'Segment', None, UUID,
             bool, datetime.datetime, float, int, list[Union['Document', 'FeedbackAggregate', 'FeedbackRatingDB',
             'HallucinationSegment', 'Segment', None, UUID, bool, datetime.datetime, float, int, str]],

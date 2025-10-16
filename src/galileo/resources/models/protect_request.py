@@ -20,7 +20,8 @@ T = TypeVar("T", bound="ProtectRequest")
 class ProtectRequest:
     """Protect request schema with custom OpenAPI title.
 
-    Attributes:
+    Attributes
+    ----------
         payload (Payload):
         headers (Union['ProtectRequestHeadersType0', None, Unset]): Optional additional HTTP headers that should be
             included in the response.

@@ -26,7 +26,8 @@ T = TypeVar("T", bound="ExperimentResponse")
 @_attrs_define
 class ExperimentResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Galileo ID of the experiment
         project_id (str): Galileo ID of the project associated with this experiment
         task_type (TaskType): Valid task types for modeling.

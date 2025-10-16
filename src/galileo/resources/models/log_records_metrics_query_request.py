@@ -22,7 +22,8 @@ T = TypeVar("T", bound="LogRecordsMetricsQueryRequest")
 @_attrs_define
 class LogRecordsMetricsQueryRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         end_time (datetime.datetime): Include traces up to this time.
         start_time (datetime.datetime): Include traces from this time onward.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.

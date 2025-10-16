@@ -13,7 +13,8 @@ T = TypeVar("T", bound="PromptTemplateNameFilter")
 @_attrs_define
 class PromptTemplateNameFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (PromptTemplateNameFilterOperator):
         value (Union[list[str], str]):
         case_sensitive (Union[Unset, bool]):  Default: True.

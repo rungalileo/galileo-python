@@ -16,7 +16,8 @@ T = TypeVar("T", bound="GetProjectsPaginatedResponse")
 @_attrs_define
 class GetProjectsPaginatedResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         projects (list['ProjectDB']):
         limit (Union[Unset, int]):  Default: 100.
         next_starting_token (Union[None, Unset, int]):

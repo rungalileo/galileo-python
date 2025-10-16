@@ -7,6 +7,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.completeness_template_response_schema_type_0 import CompletenessTemplateResponseSchemaType0
     from ..models.few_shot_example import FewShotExample
 
 
@@ -16,12 +17,14 @@ T = TypeVar("T", bound="CompletenessTemplate")
 @_attrs_define
 class CompletenessTemplate:
     r"""
-    Attributes:
+    Attributes
+    ----------
         explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
             explanation. Default: 'explanation'.
         metric_description (Union[None, Unset, str]): Description of what the metric should do.
         metric_few_shot_examples (Union[Unset, list['FewShotExample']]): Few-shot examples for the metric.
         metric_system_prompt (Union[None, Unset, str]): System prompt for the metric.
+        response_schema (Union['CompletenessTemplateResponseSchemaType0', None, Unset]): Response schema for the output
         template (Union[Unset, str]):  Default: 'I asked someone to answer a question based on one or more documents. On
             a scale of 0 to 1, tell me how well their response covered the relevant information from the documents.\n\nHere
             is what I said to them, as a JSON string:\n\n```\n{query_json}\n```\n\nHere is what they told me, as a JSON
@@ -42,6 +45,7 @@ class CompletenessTemplate:
     metric_description: Union[None, Unset, str] = UNSET
     metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
     metric_system_prompt: Union[None, Unset, str] = UNSET
+    response_schema: Union["CompletenessTemplateResponseSchemaType0", None, Unset] = UNSET
     template: Union[Unset, str] = (
         'I asked someone to answer a question based on one or more documents. On a scale of 0 to 1, tell me how well their response covered the relevant information from the documents.\n\nHere is what I said to them, as a JSON string:\n\n```\n{query_json}\n```\n\nHere is what they told me, as a JSON string:\n\n```\n{response_json}\n```\n\nRespond in the following JSON format:\n\n```\n{{\n    \\"explanation\\": string,\n    \\"completeness\\": number\n}}\n```\n\n\\"explanation\\": A string with your step-by-step reasoning process. List out each piece of information covered in the documents. For each one, explain why it was or was not relevant to the question, and how well the response covered it. Do *not* give an overall assessment of the response here, just think step by step about each piece of information, one at a time. Present your work in a document-by-document format, considering each document separately, ensure the value is a valid string.\n\n\\"completeness\\": A floating-point number rating the Completeness of the response on a scale of 0 to 1. This number should equal the amount of relevant information that was comprehensively covered in the response, divided by the total amount of relevant information in the documents.\n\nYou must respond with a valid JSON string.'
     )
@@ -49,6 +53,8 @@ class CompletenessTemplate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.completeness_template_response_schema_type_0 import CompletenessTemplateResponseSchemaType0
+
         explanation_field_name = self.explanation_field_name
 
         metric_description: Union[None, Unset, str]
@@ -63,6 +69,14 @@ class CompletenessTemplate:
 
         metric_system_prompt: Union[None, Unset, str]
         metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
+
+        response_schema: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.response_schema, Unset):
+            response_schema = UNSET
+        elif isinstance(self.response_schema, CompletenessTemplateResponseSchemaType0):
+            response_schema = self.response_schema.to_dict()
+        else:
+            response_schema = self.response_schema
 
         template = self.template
 
@@ -79,6 +93,8 @@ class CompletenessTemplate:
             field_dict["metric_few_shot_examples"] = metric_few_shot_examples
         if metric_system_prompt is not UNSET:
             field_dict["metric_system_prompt"] = metric_system_prompt
+        if response_schema is not UNSET:
+            field_dict["response_schema"] = response_schema
         if template is not UNSET:
             field_dict["template"] = template
         if value_field_name is not UNSET:
@@ -88,6 +104,7 @@ class CompletenessTemplate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.completeness_template_response_schema_type_0 import CompletenessTemplateResponseSchemaType0
         from ..models.few_shot_example import FewShotExample
 
         d = dict(src_dict)
@@ -118,6 +135,22 @@ class CompletenessTemplate:
 
         metric_system_prompt = _parse_metric_system_prompt(d.pop("metric_system_prompt", UNSET))
 
+        def _parse_response_schema(data: object) -> Union["CompletenessTemplateResponseSchemaType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return CompletenessTemplateResponseSchemaType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["CompletenessTemplateResponseSchemaType0", None, Unset], data)
+
+        response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
+
         template = d.pop("template", UNSET)
 
         value_field_name = d.pop("value_field_name", UNSET)
@@ -127,6 +160,7 @@ class CompletenessTemplate:
             metric_description=metric_description,
             metric_few_shot_examples=metric_few_shot_examples,
             metric_system_prompt=metric_system_prompt,
+            response_schema=response_schema,
             template=template,
             value_field_name=value_field_name,
         )

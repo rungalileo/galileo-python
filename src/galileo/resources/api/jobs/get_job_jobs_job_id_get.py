@@ -46,21 +46,22 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(job_id: str, *, client: ApiClient) -> Response[Union[HTTPValidationError, JobDB]]:
-    """Get Job
+    """Get Job.
 
      Get a job by id.
 
     Args:
         job_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, JobDB]]
     """
-
     kwargs = _get_kwargs(job_id=job_id)
 
     response = client.request(**kwargs)
@@ -69,40 +70,42 @@ def sync_detailed(job_id: str, *, client: ApiClient) -> Response[Union[HTTPValid
 
 
 def sync(job_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, JobDB]]:
-    """Get Job
+    """Get Job.
 
      Get a job by id.
 
     Args:
         job_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, JobDB]
     """
-
     return sync_detailed(job_id=job_id, client=client).parsed
 
 
 async def asyncio_detailed(job_id: str, *, client: ApiClient) -> Response[Union[HTTPValidationError, JobDB]]:
-    """Get Job
+    """Get Job.
 
      Get a job by id.
 
     Args:
         job_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, JobDB]]
     """
-
     kwargs = _get_kwargs(job_id=job_id)
 
     response = await client.arequest(**kwargs)
@@ -111,19 +114,20 @@ async def asyncio_detailed(job_id: str, *, client: ApiClient) -> Response[Union[
 
 
 async def asyncio(job_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, JobDB]]:
-    """Get Job
+    """Get Job.
 
      Get a job by id.
 
     Args:
         job_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, JobDB]
     """
-
     return (await asyncio_detailed(job_id=job_id, client=client)).parsed

@@ -16,7 +16,8 @@ T = TypeVar("T", bound="DatasetVersionDB")
 @_attrs_define
 class DatasetVersionDB:
     """
-    Attributes:
+    Attributes
+    ----------
         column_names (list[str]):
         columns_added (int):
         columns_removed (int):

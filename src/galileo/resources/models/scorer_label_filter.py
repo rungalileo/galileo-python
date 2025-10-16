@@ -13,7 +13,8 @@ T = TypeVar("T", bound="ScorerLabelFilter")
 @_attrs_define
 class ScorerLabelFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (ScorerLabelFilterOperator):
         value (Union[list[str], str]):
         case_sensitive (Union[Unset, bool]):  Default: True.

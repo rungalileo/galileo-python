@@ -13,7 +13,8 @@ T = TypeVar("T", bound="MetricPending")
 @_attrs_define
 class MetricPending:
     """
-    Attributes:
+    Attributes
+    ----------
         scorer_type (Union[None, ScorerType, Unset]):
         status_type (Union[Literal['pending'], Unset]):  Default: 'pending'.
     """

@@ -7,6 +7,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.chain_poll_template_response_schema_type_0 import ChainPollTemplateResponseSchemaType0
     from ..models.few_shot_example import FewShotExample
 
 
@@ -18,13 +19,15 @@ class ChainPollTemplate:
     """Template for a chainpoll metric prompt,
     containing all the info necessary to send a chainpoll prompt.
 
-        Attributes:
+    Attributes
+    ----------
             template (str): Chainpoll prompt template.
             explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
                 explanation. Default: 'explanation'.
             metric_description (Union[None, Unset, str]): Description of what the metric should do.
             metric_few_shot_examples (Union[Unset, list['FewShotExample']]): Few-shot examples for the metric.
             metric_system_prompt (Union[None, Unset, str]): System prompt for the metric.
+            response_schema (Union['ChainPollTemplateResponseSchemaType0', None, Unset]): Response schema for the output
             value_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the rating. Default:
                 'rating'.
     """
@@ -34,10 +37,13 @@ class ChainPollTemplate:
     metric_description: Union[None, Unset, str] = UNSET
     metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
     metric_system_prompt: Union[None, Unset, str] = UNSET
+    response_schema: Union["ChainPollTemplateResponseSchemaType0", None, Unset] = UNSET
     value_field_name: Union[Unset, str] = "rating"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.chain_poll_template_response_schema_type_0 import ChainPollTemplateResponseSchemaType0
+
         template = self.template
 
         explanation_field_name = self.explanation_field_name
@@ -55,6 +61,14 @@ class ChainPollTemplate:
         metric_system_prompt: Union[None, Unset, str]
         metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
 
+        response_schema: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.response_schema, Unset):
+            response_schema = UNSET
+        elif isinstance(self.response_schema, ChainPollTemplateResponseSchemaType0):
+            response_schema = self.response_schema.to_dict()
+        else:
+            response_schema = self.response_schema
+
         value_field_name = self.value_field_name
 
         field_dict: dict[str, Any] = {}
@@ -68,6 +82,8 @@ class ChainPollTemplate:
             field_dict["metric_few_shot_examples"] = metric_few_shot_examples
         if metric_system_prompt is not UNSET:
             field_dict["metric_system_prompt"] = metric_system_prompt
+        if response_schema is not UNSET:
+            field_dict["response_schema"] = response_schema
         if value_field_name is not UNSET:
             field_dict["value_field_name"] = value_field_name
 
@@ -75,6 +91,7 @@ class ChainPollTemplate:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
+        from ..models.chain_poll_template_response_schema_type_0 import ChainPollTemplateResponseSchemaType0
         from ..models.few_shot_example import FewShotExample
 
         d = dict(src_dict)
@@ -107,6 +124,22 @@ class ChainPollTemplate:
 
         metric_system_prompt = _parse_metric_system_prompt(d.pop("metric_system_prompt", UNSET))
 
+        def _parse_response_schema(data: object) -> Union["ChainPollTemplateResponseSchemaType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ChainPollTemplateResponseSchemaType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["ChainPollTemplateResponseSchemaType0", None, Unset], data)
+
+        response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
+
         value_field_name = d.pop("value_field_name", UNSET)
 
         chain_poll_template = cls(
@@ -115,6 +148,7 @@ class ChainPollTemplate:
             metric_description=metric_description,
             metric_few_shot_examples=metric_few_shot_examples,
             metric_system_prompt=metric_system_prompt,
+            response_schema=response_schema,
             value_field_name=value_field_name,
         )
 

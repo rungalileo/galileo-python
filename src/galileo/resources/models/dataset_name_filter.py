@@ -13,7 +13,8 @@ T = TypeVar("T", bound="DatasetNameFilter")
 @_attrs_define
 class DatasetNameFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (DatasetNameFilterOperator):
         value (Union[list[str], str]):
         case_sensitive (Union[Unset, bool]):  Default: True.

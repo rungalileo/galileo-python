@@ -56,7 +56,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, template_id: str, version: int, *, client: ApiClient
 ) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
-    """Get Template Version
+    """Get Template Version.
 
      Get a specific version of a prompt template.
 
@@ -79,14 +79,15 @@ def sync_detailed(
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
 
     response = client.request(**kwargs)
@@ -97,7 +98,7 @@ def sync_detailed(
 def sync(
     project_id: str, template_id: str, version: int, *, client: ApiClient
 ) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
-    """Get Template Version
+    """Get Template Version.
 
      Get a specific version of a prompt template.
 
@@ -120,21 +121,22 @@ def sync(
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BasePromptTemplateVersionResponse, HTTPValidationError]
     """
-
     return sync_detailed(project_id=project_id, template_id=template_id, version=version, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, template_id: str, version: int, *, client: ApiClient
 ) -> Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
-    """Get Template Version
+    """Get Template Version.
 
      Get a specific version of a prompt template.
 
@@ -157,14 +159,15 @@ async def asyncio_detailed(
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, template_id=template_id, version=version)
 
     response = await client.arequest(**kwargs)
@@ -175,7 +178,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, template_id: str, version: int, *, client: ApiClient
 ) -> Optional[Union[BasePromptTemplateVersionResponse, HTTPValidationError]]:
-    """Get Template Version
+    """Get Template Version.
 
      Get a specific version of a prompt template.
 
@@ -198,14 +201,15 @@ async def asyncio(
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BasePromptTemplateVersionResponse, HTTPValidationError]
     """
-
     return (
         await asyncio_detailed(project_id=project_id, template_id=template_id, version=version, client=client)
     ).parsed

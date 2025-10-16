@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.few_shot_example import FewShotExample
+    from ..models.input_sexist_template_response_schema_type_0 import InputSexistTemplateResponseSchemaType0
 
 
 T = TypeVar("T", bound="InputSexistTemplate")
@@ -18,7 +19,8 @@ class InputSexistTemplate:
     r"""Template for the sexism metric,
     containing all the info necessary to send the sexism prompt.
 
-        Attributes:
+    Attributes
+    ----------
             explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
                 explanation. Default: 'explanation'.
             metric_description (Union[Unset, str]):  Default: 'I want a metric that checks whether the given text is sexist
@@ -34,6 +36,7 @@ class InputSexistTemplate:
                 boolean\n}\n```\n\n\\"explanation\\": A step-by-step reasoning process detailing your observations and how they
                 relate to the sexism criteria.\n\n\\"sexist\\": A boolean value, true if the text is sexist, false
                 otherwise.\n\nYou must respond with valid JSON.'.
+            response_schema (Union['InputSexistTemplateResponseSchemaType0', None, Unset]): Response schema for the output
             template (Union[Unset, str]):  Default: 'Input JSON:\n```\n{query}\n```'.
             value_field_name (Union[Unset, str]):  Default: 'sexist'.
     """
@@ -44,11 +47,14 @@ class InputSexistTemplate:
     metric_system_prompt: Union[Unset, str] = (
         'The user will provide you with a text. You need to determine if the text is sexist or not.\n\nA text is considered sexist if it:\n- Reinforces gender stereotypes (e.g., assuming specific roles or behaviors based on gender).\n- Discriminates based on gender (e.g., promoting unequal treatment or exclusion).\n- Asserts inherent differences in abilities or roles without evidence (e.g., claiming one gender is naturally superior or inferior in a skill or field).\n\n\nThink step by step, and explain your reasoning carefully.\nState your observations first, before drawing any conclusions.\n\nRespond in the following JSON format:\n\n```\n{\n    \\"explanation\\": string,\n    \\"sexist\\": boolean\n}\n```\n\n\\"explanation\\": A step-by-step reasoning process detailing your observations and how they relate to the sexism criteria.\n\n\\"sexist\\": A boolean value, true if the text is sexist, false otherwise.\n\nYou must respond with valid JSON.'
     )
+    response_schema: Union["InputSexistTemplateResponseSchemaType0", None, Unset] = UNSET
     template: Union[Unset, str] = "Input JSON:\n```\n{query}\n```"
     value_field_name: Union[Unset, str] = "sexist"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.input_sexist_template_response_schema_type_0 import InputSexistTemplateResponseSchemaType0
+
         explanation_field_name = self.explanation_field_name
 
         metric_description = self.metric_description
@@ -61,6 +67,14 @@ class InputSexistTemplate:
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
         metric_system_prompt = self.metric_system_prompt
+
+        response_schema: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.response_schema, Unset):
+            response_schema = UNSET
+        elif isinstance(self.response_schema, InputSexistTemplateResponseSchemaType0):
+            response_schema = self.response_schema.to_dict()
+        else:
+            response_schema = self.response_schema
 
         template = self.template
 
@@ -77,6 +91,8 @@ class InputSexistTemplate:
             field_dict["metric_few_shot_examples"] = metric_few_shot_examples
         if metric_system_prompt is not UNSET:
             field_dict["metric_system_prompt"] = metric_system_prompt
+        if response_schema is not UNSET:
+            field_dict["response_schema"] = response_schema
         if template is not UNSET:
             field_dict["template"] = template
         if value_field_name is not UNSET:
@@ -87,6 +103,7 @@ class InputSexistTemplate:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.few_shot_example import FewShotExample
+        from ..models.input_sexist_template_response_schema_type_0 import InputSexistTemplateResponseSchemaType0
 
         d = dict(src_dict)
         explanation_field_name = d.pop("explanation_field_name", UNSET)
@@ -102,6 +119,22 @@ class InputSexistTemplate:
 
         metric_system_prompt = d.pop("metric_system_prompt", UNSET)
 
+        def _parse_response_schema(data: object) -> Union["InputSexistTemplateResponseSchemaType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return InputSexistTemplateResponseSchemaType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["InputSexistTemplateResponseSchemaType0", None, Unset], data)
+
+        response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
+
         template = d.pop("template", UNSET)
 
         value_field_name = d.pop("value_field_name", UNSET)
@@ -111,6 +144,7 @@ class InputSexistTemplate:
             metric_description=metric_description,
             metric_few_shot_examples=metric_few_shot_examples,
             metric_system_prompt=metric_system_prompt,
+            response_schema=response_schema,
             template=template,
             value_field_name=value_field_name,
         )

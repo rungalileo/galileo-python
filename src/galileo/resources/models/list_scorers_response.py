@@ -16,7 +16,8 @@ T = TypeVar("T", bound="ListScorersResponse")
 @_attrs_define
 class ListScorersResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         limit (Union[Unset, int]):  Default: 100.
         next_starting_token (Union[None, Unset, int]):
         paginated (Union[Unset, bool]):  Default: False.

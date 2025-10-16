@@ -15,7 +15,8 @@ T = TypeVar("T", bound="ScorerUpdatedAtFilter")
 @_attrs_define
 class ScorerUpdatedAtFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (ScorerUpdatedAtFilterOperator):
         value (datetime.datetime):
         name (Union[Literal['updated_at'], Unset]):  Default: 'updated_at'.

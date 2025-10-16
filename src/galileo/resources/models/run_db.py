@@ -20,7 +20,8 @@ T = TypeVar("T", bound="RunDB")
 @_attrs_define
 class RunDB:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         created_by (str):
         creator (UserDB):

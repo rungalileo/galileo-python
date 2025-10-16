@@ -16,7 +16,8 @@ T = TypeVar("T", bound="DatasetContent")
 @_attrs_define
 class DatasetContent:
     """
-    Attributes:
+    Attributes
+    ----------
         column_names (Union[Unset, list[str]]):
         limit (Union[Unset, int]):  Default: 100.
         next_starting_token (Union[None, Unset, int]):

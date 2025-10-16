@@ -12,7 +12,8 @@ T = TypeVar("T", bound="Metrics")
 @_attrs_define
 class Metrics:
     """
-    Attributes:
+    Attributes
+    ----------
         duration_ns (Union[None, Unset, int]): Duration of the trace or span in nanoseconds.  Displayed as 'Latency' in
             Galileo.
     """

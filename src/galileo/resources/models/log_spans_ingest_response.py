@@ -12,7 +12,8 @@ T = TypeVar("T", bound="LogSpansIngestResponse")
 @_attrs_define
 class LogSpansIngestResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         parent_id (str): Parent trace or span id.
         project_id (str): Project id associated with the traces.
         project_name (str): Project name associated with the traces.

@@ -18,7 +18,8 @@ T = TypeVar("T", bound="ToolSelectionQualityScorer")
 @_attrs_define
 class ToolSelectionQualityScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.

@@ -20,7 +20,8 @@ T = TypeVar("T", bound="RunDBThin")
 @_attrs_define
 class RunDBThin:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         created_by (str):
         creator (UserDB):

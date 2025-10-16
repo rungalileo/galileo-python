@@ -12,7 +12,8 @@ T = TypeVar("T", bound="TaskResourceLimits")
 @_attrs_define
 class TaskResourceLimits:
     """
-    Attributes:
+    Attributes
+    ----------
         cpu_time (Union[Unset, int]):  Default: 216.
         memory_mb (Union[Unset, int]):  Default: 160.
     """

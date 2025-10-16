@@ -12,7 +12,8 @@ T = TypeVar("T", bound="LlmMetrics")
 @_attrs_define
 class LlmMetrics:
     """
-    Attributes:
+    Attributes
+    ----------
         duration_ns (Union[None, Unset, int]): Duration of the trace or span in nanoseconds.  Displayed as 'Latency' in
             Galileo.
         num_input_tokens (Union[None, Unset, int]): Number of input tokens.

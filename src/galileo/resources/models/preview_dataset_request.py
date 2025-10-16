@@ -16,7 +16,8 @@ T = TypeVar("T", bound="PreviewDatasetRequest")
 @_attrs_define
 class PreviewDatasetRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         column_mapping (Union['ColumnMapping', None, Unset]):
     """
 

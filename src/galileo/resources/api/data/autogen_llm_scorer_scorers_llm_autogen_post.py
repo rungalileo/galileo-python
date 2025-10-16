@@ -61,7 +61,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: CreateLLMScorerAutogenRequest
 ) -> Response[Union[GenerationResponse, HTTPValidationError]]:
-    """Autogen Llm Scorer
+    """Autogen Llm Scorer.
 
      Autogenerate an LLM scorer configuration.
 
@@ -70,14 +70,15 @@ def sync_detailed(
     Args:
         body (CreateLLMScorerAutogenRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[GenerationResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -88,7 +89,7 @@ def sync_detailed(
 def sync(
     *, client: ApiClient, body: CreateLLMScorerAutogenRequest
 ) -> Optional[Union[GenerationResponse, HTTPValidationError]]:
-    """Autogen Llm Scorer
+    """Autogen Llm Scorer.
 
      Autogenerate an LLM scorer configuration.
 
@@ -97,21 +98,22 @@ def sync(
     Args:
         body (CreateLLMScorerAutogenRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[GenerationResponse, HTTPValidationError]
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: CreateLLMScorerAutogenRequest
 ) -> Response[Union[GenerationResponse, HTTPValidationError]]:
-    """Autogen Llm Scorer
+    """Autogen Llm Scorer.
 
      Autogenerate an LLM scorer configuration.
 
@@ -120,14 +122,15 @@ async def asyncio_detailed(
     Args:
         body (CreateLLMScorerAutogenRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[GenerationResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -138,7 +141,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, body: CreateLLMScorerAutogenRequest
 ) -> Optional[Union[GenerationResponse, HTTPValidationError]]:
-    """Autogen Llm Scorer
+    """Autogen Llm Scorer.
 
      Autogenerate an LLM scorer configuration.
 
@@ -147,12 +150,13 @@ async def asyncio(
     Args:
         body (CreateLLMScorerAutogenRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[GenerationResponse, HTTPValidationError]
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

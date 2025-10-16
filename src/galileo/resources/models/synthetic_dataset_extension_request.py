@@ -19,7 +19,8 @@ T = TypeVar("T", bound="SyntheticDatasetExtensionRequest")
 class SyntheticDatasetExtensionRequest:
     """Request for a synthetic dataset run job.
 
-    Attributes:
+    Attributes
+    ----------
         count (Union[Unset, int]):  Default: 10.
         data_types (Union[None, Unset, list[SyntheticDataTypes]]):
         examples (Union[Unset, list[str]]):

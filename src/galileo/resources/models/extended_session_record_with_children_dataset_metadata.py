@@ -9,7 +9,7 @@ T = TypeVar("T", bound="ExtendedSessionRecordWithChildrenDatasetMetadata")
 
 @_attrs_define
 class ExtendedSessionRecordWithChildrenDatasetMetadata:
-    """Metadata from the dataset associated with this trace"""
+    """Metadata from the dataset associated with this trace."""
 
     additional_properties: dict[str, str] = _attrs_field(init=False, factory=dict)
 

@@ -61,7 +61,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
 ) -> Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
-    """Delete Traces
+    """Delete Traces.
 
      Delete all trace records that match the provided filters.
 
@@ -71,14 +71,15 @@ def sync_detailed(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = client.request(**kwargs)
@@ -89,7 +90,7 @@ def sync_detailed(
 def sync(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
 ) -> Optional[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
-    """Delete Traces
+    """Delete Traces.
 
      Delete all trace records that match the provided filters.
 
@@ -99,21 +100,22 @@ def sync(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, LogRecordsDeleteResponse]
     """
-
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
 ) -> Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
-    """Delete Traces
+    """Delete Traces.
 
      Delete all trace records that match the provided filters.
 
@@ -123,14 +125,15 @@ async def asyncio_detailed(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, LogRecordsDeleteResponse]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -141,7 +144,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, *, client: ApiClient, body: LogRecordsDeleteRequest
 ) -> Optional[Union[HTTPValidationError, LogRecordsDeleteResponse]]:
-    """Delete Traces
+    """Delete Traces.
 
      Delete all trace records that match the provided filters.
 
@@ -151,12 +154,13 @@ async def asyncio(
             'input', 'operator': 'eq', 'type': 'text', 'value': 'example input'}], 'log_stream_id':
             '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, LogRecordsDeleteResponse]
     """
-
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

@@ -91,7 +91,7 @@ def sync_detailed(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]:
-    """Get Projects Paginated
+    """Get Projects Paginated.
 
      Gets projects for a user with pagination.
 
@@ -104,14 +104,15 @@ def sync_detailed(
         limit (Union[Unset, int]):  Default: 100.
         body (ProjectCollectionParams):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body, actions=actions, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -127,7 +128,7 @@ def sync(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[GetProjectsPaginatedResponse, HTTPValidationError]]:
-    """Get Projects Paginated
+    """Get Projects Paginated.
 
      Gets projects for a user with pagination.
 
@@ -140,14 +141,15 @@ def sync(
         limit (Union[Unset, int]):  Default: 100.
         body (ProjectCollectionParams):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[GetProjectsPaginatedResponse, HTTPValidationError]
     """
-
     return sync_detailed(client=client, body=body, actions=actions, starting_token=starting_token, limit=limit).parsed
 
 
@@ -159,7 +161,7 @@ async def asyncio_detailed(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]:
-    """Get Projects Paginated
+    """Get Projects Paginated.
 
      Gets projects for a user with pagination.
 
@@ -172,14 +174,15 @@ async def asyncio_detailed(
         limit (Union[Unset, int]):  Default: 100.
         body (ProjectCollectionParams):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[GetProjectsPaginatedResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body, actions=actions, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -195,7 +198,7 @@ async def asyncio(
     starting_token: Union[Unset, int] = 0,
     limit: Union[Unset, int] = 100,
 ) -> Optional[Union[GetProjectsPaginatedResponse, HTTPValidationError]]:
-    """Get Projects Paginated
+    """Get Projects Paginated.
 
      Gets projects for a user with pagination.
 
@@ -208,14 +211,15 @@ async def asyncio(
         limit (Union[Unset, int]):  Default: 100.
         body (ProjectCollectionParams):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[GetProjectsPaginatedResponse, HTTPValidationError]
     """
-
     return (
         await asyncio_detailed(client=client, body=body, actions=actions, starting_token=starting_token, limit=limit)
     ).parsed

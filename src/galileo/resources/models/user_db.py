@@ -20,7 +20,8 @@ T = TypeVar("T", bound="UserDB")
 @_attrs_define
 class UserDB:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         email (str):
         id (str):

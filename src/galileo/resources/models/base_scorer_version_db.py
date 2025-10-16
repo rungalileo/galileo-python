@@ -21,7 +21,8 @@ T = TypeVar("T", bound="BaseScorerVersionDB")
 class BaseScorerVersionDB:
     """Scorer version from the scorer_versions table.
 
-    Attributes:
+    Attributes
+    ----------
         id (str):
         scorer_id (str):
         version (int):

@@ -30,7 +30,8 @@ T = TypeVar("T", bound="ExtendedSessionRecordWithChildren")
 @_attrs_define
 class ExtendedSessionRecordWithChildren:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Galileo ID of the session
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span

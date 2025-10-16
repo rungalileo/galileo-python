@@ -14,7 +14,8 @@ T = TypeVar("T", bound="CreateScorerVersionRequest")
 @_attrs_define
 class CreateScorerVersionRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         cot_enabled (Union[None, Unset, bool]):
         input_type (Union[InputTypeEnum, None, Unset]):
         model_name (Union[None, Unset, str]):

@@ -10,7 +10,8 @@ T = TypeVar("T", bound="BaseRegisteredScorerDB")
 @_attrs_define
 class BaseRegisteredScorerDB:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (str):
     """

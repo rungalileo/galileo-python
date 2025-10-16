@@ -20,7 +20,8 @@ T = TypeVar("T", bound="ExperimentMetricsRequest")
 @_attrs_define
 class ExperimentMetricsRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsDateFilter', 'LogRecordsIDFilter',
             'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
     """

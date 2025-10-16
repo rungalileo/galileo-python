@@ -29,7 +29,8 @@ class ValidateLLMScorerLogRecordRequest:
     """Request to validate a new LLM scorer based on a log record.
     This is used to create a new experiment with the copied log records to store the metric testing results.
 
-        Attributes:
+    Attributes
+    ----------
             chain_poll_template (ChainPollTemplate): Template for a chainpoll metric prompt,
                 containing all the info necessary to send a chainpoll prompt.
             query (str):
@@ -43,6 +44,7 @@ class ValidateLLMScorerLogRecordRequest:
             limit (Union[Unset, int]):  Default: 100.
             log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
             metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+            previous_last_row_id (Union[None, Unset, str]):
             sort (Union[Unset, LogRecordsSortClause]):
             starting_token (Union[Unset, int]):  Default: 0.
             truncate_fields (Union[Unset, bool]):  Default: False.
@@ -70,6 +72,7 @@ class ValidateLLMScorerLogRecordRequest:
     limit: Union[Unset, int] = 100
     log_stream_id: Union[None, Unset, str] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
+    previous_last_row_id: Union[None, Unset, str] = UNSET
     sort: Union[Unset, "LogRecordsSortClause"] = UNSET
     starting_token: Union[Unset, int] = 0
     truncate_fields: Union[Unset, bool] = False
@@ -129,6 +132,9 @@ class ValidateLLMScorerLogRecordRequest:
         metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
+        previous_last_row_id: Union[None, Unset, str]
+        previous_last_row_id = UNSET if isinstance(self.previous_last_row_id, Unset) else self.previous_last_row_id
+
         sort: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.sort, Unset):
             sort = self.sort.to_dict()
@@ -160,6 +166,8 @@ class ValidateLLMScorerLogRecordRequest:
             field_dict["log_stream_id"] = log_stream_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
+        if previous_last_row_id is not UNSET:
+            field_dict["previous_last_row_id"] = previous_last_row_id
         if sort is not UNSET:
             field_dict["sort"] = sort
         if starting_token is not UNSET:
@@ -310,6 +318,15 @@ class ValidateLLMScorerLogRecordRequest:
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
+        def _parse_previous_last_row_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        previous_last_row_id = _parse_previous_last_row_id(d.pop("previous_last_row_id", UNSET))
+
         _sort = d.pop("sort", UNSET)
         sort: Union[Unset, LogRecordsSortClause]
         sort = UNSET if isinstance(_sort, Unset) else LogRecordsSortClause.from_dict(_sort)
@@ -330,6 +347,7 @@ class ValidateLLMScorerLogRecordRequest:
             limit=limit,
             log_stream_id=log_stream_id,
             metrics_testing_id=metrics_testing_id,
+            previous_last_row_id=previous_last_row_id,
             sort=sort,
             starting_token=starting_token,
             truncate_fields=truncate_fields,

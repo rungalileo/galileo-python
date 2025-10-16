@@ -12,7 +12,8 @@ T = TypeVar("T", bound="LogSpanUpdateResponse")
 @_attrs_define
 class LogSpanUpdateResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         project_id (str): Project id associated with the traces.
         project_name (str): Project name associated with the traces.
         records_count (int): Total number of records ingested

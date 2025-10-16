@@ -12,7 +12,8 @@ T = TypeVar("T", bound="DatasetData")
 @_attrs_define
 class DatasetData:
     """
-    Attributes:
+    Attributes
+    ----------
         dataset_id (str):
         dataset_version_index (Union[None, Unset, int]):
     """

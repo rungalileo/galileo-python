@@ -17,7 +17,8 @@ T = TypeVar("T", bound="SegmentFilter")
 @_attrs_define
 class SegmentFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         sample_rate (float): The fraction of the data to sample. Must be between 0 and 1, inclusive.
         filter_ (Union['MetadataFilter', 'NodeNameFilter', None, Unset]): Filter to apply to the segment. By default
             sample on all data.

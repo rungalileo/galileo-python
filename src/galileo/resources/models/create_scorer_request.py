@@ -18,7 +18,8 @@ T = TypeVar("T", bound="CreateScorerRequest")
 @_attrs_define
 class CreateScorerRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
         scorer_type (ScorerTypes):
         default_version_id (Union[None, Unset, str]):

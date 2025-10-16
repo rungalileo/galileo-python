@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.few_shot_example import FewShotExample
+    from ..models.groundedness_template_response_schema_type_0 import GroundednessTemplateResponseSchemaType0
 
 
 T = TypeVar("T", bound="GroundednessTemplate")
@@ -18,7 +19,8 @@ class GroundednessTemplate:
     r"""Template for the groundedness metric,
     containing all the info necessary to send the groundedness prompt.
 
-        Attributes:
+    Attributes
+    ----------
             explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
                 explanation. Default: 'explanation'.
             metric_description (Union[Unset, str]):  Default: 'I have a RAG (retrieval-augmented generation) system that
@@ -36,6 +38,7 @@ class GroundednessTemplate:
                 claims made in the response, and for each claim, provide a detailed explanation of why that claim is or is not
                 supported by the documents.\n\n\\"was_supported\\": `true` if the response was supported by the documents,
                 `false` otherwise.\n\nYou must respond with valid JSON.'.
+            response_schema (Union['GroundednessTemplateResponseSchemaType0', None, Unset]): Response schema for the output
             template (Union[Unset, str]):  Default: 'Prompt JSON:\n\n```\n{query_json}\n```\n\nResponse
                 JSON:\n\n```\n{response_json}\n```'.
             value_field_name (Union[Unset, str]):  Default: 'was_supported'.
@@ -49,6 +52,7 @@ class GroundednessTemplate:
     metric_system_prompt: Union[Unset, str] = (
         'The user will provide you with a prompt that was sent to an automatic question-answering system, and that system\'s response. Both will be provided as JSON strings.\n\nThe prompt will contain one or more documents intended as context which the question-answering system was given as reference material.\n\nYour task is to determine whether the answer was supported by the documents.\n\nThink step by step, and explain your reasoning carefully.\nState your observations first, before drawing any conclusions.\n\nRespond in the following JSON format:\n\n```\n{\n    \\"explanation\\": string,\n    \\"was_supported\\": boolean\n}\n```\n\n\\"explanation\\": Your step-by-step reasoning process. List out the claims made in the response, and for each claim, provide a detailed explanation of why that claim is or is not supported by the documents.\n\n\\"was_supported\\": `true` if the response was supported by the documents, `false` otherwise.\n\nYou must respond with valid JSON.'
     )
+    response_schema: Union["GroundednessTemplateResponseSchemaType0", None, Unset] = UNSET
     template: Union[Unset, str] = (
         "Prompt JSON:\n\n```\n{query_json}\n```\n\nResponse JSON:\n\n```\n{response_json}\n```"
     )
@@ -56,6 +60,8 @@ class GroundednessTemplate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.groundedness_template_response_schema_type_0 import GroundednessTemplateResponseSchemaType0
+
         explanation_field_name = self.explanation_field_name
 
         metric_description = self.metric_description
@@ -68,6 +74,14 @@ class GroundednessTemplate:
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
         metric_system_prompt = self.metric_system_prompt
+
+        response_schema: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.response_schema, Unset):
+            response_schema = UNSET
+        elif isinstance(self.response_schema, GroundednessTemplateResponseSchemaType0):
+            response_schema = self.response_schema.to_dict()
+        else:
+            response_schema = self.response_schema
 
         template = self.template
 
@@ -84,6 +98,8 @@ class GroundednessTemplate:
             field_dict["metric_few_shot_examples"] = metric_few_shot_examples
         if metric_system_prompt is not UNSET:
             field_dict["metric_system_prompt"] = metric_system_prompt
+        if response_schema is not UNSET:
+            field_dict["response_schema"] = response_schema
         if template is not UNSET:
             field_dict["template"] = template
         if value_field_name is not UNSET:
@@ -94,6 +110,7 @@ class GroundednessTemplate:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.few_shot_example import FewShotExample
+        from ..models.groundedness_template_response_schema_type_0 import GroundednessTemplateResponseSchemaType0
 
         d = dict(src_dict)
         explanation_field_name = d.pop("explanation_field_name", UNSET)
@@ -109,6 +126,22 @@ class GroundednessTemplate:
 
         metric_system_prompt = d.pop("metric_system_prompt", UNSET)
 
+        def _parse_response_schema(data: object) -> Union["GroundednessTemplateResponseSchemaType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return GroundednessTemplateResponseSchemaType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["GroundednessTemplateResponseSchemaType0", None, Unset], data)
+
+        response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
+
         template = d.pop("template", UNSET)
 
         value_field_name = d.pop("value_field_name", UNSET)
@@ -118,6 +151,7 @@ class GroundednessTemplate:
             metric_description=metric_description,
             metric_few_shot_examples=metric_few_shot_examples,
             metric_system_prompt=metric_system_prompt,
+            response_schema=response_schema,
             template=template,
             value_field_name=value_field_name,
         )

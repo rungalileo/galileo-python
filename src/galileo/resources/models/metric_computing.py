@@ -13,7 +13,8 @@ T = TypeVar("T", bound="MetricComputing")
 @_attrs_define
 class MetricComputing:
     """
-    Attributes:
+    Attributes
+    ----------
         message (Union[Unset, str]):  Default: 'Metric is computing.'.
         scorer_type (Union[None, ScorerType, Unset]):
         status_type (Union[Literal['computing'], Unset]):  Default: 'computing'.

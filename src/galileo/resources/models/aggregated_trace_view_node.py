@@ -16,7 +16,8 @@ T = TypeVar("T", bound="AggregatedTraceViewNode")
 @_attrs_define
 class AggregatedTraceViewNode:
     """
-    Attributes:
+    Attributes
+    ----------
         has_children (bool):
         id (str):
         metrics (AggregatedTraceViewNodeMetrics):

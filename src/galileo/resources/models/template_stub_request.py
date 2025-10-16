@@ -10,7 +10,8 @@ T = TypeVar("T", bound="TemplateStubRequest")
 @_attrs_define
 class TemplateStubRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         templates (list[str]):
     """
 
