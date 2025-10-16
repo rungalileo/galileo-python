@@ -26,9 +26,10 @@ class LogRecordsDeleteRequest:
     """
     Example:
         {'filters': [{'case_sensitive': True, 'name': 'input', 'operator': 'eq', 'type': 'text', 'value': 'example
-            input'}], 'log_stream_id': '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}
+            input'}], 'log_stream_id': '74aec44e-ec21-4c9f-a3e2-b2ab2b81b4db'}.
 
-    Attributes:
+    Attributes
+    ----------
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         filter_tree (Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode', None, Unset]):
         filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsDateFilter', 'LogRecordsIDFilter',

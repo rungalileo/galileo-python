@@ -63,21 +63,22 @@ def _build_response(
 def sync_detailed(
     project_id: str, *, client: ApiClient
 ) -> Response[Union[HTTPValidationError, list["ExperimentResponse"]]]:
-    """List Experiments
+    """List Experiments.
 
      Retrieve all experiments for a project.
 
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, list['ExperimentResponse']]]
     """
-
     kwargs = _get_kwargs(project_id=project_id)
 
     response = client.request(**kwargs)
@@ -86,42 +87,44 @@ def sync_detailed(
 
 
 def sync(project_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, list["ExperimentResponse"]]]:
-    """List Experiments
+    """List Experiments.
 
      Retrieve all experiments for a project.
 
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, list['ExperimentResponse']]
     """
-
     return sync_detailed(project_id=project_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient
 ) -> Response[Union[HTTPValidationError, list["ExperimentResponse"]]]:
-    """List Experiments
+    """List Experiments.
 
      Retrieve all experiments for a project.
 
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, list['ExperimentResponse']]]
     """
-
     kwargs = _get_kwargs(project_id=project_id)
 
     response = await client.arequest(**kwargs)
@@ -132,19 +135,20 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, *, client: ApiClient
 ) -> Optional[Union[HTTPValidationError, list["ExperimentResponse"]]]:
-    """List Experiments
+    """List Experiments.
 
      Retrieve all experiments for a project.
 
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, list['ExperimentResponse']]
     """
-
     return (await asyncio_detailed(project_id=project_id, client=client)).parsed

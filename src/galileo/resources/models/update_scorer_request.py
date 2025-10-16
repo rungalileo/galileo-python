@@ -17,7 +17,8 @@ T = TypeVar("T", bound="UpdateScorerRequest")
 @_attrs_define
 class UpdateScorerRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         default_version_id (Union[None, Unset, str]):
         defaults (Union['ScorerDefaults', None, Unset]):
         description (Union[None, Unset, str]):

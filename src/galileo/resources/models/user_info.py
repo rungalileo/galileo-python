@@ -13,7 +13,8 @@ T = TypeVar("T", bound="UserInfo")
 class UserInfo:
     """A user's basic information, used for display purposes.
 
-    Attributes:
+    Attributes
+    ----------
         email (str):
         id (str):
         first_name (Union[None, Unset, str]):

@@ -24,7 +24,8 @@ T = TypeVar("T", bound="LogRecordsExportRequest")
 class LogRecordsExportRequest:
     """Request schema for exporting log records (sessions, traces, spans).
 
-    Attributes:
+    Attributes
+    ----------
         root_type (RootType):
         column_ids (Union[None, Unset, list[str]]): Column IDs to include in export
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.

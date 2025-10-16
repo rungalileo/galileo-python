@@ -17,7 +17,8 @@ T = TypeVar("T", bound="OutputToneScorer")
 @_attrs_define
 class OutputToneScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
         name (Union[Literal['output_tone'], Unset]):  Default: 'output_tone'.

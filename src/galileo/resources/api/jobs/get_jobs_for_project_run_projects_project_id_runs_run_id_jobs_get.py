@@ -72,7 +72,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, run_id: str, *, client: ApiClient, status: Union[None, Unset, str] = UNSET
 ) -> Response[Union[HTTPValidationError, list["JobDB"]]]:
-    """Get Jobs For Project Run
+    """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
 
@@ -83,14 +83,15 @@ def sync_detailed(
         run_id (str):
         status (Union[None, Unset, str]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, list['JobDB']]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, status=status)
 
     response = client.request(**kwargs)
@@ -101,7 +102,7 @@ def sync_detailed(
 def sync(
     project_id: str, run_id: str, *, client: ApiClient, status: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["JobDB"]]]:
-    """Get Jobs For Project Run
+    """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
 
@@ -112,21 +113,22 @@ def sync(
         run_id (str):
         status (Union[None, Unset, str]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, list['JobDB']]
     """
-
     return sync_detailed(project_id=project_id, run_id=run_id, client=client, status=status).parsed
 
 
 async def asyncio_detailed(
     project_id: str, run_id: str, *, client: ApiClient, status: Union[None, Unset, str] = UNSET
 ) -> Response[Union[HTTPValidationError, list["JobDB"]]]:
-    """Get Jobs For Project Run
+    """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
 
@@ -137,14 +139,15 @@ async def asyncio_detailed(
         run_id (str):
         status (Union[None, Unset, str]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, list['JobDB']]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, run_id=run_id, status=status)
 
     response = await client.arequest(**kwargs)
@@ -155,7 +158,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, run_id: str, *, client: ApiClient, status: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[HTTPValidationError, list["JobDB"]]]:
-    """Get Jobs For Project Run
+    """Get Jobs For Project Run.
 
      Get all jobs by for a project and run.
 
@@ -166,12 +169,13 @@ async def asyncio(
         run_id (str):
         status (Union[None, Unset, str]):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, list['JobDB']]
     """
-
     return (await asyncio_detailed(project_id=project_id, run_id=run_id, client=client, status=status)).parsed

@@ -20,7 +20,8 @@ T = TypeVar("T", bound="PromptRunSettings")
 class PromptRunSettings:
     """Prompt run settings.
 
-    Attributes:
+    Attributes
+    ----------
         deployment_name (Union[None, Unset, str]):
         echo (Union[Unset, bool]):  Default: False.
         frequency_penalty (Union[Unset, float]):  Default: 0.0.

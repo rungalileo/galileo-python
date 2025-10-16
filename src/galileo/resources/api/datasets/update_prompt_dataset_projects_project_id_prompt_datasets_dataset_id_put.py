@@ -100,7 +100,7 @@ def sync_detailed(
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
 ) -> Response[Union[HTTPValidationError, PromptDatasetDB]]:
-    """Update Prompt Dataset
+    """Update Prompt Dataset.
 
     Args:
         project_id (str):
@@ -111,14 +111,15 @@ def sync_detailed(
         hidden (Union[Unset, bool]):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, PromptDatasetDB]]
     """
-
     kwargs = _get_kwargs(
         project_id=project_id,
         dataset_id=dataset_id,
@@ -145,7 +146,7 @@ def sync(
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
 ) -> Optional[Union[HTTPValidationError, PromptDatasetDB]]:
-    """Update Prompt Dataset
+    """Update Prompt Dataset.
 
     Args:
         project_id (str):
@@ -156,14 +157,15 @@ def sync(
         hidden (Union[Unset, bool]):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, PromptDatasetDB]
     """
-
     return sync_detailed(
         project_id=project_id,
         dataset_id=dataset_id,
@@ -187,7 +189,7 @@ async def asyncio_detailed(
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
 ) -> Response[Union[HTTPValidationError, PromptDatasetDB]]:
-    """Update Prompt Dataset
+    """Update Prompt Dataset.
 
     Args:
         project_id (str):
@@ -198,14 +200,15 @@ async def asyncio_detailed(
         hidden (Union[Unset, bool]):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, PromptDatasetDB]]
     """
-
     kwargs = _get_kwargs(
         project_id=project_id,
         dataset_id=dataset_id,
@@ -232,7 +235,7 @@ async def asyncio(
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
 ) -> Optional[Union[HTTPValidationError, PromptDatasetDB]]:
-    """Update Prompt Dataset
+    """Update Prompt Dataset.
 
     Args:
         project_id (str):
@@ -243,14 +246,15 @@ async def asyncio(
         hidden (Union[Unset, bool]):  Default: False.
         body (BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, PromptDatasetDB]
     """
-
     return (
         await asyncio_detailed(
             project_id=project_id,

@@ -72,7 +72,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: Union[None, Unset, str] = UNSET
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Create Global Prompt Template
+    """Create Global Prompt Template.
 
      Create a global prompt template.
 
@@ -97,14 +97,15 @@ def sync_detailed(
 
             This is only used for parsing the body from the request.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body, project_id=project_id)
 
     response = client.request(**kwargs)
@@ -115,7 +116,7 @@ def sync_detailed(
 def sync(
     *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Create Global Prompt Template
+    """Create Global Prompt Template.
 
      Create a global prompt template.
 
@@ -140,21 +141,22 @@ def sync(
 
             This is only used for parsing the body from the request.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
-
     return sync_detailed(client=client, body=body, project_id=project_id).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: Union[None, Unset, str] = UNSET
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Create Global Prompt Template
+    """Create Global Prompt Template.
 
      Create a global prompt template.
 
@@ -179,14 +181,15 @@ async def asyncio_detailed(
 
             This is only used for parsing the body from the request.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body, project_id=project_id)
 
     response = await client.arequest(**kwargs)
@@ -197,7 +200,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, body: CreatePromptTemplateWithVersionRequestBody, project_id: Union[None, Unset, str] = UNSET
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Create Global Prompt Template
+    """Create Global Prompt Template.
 
      Create a global prompt template.
 
@@ -222,12 +225,13 @@ async def asyncio(
 
             This is only used for parsing the body from the request.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
-
     return (await asyncio_detailed(client=client, body=body, project_id=project_id)).parsed

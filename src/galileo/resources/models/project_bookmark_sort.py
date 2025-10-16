@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ProjectBookmarkSort")
 @_attrs_define
 class ProjectBookmarkSort:
     """
-    Attributes:
+    Attributes
+    ----------
         ascending (Union[Unset, bool]):  Default: True.
         name (Union[Literal['bookmark'], Unset]):  Default: 'bookmark'.
         sort_type (Union[Literal['custom'], Unset]):  Default: 'custom'.

@@ -1,5 +1,5 @@
 from collections.abc import Mapping
-from typing import TYPE_CHECKING, Any, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -8,6 +8,9 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.few_shot_example import FewShotExample
+    from ..models.tool_selection_quality_template_response_schema_type_0 import (
+        ToolSelectionQualityTemplateResponseSchemaType0,
+    )
 
 
 T = TypeVar("T", bound="ToolSelectionQualityTemplate")
@@ -18,7 +21,8 @@ class ToolSelectionQualityTemplate:
     r"""Template for the tool selection quality metric,
     containing all the info necessary to send the tool selection quality prompt.
 
-        Attributes:
+    Attributes
+    ----------
             explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
                 explanation. Default: 'explanation'.
             metric_description (Union[Unset, str]):  Default: 'I have a multi-turn chatbot application where the assistant
@@ -44,6 +48,8 @@ class ToolSelectionQualityTemplate:
                 to determine whether the bot\'s reply follows the above-mentioned guidelines.\n\n-
                 **\\"bot_answer_follows_rules\\"**: Respond `true` if you believe the bot followed the above guidelines, respond
                 `false` otherwise.\n\nYou must respond with a valid JSON object; don\'t forget to escape special characters.'.
+            response_schema (Union['ToolSelectionQualityTemplateResponseSchemaType0', None, Unset]): Response schema for the
+                output
             template (Union[Unset, str]):  Default: "Chatbot history:\n```\n{query}\n```\n\nThe bot's available
                 tools:\n```\n{tools}\n```\n\nThe answer to evaluate:\n```\n{response}\n```".
             value_field_name (Union[Unset, str]):  Default: 'bot_answer_follows_rules'.
@@ -57,6 +63,7 @@ class ToolSelectionQualityTemplate:
     metric_system_prompt: Union[Unset, str] = (
         'You will receive the chat history from a chatbot application. At the end of the  conversation, it will be the bot’s turn to act. The bot has several options: it can reflect and plan its next steps, choose to call tools, or respond directly to the user. If the bot opts to use tools, the tools execute separately, and the bot will subsequently review the output from those tools. Ultimately, the bot should reply to the user, choosing the relevant parts of the tools\' output.\n\nYour task is to evaluate the bot\'s decision-making process and ensure it follows these guidelines:\n- If all user queries have already been answered and can be found in the chat history, the bot should not call tools.\n- If no suitable tools are available to assist with user queries, the bot should not call tools.\n- If the chat history contains all the necessary information to directly answer all user queries, the bot should not call tools.\n- If the bot decided to call tools, the tools and argument values selected must relate to at least part of one user query.\n- If the bot decided to call tools, all arguments marked as \\"required\\" in the tools\' schema must be provided with values.\n\nRemember that there are many ways the bot\'s actions can comply with these rules. Your role is to determine whether the bot fundamentally violated any of these rules, not whether it chose the most optimal response.\n\nRespond in the following JSON format:\n```\n{\n    \\"explanation\\": string,\n    \\"bot_answer_follows_rules\\": boolean\n}\n```\n\n- **\\"explanation\\"**: Provide your step-by-step reasoning to determine whether the bot\'s reply follows the above-mentioned guidelines.\n\n- **\\"bot_answer_follows_rules\\"**: Respond `true` if you believe the bot followed the above guidelines, respond `false` otherwise.\n\nYou must respond with a valid JSON object; don\'t forget to escape special characters.'
     )
+    response_schema: Union["ToolSelectionQualityTemplateResponseSchemaType0", None, Unset] = UNSET
     template: Union[Unset, str] = (
         "Chatbot history:\n```\n{query}\n```\n\nThe bot's available tools:\n```\n{tools}\n```\n\nThe answer to evaluate:\n```\n{response}\n```"
     )
@@ -64,6 +71,10 @@ class ToolSelectionQualityTemplate:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        from ..models.tool_selection_quality_template_response_schema_type_0 import (
+            ToolSelectionQualityTemplateResponseSchemaType0,
+        )
+
         explanation_field_name = self.explanation_field_name
 
         metric_description = self.metric_description
@@ -76,6 +87,14 @@ class ToolSelectionQualityTemplate:
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
 
         metric_system_prompt = self.metric_system_prompt
+
+        response_schema: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.response_schema, Unset):
+            response_schema = UNSET
+        elif isinstance(self.response_schema, ToolSelectionQualityTemplateResponseSchemaType0):
+            response_schema = self.response_schema.to_dict()
+        else:
+            response_schema = self.response_schema
 
         template = self.template
 
@@ -92,6 +111,8 @@ class ToolSelectionQualityTemplate:
             field_dict["metric_few_shot_examples"] = metric_few_shot_examples
         if metric_system_prompt is not UNSET:
             field_dict["metric_system_prompt"] = metric_system_prompt
+        if response_schema is not UNSET:
+            field_dict["response_schema"] = response_schema
         if template is not UNSET:
             field_dict["template"] = template
         if value_field_name is not UNSET:
@@ -102,6 +123,9 @@ class ToolSelectionQualityTemplate:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.few_shot_example import FewShotExample
+        from ..models.tool_selection_quality_template_response_schema_type_0 import (
+            ToolSelectionQualityTemplateResponseSchemaType0,
+        )
 
         d = dict(src_dict)
         explanation_field_name = d.pop("explanation_field_name", UNSET)
@@ -117,6 +141,24 @@ class ToolSelectionQualityTemplate:
 
         metric_system_prompt = d.pop("metric_system_prompt", UNSET)
 
+        def _parse_response_schema(
+            data: object,
+        ) -> Union["ToolSelectionQualityTemplateResponseSchemaType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ToolSelectionQualityTemplateResponseSchemaType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["ToolSelectionQualityTemplateResponseSchemaType0", None, Unset], data)
+
+        response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
+
         template = d.pop("template", UNSET)
 
         value_field_name = d.pop("value_field_name", UNSET)
@@ -126,6 +168,7 @@ class ToolSelectionQualityTemplate:
             metric_description=metric_description,
             metric_few_shot_examples=metric_few_shot_examples,
             metric_system_prompt=metric_system_prompt,
+            response_schema=response_schema,
             template=template,
             value_field_name=value_field_name,
         )

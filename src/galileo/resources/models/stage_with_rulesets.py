@@ -17,7 +17,8 @@ T = TypeVar("T", bound="StageWithRulesets")
 @_attrs_define
 class StageWithRulesets:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str): Name of the stage. Must be unique within the project.
         project_id (str): ID of the project to which this stage belongs.
         description (Union[None, Unset, str]): Optional human-readable description of the goals of this guardrail.

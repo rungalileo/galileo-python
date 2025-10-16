@@ -17,7 +17,8 @@ T = TypeVar("T", bound="QueryDatasetParams")
 @_attrs_define
 class QueryDatasetParams:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[Unset, list['DatasetContentFilter']]):
         sort (Union['DatasetContentSortClause', None, Unset]):
     """

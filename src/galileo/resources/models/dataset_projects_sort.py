@@ -12,7 +12,8 @@ T = TypeVar("T", bound="DatasetProjectsSort")
 @_attrs_define
 class DatasetProjectsSort:
     """
-    Attributes:
+    Attributes
+    ----------
         ascending (Union[Unset, bool]):  Default: True.
         name (Union[Literal['project_count'], Unset]):  Default: 'project_count'.
         sort_type (Union[Literal['custom'], Unset]):  Default: 'custom'.

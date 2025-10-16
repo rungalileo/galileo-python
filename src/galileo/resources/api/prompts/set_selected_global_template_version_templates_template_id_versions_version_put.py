@@ -56,7 +56,7 @@ def _build_response(
 def sync_detailed(
     template_id: str, version: int, *, client: ApiClient
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Set Selected Global Template Version
+    """Set Selected Global Template Version.
 
      Set a global prompt template version as the selected version.
 
@@ -78,14 +78,15 @@ def sync_detailed(
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(template_id=template_id, version=version)
 
     response = client.request(**kwargs)
@@ -96,7 +97,7 @@ def sync_detailed(
 def sync(
     template_id: str, version: int, *, client: ApiClient
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Set Selected Global Template Version
+    """Set Selected Global Template Version.
 
      Set a global prompt template version as the selected version.
 
@@ -118,21 +119,22 @@ def sync(
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
-
     return sync_detailed(template_id=template_id, version=version, client=client).parsed
 
 
 async def asyncio_detailed(
     template_id: str, version: int, *, client: ApiClient
 ) -> Response[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Set Selected Global Template Version
+    """Set Selected Global Template Version.
 
      Set a global prompt template version as the selected version.
 
@@ -154,14 +156,15 @@ async def asyncio_detailed(
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BasePromptTemplateResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(template_id=template_id, version=version)
 
     response = await client.arequest(**kwargs)
@@ -172,7 +175,7 @@ async def asyncio_detailed(
 async def asyncio(
     template_id: str, version: int, *, client: ApiClient
 ) -> Optional[Union[BasePromptTemplateResponse, HTTPValidationError]]:
-    """Set Selected Global Template Version
+    """Set Selected Global Template Version.
 
      Set a global prompt template version as the selected version.
 
@@ -194,12 +197,13 @@ async def asyncio(
         template_id (str):
         version (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BasePromptTemplateResponse, HTTPValidationError]
     """
-
     return (await asyncio_detailed(template_id=template_id, version=version, client=client)).parsed

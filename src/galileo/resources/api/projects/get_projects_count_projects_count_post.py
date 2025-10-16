@@ -50,21 +50,22 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(*, client: ApiClient, body: ProjectCollectionParams) -> Response[Union[HTTPValidationError, int]]:
-    """Get Projects Count
+    """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
 
     Args:
         body (ProjectCollectionParams):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, int]]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -73,42 +74,44 @@ def sync_detailed(*, client: ApiClient, body: ProjectCollectionParams) -> Respon
 
 
 def sync(*, client: ApiClient, body: ProjectCollectionParams) -> Optional[Union[HTTPValidationError, int]]:
-    """Get Projects Count
+    """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
 
     Args:
         body (ProjectCollectionParams):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, int]
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: ProjectCollectionParams
 ) -> Response[Union[HTTPValidationError, int]]:
-    """Get Projects Count
+    """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
 
     Args:
         body (ProjectCollectionParams):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, int]]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -117,19 +120,20 @@ async def asyncio_detailed(
 
 
 async def asyncio(*, client: ApiClient, body: ProjectCollectionParams) -> Optional[Union[HTTPValidationError, int]]:
-    """Get Projects Count
+    """Get Projects Count.
 
      Gets total count of projects for a user with applied filters.
 
     Args:
         body (ProjectCollectionParams):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, int]
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

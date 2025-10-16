@@ -12,7 +12,8 @@ T = TypeVar("T", bound="LogRecordsSortClause")
 @_attrs_define
 class LogRecordsSortClause:
     """
-    Attributes:
+    Attributes
+    ----------
         column_id (str): ID of the column to sort.
         ascending (Union[Unset, bool]):  Default: True.
         sort_type (Union[Literal['column'], Unset]):  Default: 'column'.

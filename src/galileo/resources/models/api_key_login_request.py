@@ -10,7 +10,8 @@ T = TypeVar("T", bound="ApiKeyLoginRequest")
 @_attrs_define
 class ApiKeyLoginRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         api_key (str):
     """
 

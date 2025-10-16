@@ -12,7 +12,8 @@ T = TypeVar("T", bound="TraceMetadata")
 @_attrs_define
 class TraceMetadata:
     """
-    Attributes:
+    Attributes
+    ----------
         execution_time (Union[Unset, float]): Execution time for the request (in seconds). Default: -1.0.
         id (Union[Unset, str]): Unique identifier for the request.
         received_at (Union[Unset, int]): Time the request was received by the server in nanoseconds.

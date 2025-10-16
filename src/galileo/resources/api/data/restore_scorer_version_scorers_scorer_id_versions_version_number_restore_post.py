@@ -56,7 +56,7 @@ def _build_response(
 def sync_detailed(
     scorer_id: str, version_number: int, *, client: ApiClient
 ) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
-    """Restore Scorer Version
+    """Restore Scorer Version.
 
      List all scorers.
 
@@ -64,14 +64,15 @@ def sync_detailed(
         scorer_id (str):
         version_number (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BaseScorerVersionResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(scorer_id=scorer_id, version_number=version_number)
 
     response = client.request(**kwargs)
@@ -82,7 +83,7 @@ def sync_detailed(
 def sync(
     scorer_id: str, version_number: int, *, client: ApiClient
 ) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
-    """Restore Scorer Version
+    """Restore Scorer Version.
 
      List all scorers.
 
@@ -90,21 +91,22 @@ def sync(
         scorer_id (str):
         version_number (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BaseScorerVersionResponse, HTTPValidationError]
     """
-
     return sync_detailed(scorer_id=scorer_id, version_number=version_number, client=client).parsed
 
 
 async def asyncio_detailed(
     scorer_id: str, version_number: int, *, client: ApiClient
 ) -> Response[Union[BaseScorerVersionResponse, HTTPValidationError]]:
-    """Restore Scorer Version
+    """Restore Scorer Version.
 
      List all scorers.
 
@@ -112,14 +114,15 @@ async def asyncio_detailed(
         scorer_id (str):
         version_number (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BaseScorerVersionResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(scorer_id=scorer_id, version_number=version_number)
 
     response = await client.arequest(**kwargs)
@@ -130,7 +133,7 @@ async def asyncio_detailed(
 async def asyncio(
     scorer_id: str, version_number: int, *, client: ApiClient
 ) -> Optional[Union[BaseScorerVersionResponse, HTTPValidationError]]:
-    """Restore Scorer Version
+    """Restore Scorer Version.
 
      List all scorers.
 
@@ -138,12 +141,13 @@ async def asyncio(
         scorer_id (str):
         version_number (int):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BaseScorerVersionResponse, HTTPValidationError]
     """
-
     return (await asyncio_detailed(scorer_id=scorer_id, version_number=version_number, client=client)).parsed

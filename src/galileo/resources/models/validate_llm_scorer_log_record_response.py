@@ -13,7 +13,8 @@ class ValidateLLMScorerLogRecordResponse:
 
     Returns the uuid of the experiment created with the copied log records to store the metric testing results.
 
-        Attributes:
+    Attributes
+    ----------
             metrics_experiment_id (str):
     """
 

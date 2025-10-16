@@ -14,7 +14,8 @@ T = TypeVar("T", bound="BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDa
 @_attrs_define
 class BodyUpdatePromptDatasetProjectsProjectIdPromptDatasetsDatasetIdPut:
     """
-    Attributes:
+    Attributes
+    ----------
         column_names (Union[None, Unset, list[str]]):
         file (Union[File, None, Unset]):
     """

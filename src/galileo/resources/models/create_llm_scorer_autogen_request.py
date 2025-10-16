@@ -12,7 +12,8 @@ T = TypeVar("T", bound="CreateLLMScorerAutogenRequest")
 @_attrs_define
 class CreateLLMScorerAutogenRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         cot_enabled (bool):
         instructions (str):
         model_name (str):

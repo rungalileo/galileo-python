@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ExperimentPrompt")
 @_attrs_define
 class ExperimentPrompt:
     """
-    Attributes:
+    Attributes
+    ----------
         content (Union[None, Unset, str]):
         name (Union[None, Unset, str]):
         prompt_template_id (Union[None, Unset, str]):

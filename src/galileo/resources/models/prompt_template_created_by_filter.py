@@ -13,7 +13,8 @@ T = TypeVar("T", bound="PromptTemplateCreatedByFilter")
 @_attrs_define
 class PromptTemplateCreatedByFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         value (Union[list[str], str]):
         name (Union[Literal['creator'], Unset]):  Default: 'creator'.
         operator (Union[Unset, PromptTemplateCreatedByFilterOperator]):  Default:

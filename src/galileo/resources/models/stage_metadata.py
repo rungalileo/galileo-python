@@ -12,7 +12,8 @@ T = TypeVar("T", bound="StageMetadata")
 @_attrs_define
 class StageMetadata:
     """
-    Attributes:
+    Attributes
+    ----------
         project_id (str):
         stage_id (str):
         stage_name (str):

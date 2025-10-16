@@ -17,7 +17,8 @@ T = TypeVar("T", bound="GroundTruthAdherenceScorer")
 @_attrs_define
 class GroundTruthAdherenceScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.

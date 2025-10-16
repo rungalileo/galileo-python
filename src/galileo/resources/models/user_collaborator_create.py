@@ -13,7 +13,8 @@ T = TypeVar("T", bound="UserCollaboratorCreate")
 @_attrs_define
 class UserCollaboratorCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         user_id (str):
         role (Union[Unset, CollaboratorRole]):
     """

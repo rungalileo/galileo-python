@@ -16,7 +16,8 @@ T = TypeVar("T", bound="AndNode")
 @_attrs_define
 class AndNode:
     """
-    Attributes:
+    Attributes
+    ----------
         and_ (list[Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode']]):
     """
 

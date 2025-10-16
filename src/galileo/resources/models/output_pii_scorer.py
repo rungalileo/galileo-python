@@ -17,7 +17,8 @@ T = TypeVar("T", bound="OutputPIIScorer")
 @_attrs_define
 class OutputPIIScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
         name (Union[Literal['output_pii'], Unset]):  Default: 'output_pii'.

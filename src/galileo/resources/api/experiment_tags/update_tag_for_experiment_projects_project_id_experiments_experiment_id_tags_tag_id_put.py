@@ -57,7 +57,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     project_id: str, experiment_id: str, tag_id: str, *, client: ApiClient, body: RunTagCreateRequest
 ) -> Response[Union[HTTPValidationError, RunTagDB]]:
-    """Update Tag For Experiment
+    """Update Tag For Experiment.
 
      Sets or updates a tag for an experiment.
 
@@ -67,14 +67,15 @@ def sync_detailed(
         tag_id (str):
         body (RunTagCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, RunTagDB]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, body=body)
 
     response = client.request(**kwargs)
@@ -85,7 +86,7 @@ def sync_detailed(
 def sync(
     project_id: str, experiment_id: str, tag_id: str, *, client: ApiClient, body: RunTagCreateRequest
 ) -> Optional[Union[HTTPValidationError, RunTagDB]]:
-    """Update Tag For Experiment
+    """Update Tag For Experiment.
 
      Sets or updates a tag for an experiment.
 
@@ -95,14 +96,15 @@ def sync(
         tag_id (str):
         body (RunTagCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, RunTagDB]
     """
-
     return sync_detailed(
         project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=client, body=body
     ).parsed
@@ -111,7 +113,7 @@ def sync(
 async def asyncio_detailed(
     project_id: str, experiment_id: str, tag_id: str, *, client: ApiClient, body: RunTagCreateRequest
 ) -> Response[Union[HTTPValidationError, RunTagDB]]:
-    """Update Tag For Experiment
+    """Update Tag For Experiment.
 
      Sets or updates a tag for an experiment.
 
@@ -121,14 +123,15 @@ async def asyncio_detailed(
         tag_id (str):
         body (RunTagCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, RunTagDB]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -139,7 +142,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, experiment_id: str, tag_id: str, *, client: ApiClient, body: RunTagCreateRequest
 ) -> Optional[Union[HTTPValidationError, RunTagDB]]:
-    """Update Tag For Experiment
+    """Update Tag For Experiment.
 
      Sets or updates a tag for an experiment.
 
@@ -149,14 +152,15 @@ async def asyncio(
         tag_id (str):
         body (RunTagCreateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, RunTagDB]
     """
-
     return (
         await asyncio_detailed(
             project_id=project_id, experiment_id=experiment_id, tag_id=tag_id, client=client, body=body

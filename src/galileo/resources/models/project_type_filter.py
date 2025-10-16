@@ -13,7 +13,8 @@ T = TypeVar("T", bound="ProjectTypeFilter")
 @_attrs_define
 class ProjectTypeFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (ProjectTypeFilterOperator):
         value (Union[list[str], str]):
         name (Union[Literal['type'], Unset]):  Default: 'type'.

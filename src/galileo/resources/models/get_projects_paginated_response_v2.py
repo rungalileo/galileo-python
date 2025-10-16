@@ -17,7 +17,8 @@ T = TypeVar("T", bound="GetProjectsPaginatedResponseV2")
 class GetProjectsPaginatedResponseV2:
     """Response model for the V2 projects paginated endpoint.
 
-    Attributes:
+    Attributes
+    ----------
         projects (list['ProjectItem']):
         total_count (int): Total number of projects matching the filters.
         limit (Union[Unset, int]):  Default: 100.

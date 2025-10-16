@@ -17,7 +17,8 @@ T = TypeVar("T", bound="UpdateDatasetRequest")
 @_attrs_define
 class UpdateDatasetRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         column_mapping (Union['ColumnMapping', None, Unset]):
         draft (Union[None, Unset, bool]):
         name (Union['Name', None, Unset, str]):

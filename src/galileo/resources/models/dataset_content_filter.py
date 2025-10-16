@@ -13,7 +13,8 @@ T = TypeVar("T", bound="DatasetContentFilter")
 @_attrs_define
 class DatasetContentFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         column_name (str):
         value (str):
         operator (Union[Unset, DatasetContentFilterOperator]):

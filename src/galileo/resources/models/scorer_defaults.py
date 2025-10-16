@@ -19,7 +19,8 @@ T = TypeVar("T", bound="ScorerDefaults")
 @_attrs_define
 class ScorerDefaults:
     """
-    Attributes:
+    Attributes
+    ----------
         cot_enabled (Union[None, Unset, bool]): Whether to enable chain of thought for this scorer. Defaults to False
             for llm scorers.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the

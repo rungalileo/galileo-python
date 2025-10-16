@@ -14,7 +14,8 @@ T = TypeVar("T", bound="RuleResult")
 @_attrs_define
 class RuleResult:
     """
-    Attributes:
+    Attributes
+    ----------
         metric (str): Name of the metric.
         operator (RuleOperator):
         target_value (Union[None, float, int, list[Any], str]): Value to compare with for this metric (right hand side).

@@ -20,7 +20,8 @@ T = TypeVar("T", bound="MetricCritiqueJobConfiguration")
 class MetricCritiqueJobConfiguration:
     """Info necessary to execute a metric critique job.
 
-    Attributes:
+    Attributes
+    ----------
         critique_ids (list[str]):
         metric_name (str):
         project_type (Union[Literal['gen_ai'], Literal['llm_monitor'], Literal['prompt_evaluation']]):

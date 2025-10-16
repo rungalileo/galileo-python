@@ -13,7 +13,8 @@ T = TypeVar("T", bound="CollectionFilter")
 class CollectionFilter:
     """Filters for string items in a collection/list.
 
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, str]):
         operator (CollectionFilterOperator):
         value (str):

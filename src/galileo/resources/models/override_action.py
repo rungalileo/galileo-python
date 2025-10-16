@@ -16,7 +16,8 @@ T = TypeVar("T", bound="OverrideAction")
 @_attrs_define
 class OverrideAction:
     """
-    Attributes:
+    Attributes
+    ----------
         choices (list[str]): List of choices to override the response with. If there are multiple choices, one will be
             chosen at random when applying this action.
         subscriptions (Union[Unset, list['SubscriptionConfig']]): List of subscriptions to send a notification to when

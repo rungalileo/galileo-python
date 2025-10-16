@@ -20,7 +20,8 @@ T = TypeVar("T", bound="ProjectDBThin")
 @_attrs_define
 class ProjectDBThin:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         created_by (str):
         id (str):

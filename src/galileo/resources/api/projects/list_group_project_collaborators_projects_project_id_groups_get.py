@@ -67,7 +67,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]:
-    """List Group Project Collaborators
+    """List Group Project Collaborators.
 
      List the groups with which the project has been shared.
 
@@ -76,14 +76,15 @@ def sync_detailed(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, starting_token=starting_token, limit=limit)
 
     response = client.request(**kwargs)
@@ -94,7 +95,7 @@ def sync_detailed(
 def sync(
     project_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Optional[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]:
-    """List Group Project Collaborators
+    """List Group Project Collaborators.
 
      List the groups with which the project has been shared.
 
@@ -103,21 +104,22 @@ def sync(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, ListGroupCollaboratorsResponse]
     """
-
     return sync_detailed(project_id=project_id, client=client, starting_token=starting_token, limit=limit).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]:
-    """List Group Project Collaborators
+    """List Group Project Collaborators.
 
      List the groups with which the project has been shared.
 
@@ -126,14 +128,15 @@ async def asyncio_detailed(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, starting_token=starting_token, limit=limit)
 
     response = await client.arequest(**kwargs)
@@ -144,7 +147,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, *, client: ApiClient, starting_token: Union[Unset, int] = 0, limit: Union[Unset, int] = 100
 ) -> Optional[Union[HTTPValidationError, ListGroupCollaboratorsResponse]]:
-    """List Group Project Collaborators
+    """List Group Project Collaborators.
 
      List the groups with which the project has been shared.
 
@@ -153,14 +156,15 @@ async def asyncio(
         starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, ListGroupCollaboratorsResponse]
     """
-
     return (
         await asyncio_detailed(project_id=project_id, client=client, starting_token=starting_token, limit=limit)
     ).parsed

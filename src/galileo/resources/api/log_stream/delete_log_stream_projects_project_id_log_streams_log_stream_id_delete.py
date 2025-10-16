@@ -51,7 +51,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     project_id: str, log_stream_id: str, *, client: ApiClient
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Delete Log Stream
+    """Delete Log Stream.
 
      Delete a specific log stream.
 
@@ -59,14 +59,15 @@ def sync_detailed(
         project_id (str):
         log_stream_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id)
 
     response = client.request(**kwargs)
@@ -75,7 +76,7 @@ def sync_detailed(
 
 
 def sync(project_id: str, log_stream_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
-    """Delete Log Stream
+    """Delete Log Stream.
 
      Delete a specific log stream.
 
@@ -83,21 +84,22 @@ def sync(project_id: str, log_stream_id: str, *, client: ApiClient) -> Optional[
         project_id (str):
         log_stream_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return sync_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, log_stream_id: str, *, client: ApiClient
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Delete Log Stream
+    """Delete Log Stream.
 
      Delete a specific log stream.
 
@@ -105,14 +107,15 @@ async def asyncio_detailed(
         project_id (str):
         log_stream_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id)
 
     response = await client.arequest(**kwargs)
@@ -123,7 +126,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, log_stream_id: str, *, client: ApiClient
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Delete Log Stream
+    """Delete Log Stream.
 
      Delete a specific log stream.
 
@@ -131,12 +134,13 @@ async def asyncio(
         project_id (str):
         log_stream_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return (await asyncio_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client)).parsed

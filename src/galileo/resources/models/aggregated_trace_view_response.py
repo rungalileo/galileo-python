@@ -18,13 +18,14 @@ T = TypeVar("T", bound="AggregatedTraceViewResponse")
 @_attrs_define
 class AggregatedTraceViewResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         graph (AggregatedTraceViewGraph):
         has_all_traces (bool): Whether all traces were returned
         num_sessions (int): Number of sessions in the aggregated view
         num_traces (int): Number of traces in the aggregated view
         end_time (Union[None, Unset, datetime.datetime]): created_at of latest record of the aggregated view
-        start_time (Union[None, Unset, datetime.datetime]): created_at of earliest record of the aggregated view
+        start_time (Union[None, Unset, datetime.datetime]): created_at of earliest record of the aggregated view.
     """
 
     graph: "AggregatedTraceViewGraph"

@@ -22,7 +22,8 @@ T = TypeVar("T", bound="ExtendedTraceRecord")
 @_attrs_define
 class ExtendedTraceRecord:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str): Galileo ID of the trace
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span

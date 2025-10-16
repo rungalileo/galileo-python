@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ScoreRating")
 @_attrs_define
 class ScoreRating:
     """
-    Attributes:
+    Attributes
+    ----------
         value (int):
         feedback_type (Union[Literal['score'], Unset]):  Default: 'score'.
     """

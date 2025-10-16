@@ -17,7 +17,8 @@ T = TypeVar("T", bound="InputToneScorer")
 @_attrs_define
 class InputToneScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
         name (Union[Literal['input_tone'], Unset]):  Default: 'input_tone'.

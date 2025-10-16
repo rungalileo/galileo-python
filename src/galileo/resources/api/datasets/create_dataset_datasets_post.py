@@ -78,7 +78,7 @@ def sync_detailed(
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
 ) -> Response[Union[DatasetDB, HTTPValidationError]]:
-    """Create Dataset
+    """Create Dataset.
 
      Creates a standalone dataset.
 
@@ -87,14 +87,15 @@ def sync_detailed(
         hidden (Union[Unset, bool]):  Default: False.
         body (BodyCreateDatasetDatasetsPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[DatasetDB, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body, format_=format_, hidden=hidden)
 
     response = client.request(**kwargs)
@@ -109,7 +110,7 @@ def sync(
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
 ) -> Optional[Union[DatasetDB, HTTPValidationError]]:
-    """Create Dataset
+    """Create Dataset.
 
      Creates a standalone dataset.
 
@@ -118,14 +119,15 @@ def sync(
         hidden (Union[Unset, bool]):  Default: False.
         body (BodyCreateDatasetDatasetsPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[DatasetDB, HTTPValidationError]
     """
-
     return sync_detailed(client=client, body=body, format_=format_, hidden=hidden).parsed
 
 
@@ -136,7 +138,7 @@ async def asyncio_detailed(
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
 ) -> Response[Union[DatasetDB, HTTPValidationError]]:
-    """Create Dataset
+    """Create Dataset.
 
      Creates a standalone dataset.
 
@@ -145,14 +147,15 @@ async def asyncio_detailed(
         hidden (Union[Unset, bool]):  Default: False.
         body (BodyCreateDatasetDatasetsPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[DatasetDB, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body, format_=format_, hidden=hidden)
 
     response = await client.arequest(**kwargs)
@@ -167,7 +170,7 @@ async def asyncio(
     format_: Union[Unset, DatasetFormat] = UNSET,
     hidden: Union[Unset, bool] = False,
 ) -> Optional[Union[DatasetDB, HTTPValidationError]]:
-    """Create Dataset
+    """Create Dataset.
 
      Creates a standalone dataset.
 
@@ -176,12 +179,13 @@ async def asyncio(
         hidden (Union[Unset, bool]):  Default: False.
         body (BodyCreateDatasetDatasetsPost):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[DatasetDB, HTTPValidationError]
     """
-
     return (await asyncio_detailed(client=client, body=body, format_=format_, hidden=hidden)).parsed

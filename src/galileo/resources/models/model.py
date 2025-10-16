@@ -20,7 +20,8 @@ T = TypeVar("T", bound="Model")
 @_attrs_define
 class Model:
     """
-    Attributes:
+    Attributes
+    ----------
         alias (str):
         name (str):
         alternative_names (Union[Unset, list[str]]): Alternative names for the model, used for matching with various

@@ -13,7 +13,8 @@ T = TypeVar("T", bound="BooleanFilter")
 class BooleanFilter:
     """Filters on a boolean field.
 
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, str]):
         operator (BooleanFilterOperator):
         value (bool):

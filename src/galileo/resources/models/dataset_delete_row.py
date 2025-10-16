@@ -12,7 +12,8 @@ T = TypeVar("T", bound="DatasetDeleteRow")
 @_attrs_define
 class DatasetDeleteRow:
     """
-    Attributes:
+    Attributes
+    ----------
         row_id (str):
         edit_type (Union[Literal['delete_row'], Unset]):  Default: 'delete_row'.
     """

@@ -17,7 +17,8 @@ T = TypeVar("T", bound="BasePromptTemplateVersion")
 @_attrs_define
 class BasePromptTemplateVersion:
     """
-    Attributes:
+    Attributes
+    ----------
         template (Union[list['MessagesListItem'], str]):
         output_type (Union[None, Unset, str]):
         raw (Union[Unset, bool]):  Default: False.

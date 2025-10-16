@@ -16,7 +16,8 @@ T = TypeVar("T", bound="DatasetProject")
 @_attrs_define
 class DatasetProject:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         created_by_user (Union['UserInfo', None]):
         id (str):

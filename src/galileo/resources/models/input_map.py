@@ -12,7 +12,8 @@ T = TypeVar("T", bound="InputMap")
 @_attrs_define
 class InputMap:
     """
-    Attributes:
+    Attributes
+    ----------
         prompt (str):
         prefix (Union[Unset, str]):  Default: ''.
         suffix (Union[Unset, str]):  Default: ''.

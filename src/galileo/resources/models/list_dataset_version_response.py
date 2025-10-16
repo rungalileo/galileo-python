@@ -16,7 +16,8 @@ T = TypeVar("T", bound="ListDatasetVersionResponse")
 @_attrs_define
 class ListDatasetVersionResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         versions (list['DatasetVersionDB']):
         limit (Union[Unset, int]):  Default: 100.
         next_starting_token (Union[None, Unset, int]):

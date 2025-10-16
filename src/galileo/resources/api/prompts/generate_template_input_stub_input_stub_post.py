@@ -50,19 +50,20 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(*, client: ApiClient, body: TemplateStubRequest) -> Response[Union[Any, HTTPValidationError]]:
-    """Generate Template Input Stub
+    """Generate Template Input Stub.
 
     Args:
         body (TemplateStubRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -71,38 +72,40 @@ def sync_detailed(*, client: ApiClient, body: TemplateStubRequest) -> Response[U
 
 
 def sync(*, client: ApiClient, body: TemplateStubRequest) -> Optional[Union[Any, HTTPValidationError]]:
-    """Generate Template Input Stub
+    """Generate Template Input Stub.
 
     Args:
         body (TemplateStubRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: TemplateStubRequest
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Generate Template Input Stub
+    """Generate Template Input Stub.
 
     Args:
         body (TemplateStubRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -111,17 +114,18 @@ async def asyncio_detailed(
 
 
 async def asyncio(*, client: ApiClient, body: TemplateStubRequest) -> Optional[Union[Any, HTTPValidationError]]:
-    """Generate Template Input Stub
+    """Generate Template Input Stub.
 
     Args:
         body (TemplateStubRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

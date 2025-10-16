@@ -61,20 +61,21 @@ def _build_response(
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: AggregatedTraceViewRequest
 ) -> Response[Union[AggregatedTraceViewResponse, HTTPValidationError]]:
-    """Get Aggregated Trace View
+    """Get Aggregated Trace View.
 
     Args:
         project_id (str):
         body (AggregatedTraceViewRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[AggregatedTraceViewResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = client.request(**kwargs)
@@ -85,40 +86,42 @@ def sync_detailed(
 def sync(
     project_id: str, *, client: ApiClient, body: AggregatedTraceViewRequest
 ) -> Optional[Union[AggregatedTraceViewResponse, HTTPValidationError]]:
-    """Get Aggregated Trace View
+    """Get Aggregated Trace View.
 
     Args:
         project_id (str):
         body (AggregatedTraceViewRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[AggregatedTraceViewResponse, HTTPValidationError]
     """
-
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: AggregatedTraceViewRequest
 ) -> Response[Union[AggregatedTraceViewResponse, HTTPValidationError]]:
-    """Get Aggregated Trace View
+    """Get Aggregated Trace View.
 
     Args:
         project_id (str):
         body (AggregatedTraceViewRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[AggregatedTraceViewResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -129,18 +132,19 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, *, client: ApiClient, body: AggregatedTraceViewRequest
 ) -> Optional[Union[AggregatedTraceViewResponse, HTTPValidationError]]:
-    """Get Aggregated Trace View
+    """Get Aggregated Trace View.
 
     Args:
         project_id (str):
         body (AggregatedTraceViewRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[AggregatedTraceViewResponse, HTTPValidationError]
     """
-
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

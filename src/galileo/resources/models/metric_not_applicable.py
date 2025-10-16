@@ -13,7 +13,8 @@ T = TypeVar("T", bound="MetricNotApplicable")
 @_attrs_define
 class MetricNotApplicable:
     """
-    Attributes:
+    Attributes
+    ----------
         message (Union[Unset, str]):  Default: 'Metric not applicable.'.
         scorer_type (Union[None, ScorerType, Unset]):
         status_type (Union[Literal['not_applicable'], Unset]):  Default: 'not_applicable'.

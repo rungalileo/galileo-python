@@ -10,7 +10,8 @@ T = TypeVar("T", bound="AggregatedTraceViewEdge")
 @_attrs_define
 class AggregatedTraceViewEdge:
     """
-    Attributes:
+    Attributes
+    ----------
         occurrences (int):
         source (str):
         target (str):

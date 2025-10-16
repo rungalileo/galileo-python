@@ -10,7 +10,8 @@ T = TypeVar("T", bound="ValidationError")
 @_attrs_define
 class ValidationError:
     """
-    Attributes:
+    Attributes
+    ----------
         loc (list[Union[int, str]]):
         msg (str):
         type_ (str):

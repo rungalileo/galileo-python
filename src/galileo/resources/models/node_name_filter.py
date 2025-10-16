@@ -14,7 +14,8 @@ T = TypeVar("T", bound="NodeNameFilter")
 class NodeNameFilter:
     """Filters on node names in scorer jobs.
 
-    Attributes:
+    Attributes
+    ----------
         operator (NodeNameFilterOperator):
         value (str):
         case_sensitive (Union[Unset, bool]):  Default: True.

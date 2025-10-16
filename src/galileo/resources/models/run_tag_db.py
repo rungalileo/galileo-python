@@ -12,7 +12,8 @@ T = TypeVar("T", bound="RunTagDB")
 @_attrs_define
 class RunTagDB:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         created_by (str):
         id (str):

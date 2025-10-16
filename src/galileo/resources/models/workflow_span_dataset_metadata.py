@@ -9,7 +9,7 @@ T = TypeVar("T", bound="WorkflowSpanDatasetMetadata")
 
 @_attrs_define
 class WorkflowSpanDatasetMetadata:
-    """Metadata from the dataset associated with this trace"""
+    """Metadata from the dataset associated with this trace."""
 
     additional_properties: dict[str, str] = _attrs_field(init=False, factory=dict)
 

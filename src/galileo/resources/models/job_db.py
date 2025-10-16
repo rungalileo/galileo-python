@@ -18,7 +18,8 @@ T = TypeVar("T", bound="JobDB")
 @_attrs_define
 class JobDB:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         id (str):
         job_name (str):

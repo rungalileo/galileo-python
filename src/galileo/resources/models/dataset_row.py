@@ -16,7 +16,8 @@ T = TypeVar("T", bound="DatasetRow")
 @_attrs_define
 class DatasetRow:
     """
-    Attributes:
+    Attributes
+    ----------
         index (int):
         metadata (Union['DatasetRowMetadata', None]):
         row_id (str):

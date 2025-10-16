@@ -14,7 +14,8 @@ T = TypeVar("T", bound="StringFilter")
 class StringFilter:
     """Filters on a string field.
 
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, str]):
         operator (StringFilterOperator):
         value (Union[list[str], str]):

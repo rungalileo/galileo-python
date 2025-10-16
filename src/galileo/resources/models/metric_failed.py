@@ -13,7 +13,8 @@ T = TypeVar("T", bound="MetricFailed")
 @_attrs_define
 class MetricFailed:
     """
-    Attributes:
+    Attributes
+    ----------
         message (Union[None, Unset, str]):  Default: 'Metric failed to compute.'.
         scorer_type (Union[None, ScorerType, Unset]):
         status_type (Union[Literal['failed'], Unset]):  Default: 'failed'.

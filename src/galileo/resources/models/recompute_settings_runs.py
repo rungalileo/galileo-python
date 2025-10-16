@@ -12,7 +12,8 @@ T = TypeVar("T", bound="RecomputeSettingsRuns")
 @_attrs_define
 class RecomputeSettingsRuns:
     """
-    Attributes:
+    Attributes
+    ----------
         run_ids (list[str]):
         mode (Union[Literal['runs'], Unset]):  Default: 'runs'.
     """

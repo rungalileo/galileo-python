@@ -17,7 +17,8 @@ T = TypeVar("T", bound="Message")
 @_attrs_define
 class Message:
     """
-    Attributes:
+    Attributes
+    ----------
         content (str):
         role (MessageRole):
         tool_call_id (Union[None, Unset, str]):

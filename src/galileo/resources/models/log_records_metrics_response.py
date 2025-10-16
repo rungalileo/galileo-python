@@ -15,7 +15,8 @@ T = TypeVar("T", bound="LogRecordsMetricsResponse")
 @_attrs_define
 class LogRecordsMetricsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         aggregate_metrics (LogRecordsMetricsResponseAggregateMetrics):
         bucketed_metrics (LogRecordsMetricsResponseBucketedMetrics):
         group_by_columns (list[str]):

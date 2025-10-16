@@ -16,7 +16,8 @@ T = TypeVar("T", bound="DatasetRowMetadata")
 @_attrs_define
 class DatasetRowMetadata:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         created_by_user (Union['UserInfo', None]):
         created_in_version (int):

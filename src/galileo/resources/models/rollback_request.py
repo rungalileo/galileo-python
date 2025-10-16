@@ -10,7 +10,8 @@ T = TypeVar("T", bound="RollbackRequest")
 @_attrs_define
 class RollbackRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         rollback_version (int):
     """
 

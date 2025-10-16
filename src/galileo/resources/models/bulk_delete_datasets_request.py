@@ -11,7 +11,8 @@ T = TypeVar("T", bound="BulkDeleteDatasetsRequest")
 class BulkDeleteDatasetsRequest:
     """Request to delete multiple datasets.
 
-    Attributes:
+    Attributes
+    ----------
         dataset_ids (list[str]):
     """
 

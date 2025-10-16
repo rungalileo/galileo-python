@@ -13,7 +13,8 @@ T = TypeVar("T", bound="EnumFilter")
 class EnumFilter:
     """Filters on a string field, with limited categories.
 
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, str]):
         operator (EnumFilterOperator):
         value (Union[list[str], str]):

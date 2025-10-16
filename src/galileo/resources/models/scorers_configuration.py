@@ -16,7 +16,8 @@ class ScorersConfiguration:
     The keys here are sorted by their approximate execution time to execute the scorers that we anticipate will be the
     fastest first, and the slowest last.
 
-        Attributes:
+    Attributes
+    ----------
             action_advancement_luna (Union[Unset, bool]):  Default: False.
             action_completion_luna (Union[Unset, bool]):  Default: False.
             adherence_nli (Union[Unset, bool]):  Default: False.

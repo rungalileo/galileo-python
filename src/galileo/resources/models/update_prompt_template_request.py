@@ -16,7 +16,8 @@ T = TypeVar("T", bound="UpdatePromptTemplateRequest")
 @_attrs_define
 class UpdatePromptTemplateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (Union['Name', None, Unset, str]):
     """
 

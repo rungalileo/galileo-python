@@ -12,7 +12,8 @@ T = TypeVar("T", bound="ProjectRunsSort")
 @_attrs_define
 class ProjectRunsSort:
     """
-    Attributes:
+    Attributes
+    ----------
         ascending (Union[Unset, bool]):  Default: True.
         name (Union[Literal['runs'], Unset]):  Default: 'runs'.
         sort_type (Union[Literal['custom'], Unset]):  Default: 'custom'.

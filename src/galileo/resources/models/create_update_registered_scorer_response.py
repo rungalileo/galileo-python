@@ -14,7 +14,8 @@ T = TypeVar("T", bound="CreateUpdateRegisteredScorerResponse")
 @_attrs_define
 class CreateUpdateRegisteredScorerResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         created_by (str):
         data_type (Union[DataTypeOptions, None]):

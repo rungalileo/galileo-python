@@ -12,7 +12,8 @@ T = TypeVar("T", bound="TagsRating")
 @_attrs_define
 class TagsRating:
     """
-    Attributes:
+    Attributes
+    ----------
         value (list[str]):
         feedback_type (Union[Literal['tags'], Unset]):  Default: 'tags'.
     """

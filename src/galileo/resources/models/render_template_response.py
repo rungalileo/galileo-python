@@ -16,7 +16,8 @@ T = TypeVar("T", bound="RenderTemplateResponse")
 @_attrs_define
 class RenderTemplateResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         rendered_templates (list['RenderedTemplate']):
         limit (Union[Unset, int]):  Default: 100.
         next_starting_token (Union[None, Unset, int]):

@@ -27,7 +27,8 @@ T = TypeVar("T", bound="AgentSpan")
 @_attrs_define
 class AgentSpan:
     """
-    Attributes:
+    Attributes
+    ----------
         agent_type (Union[Unset, AgentType]):
         created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
         dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace

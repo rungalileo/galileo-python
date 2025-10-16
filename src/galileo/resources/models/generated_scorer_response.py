@@ -20,7 +20,8 @@ T = TypeVar("T", bound="GeneratedScorerResponse")
 @_attrs_define
 class GeneratedScorerResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         chain_poll_template (ChainPollTemplate): Template for a chainpoll metric prompt,
             containing all the info necessary to send a chainpoll prompt.
         created_at (datetime.datetime):

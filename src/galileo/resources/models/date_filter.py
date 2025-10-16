@@ -15,7 +15,8 @@ T = TypeVar("T", bound="DateFilter")
 class DateFilter:
     """Filters on a datetime field.
 
-    Attributes:
+    Attributes
+    ----------
         name (Union[None, str]):
         operator (DateFilterOperator):
         value (datetime.datetime):

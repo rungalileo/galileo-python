@@ -12,7 +12,8 @@ T = TypeVar("T", bound="BucketedMetrics")
 @_attrs_define
 class BucketedMetrics:
     """
-    Attributes:
+    Attributes
+    ----------
         end_bucket_time (datetime.datetime):
         start_bucket_time (datetime.datetime):
     """

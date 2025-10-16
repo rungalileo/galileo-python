@@ -13,7 +13,8 @@ T = TypeVar("T", bound="ProjectNameFilter")
 @_attrs_define
 class ProjectNameFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (ProjectNameFilterOperator):
         value (Union[list[str], str]):
         case_sensitive (Union[Unset, bool]):  Default: True.

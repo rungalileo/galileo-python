@@ -17,7 +17,8 @@ T = TypeVar("T", bound="MetricComputation")
 @_attrs_define
 class MetricComputation:
     """
-    Attributes:
+    Attributes
+    ----------
         error_message (Union[None, Unset, str]):
         execution_time (Union[None, Unset, float]):
         status (Union[MetricComputationStatus, None, Unset]):

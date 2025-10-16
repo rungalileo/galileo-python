@@ -17,7 +17,8 @@ T = TypeVar("T", bound="BulkDeleteDatasetsResponse")
 class BulkDeleteDatasetsResponse:
     """Response from bulk deletion operation.
 
-    Attributes:
+    Attributes
+    ----------
         deleted_count (int):
         message (str):
         failed_deletions (Union[Unset, list['BulkDeleteFailure']]):

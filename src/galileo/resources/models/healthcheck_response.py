@@ -10,7 +10,8 @@ T = TypeVar("T", bound="HealthcheckResponse")
 @_attrs_define
 class HealthcheckResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         api_version (str):
         message (str):
         version (str):

@@ -16,7 +16,8 @@ T = TypeVar("T", bound="NotNode")
 @_attrs_define
 class NotNode:
     """
-    Attributes:
+    Attributes
+    ----------
         not_ (Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode']):
     """
 

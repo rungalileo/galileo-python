@@ -15,7 +15,8 @@ T = TypeVar("T", bound="Document")
 @_attrs_define
 class Document:
     """
-    Attributes:
+    Attributes
+    ----------
         page_content (str): Content of the document.
         metadata (Union[Unset, DocumentMetadata]):
     """

@@ -69,7 +69,8 @@ T = TypeVar("T", bound="CreateJobRequest")
 @_attrs_define
 class CreateJobRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         project_id (str):
         run_id (str):
         dataset_id (Union[None, Unset, str]):

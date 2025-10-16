@@ -49,7 +49,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 
 
 def sync_detailed(template_id: str, user_id: str, *, client: ApiClient) -> Response[Union[Any, HTTPValidationError]]:
-    """Delete User Prompt Template Collaborator
+    """Delete User Prompt Template Collaborator.
 
      Remove a user's access to a prompt template.
 
@@ -57,14 +57,15 @@ def sync_detailed(template_id: str, user_id: str, *, client: ApiClient) -> Respo
         template_id (str):
         user_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(template_id=template_id, user_id=user_id)
 
     response = client.request(**kwargs)
@@ -73,7 +74,7 @@ def sync_detailed(template_id: str, user_id: str, *, client: ApiClient) -> Respo
 
 
 def sync(template_id: str, user_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
-    """Delete User Prompt Template Collaborator
+    """Delete User Prompt Template Collaborator.
 
      Remove a user's access to a prompt template.
 
@@ -81,21 +82,22 @@ def sync(template_id: str, user_id: str, *, client: ApiClient) -> Optional[Union
         template_id (str):
         user_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return sync_detailed(template_id=template_id, user_id=user_id, client=client).parsed
 
 
 async def asyncio_detailed(
     template_id: str, user_id: str, *, client: ApiClient
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Delete User Prompt Template Collaborator
+    """Delete User Prompt Template Collaborator.
 
      Remove a user's access to a prompt template.
 
@@ -103,14 +105,15 @@ async def asyncio_detailed(
         template_id (str):
         user_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(template_id=template_id, user_id=user_id)
 
     response = await client.arequest(**kwargs)
@@ -119,7 +122,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(template_id: str, user_id: str, *, client: ApiClient) -> Optional[Union[Any, HTTPValidationError]]:
-    """Delete User Prompt Template Collaborator
+    """Delete User Prompt Template Collaborator.
 
      Remove a user's access to a prompt template.
 
@@ -127,12 +130,13 @@ async def asyncio(template_id: str, user_id: str, *, client: ApiClient) -> Optio
         template_id (str):
         user_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return (await asyncio_detailed(template_id=template_id, user_id=user_id, client=client)).parsed

@@ -12,7 +12,8 @@ T = TypeVar("T", bound="OutputMap")
 @_attrs_define
 class OutputMap:
     """
-    Attributes:
+    Attributes
+    ----------
         response (str):
         completion_reason (Union[None, Unset, str]):
         input_token_count (Union[None, Unset, str]):

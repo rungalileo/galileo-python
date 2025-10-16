@@ -1,4 +1,4 @@
-"""Contains all the data models used in inputs/outputs"""
+"""Contains all the data models used in inputs/outputs."""
 
 from .action_result import ActionResult
 from .action_type import ActionType
@@ -9,9 +9,11 @@ from .agent_type import AgentType
 from .agentic_session_success_scorer import AgenticSessionSuccessScorer
 from .agentic_session_success_scorer_type import AgenticSessionSuccessScorerType
 from .agentic_session_success_template import AgenticSessionSuccessTemplate
+from .agentic_session_success_template_response_schema_type_0 import AgenticSessionSuccessTemplateResponseSchemaType0
 from .agentic_workflow_success_scorer import AgenticWorkflowSuccessScorer
 from .agentic_workflow_success_scorer_type import AgenticWorkflowSuccessScorerType
 from .agentic_workflow_success_template import AgenticWorkflowSuccessTemplate
+from .agentic_workflow_success_template_response_schema_type_0 import AgenticWorkflowSuccessTemplateResponseSchemaType0
 from .aggregated_trace_view_edge import AggregatedTraceViewEdge
 from .aggregated_trace_view_graph import AggregatedTraceViewGraph
 from .aggregated_trace_view_node import AggregatedTraceViewNode
@@ -23,6 +25,8 @@ from .api_key_action import ApiKeyAction
 from .api_key_login_request import ApiKeyLoginRequest
 from .auth_method import AuthMethod
 from .base_finetuned_scorer_db import BaseFinetunedScorerDB
+from .base_finetuned_scorer_db_class_name_to_vocab_ix_type_0 import BaseFinetunedScorerDBClassNameToVocabIxType0
+from .base_finetuned_scorer_db_class_name_to_vocab_ix_type_1 import BaseFinetunedScorerDBClassNameToVocabIxType1
 from .base_generated_scorer_db import BaseGeneratedScorerDB
 from .base_prompt_template_response import BasePromptTemplateResponse
 from .base_prompt_template_version import BasePromptTemplateVersion
@@ -30,6 +34,8 @@ from .base_prompt_template_version_response import BasePromptTemplateVersionResp
 from .base_registered_scorer_db import BaseRegisteredScorerDB
 from .base_scorer import BaseScorer
 from .base_scorer_aggregates_type_0 import BaseScorerAggregatesType0
+from .base_scorer_class_name_to_vocab_ix_type_0 import BaseScorerClassNameToVocabIxType0
+from .base_scorer_class_name_to_vocab_ix_type_1 import BaseScorerClassNameToVocabIxType1
 from .base_scorer_extra_type_0 import BaseScorerExtraType0
 from .base_scorer_version_db import BaseScorerVersionDB
 from .base_scorer_version_response import BaseScorerVersionResponse
@@ -56,9 +62,13 @@ from .bulk_delete_datasets_response import BulkDeleteDatasetsResponse
 from .bulk_delete_failure import BulkDeleteFailure
 from .bulk_delete_prompt_templates_request import BulkDeletePromptTemplatesRequest
 from .chain_poll_template import ChainPollTemplate
+from .chain_poll_template_response_schema_type_0 import ChainPollTemplateResponseSchemaType0
 from .chunk_attribution_utilization_scorer import ChunkAttributionUtilizationScorer
 from .chunk_attribution_utilization_scorer_type import ChunkAttributionUtilizationScorerType
 from .chunk_attribution_utilization_template import ChunkAttributionUtilizationTemplate
+from .chunk_attribution_utilization_template_response_schema_type_0 import (
+    ChunkAttributionUtilizationTemplateResponseSchemaType0,
+)
 from .collaborator_role import CollaboratorRole
 from .collaborator_role_info import CollaboratorRoleInfo
 from .collaborator_update import CollaboratorUpdate
@@ -71,6 +81,7 @@ from .column_mapping_config import ColumnMappingConfig
 from .completeness_scorer import CompletenessScorer
 from .completeness_scorer_type import CompletenessScorerType
 from .completeness_template import CompletenessTemplate
+from .completeness_template_response_schema_type_0 import CompletenessTemplateResponseSchemaType0
 from .context_adherence_scorer import ContextAdherenceScorer
 from .context_adherence_scorer_type import ContextAdherenceScorerType
 from .context_relevance_scorer import ContextRelevanceScorer
@@ -94,12 +105,24 @@ from .customized_agentic_session_success_gpt_scorer import CustomizedAgenticSess
 from .customized_agentic_session_success_gpt_scorer_aggregates_type_0 import (
     CustomizedAgenticSessionSuccessGPTScorerAggregatesType0,
 )
+from .customized_agentic_session_success_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedAgenticSessionSuccessGPTScorerClassNameToVocabIxType0,
+)
+from .customized_agentic_session_success_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedAgenticSessionSuccessGPTScorerClassNameToVocabIxType1,
+)
 from .customized_agentic_session_success_gpt_scorer_extra_type_0 import (
     CustomizedAgenticSessionSuccessGPTScorerExtraType0,
 )
 from .customized_agentic_workflow_success_gpt_scorer import CustomizedAgenticWorkflowSuccessGPTScorer
 from .customized_agentic_workflow_success_gpt_scorer_aggregates_type_0 import (
     CustomizedAgenticWorkflowSuccessGPTScorerAggregatesType0,
+)
+from .customized_agentic_workflow_success_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedAgenticWorkflowSuccessGPTScorerClassNameToVocabIxType0,
+)
+from .customized_agentic_workflow_success_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedAgenticWorkflowSuccessGPTScorerClassNameToVocabIxType1,
 )
 from .customized_agentic_workflow_success_gpt_scorer_extra_type_0 import (
     CustomizedAgenticWorkflowSuccessGPTScorerExtraType0,
@@ -108,50 +131,124 @@ from .customized_chunk_attribution_utilization_gpt_scorer import CustomizedChunk
 from .customized_chunk_attribution_utilization_gpt_scorer_aggregates_type_0 import (
     CustomizedChunkAttributionUtilizationGPTScorerAggregatesType0,
 )
+from .customized_chunk_attribution_utilization_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedChunkAttributionUtilizationGPTScorerClassNameToVocabIxType0,
+)
+from .customized_chunk_attribution_utilization_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedChunkAttributionUtilizationGPTScorerClassNameToVocabIxType1,
+)
 from .customized_chunk_attribution_utilization_gpt_scorer_extra_type_0 import (
     CustomizedChunkAttributionUtilizationGPTScorerExtraType0,
 )
 from .customized_completeness_gpt_scorer import CustomizedCompletenessGPTScorer
 from .customized_completeness_gpt_scorer_aggregates_type_0 import CustomizedCompletenessGPTScorerAggregatesType0
+from .customized_completeness_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedCompletenessGPTScorerClassNameToVocabIxType0,
+)
+from .customized_completeness_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedCompletenessGPTScorerClassNameToVocabIxType1,
+)
 from .customized_completeness_gpt_scorer_extra_type_0 import CustomizedCompletenessGPTScorerExtraType0
 from .customized_factuality_gpt_scorer import CustomizedFactualityGPTScorer
 from .customized_factuality_gpt_scorer_aggregates_type_0 import CustomizedFactualityGPTScorerAggregatesType0
+from .customized_factuality_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedFactualityGPTScorerClassNameToVocabIxType0,
+)
+from .customized_factuality_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedFactualityGPTScorerClassNameToVocabIxType1,
+)
 from .customized_factuality_gpt_scorer_extra_type_0 import CustomizedFactualityGPTScorerExtraType0
 from .customized_ground_truth_adherence_gpt_scorer import CustomizedGroundTruthAdherenceGPTScorer
 from .customized_ground_truth_adherence_gpt_scorer_aggregates_type_0 import (
     CustomizedGroundTruthAdherenceGPTScorerAggregatesType0,
 )
+from .customized_ground_truth_adherence_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedGroundTruthAdherenceGPTScorerClassNameToVocabIxType0,
+)
+from .customized_ground_truth_adherence_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedGroundTruthAdherenceGPTScorerClassNameToVocabIxType1,
+)
 from .customized_ground_truth_adherence_gpt_scorer_extra_type_0 import CustomizedGroundTruthAdherenceGPTScorerExtraType0
 from .customized_groundedness_gpt_scorer import CustomizedGroundednessGPTScorer
 from .customized_groundedness_gpt_scorer_aggregates_type_0 import CustomizedGroundednessGPTScorerAggregatesType0
+from .customized_groundedness_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedGroundednessGPTScorerClassNameToVocabIxType0,
+)
+from .customized_groundedness_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedGroundednessGPTScorerClassNameToVocabIxType1,
+)
 from .customized_groundedness_gpt_scorer_extra_type_0 import CustomizedGroundednessGPTScorerExtraType0
 from .customized_input_sexist_gpt_scorer import CustomizedInputSexistGPTScorer
 from .customized_input_sexist_gpt_scorer_aggregates_type_0 import CustomizedInputSexistGPTScorerAggregatesType0
+from .customized_input_sexist_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedInputSexistGPTScorerClassNameToVocabIxType0,
+)
+from .customized_input_sexist_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedInputSexistGPTScorerClassNameToVocabIxType1,
+)
 from .customized_input_sexist_gpt_scorer_extra_type_0 import CustomizedInputSexistGPTScorerExtraType0
 from .customized_input_toxicity_gpt_scorer import CustomizedInputToxicityGPTScorer
 from .customized_input_toxicity_gpt_scorer_aggregates_type_0 import CustomizedInputToxicityGPTScorerAggregatesType0
+from .customized_input_toxicity_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedInputToxicityGPTScorerClassNameToVocabIxType0,
+)
+from .customized_input_toxicity_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedInputToxicityGPTScorerClassNameToVocabIxType1,
+)
 from .customized_input_toxicity_gpt_scorer_extra_type_0 import CustomizedInputToxicityGPTScorerExtraType0
 from .customized_instruction_adherence_gpt_scorer import CustomizedInstructionAdherenceGPTScorer
 from .customized_instruction_adherence_gpt_scorer_aggregates_type_0 import (
     CustomizedInstructionAdherenceGPTScorerAggregatesType0,
 )
+from .customized_instruction_adherence_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedInstructionAdherenceGPTScorerClassNameToVocabIxType0,
+)
+from .customized_instruction_adherence_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedInstructionAdherenceGPTScorerClassNameToVocabIxType1,
+)
 from .customized_instruction_adherence_gpt_scorer_extra_type_0 import CustomizedInstructionAdherenceGPTScorerExtraType0
 from .customized_prompt_injection_gpt_scorer import CustomizedPromptInjectionGPTScorer
 from .customized_prompt_injection_gpt_scorer_aggregates_type_0 import CustomizedPromptInjectionGPTScorerAggregatesType0
+from .customized_prompt_injection_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0,
+)
+from .customized_prompt_injection_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1,
+)
 from .customized_prompt_injection_gpt_scorer_extra_type_0 import CustomizedPromptInjectionGPTScorerExtraType0
 from .customized_sexist_gpt_scorer import CustomizedSexistGPTScorer
 from .customized_sexist_gpt_scorer_aggregates_type_0 import CustomizedSexistGPTScorerAggregatesType0
+from .customized_sexist_gpt_scorer_class_name_to_vocab_ix_type_0 import CustomizedSexistGPTScorerClassNameToVocabIxType0
+from .customized_sexist_gpt_scorer_class_name_to_vocab_ix_type_1 import CustomizedSexistGPTScorerClassNameToVocabIxType1
 from .customized_sexist_gpt_scorer_extra_type_0 import CustomizedSexistGPTScorerExtraType0
 from .customized_tool_error_rate_gpt_scorer import CustomizedToolErrorRateGPTScorer
 from .customized_tool_error_rate_gpt_scorer_aggregates_type_0 import CustomizedToolErrorRateGPTScorerAggregatesType0
+from .customized_tool_error_rate_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedToolErrorRateGPTScorerClassNameToVocabIxType0,
+)
+from .customized_tool_error_rate_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedToolErrorRateGPTScorerClassNameToVocabIxType1,
+)
 from .customized_tool_error_rate_gpt_scorer_extra_type_0 import CustomizedToolErrorRateGPTScorerExtraType0
 from .customized_tool_selection_quality_gpt_scorer import CustomizedToolSelectionQualityGPTScorer
 from .customized_tool_selection_quality_gpt_scorer_aggregates_type_0 import (
     CustomizedToolSelectionQualityGPTScorerAggregatesType0,
 )
+from .customized_tool_selection_quality_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0,
+)
+from .customized_tool_selection_quality_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1,
+)
 from .customized_tool_selection_quality_gpt_scorer_extra_type_0 import CustomizedToolSelectionQualityGPTScorerExtraType0
 from .customized_toxicity_gpt_scorer import CustomizedToxicityGPTScorer
 from .customized_toxicity_gpt_scorer_aggregates_type_0 import CustomizedToxicityGPTScorerAggregatesType0
+from .customized_toxicity_gpt_scorer_class_name_to_vocab_ix_type_0 import (
+    CustomizedToxicityGPTScorerClassNameToVocabIxType0,
+)
+from .customized_toxicity_gpt_scorer_class_name_to_vocab_ix_type_1 import (
+    CustomizedToxicityGPTScorerClassNameToVocabIxType1,
+)
 from .customized_toxicity_gpt_scorer_extra_type_0 import CustomizedToxicityGPTScorerExtraType0
 from .data_type import DataType
 from .data_type_options import DataTypeOptions
@@ -178,6 +275,7 @@ from .dataset_last_edited_by_user_at_sort import DatasetLastEditedByUserAtSort
 from .dataset_name_filter import DatasetNameFilter
 from .dataset_name_filter_operator import DatasetNameFilterOperator
 from .dataset_name_sort import DatasetNameSort
+from .dataset_not_in_project_filter import DatasetNotInProjectFilter
 from .dataset_prepend_row import DatasetPrependRow
 from .dataset_prepend_row_values import DatasetPrependRowValues
 from .dataset_prepend_row_values_additional_property_type_3 import DatasetPrependRowValuesAdditionalPropertyType3
@@ -296,6 +394,7 @@ from .extended_workflow_span_record_with_children_user_metadata import (
     ExtendedWorkflowSpanRecordWithChildrenUserMetadata,
 )
 from .factuality_template import FactualityTemplate
+from .factuality_template_response_schema_type_0 import FactualityTemplateResponseSchemaType0
 from .feedback_aggregate import FeedbackAggregate
 from .feedback_rating_db import FeedbackRatingDB
 from .feedback_rating_info import FeedbackRatingInfo
@@ -305,6 +404,8 @@ from .filter_leaf import FilterLeaf
 from .fine_tuned_scorer import FineTunedScorer
 from .fine_tuned_scorer_action import FineTunedScorerAction
 from .fine_tuned_scorer_response import FineTunedScorerResponse
+from .fine_tuned_scorer_response_class_name_to_vocab_ix_type_0 import FineTunedScorerResponseClassNameToVocabIxType0
+from .fine_tuned_scorer_response_class_name_to_vocab_ix_type_1 import FineTunedScorerResponseClassNameToVocabIxType1
 from .generated_scorer_action import GeneratedScorerAction
 from .generated_scorer_configuration import GeneratedScorerConfiguration
 from .generated_scorer_response import GeneratedScorerResponse
@@ -314,7 +415,9 @@ from .get_projects_paginated_response import GetProjectsPaginatedResponse
 from .get_projects_paginated_response_v2 import GetProjectsPaginatedResponseV2
 from .ground_truth_adherence_scorer import GroundTruthAdherenceScorer
 from .ground_truth_adherence_template import GroundTruthAdherenceTemplate
+from .ground_truth_adherence_template_response_schema_type_0 import GroundTruthAdherenceTemplateResponseSchemaType0
 from .groundedness_template import GroundednessTemplate
+from .groundedness_template_response_schema_type_0 import GroundednessTemplateResponseSchemaType0
 from .group_action import GroupAction
 from .group_collaborator import GroupCollaborator
 from .group_collaborator_create import GroupCollaboratorCreate
@@ -332,14 +435,17 @@ from .input_pii_scorer import InputPIIScorer
 from .input_sexist_scorer import InputSexistScorer
 from .input_sexist_scorer_type import InputSexistScorerType
 from .input_sexist_template import InputSexistTemplate
+from .input_sexist_template_response_schema_type_0 import InputSexistTemplateResponseSchemaType0
 from .input_tone_scorer import InputToneScorer
 from .input_toxicity_scorer import InputToxicityScorer
 from .input_toxicity_scorer_type import InputToxicityScorerType
 from .input_toxicity_template import InputToxicityTemplate
+from .input_toxicity_template_response_schema_type_0 import InputToxicityTemplateResponseSchemaType0
 from .input_type_enum import InputTypeEnum
 from .insight_type import InsightType
 from .instruction_adherence_scorer import InstructionAdherenceScorer
 from .instruction_adherence_template import InstructionAdherenceTemplate
+from .instruction_adherence_template_response_schema_type_0 import InstructionAdherenceTemplateResponseSchemaType0
 from .integration_action import IntegrationAction
 from .invoke_response import InvokeResponse
 from .invoke_response_headers_type_0 import InvokeResponseHeadersType0
@@ -388,6 +494,8 @@ from .log_records_metrics_response_aggregate_metrics import LogRecordsMetricsRes
 from .log_records_metrics_response_bucketed_metrics import LogRecordsMetricsResponseBucketedMetrics
 from .log_records_number_filter import LogRecordsNumberFilter
 from .log_records_number_filter_operator import LogRecordsNumberFilterOperator
+from .log_records_query_count_request import LogRecordsQueryCountRequest
+from .log_records_query_count_response import LogRecordsQueryCountResponse
 from .log_records_query_request import LogRecordsQueryRequest
 from .log_records_query_response import LogRecordsQueryResponse
 from .log_records_sort_clause import LogRecordsSortClause
@@ -405,6 +513,8 @@ from .log_trace_update_response import LogTraceUpdateResponse
 from .log_traces_ingest_request import LogTracesIngestRequest
 from .log_traces_ingest_response import LogTracesIngestResponse
 from .logging_method import LoggingMethod
+from .luna_input_type_enum import LunaInputTypeEnum
+from .luna_output_type_enum import LunaOutputTypeEnum
 from .manual_llm_validate_scorers_llm_validate_post_body import ManualLlmValidateScorersLlmValidatePostBody
 from .map_filter import MapFilter
 from .map_filter_operator import MapFilterOperator
@@ -492,6 +602,7 @@ from .prompt_dataset_db import PromptDatasetDB
 from .prompt_injection_scorer import PromptInjectionScorer
 from .prompt_injection_scorer_type import PromptInjectionScorerType
 from .prompt_injection_template import PromptInjectionTemplate
+from .prompt_injection_template_response_schema_type_0 import PromptInjectionTemplateResponseSchemaType0
 from .prompt_optimization_configuration import PromptOptimizationConfiguration
 from .prompt_perplexity_scorer import PromptPerplexityScorer
 from .prompt_run_settings import PromptRunSettings
@@ -503,6 +614,7 @@ from .prompt_template_created_by_filter_operator import PromptTemplateCreatedByF
 from .prompt_template_name_filter import PromptTemplateNameFilter
 from .prompt_template_name_filter_operator import PromptTemplateNameFilterOperator
 from .prompt_template_name_sort import PromptTemplateNameSort
+from .prompt_template_not_in_project_filter import PromptTemplateNotInProjectFilter
 from .prompt_template_updated_at_sort import PromptTemplateUpdatedAtSort
 from .prompt_template_used_in_project_filter import PromptTemplateUsedInProjectFilter
 from .prompt_template_version_created_at_sort import PromptTemplateVersionCreatedAtSort
@@ -573,6 +685,7 @@ from .segment_filter import SegmentFilter
 from .session_create_request import SessionCreateRequest
 from .session_create_response import SessionCreateResponse
 from .sexist_template import SexistTemplate
+from .sexist_template_response_schema_type_0 import SexistTemplateResponseSchemaType0
 from .stage_db import StageDB
 from .stage_metadata import StageMetadata
 from .stage_type import StageType
@@ -603,13 +716,16 @@ from .tool_call_function import ToolCallFunction
 from .tool_error_rate_scorer import ToolErrorRateScorer
 from .tool_error_rate_scorer_type import ToolErrorRateScorerType
 from .tool_error_rate_template import ToolErrorRateTemplate
+from .tool_error_rate_template_response_schema_type_0 import ToolErrorRateTemplateResponseSchemaType0
 from .tool_selection_quality_scorer import ToolSelectionQualityScorer
 from .tool_selection_quality_scorer_type import ToolSelectionQualityScorerType
 from .tool_selection_quality_template import ToolSelectionQualityTemplate
+from .tool_selection_quality_template_response_schema_type_0 import ToolSelectionQualityTemplateResponseSchemaType0
 from .tool_span import ToolSpan
 from .tool_span_dataset_metadata import ToolSpanDatasetMetadata
 from .tool_span_user_metadata import ToolSpanUserMetadata
 from .toxicity_template import ToxicityTemplate
+from .toxicity_template_response_schema_type_0 import ToxicityTemplateResponseSchemaType0
 from .trace import Trace
 from .trace_dataset_metadata import TraceDatasetMetadata
 from .trace_metadata import TraceMetadata
@@ -644,9 +760,11 @@ __all__ = (
     "AgenticSessionSuccessScorer",
     "AgenticSessionSuccessScorerType",
     "AgenticSessionSuccessTemplate",
+    "AgenticSessionSuccessTemplateResponseSchemaType0",
     "AgenticWorkflowSuccessScorer",
     "AgenticWorkflowSuccessScorerType",
     "AgenticWorkflowSuccessTemplate",
+    "AgenticWorkflowSuccessTemplateResponseSchemaType0",
     "AggregatedTraceViewEdge",
     "AggregatedTraceViewGraph",
     "AggregatedTraceViewNode",
@@ -658,6 +776,8 @@ __all__ = (
     "ApiKeyLoginRequest",
     "AuthMethod",
     "BaseFinetunedScorerDB",
+    "BaseFinetunedScorerDBClassNameToVocabIxType0",
+    "BaseFinetunedScorerDBClassNameToVocabIxType1",
     "BaseGeneratedScorerDB",
     "BasePromptTemplateResponse",
     "BasePromptTemplateVersion",
@@ -665,6 +785,8 @@ __all__ = (
     "BaseRegisteredScorerDB",
     "BaseScorer",
     "BaseScorerAggregatesType0",
+    "BaseScorerClassNameToVocabIxType0",
+    "BaseScorerClassNameToVocabIxType1",
     "BaseScorerExtraType0",
     "BaseScorerVersionDB",
     "BaseScorerVersionResponse",
@@ -685,9 +807,11 @@ __all__ = (
     "BulkDeleteFailure",
     "BulkDeletePromptTemplatesRequest",
     "ChainPollTemplate",
+    "ChainPollTemplateResponseSchemaType0",
     "ChunkAttributionUtilizationScorer",
     "ChunkAttributionUtilizationScorerType",
     "ChunkAttributionUtilizationTemplate",
+    "ChunkAttributionUtilizationTemplateResponseSchemaType0",
     "CollaboratorRole",
     "CollaboratorRoleInfo",
     "CollaboratorUpdate",
@@ -700,6 +824,7 @@ __all__ = (
     "CompletenessScorer",
     "CompletenessScorerType",
     "CompletenessTemplate",
+    "CompletenessTemplateResponseSchemaType0",
     "ContextAdherenceScorer",
     "ContextAdherenceScorerType",
     "ContextRelevanceScorer",
@@ -721,48 +846,78 @@ __all__ = (
     "CustomUUIDFilter",
     "CustomizedAgenticSessionSuccessGPTScorer",
     "CustomizedAgenticSessionSuccessGPTScorerAggregatesType0",
+    "CustomizedAgenticSessionSuccessGPTScorerClassNameToVocabIxType0",
+    "CustomizedAgenticSessionSuccessGPTScorerClassNameToVocabIxType1",
     "CustomizedAgenticSessionSuccessGPTScorerExtraType0",
     "CustomizedAgenticWorkflowSuccessGPTScorer",
     "CustomizedAgenticWorkflowSuccessGPTScorerAggregatesType0",
+    "CustomizedAgenticWorkflowSuccessGPTScorerClassNameToVocabIxType0",
+    "CustomizedAgenticWorkflowSuccessGPTScorerClassNameToVocabIxType1",
     "CustomizedAgenticWorkflowSuccessGPTScorerExtraType0",
     "CustomizedChunkAttributionUtilizationGPTScorer",
     "CustomizedChunkAttributionUtilizationGPTScorerAggregatesType0",
+    "CustomizedChunkAttributionUtilizationGPTScorerClassNameToVocabIxType0",
+    "CustomizedChunkAttributionUtilizationGPTScorerClassNameToVocabIxType1",
     "CustomizedChunkAttributionUtilizationGPTScorerExtraType0",
     "CustomizedCompletenessGPTScorer",
     "CustomizedCompletenessGPTScorerAggregatesType0",
+    "CustomizedCompletenessGPTScorerClassNameToVocabIxType0",
+    "CustomizedCompletenessGPTScorerClassNameToVocabIxType1",
     "CustomizedCompletenessGPTScorerExtraType0",
     "CustomizedFactualityGPTScorer",
     "CustomizedFactualityGPTScorerAggregatesType0",
+    "CustomizedFactualityGPTScorerClassNameToVocabIxType0",
+    "CustomizedFactualityGPTScorerClassNameToVocabIxType1",
     "CustomizedFactualityGPTScorerExtraType0",
     "CustomizedGroundTruthAdherenceGPTScorer",
     "CustomizedGroundTruthAdherenceGPTScorerAggregatesType0",
+    "CustomizedGroundTruthAdherenceGPTScorerClassNameToVocabIxType0",
+    "CustomizedGroundTruthAdherenceGPTScorerClassNameToVocabIxType1",
     "CustomizedGroundTruthAdherenceGPTScorerExtraType0",
     "CustomizedGroundednessGPTScorer",
     "CustomizedGroundednessGPTScorerAggregatesType0",
+    "CustomizedGroundednessGPTScorerClassNameToVocabIxType0",
+    "CustomizedGroundednessGPTScorerClassNameToVocabIxType1",
     "CustomizedGroundednessGPTScorerExtraType0",
     "CustomizedInputSexistGPTScorer",
     "CustomizedInputSexistGPTScorerAggregatesType0",
+    "CustomizedInputSexistGPTScorerClassNameToVocabIxType0",
+    "CustomizedInputSexistGPTScorerClassNameToVocabIxType1",
     "CustomizedInputSexistGPTScorerExtraType0",
     "CustomizedInputToxicityGPTScorer",
     "CustomizedInputToxicityGPTScorerAggregatesType0",
+    "CustomizedInputToxicityGPTScorerClassNameToVocabIxType0",
+    "CustomizedInputToxicityGPTScorerClassNameToVocabIxType1",
     "CustomizedInputToxicityGPTScorerExtraType0",
     "CustomizedInstructionAdherenceGPTScorer",
     "CustomizedInstructionAdherenceGPTScorerAggregatesType0",
+    "CustomizedInstructionAdherenceGPTScorerClassNameToVocabIxType0",
+    "CustomizedInstructionAdherenceGPTScorerClassNameToVocabIxType1",
     "CustomizedInstructionAdherenceGPTScorerExtraType0",
     "CustomizedPromptInjectionGPTScorer",
     "CustomizedPromptInjectionGPTScorerAggregatesType0",
+    "CustomizedPromptInjectionGPTScorerClassNameToVocabIxType0",
+    "CustomizedPromptInjectionGPTScorerClassNameToVocabIxType1",
     "CustomizedPromptInjectionGPTScorerExtraType0",
     "CustomizedSexistGPTScorer",
     "CustomizedSexistGPTScorerAggregatesType0",
+    "CustomizedSexistGPTScorerClassNameToVocabIxType0",
+    "CustomizedSexistGPTScorerClassNameToVocabIxType1",
     "CustomizedSexistGPTScorerExtraType0",
     "CustomizedToolErrorRateGPTScorer",
     "CustomizedToolErrorRateGPTScorerAggregatesType0",
+    "CustomizedToolErrorRateGPTScorerClassNameToVocabIxType0",
+    "CustomizedToolErrorRateGPTScorerClassNameToVocabIxType1",
     "CustomizedToolErrorRateGPTScorerExtraType0",
     "CustomizedToolSelectionQualityGPTScorer",
     "CustomizedToolSelectionQualityGPTScorerAggregatesType0",
+    "CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType0",
+    "CustomizedToolSelectionQualityGPTScorerClassNameToVocabIxType1",
     "CustomizedToolSelectionQualityGPTScorerExtraType0",
     "CustomizedToxicityGPTScorer",
     "CustomizedToxicityGPTScorerAggregatesType0",
+    "CustomizedToxicityGPTScorerClassNameToVocabIxType0",
+    "CustomizedToxicityGPTScorerClassNameToVocabIxType1",
     "CustomizedToxicityGPTScorerExtraType0",
     "DataType",
     "DataTypeOptions",
@@ -789,6 +944,7 @@ __all__ = (
     "DatasetNameFilter",
     "DatasetNameFilterOperator",
     "DatasetNameSort",
+    "DatasetNotInProjectFilter",
     "DatasetPrependRow",
     "DatasetPrependRowValues",
     "DatasetPrependRowValuesAdditionalPropertyType3",
@@ -889,6 +1045,7 @@ __all__ = (
     "ExtendedWorkflowSpanRecordWithChildrenMetricInfoType0",
     "ExtendedWorkflowSpanRecordWithChildrenUserMetadata",
     "FactualityTemplate",
+    "FactualityTemplateResponseSchemaType0",
     "FeedbackAggregate",
     "FeedbackRatingDB",
     "FeedbackRatingInfo",
@@ -898,6 +1055,8 @@ __all__ = (
     "FineTunedScorer",
     "FineTunedScorerAction",
     "FineTunedScorerResponse",
+    "FineTunedScorerResponseClassNameToVocabIxType0",
+    "FineTunedScorerResponseClassNameToVocabIxType1",
     "GeneratedScorerAction",
     "GeneratedScorerConfiguration",
     "GeneratedScorerResponse",
@@ -907,7 +1066,9 @@ __all__ = (
     "GetProjectsPaginatedResponseV2",
     "GroundTruthAdherenceScorer",
     "GroundTruthAdherenceTemplate",
+    "GroundTruthAdherenceTemplateResponseSchemaType0",
     "GroundednessTemplate",
+    "GroundednessTemplateResponseSchemaType0",
     "GroupAction",
     "GroupCollaborator",
     "GroupCollaboratorCreate",
@@ -925,14 +1086,17 @@ __all__ = (
     "InputSexistScorer",
     "InputSexistScorerType",
     "InputSexistTemplate",
+    "InputSexistTemplateResponseSchemaType0",
     "InputToneScorer",
     "InputToxicityScorer",
     "InputToxicityScorerType",
     "InputToxicityTemplate",
+    "InputToxicityTemplateResponseSchemaType0",
     "InputTypeEnum",
     "InsightType",
     "InstructionAdherenceScorer",
     "InstructionAdherenceTemplate",
+    "InstructionAdherenceTemplateResponseSchemaType0",
     "IntegrationAction",
     "InvokeResponse",
     "InvokeResponseHeadersType0",
@@ -981,6 +1145,8 @@ __all__ = (
     "LogRecordsMetricsResponseBucketedMetrics",
     "LogRecordsNumberFilter",
     "LogRecordsNumberFilterOperator",
+    "LogRecordsQueryCountRequest",
+    "LogRecordsQueryCountResponse",
     "LogRecordsQueryRequest",
     "LogRecordsQueryResponse",
     "LogRecordsSortClause",
@@ -998,6 +1164,8 @@ __all__ = (
     "LogTracesIngestRequest",
     "LogTracesIngestResponse",
     "LoggingMethod",
+    "LunaInputTypeEnum",
+    "LunaOutputTypeEnum",
     "ManualLlmValidateScorersLlmValidatePostBody",
     "MapFilter",
     "MapFilterOperator",
@@ -1085,6 +1253,7 @@ __all__ = (
     "PromptInjectionScorer",
     "PromptInjectionScorerType",
     "PromptInjectionTemplate",
+    "PromptInjectionTemplateResponseSchemaType0",
     "PromptOptimizationConfiguration",
     "PromptPerplexityScorer",
     "PromptRunSettings",
@@ -1096,6 +1265,7 @@ __all__ = (
     "PromptTemplateNameFilter",
     "PromptTemplateNameFilterOperator",
     "PromptTemplateNameSort",
+    "PromptTemplateNotInProjectFilter",
     "PromptTemplateUpdatedAtSort",
     "PromptTemplateUsedInProjectFilter",
     "PromptTemplateVersionCreatedAtSort",
@@ -1166,6 +1336,7 @@ __all__ = (
     "SessionCreateRequest",
     "SessionCreateResponse",
     "SexistTemplate",
+    "SexistTemplateResponseSchemaType0",
     "StageDB",
     "StageMetadata",
     "StageType",
@@ -1196,13 +1367,16 @@ __all__ = (
     "ToolErrorRateScorer",
     "ToolErrorRateScorerType",
     "ToolErrorRateTemplate",
+    "ToolErrorRateTemplateResponseSchemaType0",
     "ToolSelectionQualityScorer",
     "ToolSelectionQualityScorerType",
     "ToolSelectionQualityTemplate",
+    "ToolSelectionQualityTemplateResponseSchemaType0",
     "ToolSpan",
     "ToolSpanDatasetMetadata",
     "ToolSpanUserMetadata",
     "ToxicityTemplate",
+    "ToxicityTemplateResponseSchemaType0",
     "Trace",
     "TraceDatasetMetadata",
     "TraceMetadata",

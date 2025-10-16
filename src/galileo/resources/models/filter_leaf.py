@@ -24,7 +24,8 @@ T = TypeVar("T", bound="FilterLeaf")
 @_attrs_define
 class FilterLeaf:
     """
-    Attributes:
+    Attributes
+    ----------
         filter_ (Union['BooleanFilter', 'CollectionFilter', 'CustomBooleanFilter', 'CustomFunctionFilter',
             'CustomNumberFilter', 'CustomUUIDFilter', 'DateFilter', 'EnumFilter', 'IDFilter', 'MapFilter', 'StringFilter']):
     """

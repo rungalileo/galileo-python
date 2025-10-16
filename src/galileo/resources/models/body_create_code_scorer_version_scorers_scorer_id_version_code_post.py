@@ -14,7 +14,8 @@ T = TypeVar("T", bound="BodyCreateCodeScorerVersionScorersScorerIdVersionCodePos
 @_attrs_define
 class BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost:
     """
-    Attributes:
+    Attributes
+    ----------
         file (File):
     """
 

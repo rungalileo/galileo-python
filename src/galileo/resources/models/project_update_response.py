@@ -16,7 +16,8 @@ T = TypeVar("T", bound="ProjectUpdateResponse")
 @_attrs_define
 class ProjectUpdateResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         id (str):
         updated_at (datetime.datetime):

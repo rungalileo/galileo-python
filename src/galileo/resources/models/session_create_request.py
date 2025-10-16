@@ -12,7 +12,8 @@ T = TypeVar("T", bound="SessionCreateRequest")
 @_attrs_define
 class SessionCreateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         external_id (Union[None, Unset, str]): External id of the session.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.

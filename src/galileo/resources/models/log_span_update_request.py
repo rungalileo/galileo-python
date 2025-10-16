@@ -19,7 +19,8 @@ T = TypeVar("T", bound="LogSpanUpdateRequest")
 class LogSpanUpdateRequest:
     """Request model for updating a trace.
 
-    Attributes:
+    Attributes
+    ----------
         span_id (str): Span id to update.
         client_version (Union[None, Unset, str]):
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.

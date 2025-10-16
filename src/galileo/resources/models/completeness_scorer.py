@@ -18,7 +18,8 @@ T = TypeVar("T", bound="CompletenessScorer")
 @_attrs_define
 class CompletenessScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
         model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.

@@ -61,7 +61,7 @@ def _build_response(
 def sync_detailed(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
 ) -> Response[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]:
-    """Bulk Delete Datasets
+    """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
 
@@ -87,14 +87,15 @@ def sync_detailed(
     Args:
         body (BulkDeleteDatasetsRequest): Request to delete multiple datasets.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = client.request(**kwargs)
@@ -105,7 +106,7 @@ def sync_detailed(
 def sync(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
 ) -> Optional[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]:
-    """Bulk Delete Datasets
+    """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
 
@@ -131,21 +132,22 @@ def sync(
     Args:
         body (BulkDeleteDatasetsRequest): Request to delete multiple datasets.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BulkDeleteDatasetsResponse, HTTPValidationError]
     """
-
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
 ) -> Response[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]:
-    """Bulk Delete Datasets
+    """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
 
@@ -171,14 +173,15 @@ async def asyncio_detailed(
     Args:
         body (BulkDeleteDatasetsRequest): Request to delete multiple datasets.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(body=body)
 
     response = await client.arequest(**kwargs)
@@ -189,7 +192,7 @@ async def asyncio_detailed(
 async def asyncio(
     *, client: ApiClient, body: BulkDeleteDatasetsRequest
 ) -> Optional[Union[BulkDeleteDatasetsResponse, HTTPValidationError]]:
-    """Bulk Delete Datasets
+    """Bulk Delete Datasets.
 
      Delete multiple datasets in bulk.
 
@@ -215,12 +218,13 @@ async def asyncio(
     Args:
         body (BulkDeleteDatasetsRequest): Request to delete multiple datasets.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[BulkDeleteDatasetsResponse, HTTPValidationError]
     """
-
     return (await asyncio_detailed(client=client, body=body)).parsed

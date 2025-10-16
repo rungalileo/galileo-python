@@ -16,7 +16,8 @@ T = TypeVar("T", bound="BaseGeneratedScorerDB")
 @_attrs_define
 class BaseGeneratedScorerDB:
     """
-    Attributes:
+    Attributes
+    ----------
         chain_poll_template (ChainPollTemplate): Template for a chainpoll metric prompt,
             containing all the info necessary to send a chainpoll prompt.
         id (str):

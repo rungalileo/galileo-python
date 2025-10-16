@@ -16,7 +16,8 @@ T = TypeVar("T", bound="BucketedMetric")
 @_attrs_define
 class BucketedMetric:
     """
-    Attributes:
+    Attributes
+    ----------
         buckets (BucketedMetricBuckets):
         name (str):
         average (Union[None, Unset, float]):

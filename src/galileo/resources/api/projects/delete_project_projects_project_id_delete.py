@@ -54,7 +54,7 @@ def _build_response(
 
 
 def sync_detailed(project_id: str, *, client: ApiClient) -> Response[Union[HTTPValidationError, ProjectDeleteResponse]]:
-    """Delete Project
+    """Delete Project.
 
      Deletes a project and all associated runs and objects.
 
@@ -64,14 +64,15 @@ def sync_detailed(project_id: str, *, client: ApiClient) -> Response[Union[HTTPV
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, ProjectDeleteResponse]]
     """
-
     kwargs = _get_kwargs(project_id=project_id)
 
     response = client.request(**kwargs)
@@ -80,7 +81,7 @@ def sync_detailed(project_id: str, *, client: ApiClient) -> Response[Union[HTTPV
 
 
 def sync(project_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, ProjectDeleteResponse]]:
-    """Delete Project
+    """Delete Project.
 
      Deletes a project and all associated runs and objects.
 
@@ -90,21 +91,22 @@ def sync(project_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidation
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, ProjectDeleteResponse]
     """
-
     return sync_detailed(project_id=project_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient
 ) -> Response[Union[HTTPValidationError, ProjectDeleteResponse]]:
-    """Delete Project
+    """Delete Project.
 
      Deletes a project and all associated runs and objects.
 
@@ -114,14 +116,15 @@ async def asyncio_detailed(
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, ProjectDeleteResponse]]
     """
-
     kwargs = _get_kwargs(project_id=project_id)
 
     response = await client.arequest(**kwargs)
@@ -130,7 +133,7 @@ async def asyncio_detailed(
 
 
 async def asyncio(project_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidationError, ProjectDeleteResponse]]:
-    """Delete Project
+    """Delete Project.
 
      Deletes a project and all associated runs and objects.
 
@@ -140,12 +143,13 @@ async def asyncio(project_id: str, *, client: ApiClient) -> Optional[Union[HTTPV
     Args:
         project_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, ProjectDeleteResponse]
     """
-
     return (await asyncio_detailed(project_id=project_id, client=client)).parsed

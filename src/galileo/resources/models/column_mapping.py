@@ -14,7 +14,8 @@ T = TypeVar("T", bound="ColumnMapping")
 @_attrs_define
 class ColumnMapping:
     """
-    Attributes:
+    Attributes
+    ----------
         input_ (Union['ColumnMappingConfig', None, list[str]]):
         metadata (Union['ColumnMappingConfig', None, list[str]]):
         output (Union['ColumnMappingConfig', None, list[str]]):

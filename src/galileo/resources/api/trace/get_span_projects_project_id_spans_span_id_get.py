@@ -135,20 +135,21 @@ def sync_detailed(
         ],
     ]
 ]:
-    """Get Span
+    """Get Span.
 
     Args:
         project_id (str):
         span_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
 
     response = client.request(**kwargs)
@@ -170,20 +171,21 @@ def sync(
         ],
     ]
 ]:
-    """Get Span
+    """Get Span.
 
     Args:
         project_id (str):
         span_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
     """
-
     return sync_detailed(project_id=project_id, span_id=span_id, client=client).parsed
 
 
@@ -201,20 +203,21 @@ async def asyncio_detailed(
         ],
     ]
 ]:
-    """Get Span
+    """Get Span.
 
     Args:
         project_id (str):
         span_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, span_id=span_id)
 
     response = await client.arequest(**kwargs)
@@ -236,18 +239,19 @@ async def asyncio(
         ],
     ]
 ]:
-    """Get Span
+    """Get Span.
 
     Args:
         project_id (str):
         span_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, Union['ExtendedAgentSpanRecordWithChildren', 'ExtendedLlmSpanRecord', 'ExtendedRetrieverSpanRecordWithChildren', 'ExtendedToolSpanRecordWithChildren', 'ExtendedWorkflowSpanRecordWithChildren']]
     """
-
     return (await asyncio_detailed(project_id=project_id, span_id=span_id, client=client)).parsed

@@ -19,7 +19,8 @@ T = TypeVar("T", bound="DatasetDB")
 @_attrs_define
 class DatasetDB:
     """
-    Attributes:
+    Attributes
+    ----------
         column_names (Union[None, list[str]]):
         created_at (datetime.datetime):
         created_by_user (Union['UserInfo', None]):

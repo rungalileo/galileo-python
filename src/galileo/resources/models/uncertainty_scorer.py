@@ -17,7 +17,8 @@ T = TypeVar("T", bound="UncertaintyScorer")
 @_attrs_define
 class UncertaintyScorer:
     """
-    Attributes:
+    Attributes
+    ----------
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
         name (Union[Literal['uncertainty'], Unset]):  Default: 'uncertainty'.

@@ -12,7 +12,8 @@ T = TypeVar("T", bound="LikeDislikeAggregate")
 @_attrs_define
 class LikeDislikeAggregate:
     """
-    Attributes:
+    Attributes
+    ----------
         dislike_count (int):
         like_count (int):
         unrated_count (int):

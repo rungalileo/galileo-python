@@ -16,7 +16,8 @@ T = TypeVar("T", bound="ExperimentsAvailableColumnsResponse")
 @_attrs_define
 class ExperimentsAvailableColumnsResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         columns (Union[Unset, list['ColumnInfo']]):
     """
 

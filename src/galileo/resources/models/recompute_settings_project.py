@@ -12,7 +12,8 @@ T = TypeVar("T", bound="RecomputeSettingsProject")
 @_attrs_define
 class RecomputeSettingsProject:
     """
-    Attributes:
+    Attributes
+    ----------
         mode (Union[Literal['project'], Unset]):  Default: 'project'.
     """
 

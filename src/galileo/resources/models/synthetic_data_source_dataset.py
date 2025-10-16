@@ -13,7 +13,8 @@ T = TypeVar("T", bound="SyntheticDataSourceDataset")
 class SyntheticDataSourceDataset:
     """Configuration for dataset examples in synthetic data generation.
 
-    Attributes:
+    Attributes
+    ----------
         dataset_id (str):
         dataset_version_index (Union[None, Unset, int]):
         row_ids (Union[None, Unset, list[str]]):

@@ -22,7 +22,8 @@ T = TypeVar("T", bound="ColumnInfo")
 @_attrs_define
 class ColumnInfo:
     """
-    Attributes:
+    Attributes
+    ----------
         category (ColumnCategory):
         id (str): Column id.  Must be universally unique.
         allowed_values (Union[None, Unset, list[Any]]): Allowed values for this column.

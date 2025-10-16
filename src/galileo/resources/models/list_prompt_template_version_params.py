@@ -18,7 +18,8 @@ T = TypeVar("T", bound="ListPromptTemplateVersionParams")
 @_attrs_define
 class ListPromptTemplateVersionParams:
     """
-    Attributes:
+    Attributes
+    ----------
         sort (Union['PromptTemplateVersionCreatedAtSort', 'PromptTemplateVersionNumberSort',
             'PromptTemplateVersionUpdatedAtSort', None, Unset]):
     """

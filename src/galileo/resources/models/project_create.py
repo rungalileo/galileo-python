@@ -13,7 +13,8 @@ T = TypeVar("T", bound="ProjectCreate")
 @_attrs_define
 class ProjectCreate:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
         create_example_templates (Union[Unset, bool]):  Default: False.
         created_by (Union[None, Unset, str]):

@@ -16,7 +16,8 @@ T = TypeVar("T", bound="StarAggregate")
 @_attrs_define
 class StarAggregate:
     """
-    Attributes:
+    Attributes
+    ----------
         average (float):
         counts (StarAggregateCounts):
         unrated_count (int):

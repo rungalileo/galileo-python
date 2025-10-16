@@ -20,7 +20,8 @@ T = TypeVar("T", bound="RulesetResult")
 @_attrs_define
 class RulesetResult:
     """
-    Attributes:
+    Attributes
+    ----------
         action (Union['OverrideAction', 'PassthroughAction', Unset]): Action to take if all the rules are met.
         description (Union[None, Unset, str]): Description of the ruleset.
         rule_results (Union[Unset, list['RuleResult']]): Results of the rule execution.

@@ -12,7 +12,8 @@ T = TypeVar("T", bound="PromptDatasetDB")
 @_attrs_define
 class PromptDatasetDB:
     """
-    Attributes:
+    Attributes
+    ----------
         dataset_id (str):
         id (str):
         file_name (Union[None, Unset, str]):

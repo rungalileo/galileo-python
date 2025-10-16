@@ -61,7 +61,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: LogStreamUpdateRequest
 ) -> Response[Union[HTTPValidationError, LogStreamResponse]]:
-    """Update Log Stream
+    """Update Log Stream.
 
      Update a specific log stream.
 
@@ -70,14 +70,15 @@ def sync_detailed(
         log_stream_id (str):
         body (LogStreamUpdateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, LogStreamResponse]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id, body=body)
 
     response = client.request(**kwargs)
@@ -88,7 +89,7 @@ def sync_detailed(
 def sync(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: LogStreamUpdateRequest
 ) -> Optional[Union[HTTPValidationError, LogStreamResponse]]:
-    """Update Log Stream
+    """Update Log Stream.
 
      Update a specific log stream.
 
@@ -97,21 +98,22 @@ def sync(
         log_stream_id (str):
         body (LogStreamUpdateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, LogStreamResponse]
     """
-
     return sync_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: LogStreamUpdateRequest
 ) -> Response[Union[HTTPValidationError, LogStreamResponse]]:
-    """Update Log Stream
+    """Update Log Stream.
 
      Update a specific log stream.
 
@@ -120,14 +122,15 @@ async def asyncio_detailed(
         log_stream_id (str):
         body (LogStreamUpdateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, LogStreamResponse]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, log_stream_id=log_stream_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -138,7 +141,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, log_stream_id: str, *, client: ApiClient, body: LogStreamUpdateRequest
 ) -> Optional[Union[HTTPValidationError, LogStreamResponse]]:
-    """Update Log Stream
+    """Update Log Stream.
 
      Update a specific log stream.
 
@@ -147,12 +150,13 @@ async def asyncio(
         log_stream_id (str):
         body (LogStreamUpdateRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, LogStreamResponse]
     """
-
     return (await asyncio_detailed(project_id=project_id, log_stream_id=log_stream_id, client=client, body=body)).parsed

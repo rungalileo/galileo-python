@@ -12,7 +12,8 @@ T = TypeVar("T", bound="LogRecordsBooleanFilter")
 @_attrs_define
 class LogRecordsBooleanFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         column_id (str): ID of the column to filter.
         value (bool):
         type_ (Union[Literal['boolean'], Unset]):  Default: 'boolean'.

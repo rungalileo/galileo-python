@@ -12,7 +12,8 @@ T = TypeVar("T", bound="StarRating")
 @_attrs_define
 class StarRating:
     """
-    Attributes:
+    Attributes
+    ----------
         value (int):
         feedback_type (Union[Literal['star'], Unset]):  Default: 'star'.
     """

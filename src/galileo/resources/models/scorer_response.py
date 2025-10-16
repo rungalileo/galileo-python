@@ -23,7 +23,8 @@ T = TypeVar("T", bound="ScorerResponse")
 @_attrs_define
 class ScorerResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         id (str):
         name (str):
         scorer_type (ScorerTypes):

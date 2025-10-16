@@ -18,7 +18,8 @@ T = TypeVar("T", bound="ExperimentCreateRequest")
 @_attrs_define
 class ExperimentCreateRequest:
     """
-    Attributes:
+    Attributes
+    ----------
         name (str):
         dataset (Union['ExperimentDatasetRequest', None, Unset]):
         playground_id (Union[None, Unset, str]):

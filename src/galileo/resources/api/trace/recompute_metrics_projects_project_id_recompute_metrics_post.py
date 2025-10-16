@@ -56,7 +56,7 @@ def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[
 def sync_detailed(
     project_id: str, *, client: ApiClient, body: RecomputeLogRecordsMetricsRequest
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Recompute Metrics
+    """Recompute Metrics.
 
     Args:
         project_id (str):
@@ -65,14 +65,15 @@ def sync_detailed(
             This request is used to trigger recomputation of metrics based on the provided filters and
             scorer IDs.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = client.request(**kwargs)
@@ -83,7 +84,7 @@ def sync_detailed(
 def sync(
     project_id: str, *, client: ApiClient, body: RecomputeLogRecordsMetricsRequest
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Recompute Metrics
+    """Recompute Metrics.
 
     Args:
         project_id (str):
@@ -92,21 +93,22 @@ def sync(
             This request is used to trigger recomputation of metrics based on the provided filters and
             scorer IDs.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return sync_detailed(project_id=project_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, *, client: ApiClient, body: RecomputeLogRecordsMetricsRequest
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Recompute Metrics
+    """Recompute Metrics.
 
     Args:
         project_id (str):
@@ -115,14 +117,15 @@ async def asyncio_detailed(
             This request is used to trigger recomputation of metrics based on the provided filters and
             scorer IDs.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[Any, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -133,7 +136,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, *, client: ApiClient, body: RecomputeLogRecordsMetricsRequest
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Recompute Metrics
+    """Recompute Metrics.
 
     Args:
         project_id (str):
@@ -142,12 +145,13 @@ async def asyncio(
             This request is used to trigger recomputation of metrics based on the provided filters and
             scorer IDs.
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[Any, HTTPValidationError]
     """
-
     return (await asyncio_detailed(project_id=project_id, client=client, body=body)).parsed

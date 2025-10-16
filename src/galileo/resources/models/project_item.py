@@ -21,7 +21,8 @@ T = TypeVar("T", bound="ProjectItem")
 class ProjectItem:
     """Represents a single project item for the UI list.
 
-    Attributes:
+    Attributes
+    ----------
         created_at (datetime.datetime):
         id (str):
         name (str):

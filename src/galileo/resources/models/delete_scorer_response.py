@@ -10,7 +10,8 @@ T = TypeVar("T", bound="DeleteScorerResponse")
 @_attrs_define
 class DeleteScorerResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         message (str):
     """
 

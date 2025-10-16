@@ -16,7 +16,8 @@ T = TypeVar("T", bound="PassthroughAction")
 @_attrs_define
 class PassthroughAction:
     """
-    Attributes:
+    Attributes
+    ----------
         subscriptions (Union[Unset, list['SubscriptionConfig']]): List of subscriptions to send a notification to when
             this action is applied and the ruleset status matches any of the configured statuses.
         type_ (Union[Literal['PASSTHROUGH'], Unset]):  Default: 'PASSTHROUGH'.

@@ -23,7 +23,8 @@ T = TypeVar("T", bound="InvokeResponse")
 @_attrs_define
 class InvokeResponse:
     """
-    Attributes:
+    Attributes
+    ----------
         action_result (ActionResult):
         stage_metadata (StageMetadata):
         text (str): Text from the request after processing the rules.

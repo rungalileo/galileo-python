@@ -56,20 +56,21 @@ def _build_response(
 def sync_detailed(
     project_id: str, session_id: str, *, client: ApiClient
 ) -> Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
-    """Get Session
+    """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, session_id=session_id)
 
     response = client.request(**kwargs)
@@ -80,40 +81,42 @@ def sync_detailed(
 def sync(
     project_id: str, session_id: str, *, client: ApiClient
 ) -> Optional[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
-    """Get Session
+    """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[ExtendedSessionRecordWithChildren, HTTPValidationError]
     """
-
     return sync_detailed(project_id=project_id, session_id=session_id, client=client).parsed
 
 
 async def asyncio_detailed(
     project_id: str, session_id: str, *, client: ApiClient
 ) -> Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
-    """Get Session
+    """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, session_id=session_id)
 
     response = await client.arequest(**kwargs)
@@ -124,18 +127,19 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, session_id: str, *, client: ApiClient
 ) -> Optional[Union[ExtendedSessionRecordWithChildren, HTTPValidationError]]:
-    """Get Session
+    """Get Session.
 
     Args:
         project_id (str):
         session_id (str):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[ExtendedSessionRecordWithChildren, HTTPValidationError]
     """
-
     return (await asyncio_detailed(project_id=project_id, session_id=session_id, client=client)).parsed

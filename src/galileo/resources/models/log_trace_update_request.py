@@ -14,7 +14,8 @@ T = TypeVar("T", bound="LogTraceUpdateRequest")
 class LogTraceUpdateRequest:
     """Request model for updating a trace.
 
-    Attributes:
+    Attributes
+    ----------
         trace_id (str): Trace id to update.
         client_version (Union[None, Unset, str]):
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.

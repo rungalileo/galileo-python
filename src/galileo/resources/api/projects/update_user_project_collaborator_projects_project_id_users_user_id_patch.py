@@ -61,7 +61,7 @@ def _build_response(
 def sync_detailed(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
 ) -> Response[Union[HTTPValidationError, UserCollaborator]]:
-    """Update User Project Collaborator
+    """Update User Project Collaborator.
 
      Update the sharing permissions of a user on a project.
 
@@ -70,14 +70,15 @@ def sync_detailed(
         user_id (str):
         body (CollaboratorUpdate):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, UserCollaborator]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, user_id=user_id, body=body)
 
     response = client.request(**kwargs)
@@ -88,7 +89,7 @@ def sync_detailed(
 def sync(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
 ) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
-    """Update User Project Collaborator
+    """Update User Project Collaborator.
 
      Update the sharing permissions of a user on a project.
 
@@ -97,21 +98,22 @@ def sync(
         user_id (str):
         body (CollaboratorUpdate):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, UserCollaborator]
     """
-
     return sync_detailed(project_id=project_id, user_id=user_id, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
 ) -> Response[Union[HTTPValidationError, UserCollaborator]]:
-    """Update User Project Collaborator
+    """Update User Project Collaborator.
 
      Update the sharing permissions of a user on a project.
 
@@ -120,14 +122,15 @@ async def asyncio_detailed(
         user_id (str):
         body (CollaboratorUpdate):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[HTTPValidationError, UserCollaborator]]
     """
-
     kwargs = _get_kwargs(project_id=project_id, user_id=user_id, body=body)
 
     response = await client.arequest(**kwargs)
@@ -138,7 +141,7 @@ async def asyncio_detailed(
 async def asyncio(
     project_id: str, user_id: str, *, client: ApiClient, body: CollaboratorUpdate
 ) -> Optional[Union[HTTPValidationError, UserCollaborator]]:
-    """Update User Project Collaborator
+    """Update User Project Collaborator.
 
      Update the sharing permissions of a user on a project.
 
@@ -147,12 +150,13 @@ async def asyncio(
         user_id (str):
         body (CollaboratorUpdate):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[HTTPValidationError, UserCollaborator]
     """
-
     return (await asyncio_detailed(project_id=project_id, user_id=user_id, client=client, body=body)).parsed

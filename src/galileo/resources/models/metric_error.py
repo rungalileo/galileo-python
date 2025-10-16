@@ -13,7 +13,8 @@ T = TypeVar("T", bound="MetricError")
 @_attrs_define
 class MetricError:
     """
-    Attributes:
+    Attributes
+    ----------
         message (Union[None, Unset, str]):  Default: 'An error occured.'.
         scorer_type (Union[None, ScorerType, Unset]):
         status_type (Union[Literal['error'], Unset]):  Default: 'error'.

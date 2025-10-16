@@ -12,7 +12,8 @@ T = TypeVar("T", bound="DatasetVersionIndexSort")
 @_attrs_define
 class DatasetVersionIndexSort:
     """
-    Attributes:
+    Attributes
+    ----------
         ascending (Union[Unset, bool]):  Default: True.
         name (Union[Literal['version_index'], Unset]):  Default: 'version_index'.
         sort_type (Union[Literal['column'], Unset]):  Default: 'column'.

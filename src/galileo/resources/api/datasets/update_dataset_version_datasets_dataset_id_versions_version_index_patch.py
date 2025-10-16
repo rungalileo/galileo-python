@@ -61,21 +61,22 @@ def _build_response(
 def sync_detailed(
     dataset_id: str, version_index: int, *, client: ApiClient, body: UpdateDatasetVersionRequest
 ) -> Response[Union[DatasetVersionDB, HTTPValidationError]]:
-    """Update Dataset Version
+    """Update Dataset Version.
 
     Args:
         dataset_id (str):
         version_index (int):
         body (UpdateDatasetVersionRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[DatasetVersionDB, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, body=body)
 
     response = client.request(**kwargs)
@@ -86,42 +87,44 @@ def sync_detailed(
 def sync(
     dataset_id: str, version_index: int, *, client: ApiClient, body: UpdateDatasetVersionRequest
 ) -> Optional[Union[DatasetVersionDB, HTTPValidationError]]:
-    """Update Dataset Version
+    """Update Dataset Version.
 
     Args:
         dataset_id (str):
         version_index (int):
         body (UpdateDatasetVersionRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[DatasetVersionDB, HTTPValidationError]
     """
-
     return sync_detailed(dataset_id=dataset_id, version_index=version_index, client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     dataset_id: str, version_index: int, *, client: ApiClient, body: UpdateDatasetVersionRequest
 ) -> Response[Union[DatasetVersionDB, HTTPValidationError]]:
-    """Update Dataset Version
+    """Update Dataset Version.
 
     Args:
         dataset_id (str):
         version_index (int):
         body (UpdateDatasetVersionRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Response[Union[DatasetVersionDB, HTTPValidationError]]
     """
-
     kwargs = _get_kwargs(dataset_id=dataset_id, version_index=version_index, body=body)
 
     response = await client.arequest(**kwargs)
@@ -132,19 +135,20 @@ async def asyncio_detailed(
 async def asyncio(
     dataset_id: str, version_index: int, *, client: ApiClient, body: UpdateDatasetVersionRequest
 ) -> Optional[Union[DatasetVersionDB, HTTPValidationError]]:
-    """Update Dataset Version
+    """Update Dataset Version.
 
     Args:
         dataset_id (str):
         version_index (int):
         body (UpdateDatasetVersionRequest):
 
-    Raises:
+    Raises
+    ------
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
-    Returns:
+    Returns
+    -------
         Union[DatasetVersionDB, HTTPValidationError]
     """
-
     return (await asyncio_detailed(dataset_id=dataset_id, version_index=version_index, client=client, body=body)).parsed

@@ -13,7 +13,8 @@ T = TypeVar("T", bound="DatasetDraftFilter")
 @_attrs_define
 class DatasetDraftFilter:
     """
-    Attributes:
+    Attributes
+    ----------
         operator (DatasetDraftFilterOperator):
         value (bool):
         name (Union[Literal['draft'], Unset]):  Default: 'draft'.
