@@ -533,7 +533,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 - String: "User query: What is the weather today?"
                 - Messages: `[Message(content="Hello", role=MessageRole.user)]`
         redacted_input: Optional[StepAllowedInputType]
-            Redacted input to the node.
+            Input that removes any sensitive information (redacted input).
             Same format as input parameter.
         name: Optional[str]
             Name of the trace.
@@ -630,10 +630,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Model used for this span.
             Example: "gpt-4o", "claude-4-sonnet"
         redacted_input: Optional[LlmSpanAllowedInputType]
-            Redacted input to the node.
+            Input that removes any sensitive information (redacted input to the node).
             Same format as input parameter.
         redacted_output: Optional[LlmSpanAllowedOutputType]
-            Redacted output of the node.
+            Output that removes any sensitive information (redacted output of the node).
             Same format as output parameter.
         tools: Optional[List[dict]]
             List of available tools passed to LLM on invocation.
@@ -764,10 +764,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Model used for this span.
             Example: "gpt-4o", "claude-4-sonnet"
         redacted_input: Optional[LlmSpanAllowedInputType]
-            Redacted input to the node.
+            Input that removes any sensitive information (redacted input to the node).
             Same format as input parameter.
         redacted_output: Optional[LlmSpanAllowedOutputType]
-            Redacted output of the node.
+            Output that removes any sensitive information (redacted output of the node).
             Same format as output parameter.
         tools: Optional[list[dict]]
             List of available tools passed to LLM on invocation.
@@ -874,9 +874,9 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]
             Documents retrieved from the retriever.
         redacted_input: Optional[str]
-            Redacted input to the node.
+            Input that removes any sensitive information (redacted input to the node).
         redacted_output: Union[str, list[str], dict[str, str], list[dict[str, str]], Document, list[Document], None]
-            Redacted documents retrieved from the retriever.
+            Output that removes any sensitive information (redacted documents retrieved from the retriever).
         name: Optional[str]
             Name of the span.
         duration_ns: Optional[int]
@@ -977,14 +977,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Expected format: String representation of tool input/arguments.
             Example: "search_query: python best practices"
         redacted_input: Optional[str]
-            Redacted input to the node.
+            Input that removes any sensitive information (redacted input to the node).
             Same format as input parameter.
         output: Optional[str]
             Output of the node.
             Expected format: String representation of tool result.
             Example: "Found 10 results for python best practices"
         redacted_output: Optional[str]
-            Redacted output to the node.
+            Output that removes any sensitive information (redacted output of the node).
             Same format as output parameter.
         name: Optional[str]
             Name of the span.
@@ -1058,14 +1058,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Expected format: Payload object with input_ and/or output attributes.
             Example: `Payload(input_="User input text", output="Model output text")`
         redacted_payload: Optional[Payload]
-            Redacted input to the node.
+            Input that removes any sensitive information (redacted input to the node).
             Same format as payload parameter.
         response: Optional[Response]
             Output of the node. This is the output from the Protect `invoke` method.
             Expected format: Response object with text, trace_metadata, and status.
             Example: `Response(text="Processed text", status=ExecutionStatus.triggered)`
         redacted_response: Optional[Response]
-            Redacted output to the node.
+            Output that removes any sensitive information (redacted output of the node).
             Same format as response parameter.
         created_at: Optional[datetime]
             Timestamp of the span's creation.
@@ -1135,14 +1135,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Expected format: String representation of workflow input.
             Example: "Start workflow with user request: analyze data"
         redacted_input: Optional[str]
-            Redacted input to the node.
+            Input that removes any sensitive information (redacted input to the node).
             Same format as input parameter.
         output: Optional[str]
             Output of the node. This can also be set on conclude().
             Expected format: String representation of workflow output.
             Example: "Workflow completed successfully with results"
         redacted_output: Optional[str]
-            Redacted output to the node. This can also be set on conclude().
+            Output that removes any sensitive information (redacted output of the node). This can also be set on conclude().
             Same format as output parameter.
         name: Optional[str]
             Name of the span.
@@ -1210,14 +1210,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             Expected format: String representation of agent input.
             Example: "User query to be processed by agent"
         redacted_input: Optional[str]
-            Redacted input to the node.
+            Input that removes any sensitive information (redacted input to the node).
             Same format as input parameter.
         output: Optional[str]
             Output of the node. This can also be set on conclude().
             Expected format: String representation of agent output.
             Example: "Agent completed task with final answer"
         redacted_output: Optional[str]
-            Redacted output to the node. This can also be set on conclude().
+            Output that removes any sensitive information (redacted output of the node). This can also be set on conclude().
             Same format as output parameter.
         name: Optional[str]
             Name of the span.
@@ -1303,7 +1303,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         output: Optional[str]
             Output of the node.
         redacted_output: Optional[str]
-            Redacted output of the node.
+            Output that removes any sensitive information (redacted output of the node).
         duration_ns: Optional[int]
             Duration of the node in nanoseconds.
         status_code: Optional[int]
