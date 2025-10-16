@@ -1,14 +1,34 @@
-from typing import Any, Optional, Union
+from typing import TYPE_CHECKING, Any, Optional, Union
 
-from galileo.datasets import Dataset, convert_dataset_row_to_record, get_dataset
+from galileo.config import GalileoPythonConfig
 from galileo.schema.datasets import DatasetRecord
+
+if TYPE_CHECKING:
+    from galileo.datasets import Dataset
+
+
+def validate_dataset_in_project(
+    dataset_id: str, dataset_identifier: str, project_id: str, project_identifier: str, config: GalileoPythonConfig
+) -> None:
+    from galileo.resources.api.datasets import list_dataset_projects_datasets_dataset_id_projects_get
+
+    projects_response = list_dataset_projects_datasets_dataset_id_projects_get.sync(
+        dataset_id=dataset_id, client=config.api_client
+    )
+
+    if not projects_response or not hasattr(projects_response, "projects"):
+        raise ValueError(f"Dataset '{dataset_identifier}' is not used in project '{project_identifier}'")
+
+    project_ids = [p.id for p in projects_response.projects]
+    if project_id not in project_ids:
+        raise ValueError(f"Dataset '{dataset_identifier}' is not used in project '{project_identifier}'")
 
 
 def load_dataset_and_records(
-    dataset: Union[Dataset, list[Union[dict[str, Any], str]], str, None],
+    dataset: Union["Dataset", list[Union[dict[str, Any], str]], str, None],
     dataset_id: Optional[str],
     dataset_name: Optional[str],
-) -> tuple[Optional[Dataset], list[DatasetRecord]]:
+) -> tuple[Optional["Dataset"], list[DatasetRecord]]:
     """
     Load dataset and records based on provided parameters.
 
@@ -36,7 +56,8 @@ def load_dataset_and_records(
         return get_dataset_and_records(name=dataset_name)
     if dataset and isinstance(dataset, str):
         return get_dataset_and_records(name=dataset)
-    if dataset and isinstance(dataset, Dataset):
+    if dataset and not isinstance(dataset, (str, list)):
+        # Must be a Dataset object
         return dataset, get_records_for_dataset(dataset)
     if dataset and isinstance(dataset, list):
         return None, create_rows_from_records(dataset)
@@ -45,7 +66,9 @@ def load_dataset_and_records(
 
 def get_dataset_and_records(
     id: Optional[str] = None, name: Optional[str] = None
-) -> tuple[Dataset, list[DatasetRecord]]:
+) -> tuple["Dataset", list[DatasetRecord]]:
+    from galileo.datasets import get_dataset
+
     if id:
         dataset = get_dataset(id=id)
         if not dataset:
@@ -60,7 +83,9 @@ def get_dataset_and_records(
     return dataset, get_records_for_dataset(dataset)
 
 
-def get_records_for_dataset(dataset: Dataset) -> list[DatasetRecord]:
+def get_records_for_dataset(dataset: "Dataset") -> list[DatasetRecord]:
+    from galileo.datasets import convert_dataset_row_to_record
+
     content = dataset.get_content()
     if not content:
         raise ValueError("dataset has no content")

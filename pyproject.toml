@@ -133,6 +133,8 @@ select = [
     "ANN001", "ANN201", "ANN202", "ANN205", "ANN206",
     # Flake8-print (no print statements in production code)
     "T201",
+    # Import outside top-level (prevent local imports)
+    "PLC0415",
     # pydocstyle (docstring conventions)
     "D",
 ]
@@ -219,6 +221,11 @@ ignore = [
     "BLE001",   # Catching too general exception (utility scripts need flexibility)
     "D",        # All docstring rules (scripts are utility tools)
 ]
+# Allow local imports in these files (needed to avoid circular dependencies or conditional imports)
+"src/galileo/utils/prompts.py" = ["PLC0415"]
+"src/galileo/utils/datasets.py" = ["PLC0415"]
+"src/galileo/utils/serialization.py" = ["PLC0415"]  # Optional dependency conditional imports
+"src/galileo/handlers/crewai/handler.py" = ["PLC0415"]  # Version-specific conditional imports
 
 [tool.ruff.lint.isort]
 known-first-party = ["galileo_core"]

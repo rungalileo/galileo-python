@@ -11,7 +11,7 @@ from galileo.utils.datasets import (
 )
 
 
-@patch("galileo.utils.datasets.get_dataset")
+@patch("galileo.datasets.get_dataset")
 @patch("galileo.utils.datasets.get_records_for_dataset", return_value=[])
 def test_get_dataset_and_records_with_id(mock_get_records, mock_get_dataset, dataset_content) -> None:
     """Test _get_dataset_and_records function with dataset_id."""
@@ -29,7 +29,7 @@ def test_get_dataset_and_records_with_id(mock_get_records, mock_get_dataset, dat
     mock_get_records.assert_called_once_with(mock_dataset)
 
 
-@patch("galileo.utils.datasets.get_dataset")
+@patch("galileo.datasets.get_dataset")
 @patch("galileo.utils.datasets.get_records_for_dataset", return_value=[])
 def test_get_dataset_and_records_with_name(mock_get_records, mock_get_dataset, dataset_content) -> None:
     """Test _get_dataset_and_records function with dataset_name."""
@@ -47,7 +47,7 @@ def test_get_dataset_and_records_with_name(mock_get_records, mock_get_dataset, d
     mock_get_records.assert_called_once_with(mock_dataset)
 
 
-@patch("galileo.utils.datasets.get_dataset")
+@patch("galileo.datasets.get_dataset")
 def test_get_dataset_and_records_not_found_id(mock_get_dataset) -> None:
     """Test _get_dataset_and_records function when dataset with id is not found."""
     # Setup
@@ -58,7 +58,7 @@ def test_get_dataset_and_records_not_found_id(mock_get_dataset) -> None:
         get_dataset_and_records(id="test-id")
 
 
-@patch("galileo.utils.datasets.get_dataset")
+@patch("galileo.datasets.get_dataset")
 def test_get_dataset_and_records_not_found_name(mock_get_dataset) -> None:
     """Test _get_dataset_and_records function when dataset with name is not found."""
     # Setup
@@ -76,7 +76,7 @@ def test_get_dataset_and_records_no_params() -> None:
         get_dataset_and_records()
 
 
-@patch("galileo.utils.datasets.convert_dataset_row_to_record")
+@patch("galileo.datasets.convert_dataset_row_to_record")
 def test_get_records_for_dataset(mock_convert, dataset_content) -> None:
     """Test _get_records_for_dataset function."""
     # Setup
