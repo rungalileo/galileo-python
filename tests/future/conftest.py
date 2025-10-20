@@ -20,6 +20,7 @@ from httpx import Request, Response
 from galileo.__future__ import Configuration
 from galileo.__future__.configuration import _CONFIGURATION_KEYS
 from galileo.config import GalileoPythonConfig
+from galileo.resources.models.messages_list_item import MessagesListItem
 from galileo_core.schemas.core.user import User
 from galileo_core.schemas.core.user_role import UserRole
 
@@ -137,3 +138,63 @@ def mock_api_endpoints() -> Generator[MagicMock, None, None]:
         # Mock httpx AsyncClient.request method
         with patch("httpx.AsyncClient.request", new=AsyncMock(side_effect=mock_request)):
             yield mock_jwt
+
+
+@pytest.fixture
+def mock_project() -> MagicMock:
+    """Create a mock project object for testing."""
+    mock_proj = MagicMock()
+    mock_proj.id = str(uuid4())
+    mock_proj.name = "Test Project"
+    mock_proj.created_at = MagicMock()
+    mock_proj.created_by = str(uuid4())
+    mock_proj.updated_at = MagicMock()
+    mock_proj.bookmark = None
+    mock_proj.permissions = None
+    mock_proj.type = None
+    return mock_proj
+
+
+@pytest.fixture
+def mock_dataset() -> MagicMock:
+    """Create a mock dataset object for testing."""
+    mock_ds = MagicMock()
+    mock_ds.id = str(uuid4())
+    mock_ds.name = "Test Dataset"
+    mock_ds.created_at = MagicMock()
+    mock_ds.updated_at = MagicMock()
+    mock_ds.num_rows = 10
+    mock_ds.column_names = ["input", "output"]
+    mock_ds.draft = False
+    return mock_ds
+
+
+@pytest.fixture
+def mock_prompt() -> MagicMock:
+    """Create a mock prompt object for testing."""
+
+    mock_version = MagicMock()
+    mock_version.template = [MessagesListItem(role="user", content="{{input}}")]
+    mock_version.version = 1
+
+    mock_pmt = MagicMock()
+    mock_pmt.id = str(uuid4())
+    mock_pmt.name = "Test Prompt"
+    mock_pmt.created_at = MagicMock()
+    mock_pmt.updated_at = MagicMock()
+    mock_pmt.selected_version = mock_version
+    return mock_pmt
+
+
+@pytest.fixture
+def mock_logstream() -> MagicMock:
+    """Create a mock log stream object for testing."""
+    mock_ls = MagicMock()
+    mock_ls.id = str(uuid4())
+    mock_ls.name = "Test Stream"
+    mock_ls.project_id = str(uuid4())
+    mock_ls.created_at = MagicMock()
+    mock_ls.created_by = str(uuid4())
+    mock_ls.updated_at = MagicMock()
+    mock_ls.additional_properties = {}
+    return mock_ls
