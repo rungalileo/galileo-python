@@ -110,9 +110,9 @@ class TestMetrics:
         assert scorer_request.tags == []
         assert scorer_request.defaults.model_name == "gpt-4.1-mini"
         assert scorer_request.defaults.num_judges == 3
-        assert scorer_request.defaults.output_type == OutputTypeEnum.BOOLEAN
+        assert scorer_request.output_type == OutputTypeEnum.BOOLEAN
         assert scorer_request.defaults.cot_enabled is True
-        assert scorer_request.defaults.scoreable_node_types == [StepType.llm]
+        assert scorer_request.scoreable_node_types == [StepType.llm]
 
         # Verify create_version was called with correct parameters
         mock_create_version.sync.assert_called_once()
@@ -158,9 +158,9 @@ class TestMetrics:
         assert scorer_request.tags == ["custom", "evaluation", "quality"]
         assert scorer_request.defaults.model_name == "GPT-3.5-turbo"
         assert scorer_request.defaults.num_judges == 5
-        assert scorer_request.defaults.output_type == OutputTypeEnum.CATEGORICAL
+        assert scorer_request.output_type == OutputTypeEnum.CATEGORICAL
         assert scorer_request.defaults.cot_enabled is False
-        assert scorer_request.defaults.scoreable_node_types == [StepType.workflow]
+        assert scorer_request.scoreable_node_types == [StepType.workflow]
 
         # Verify create_version was called with correct parameters
         version_request = mock_create_version.sync.call_args.kwargs["body"]
