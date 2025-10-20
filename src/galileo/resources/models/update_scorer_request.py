@@ -4,7 +4,9 @@ from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
+from ..models.input_type_enum import InputTypeEnum
 from ..models.model_type import ModelType
+from ..models.output_type_enum import OutputTypeEnum
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -23,8 +25,11 @@ class UpdateScorerRequest:
         defaults (Union['ScorerDefaults', None, Unset]):
         description (Union[None, Unset, str]):
         ground_truth (Union[None, Unset, bool]):
+        input_type (Union[InputTypeEnum, None, Unset]):
         model_type (Union[ModelType, None, Unset]):
         name (Union[None, Unset, str]):
+        output_type (Union[None, OutputTypeEnum, Unset]):
+        scoreable_node_types (Union[None, Unset, list[str]]):
         tags (Union[None, Unset, list[str]]):
         user_prompt (Union[None, Unset, str]):
     """
@@ -33,8 +38,11 @@ class UpdateScorerRequest:
     defaults: Union["ScorerDefaults", None, Unset] = UNSET
     description: Union[None, Unset, str] = UNSET
     ground_truth: Union[None, Unset, bool] = UNSET
+    input_type: Union[InputTypeEnum, None, Unset] = UNSET
     model_type: Union[ModelType, None, Unset] = UNSET
     name: Union[None, Unset, str] = UNSET
+    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
+    scoreable_node_types: Union[None, Unset, list[str]] = UNSET
     tags: Union[None, Unset, list[str]] = UNSET
     user_prompt: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -59,6 +67,14 @@ class UpdateScorerRequest:
         ground_truth: Union[None, Unset, bool]
         ground_truth = UNSET if isinstance(self.ground_truth, Unset) else self.ground_truth
 
+        input_type: Union[None, Unset, str]
+        if isinstance(self.input_type, Unset):
+            input_type = UNSET
+        elif isinstance(self.input_type, InputTypeEnum):
+            input_type = self.input_type.value
+        else:
+            input_type = self.input_type
+
         model_type: Union[None, Unset, str]
         if isinstance(self.model_type, Unset):
             model_type = UNSET
@@ -69,6 +85,23 @@ class UpdateScorerRequest:
 
         name: Union[None, Unset, str]
         name = UNSET if isinstance(self.name, Unset) else self.name
+
+        output_type: Union[None, Unset, str]
+        if isinstance(self.output_type, Unset):
+            output_type = UNSET
+        elif isinstance(self.output_type, OutputTypeEnum):
+            output_type = self.output_type.value
+        else:
+            output_type = self.output_type
+
+        scoreable_node_types: Union[None, Unset, list[str]]
+        if isinstance(self.scoreable_node_types, Unset):
+            scoreable_node_types = UNSET
+        elif isinstance(self.scoreable_node_types, list):
+            scoreable_node_types = self.scoreable_node_types
+
+        else:
+            scoreable_node_types = self.scoreable_node_types
 
         tags: Union[None, Unset, list[str]]
         if isinstance(self.tags, Unset):
@@ -93,10 +126,16 @@ class UpdateScorerRequest:
             field_dict["description"] = description
         if ground_truth is not UNSET:
             field_dict["ground_truth"] = ground_truth
+        if input_type is not UNSET:
+            field_dict["input_type"] = input_type
         if model_type is not UNSET:
             field_dict["model_type"] = model_type
         if name is not UNSET:
             field_dict["name"] = name
+        if output_type is not UNSET:
+            field_dict["output_type"] = output_type
+        if scoreable_node_types is not UNSET:
+            field_dict["scoreable_node_types"] = scoreable_node_types
         if tags is not UNSET:
             field_dict["tags"] = tags
         if user_prompt is not UNSET:
@@ -153,6 +192,22 @@ class UpdateScorerRequest:
 
         ground_truth = _parse_ground_truth(d.pop("ground_truth", UNSET))
 
+        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return InputTypeEnum(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[InputTypeEnum, None, Unset], data)
+
+        input_type = _parse_input_type(d.pop("input_type", UNSET))
+
         def _parse_model_type(data: object) -> Union[ModelType, None, Unset]:
             if data is None:
                 return data
@@ -177,6 +232,38 @@ class UpdateScorerRequest:
             return cast(Union[None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
+
+        def _parse_output_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return OutputTypeEnum(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, OutputTypeEnum, Unset], data)
+
+        output_type = _parse_output_type(d.pop("output_type", UNSET))
+
+        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
         def _parse_tags(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
@@ -208,8 +295,11 @@ class UpdateScorerRequest:
             defaults=defaults,
             description=description,
             ground_truth=ground_truth,
+            input_type=input_type,
             model_type=model_type,
             name=name,
+            output_type=output_type,
+            scoreable_node_types=scoreable_node_types,
             tags=tags,
             user_prompt=user_prompt,
         )

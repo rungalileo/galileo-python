@@ -12,6 +12,7 @@ if TYPE_CHECKING:
     from ..models.filter_leaf import FilterLeaf
     from ..models.generated_scorer_configuration import GeneratedScorerConfiguration
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+    from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
@@ -39,8 +40,8 @@ class ValidateLLMScorerLogRecordRequest:
             user_prompt (str):
             experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
             filter_tree (Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode', None, Unset]):
-            filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsDateFilter', 'LogRecordsIDFilter',
-                'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
+            filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
+                'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
             limit (Union[Unset, int]):  Default: 100.
             log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
             metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
@@ -62,6 +63,7 @@ class ValidateLLMScorerLogRecordRequest:
         list[
             Union[
                 "LogRecordsBooleanFilter",
+                "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
@@ -85,6 +87,7 @@ class ValidateLLMScorerLogRecordRequest:
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
+        from ..models.log_records_text_filter import LogRecordsTextFilter
         from ..models.not_node import NotNode
         from ..models.or_node import OrNode
 
@@ -116,7 +119,13 @@ class ValidateLLMScorerLogRecordRequest:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (LogRecordsIDFilter, LogRecordsDateFilter, LogRecordsNumberFilter, LogRecordsBooleanFilter),
+                    (
+                        LogRecordsIDFilter,
+                        LogRecordsDateFilter,
+                        LogRecordsNumberFilter,
+                        LogRecordsBooleanFilter,
+                        LogRecordsTextFilter,
+                    ),
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -184,6 +193,7 @@ class ValidateLLMScorerLogRecordRequest:
         from ..models.filter_leaf import FilterLeaf
         from ..models.generated_scorer_configuration import GeneratedScorerConfiguration
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+        from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
@@ -257,6 +267,7 @@ class ValidateLLMScorerLogRecordRequest:
                 data: object,
             ) -> Union[
                 "LogRecordsBooleanFilter",
+                "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
@@ -290,9 +301,16 @@ class ValidateLLMScorerLogRecordRequest:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsTextFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsTextFilter.from_dict(data)
+                return LogRecordsCollectionFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 

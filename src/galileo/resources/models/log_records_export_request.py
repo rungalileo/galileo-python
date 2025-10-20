@@ -10,6 +10,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+    from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
@@ -30,8 +31,9 @@ class LogRecordsExportRequest:
         column_ids (Union[None, Unset, list[str]]): Column IDs to include in export
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         export_format (Union[Unset, LLMExportFormat]):
-        filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsDateFilter', 'LogRecordsIDFilter',
-            'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]): Filters to apply on the export
+        filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
+            'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]): Filters to
+            apply on the export
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         redact (Union[Unset, bool]): Redact sensitive data Default: True.
@@ -47,6 +49,7 @@ class LogRecordsExportRequest:
         list[
             Union[
                 "LogRecordsBooleanFilter",
+                "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
@@ -65,6 +68,7 @@ class LogRecordsExportRequest:
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
+        from ..models.log_records_text_filter import LogRecordsTextFilter
 
         root_type = self.root_type.value
 
@@ -91,7 +95,13 @@ class LogRecordsExportRequest:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (LogRecordsIDFilter, LogRecordsDateFilter, LogRecordsNumberFilter, LogRecordsBooleanFilter),
+                    (
+                        LogRecordsIDFilter,
+                        LogRecordsDateFilter,
+                        LogRecordsNumberFilter,
+                        LogRecordsBooleanFilter,
+                        LogRecordsTextFilter,
+                    ),
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -136,6 +146,7 @@ class LogRecordsExportRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+        from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
@@ -182,6 +193,7 @@ class LogRecordsExportRequest:
                 data: object,
             ) -> Union[
                 "LogRecordsBooleanFilter",
+                "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
@@ -215,9 +227,16 @@ class LogRecordsExportRequest:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsTextFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsTextFilter.from_dict(data)
+                return LogRecordsCollectionFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 
