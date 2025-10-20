@@ -94,13 +94,9 @@ class Metrics:
             scorer_type=ScorerTypes.LLM,
             description=description,
             tags=tags,
-            defaults=ScorerDefaults(
-                model_name=model_name,
-                num_judges=num_judges,
-                output_type=output_type,
-                cot_enabled=cot_enabled,
-                scoreable_node_types=[node_level],
-            ),
+            defaults=ScorerDefaults(model_name=model_name, num_judges=num_judges, cot_enabled=cot_enabled),
+            scoreable_node_types=[node_level],
+            output_type=output_type,
         )
 
         scorer = create_scorers_post.sync(body=create_scorer_request, client=self.config.api_client)

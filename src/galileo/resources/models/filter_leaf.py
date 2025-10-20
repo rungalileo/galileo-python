@@ -61,6 +61,7 @@ class FilterLeaf:
         if isinstance(
             self.filter_,
             (
+                CollectionFilter,
                 IDFilter,
                 CustomUUIDFilter,
                 DateFilter,
@@ -68,7 +69,6 @@ class FilterLeaf:
                 CustomNumberFilter,
                 EnumFilter,
                 MapFilter,
-                CollectionFilter,
                 StringFilter,
                 CustomBooleanFilter,
             ),
@@ -117,6 +117,13 @@ class FilterLeaf:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
+                return CollectionFilter.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
                 return IDFilter.from_dict(data)
 
             except:  # noqa: E722
@@ -160,13 +167,6 @@ class FilterLeaf:
                 if not isinstance(data, dict):
                     raise TypeError()
                 return MapFilter.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return CollectionFilter.from_dict(data)
 
             except:  # noqa: E722
                 pass

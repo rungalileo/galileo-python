@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+    from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
@@ -23,9 +24,9 @@ class AggregatedTraceViewRequest:
     Attributes
     ----------
         log_stream_id (str): Log stream id associated with the traces.
-        filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsDateFilter', 'LogRecordsIDFilter',
-            'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]): Filters to apply on the traces. Note: Only trace-level
-            filters are supported.
+        filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
+            'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]): Filters to
+            apply on the traces. Note: Only trace-level filters are supported.
     """
 
     log_stream_id: str
@@ -34,6 +35,7 @@ class AggregatedTraceViewRequest:
         list[
             Union[
                 "LogRecordsBooleanFilter",
+                "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
@@ -48,6 +50,7 @@ class AggregatedTraceViewRequest:
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
+        from ..models.log_records_text_filter import LogRecordsTextFilter
 
         log_stream_id = self.log_stream_id
 
@@ -58,7 +61,13 @@ class AggregatedTraceViewRequest:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (LogRecordsIDFilter, LogRecordsDateFilter, LogRecordsNumberFilter, LogRecordsBooleanFilter),
+                    (
+                        LogRecordsIDFilter,
+                        LogRecordsDateFilter,
+                        LogRecordsNumberFilter,
+                        LogRecordsBooleanFilter,
+                        LogRecordsTextFilter,
+                    ),
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -77,6 +86,7 @@ class AggregatedTraceViewRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+        from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
@@ -93,6 +103,7 @@ class AggregatedTraceViewRequest:
                 data: object,
             ) -> Union[
                 "LogRecordsBooleanFilter",
+                "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
@@ -126,9 +137,16 @@ class AggregatedTraceViewRequest:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsTextFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsTextFilter.from_dict(data)
+                return LogRecordsCollectionFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 

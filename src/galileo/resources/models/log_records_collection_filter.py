@@ -1,36 +1,36 @@
 from collections.abc import Mapping
-from typing import Any, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.collection_filter_operator import CollectionFilterOperator
+from ..models.log_records_collection_filter_operator import LogRecordsCollectionFilterOperator
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="CollectionFilter")
+T = TypeVar("T", bound="LogRecordsCollectionFilter")
 
 
 @_attrs_define
-class CollectionFilter:
-    """Filters for string items in a collection/list.
-
+class LogRecordsCollectionFilter:
+    """
     Attributes
     ----------
-        name (Union[None, str]):
-        operator (CollectionFilterOperator):
+        column_id (str): ID of the column to filter.
+        operator (LogRecordsCollectionFilterOperator):
         value (Union[list[str], str]):
         case_sensitive (Union[Unset, bool]):  Default: True.
+        type_ (Union[Literal['collection'], Unset]):  Default: 'collection'.
     """
 
-    name: Union[None, str]
-    operator: CollectionFilterOperator
+    column_id: str
+    operator: LogRecordsCollectionFilterOperator
     value: Union[list[str], str]
     case_sensitive: Union[Unset, bool] = True
+    type_: Union[Literal["collection"], Unset] = "collection"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        name: Union[None, str]
-        name = self.name
+        column_id = self.column_id
 
         operator = self.operator.value
 
@@ -39,26 +39,24 @@ class CollectionFilter:
 
         case_sensitive = self.case_sensitive
 
+        type_ = self.type_
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"name": name, "operator": operator, "value": value})
+        field_dict.update({"column_id": column_id, "operator": operator, "value": value})
         if case_sensitive is not UNSET:
             field_dict["case_sensitive"] = case_sensitive
+        if type_ is not UNSET:
+            field_dict["type"] = type_
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        column_id = d.pop("column_id")
 
-        def _parse_name(data: object) -> Union[None, str]:
-            if data is None:
-                return data
-            return cast(Union[None, str], data)
-
-        name = _parse_name(d.pop("name"))
-
-        operator = CollectionFilterOperator(d.pop("operator"))
+        operator = LogRecordsCollectionFilterOperator(d.pop("operator"))
 
         def _parse_value(data: object) -> Union[list[str], str]:
             try:
@@ -74,10 +72,16 @@ class CollectionFilter:
 
         case_sensitive = d.pop("case_sensitive", UNSET)
 
-        collection_filter = cls(name=name, operator=operator, value=value, case_sensitive=case_sensitive)
+        type_ = cast(Union[Literal["collection"], Unset], d.pop("type", UNSET))
+        if type_ != "collection" and not isinstance(type_, Unset):
+            raise ValueError(f"type must match const 'collection', got '{type_}'")
 
-        collection_filter.additional_properties = d
-        return collection_filter
+        log_records_collection_filter = cls(
+            column_id=column_id, operator=operator, value=value, case_sensitive=case_sensitive, type_=type_
+        )
+
+        log_records_collection_filter.additional_properties = d
+        return log_records_collection_filter
 
     @property
     def additional_keys(self) -> list[str]:

@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class CollectionFilterOperator(str, Enum):
+class LogRecordsCollectionFilterOperator(str, Enum):
     CONTAINS = "contains"
     EQ = "eq"
     NOT_IN = "not_in"

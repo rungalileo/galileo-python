@@ -461,6 +461,7 @@ from .list_dataset_projects_response import ListDatasetProjectsResponse
 from .list_dataset_response import ListDatasetResponse
 from .list_dataset_version_params import ListDatasetVersionParams
 from .list_dataset_version_response import ListDatasetVersionResponse
+from .list_experiment_response import ListExperimentResponse
 from .list_group_collaborators_response import ListGroupCollaboratorsResponse
 from .list_prompt_dataset_response import ListPromptDatasetResponse
 from .list_prompt_template_params import ListPromptTemplateParams
@@ -481,6 +482,8 @@ from .llm_span_user_metadata import LlmSpanUserMetadata
 from .log_records_available_columns_request import LogRecordsAvailableColumnsRequest
 from .log_records_available_columns_response import LogRecordsAvailableColumnsResponse
 from .log_records_boolean_filter import LogRecordsBooleanFilter
+from .log_records_collection_filter import LogRecordsCollectionFilter
+from .log_records_collection_filter_operator import LogRecordsCollectionFilterOperator
 from .log_records_date_filter import LogRecordsDateFilter
 from .log_records_date_filter_operator import LogRecordsDateFilterOperator
 from .log_records_delete_request import LogRecordsDeleteRequest
@@ -1114,6 +1117,7 @@ __all__ = (
     "ListDatasetResponse",
     "ListDatasetVersionParams",
     "ListDatasetVersionResponse",
+    "ListExperimentResponse",
     "ListGroupCollaboratorsResponse",
     "ListPromptDatasetResponse",
     "ListPromptTemplateParams",
@@ -1132,6 +1136,8 @@ __all__ = (
     "LogRecordsAvailableColumnsRequest",
     "LogRecordsAvailableColumnsResponse",
     "LogRecordsBooleanFilter",
+    "LogRecordsCollectionFilter",
+    "LogRecordsCollectionFilterOperator",
     "LogRecordsDateFilter",
     "LogRecordsDateFilterOperator",
     "LogRecordsDeleteRequest",

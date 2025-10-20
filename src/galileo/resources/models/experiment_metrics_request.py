@@ -8,6 +8,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+    from ..models.log_records_collection_filter import LogRecordsCollectionFilter
     from ..models.log_records_date_filter import LogRecordsDateFilter
     from ..models.log_records_id_filter import LogRecordsIDFilter
     from ..models.log_records_number_filter import LogRecordsNumberFilter
@@ -22,8 +23,8 @@ class ExperimentMetricsRequest:
     """
     Attributes
     ----------
-        filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsDateFilter', 'LogRecordsIDFilter',
-            'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
+        filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
+            'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
     """
 
     filters: Union[
@@ -31,6 +32,7 @@ class ExperimentMetricsRequest:
         list[
             Union[
                 "LogRecordsBooleanFilter",
+                "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
@@ -45,6 +47,7 @@ class ExperimentMetricsRequest:
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
+        from ..models.log_records_text_filter import LogRecordsTextFilter
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -53,7 +56,13 @@ class ExperimentMetricsRequest:
                 filters_item: dict[str, Any]
                 if isinstance(
                     filters_item_data,
-                    (LogRecordsIDFilter, LogRecordsDateFilter, LogRecordsNumberFilter, LogRecordsBooleanFilter),
+                    (
+                        LogRecordsIDFilter,
+                        LogRecordsDateFilter,
+                        LogRecordsNumberFilter,
+                        LogRecordsBooleanFilter,
+                        LogRecordsTextFilter,
+                    ),
                 ):
                     filters_item = filters_item_data.to_dict()
                 else:
@@ -72,6 +81,7 @@ class ExperimentMetricsRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+        from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
@@ -86,6 +96,7 @@ class ExperimentMetricsRequest:
                 data: object,
             ) -> Union[
                 "LogRecordsBooleanFilter",
+                "LogRecordsCollectionFilter",
                 "LogRecordsDateFilter",
                 "LogRecordsIDFilter",
                 "LogRecordsNumberFilter",
@@ -119,9 +130,16 @@ class ExperimentMetricsRequest:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return LogRecordsTextFilter.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsTextFilter.from_dict(data)
+                return LogRecordsCollectionFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 
