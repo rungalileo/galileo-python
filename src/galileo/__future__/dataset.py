@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from galileo.__future__.base import BusinessObjectMixin, SyncState
+from galileo.__future__.base import StateManagementMixin, SyncState
 from galileo.__future__.exceptions import ValidationError
 from galileo.datasets import Datasets
 from galileo.resources.models.dataset_content import DatasetContent
@@ -14,7 +14,7 @@ from galileo.resources.types import Unset
 logger = logging.getLogger(__name__)
 
 
-class Dataset(BusinessObjectMixin):
+class Dataset(StateManagementMixin):
     """
     Object-centric interface for Galileo datasets.
 
@@ -75,6 +75,14 @@ class Dataset(BusinessObjectMixin):
     draft: bool | None
     content: list[dict[str, Any]]
 
+    def __str__(self) -> str:
+        """String representation of the dataset."""
+        return f"Dataset(name='{self.name}', id='{self.id}')"
+
+    def __repr__(self) -> str:
+        """Detailed string representation of the dataset."""
+        return f"Dataset(name='{self.name}', id='{self.id}', rows={self.num_rows})"
+
     def __init__(self, name: str | None = None, content: list[dict[str, Any]] | None = None) -> None:
         """
         Initialize a Dataset instance locally.
@@ -108,6 +116,38 @@ class Dataset(BusinessObjectMixin):
 
         # Set initial state
         self._set_state(SyncState.LOCAL_ONLY)
+
+    @classmethod
+    def _create_empty(cls) -> Dataset:
+        """Internal constructor bypassing __init__ for API hydration."""
+        instance = cls.__new__(cls)
+        super(Dataset, instance).__init__()
+        return instance
+
+    @classmethod
+    def _from_api_response(cls, retrieved_dataset: Any) -> Dataset:
+        """
+        Factory method to create a Dataset instance from an API response.
+
+        Args:
+            retrieved_dataset: The dataset data retrieved from the API.
+
+        Returns
+        -------
+            Dataset: A new Dataset instance populated with the API data.
+        """
+        instance = cls._create_empty()
+        instance.id = retrieved_dataset.id
+        instance.name = retrieved_dataset.name
+        instance.created_at = retrieved_dataset.created_at
+        instance.updated_at = retrieved_dataset.updated_at
+        instance.num_rows = retrieved_dataset.num_rows
+        instance.column_names = retrieved_dataset.column_names
+        instance.draft = retrieved_dataset.draft
+        instance.content = []  # Content is not loaded in get()/list(), use get_content() for that
+        # Set state to synced since we just retrieved from API
+        instance._set_state(SyncState.SYNCED)
+        return instance
 
     def create(self) -> Dataset:
         """
@@ -188,21 +228,7 @@ class Dataset(BusinessObjectMixin):
         if retrieved_dataset is None:
             return None
 
-        # Create a new instance and populate its attributes
-        instance = cls.__new__(cls)
-        # Initialize mixin state
-        BusinessObjectMixin.__init__(instance)
-        instance.id = retrieved_dataset.id
-        instance.name = retrieved_dataset.name
-        instance.created_at = retrieved_dataset.created_at
-        instance.updated_at = retrieved_dataset.updated_at
-        instance.num_rows = retrieved_dataset.num_rows
-        instance.column_names = retrieved_dataset.column_names
-        instance.draft = retrieved_dataset.draft
-        instance.content = []  # Content is not loaded in get(), use get_content() for that
-        # Set state to synced since we just retrieved from API
-        instance._set_state(SyncState.SYNCED)
-        return instance
+        return cls._from_api_response(retrieved_dataset)
 
     @classmethod
     def list(cls, *, limit: Unset | int = 100) -> list[Dataset]:
@@ -224,24 +250,7 @@ class Dataset(BusinessObjectMixin):
         datasets_service = Datasets()
         retrieved_datasets = datasets_service.list(limit=limit)
 
-        result = []
-        for retrieved_dataset in retrieved_datasets:
-            instance = cls.__new__(cls)
-            # Initialize mixin state
-            BusinessObjectMixin.__init__(instance)
-            instance.id = retrieved_dataset.id
-            instance.name = retrieved_dataset.name
-            instance.created_at = retrieved_dataset.created_at
-            instance.updated_at = retrieved_dataset.updated_at
-            instance.num_rows = retrieved_dataset.num_rows
-            instance.column_names = retrieved_dataset.column_names
-            instance.draft = retrieved_dataset.draft
-            instance.content = []  # Content is not loaded in list(), use get_content() for that
-            # Set state to synced since we just retrieved from API
-            instance._set_state(SyncState.SYNCED)
-            result.append(instance)
-
-        return result
+        return [cls._from_api_response(retrieved_dataset) for retrieved_dataset in retrieved_datasets]
 
     @classmethod
     def generate(
@@ -525,11 +534,3 @@ class Dataset(BusinessObjectMixin):
             "Dataset updates are not yet implemented. "
             "Use add_rows() to add content or other specific methods to modify dataset state."
         )
-
-    def __str__(self) -> str:
-        """String representation of the dataset."""
-        return f"Dataset(name='{self.name}', id='{self.id}')"
-
-    def __repr__(self) -> str:
-        """Detailed string representation of the dataset."""
-        return f"Dataset(name='{self.name}', id='{self.id}', rows={self.num_rows})"
