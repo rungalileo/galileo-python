@@ -54,3 +54,17 @@ class APIError(GalileoFutureError):
     def __init__(self, message: str, original_error: Optional[Exception] = None):
         super().__init__(message)
         self.original_error = original_error
+
+
+class SyncError(GalileoFutureError):
+    """
+    Raised when there's a state synchronization error.
+
+    This includes failures to persist changes, conflicts during updates,
+    or other synchronization-related issues.
+    """
+
+    def __init__(self, message: str, sync_state: Optional[str] = None, original_error: Optional[Exception] = None):
+        super().__init__(message)
+        self.sync_state = sync_state
+        self.original_error = original_error

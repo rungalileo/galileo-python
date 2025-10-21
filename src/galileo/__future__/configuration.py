@@ -13,7 +13,36 @@ logger = get_logger(__name__)
 
 @dataclass(frozen=True)
 class ConfigKey:
-    """Metadata for a configuration key."""
+    """
+    Metadata for a configuration key.
+
+    Defines a single configuration option with its properties, validation rules,
+    and relationship to environment variables. Used by the ConfigurationMeta
+    metaclass to enable dynamic attribute access.
+
+    Attributes
+    ----------
+    name : str
+        The attribute name used in the Configuration class (e.g., "galileo_api_key").
+    env_var : str
+        The corresponding environment variable name (e.g., "GALILEO_API_KEY").
+    description : str
+        Human-readable description of the configuration key's purpose.
+    required : bool
+        Whether this key must be set for the configuration to be considered complete.
+        Default: False.
+    sensitive : bool
+        Whether this key contains sensitive information (e.g., API keys, passwords).
+        Sensitive values are masked in get_configuration() output. Default: False.
+    default : Any
+        The default value if no explicit value or environment variable is set.
+        Default: None.
+    value_type : type
+        The expected Python type for this configuration value. Default: str.
+    parser : Optional[Callable[[str], Any]]
+        Optional function to convert string values from environment variables
+        to the appropriate type. Default: None (no conversion).
+    """
 
     name: str
     env_var: str
@@ -63,11 +92,44 @@ class ConfigurationMeta(type):
     """
     Metaclass for dynamic attribute handling based on CONFIGURATION_KEYS.
 
+    This metaclass enables the Configuration class to provide dynamic attribute access
+    with automatic resolution from multiple sources. When accessing a configuration
+    attribute (e.g., `Configuration.galileo_api_key`), the metaclass:
+
+    1. Checks if the attribute is in _CONFIGURATION_KEYS
+    2. Resolves the value from: explicit value → environment variable → .env file → default
+    3. Applies type conversion and validation if a parser is defined
+    4. Returns the resolved value
+
+    When setting a configuration attribute (e.g., `Configuration.galileo_api_key = "key"`),
+    the metaclass:
+
+    1. Stores the value internally (with underscore prefix: `_galileo_api_key`)
+    2. Automatically updates the corresponding environment variable
+    3. Ensures compatibility with libraries that read from os.environ
+
+    This pattern provides:
+    - Extensibility: New configuration keys can be added to _CONFIGURATION_KEYS
+    - Consistency: All configuration uses the same resolution pattern
+    - Compatibility: Environment variables are kept in sync for third-party libraries
+    - Transparency: Configuration sources are clearly prioritized
+
     Reference: https://docs.python.org/3/reference/datamodel.html#customizing-attribute-access
     """
 
     def __getattribute__(cls, name: str) -> Any:
-        """Generic getter. Returns from: explicit value → env var → .env file → default."""
+        """
+        Get configuration attribute value with automatic source resolution.
+
+        Resolution order: explicit value → env var → .env file → default.
+
+        Args:
+            name: The attribute name to retrieve.
+
+        Returns
+        -------
+            The resolved configuration value, or the attribute itself if not a config key.
+        """
         if name.startswith("_") or name in (
             "connect",
             "reset",
@@ -101,7 +163,20 @@ class ConfigurationMeta(type):
         return super().__getattribute__(name)
 
     def __setattr__(cls, name: str, value: Any) -> None:
-        """Generic setter. Stores value internally and syncs to environment variable."""
+        """
+        Set configuration attribute and sync to environment variable.
+
+        When setting a configuration key, the value is:
+        1. Stored internally with underscore prefix (e.g., `_galileo_api_key`)
+        2. Synced to the corresponding environment variable (e.g., `GALILEO_API_KEY`)
+
+        This ensures that both the Configuration class and environment variables
+        remain consistent, maintaining compatibility with third-party libraries.
+
+        Args:
+            name: The attribute name to set.
+            value: The value to assign to the attribute.
+        """
         if name in _KEYS_BY_NAME:
             key = _KEYS_BY_NAME[name]
             internal_name = f"_{name}"
@@ -120,20 +195,76 @@ class Configuration(metaclass=ConfigurationMeta):
     """
     Single source of truth for SDK configuration.
 
-    Uses a data-driven approach with keys defined in CONFIGURATION_KEYS.
-    Automatically syncs with environment variables and loads .env files.
+    This class uses a metaclass pattern to provide dynamic attribute access to configuration
+    keys defined in _CONFIGURATION_KEYS. Each configuration key can be accessed as a class
+    attribute, with values resolved in the following priority order:
+
+    1. Explicitly set value (via `Configuration.key = value`)
+    2. Environment variable (e.g., GALILEO_API_KEY)
+    3. .env file (loaded automatically on first access)
+    4. Default value (defined in the key configuration)
+
+    The metaclass automatically:
+    - Syncs attribute assignments to environment variables
+    - Loads .env files on first configuration access
+    - Provides type conversion and validation via parsers
+
+    Attributes
+    ----------
+    Configuration attributes are dynamically provided based on _CONFIGURATION_KEYS:
+        galileo_api_key (str): API key for Galileo authentication (sensitive)
+        console_url (str): URL of the Galileo console
+        openai_api_key (str): OpenAI API key for SDK interoperability (sensitive)
+        default_project_name (str): Default project name
+        default_project_id (str): Default project ID
+        default_logstream_name (str): Default log stream name
+        default_logstream_id (str): Default log stream ID
+        logging_disabled (bool): Disable all logging to Galileo
 
     Examples
     --------
+    Reading configuration values:
     ```python
-    Configuration.galileo_api_key = "key"
-    Configuration.console_url = "https://console.galileo.ai"
+    # Access via class attribute (reads from env vars, .env, or defaults)
+    api_key = Configuration.galileo_api_key
+    url = Configuration.console_url
+    ```
 
+    Setting configuration values:
+    ```python
+    # Set explicitly (also updates environment variables)
+    Configuration.galileo_api_key = "your-api-key"
+    Configuration.console_url = "https://console.galileo.ai"
+    ```
+
+    Checking and connecting:
+    ```python
+    # Check if required configuration is present
     if Configuration.is_configured():
         Configuration.connect()
-
-    config = Configuration.get_configuration()
     ```
+
+    Getting all configuration:
+    ```python
+    # Get all configuration values (sensitive values are masked)
+    config = Configuration.get_configuration()
+    print(config["galileo_api_key"])  # Output: "***"
+    print(config["console_url"])       # Output: actual URL
+    ```
+
+    Resetting configuration:
+    ```python
+    # Clear all configuration values and environment variables
+    Configuration.reset()
+    ```
+
+    Notes
+    -----
+    - The Configuration class should not be instantiated; use it as a static class
+    - Direct attribute access (e.g., `Configuration.galileo_api_key`) is the recommended pattern
+    - The `get_configuration()` method masks sensitive values for safe display/logging
+    - Setting an attribute automatically updates the corresponding environment variable
+    - This design maintains compatibility with third-party libraries expecting env vars
     """
 
     _env_loaded: bool = False
