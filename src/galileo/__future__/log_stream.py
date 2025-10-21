@@ -358,20 +358,58 @@ class LogStream(StateManagementMixin):
             logger.error(f"LogStream.refresh: id='{self.id}' - failed: {e}")
             raise
 
-    def enable_metrics(
+    def get_metrics(self) -> builtins.list[str]:
+        """
+        Get the list of metrics currently enabled on this log stream.
+
+        Returns
+        -------
+            list[str]: List of metric names currently enabled.
+
+        Raises
+        ------
+            ValueError: If the log stream lacks required id or project_id attributes.
+
+        Examples
+        --------
+            log_stream = LogStream.get(name="Production Logs", project_name="My Project")
+            current_metrics = log_stream.get_metrics()
+            print(f"Currently enabled: {current_metrics}")
+        """
+        from galileo.config import GalileoConfig
+        from galileo.resources.api.run_scorer_settings import (
+            get_settings_projects_project_id_runs_run_id_scorer_settings_get,
+        )
+
+        logger.info(f"LogStream.get_metrics: id='{self.id}' - started")
+        config = GalileoConfig.get()
+
+        settings = get_settings_projects_project_id_runs_run_id_scorer_settings_get.sync(
+            project_id=self.project_id, run_id=self.id, client=config.api_client
+        )
+
+        if settings is None or not hasattr(settings, "scorers"):
+            logger.info(f"LogStream.get_metrics: id='{self.id}' - no metrics enabled")
+            return []
+
+        # Extract metric names from scorer configs
+        metric_names = [scorer.name for scorer in settings.scorers]
+        logger.info(f"LogStream.get_metrics: id='{self.id}' found {len(metric_names)} metrics - completed")
+        return metric_names
+
+    def set_metrics(
         self, metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str]
     ) -> builtins.list[LocalMetricConfig]:
         """
-        Enable metrics on this log stream.
+        Set (replace) the metrics on this log stream.
 
-        This is a convenient method that leverages the log stream's existing
-        project_id and id attributes to enable metrics without requiring
-        redundant parameter specification.
+        This replaces any existing metrics with the new list. Alias for enable_metrics
+        with clearer naming intent.
 
         Args:
-            metrics: List of metrics to enable. Supports:
+            metrics: List of metrics to set. Supports:
                 - GalileoScorers enum values (e.g., GalileoScorers.correctness)
-                - Metric objects with name and optional version
+                - Metric objects (including from Metric.get(id="..."))
                 - LocalMetricConfig objects for custom scoring functions
                 - String names of built-in metrics
 
@@ -382,23 +420,22 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the log stream lacks required id or project_id attributes,
-                or if any specified metrics are unknown.
+            ValueError: If any specified metrics are unknown.
 
         Examples
         --------
-            from galileo.schema.metrics import GalileoScorers
+            from galileo.__future__ import Metric, LogStream
 
-            project = Project.get(name="My AI Project")
-            log_stream = project.create_log_stream(name="Production Logs")
+            log_stream = LogStream.get(name="Production Logs", project_name="My Project")
 
-            # Enable built-in metrics
-            local_metrics = log_stream.enable_metrics([
-                GalileoScorers.correctness,
-                GalileoScorers.completeness,
-                "context_relevance"
+            # Set metrics (replaces existing)
+            log_stream.set_metrics([
+                Metric.scorers.correctness,
+                Metric.scorers.completeness,
+                Metric.get(id="metric-from-console-uuid"),  # From console
             ])
         """
+<<<<<<< HEAD
         try:
             logger.info(f"LogStream.enable_metrics: id='{self.id}' metrics={[str(m) for m in metrics]} - started")
             log_streams_service = LogStreams()
@@ -762,6 +799,103 @@ class LogStream(StateManagementMixin):
                 response = openai_client.chat.completions.create(...)
         """
         return galileo_context(project=self.project.name if self.project else None, log_stream=self.name)
+=======
+        logger.info(f"LogStream.set_metrics: id='{self.id}' metrics={[str(m) for m in metrics]} - started")
+        log_streams_service = LogStreams()
+        log_stream = log_streams_service.get(name=self.name, project_id=self.project_id)
+        if log_stream is None:
+            raise ValueError(f"Log stream '{self.name}' not found")
+        result = log_stream.enable_metrics(metrics)
+        logger.info(f"LogStream.set_metrics: id='{self.id}' - completed")
+        return result
+
+    def add_metrics(
+        self, metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str]
+    ) -> builtins.list[LocalMetricConfig]:
+        """
+        Add metrics to the existing metrics on this log stream.
+
+        This adds to the current set of metrics without removing existing ones.
+
+        Args:
+            metrics: List of metrics to add. Supports:
+                - GalileoScorers enum values (e.g., GalileoScorers.correctness)
+                - Metric objects (including from Metric.get(id="..."))
+                - LocalMetricConfig objects for custom scoring functions
+                - String names of built-in metrics
+
+        Returns
+        -------
+            List[LocalMetricConfig]: Local metric configurations that must be
+                computed client-side.
+
+        Raises
+        ------
+            ValueError: If any specified metrics are unknown.
+
+        Examples
+        --------
+            log_stream = LogStream.get(name="Production Logs", project_name="My Project")
+
+            # Add more metrics to existing ones
+            log_stream.add_metrics([
+                Metric.scorers.toxicity,
+                "prompt_injection",
+            ])
+        """
+        logger.info(f"LogStream.add_metrics: id='{self.id}' adding {len(metrics)} metrics - started")
+
+        # Get current metrics
+        current_metric_names: set[str] = set(self.get_metrics())
+        logger.debug(f"LogStream.add_metrics: current metrics={current_metric_names}")
+
+        # Build combined list (avoid duplicates by name)
+        combined_metrics = list(metrics)  # Start with new metrics
+
+        # Add existing metrics that aren't being replaced
+        for metric_name in current_metric_names:
+            # Check if this metric is being replaced
+            is_replaced = any(
+                (isinstance(m, str) and m == metric_name)
+                or (hasattr(m, "name") and m.name == metric_name)
+                or (isinstance(m, GalileoScorers) and m.value.lstrip("_") == metric_name)
+                for m in metrics
+            )
+            if not is_replaced:
+                combined_metrics.append(metric_name)
+
+        logger.info(f"LogStream.add_metrics: setting {len(combined_metrics)} total metrics")
+        return self.set_metrics(combined_metrics)
+
+    def enable_metrics(
+        self, metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str]
+    ) -> builtins.list[LocalMetricConfig]:
+        """
+        Enable metrics on this log stream.
+
+        Alias for set_metrics() for backward compatibility.
+
+        Args:
+            metrics: List of metrics to enable.
+
+        Returns
+        -------
+            List[LocalMetricConfig]: Local metric configurations that must be
+                computed client-side.
+
+        Examples
+        --------
+            log_stream.enable_metrics([
+                Metric.scorers.correctness,
+                "completeness",
+            ])
+        """
+        return self.set_metrics(metrics)
+
+    def __str__(self) -> str:
+        """String representation of the log stream."""
+        return f"LogStream(name='{self.name}', id='{self.id}', project_id='{self.project_id}')"
+>>>>>>> 37c9012 (add/update)
 
     def _get_columns(self, api_func: Any, error_msg: str) -> LogRecordsAvailableColumnsResponse:
         """Helper method to retrieve available columns from the API."""
