@@ -209,6 +209,32 @@ class LogStream:
         logger.info(f"LogStream.enable_metrics: id='{self.id}' - completed")
         return result
 
+    def context(self) -> Any:
+        """
+        Get a galileo context manager for this log stream.
+
+        This is a convenient method that returns a pre-configured galileo_context
+        for this log stream, eliminating the need to specify project and log stream names.
+
+        Returns
+        -------
+            A context manager for Galileo logging configured with this log stream.
+
+        Examples
+        --------
+            log_stream = LogStream.get(
+                name="Production Logs",
+                project_name="My AI Project"
+            )
+
+            with log_stream.context():
+                # Your logging code here
+                response = openai_client.chat.completions.create(...)
+        """
+        from galileo import galileo_context
+
+        return galileo_context(project=self.project.name if self.project else None, log_stream=self.name)
+
     def __str__(self) -> str:
         """String representation of the log stream."""
         return f"LogStream(name='{self.name}', id='{self.id}', project_id='{self.project_id}')"
