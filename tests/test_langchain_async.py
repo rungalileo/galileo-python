@@ -2,6 +2,7 @@ import asyncio
 import uuid
 from collections.abc import Generator
 from unittest.mock import MagicMock, Mock, patch
+from uuid import UUID, uuid4
 
 import pytest
 from langchain_core.agents import AgentFinish
@@ -13,6 +14,7 @@ from pytest import mark
 from galileo import Message, MessageRole
 from galileo.handlers.langchain import GalileoAsyncCallback
 from galileo.logger.logger import GalileoLogger
+from galileo.utils.uuid_utils import uuid7_to_uuid4
 from galileo_core.schemas.shared.document import Document as GalileoDocument
 from tests.testutils.setup import setup_mock_logstreams_client, setup_mock_projects_client, setup_mock_traces_client
 
@@ -965,3 +967,50 @@ class TestGalileoAsyncCallback:
             await callback.on_chain_end(outputs='{"result": "test answer"}', run_id=run_id)
             mock_hook.assert_called_once()
             mock_traces_client.ingest_traces.assert_not_called()
+
+    def _create_uuid7(self) -> UUID:
+        """Create a mock UUID7 for testing."""
+        uuid7_bytes = bytearray(uuid4().bytes)
+        uuid7_bytes[6] = (uuid7_bytes[6] & 0x0F) | 0x70  # Set version to 7
+        return UUID(bytes=bytes(uuid7_bytes))
+
+    @mark.asyncio
+    async def test_async_on_chain_start_converts_uuid7(self, callback):
+        """Test that async on_chain_start converts UUID7s to UUID4s."""
+        uuid7_run_id = self._create_uuid7()
+        uuid7_parent_id = self._create_uuid7()
+
+        with patch.object(callback._handler, "async_start_node") as mock_start_node:
+            await callback.on_chain_start(
+                serialized={"name": "test_chain"},
+                inputs={"input": "test"},
+                run_id=uuid7_run_id,
+                parent_run_id=uuid7_parent_id,
+            )
+
+            mock_start_node.assert_called_once()
+            args, kwargs = mock_start_node.call_args
+
+            # Verify UUIDs were converted to UUID4
+            converted_parent_id = args[1]  # parent_run_id
+            converted_run_id = args[2]  # run_id
+
+            assert converted_parent_id.version == 4
+            assert converted_run_id.version == 4
+            assert converted_parent_id == uuid7_to_uuid4(uuid7_parent_id)
+            assert converted_run_id == uuid7_to_uuid4(uuid7_run_id)
+
+    @mark.asyncio
+    async def test_async_on_tool_error_converts_uuid7(self, callback):
+        """Test that async on_tool_error converts UUID7 to UUID4."""
+        uuid7_run_id = self._create_uuid7()
+
+        with patch.object(callback._handler, "async_end_node") as mock_end_node:
+            await callback.on_tool_error(error=Exception("test"), run_id=uuid7_run_id)
+
+            mock_end_node.assert_called_once()
+            args, kwargs = mock_end_node.call_args
+
+            converted_run_id = args[0]  # run_id
+            assert converted_run_id.version == 4
+            assert converted_run_id == uuid7_to_uuid4(uuid7_run_id)
