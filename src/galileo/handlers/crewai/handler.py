@@ -358,11 +358,15 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
                 f"memory_retrieval_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_id', '')}"
             )
 
+        # For LLM events, always generate unique IDs to avoid conflicts with agents
+        if hasattr(event, "messages"):
+            # Include source.id in hash if available to maintain some consistency
+            source_id = getattr(source, "id", "unknown") if hasattr(source, "id") else "unknown"
+            messages_hash = json.dumps(event.to_json().get("messages", []))
+            return self._hash_to_uuid(f"llm_{source_id}_{messages_hash}")
+
         if hasattr(source, "id") and source.id:
             return source.id
-
-        if hasattr(event, "messages"):
-            return self._hash_to_uuid(json.dumps(event.to_json().get("messages", [])))
 
         if hasattr(event, "tool_args"):
             tool_args = (
@@ -390,6 +394,58 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             metadata.update(event.fingerprint_metadata)
 
         return metadata
+
+    def _extract_flow_state_input(self, source: Any, event: Any) -> dict:
+        """Extract FlowState pydantic model as input data."""
+        # For method events, prefer event.state as it might be more current
+        state_to_check = None
+        if hasattr(event, "state") and event.state is not None:
+            state_to_check = event.state
+        elif hasattr(source, "state"):
+            state_to_check = source.state
+
+        if state_to_check is not None:
+            if hasattr(state_to_check, "model_dump"):
+                # Pydantic v2
+                try:
+                    return state_to_check.model_dump()
+                except Exception:
+                    pass
+            elif hasattr(state_to_check, "dict"):
+                # Pydantic v1
+                try:
+                    return state_to_check.dict()
+                except Exception:
+                    pass
+            elif isinstance(state_to_check, dict):
+                # Already a dict
+                return state_to_check
+            else:
+                # Try to convert to dict
+                try:
+                    return vars(state_to_check)
+                except Exception:
+                    pass
+
+        # Fallback to event inputs
+        event_inputs = getattr(event, "inputs", {})
+        if event_inputs:
+            return event_inputs
+
+        # Last resort - try to get any available data
+        if hasattr(source, "__dict__"):
+            source_data = {}
+            for key, value in source.__dict__.items():
+                if not key.startswith("_"):  # Skip private attributes
+                    try:
+                        # Try to serialize the value
+                        json.dumps(value, default=str)
+                        source_data[key] = value
+                    except (TypeError, ValueError):
+                        source_data[key] = str(value)
+            return source_data
+
+        return {}
 
     # Crew event handlers
     def _handle_crew_kickoff_started(self, source: Any, event: "CrewKickoffStartedEvent") -> None:
@@ -759,7 +815,8 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         metadata["flow_name"] = flow_name
         metadata["flow_state_id"] = str(run_id)
 
-        input_data = getattr(event, "inputs", {})
+        # Capture FlowState pydantic model if available
+        input_data = self._extract_flow_state_input(source, event)
 
         self._handler.start_node(
             node_type=NodeType.CHAIN.value,
@@ -803,9 +860,8 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             elif isinstance(event.state, dict) and "id" in event.state:
                 metadata["state_id"] = str(event.state["id"])
 
-        input_data = getattr(event, "params", None)
-        if not input_data:
-            input_data = getattr(event, "state", None)
+        # Capture current FlowState for this method
+        input_data = self._extract_flow_state_input(source, event)
 
         self._handler.start_node(
             node_type=NodeType.CHAIN.value,
