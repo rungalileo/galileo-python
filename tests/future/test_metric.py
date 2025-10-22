@@ -16,10 +16,7 @@ class TestMetricInitialization:
     def test_init_with_required_fields(self, reset_configuration: None) -> None:
         """Test initializing a metric with required fields creates a local-only instance."""
         metric = Metric(
-            name="Test Metric",
-            prompt="Is the response factually accurate?",
-            model="gpt-4.1-mini",
-            judges=3,
+            name="Test Metric", prompt="Is the response factually accurate?", model="gpt-4.1-mini", judges=3
         )
 
         assert metric.name == "Test Metric"
@@ -73,10 +70,7 @@ class TestMetricCreate:
     @patch("galileo.__future__.metric.Metrics")
     @patch("galileo.__future__.metric.Scorers")
     def test_create_persists_metric_to_api(
-        self,
-        mock_scorers_class: MagicMock,
-        mock_metrics_class: MagicMock,
-        reset_configuration: None,
+        self, mock_scorers_class: MagicMock, mock_metrics_class: MagicMock, reset_configuration: None
     ) -> None:
         """Test create() persists the metric to the API and updates attributes."""
         mock_metrics_service = MagicMock()
@@ -111,10 +105,7 @@ class TestMetricCreate:
         mock_scorers_service.list.return_value = [mock_scorer]
 
         metric = Metric(
-            name="Test Metric",
-            user_prompt="Is it accurate?",
-            description="Test description",
-            tags=["test"],
+            name="Test Metric", user_prompt="Is it accurate?", description="Test description", tags=["test"]
         ).create()
 
         mock_metrics_service.create_custom_llm_metric.assert_called_once()
@@ -128,10 +119,7 @@ class TestMetricCreate:
         mock_metrics_class.return_value = mock_service
         mock_service.create_custom_llm_metric.side_effect = Exception("API Error")
 
-        metric = Metric(
-            name="Test Metric",
-            prompt="Is it accurate?",
-        )
+        metric = Metric(name="Test Metric", prompt="Is it accurate?")
 
         with pytest.raises(Exception, match="API Error"):
             metric.create()
@@ -160,9 +148,7 @@ class TestMetricGet:
     """Test suite for Metric.get() class method."""
 
     @patch("galileo.__future__.metric.Scorers")
-    def test_get_by_name_returns_metric(
-        self, mock_scorers_class: MagicMock, reset_configuration: None
-    ) -> None:
+    def test_get_by_name_returns_metric(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
         """Test get() with name returns a synced metric instance."""
         mock_service = MagicMock()
         mock_scorers_class.return_value = mock_service
@@ -192,9 +178,7 @@ class TestMetricGet:
         assert metric.is_synced()
 
     @patch("galileo.__future__.metric.Scorers")
-    def test_get_by_id_returns_metric(
-        self, mock_scorers_class: MagicMock, reset_configuration: None
-    ) -> None:
+    def test_get_by_id_returns_metric(self, mock_scorers_class: MagicMock, reset_configuration: None) -> None:
         """Test get() with id returns a synced metric instance."""
         mock_service = MagicMock()
         mock_scorers_class.return_value = mock_service
@@ -324,10 +308,7 @@ class TestMetricDelete:
     @patch("galileo.__future__.metric.Metrics")
     @patch("galileo.__future__.metric.Scorers")
     def test_delete_removes_metric(
-        self,
-        mock_scorers_class: MagicMock,
-        mock_metrics_class: MagicMock,
-        reset_configuration: None,
+        self, mock_scorers_class: MagicMock, mock_metrics_class: MagicMock, reset_configuration: None
     ) -> None:
         """Test delete() removes the metric."""
         mock_scorers_service = MagicMock()
@@ -477,11 +458,7 @@ class TestMetricMethods:
 
     def test_str_and_repr(self, reset_configuration: None) -> None:
         """Test __str__ and __repr__ return expected formats."""
-        metric = Metric(
-            name="Test Metric",
-            prompt="Is it accurate?",
-            output_type="percentage",
-        )
+        metric = Metric(name="Test Metric", prompt="Is it accurate?", output_type="percentage")
         metric.id = "test-id-123"
 
         assert str(metric) == "Metric(name='Test Metric', id='test-id-123', type='llm')"
@@ -524,4 +501,3 @@ class TestMetricMethods:
         assert metric.judges is None
         assert metric.cot_enabled is None
         assert metric.node_level is None
-
