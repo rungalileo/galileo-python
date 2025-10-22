@@ -25,11 +25,21 @@ try:
             AgentExecutionCompletedEvent,
             AgentExecutionErrorEvent,
             AgentExecutionStartedEvent,
+            LiteAgentExecutionCompletedEvent,
+            LiteAgentExecutionErrorEvent,
+            LiteAgentExecutionStartedEvent,
         )
         from crewai.events.types.crew_events import (  # pyright: ignore[reportMissingImports]
             CrewKickoffCompletedEvent,
             CrewKickoffFailedEvent,
             CrewKickoffStartedEvent,
+        )
+        from crewai.events.types.flow_events import (  # pyright: ignore[reportMissingImports]
+            FlowFinishedEvent,
+            FlowStartedEvent,
+            MethodExecutionFailedEvent,
+            MethodExecutionFinishedEvent,
+            MethodExecutionStartedEvent,
         )
         from crewai.events.types.llm_events import (  # pyright: ignore[reportMissingImports]
             LLMCallCompletedEvent,
@@ -139,6 +149,11 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             integration="crewai",
         )
 
+        # Flow context tracking
+        self._flow_root_id: Optional[UUID] = None
+        self._current_method_id: Optional[UUID] = None
+        self._current_lite_agent_id: Optional[UUID] = None
+
         # Only call super().__init__() if CrewAI is available
         if CREWAI_AVAILABLE:
             super().__init__()
@@ -219,6 +234,40 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         def on_llm_call_failed(source: Any, event: LLMCallFailedEvent) -> None:
             self._handle_llm_call_failed(source, event)
 
+        # Flow event handlers
+        @crewai_event_bus.on(FlowStartedEvent)
+        def on_flow_started(source: Any, event: FlowStartedEvent) -> None:
+            self._handle_flow_started(source, event)
+
+        @crewai_event_bus.on(FlowFinishedEvent)
+        def on_flow_finished(source: Any, event: FlowFinishedEvent) -> None:
+            self._handle_flow_finished(source, event)
+
+        @crewai_event_bus.on(MethodExecutionStartedEvent)
+        def on_method_execution_started(source: Any, event: MethodExecutionStartedEvent) -> None:
+            self._handle_method_execution_started(source, event)
+
+        @crewai_event_bus.on(MethodExecutionFinishedEvent)
+        def on_method_execution_finished(source: Any, event: MethodExecutionFinishedEvent) -> None:
+            self._handle_method_execution_finished(source, event)
+
+        @crewai_event_bus.on(MethodExecutionFailedEvent)
+        def on_method_execution_failed(source: Any, event: MethodExecutionFailedEvent) -> None:
+            self._handle_method_execution_failed(source, event)
+
+        # Light Agent event handlers
+        @crewai_event_bus.on(LiteAgentExecutionStartedEvent)
+        def on_lite_agent_execution_started(source: Any, event: LiteAgentExecutionStartedEvent) -> None:
+            self._handle_lite_agent_execution_started(source, event)
+
+        @crewai_event_bus.on(LiteAgentExecutionCompletedEvent)
+        def on_lite_agent_execution_completed(source: Any, event: LiteAgentExecutionCompletedEvent) -> None:
+            self._handle_lite_agent_execution_completed(source, event)
+
+        @crewai_event_bus.on(LiteAgentExecutionErrorEvent)
+        def on_lite_agent_execution_error(source: Any, event: LiteAgentExecutionErrorEvent) -> None:
+            self._handle_lite_agent_execution_error(source, event)
+
         # Memory event handlers (only available in CrewAI >= 0.177.0)
         if CREWAI_EVENTS_MODULE_AVAILABLE:
 
@@ -254,70 +303,86 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
             def on_memory_retrieval_completed(source: Any, event: MemoryRetrievalCompletedEvent) -> None:
                 self._handle_memory_retrieval_completed(source, event)
 
+    def _hash_to_uuid(self, content: str) -> UUID:
+        """Convert a string to a UUID using MD5 hash."""
+        return UUID(hashlib.md5(content.encode()).hexdigest())
+
     def _generate_run_id(self, source: Any, event: Any) -> UUID:
         """Generate a consistent UUID for event tracing."""
-        # Memory event specific ID generation
-        if hasattr(event, "query"):  # Memory query events
-            source_type = event.source_type if hasattr(event, "source_type") else ""
-            query_str = f"memory_query_{event.query}_{source_type}_{getattr(event, 'agent_id', '')}_{getattr(event, 'limit', '')}_{getattr(event, 'score_threshold', '')}"
-            hash_obj = hashlib.md5(query_str.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+        if hasattr(event, "flow_name"):
+            if getattr(event, "type", "") in ("flow_started", "flow_finished"):
+                if hasattr(source, "state"):
+                    state_id = getattr(source.state, "id", None) or (
+                        source.state.get("id") if isinstance(source.state, dict) else None
+                    )
+                    if state_id:
+                        return state_id if isinstance(state_id, UUID) else UUID(str(state_id))
 
-        if hasattr(event, "value") and getattr(event, "type", "").startswith("memory_save"):  # Memory save events
-            save_str = f"memory_save_{getattr(event, 'agent_id', '')}_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_role', '')}"
-            hash_obj = hashlib.md5(save_str.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+                if hasattr(source, "id") and source.id:
+                    return source.id if isinstance(source.id, UUID) else UUID(str(source.id))
 
-        if (
-            hasattr(event, "memory_content") or getattr(event, "type", "") == "memory_retrieval_started"
-        ):  # Memory retrieval events
-            # Use consistent fields for all retrieval events (started/completed) - exclude memory_content to ensure same ID
-            retrieval_str = f"memory_retrieval_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_id', '')}"
-            hash_obj = hashlib.md5(retrieval_str.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+                _logger.warning("Flow has no state.id or source.id, using hash-based ID")
+                return self._hash_to_uuid(f"flow_{event.flow_name}")
+
+            if hasattr(event, "method_name"):
+                flow_id = event.flow_name
+                if hasattr(source, "state"):
+                    state_id = getattr(source.state, "id", None) or (
+                        source.state.get("id") if isinstance(source.state, dict) else None
+                    )
+                    if state_id:
+                        flow_id = str(state_id)
+                elif hasattr(source, "id") and source.id:
+                    flow_id = str(source.id)
+
+                return self._hash_to_uuid(f"method_{flow_id}_{event.method_name}")
+
+        if hasattr(event, "agent_info") and isinstance(event.agent_info, dict):
+            if hasattr(source, "id") and source.id:
+                return source.id if isinstance(source.id, UUID) else UUID(str(source.id))
+            return self._hash_to_uuid(json.dumps(event.agent_info, sort_keys=True, default=str))
+
+        if hasattr(event, "query"):
+            source_type = getattr(event, "source_type", "")
+            return self._hash_to_uuid(
+                f"memory_query_{event.query}_{source_type}_{getattr(event, 'agent_id', '')}_{getattr(event, 'limit', '')}_{getattr(event, 'score_threshold', '')}"
+            )
+
+        if hasattr(event, "value") and getattr(event, "type", "").startswith("memory_save"):
+            return self._hash_to_uuid(
+                f"memory_save_{getattr(event, 'agent_id', '')}_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_role', '')}"
+            )
+
+        if hasattr(event, "memory_content") or getattr(event, "type", "") == "memory_retrieval_started":
+            return self._hash_to_uuid(
+                f"memory_retrieval_{getattr(event, 'task_id', '')}_{getattr(event, 'agent_id', '')}"
+            )
 
         if hasattr(source, "id") and source.id:
             return source.id
 
         if hasattr(event, "messages"):
-            messages = json.dumps(event.to_json().get("messages", []))
-            hash_obj = hashlib.md5(messages.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+            return self._hash_to_uuid(json.dumps(event.to_json().get("messages", [])))
 
         if hasattr(event, "tool_args"):
-            # tool_args might be a dict or JSON string
-            if isinstance(event.tool_args, str):
-                tool_args = event.tool_args
-            else:
-                # Convert dict to JSON string
-                tool_args = json.dumps(event.tool_args) if isinstance(event.tool_args, dict) else str(event.tool_args)
-            hash_obj = hashlib.md5(tool_args.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+            tool_args = (
+                event.tool_args
+                if isinstance(event.tool_args, str)
+                else (json.dumps(event.tool_args) if isinstance(event.tool_args, dict) else str(event.tool_args))
+            )
+            return self._hash_to_uuid(tool_args)
 
         if isinstance(event, dict) and "messages" in event:
-            # If event is a string, use it directly
-            messages = json.dumps(event["messages"])
-            hash_obj = hashlib.md5(messages.encode())
-            digest = hash_obj.hexdigest()
-            return UUID(digest)
+            return self._hash_to_uuid(json.dumps(event["messages"]))
 
-        # Fallback to generating a UUID based on event properties
-        source_str = f"{getattr(event, 'crew_name', '')}_{getattr(event, 'agent', '')}_{getattr(event, 'task', '')}"
-        hash_obj = hashlib.md5(source_str.encode())
-        digest = hash_obj.hexdigest()
-        return UUID(digest)
+        return self._hash_to_uuid(
+            f"{getattr(event, 'crew_name', '')}_{getattr(event, 'agent', '')}_{getattr(event, 'task', '')}"
+        )
 
     def _extract_metadata(self, event: Any) -> dict:
         """Extract metadata from event for span attributes."""
-        metadata = {}
-        metadata["timestamp"] = event.timestamp.isoformat()
+        metadata = {"timestamp": event.timestamp.isoformat()}
 
-        # Add source information
         if hasattr(event, "source_type") and event.source_type:
             metadata["source_type"] = event.source_type
 
@@ -330,42 +395,38 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
     def _handle_crew_kickoff_started(self, source: Any, event: "CrewKickoffStartedEvent") -> None:
         """Handle crew execution start."""
         run_id = self._generate_run_id(source, event)
-        crew_name = event.crew_name if hasattr(event, "crew_name") else "Crew"
+        crew_name = getattr(event, "crew_name", "Crew")
 
         metadata = self._extract_metadata(event)
         metadata["crew_name"] = crew_name
 
-        input = getattr(event, "inputs", {})
+        input_data = getattr(event, "inputs", {})
 
         self._handler.start_node(
             node_type=NodeType.CHAIN.value,
-            parent_run_id=None,  # Root node
+            parent_run_id=self._current_method_id,
             run_id=run_id,
             name=crew_name,
-            input=serialize_to_str(input) if input else "-",
+            input=serialize_to_str(input_data) if input_data else "-",
             metadata=metadata,
         )
 
     def _update_crew_input(self, run_id: str) -> None:
-        """Update crew input with task descriptions. if input is not set."""
+        """Update crew input with task descriptions if input is not set."""
         nodes = self._handler.get_nodes()
         root_node = nodes.get(str(run_id))
         if not root_node:
             return
 
-        input = root_node.span_params.get("input", "-")
-        tasks = ""
+        current_input = root_node.span_params.get("input", "-")
 
-        if not input or input == "-":
+        if not current_input or current_input == "-":
             tasks = "\n".join(
-                [
-                    str(node.span_params.get("metadata", {}).get("task_description"))
-                    for node in nodes.values()
-                    if node.span_params.get("metadata", {}).get("task_description")
-                ]
+                str(node.span_params.get("metadata", {}).get("task_description"))
+                for node in nodes.values()
+                if node.span_params.get("metadata", {}).get("task_description")
             )
-            input = f"Tasks: {tasks}" if tasks else "-"
-            root_node.span_params["input"] = input
+            root_node.span_params["input"] = f"Tasks: {tasks}" if tasks else "-"
 
     def _handle_crew_kickoff_completed(self, source: Any, event: "CrewKickoffCompletedEvent") -> None:
         """Handle crew execution completion."""
@@ -387,9 +448,9 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         """Handle agent execution start."""
         run_id = self._generate_run_id(source, event)
         parent_run_id = self._to_uuid(event.task.id)
-        role = "Unknown Agent"
         metadata = self._extract_metadata(event)
 
+        role = "Unknown Agent"
         if hasattr(event, "agent") and event.agent:
             if hasattr(event.agent, "role"):
                 role = event.agent.role
@@ -428,31 +489,29 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
     def _handle_task_started(self, source: Any, event: "TaskStartedEvent") -> None:
         """Handle task start."""
         run_id = self._generate_run_id(source, event)
-        task = event.task if hasattr(event, "task") else None
+        task = getattr(event, "task", None)
         parent_run_id = self._to_uuid(task.agent.crew.id) if task else None
 
         metadata = self._extract_metadata(event)
+        task_name = "Unknown Task"
+
         if task:
             if hasattr(task, "description"):
                 metadata["task_description"] = task.description
+                task_name = task.description[:50] + "..." if len(task.description) > 50 else task.description
             if hasattr(task, "id"):
                 metadata["task_id"] = str(task.id)
 
-        task_name = "Unknown Task"
-        if task and hasattr(task, "description"):
-            # Use first 50 chars of description as name
-            task_name = task.description[:50] + "..." if len(task.description) > 50 else task.description
-
-        input = getattr(event, "context", "")
-        if not input:
-            input = task.description if task and hasattr(task, "description") else ""
+        input_data = getattr(event, "context", "") or (
+            task.description if task and hasattr(task, "description") else ""
+        )
 
         self._handler.start_node(
             node_type=NodeType.CHAIN.value,
             parent_run_id=parent_run_id,
             run_id=run_id,
             name=task_name,
-            input=serialize_to_str(input) if input else "-",
+            input=serialize_to_str(input_data) if input_data else "-",
             metadata=metadata,
         )
 
@@ -477,21 +536,22 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
     def _handle_tool_usage_started(self, source: Any, event: "ToolUsageStartedEvent") -> None:
         """Handle tool usage start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = self._to_uuid(event.agent.id) if event.agent else None
-        input = getattr(event, "tool_args", {})
+        parent_run_id = self._current_lite_agent_id or (self._to_uuid(event.agent.id) if event.agent else None)
+
+        tool_args = getattr(event, "tool_args", {})
         tool_name = getattr(event, "tool_name", "Unknown Tool")
 
         metadata = self._extract_metadata(event)
         metadata["tool_name"] = tool_name
-        if input:
-            metadata["tool_args"] = str(input)
+        if tool_args:
+            metadata["tool_args"] = str(tool_args)
 
         self._handler.start_node(
             node_type=NodeType.TOOL.value,
             parent_run_id=parent_run_id,
             run_id=run_id,
             name=tool_name,
-            input=serialize_to_str(input) if input else "-",
+            input=serialize_to_str(tool_args) if tool_args else "-",
             metadata=metadata,
         )
 
@@ -524,7 +584,10 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
     def _handle_llm_call_started(self, source: Any, event: "LLMCallStartedEvent") -> None:
         """Handle LLM call start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = self._to_uuid(event.agent_id) if hasattr(event, "agent_id") else None
+        parent_run_id = self._current_lite_agent_id or (
+            self._to_uuid(event.agent_id) if hasattr(event, "agent_id") else None
+        )
+
         llm_name = getattr(source, "model", "Unknown Model")
 
         metadata = self._extract_metadata(event)
@@ -683,6 +746,167 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         metadata["retrieval_time_ms"] = event.retrieval_time_ms
 
         self._handler.end_node(run_id=run_id, output=serialize_to_str(event.memory_content), metadata=metadata)
+
+    # Flow event handlers
+    def _handle_flow_started(self, source: Any, event: "FlowStartedEvent") -> None:
+        """Handle Flow execution start."""
+        run_id = self._generate_run_id(source, event)
+        self._flow_root_id = run_id
+
+        flow_name = event.flow_name if hasattr(event, "flow_name") else "Flow"
+
+        metadata = self._extract_metadata(event)
+        metadata["flow_name"] = flow_name
+        metadata["flow_state_id"] = str(run_id)
+
+        input_data = getattr(event, "inputs", {})
+
+        self._handler.start_node(
+            node_type=NodeType.CHAIN.value,
+            parent_run_id=None,
+            run_id=run_id,
+            name=flow_name,
+            input=serialize_to_str(input_data) if input_data else "-",
+            metadata=metadata,
+        )
+
+    def _handle_flow_finished(self, source: Any, event: "FlowFinishedEvent") -> None:
+        """Handle Flow execution completion."""
+        run_id = self._flow_root_id
+
+        if not run_id:
+            run_id = self._generate_run_id(source, event)
+            _logger.debug("Flow finished: regenerated run_id from event")
+
+        output = getattr(event, "result", {})
+        self._handler.end_node(run_id=run_id, output=serialize_to_str(output))
+
+        self._flow_root_id = None
+        self._current_method_id = None
+        self._current_lite_agent_id = None
+
+    def _handle_method_execution_started(self, source: Any, event: "MethodExecutionStartedEvent") -> None:
+        """Handle method execution start."""
+        run_id = self._generate_run_id(source, event)
+        self._current_method_id = run_id
+
+        method_name = event.method_name if hasattr(event, "method_name") else "Method"
+
+        metadata = self._extract_metadata(event)
+        metadata["method_name"] = method_name
+        metadata["flow_name"] = event.flow_name
+
+        if hasattr(event, "state"):
+            metadata["state_type"] = type(event.state).__name__
+            if hasattr(event.state, "id"):
+                metadata["state_id"] = str(event.state.id)
+            elif isinstance(event.state, dict) and "id" in event.state:
+                metadata["state_id"] = str(event.state["id"])
+
+        input_data = getattr(event, "params", None)
+        if not input_data:
+            input_data = getattr(event, "state", None)
+
+        self._handler.start_node(
+            node_type=NodeType.CHAIN.value,
+            parent_run_id=self._flow_root_id,
+            run_id=run_id,
+            name=method_name,
+            input=serialize_to_str(input_data) if input_data else "-",
+            metadata=metadata,
+        )
+
+    def _handle_method_execution_finished(self, source: Any, event: "MethodExecutionFinishedEvent") -> None:
+        """Handle method execution completion."""
+        run_id = self._current_method_id
+
+        if not run_id:
+            run_id = self._generate_run_id(source, event)
+            _logger.debug(f"Method finished: regenerated run_id for {event.method_name}")
+
+        output = getattr(event, "result", None)
+        metadata = {}
+
+        if hasattr(event, "state"):
+            metadata["final_state_type"] = type(event.state).__name__
+
+        self._handler.end_node(run_id=run_id, output=serialize_to_str(output), metadata=metadata)
+
+        self._current_method_id = None
+
+    def _handle_method_execution_failed(self, source: Any, event: "MethodExecutionFailedEvent") -> None:
+        """Handle method execution failure."""
+        run_id = self._current_method_id
+
+        if not run_id:
+            _logger.warning("Method failed event without current_method_id")
+            return
+
+        metadata = self._extract_metadata(event)
+        error = getattr(event, "error", "Unknown error")
+        metadata["error"] = str(error)
+        metadata["error_type"] = type(error).__name__
+
+        self._handler.end_node(run_id=run_id, output=f"Error: {error}", metadata=metadata)
+
+        self._current_method_id = None
+
+    def _handle_lite_agent_execution_started(self, source: Any, event: "LiteAgentExecutionStartedEvent") -> None:
+        """Handle LiteAgent execution start."""
+        run_id = self._generate_run_id(source, event)
+        self._current_lite_agent_id = run_id
+        parent_run_id = self._current_method_id
+
+        agent_info = getattr(event, "agent_info", {})
+        agent_name = agent_info.get("role", agent_info.get("name", "LiteAgent"))
+
+        metadata = self._extract_metadata(event)
+
+        metadata["agent_info"] = json.dumps(agent_info, default=str)
+
+        if hasattr(event, "tools") and event.tools:
+            metadata["available_tools"] = [str(getattr(tool, "name", tool)) for tool in event.tools]
+
+        messages = getattr(event, "messages", [])
+
+        self._handler.start_node(
+            node_type=NodeType.AGENT.value,
+            parent_run_id=parent_run_id,
+            run_id=run_id,
+            name=agent_name,
+            input=serialize_to_str(messages),
+            metadata=metadata,
+        )
+
+    def _handle_lite_agent_execution_completed(self, source: Any, event: "LiteAgentExecutionCompletedEvent") -> None:
+        """Handle LiteAgent execution completion."""
+        run_id = self._current_lite_agent_id
+
+        if not run_id:
+            run_id = self._generate_run_id(source, event)
+            _logger.debug("LiteAgent completed: regenerated run_id from event")
+
+        output = getattr(event, "output", "")
+
+        self._handler.end_node(run_id=run_id, output=serialize_to_str(output))
+
+        self._current_lite_agent_id = None
+
+    def _handle_lite_agent_execution_error(self, source: Any, event: "LiteAgentExecutionErrorEvent") -> None:
+        """Handle LiteAgent execution error."""
+        run_id = self._current_lite_agent_id
+
+        if not run_id:
+            run_id = self._generate_run_id(source, event)
+            _logger.debug("LiteAgent error: regenerated run_id from event")
+
+        metadata = self._extract_metadata(event)
+        error = getattr(event, "error", "Unknown error")
+        metadata["error"] = str(error)
+
+        self._handler.end_node(run_id=run_id, output=f"Error: {error}", metadata=metadata)
+
+        self._current_lite_agent_id = None
 
     def lite_llm_usage_callback(
         self,
