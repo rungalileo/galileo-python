@@ -39,17 +39,16 @@ class BuiltInScorers:
         """Allow attribute-style access to built-in scorers."""
         # Try to find the scorer by name
         for scorer in GalileoScorers:
-            # Remove leading underscore and match
-            scorer_name = scorer.value.lstrip("_")
-            if scorer_name == name:
+            # Match against both enum name (UI-visible) and internal value
+            if scorer.name == name or scorer.value.lstrip("_") == name:
                 return scorer
         raise AttributeError(
-            f"Built-in scorer '{name}' not found. Available: {[s.value.lstrip('_') for s in GalileoScorers]}"
+            f"Built-in scorer '{name}' not found. Available: {[s.name for s in GalileoScorers]}"
         )
 
     def __dir__(self) -> list[str]:
         """Return list of available scorer names for autocomplete."""
-        return [scorer.value.lstrip("_") for scorer in GalileoScorers]
+        return [scorer.name for scorer in GalileoScorers]
 
 
 class Metric(BusinessObjectMixin):
