@@ -22,7 +22,7 @@ jobs:
       contents: write  # Required for creating releases and pushing tags
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref || github.ref_name }}
