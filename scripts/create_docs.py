@@ -761,7 +761,7 @@ def write_module(fd: FileDoc, parts: list[str]) -> None:
 
 if __name__ == "__main__":
     SOURCE = "./src/galileo"
-    ignore = ["__pycache__", "constants", "resources", "schema"]
+    ignore = ["__pycache__", "constants", "resources", "schema", "__future__"]
 
     details = parse_source(SOURCE, to_ignore=ignore)
     build_docs(details, SOURCE, "./.generated_docs/reference")
