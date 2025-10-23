@@ -6,6 +6,7 @@ from datetime import datetime
 from typing import Any, Callable
 
 from galileo.__future__.base import BusinessObjectMixin, SyncState
+from galileo.__future__.configuration import Configuration
 from galileo.__future__.exceptions import ValidationError
 from galileo.metrics import Metrics
 from galileo.resources.models import OutputTypeEnum, ScorerTypes
@@ -37,14 +38,11 @@ class BuiltInScorers:
 
     def __getattr__(self, name: str) -> GalileoScorers:
         """Allow attribute-style access to built-in scorers."""
-        # Try to find the scorer by name
+        # Try to find the scorer by name (enum names match UI-visible names)
         for scorer in GalileoScorers:
-            # Match against both enum name (UI-visible) and internal value
-            if scorer.name == name or scorer.value.lstrip("_") == name:
+            if scorer.name == name:
                 return scorer
-        raise AttributeError(
-            f"Built-in scorer '{name}' not found. Available: {[s.name for s in GalileoScorers]}"
-        )
+        raise AttributeError(f"Built-in scorer '{name}' not found. Available: {[s.name for s in GalileoScorers]}")
 
     def __dir__(self) -> list[str]:
         """Return list of available scorer names for autocomplete."""
@@ -83,6 +81,12 @@ class Metric(BusinessObjectMixin):
     Class Attributes
     ----------------
         scorers (BuiltInScorers): Access built-in Galileo scorers.
+
+    Configuration
+    -------------
+        Default values for `model` and `judges` can be configured via:
+        - Configuration.default_scorer_model (env: GALILEO_DEFAULT_SCORER_MODEL)
+        - Configuration.default_scorer_judges (env: GALILEO_DEFAULT_SCORER_JUDGES)
 
     Examples
     --------
@@ -142,7 +146,10 @@ class Metric(BusinessObjectMixin):
         # List all metrics
         metrics = Metric.list()
 
-        # Delete a metric
+        # Delete a metric (two ways)
+        Metric.delete_by_name("old-metric")  # Direct deletion without retrieval
+        # OR
+        metric = Metric.get(name="old-metric")
         metric.delete()
     """
 
@@ -204,8 +211,8 @@ class Metric(BusinessObjectMixin):
         Args:
             name: The name of the metric.
             prompt: Prompt template for LLM scorers (preferred over user_prompt).
-            model: Model name to use (preferred over model_name). Defaults to "gpt-4.1-mini".
-            judges: Number of judges (preferred over num_judges). Defaults to 3.
+            model: Model name to use (preferred over model_name). Defaults to Configuration.default_scorer_model.
+            judges: Number of judges (preferred over num_judges). Defaults to Configuration.default_scorer_judges.
             user_prompt: [Deprecated] Use 'prompt' instead.
             model_name: [Deprecated] Use 'model' instead.
             num_judges: [Deprecated] Use 'judges' instead.
@@ -231,8 +238,12 @@ class Metric(BusinessObjectMixin):
 
         # Handle parameter aliases (new names preferred)
         final_prompt = prompt or user_prompt
-        final_model = model or model_name or "gpt-4.1-mini"
-        final_judges = judges if judges is not None else (num_judges if num_judges is not None else 3)
+        final_model = model or model_name or Configuration.default_scorer_model
+        final_judges = (
+            judges
+            if judges is not None
+            else (num_judges if num_judges is not None else Configuration.default_scorer_judges)
+        )
 
         # Auto-detect scorer type
         if scorer_type is None:
@@ -340,8 +351,8 @@ class Metric(BusinessObjectMixin):
                 user_prompt=self.prompt or "",
                 node_level=self.node_level or StepType.llm,
                 cot_enabled=self.cot_enabled or True,
-                model_name=self.model or "gpt-4.1-mini",
-                num_judges=self.judges or 3,
+                model_name=self.model or Configuration.default_scorer_model,
+                num_judges=self.judges or Configuration.default_scorer_judges,
                 description=self.description,
                 tags=self.tags,
                 output_type=self.output_type
@@ -458,6 +469,39 @@ class Metric(BusinessObjectMixin):
             result.append(instance)
 
         return result
+
+    @classmethod
+    def delete_by_name(cls, name: str) -> None:
+        """
+        Delete a metric by name without retrieving it first.
+
+        This is more efficient than calling `Metric.get(name=...).delete()`
+        when you only need to delete and don't need the metric object.
+
+        Args:
+            name: The name of the metric to delete.
+
+        Raises
+        ------
+            ValueError: If no metric with the given name exists.
+
+        Examples
+        --------
+            # Delete without retrieving first
+            Metric.delete_by_name("old-metric")
+
+            # Alternative (less efficient)
+            metric = Metric.get(name="old-metric")
+            metric.delete()
+        """
+        logger.info(f"Metric.delete_by_name: name='{name}' - started")
+        try:
+            metrics_service = Metrics()
+            metrics_service.delete_metric(name=name)
+            logger.info(f"Metric.delete_by_name: name='{name}' - completed")
+        except Exception as e:
+            logger.error(f"Metric.delete_by_name: name='{name}' - failed: {e}")
+            raise
 
     def _populate_from_scorer_response(self, scorer_response: Any) -> None:
         """Populate instance attributes from a ScorerResponse object."""
