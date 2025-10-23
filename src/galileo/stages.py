@@ -1,3 +1,5 @@
+import logging
+import sys
 from collections.abc import Sequence
 from typing import Optional, Union
 
@@ -19,6 +21,16 @@ from galileo.utils.catch_log import DecorateAllMethods
 from galileo_core.schemas.protect.ruleset import Ruleset, RulesetsMixin
 from galileo_core.schemas.protect.stage import StageDB, StageType, StageWithRulesets
 from galileo_core.utils.name import ts_name
+
+_logger = logging.getLogger(__name__)
+
+# Ensure at least WARNING messages are visible even if user hasn't configured logging
+if not logging.root.handlers:
+    _console_handler = logging.StreamHandler(sys.stderr)
+    _console_handler.setLevel(logging.WARNING)
+    _console_handler.setFormatter(logging.Formatter("%(levelname)s:%(name)s:%(message)s"))
+    logging.root.addHandler(_console_handler)
+    logging.root.setLevel(logging.WARNING)
 
 
 def _get_validated_project_id(
@@ -70,29 +82,82 @@ class Stages(DecorateAllMethods):
         prioritized_rulesets: Optional[Sequence[Ruleset]] = None,
         description: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
+        _logger.debug(
+            "Creating Protect stage: project_id=%s, project_name=%s, name=%s, stage_type=%s, pause=%s, num_rulesets=%s",
+            project_id,
+            project_name,
+            name,
+            stage_type,
+            pause,
+            len(prioritized_rulesets) if prioritized_rulesets else 0,
+        )
+
+        try:
+            actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
+            _logger.debug("Resolved project ID: %s", actual_project_id)
+        except Exception as e:
+            _logger.error(
+                "Failed to resolve project ID. project_id=%s, project_name=%s. Error: %s",
+                project_id,
+                project_name,
+                e,
+                exc_info=True,
+            )
+            raise
 
         actual_name = name or ts_name("stage")
+        _logger.debug("Using stage name: %s", actual_name)
 
-        request = StageWithRulesets(
-            name=actual_name,
-            project_id=str(actual_project_id),
-            type=stage_type,
-            paused=pause,
-            description=description,
-            prioritized_rulesets=prioritized_rulesets or [],
-        )
+        try:
+            request = StageWithRulesets(
+                name=actual_name,
+                project_id=str(actual_project_id),
+                type=stage_type,
+                paused=pause,
+                description=description,
+                prioritized_rulesets=prioritized_rulesets or [],
+            )
+            _logger.debug("Stage request object created")
+        except Exception as e:
+            _logger.error("Failed to create stage request object: %s", e, exc_info=True)
+            raise
 
-        request_dict = request.model_dump(mode="json")
-        request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
-        body = APIStageWithRulesets.from_dict(request_dict)
+        try:
+            request_dict = request.model_dump(mode="json")
+            request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
+            body = APIStageWithRulesets.from_dict(request_dict)
+            _logger.debug("Stage API request body prepared")
+        except Exception as e:
+            _logger.error("Failed to prepare stage API request body: %s", e, exc_info=True)
+            raise
 
-        response = create_stage_projects_project_id_stages_post.sync(
-            project_id=str(actual_project_id), client=self.config.api_client, body=body
-        )
+        try:
+            _logger.debug("Sending stage creation request to API")
+            response = create_stage_projects_project_id_stages_post.sync(
+                project_id=str(actual_project_id), client=self.config.api_client, body=body
+            )
+            _logger.debug("Stage creation API response received: %s", type(response).__name__)
+        except Exception as e:
+            _logger.error(
+                "Failed to create stage via API. project_id=%s, stage_name=%s. Error: %s",
+                actual_project_id,
+                actual_name,
+                e,
+                exc_info=True,
+            )
+            raise
 
         if isinstance(response, APIStageDB):
-            return StageDB.model_validate(response.to_dict())
+            stage_db = StageDB.model_validate(response.to_dict())
+            _logger.info(
+                "✅ Successfully created Protect stage '%s' (ID: %s) in project '%s'",
+                stage_db.name,
+                stage_db.id,
+                actual_project_id,
+            )
+            return stage_db
+
+        _logger.warning("Unexpected response type from stage creation API: %s", type(response).__name__)
         return response
 
     def get(
@@ -102,19 +167,57 @@ class Stages(DecorateAllMethods):
         stage_id: Optional[Union[str, UUID4]] = None,
         stage_name: Optional[str] = None,
     ) -> StageDB:
-        actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
+        _logger.debug(
+            "Getting Protect stage: project_id=%s, project_name=%s, stage_id=%s, stage_name=%s",
+            project_id,
+            project_name,
+            stage_id,
+            stage_name,
+        )
+
+        try:
+            actual_project_id: str = _get_validated_project_id(project_id=project_id, project_name=project_name)
+            _logger.debug("Resolved project ID: %s", actual_project_id)
+        except Exception as e:
+            _logger.error(
+                "Failed to resolve project ID for stage lookup. project_id=%s, project_name=%s. Error: %s",
+                project_id,
+                project_name,
+                e,
+                exc_info=True,
+            )
+            raise
 
         if not stage_id and not stage_name:
+            _logger.error("Neither stage_id nor stage_name provided for stage lookup")
             raise ValueError("Either stage_id or stage_name must be provided.")
 
-        response = get_stage_projects_project_id_stages_get.sync(
-            project_id=actual_project_id,
-            stage_id=str(stage_id) if stage_id else UNSET,
-            stage_name=stage_name if stage_name else UNSET,
-            client=self.config.api_client,
-        )
+        try:
+            _logger.debug("Fetching stage from API")
+            response = get_stage_projects_project_id_stages_get.sync(
+                project_id=actual_project_id,
+                stage_id=str(stage_id) if stage_id else UNSET,
+                stage_name=stage_name if stage_name else UNSET,
+                client=self.config.api_client,
+            )
+            _logger.debug("Stage lookup API response received: %s", type(response).__name__)
+        except Exception as e:
+            _logger.error(
+                "Failed to fetch stage from API. project_id=%s, stage_id=%s, stage_name=%s. Error: %s",
+                actual_project_id,
+                stage_id,
+                stage_name,
+                e,
+                exc_info=True,
+            )
+            raise
+
         if isinstance(response, APIStageDB):
-            return StageDB.model_validate(response.to_dict())
+            stage_db = StageDB.model_validate(response.to_dict())
+            _logger.debug("Successfully retrieved stage '%s' (ID: %s)", stage_db.name, stage_db.id)
+            return stage_db
+
+        _logger.warning("Unexpected response type from stage get API: %s", type(response).__name__)
         return response
 
     def update(
