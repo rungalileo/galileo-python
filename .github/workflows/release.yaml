@@ -1,6 +1,17 @@
 name: Package Release
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 1.2.3, 2.0.0-beta.1). Leave empty for automatic semantic versioning.'
+        required: false
+        type: string
+      prerelease:
+        description: 'Mark as pre-release?'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   publish:
@@ -8,6 +19,7 @@ jobs:
     permissions:
       # IMPORTANT: This permission is mandatory for trusted publishing.
       id-token: write
+      contents: write  # Required for creating releases and pushing tags
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,8 +28,35 @@ jobs:
           ref: ${{ github.head_ref || github.ref_name }}
           token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Poetry
+        run: pipx install poetry==${{ vars.POETRY_V2_VERSION }}
+
+      # Custom Version Path
+      - name: Set Custom Version
+        id: custom_version
+        if: inputs.version != ''
+        run: |
+          echo "Using custom version: ${{ inputs.version }}"
+          poetry version ${{ inputs.version }}
+          git config user.name "galileo-automation"
+          git config user.email "ci@rungalileo.io"
+          git add pyproject.toml
+          git commit -m "chore: release version ${{ inputs.version }}"
+          git tag -a "v${{ inputs.version }}" -m "Release v${{ inputs.version }}"
+          git push origin HEAD:${{ github.ref_name }}
+          git push origin "v${{ inputs.version }}"
+          echo "released=true" >> $GITHUB_OUTPUT
+          echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+
+      # Semantic Release Path
       - name: Python Semantic Release
-        id: release
+        id: semantic_release
+        if: inputs.version == ''
         uses: python-semantic-release/python-semantic-release@v10.2.0
         with:
           git_committer_name: galileo-automation
@@ -27,11 +66,34 @@ jobs:
           ssh_private_signing_key: ${{ secrets.GALILEO_AUTOMATION_SSH_PRIVATE_KEY }}
           vcs_release: true
 
+      # Determine which release method was used
+      - name: Set Release Status
+        id: release
+        run: |
+          if [ "${{ inputs.version }}" != "" ]; then
+            echo "released=${{ steps.custom_version.outputs.released }}" >> $GITHUB_OUTPUT
+            echo "version=${{ steps.custom_version.outputs.version }}" >> $GITHUB_OUTPUT
+          else
+            echo "released=${{ steps.semantic_release.outputs.released }}" >> $GITHUB_OUTPUT
+            echo "version=${{ steps.semantic_release.outputs.version }}" >> $GITHUB_OUTPUT
+          fi
+
       - name: Build Package
         if: steps.release.outputs.released == 'true'
-        run: |
-          pipx install poetry==${{ vars.POETRY_V2_VERSION }}
-          poetry build
+        run: poetry build
+
+      - name: Create GitHub Release
+        if: steps.release.outputs.released == 'true' && inputs.version != ''
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.release.outputs.version }}
+          name: v${{ steps.release.outputs.version }}
+          body: |
+            Release ${{ steps.release.outputs.version }}
+
+            This is a manually triggered release.
+          prerelease: ${{ inputs.prerelease }}
+          token: ${{ secrets.GALILEO_AUTOMATION_GITHUB_TOKEN }}
 
       - name: Publish Package to PyPI
         if: steps.release.outputs.released == 'true'
