@@ -25,7 +25,12 @@ def warn_catch_exception(logger: Logger = logging.getLogger(__name__), exception
             try:
                 result = f(*args, **kwargs)
             except exception as err:
-                logger.warning(f"Error occurred during execution: {f.__name__}: {err}")
+                logger.warning(
+                    f"Error occurred during execution: {f.__name__}: {err}. "
+                    f"This exception was caught and None will be returned. "
+                    f"Enable DEBUG logging for full traceback.",
+                    exc_info=logger.isEnabledFor(logging.DEBUG),
+                )
             else:
                 return result
 
@@ -56,7 +61,12 @@ def async_warn_catch_exception(
             try:
                 result = await f(*args, **kwargs)
             except exception as err:
-                logger.warning(f"Error occurred during execution: {f.__name__}: {err}")
+                logger.warning(
+                    f"Error occurred during execution: {f.__name__}: {err}. "
+                    f"This exception was caught and None will be returned. "
+                    f"Enable DEBUG logging for full traceback.",
+                    exc_info=logger.isEnabledFor(logging.DEBUG),
+                )
             else:
                 return result
 

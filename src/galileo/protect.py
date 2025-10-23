@@ -1,3 +1,5 @@
+import logging
+import sys
 from collections.abc import Sequence
 from typing import Optional, Union
 
@@ -15,6 +17,16 @@ from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.request import Request
 from galileo_core.schemas.protect.response import Response
 from galileo_core.schemas.protect.ruleset import Ruleset
+
+_logger = logging.getLogger(__name__)
+
+# Ensure at least WARNING messages are visible even if user hasn't configured logging
+if not logging.root.handlers:
+    _console_handler = logging.StreamHandler(sys.stderr)
+    _console_handler.setLevel(logging.WARNING)
+    _console_handler.setFormatter(logging.Formatter("%(levelname)s:%(name)s:%(message)s"))
+    logging.root.addHandler(_console_handler)
+    logging.root.setLevel(logging.WARNING)
 
 
 class Protect(DecorateAllMethods):
@@ -36,28 +48,89 @@ class Protect(DecorateAllMethods):
         metadata: Optional[dict[str, str]] = None,
         headers: Optional[dict[str, str]] = None,
     ) -> Optional[Union[Response, HTTPValidationError]]:
-        request = Request(
-            payload=payload,
-            prioritized_rulesets=prioritized_rulesets or [],
-            project_id=str(project_id) if project_id is not None else None,
-            project_name=project_name,
-            stage_id=str(stage_id) if stage_id is not None else None,
-            stage_name=stage_name,
-            stage_version=stage_version,
-            timeout=timeout,
-            metadata=metadata,
-            headers=headers,
+        _logger.debug(
+            "Invoking Protect: project_name=%s, project_id=%s, stage_name=%s, stage_id=%s, "
+            "stage_version=%s, timeout=%s, num_rulesets=%s",
+            project_name,
+            project_id,
+            stage_name,
+            stage_id,
+            stage_version,
+            timeout,
+            len(prioritized_rulesets) if prioritized_rulesets else 0,
         )
-        request_dict = request.model_dump(mode="json")
-        request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
-        body = APIRequest.from_dict(request_dict)
 
-        response: Optional[Union[APIResponse, HTTPValidationError]] = await invoke_protect_invoke_post.asyncio(
-            client=self.config.api_client, body=body
-        )
+        try:
+            request = Request(
+                payload=payload,
+                prioritized_rulesets=prioritized_rulesets or [],
+                project_id=str(project_id) if project_id is not None else None,
+                project_name=project_name,
+                stage_id=str(stage_id) if stage_id is not None else None,
+                stage_name=stage_name,
+                stage_version=stage_version,
+                timeout=timeout,
+                metadata=metadata,
+                headers=headers,
+            )
+            _logger.debug("Protect request created successfully")
+        except Exception as e:
+            _logger.error("Failed to create Protect request: %s", e, exc_info=True)
+            raise
+
+        try:
+            request_dict = request.model_dump(mode="json")
+            request_dict["prioritized_rulesets"] = request_dict.pop("rulesets", [])
+            body = APIRequest.from_dict(request_dict)
+            _logger.debug("Protect API request body prepared")
+        except Exception as e:
+            _logger.error("Failed to prepare API request body: %s", e, exc_info=True)
+            raise
+
+        try:
+            _logger.debug("Sending Protect API request to %s", self.config.console_url)
+            response: Optional[Union[APIResponse, HTTPValidationError]] = await invoke_protect_invoke_post.asyncio(
+                client=self.config.api_client, body=body
+            )
+            _logger.debug("Protect API request completed, response type: %s", type(response).__name__)
+        except Exception as e:
+            _logger.error(
+                "Protect API request failed: %s. Check network connectivity, API key, and endpoint availability.",
+                e,
+                exc_info=True,
+            )
+            raise
+
+        if response is None:
+            error_msg = (
+                f"Protect API returned None for project '{project_name}' and stage '{stage_name}'. "
+                f"This may indicate a network issue, timeout, or API error. "
+                f"Console URL: {self.config.console_url}. "
+                f"Check API key configuration and network connectivity."
+            )
+            _logger.error(error_msg)
+            # Also use warnings module to ensure visibility
+            import warnings
+
+            warnings.warn(error_msg, RuntimeWarning, stacklevel=2)
+            return None
+
+        if isinstance(response, HTTPValidationError):
+            _logger.error(
+                "Protect API returned validation error: %s. Check request parameters: "
+                "project_name=%s, stage_name=%s, num_rulesets=%s",
+                response,
+                project_name,
+                stage_name,
+                len(prioritized_rulesets) if prioritized_rulesets else 0,
+            )
+            return response
 
         if isinstance(response, APIResponse):
+            _logger.debug("Protect invocation successful, converting response")
             return Response.model_validate(response.to_dict())
+
+        _logger.warning("Unexpected response type from Protect API: %s", type(response).__name__)
         return response
 
 
