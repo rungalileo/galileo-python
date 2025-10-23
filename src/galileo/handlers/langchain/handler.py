@@ -10,6 +10,7 @@ from galileo.logger import GalileoLogger
 from galileo.schema.handlers import LANGCHAIN_NODE_TYPE, NODE_TYPE
 from galileo.schema.trace import TracesIngestRequest
 from galileo.utils.serialization import EventSerializer, serialize_to_str
+from galileo.utils.uuid_utils import convert_uuid_if_uuid7
 
 _logger = logging.getLogger(__name__)
 
@@ -98,6 +99,10 @@ class GalileoCallback(BaseCallbackHandler):
         if tags and "langsmith:hidden" in tags:
             return
 
+        # Convert UUID7s to UUID4s if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+        parent_run_id = convert_uuid_if_uuid7(parent_run_id) if parent_run_id else None
+
         node_type: NODE_TYPE = "chain"
         node_name = self._get_node_name(node_type, serialized, kwargs)
 
@@ -112,10 +117,14 @@ class GalileoCallback(BaseCallbackHandler):
         self, outputs: dict[str, Any], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a chain ends."""
+        # Convert UUID7 to UUID4 if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
         self._handler.end_node(run_id, output=serialize_to_str(outputs))
 
     def on_agent_finish(self, finish: AgentFinish, *, run_id: UUID, **kwargs: Any) -> Any:
         """Langchain callback when an agent finishes."""
+        # Convert UUID7 to UUID4 if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
         self._handler.end_node(run_id, output=serialize_to_str(finish))
 
     def on_llm_start(
@@ -134,6 +143,10 @@ class GalileoCallback(BaseCallbackHandler):
 
         Note: This callback is only used for non-chat models.
         """
+        # Convert UUID7s to UUID4s if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+        parent_run_id = convert_uuid_if_uuid7(parent_run_id) if parent_run_id else None
+
         node_type: NODE_TYPE = "llm"
         node_name = self._get_node_name(node_type, serialized, kwargs)
         invocation_params = kwargs.get("invocation_params", {})
@@ -156,6 +169,9 @@ class GalileoCallback(BaseCallbackHandler):
 
     def on_llm_new_token(self, token: str, *, run_id: UUID, **kwargs: Any) -> Any:
         """Langchain callback when an LLM node generates a new token."""
+        # Convert UUID7 to UUID4 if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+
         node = self._handler.get_node(run_id)
         if not node:
             return
@@ -177,6 +193,10 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a chat model starts."""
+        # Convert UUID7s to UUID4s if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+        parent_run_id = convert_uuid_if_uuid7(parent_run_id) if parent_run_id else None
+
         node_type: NODE_TYPE = "chat"
         node_name = self._get_node_name(node_type, serialized, kwargs)
         invocation_params = kwargs.get("invocation_params", {})
@@ -210,6 +230,9 @@ class GalileoCallback(BaseCallbackHandler):
         self, response: LLMResult, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when an LLM node ends."""
+        # Convert UUID7 to UUID4 if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+
         token_usage = response.llm_output.get("token_usage", {}) if response.llm_output else {}
 
         try:
@@ -239,6 +262,10 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a tool node starts."""
+        # Convert UUID7s to UUID4s if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+        parent_run_id = convert_uuid_if_uuid7(parent_run_id) if parent_run_id else None
+
         node_type: NODE_TYPE = "tool"
         node_name = self._get_node_name(node_type, serialized, kwargs)
         if "inputs" in kwargs and isinstance(kwargs["inputs"], dict):
@@ -286,6 +313,9 @@ class GalileoCallback(BaseCallbackHandler):
 
     def on_tool_end(self, output: Any, *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any) -> Any:
         """Langchain callback when a tool node ends."""
+        # Convert UUID7 to UUID4 if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+
         end_node_kwargs = {}
         if (tool_message := self._find_tool_message(output)) is not None:
             end_node_kwargs["output"] = tool_message.content
@@ -313,6 +343,10 @@ class GalileoCallback(BaseCallbackHandler):
         **kwargs: Any,
     ) -> Any:
         """Langchain callback when a retriever node starts."""
+        # Convert UUID7s to UUID4s if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+        parent_run_id = convert_uuid_if_uuid7(parent_run_id) if parent_run_id else None
+
         node_type: NODE_TYPE = "retriever"
         node_name = self._get_node_name(node_type, serialized, kwargs)
         self._handler.start_node(
@@ -329,6 +363,9 @@ class GalileoCallback(BaseCallbackHandler):
         self, documents: list[Document], *, run_id: UUID, parent_run_id: Optional[UUID] = None, **kwargs: Any
     ) -> Any:
         """Langchain callback when a retriever node ends."""
+        # Convert UUID7 to UUID4 if needed
+        run_id = convert_uuid_if_uuid7(run_id) or run_id
+
         try:
             serialized_response = json.loads(json.dumps(documents, cls=EventSerializer))
         except Exception as e:
@@ -339,6 +376,8 @@ class GalileoCallback(BaseCallbackHandler):
 
     def _get_agent_name(self, parent_run_id: Optional[UUID], node_name: str) -> str:
         if parent_run_id is not None:
+            # Convert UUID7 to UUID4 if needed
+            parent_run_id = convert_uuid_if_uuid7(parent_run_id) or parent_run_id
             parent = self._handler.get_node(parent_run_id)
             if parent:
                 return parent.span_params["name"] + ":" + node_name
