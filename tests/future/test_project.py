@@ -139,7 +139,7 @@ class TestProjectList:
 class TestProjectLogStreams:
     """Test suite for project log stream management."""
 
-    @patch("galileo.__future__.project.LogStreams")
+    @patch("galileo.__future__.log_stream.LogStreams")
     @patch("galileo.__future__.project.Projects")
     def test_create_log_stream(
         self,
@@ -162,7 +162,9 @@ class TestProjectLogStreams:
         project = Project.get(id=mock_project.id)
         log_stream = project.create_log_stream(name="Test Stream")
 
-        mock_logstream_service.create.assert_called_once_with(name="Test Stream", project_id=mock_project.id)
+        mock_logstream_service.create.assert_called_once_with(
+            name="Test Stream", project_id=mock_project.id, project_name=None
+        )
         assert log_stream.name == "Test Stream"
         assert log_stream.project_id == mock_project.id
 
@@ -173,7 +175,7 @@ class TestProjectLogStreams:
         with pytest.raises(ValueError, match="Project ID is not set"):
             project.create_log_stream(name="Test Stream")
 
-    @patch("galileo.__future__.project.LogStreams")
+    @patch("galileo.__future__.log_stream.LogStreams")
     @patch("galileo.__future__.project.Projects")
     def test_list_log_streams(
         self,

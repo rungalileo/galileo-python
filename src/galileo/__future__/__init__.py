@@ -18,6 +18,7 @@ from galileo.__future__.log_stream import LogStream
 from galileo.__future__.project import Project
 from galileo.__future__.prompt import Prompt
 from galileo.schema.message import Message
+from galileo.search import RecordType
 from galileo.utils.logging import enable_console_logging
 from galileo_core.schemas.logging.llm import MessageRole
 
@@ -32,6 +33,7 @@ __all__ = [
     "MessageRole",
     "Project",
     "Prompt",
+    "RecordType",
     "ResourceConflictError",
     "ResourceNotFoundError",
     "ValidationError",

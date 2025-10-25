@@ -29,7 +29,7 @@ class SyncState(Enum):
     DELETED = "deleted"
 
 
-class BusinessObjectMixin(ABC):
+class StateManagementMixin(ABC):
     """
     Base mixin for business objects providing lifecycle state management.
 

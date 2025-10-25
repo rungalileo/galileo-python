@@ -4,16 +4,15 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from galileo.__future__.base import BusinessObjectMixin, SyncState
+from galileo.__future__.base import StateManagementMixin, SyncState
 from galileo.__future__.exceptions import APIError, ValidationError
 from galileo.__future__.log_stream import LogStream
-from galileo.log_streams import LogStreams
 from galileo.projects import Projects
 
 logger = logging.getLogger(__name__)
 
 
-class Project(BusinessObjectMixin):
+class Project(StateManagementMixin):
     """
     Object-centric interface for Galileo projects.
 
@@ -60,6 +59,14 @@ class Project(BusinessObjectMixin):
     permissions: list[Any] | None
     type: Any | None
 
+    def __str__(self) -> str:
+        """String representation of the project."""
+        return f"Project(name='{self.name}', id='{self.id}')"
+
+    def __repr__(self) -> str:
+        """Detailed string representation of the project."""
+        return f"Project(name='{self.name}', id='{self.id}', created_at='{self.created_at}')"
+
     def __init__(self, name: str | None = None) -> None:
         """
         Initialize a Project instance locally.
@@ -92,6 +99,38 @@ class Project(BusinessObjectMixin):
 
         # Set initial state
         self._set_state(SyncState.LOCAL_ONLY)
+
+    @classmethod
+    def _create_empty(cls) -> Project:
+        """Internal constructor bypassing __init__ for API hydration."""
+        instance = cls.__new__(cls)
+        super(Project, instance).__init__()
+        return instance
+
+    @classmethod
+    def _from_api_response(cls, retrieved_project: Any) -> Project:
+        """
+        Factory method to create a Project instance from an API response.
+
+        Args:
+            retrieved_project: The project data retrieved from the API.
+
+        Returns
+        -------
+            Project: A new Project instance populated with the API data.
+        """
+        instance = cls._create_empty()
+        instance.created_at = retrieved_project.created_at
+        instance.created_by = retrieved_project.created_by
+        instance.id = retrieved_project.id
+        instance.updated_at = retrieved_project.updated_at
+        instance.bookmark = retrieved_project.bookmark
+        instance.name = retrieved_project.name
+        instance.permissions = retrieved_project.permissions
+        instance.type = retrieved_project.type
+        # Set state to synced since we just retrieved from API
+        instance._set_state(SyncState.SYNCED)
+        return instance
 
     def create(self) -> Project:
         """
@@ -167,21 +206,7 @@ class Project(BusinessObjectMixin):
             if retrieved_project is None:
                 return None
 
-            # Create a new instance and populate its attributes
-            instance = cls.__new__(cls)
-            # Initialize mixin state
-            BusinessObjectMixin.__init__(instance)
-            instance.created_at = retrieved_project.created_at
-            instance.created_by = retrieved_project.created_by
-            instance.id = retrieved_project.id
-            instance.updated_at = retrieved_project.updated_at
-            instance.bookmark = retrieved_project.bookmark
-            instance.name = retrieved_project.name
-            instance.permissions = retrieved_project.permissions
-            instance.type = retrieved_project.type
-            # Set state to synced since we just retrieved from API
-            instance._set_state(SyncState.SYNCED)
-            return instance
+            return cls._from_api_response(retrieved_project)
         except Exception as e:
             logger.error("Project.get: id='%s' name='%s' - failed: %s", id, name, str(e))
             raise APIError("Failed to retrieve project: %s", original_error=e) from e
@@ -205,24 +230,7 @@ class Project(BusinessObjectMixin):
         projects_service = Projects()
         retrieved_projects = projects_service.list()
 
-        result = []
-        for retrieved_project in retrieved_projects:
-            instance = cls.__new__(cls)
-            # Initialize mixin state
-            BusinessObjectMixin.__init__(instance)
-            instance.created_at = retrieved_project.created_at
-            instance.created_by = retrieved_project.created_by
-            instance.id = retrieved_project.id
-            instance.updated_at = retrieved_project.updated_at
-            instance.bookmark = retrieved_project.bookmark
-            instance.name = retrieved_project.name
-            instance.permissions = retrieved_project.permissions
-            instance.type = retrieved_project.type
-            # Set state to synced since we just retrieved from API
-            instance._set_state(SyncState.SYNCED)
-            result.append(instance)
-
-        return result
+        return [cls._from_api_response(retrieved_project) for retrieved_project in retrieved_projects]
 
     def create_log_stream(self, name: str) -> LogStream:
         """
@@ -242,21 +250,9 @@ class Project(BusinessObjectMixin):
         """
         if self.id is None:
             raise ValueError("Project ID is not set. Cannot create log stream for a local-only project.")
-        logger.info(f"LogStream.create: name='{name}' project_id='{self.id}' - started")
-        log_streams_service = LogStreams()
-        created_log_stream = log_streams_service.create(name=name, project_id=self.id)
-        logger.info(f"LogStream.create: id='{created_log_stream.id}' - completed")
 
-        # Create a new LogStream instance and populate its attributes
-        instance = LogStream.__new__(LogStream)
-        instance.created_at = created_log_stream.created_at
-        instance.created_by = created_log_stream.created_by
-        instance.id = created_log_stream.id
-        instance.name = created_log_stream.name
-        instance.project_id = created_log_stream.project_id
-        instance.updated_at = created_log_stream.updated_at
-        instance.additional_properties = created_log_stream.additional_properties
-        return instance
+        # Use the LogStream pattern to avoid duplication
+        return LogStream(name=name, project_id=self.id).create()
 
     def list_log_streams(self) -> list[LogStream]:  # type: ignore[valid-type]
         """
@@ -276,22 +272,9 @@ class Project(BusinessObjectMixin):
         """
         if self.id is None:
             raise ValueError("Project ID is not set. Cannot list log streams for a local-only project.")
-        log_streams_service = LogStreams()
-        retrieved_log_streams = log_streams_service.list(project_id=self.id)
 
-        result = []
-        for retrieved_log_stream in retrieved_log_streams:
-            instance = LogStream.__new__(LogStream)
-            instance.created_at = retrieved_log_stream.created_at
-            instance.created_by = retrieved_log_stream.created_by
-            instance.id = retrieved_log_stream.id
-            instance.name = retrieved_log_stream.name
-            instance.project_id = retrieved_log_stream.project_id
-            instance.updated_at = retrieved_log_stream.updated_at
-            instance.additional_properties = retrieved_log_stream.additional_properties
-            result.append(instance)
-
-        return result
+        # Use the LogStream pattern to avoid duplication
+        return LogStream.list(project_id=self.id)
 
     def refresh(self) -> None:
         """
@@ -355,11 +338,3 @@ class Project(BusinessObjectMixin):
         raise NotImplementedError(
             "Project updates are not yet implemented. Use specific methods to modify project state."
         )
-
-    def __str__(self) -> str:
-        """String representation of the project."""
-        return f"Project(name='{self.name}', id='{self.id}')"
-
-    def __repr__(self) -> str:
-        """Detailed string representation of the project."""
-        return f"Project(name='{self.name}', id='{self.id}', created_at='{self.created_at}')"
