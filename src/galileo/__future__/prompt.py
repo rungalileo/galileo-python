@@ -4,8 +4,9 @@ import builtins
 import logging
 import time
 from datetime import datetime
+from typing import Any
 
-from galileo.__future__.base import BusinessObjectMixin, SyncState
+from galileo.__future__.base import StateManagementMixin, SyncState
 from galileo.__future__.exceptions import ValidationError
 from galileo.prompts import GlobalPromptTemplates
 from galileo.resources.types import Unset
@@ -15,7 +16,7 @@ from galileo_core.schemas.logging.llm import MessageRole
 logger = logging.getLogger(__name__)
 
 
-class Prompt(BusinessObjectMixin):
+class Prompt(StateManagementMixin):
     """
     Object-centric interface for Galileo prompts.
 
@@ -58,6 +59,14 @@ class Prompt(BusinessObjectMixin):
     created_at: datetime | None
     updated_at: datetime | None
 
+    def __str__(self) -> str:
+        """String representation of the prompt."""
+        return f"Prompt(name='{self.name}', id='{self.id}')"
+
+    def __repr__(self) -> str:
+        """Detailed string representation of the prompt."""
+        return f"Prompt(name='{self.name}', id='{self.id}', messages={len(self.messages)} messages)"
+
     def __init__(self, name: str | None = None, messages: list[Message] | None = None) -> None:
         """
         Initialize a Prompt instance locally.
@@ -88,6 +97,44 @@ class Prompt(BusinessObjectMixin):
 
         # Set initial state
         self._set_state(SyncState.LOCAL_ONLY)
+
+    @classmethod
+    def _create_empty(cls) -> Prompt:
+        """Internal constructor bypassing __init__ for API hydration."""
+        instance = cls.__new__(cls)
+        super(Prompt, instance).__init__()
+        return instance
+
+    @classmethod
+    def _from_api_response(cls, retrieved_prompt: Any) -> Prompt:
+        """
+        Factory method to create a Prompt instance from an API response.
+
+        Args:
+            retrieved_prompt: The prompt data retrieved from the API.
+
+        Returns
+        -------
+            Prompt: A new Prompt instance populated with the API data.
+        """
+        instance = cls._create_empty()
+        instance.id = retrieved_prompt.id
+        instance.name = retrieved_prompt.name
+        # Extract messages from the selected_version template
+        if isinstance(retrieved_prompt.selected_version.template, list):
+            # Convert MessagesListItem to Message objects
+            instance.messages = [
+                Message(role=MessageRole(item.role), content=item.content)
+                for item in retrieved_prompt.selected_version.template
+            ]
+        else:
+            # If it's a string template, store it as a single message
+            instance.messages = [Message(role=MessageRole.user, content=retrieved_prompt.selected_version.template)]
+        instance.created_at = retrieved_prompt.created_at
+        instance.updated_at = retrieved_prompt.updated_at
+        # Set state to synced since we just retrieved from API
+        instance._set_state(SyncState.SYNCED)
+        return instance
 
     def create(self) -> Prompt:
         """
@@ -177,27 +224,7 @@ class Prompt(BusinessObjectMixin):
         if retrieved_prompt is None:
             return None
 
-        # Create a new instance and populate its attributes
-        instance = cls.__new__(cls)
-        # Initialize mixin state
-        BusinessObjectMixin.__init__(instance)
-        instance.id = retrieved_prompt.id
-        instance.name = retrieved_prompt.name
-        # Extract messages from the selected_version template
-        if isinstance(retrieved_prompt.selected_version.template, list):
-            # Convert MessagesListItem to Message objects
-            instance.messages = [
-                Message(role=MessageRole(item.role), content=item.content)
-                for item in retrieved_prompt.selected_version.template
-            ]
-        else:
-            # If it's a string template, store it as a single message
-            instance.messages = [Message(role=MessageRole.user, content=retrieved_prompt.selected_version.template)]
-        instance.created_at = retrieved_prompt.created_at
-        instance.updated_at = retrieved_prompt.updated_at
-        # Set state to synced since we just retrieved from API
-        instance._set_state(SyncState.SYNCED)
-        return instance
+        return cls._from_api_response(retrieved_prompt)
 
     @classmethod
     def list(cls, *, name_filter: str | None = None, limit: Unset | int = 100) -> list[Prompt]:
@@ -225,30 +252,7 @@ class Prompt(BusinessObjectMixin):
         retrieved_prompts = templates_service.list(name_filter=name_filter, limit=limit)
         logger.debug(f"Prompt.list: found {len(retrieved_prompts)} prompts - completed")
 
-        result = []
-        for retrieved_prompt in retrieved_prompts:
-            instance = cls.__new__(cls)
-            # Initialize mixin state
-            BusinessObjectMixin.__init__(instance)
-            instance.id = retrieved_prompt.id
-            instance.name = retrieved_prompt.name
-            # Extract messages from the selected_version template
-            if isinstance(retrieved_prompt.selected_version.template, list):
-                # Convert MessagesListItem to Message objects
-                instance.messages = [
-                    Message(role=MessageRole(item.role), content=item.content)
-                    for item in retrieved_prompt.selected_version.template
-                ]
-            else:
-                # If it's a string template, store it as a single message
-                instance.messages = [Message(role=MessageRole.user, content=retrieved_prompt.selected_version.template)]
-            instance.created_at = retrieved_prompt.created_at
-            instance.updated_at = retrieved_prompt.updated_at
-            # Set state to synced since we just retrieved from API
-            instance._set_state(SyncState.SYNCED)
-            result.append(instance)
-
-        return result
+        return [cls._from_api_response(retrieved_prompt) for retrieved_prompt in retrieved_prompts]
 
     def update(self, *, messages: builtins.list[Message] | None = None, new_name: str | None = None) -> None:
         """
@@ -406,11 +410,3 @@ class Prompt(BusinessObjectMixin):
         # For now, save() can be used if we implement property-based updates
         # Currently, users should use update() directly
         raise NotImplementedError("Direct save() is not yet implemented. Use update(new_name='...') instead.")
-
-    def __str__(self) -> str:
-        """String representation of the prompt."""
-        return f"Prompt(name='{self.name}', id='{self.id}')"
-
-    def __repr__(self) -> str:
-        """Detailed string representation of the prompt."""
-        return f"Prompt(name='{self.name}', id='{self.id}', messages={len(self.messages)} messages)"
