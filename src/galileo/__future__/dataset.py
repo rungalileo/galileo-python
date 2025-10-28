@@ -4,8 +4,8 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from galileo.__future__.base import StateManagementMixin, SyncState
-from galileo.__future__.exceptions import ValidationError
+from galileo.__future__.shared.base import StateManagementMixin, SyncState
+from galileo.__future__.shared.exceptions import ValidationError
 from galileo.datasets import Datasets
 from galileo.resources.models.dataset_content import DatasetContent
 from galileo.resources.models.dataset_row import DatasetRow

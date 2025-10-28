@@ -7,11 +7,17 @@ from datetime import datetime
 from typing import Any
 
 from galileo import galileo_context
-from galileo.__future__.base import StateManagementMixin, SyncState
-from galileo.__future__.exceptions import ValidationError
+from galileo.__future__.shared.base import StateManagementMixin, SyncState
+from galileo.__future__.shared.exceptions import ValidationError
 from galileo.export import ExportClient
 from galileo.log_streams import LogStreams
-from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, RootType
+from galileo.resources.models import (
+    LLMExportFormat,
+    LogRecordsAvailableColumnsResponse,
+    LogRecordsQueryResponse,
+    LogRecordsSortClause,
+    RootType,
+)
 from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
@@ -409,7 +415,7 @@ class LogStream(StateManagementMixin):
         sort: LogRecordsSortClause | None = None,
         limit: int = 100,
         starting_token: int = 0,
-    ) -> Any:
+    ) -> LogRecordsQueryResponse:
         """
         Query records in this log stream.
 
@@ -434,13 +440,20 @@ class LogStream(StateManagementMixin):
         Examples
         --------
             from galileo.search import RecordType
-            from galileo.resources.models import LogRecordsSortClause
+            from galileo.__future__ import text, number, date, sort
 
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
+
+            # Query with declarative filters and sort
             results = log_stream.query(
                 record_type=RecordType.SPAN,
-                limit=50,
-                sort=LogRecordsSortClause(column_id="created_at", ascending=False)
+                filters=[
+                    text("input").not_equals("example"),
+                    number("score").greater_than(0.8),
+                    date("created_at").after("2024-01-01")
+                ],
+                sort=sort("created_at").descending(),
+                limit=50
             )
         """
         if self.id is None:
@@ -466,7 +479,7 @@ class LogStream(StateManagementMixin):
         sort: LogRecordsSortClause | None = None,
         limit: int = 100,
         starting_token: int = 0,
-    ) -> Any:
+    ) -> LogRecordsQueryResponse:
         """
         Query spans in this log stream.
 
@@ -488,8 +501,19 @@ class LogStream(StateManagementMixin):
 
         Examples
         --------
+            from galileo.__future__ import text, number, sort
+
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
-            spans = log_stream.get_spans(limit=50)
+
+            # Get spans with filters and sorting
+            spans = log_stream.get_spans(
+                filters=[
+                    text("status").equals("completed"),
+                    number("latency_ms").less_than(1000)
+                ],
+                sort=sort("latency_ms").ascending(),
+                limit=50
+            )
         """
         logger.debug(f"LogStream.get_spans: id='{self.id}' limit={limit} - started")
         return self.query(
@@ -502,7 +526,7 @@ class LogStream(StateManagementMixin):
         sort: LogRecordsSortClause | None = None,
         limit: int = 100,
         starting_token: int = 0,
-    ) -> Any:
+    ) -> LogRecordsQueryResponse:
         """
         Query traces in this log stream.
 
@@ -524,8 +548,19 @@ class LogStream(StateManagementMixin):
 
         Examples
         --------
+            from galileo.__future__ import text, date, sort
+
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
-            traces = log_stream.get_traces(limit=50)
+
+            # Get traces with filters
+            traces = log_stream.get_traces(
+                filters=[
+                    text("user_id").equals("user-123"),
+                    date("created_at").after("2024-01-01")
+                ],
+                sort=sort("created_at").descending(),
+                limit=50
+            )
         """
         logger.debug(f"LogStream.get_traces: id='{self.id}' limit={limit} - started")
         return self.query(
@@ -538,7 +573,7 @@ class LogStream(StateManagementMixin):
         sort: LogRecordsSortClause | None = None,
         limit: int = 100,
         starting_token: int = 0,
-    ) -> Any:
+    ) -> LogRecordsQueryResponse:
         """
         Query sessions in this log stream.
 
@@ -560,8 +595,19 @@ class LogStream(StateManagementMixin):
 
         Examples
         --------
+            from galileo.__future__ import text, number, sort
+
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
-            sessions = log_stream.get_sessions(limit=50)
+
+            # Get sessions with filters
+            sessions = log_stream.get_sessions(
+                filters=[
+                    text("environment").equals("production"),
+                    number("session_duration").greater_than(60)
+                ],
+                sort=sort("created_at").descending(),
+                limit=50
+            )
         """
         logger.debug(f"LogStream.get_sessions: id='{self.id}' limit={limit} - started")
         return self.query(
@@ -601,10 +647,19 @@ class LogStream(StateManagementMixin):
 
         Examples
         --------
-            from galileo.__future__ import RecordType
+            from galileo.__future__ import RecordType, text, number, sort
 
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
-            for record in log_stream.export_records(record_type=RecordType.TRACE):
+
+            # Export records with filters
+            for record in log_stream.export_records(
+                record_type=RecordType.TRACE,
+                filters=[
+                    text("model").one_of(["gpt-4", "gpt-3.5-turbo"]),
+                    number("tokens").greater_than(100)
+                ],
+                sort=sort("created_at").descending()
+            ):
                 print(record)
         """
         if self.id is None:
@@ -659,6 +714,90 @@ class LogStream(StateManagementMixin):
     def project(self) -> Project | None:
         """Get the project this log stream belongs to."""
         return Project.get(id=self.project_id)
+
+    @property
+    def span_columns(self) -> LogRecordsAvailableColumnsResponse:
+        """
+        Get available columns for spans in this log stream.
+
+        Returns
+        -------
+            LogRecordsAvailableColumnsResponse: The response containing available span columns.
+
+        Raises
+        ------
+            ValueError: If the log stream lacks required id or project_id attributes.
+
+        Examples
+        --------
+            log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
+            columns = log_stream.span_columns
+            for col in columns.columns:
+                print(f"Column: {col.id}")
+        """
+        if self.id is None:
+            raise ValueError("Log stream ID is not set. Cannot get span columns from a local-only log stream.")
+        if self.project_id is None:
+            raise ValueError("Project ID is not set. Cannot get span columns without project_id.")
+
+        log_streams_service = LogStreams()
+        return log_streams_service.get_span_columns(project_id=self.project_id, log_stream_id=self.id)
+
+    @property
+    def session_columns(self) -> LogRecordsAvailableColumnsResponse:
+        """
+        Get available columns for sessions in this log stream.
+
+        Returns
+        -------
+            LogRecordsAvailableColumnsResponse: The response containing available session columns.
+
+        Raises
+        ------
+            ValueError: If the log stream lacks required id or project_id attributes.
+
+        Examples
+        --------
+            log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
+            columns = log_stream.session_columns
+            for col in columns.columns:
+                print(f"Column: {col.id}")
+        """
+        if self.id is None:
+            raise ValueError("Log stream ID is not set. Cannot get session columns from a local-only log stream.")
+        if self.project_id is None:
+            raise ValueError("Project ID is not set. Cannot get session columns without project_id.")
+
+        log_streams_service = LogStreams()
+        return log_streams_service.get_session_columns(project_id=self.project_id, log_stream_id=self.id)
+
+    @property
+    def trace_columns(self) -> LogRecordsAvailableColumnsResponse:
+        """
+        Get available columns for traces in this log stream.
+
+        Returns
+        -------
+            LogRecordsAvailableColumnsResponse: The response containing available trace columns.
+
+        Raises
+        ------
+            ValueError: If the log stream lacks required id or project_id attributes.
+
+        Examples
+        --------
+            log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
+            columns = log_stream.trace_columns
+            for col in columns.columns:
+                print(f"Column: {col.id}")
+        """
+        if self.id is None:
+            raise ValueError("Log stream ID is not set. Cannot get trace columns from a local-only log stream.")
+        if self.project_id is None:
+            raise ValueError("Project ID is not set. Cannot get trace columns without project_id.")
+
+        log_streams_service = LogStreams()
+        return log_streams_service.get_trace_columns(project_id=self.project_id, log_stream_id=self.id)
 
 
 # Import at end to avoid circular import (project.py imports LogStream)
