@@ -9,9 +9,10 @@ from typing import TYPE_CHECKING, Any
 from galileo import galileo_context
 from galileo.__future__.shared.base import StateManagementMixin, SyncState
 from galileo.__future__.shared.exceptions import ValidationError
+from galileo.__future__.shared.query_result import QueryResult
 from galileo.export import ExportClient
 from galileo.log_streams import LogStreams
-from galileo.resources.models import LLMExportFormat, LogRecordsQueryResponse, LogRecordsSortClause, RootType
+from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, RootType
 from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
@@ -412,7 +413,7 @@ class LogStream(StateManagementMixin):
         sort: LogRecordsSortClause | None = None,
         limit: int = 100,
         starting_token: int = 0,
-    ) -> LogRecordsQueryResponse:
+    ) -> QueryResult:
         """
         Query records in this log stream.
 
@@ -428,7 +429,7 @@ class LogStream(StateManagementMixin):
 
         Returns
         -------
-            LogRecordsQueryResponse: Object containing the query results.
+            QueryResult: A list-like object containing the query results with pagination support.
 
         Raises
         ------
@@ -437,21 +438,31 @@ class LogStream(StateManagementMixin):
         Examples
         --------
             from galileo.search import RecordType
-            from galileo.__future__ import text, number, date, sort
 
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 
-            # Query with declarative filters and sort
+            # Query with column-based filters and sort
             results = log_stream.query(
                 record_type=RecordType.SPAN,
                 filters=[
-                    text("input").not_equals("example"),
-                    number("score").greater_than(0.8),
-                    date("created_at").after("2024-01-01")
+                    log_stream.span_columns["input"].contains("largest"),
+                    log_stream.span_columns["metrics/completeness_gpt"].greater_than(0.8),
+                    log_stream.span_columns["created_at"].after("2024-01-01")
                 ],
-                sort=sort("created_at").descending(),
+                sort=log_stream.span_columns["created_at"].descending(),
                 limit=50
             )
+
+            # Access results like a list
+            for record in results:
+                print(record["id"], record["input"])
+
+            # Get specific record
+            first_record = results[0]
+
+            # Pagination
+            if results.has_next_page:
+                next_results = results.next_page()
         """
         if self.id is None:
             raise ValueError("Log stream ID is not set. Cannot query a local-only log stream.")
@@ -459,16 +470,42 @@ class LogStream(StateManagementMixin):
             raise ValueError("Project ID is not set. Cannot query log stream without project_id.")
 
         logger.debug(f"LogStream.query: id='{self.id}' record_type='{record_type.value}' limit={limit} - started")
+
+        # Capture project_id and log_stream_id for use in pagination function
+        project_id = self.project_id
+        log_stream_id = self.id
+
         search_service = Search()
-        return search_service.query(
-            project_id=self.project_id,
+        response = search_service.query(
+            project_id=project_id,
             record_type=record_type,
-            log_stream_id=self.id,
+            log_stream_id=log_stream_id,
             filters=filters,
             sort=sort,
             limit=limit,
             starting_token=starting_token,
         )
+
+        # Create a query function that returns raw response for pagination
+        def query_fn(
+            record_type: RecordType,
+            filters: builtins.list[FilterType] | None,
+            sort: LogRecordsSortClause | None,
+            limit: int,
+            starting_token: int,
+        ) -> Any:
+            return Search().query(
+                project_id=project_id,
+                record_type=record_type,
+                log_stream_id=log_stream_id,
+                filters=filters,
+                sort=sort,
+                limit=limit,
+                starting_token=starting_token,
+            )
+
+        # Wrap the response in QueryResult for easy access and pagination
+        return QueryResult(response=response, query_fn=query_fn, record_type=record_type, filters=filters, sort=sort)
 
     def get_spans(
         self,
@@ -476,7 +513,7 @@ class LogStream(StateManagementMixin):
         sort: LogRecordsSortClause | None = None,
         limit: int = 100,
         starting_token: int = 0,
-    ) -> LogRecordsQueryResponse:
+    ) -> QueryResult:
         """
         Query spans in this log stream.
 
@@ -490,7 +527,7 @@ class LogStream(StateManagementMixin):
 
         Returns
         -------
-            LogRecordsQueryResponse: Object containing the span query results.
+            QueryResult: A list-like object containing the span query results with pagination support.
 
         Raises
         ------
@@ -498,19 +535,25 @@ class LogStream(StateManagementMixin):
 
         Examples
         --------
-            from galileo.__future__ import text, number, sort
-
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 
             # Get spans with filters and sorting
             spans = log_stream.get_spans(
                 filters=[
-                    text("status").equals("completed"),
-                    number("latency_ms").less_than(1000)
+                    log_stream.span_columns["input"].contains("world"),
+                    log_stream.span_columns["metrics/num_input_tokens"].greater_than(10)
                 ],
-                sort=sort("latency_ms").ascending(),
+                sort=log_stream.span_columns["created_at"].descending(),
                 limit=50
             )
+
+            # Iterate over results
+            for span in spans:
+                print(span["id"], span["input"])
+
+            # Pagination
+            if spans.has_next_page:
+                more_spans = spans.next_page()
         """
         logger.debug(f"LogStream.get_spans: id='{self.id}' limit={limit} - started")
         return self.query(
@@ -523,7 +566,7 @@ class LogStream(StateManagementMixin):
         sort: LogRecordsSortClause | None = None,
         limit: int = 100,
         starting_token: int = 0,
-    ) -> LogRecordsQueryResponse:
+    ) -> QueryResult:
         """
         Query traces in this log stream.
 
@@ -537,7 +580,7 @@ class LogStream(StateManagementMixin):
 
         Returns
         -------
-            LogRecordsQueryResponse: Object containing the trace query results.
+            QueryResult: A list-like object containing the trace query results with pagination support.
 
         Raises
         ------
@@ -545,19 +588,21 @@ class LogStream(StateManagementMixin):
 
         Examples
         --------
-            from galileo.__future__ import text, date, sort
-
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 
             # Get traces with filters
             traces = log_stream.get_traces(
                 filters=[
-                    text("user_id").equals("user-123"),
-                    date("created_at").after("2024-01-01")
+                    log_stream.trace_columns["input"].contains("largest"),
+                    log_stream.trace_columns["created_at"].after("2024-01-01")
                 ],
-                sort=sort("created_at").descending(),
+                sort=log_stream.trace_columns["created_at"].descending(),
                 limit=50
             )
+
+            # Access like a list
+            for trace in traces:
+                print(trace["id"], trace["input"])
         """
         logger.debug(f"LogStream.get_traces: id='{self.id}' limit={limit} - started")
         return self.query(
@@ -570,7 +615,7 @@ class LogStream(StateManagementMixin):
         sort: LogRecordsSortClause | None = None,
         limit: int = 100,
         starting_token: int = 0,
-    ) -> LogRecordsQueryResponse:
+    ) -> QueryResult:
         """
         Query sessions in this log stream.
 
@@ -584,7 +629,7 @@ class LogStream(StateManagementMixin):
 
         Returns
         -------
-            LogRecordsQueryResponse: Object containing the session query results.
+            QueryResult: A list-like object containing the session query results with pagination support.
 
         Raises
         ------
@@ -592,19 +637,21 @@ class LogStream(StateManagementMixin):
 
         Examples
         --------
-            from galileo.__future__ import text, number, sort
-
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 
             # Get sessions with filters
             sessions = log_stream.get_sessions(
                 filters=[
-                    text("environment").equals("production"),
-                    number("session_duration").greater_than(60)
+                    log_stream.session_columns["model"].equals("gpt-4o-mini"),
+                    log_stream.session_columns["metrics/num_traces"].greater_than(5)
                 ],
-                sort=sort("created_at").descending(),
+                sort=log_stream.session_columns["created_at"].descending(),
                 limit=50
             )
+
+            # Work with results
+            for session in sessions:
+                print(session["id"], session["model"])
         """
         logger.debug(f"LogStream.get_sessions: id='{self.id}' limit={limit} - started")
         return self.query(
@@ -644,18 +691,18 @@ class LogStream(StateManagementMixin):
 
         Examples
         --------
-            from galileo.__future__ import RecordType, text, number, sort
+            from galileo.__future__ import RecordType
 
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
 
             # Export records with filters
             for record in log_stream.export_records(
-                record_type=RecordType.TRACE,
+                record_type=RecordType.SPAN,
                 filters=[
-                    text("model").one_of(["gpt-4", "gpt-3.5-turbo"]),
-                    number("tokens").greater_than(100)
+                    log_stream.span_columns["model"].one_of(["gpt-4", "gpt-3.5-turbo", "gpt-4o-mini"]),
+                    log_stream.span_columns["metrics/num_input_tokens"].greater_than(1)
                 ],
-                sort=sort("created_at").descending()
+                sort=log_stream.span_columns["created_at"].descending()
             ):
                 print(record)
         """
@@ -735,7 +782,7 @@ class LogStream(StateManagementMixin):
 
             # Filter using columns
             spans = log_stream.get_spans(
-                filters=[columns["input"].contains("hello")],
+                filters=[columns["input"].contains("world")],
                 sort=columns["created_at"].descending()
             )
         """
@@ -746,10 +793,6 @@ class LogStream(StateManagementMixin):
 
         log_streams_service = LogStreams()
         response = log_streams_service.get_span_columns(project_id=self.project_id, log_stream_id=self.id)
-
-        # Import here to avoid circular imports
-        from galileo.__future__.shared.column import Column, ColumnCollection
-
         columns = [Column(col) for col in response.columns]
         return ColumnCollection(columns)
 
@@ -772,11 +815,11 @@ class LogStream(StateManagementMixin):
             columns = log_stream.session_columns
 
             # Access a specific column
-            user_column = columns["user_id"]
+            model_column = columns["model"]
 
             # Filter using columns
             sessions = log_stream.get_sessions(
-                filters=[columns["user_id"].equals("user-123")],
+                filters=[columns["model"].equals("gpt-4o-mini")],
                 sort=columns["created_at"].descending()
             )
         """
@@ -787,10 +830,6 @@ class LogStream(StateManagementMixin):
 
         log_streams_service = LogStreams()
         response = log_streams_service.get_session_columns(project_id=self.project_id, log_stream_id=self.id)
-
-        # Import here to avoid circular imports
-        from galileo.__future__.shared.column import Column, ColumnCollection
-
         columns = [Column(col) for col in response.columns]
         return ColumnCollection(columns)
 
@@ -828,13 +867,10 @@ class LogStream(StateManagementMixin):
 
         log_streams_service = LogStreams()
         response = log_streams_service.get_trace_columns(project_id=self.project_id, log_stream_id=self.id)
-
-        # Import here to avoid circular imports
-        from galileo.__future__.shared.column import Column, ColumnCollection
-
         columns = [Column(col) for col in response.columns]
         return ColumnCollection(columns)
 
 
 # Import at end to avoid circular import (project.py imports LogStream)
 from galileo.__future__.project import Project  # noqa: E402
+from galileo.__future__.shared.column import Column, ColumnCollection  # noqa: E402
