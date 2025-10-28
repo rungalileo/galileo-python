@@ -4,24 +4,21 @@ import builtins
 import logging
 from collections.abc import Iterator
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from galileo import galileo_context
 from galileo.__future__.shared.base import StateManagementMixin, SyncState
 from galileo.__future__.shared.exceptions import ValidationError
 from galileo.export import ExportClient
 from galileo.log_streams import LogStreams
-from galileo.resources.models import (
-    LLMExportFormat,
-    LogRecordsAvailableColumnsResponse,
-    LogRecordsQueryResponse,
-    LogRecordsSortClause,
-    RootType,
-)
+from galileo.resources.models import LLMExportFormat, LogRecordsQueryResponse, LogRecordsSortClause, RootType
 from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
 from galileo.utils.validations import require_exactly_one
+
+if TYPE_CHECKING:
+    from galileo.__future__.shared.column import ColumnCollection
 
 logger = logging.getLogger(__name__)
 
@@ -716,13 +713,13 @@ class LogStream(StateManagementMixin):
         return Project.get(id=self.project_id)
 
     @property
-    def span_columns(self) -> LogRecordsAvailableColumnsResponse:
+    def span_columns(self) -> ColumnCollection:
         """
         Get available columns for spans in this log stream.
 
         Returns
         -------
-            LogRecordsAvailableColumnsResponse: The response containing available span columns.
+            ColumnCollection: A collection of columns available for spans, accessible by column ID.
 
         Raises
         ------
@@ -732,8 +729,15 @@ class LogStream(StateManagementMixin):
         --------
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
             columns = log_stream.span_columns
-            for col in columns.columns:
-                print(f"Column: {col.id}")
+
+            # Access a specific column
+            input_column = columns["input"]
+
+            # Filter using columns
+            spans = log_stream.get_spans(
+                filters=[columns["input"].contains("hello")],
+                sort=columns["created_at"].descending()
+            )
         """
         if self.id is None:
             raise ValueError("Log stream ID is not set. Cannot get span columns from a local-only log stream.")
@@ -741,16 +745,22 @@ class LogStream(StateManagementMixin):
             raise ValueError("Project ID is not set. Cannot get span columns without project_id.")
 
         log_streams_service = LogStreams()
-        return log_streams_service.get_span_columns(project_id=self.project_id, log_stream_id=self.id)
+        response = log_streams_service.get_span_columns(project_id=self.project_id, log_stream_id=self.id)
+
+        # Import here to avoid circular imports
+        from galileo.__future__.shared.column import Column, ColumnCollection
+
+        columns = [Column(col) for col in response.columns]
+        return ColumnCollection(columns)
 
     @property
-    def session_columns(self) -> LogRecordsAvailableColumnsResponse:
+    def session_columns(self) -> ColumnCollection:
         """
         Get available columns for sessions in this log stream.
 
         Returns
         -------
-            LogRecordsAvailableColumnsResponse: The response containing available session columns.
+            ColumnCollection: A collection of columns available for sessions, accessible by column ID.
 
         Raises
         ------
@@ -760,8 +770,15 @@ class LogStream(StateManagementMixin):
         --------
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
             columns = log_stream.session_columns
-            for col in columns.columns:
-                print(f"Column: {col.id}")
+
+            # Access a specific column
+            user_column = columns["user_id"]
+
+            # Filter using columns
+            sessions = log_stream.get_sessions(
+                filters=[columns["user_id"].equals("user-123")],
+                sort=columns["created_at"].descending()
+            )
         """
         if self.id is None:
             raise ValueError("Log stream ID is not set. Cannot get session columns from a local-only log stream.")
@@ -769,16 +786,22 @@ class LogStream(StateManagementMixin):
             raise ValueError("Project ID is not set. Cannot get session columns without project_id.")
 
         log_streams_service = LogStreams()
-        return log_streams_service.get_session_columns(project_id=self.project_id, log_stream_id=self.id)
+        response = log_streams_service.get_session_columns(project_id=self.project_id, log_stream_id=self.id)
+
+        # Import here to avoid circular imports
+        from galileo.__future__.shared.column import Column, ColumnCollection
+
+        columns = [Column(col) for col in response.columns]
+        return ColumnCollection(columns)
 
     @property
-    def trace_columns(self) -> LogRecordsAvailableColumnsResponse:
+    def trace_columns(self) -> ColumnCollection:
         """
         Get available columns for traces in this log stream.
 
         Returns
         -------
-            LogRecordsAvailableColumnsResponse: The response containing available trace columns.
+            ColumnCollection: A collection of columns available for traces, accessible by column ID.
 
         Raises
         ------
@@ -788,8 +811,15 @@ class LogStream(StateManagementMixin):
         --------
             log_stream = LogStream.get(name="Production Logs", project_name="My AI Project")
             columns = log_stream.trace_columns
-            for col in columns.columns:
-                print(f"Column: {col.id}")
+
+            # Access a specific column
+            input_column = columns["input"]
+
+            # Filter using columns
+            traces = log_stream.get_traces(
+                filters=[columns["input"].contains("largest")],
+                sort=columns["created_at"].descending()
+            )
         """
         if self.id is None:
             raise ValueError("Log stream ID is not set. Cannot get trace columns from a local-only log stream.")
@@ -797,7 +827,13 @@ class LogStream(StateManagementMixin):
             raise ValueError("Project ID is not set. Cannot get trace columns without project_id.")
 
         log_streams_service = LogStreams()
-        return log_streams_service.get_trace_columns(project_id=self.project_id, log_stream_id=self.id)
+        response = log_streams_service.get_trace_columns(project_id=self.project_id, log_stream_id=self.id)
+
+        # Import here to avoid circular imports
+        from galileo.__future__.shared.column import Column, ColumnCollection
+
+        columns = [Column(col) for col in response.columns]
+        return ColumnCollection(columns)
 
 
 # Import at end to avoid circular import (project.py imports LogStream)

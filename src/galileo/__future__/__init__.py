@@ -9,7 +9,6 @@ from galileo.__future__.dataset import Dataset
 from galileo.__future__.log_stream import LogStream
 from galileo.__future__.project import Project
 from galileo.__future__.prompt import Prompt
-from galileo.__future__.shared import date, number, sort, text
 from galileo.__future__.shared.exceptions import (
     APIError,
     ConfigurationError,
@@ -38,9 +37,5 @@ __all__ = [
     "ResourceConflictError",
     "ResourceNotFoundError",
     "ValidationError",
-    "date",
     "enable_console_logging",
-    "number",
-    "sort",
-    "text",
 ]

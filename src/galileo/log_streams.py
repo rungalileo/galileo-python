@@ -609,6 +609,7 @@ class LogStreams(DecorateAllMethods):
         response = traces_available_columns_projects_project_id_traces_available_columns_post.sync(
             project_id=project_id, client=self.config.api_client, body=body
         )
+        # TODO: Check how to properly handle the errors.
         if isinstance(response, HTTPValidationError):
             raise response
         if not response:
