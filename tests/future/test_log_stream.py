@@ -4,8 +4,9 @@ from uuid import uuid4
 import pytest
 
 from galileo.__future__ import LogStream
-from galileo.__future__.base import SyncState
-from galileo.__future__.exceptions import ValidationError
+from galileo.__future__.shared.base import SyncState
+from galileo.__future__.shared.exceptions import ValidationError
+from galileo.__future__.shared.query_result import QueryResult
 from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, RootType
 from galileo.search import RecordType
 
@@ -374,7 +375,9 @@ class TestLogStreamQuery:
             limit=limit,
             starting_token=0,
         )
-        assert result == mock_response
+        # Result should be a QueryResult wrapping the response
+        assert isinstance(result, QueryResult)
+        assert result._response == mock_response
 
     def test_query_raises_error_for_local_only(self, reset_configuration: None) -> None:
         """Test query() raises ValueError for local-only log stream."""

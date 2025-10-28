@@ -4,8 +4,8 @@ from uuid import uuid4
 import pytest
 
 from galileo.__future__ import Prompt
-from galileo.__future__.base import SyncState
-from galileo.__future__.exceptions import ValidationError
+from galileo.__future__.shared.base import SyncState
+from galileo.__future__.shared.exceptions import ValidationError
 from galileo.resources.models.messages_list_item import MessagesListItem
 from galileo.schema.message import Message
 from galileo_core.schemas.logging.llm import MessageRole

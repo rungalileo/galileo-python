@@ -4,8 +4,8 @@ from uuid import uuid4
 import pytest
 
 from galileo.__future__ import Project
-from galileo.__future__.base import SyncState
-from galileo.__future__.exceptions import APIError, ValidationError
+from galileo.__future__.shared.base import SyncState
+from galileo.__future__.shared.exceptions import APIError, ValidationError
 
 
 class TestProjectInitialization:
