@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Optional
 
-from galileo.__future__.exceptions import ConfigurationError
+from galileo.__future__.shared.exceptions import ConfigurationError
 from galileo.config import GalileoPythonConfig
 from galileo.utils.logging import get_logger
 
