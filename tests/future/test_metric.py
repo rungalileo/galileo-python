@@ -4,8 +4,8 @@ from uuid import uuid4
 import pytest
 
 from galileo.__future__ import Metric
-from galileo.__future__.base import SyncState
-from galileo.__future__.exceptions import ValidationError
+from galileo.__future__.shared.base import SyncState
+from galileo.__future__.shared.exceptions import ValidationError
 from galileo.resources.models import OutputTypeEnum, ScorerTypes
 from galileo_core.schemas.logging.step import StepType
 
