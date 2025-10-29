@@ -10,6 +10,7 @@ from galileo.__future__.shared.column import Column, ColumnCollection, _unwrap_u
 from galileo.__future__.shared.exceptions import ValidationError
 from galileo.resources.models import (
     DataType,
+    LogRecordsBooleanFilter,
     LogRecordsDateFilter,
     LogRecordsDateFilterOperator,
     LogRecordsNumberFilter,
@@ -224,6 +225,44 @@ class TestColumnDateFilters:
         col_text = Column(_create_mock_column_info(data_type=DataType.TEXT, filterable=True))
         with pytest.raises(ValidationError, match="before.*requires"):
             col_text.before("2024-01-01")
+
+
+class TestColumnBooleanFilters:
+    """Test suite for Column boolean filter methods."""
+
+    @pytest.mark.parametrize(
+        "method_name,args,expected_value",
+        [("equals", (True,), True), ("equals", (False,), False), ("is_true", (), True), ("is_false", (), False)],
+    )
+    def test_boolean_filter_methods(self, method_name, args, expected_value, reset_configuration: None):
+        """Test all boolean filter methods create correct filters."""
+        col = Column(_create_mock_column_info(data_type=DataType.BOOLEAN, filterable=True))
+        result = getattr(col, method_name)(*args)
+        assert isinstance(result, LogRecordsBooleanFilter)
+        assert result.column_id == "test_col"
+        assert result.value is expected_value
+
+    def test_boolean_filters_validation(self, reset_configuration: None):
+        """Test boolean filters validate data type."""
+        # Wrong data type for is_true
+        col_text = Column(_create_mock_column_info(data_type=DataType.TEXT, filterable=True))
+        with pytest.raises(ValidationError, match="is_true.*requires"):
+            col_text.is_true()
+
+        # Wrong data type for is_false
+        with pytest.raises(ValidationError, match="is_false.*requires"):
+            col_text.is_false()
+
+        # Not filterable
+        col_unfilterable = Column(_create_mock_column_info(data_type=DataType.BOOLEAN, filterable=False))
+        with pytest.raises(ValidationError, match="not filterable"):
+            col_unfilterable.is_true()
+
+    def test_equals_validates_type_mismatch(self, reset_configuration: None):
+        """Test equals with boolean value validates data type is BOOLEAN."""
+        col_text = Column(_create_mock_column_info(data_type=DataType.TEXT, filterable=True))
+        with pytest.raises(ValidationError, match="equals.*requires"):
+            col_text.equals(True)
 
 
 class TestColumnSortMethods:

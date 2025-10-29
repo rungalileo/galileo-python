@@ -7,6 +7,7 @@ import datetime
 from dateutil.parser import parse as parse_date
 
 from galileo.resources.models import (
+    LogRecordsBooleanFilter,
     LogRecordsDateFilter,
     LogRecordsDateFilterOperator,
     LogRecordsNumberFilter,
@@ -385,6 +386,54 @@ class DateFilter(Filter):
         )
 
 
+class BooleanFilter(Filter):
+    """
+    Builder for boolean-based filters.
+
+    Boolean filters are simple equality checks - there are no operators,
+    just matching against true or false values.
+
+    Examples
+    --------
+        boolean("is_active").is_true()
+        boolean("has_error").is_false()
+        boolean("enabled").equals(True)
+    """
+
+    def equals(self, value: bool) -> LogRecordsBooleanFilter:
+        """
+        Filter for exact boolean match.
+
+        Args:
+            value: The boolean value to match (True or False).
+
+        Returns
+        -------
+            LogRecordsBooleanFilter: A configured boolean filter.
+        """
+        return LogRecordsBooleanFilter(column_id=self.column_id, value=value)
+
+    def is_true(self) -> LogRecordsBooleanFilter:
+        """
+        Filter for boolean columns that are True.
+
+        Returns
+        -------
+            LogRecordsBooleanFilter: A configured boolean filter for True.
+        """
+        return LogRecordsBooleanFilter(column_id=self.column_id, value=True)
+
+    def is_false(self) -> LogRecordsBooleanFilter:
+        """
+        Filter for boolean columns that are False.
+
+        Returns
+        -------
+            LogRecordsBooleanFilter: A configured boolean filter for False.
+        """
+        return LogRecordsBooleanFilter(column_id=self.column_id, value=False)
+
+
 # Builder factory functions
 def text(column_id: str, case_sensitive: bool = True) -> TextFilter:
     """
@@ -445,3 +494,23 @@ def date(column_id: str) -> DateFilter:
         date("published_at").on_or_after("2024-01-01")
     """
     return DateFilter(column_id)
+
+
+def boolean(column_id: str) -> BooleanFilter:
+    """
+    Create a boolean filter builder.
+
+    Args:
+        column_id: The ID of the column to filter on.
+
+    Returns
+    -------
+        BooleanFilter: A boolean filter builder.
+
+    Examples
+    --------
+        boolean("is_active").is_true()
+        boolean("has_error").is_false()
+        boolean("enabled").equals(True)
+    """
+    return BooleanFilter(column_id)

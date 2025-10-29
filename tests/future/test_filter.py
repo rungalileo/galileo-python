@@ -4,7 +4,17 @@ import datetime
 
 import pytest
 
-from galileo.__future__.shared.filter import DateFilter, Filter, NumberFilter, TextFilter, date, number, text
+from galileo.__future__.shared.filter import (
+    BooleanFilter,
+    DateFilter,
+    Filter,
+    NumberFilter,
+    TextFilter,
+    boolean,
+    date,
+    number,
+    text,
+)
 from galileo.resources.models import (
     LogRecordsDateFilter,
     LogRecordsDateFilterOperator,
@@ -110,6 +120,22 @@ class TestDateFilter:
         assert isinstance(result.value, datetime.datetime)
 
 
+class TestBooleanFilter:
+    """Test suite for BooleanFilter class."""
+
+    def test_boolean_filter_multiple_calls(self, reset_configuration: None):
+        """Test creating multiple filters from same filter instance."""
+        bool_builder = BooleanFilter("active")
+        true_filter = bool_builder.is_true()
+        false_filter = bool_builder.is_false()
+        equals_filter = bool_builder.equals(True)
+
+        assert all(f.column_id == "active" for f in [true_filter, false_filter, equals_filter])
+        assert true_filter.value is True
+        assert false_filter.value is False
+        assert equals_filter.value is True
+
+
 class TestFilterFactoryFunctions:
     """Test suite for filter factory functions."""
 
@@ -121,6 +147,7 @@ class TestFilterFactoryFunctions:
 
         assert isinstance(number("metric"), NumberFilter)
         assert isinstance(date("timestamp"), DateFilter)
+        assert isinstance(boolean("enabled"), BooleanFilter)
 
 
 class TestFilterChaining:

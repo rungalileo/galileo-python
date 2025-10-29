@@ -7,10 +7,11 @@ from collections.abc import Iterator, Mapping
 from typing import TYPE_CHECKING, Any
 
 from galileo.__future__.shared.exceptions import ValidationError
-from galileo.__future__.shared.filter import date, number, text
+from galileo.__future__.shared.filter import boolean, date, number, text
 from galileo.__future__.shared.sort import sort
 from galileo.resources.models import (
     DataType,
+    LogRecordsBooleanFilter,
     LogRecordsDateFilter,
     LogRecordsNumberFilter,
     LogRecordsSortClause,
@@ -26,6 +27,7 @@ _TEXT_TYPES = (DataType.TEXT, DataType.UUID)
 _TEXT_LIST_TYPES = (DataType.TEXT, DataType.UUID, DataType.TAG)
 _NUMERIC_TYPES = (DataType.INTEGER, DataType.FLOATING_POINT)
 _DATE_TYPES = (DataType.TIMESTAMP,)
+_BOOLEAN_TYPES = (DataType.BOOLEAN,)
 
 
 def _unwrap_unset(value: Any, default: Any = None) -> Any:
@@ -136,24 +138,44 @@ class Column:
                 f"The {operation} operation requires one of: {expected_str}"
             )
 
-    # Text filter methods
-    def equals(self, value: str, case_sensitive: bool = True) -> LogRecordsTextFilter:
+    # Text and Boolean filter methods
+    def equals(self, value: str | bool, case_sensitive: bool = True) -> LogRecordsTextFilter | LogRecordsBooleanFilter:
         """
-        Filter for exact text match.
+        Filter for exact value match.
+
+        For text columns, performs exact text matching.
+        For boolean columns, performs boolean equality.
 
         Args:
-            value: The text value to match.
-            case_sensitive: Whether the match should be case-sensitive. Default is True.
+            value: The value to match (string for text columns, boolean for boolean columns).
+            case_sensitive: Whether text matching should be case-sensitive. Default is True.
+                           Ignored for boolean columns.
 
         Returns
         -------
-            LogRecordsTextFilter: A configured text filter.
+            LogRecordsTextFilter | LogRecordsBooleanFilter: A configured filter.
 
         Raises
         ------
-            ValidationError: If the column is not filterable or not a text type.
+            ValidationError: If the column is not filterable, or if the value type doesn't
+                           match the column data type.
+
+        Examples
+        --------
+            # Text column
+            log_stream.trace_columns["status"].equals("success")
+
+            # Boolean column
+            log_stream.session_columns["has_error"].equals(True)
         """
         self._validate_filterable()
+
+        # Handle boolean columns
+        if isinstance(value, bool):
+            self._validate_data_type(_BOOLEAN_TYPES, "equals")
+            return boolean(self.id).equals(value)
+
+        # Handle text columns
         self._validate_data_type(_TEXT_TYPES, "equals")
         return text(self.id, case_sensitive=case_sensitive).equals(value)
 
@@ -410,6 +432,47 @@ class Column:
         self._validate_filterable()
         self._validate_data_type(_DATE_TYPES, "on_or_after")
         return date(self.id).on_or_after(value)
+
+    # Boolean filter methods
+    def is_true(self) -> LogRecordsBooleanFilter:
+        """
+        Filter for boolean columns that are True.
+
+        Returns
+        -------
+            LogRecordsBooleanFilter: A configured boolean filter for True.
+
+        Raises
+        ------
+            ValidationError: If the column is not filterable or not a boolean type.
+
+        Examples
+        --------
+            log_stream.session_columns["has_error"].is_true()
+        """
+        self._validate_filterable()
+        self._validate_data_type(_BOOLEAN_TYPES, "is_true")
+        return boolean(self.id).is_true()
+
+    def is_false(self) -> LogRecordsBooleanFilter:
+        """
+        Filter for boolean columns that are False.
+
+        Returns
+        -------
+            LogRecordsBooleanFilter: A configured boolean filter for False.
+
+        Raises
+        ------
+            ValidationError: If the column is not filterable or not a boolean type.
+
+        Examples
+        --------
+            log_stream.session_columns["has_error"].is_false()
+        """
+        self._validate_filterable()
+        self._validate_data_type(_BOOLEAN_TYPES, "is_false")
+        return boolean(self.id).is_false()
 
     # Sort methods
     def ascending(self) -> LogRecordsSortClause:
