@@ -408,10 +408,11 @@ class LogStream(StateManagementMixin):
 
         Args:
             metrics: List of metrics to set. Supports:
-                - GalileoScorers enum values (e.g., GalileoScorers.correctness)
+                - Metric.scorers values (e.g., Metric.scorers.correctness) - Recommended
                 - Metric objects (including from Metric.get(id="..."))
                 - LocalMetricConfig objects for custom scoring functions
                 - String names of built-in metrics
+                - GalileoScorers enum values (backward compatible)
 
         Returns
         -------
