@@ -72,10 +72,16 @@ class QueryResult:
         first_record = result[0]
         print(first_record["created_at"])
 
-        # Pagination
-        if result.next_starting_token:
-            next_result = result.next_page()
-            for record in next_result:
+        # Pagination (in-place - extends the current result)
+        if result.has_next_page:
+            result.next_page()
+            print(f"Now have {len(result)} records after fetching next page")
+
+        # Pagination (with assignment - same object returned)
+        result = log_stream.get_spans(limit=10)
+        if result.has_next_page:
+            result = result.next_page()
+            for record in result:
                 print(record["id"])
 
         # Check pagination status
@@ -169,9 +175,13 @@ class QueryResult:
 
         return flattened
 
-    def next_page(self) -> None:
+    def next_page(self) -> QueryResult:
         """
         Fetch the next page and extend current results.
+
+        Returns
+        -------
+            QueryResult: Returns self with the new records appended.
 
         Raises
         ------
@@ -179,9 +189,18 @@ class QueryResult:
 
         Examples
         --------
+            # In-place usage (mutates the result)
             result = log_stream.get_spans(limit=10)
             if result.has_next_page:
-                result.next_page()  # Extends current result
+                result.next_page()
+                print(f"Now have {len(result)} records")
+
+            # Assignment usage (same object, supports chaining)
+            result = log_stream.get_spans(limit=10)
+            if result.has_next_page:
+                result = result.next_page()
+                for record in result:
+                    print(record["id"])
         """
         if not self.has_next_page:
             raise ValueError("No next page available. Check has_next_page before calling next_page().")
@@ -205,6 +224,7 @@ class QueryResult:
 
         # Update response metadata
         self._response = next_response
+        return self
 
     def __len__(self) -> int:
         """Return the number of records in this page."""

@@ -24,7 +24,7 @@ if TYPE_CHECKING:
 
 # Constants for common data type groups
 _TEXT_TYPES = (DataType.TEXT, DataType.UUID)
-_TEXT_LIST_TYPES = (DataType.TEXT, DataType.UUID, DataType.TAG)
+_TEXT_LIST_TYPES = (DataType.TEXT, DataType.UUID, DataType.TAG, DataType.STRING_LIST)
 _NUMERIC_TYPES = (DataType.INTEGER, DataType.FLOATING_POINT)
 _DATE_TYPES = (DataType.TIMESTAMP,)
 _BOOLEAN_TYPES = (DataType.BOOLEAN,)
