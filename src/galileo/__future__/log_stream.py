@@ -408,11 +408,10 @@ class LogStream(StateManagementMixin):
 
         Args:
             metrics: List of metrics to set. Supports:
-                - Metric.scorers values (e.g., Metric.scorers.correctness) - Recommended
+                - GalileoScorers enum values (e.g., GalileoScorers.correctness)
                 - Metric objects (including from Metric.get(id="..."))
                 - LocalMetricConfig objects for custom scoring functions
                 - String names of built-in metrics
-                - GalileoScorers enum values (backward compatible)
 
         Returns
         -------
@@ -436,7 +435,6 @@ class LogStream(StateManagementMixin):
                 Metric.get(id="metric-from-console-uuid"),  # From console
             ])
         """
-<<<<<<< HEAD
         try:
             logger.info(f"LogStream.enable_metrics: id='{self.id}' metrics={[str(m) for m in metrics]} - started")
             log_streams_service = LogStreams()
@@ -800,103 +798,6 @@ class LogStream(StateManagementMixin):
                 response = openai_client.chat.completions.create(...)
         """
         return galileo_context(project=self.project.name if self.project else None, log_stream=self.name)
-=======
-        logger.info(f"LogStream.set_metrics: id='{self.id}' metrics={[str(m) for m in metrics]} - started")
-        log_streams_service = LogStreams()
-        log_stream = log_streams_service.get(name=self.name, project_id=self.project_id)
-        if log_stream is None:
-            raise ValueError(f"Log stream '{self.name}' not found")
-        result = log_stream.enable_metrics(metrics)
-        logger.info(f"LogStream.set_metrics: id='{self.id}' - completed")
-        return result
-
-    def add_metrics(
-        self, metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str]
-    ) -> builtins.list[LocalMetricConfig]:
-        """
-        Add metrics to the existing metrics on this log stream.
-
-        This adds to the current set of metrics without removing existing ones.
-
-        Args:
-            metrics: List of metrics to add. Supports:
-                - GalileoScorers enum values (e.g., GalileoScorers.correctness)
-                - Metric objects (including from Metric.get(id="..."))
-                - LocalMetricConfig objects for custom scoring functions
-                - String names of built-in metrics
-
-        Returns
-        -------
-            List[LocalMetricConfig]: Local metric configurations that must be
-                computed client-side.
-
-        Raises
-        ------
-            ValueError: If any specified metrics are unknown.
-
-        Examples
-        --------
-            log_stream = LogStream.get(name="Production Logs", project_name="My Project")
-
-            # Add more metrics to existing ones
-            log_stream.add_metrics([
-                Metric.scorers.toxicity,
-                "prompt_injection",
-            ])
-        """
-        logger.info(f"LogStream.add_metrics: id='{self.id}' adding {len(metrics)} metrics - started")
-
-        # Get current metrics
-        current_metric_names: set[str] = set(self.get_metrics())
-        logger.debug(f"LogStream.add_metrics: current metrics={current_metric_names}")
-
-        # Build combined list (avoid duplicates by name)
-        combined_metrics = list(metrics)  # Start with new metrics
-
-        # Add existing metrics that aren't being replaced
-        for metric_name in current_metric_names:
-            # Check if this metric is being replaced
-            is_replaced = any(
-                (isinstance(m, str) and m == metric_name)
-                or (hasattr(m, "name") and m.name == metric_name)
-                or (isinstance(m, GalileoScorers) and m.value.lstrip("_") == metric_name)
-                for m in metrics
-            )
-            if not is_replaced:
-                combined_metrics.append(metric_name)
-
-        logger.info(f"LogStream.add_metrics: setting {len(combined_metrics)} total metrics")
-        return self.set_metrics(combined_metrics)
-
-    def enable_metrics(
-        self, metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str]
-    ) -> builtins.list[LocalMetricConfig]:
-        """
-        Enable metrics on this log stream.
-
-        Alias for set_metrics() for backward compatibility.
-
-        Args:
-            metrics: List of metrics to enable.
-
-        Returns
-        -------
-            List[LocalMetricConfig]: Local metric configurations that must be
-                computed client-side.
-
-        Examples
-        --------
-            log_stream.enable_metrics([
-                Metric.scorers.correctness,
-                "completeness",
-            ])
-        """
-        return self.set_metrics(metrics)
-
-    def __str__(self) -> str:
-        """String representation of the log stream."""
-        return f"LogStream(name='{self.name}', id='{self.id}', project_id='{self.project_id}')"
->>>>>>> 37c9012 (add/update)
 
     def _get_columns(self, api_func: Any, error_msg: str) -> LogRecordsAvailableColumnsResponse:
         """Helper method to retrieve available columns from the API."""

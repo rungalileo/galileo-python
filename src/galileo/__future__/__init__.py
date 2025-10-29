@@ -26,11 +26,8 @@ from galileo.__future__.prompt import Prompt
 from galileo.__future__.types import MetricSpec
 >>>>>>> 33b9b0a (add/update)
 from galileo.schema.message import Message
-<<<<<<< HEAD
-from galileo.search import RecordType
-=======
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
->>>>>>> 37c9012 (add/update)
+from galileo.search import RecordType
 from galileo.utils.logging import enable_console_logging
 from galileo_core.schemas.logging.llm import MessageRole
 from galileo_core.schemas.logging.step import StepType

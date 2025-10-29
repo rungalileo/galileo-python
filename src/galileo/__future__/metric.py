@@ -5,7 +5,7 @@ import logging
 from datetime import datetime
 from typing import Any, Callable
 
-from galileo.__future__.base import BusinessObjectMixin, SyncState
+from galileo.__future__.base import StateManagementMixin, SyncState
 from galileo.__future__.configuration import Configuration
 from galileo.__future__.exceptions import ValidationError
 from galileo.metrics import Metrics
@@ -49,7 +49,7 @@ class BuiltInScorers:
         return [scorer.name for scorer in GalileoScorers]
 
 
-class Metric(BusinessObjectMixin):
+class Metric(StateManagementMixin):
     """
     Unified, object-centric interface for Galileo metrics.
 
@@ -424,7 +424,7 @@ class Metric(BusinessObjectMixin):
                 return None
 
         instance = cls.__new__(cls)
-        BusinessObjectMixin.__init__(instance)
+        StateManagementMixin.__init__(instance)
         instance._populate_from_scorer_response(retrieved_scorer)
         instance._set_state(SyncState.SYNCED)
         return instance
@@ -463,7 +463,7 @@ class Metric(BusinessObjectMixin):
         result = []
         for retrieved_scorer in retrieved_scorers:
             instance = cls.__new__(cls)
-            BusinessObjectMixin.__init__(instance)
+            StateManagementMixin.__init__(instance)
             instance._populate_from_scorer_response(retrieved_scorer)
             instance._set_state(SyncState.SYNCED)
             result.append(instance)
