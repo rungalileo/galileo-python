@@ -24,6 +24,8 @@ class Filter:
     that can be used with LogStream queries and other SDK operations.
     """
 
+    __slots__ = ("column_id",)
+
     def __init__(self, column_id: str):
         """
         Initialize a filter for a specific column.
@@ -47,6 +49,8 @@ class TextFilter(Filter):
         text("name").one_of(["Alice", "Bob"])
     """
 
+    __slots__ = ("case_sensitive",)
+
     def __init__(self, column_id: str, case_sensitive: bool = True):
         """
         Initialize a text filter builder.
@@ -57,8 +61,6 @@ class TextFilter(Filter):
         """
         super().__init__(column_id)
         self.case_sensitive = case_sensitive
-        self._operator: LogRecordsTextFilterOperator | None = None
-        self._value: str | list[str] | None = None
 
     def equals(self, value: str) -> LogRecordsTextFilter:
         """

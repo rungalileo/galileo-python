@@ -67,6 +67,18 @@ class Column:
         )
     """
 
+    __slots__ = (
+        "allowed_values",
+        "category",
+        "data_type",
+        "description",
+        "filterable",
+        "id",
+        "label",
+        "multi_valued",
+        "sortable",
+    )
+
     def __init__(self, column_info: ColumnInfo) -> None:
         """
         Initialize a Column from a ColumnInfo object.
@@ -86,14 +98,9 @@ class Column:
 
     def __repr__(self) -> str:
         """String representation of the column."""
-        parts = [f"Column(id='{self.id}'"]
-        if self.label:
-            parts.append(f"label='{self.label}'")
-        if self.data_type:
-            parts.append(f"type='{self.data_type.value}'")
-        parts.append(f"filterable={self.filterable}")
-        parts.append(f"sortable={self.sortable}")
-        return ", ".join(parts) + ")"
+        label_str = f", label='{self.label}'" if self.label else ""
+        type_str = f", type='{self.data_type.value}'" if self.data_type else ""
+        return f"Column(id='{self.id}'{label_str}{type_str}, filterable={self.filterable}, sortable={self.sortable})"
 
     __str__ = __repr__
 
@@ -464,6 +471,8 @@ class ColumnCollection(Mapping[str, Column]):
         if "input" in log_stream.trace_columns:
             print("Input column exists")
     """
+
+    __slots__ = ("_columns",)
 
     def __init__(self, columns: list[Column]) -> None:
         """

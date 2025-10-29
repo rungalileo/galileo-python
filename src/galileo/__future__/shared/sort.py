@@ -15,6 +15,8 @@ class Sort:
         sort("score").descending()
     """
 
+    __slots__ = ("column_id",)
+
     def __init__(self, column_id: str):
         """
         Initialize a sort builder for a specific column.
