@@ -10,9 +10,18 @@ from galileo import galileo_context
 from galileo.__future__.shared.base import StateManagementMixin, SyncState
 from galileo.__future__.shared.exceptions import ValidationError
 from galileo.__future__.shared.query_result import QueryResult
+from galileo.config import GalileoPythonConfig
 from galileo.export import ExportClient
 from galileo.log_streams import LogStreams
+from galileo.resources.api.trace import (
+    sessions_available_columns_projects_project_id_sessions_available_columns_post,
+    spans_available_columns_projects_project_id_spans_available_columns_post,
+    traces_available_columns_projects_project_id_traces_available_columns_post,
+)
 from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, RootType
+from galileo.resources.models.http_validation_error import HTTPValidationError
+from galileo.resources.models.log_records_available_columns_request import LogRecordsAvailableColumnsRequest
+from galileo.resources.models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
 from galileo.schema.filters import FilterType
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
 from galileo.search import RecordType, Search
@@ -754,6 +763,22 @@ class LogStream(StateManagementMixin):
         """
         return galileo_context(project=self.project.name if self.project else None, log_stream=self.name)
 
+    def _get_columns(self, api_func: Any, error_msg: str) -> LogRecordsAvailableColumnsResponse:
+        """Helper method to retrieve available columns from the API."""
+        if self.id is None:
+            raise ValueError("Log stream ID is not set. Cannot get columns from a local-only log stream.")
+        if self.project_id is None:
+            raise ValueError("Project ID is not set. Cannot get columns without project_id.")
+
+        config = GalileoPythonConfig.get()
+        body = LogRecordsAvailableColumnsRequest(log_stream_id=self.id)
+        response = api_func.sync(project_id=self.project_id, client=config.api_client, body=body)
+        if isinstance(response, HTTPValidationError):
+            raise response
+        if not response:
+            raise ValueError(error_msg)
+        return response
+
     @property
     def project(self) -> Project | None:
         """Get the project this log stream belongs to."""
@@ -786,13 +811,9 @@ class LogStream(StateManagementMixin):
                 sort=columns["created_at"].descending()
             )
         """
-        if self.id is None:
-            raise ValueError("Log stream ID is not set. Cannot get span columns from a local-only log stream.")
-        if self.project_id is None:
-            raise ValueError("Project ID is not set. Cannot get span columns without project_id.")
-
-        log_streams_service = LogStreams()
-        response = log_streams_service.get_span_columns(project_id=self.project_id, log_stream_id=self.id)
+        response = self._get_columns(
+            spans_available_columns_projects_project_id_spans_available_columns_post, "Unable to retrieve span columns"
+        )
         columns = [Column(col) for col in response.columns]
         return ColumnCollection(columns)
 
@@ -823,13 +844,10 @@ class LogStream(StateManagementMixin):
                 sort=columns["created_at"].descending()
             )
         """
-        if self.id is None:
-            raise ValueError("Log stream ID is not set. Cannot get session columns from a local-only log stream.")
-        if self.project_id is None:
-            raise ValueError("Project ID is not set. Cannot get session columns without project_id.")
-
-        log_streams_service = LogStreams()
-        response = log_streams_service.get_session_columns(project_id=self.project_id, log_stream_id=self.id)
+        response = self._get_columns(
+            sessions_available_columns_projects_project_id_sessions_available_columns_post,
+            "Unable to retrieve session columns",
+        )
         columns = [Column(col) for col in response.columns]
         return ColumnCollection(columns)
 
@@ -860,13 +878,10 @@ class LogStream(StateManagementMixin):
                 sort=columns["created_at"].descending()
             )
         """
-        if self.id is None:
-            raise ValueError("Log stream ID is not set. Cannot get trace columns from a local-only log stream.")
-        if self.project_id is None:
-            raise ValueError("Project ID is not set. Cannot get trace columns without project_id.")
-
-        log_streams_service = LogStreams()
-        response = log_streams_service.get_trace_columns(project_id=self.project_id, log_stream_id=self.id)
+        response = self._get_columns(
+            traces_available_columns_projects_project_id_traces_available_columns_post,
+            "Unable to retrieve trace columns",
+        )
         columns = [Column(col) for col in response.columns]
         return ColumnCollection(columns)
 

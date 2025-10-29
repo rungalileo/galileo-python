@@ -1,10 +1,11 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 from uuid import uuid4
 
 import pytest
 
 from galileo.__future__ import LogStream
 from galileo.__future__.shared.base import SyncState
+from galileo.__future__.shared.column import ColumnCollection
 from galileo.__future__.shared.exceptions import ValidationError
 from galileo.__future__.shared.query_result import QueryResult
 from galileo.resources.models import LLMExportFormat, LogRecordsSortClause, RootType
@@ -564,6 +565,124 @@ class TestLogStreamProject:
 
         mock_project_class.get.assert_called_once_with(id=mock_logstream.project_id)
         assert project == mock_project
+
+
+class TestLogStreamColumns:
+    """Test suite for LogStream column properties."""
+
+    @pytest.mark.parametrize(
+        "property_name,api_func_name,error_msg",
+        [
+            (
+                "span_columns",
+                "spans_available_columns_projects_project_id_spans_available_columns_post",
+                "Unable to retrieve span columns",
+            ),
+            (
+                "session_columns",
+                "sessions_available_columns_projects_project_id_sessions_available_columns_post",
+                "Unable to retrieve session columns",
+            ),
+            (
+                "trace_columns",
+                "traces_available_columns_projects_project_id_traces_available_columns_post",
+                "Unable to retrieve trace columns",
+            ),
+        ],
+    )
+    @patch("galileo.__future__.log_stream.GalileoPythonConfig")
+    @patch("galileo.__future__.log_stream.LogStreams")
+    def test_column_properties_return_column_collection(
+        self,
+        mock_logstreams_class: MagicMock,
+        mock_config_class: MagicMock,
+        property_name: str,
+        api_func_name: str,
+        error_msg: str,
+        reset_configuration: None,
+        mock_logstream: MagicMock,
+    ) -> None:
+        """Test column properties return ColumnCollection with proper API calls."""
+        # Setup LogStreams mock
+        mock_logstream_service = MagicMock()
+        mock_logstreams_class.return_value = mock_logstream_service
+        mock_logstream_service.get.return_value = mock_logstream
+
+        # Setup config mock
+        mock_config = MagicMock()
+        mock_api_client = MagicMock()
+        mock_config.api_client = mock_api_client
+        mock_config_class.get.return_value = mock_config
+
+        # Setup API function mock
+        mock_column_1 = MagicMock()
+        mock_column_1.id = "input"
+        mock_column_2 = MagicMock()
+        mock_column_2.id = "output"
+        mock_response = MagicMock()
+        mock_response.columns = [mock_column_1, mock_column_2]
+
+        with patch(f"galileo.__future__.log_stream.{api_func_name}") as mock_api_func:
+            mock_api_func.sync.return_value = mock_response
+
+            log_stream = LogStream.get(name="Test Stream", project_id="test-project-id")
+            columns = getattr(log_stream, property_name)
+
+            # Verify API function was called correctly
+            mock_api_func.sync.assert_called_once_with(
+                project_id=mock_logstream.project_id, client=mock_api_client, body=ANY
+            )
+            # Verify the body parameter has the correct log_stream_id
+            call_kwargs = mock_api_func.sync.call_args.kwargs
+            assert call_kwargs["body"].log_stream_id == mock_logstream.id
+
+            # Verify result is a ColumnCollection
+            assert isinstance(columns, ColumnCollection)
+            assert len(columns._columns) == 2
+
+    @pytest.mark.parametrize("property_name", ["span_columns", "session_columns", "trace_columns"])
+    def test_column_properties_raise_error_for_local_only(self, property_name: str, reset_configuration: None) -> None:
+        """Test column properties raise ValueError for local-only log streams."""
+        log_stream = LogStream(name="Test Stream", project_id="test-project-id")
+
+        with pytest.raises(ValueError, match="Log stream ID is not set"):
+            getattr(log_stream, property_name)
+
+    @pytest.mark.parametrize(
+        "property_name,api_func_name",
+        [
+            ("span_columns", "spans_available_columns_projects_project_id_spans_available_columns_post"),
+            ("session_columns", "sessions_available_columns_projects_project_id_sessions_available_columns_post"),
+            ("trace_columns", "traces_available_columns_projects_project_id_traces_available_columns_post"),
+        ],
+    )
+    @patch("galileo.__future__.log_stream.GalileoPythonConfig")
+    @patch("galileo.__future__.log_stream.LogStreams")
+    def test_column_properties_raise_error_on_empty_response(
+        self,
+        mock_logstreams_class: MagicMock,
+        mock_config_class: MagicMock,
+        property_name: str,
+        api_func_name: str,
+        reset_configuration: None,
+        mock_logstream: MagicMock,
+    ) -> None:
+        """Test column properties raise ValueError when API returns empty response."""
+        # Setup mocks
+        mock_logstream_service = MagicMock()
+        mock_logstreams_class.return_value = mock_logstream_service
+        mock_logstream_service.get.return_value = mock_logstream
+
+        mock_config = MagicMock()
+        mock_config_class.get.return_value = mock_config
+
+        with patch(f"galileo.__future__.log_stream.{api_func_name}") as mock_api_func:
+            mock_api_func.sync.return_value = None
+
+            log_stream = LogStream.get(name="Test Stream", project_id="test-project-id")
+
+            with pytest.raises(ValueError, match="Unable to retrieve"):
+                getattr(log_stream, property_name)
 
 
 class TestLogStreamMethods:

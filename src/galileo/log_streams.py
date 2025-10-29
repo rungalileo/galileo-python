@@ -9,14 +9,7 @@ from galileo.resources.api.log_stream import (
     get_log_stream_projects_project_id_log_streams_log_stream_id_get,
     list_log_streams_projects_project_id_log_streams_get,
 )
-from galileo.resources.api.trace import (
-    sessions_available_columns_projects_project_id_sessions_available_columns_post,
-    spans_available_columns_projects_project_id_spans_available_columns_post,
-    traces_available_columns_projects_project_id_traces_available_columns_post,
-)
 from galileo.resources.models.http_validation_error import HTTPValidationError
-from galileo.resources.models.log_records_available_columns_request import LogRecordsAvailableColumnsRequest
-from galileo.resources.models.log_records_available_columns_response import LogRecordsAvailableColumnsResponse
 from galileo.resources.models.log_stream_create_request import LogStreamCreateRequest
 from galileo.resources.models.log_stream_response import LogStreamResponse
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig, Metric
@@ -515,106 +508,6 @@ class LogStreams(DecorateAllMethods):
         # Use the shared utility function directly
         _, local_metrics = create_metric_configs(project_obj.id, log_stream.id, metrics)
         return local_metrics
-
-    def get_span_columns(self, project_id: str, log_stream_id: str) -> LogRecordsAvailableColumnsResponse:
-        """
-        Get available columns for spans in a log stream.
-
-        Parameters
-        ----------
-        project_id : str
-            The ID of the project.
-        log_stream_id : str
-            The ID of the log stream.
-
-        Returns
-        -------
-        LogRecordsAvailableColumnsResponse
-            The response containing available span columns.
-
-        Raises
-        ------
-        errors.UnexpectedStatus
-            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException
-            If the request takes longer than Client.timeout.
-        """
-        body = LogRecordsAvailableColumnsRequest(log_stream_id=log_stream_id)
-        response = spans_available_columns_projects_project_id_spans_available_columns_post.sync(
-            project_id=project_id, client=self.config.api_client, body=body
-        )
-        if isinstance(response, HTTPValidationError):
-            raise response
-        if not response:
-            raise ValueError("Unable to retrieve span columns")
-        return response
-
-    def get_session_columns(self, project_id: str, log_stream_id: str) -> LogRecordsAvailableColumnsResponse:
-        """
-        Get available columns for sessions in a log stream.
-
-        Parameters
-        ----------
-        project_id : str
-            The ID of the project.
-        log_stream_id : str
-            The ID of the log stream.
-
-        Returns
-        -------
-        LogRecordsAvailableColumnsResponse
-            The response containing available session columns.
-
-        Raises
-        ------
-        errors.UnexpectedStatus
-            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException
-            If the request takes longer than Client.timeout.
-        """
-        body = LogRecordsAvailableColumnsRequest(log_stream_id=log_stream_id)
-        response = sessions_available_columns_projects_project_id_sessions_available_columns_post.sync(
-            project_id=project_id, client=self.config.api_client, body=body
-        )
-        if isinstance(response, HTTPValidationError):
-            raise response
-        if not response:
-            raise ValueError("Unable to retrieve session columns")
-        return response
-
-    def get_trace_columns(self, project_id: str, log_stream_id: str) -> LogRecordsAvailableColumnsResponse:
-        """
-        Get available columns for traces in a log stream.
-
-        Parameters
-        ----------
-        project_id : str
-            The ID of the project.
-        log_stream_id : str
-            The ID of the log stream.
-
-        Returns
-        -------
-        LogRecordsAvailableColumnsResponse
-            The response containing available trace columns.
-
-        Raises
-        ------
-        errors.UnexpectedStatus
-            If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
-        httpx.TimeoutException
-            If the request takes longer than Client.timeout.
-        """
-        body = LogRecordsAvailableColumnsRequest(log_stream_id=log_stream_id)
-        response = traces_available_columns_projects_project_id_traces_available_columns_post.sync(
-            project_id=project_id, client=self.config.api_client, body=body
-        )
-        # TODO: Check how to properly handle the errors.
-        if isinstance(response, HTTPValidationError):
-            raise response
-        if not response:
-            raise ValueError("Unable to retrieve trace columns")
-        return response
 
 
 #
