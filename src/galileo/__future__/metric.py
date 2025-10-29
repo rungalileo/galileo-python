@@ -5,9 +5,9 @@ import logging
 from datetime import datetime
 from typing import Any, Callable
 
-from galileo.__future__.base import StateManagementMixin, SyncState
 from galileo.__future__.configuration import Configuration
-from galileo.__future__.exceptions import ValidationError
+from galileo.__future__.shared.base import StateManagementMixin, SyncState
+from galileo.__future__.shared.exceptions import ValidationError
 from galileo.metrics import Metrics
 from galileo.resources.models import OutputTypeEnum, ScorerTypes
 from galileo.resources.types import Unset
