@@ -153,6 +153,11 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         self._flow_root_id: Optional[UUID] = None
         self._current_method_id: Optional[UUID] = None
         self._current_lite_agent_id: Optional[UUID] = None
+        self._in_flow_context: bool = False
+
+        # Crew context tracking for proper agent/task hierarchy
+        self._current_crew_id: Optional[UUID] = None
+        self._current_agent_id: Optional[UUID] = None
 
         # Only call super().__init__() if CrewAI is available
         if CREWAI_AVAILABLE:
@@ -451,6 +456,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
     def _handle_crew_kickoff_started(self, source: Any, event: "CrewKickoffStartedEvent") -> None:
         """Handle crew execution start."""
         run_id = self._generate_run_id(source, event)
+        self._current_crew_id = run_id
         crew_name = getattr(event, "crew_name", "Crew")
 
         metadata = self._extract_metadata(event)
@@ -458,9 +464,33 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
 
         input_data = getattr(event, "inputs", {})
 
+        # Determine parent based on context
+        parent_run_id = None
+
+        if self._in_flow_context:
+            # In flow context, crew must have a method parent
+            if self._current_method_id:
+                parent_run_id = self._current_method_id
+                _logger.debug(f"Crew {crew_name} inside flow, parent method: {parent_run_id}")
+            else:
+                # Race condition: method hasn't been set yet. In this case try to infer from the crew's source or create a placeholder method
+                _logger.warning(
+                    f"Crew {crew_name} started in flow context but no current method set - "
+                    f"possible race condition. Will nest under flow root."
+                )
+                # Fall back to flow root to avoid creating separate trace
+                parent_run_id = self._flow_root_id
+                if not parent_run_id:
+                    _logger.error(
+                        f"Neither method nor flow root set for crew {crew_name} - crew may be logged incorrectly"
+                    )
+        else:
+            # Standalone crew - root of its own trace
+            _logger.debug(f"Standalone crew with ID: {run_id}")
+
         self._handler.start_node(
             node_type=NodeType.CHAIN.value,
-            parent_run_id=self._current_method_id,
+            parent_run_id=parent_run_id,
             run_id=run_id,
             name=crew_name,
             input=serialize_to_str(input_data) if input_data else "-",
@@ -490,6 +520,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         output = getattr(event, "output", {})
         self._update_crew_input(str(run_id))
         self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(output, "raw", output)))
+        self._current_crew_id = None
 
     def _handle_crew_kickoff_failed(self, source: Any, event: "CrewKickoffFailedEvent") -> None:
         """Handle crew execution failure."""
@@ -498,12 +529,27 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         metadata["error"] = event.error
 
         self._handler.end_node(run_id=run_id, output=f"Error: {event.error}", metadata=metadata)
+        self._current_crew_id = None
 
     # Agent event handlers
     def _handle_agent_execution_started(self, source: Any, event: "AgentExecutionStartedEvent") -> None:
         """Handle agent execution start."""
         run_id = self._generate_run_id(source, event)
-        parent_run_id = self._to_uuid(event.task.id)
+        self._current_agent_id = run_id
+
+        task = getattr(event, "task", None)
+
+        # Try multiple methods to get the parent crew ID
+        parent_run_id = None
+        if task and hasattr(task, "agent") and hasattr(task.agent, "crew"):
+            parent_run_id = self._to_uuid(task.agent.crew.id)
+
+        # Fallback to current crew
+        if not parent_run_id:
+            parent_run_id = self._current_crew_id
+            if not parent_run_id:
+                _logger.warning("Agent started but no crew parent found - agent may not nest correctly")
+
         metadata = self._extract_metadata(event)
 
         role = "Unknown Agent"
@@ -530,6 +576,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         """Handle agent execution completion."""
         run_id = self._generate_run_id(source, event)
         self._handler.end_node(run_id=run_id, output=serialize_to_str(getattr(event, "output", "")))
+        self._current_agent_id = None
 
     def _handle_agent_execution_error(self, source: Any, event: "AgentExecutionErrorEvent") -> None:
         """Handle agent execution error."""
@@ -540,13 +587,29 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         self._handler.end_node(
             run_id=run_id, output=f"Error: {getattr(event, 'error', 'Unknown error')}", metadata=metadata
         )
+        self._current_agent_id = None
 
     # Task event handlers
     def _handle_task_started(self, source: Any, event: "TaskStartedEvent") -> None:
         """Handle task start."""
         run_id = self._generate_run_id(source, event)
         task = getattr(event, "task", None)
-        parent_run_id = self._to_uuid(task.agent.crew.id) if task else None
+
+        parent_run_id = self._current_agent_id
+
+        # Fallback if agent not set
+        if not parent_run_id and task:
+            # Try to get agent ID from task
+            if hasattr(task, "agent") and hasattr(task.agent, "id"):
+                parent_run_id = self._to_uuid(task.agent.id)
+
+            # Last resort: use crew as parent
+            if not parent_run_id and hasattr(task, "agent") and hasattr(task.agent, "crew"):
+                parent_run_id = self._to_uuid(task.agent.crew.id)
+                _logger.warning("Task started but agent not found - nesting under crew instead")
+
+        if not parent_run_id:
+            _logger.warning("Task started but no parent found - task may not nest correctly")
 
         metadata = self._extract_metadata(event)
         task_name = "Unknown Task"
@@ -808,6 +871,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         """Handle Flow execution start."""
         run_id = self._generate_run_id(source, event)
         self._flow_root_id = run_id
+        self._in_flow_context = True
 
         flow_name = event.flow_name if hasattr(event, "flow_name") else "Flow"
 
@@ -838,6 +902,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         output = getattr(event, "result", {})
         self._handler.end_node(run_id=run_id, output=serialize_to_str(output))
 
+        self._in_flow_context = False
         self._flow_root_id = None
         self._current_method_id = None
         self._current_lite_agent_id = None
@@ -862,6 +927,24 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
 
         # Capture current FlowState for this method
         input_data = self._extract_flow_state_input(source, event)
+
+        # If flow root isn't set yet (race condition), create it now
+        if not self._flow_root_id:
+            # Generate the flow root ID from the event's flow information
+            flow_root_id = self._generate_run_id(source, {"flow_name": event.flow_name, "type": "flow_started"})
+            self._flow_root_id = flow_root_id
+            self._in_flow_context = True
+            _logger.warning(f"Flow root not set when method {method_name} started - creating flow root retroactively")
+
+            # Create the flow root node
+            self._handler.start_node(
+                node_type=NodeType.CHAIN.value,
+                parent_run_id=None,
+                run_id=flow_root_id,
+                name=event.flow_name,
+                input=serialize_to_str(input_data),
+                metadata={"flow_name": event.flow_name},
+            )
 
         self._handler.start_node(
             node_type=NodeType.CHAIN.value,
@@ -965,11 +1048,7 @@ class CrewAIEventListener(BaseEventListener):  # pyright: ignore[reportGeneralTy
         self._current_lite_agent_id = None
 
     def lite_llm_usage_callback(
-        self,
-        kwargs: dict,  # kwargs to completion
-        completion_response: Any,  # response from completion
-        start_time: datetime,
-        end_time: datetime,
+        self, kwargs: dict, completion_response: Any, start_time: datetime, end_time: datetime
     ) -> None:
         node_id = self._generate_run_id(kwargs, kwargs)
 
