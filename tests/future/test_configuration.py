@@ -21,6 +21,9 @@ class TestConfigurationProperties:
             if config_key.value_type is bool:
                 test_value = True
                 expected_env_value = "true"
+            elif config_key.value_type is int:
+                test_value = 42
+                expected_env_value = "42"
             else:
                 test_value = f"test-{config_key.name}-value"
                 expected_env_value = test_value
@@ -57,6 +60,9 @@ class TestConfigurationProperties:
             if config_key.value_type is bool:
                 env_value = "true"
                 expected_value = True
+            elif config_key.value_type is int:
+                env_value = "42"
+                expected_value = 42
             else:
                 env_value = f"env-{config_key.name}"
                 expected_value = env_value
@@ -302,6 +308,8 @@ class TestConfigurationReset:
                 setattr(Configuration, key.name, f"test-{key.name}")
             elif key.value_type is bool:
                 setattr(Configuration, key.name, True)
+            elif key.value_type is int:
+                setattr(Configuration, key.name, 42)
 
         # Verify state is set for all keys
         for key in _CONFIGURATION_KEYS:

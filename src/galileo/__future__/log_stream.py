@@ -358,20 +358,58 @@ class LogStream(StateManagementMixin):
             logger.error(f"LogStream.refresh: id='{self.id}' - failed: {e}")
             raise
 
-    def enable_metrics(
+    def get_metrics(self) -> builtins.list[str]:
+        """
+        Get the list of metrics currently enabled on this log stream.
+
+        Returns
+        -------
+            list[str]: List of metric names currently enabled.
+
+        Raises
+        ------
+            ValueError: If the log stream lacks required id or project_id attributes.
+
+        Examples
+        --------
+            log_stream = LogStream.get(name="Production Logs", project_name="My Project")
+            current_metrics = log_stream.get_metrics()
+            print(f"Currently enabled: {current_metrics}")
+        """
+        from galileo.config import GalileoConfig
+        from galileo.resources.api.run_scorer_settings import (
+            get_settings_projects_project_id_runs_run_id_scorer_settings_get,
+        )
+
+        logger.info(f"LogStream.get_metrics: id='{self.id}' - started")
+        config = GalileoConfig.get()
+
+        settings = get_settings_projects_project_id_runs_run_id_scorer_settings_get.sync(
+            project_id=self.project_id, run_id=self.id, client=config.api_client
+        )
+
+        if settings is None or not hasattr(settings, "scorers"):
+            logger.info(f"LogStream.get_metrics: id='{self.id}' - no metrics enabled")
+            return []
+
+        # Extract metric names from scorer configs
+        metric_names = [scorer.name for scorer in settings.scorers]
+        logger.info(f"LogStream.get_metrics: id='{self.id}' found {len(metric_names)} metrics - completed")
+        return metric_names
+
+    def set_metrics(
         self, metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str]
     ) -> builtins.list[LocalMetricConfig]:
         """
-        Enable metrics on this log stream.
+        Set (replace) the metrics on this log stream.
 
-        This is a convenient method that leverages the log stream's existing
-        project_id and id attributes to enable metrics without requiring
-        redundant parameter specification.
+        This replaces any existing metrics with the new list. Alias for enable_metrics
+        with clearer naming intent.
 
         Args:
-            metrics: List of metrics to enable. Supports:
+            metrics: List of metrics to set. Supports:
                 - GalileoScorers enum values (e.g., GalileoScorers.correctness)
-                - Metric objects with name and optional version
+                - Metric objects (including from Metric.get(id="..."))
                 - LocalMetricConfig objects for custom scoring functions
                 - String names of built-in metrics
 
@@ -382,21 +420,19 @@ class LogStream(StateManagementMixin):
 
         Raises
         ------
-            ValueError: If the log stream lacks required id or project_id attributes,
-                or if any specified metrics are unknown.
+            ValueError: If any specified metrics are unknown.
 
         Examples
         --------
-            from galileo.schema.metrics import GalileoScorers
+            from galileo.__future__ import Metric, LogStream
 
-            project = Project.get(name="My AI Project")
-            log_stream = project.create_log_stream(name="Production Logs")
+            log_stream = LogStream.get(name="Production Logs", project_name="My Project")
 
-            # Enable built-in metrics
-            local_metrics = log_stream.enable_metrics([
-                GalileoScorers.correctness,
-                GalileoScorers.completeness,
-                "context_relevance"
+            # Set metrics (replaces existing)
+            log_stream.set_metrics([
+                Metric.scorers.correctness,
+                Metric.scorers.completeness,
+                Metric.get(id="metric-from-console-uuid"),  # From console
             ])
         """
         try:
