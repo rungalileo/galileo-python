@@ -1566,3 +1566,32 @@ def test_ingestion_hook_with_real_redaction(
     mock_traces_client_instance.ingest_traces.assert_called_once()
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
     assert payload.traces[0].input == "This is a [REDACTED]"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_flush_with_unconcluded_trace_redaction(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    logger.start_trace(input="input", redacted_input="redacted_input")
+    logger.add_llm_span(
+        input="prompt",
+        output="response",
+        redacted_input="redacted_prompt",
+        redacted_output="redacted_response",
+        model="gpt4o",
+    )
+    logger.flush()
+
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+    trace = payload.traces[0]
+
+    assert trace.output == '{"content": "response", "role": "assistant"}'
+    assert trace.redacted_output == '{"content": "redacted_response", "role": "assistant"}'

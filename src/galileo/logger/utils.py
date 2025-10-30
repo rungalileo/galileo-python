@@ -12,16 +12,28 @@ _logger = logging.getLogger(__name__)
 
 
 @nop_sync
-def get_last_output(node: Union[BaseStep, None]) -> Optional[str]:
+def get_last_output(node: Union[BaseStep, None]) -> tuple[Optional[str], Optional[str]]:
     """Get the last output of a node or its child spans recursively."""
     if not node:
-        return None
+        return None, None
 
+    output = None
     if node.output:
-        return node.output if isinstance(node.output, str) else serialize_to_str(node.output)
+        output = node.output if isinstance(node.output, str) else serialize_to_str(node.output)
+
+    redacted_output = None
+    if node.redacted_output:
+        redacted_output = (
+            node.redacted_output if isinstance(node.redacted_output, str) else serialize_to_str(node.redacted_output)
+        )
+
+    if output or redacted_output:
+        return output, redacted_output
+
     if isinstance(node, StepWithChildSpans) and len(node.spans):
         return get_last_output(node.spans[-1])
-    return None
+
+    return None, None
 
 
 def handle_galileo_http_exceptions_for_retry(func: Callable) -> Callable:

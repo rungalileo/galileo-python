@@ -1369,8 +1369,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         current_parent = self.current_parent()
         if current_parent is not None:
             self._logger.info("Concluding the active trace...")
-            last_output = get_last_output(current_parent)
-            self.conclude(output=last_output, conclude_all=True)
+            output, redacted_output = get_last_output(current_parent)
+            self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
 
         if self.local_metrics:
             self._logger.info("Computing metrics for local scorers...")
