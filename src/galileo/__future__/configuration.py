@@ -76,6 +76,20 @@ _CONFIGURATION_KEYS = [
     ConfigKey(name="default_logstream_name", env_var="GALILEO_LOG_STREAM", description="Default log stream name"),
     ConfigKey(name="default_logstream_id", env_var="GALILEO_LOG_STREAM_ID", description="Default log stream ID"),
     ConfigKey(
+        name="default_scorer_model",
+        env_var="GALILEO_DEFAULT_SCORER_MODEL",
+        description="Default model for LLM-based scorers/metrics",
+        default="gpt-4.1-mini",
+    ),
+    ConfigKey(
+        name="default_scorer_judges",
+        env_var="GALILEO_DEFAULT_SCORER_JUDGES",
+        description="Default number of judges for LLM-based scorers/metrics",
+        default=3,
+        value_type=int,
+        parser=int,
+    ),
+    ConfigKey(
         name="logging_disabled",
         env_var="GALILEO_LOGGING_DISABLED",
         description="Disable all logging to Galileo",
