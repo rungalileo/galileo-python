@@ -3,7 +3,7 @@ from uuid import uuid4
 
 import pytest
 
-from galileo.__future__ import Metric
+from galileo.__future__ import LlmMetric, Metric
 from galileo.__future__.shared.base import SyncState
 from galileo.__future__.shared.exceptions import ValidationError
 from galileo.resources.models import OutputTypeEnum, ScorerTypes
@@ -15,7 +15,7 @@ class TestMetricInitialization:
 
     def test_init_with_required_fields(self, reset_configuration: None) -> None:
         """Test initializing a metric with required fields creates a local-only instance."""
-        metric = Metric(
+        metric = LlmMetric(
             name="Test Metric", prompt="Is the response factually accurate?", model="gpt-4.1-mini", judges=3
         )
 
@@ -29,10 +29,9 @@ class TestMetricInitialization:
 
     def test_init_with_all_fields(self, reset_configuration: None) -> None:
         """Test initializing a metric with all fields."""
-        metric = Metric(
+        metric = LlmMetric(
             name="Test Metric",
             prompt="Is the response factually accurate?",
-            scorer_type=ScorerTypes.LLM,
             node_level=StepType.llm,
             cot_enabled=True,
             model="gpt-4.1-mini",
@@ -54,14 +53,15 @@ class TestMetricInitialization:
         assert metric.output_type == OutputTypeEnum.PERCENTAGE
 
     def test_init_without_name_raises_error(self, reset_configuration: None) -> None:
-        """Test initializing a metric without name raises ValidationError."""
-        with pytest.raises(ValidationError, match="'name' must be provided"):
-            Metric(name=None, prompt="Test prompt")
+        """Test initializing a metric without name raises TypeError."""
+        with pytest.raises(TypeError, match="missing 1 required positional argument: 'name'"):
+            # name is a required positional argument - omit it entirely
+            LlmMetric(prompt="Test prompt")  # type: ignore[call-arg]
 
     def test_init_llm_scorer_without_user_prompt_raises_error(self, reset_configuration: None) -> None:
         """Test initializing an LLM metric without prompt raises ValidationError."""
         with pytest.raises(ValidationError, match="'prompt' .* must be provided for LLM-based metrics"):
-            Metric(name="Test Metric", scorer_type=ScorerTypes.LLM, prompt=None)
+            LlmMetric(name="Test Metric", prompt=None)
 
 
 class TestMetricCreate:
@@ -104,7 +104,7 @@ class TestMetricCreate:
         mock_metrics_service.create_custom_llm_metric.return_value = mock_version
         mock_scorers_service.list.return_value = [mock_scorer]
 
-        metric = Metric(
+        metric = LlmMetric(
             name="Test Metric", user_prompt="Is it accurate?", description="Test description", tags=["test"]
         ).create()
 
@@ -119,7 +119,7 @@ class TestMetricCreate:
         mock_metrics_class.return_value = mock_service
         mock_service.create_custom_llm_metric.side_effect = Exception("API Error")
 
-        metric = Metric(name="Test Metric", prompt="Is it accurate?")
+        metric = LlmMetric(name="Test Metric", prompt="Is it accurate?")
 
         with pytest.raises(Exception, match="API Error"):
             metric.create()
@@ -131,16 +131,12 @@ class TestMetricCreate:
         self, mock_metrics_class: MagicMock, reset_configuration: None
     ) -> None:
         """Test create() with non-LLM scorer type raises NotImplementedError."""
-        # We need to bypass the __init__ validation to test this
-        metric = Metric.__new__(Metric)
-        metric.name = "Test Metric"
-        metric.scorer_type = ScorerTypes.CODE
-        metric.prompt = None
-        metric.scorer_fn = None
-        metric._sync_state = SyncState.LOCAL_ONLY
-        metric._last_error = None
+        # Test that CodeMetric.create() raises NotImplementedError
+        from galileo.__future__ import CodeMetric
 
-        with pytest.raises(NotImplementedError, match="Only LLM scorers are supported"):
+        metric = CodeMetric(name="Test Metric")
+
+        with pytest.raises(NotImplementedError, match="not yet supported"):
             metric.create()
 
 
@@ -341,7 +337,7 @@ class TestMetricDelete:
 
     def test_delete_raises_error_for_local_only(self, reset_configuration: None) -> None:
         """Test delete() raises ValueError for local-only metric."""
-        metric = Metric(name="Test Metric", prompt="Test prompt")
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
 
         with pytest.raises(ValueError, match="Metric ID is not set"):
             metric.delete()
@@ -406,7 +402,7 @@ class TestMetricRefresh:
 
     def test_refresh_raises_error_for_local_only(self, reset_configuration: None) -> None:
         """Test refresh() raises ValueError for local-only metric."""
-        metric = Metric(name="Test Metric", prompt="Test prompt")
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
 
         with pytest.raises(ValueError, match="Metric ID is not set"):
             metric.refresh()
@@ -447,7 +443,7 @@ class TestMetricUpdate:
 
     def test_update_raises_not_implemented_error(self, reset_configuration: None) -> None:
         """Test update() raises NotImplementedError."""
-        metric = Metric(name="Test Metric", prompt="Test prompt")
+        metric = LlmMetric(name="Test Metric", prompt="Test prompt")
 
         with pytest.raises(NotImplementedError, match="not yet supported"):
             metric.update(name="New Name")
@@ -458,10 +454,10 @@ class TestMetricMethods:
 
     def test_str_and_repr(self, reset_configuration: None) -> None:
         """Test __str__ and __repr__ return expected formats."""
-        metric = Metric(name="Test Metric", prompt="Is it accurate?", output_type="percentage")
+        metric = LlmMetric(name="Test Metric", prompt="Is it accurate?", output_type="percentage")
         metric.id = "test-id-123"
 
-        assert str(metric) == "Metric(name='Test Metric', id='test-id-123', type='llm')"
+        assert str(metric) == "LlmMetric(name='Test Metric', id='test-id-123', scorer_type='llm')"
         assert "model=" in repr(metric) and "judges=" in repr(metric)
 
     @patch("galileo.__future__.metric.Scorers")
