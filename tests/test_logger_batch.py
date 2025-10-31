@@ -1566,3 +1566,52 @@ def test_ingestion_hook_with_real_redaction(
     mock_traces_client_instance.ingest_traces.assert_called_once()
     payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
     assert payload.traces[0].input == "This is a [REDACTED]"
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_add_single_llm_span_trace_ingestion(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream")
+    created_at = datetime.datetime.now()
+    metadata = {"key": "value"}
+    tags = ["tag1", "tag2"]
+
+    logger.add_single_llm_span_trace(
+        input="prompt",
+        output="response",
+        model="gpt-4",
+        name="single-llm-trace",
+        created_at=created_at,
+        metadata=metadata,
+        tags=tags,
+    )
+
+    logger.flush()
+
+    mock_traces_client_instance.ingest_traces.assert_called_once()
+    payload: TracesIngestRequest = mock_traces_client_instance.ingest_traces.call_args.args[0]
+
+    assert len(payload.traces) == 1
+    trace = payload.traces[0]
+
+    assert trace.name == "single-llm-trace"
+    assert trace.created_at == created_at
+    assert trace.user_metadata == metadata
+    assert trace.tags == tags
+
+    assert len(trace.spans) == 1
+    span = trace.spans[0]
+    assert isinstance(span, LlmSpan)
+    assert span.input[0].content == "prompt"
+    assert span.output.content == "response"
+    assert span.model == "gpt-4"
+
+    assert logger.traces == []
+    assert logger._parent_stack == deque()
