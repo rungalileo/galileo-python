@@ -119,6 +119,12 @@ class Metric(StateManagementMixin, ABC):
     updated_at: datetime | None
     version: int | None
 
+    # Scorer defaults - available for LLM and built-in Galileo metrics
+    # These are returned by the API in the ScorerDefaults object
+    model: str | None
+    judges: int | None
+    cot_enabled: bool | None
+
     def __init__(
         self, name: str, *, description: str = "", tags: list[str] | None = None, version: int | None = None
     ) -> None:
@@ -140,7 +146,41 @@ class Metric(StateManagementMixin, ABC):
         self.created_at = None
         self.updated_at = None
         self.scorer_type = None
+
+        # Initialize scorer defaults (populated from API for LLM and Galileo metrics)
+        self.model = None
+        self.judges = None
+        self.cot_enabled = None
+
         self._set_state(SyncState.LOCAL_ONLY)
+
+    @classmethod
+    def _create_metric_from_type(cls, scorer_type: ScorerTypes) -> Metric:
+        """
+        Create the appropriate Metric subclass instance based on scorer_type.
+
+        This is a factory method that centralizes the logic for instantiating
+        the correct metric subclass based on the scorer type returned from the API.
+
+        Args:
+            scorer_type: The scorer type from the API response.
+
+        Returns
+        -------
+            Metric: An uninitialized instance of the appropriate subclass
+                   (LlmMetric, CodeMetric, or GalileoMetric).
+
+        Examples
+        --------
+            instance = Metric._create_metric_from_type(ScorerTypes.LLM)
+            # Returns: LlmMetric instance
+        """
+        if scorer_type == ScorerTypes.LLM:
+            return LlmMetric.__new__(LlmMetric)
+        if scorer_type == ScorerTypes.CODE:
+            return CodeMetric.__new__(CodeMetric)
+        # Default to GalileoMetric for built-in scorers (LUNA, PRESET, etc.)
+        return GalileoMetric.__new__(GalileoMetric)
 
     @classmethod
     def get(cls, *, id: str | None = None, name: str | None = None) -> Metric | None:
@@ -190,17 +230,8 @@ class Metric(StateManagementMixin, ABC):
             if retrieved_scorer is None:
                 return None
 
-        # Determine appropriate subclass based on scorer_type
-        scorer_type = retrieved_scorer.scorer_type
-        instance: Metric
-        if scorer_type == ScorerTypes.LLM:
-            instance = LlmMetric.__new__(LlmMetric)
-        elif scorer_type == ScorerTypes.CODE:
-            instance = CodeMetric.__new__(CodeMetric)
-        else:
-            # Default to GalileoMetric for built-in scorers
-            instance = GalileoMetric.__new__(GalileoMetric)
-
+        # Create appropriate subclass instance based on scorer_type
+        instance = cls._create_metric_from_type(retrieved_scorer.scorer_type)
         StateManagementMixin.__init__(instance)
         instance._populate_from_scorer_response(retrieved_scorer)
         instance._set_state(SyncState.SYNCED)
@@ -241,17 +272,8 @@ class Metric(StateManagementMixin, ABC):
 
         result: builtins.list[Metric] = []
         for retrieved_scorer in retrieved_scorers:
-            # Determine appropriate subclass based on scorer_type
-            scorer_type = retrieved_scorer.scorer_type
-            instance: Metric
-            if scorer_type == ScorerTypes.LLM:
-                instance = LlmMetric.__new__(LlmMetric)
-            elif scorer_type == ScorerTypes.CODE:
-                instance = CodeMetric.__new__(CodeMetric)
-            else:
-                # Default to GalileoMetric for built-in scorers
-                instance = GalileoMetric.__new__(GalileoMetric)
-
+            # Create appropriate subclass instance based on scorer_type
+            instance = cls._create_metric_from_type(retrieved_scorer.scorer_type)
             StateManagementMixin.__init__(instance)
             instance._populate_from_scorer_response(retrieved_scorer)
             instance._set_state(SyncState.SYNCED)
@@ -310,26 +332,27 @@ class Metric(StateManagementMixin, ABC):
         self.created_at = None if isinstance(scorer_response.created_at, Unset) else scorer_response.created_at
         self.updated_at = None if isinstance(scorer_response.updated_at, Unset) else scorer_response.updated_at
 
+        # Extract defaults - available for LLM and built-in Galileo metrics
+        # These are returned by the API for preset scorers too
+        if not isinstance(scorer_response.defaults, Unset) and scorer_response.defaults is not None:
+            self.model = (
+                scorer_response.defaults.model_name if hasattr(scorer_response.defaults, "model_name") else None
+            )
+            self.judges = (
+                scorer_response.defaults.num_judges if hasattr(scorer_response.defaults, "num_judges") else None
+            )
+            self.cot_enabled = (
+                scorer_response.defaults.cot_enabled if hasattr(scorer_response.defaults, "cot_enabled") else None
+            )
+        else:
+            self.model = None
+            self.judges = None
+            self.cot_enabled = None
+
         # LLM-specific attributes (only set if this is an LlmMetric)
         if isinstance(self, LlmMetric):
             self.output_type = None if isinstance(scorer_response.output_type, Unset) else scorer_response.output_type
             self.prompt = None if isinstance(scorer_response.user_prompt, Unset) else scorer_response.user_prompt
-
-            # Extract defaults
-            if not isinstance(scorer_response.defaults, Unset) and scorer_response.defaults is not None:
-                self.model = (
-                    scorer_response.defaults.model_name if hasattr(scorer_response.defaults, "model_name") else None
-                )
-                self.judges = (
-                    scorer_response.defaults.num_judges if hasattr(scorer_response.defaults, "num_judges") else None
-                )
-                self.cot_enabled = (
-                    scorer_response.defaults.cot_enabled if hasattr(scorer_response.defaults, "cot_enabled") else None
-                )
-            else:
-                self.model = None
-                self.judges = None
-                self.cot_enabled = None
 
             # Extract scoreable node types
             if not isinstance(scorer_response.scoreable_node_types, Unset) and scorer_response.scoreable_node_types:
@@ -628,10 +651,10 @@ class LlmMetric(Metric):
             created_version = metrics_service.create_custom_llm_metric(
                 name=self.name,
                 user_prompt=self.prompt or "",
-                node_level=self.node_level or StepType.llm,
-                cot_enabled=self.cot_enabled or True,
-                model_name=self.model or Configuration.default_scorer_model,
-                num_judges=self.judges or Configuration.default_scorer_judges,
+                node_level=self.node_level if self.node_level is not None else StepType.llm,
+                cot_enabled=self.cot_enabled if self.cot_enabled is not None else True,
+                model_name=self.model if self.model is not None else Configuration.default_scorer_model,
+                num_judges=self.judges if self.judges is not None else Configuration.default_scorer_judges,
                 description=self.description,
                 tags=self.tags,
                 output_type=self.output_type
@@ -840,4 +863,6 @@ class LocalMetric(Metric):
 
     def __repr__(self) -> str:
         """Detailed string representation of the metric."""
-        return f"LocalMetric(name='{self.name}', scorer_fn={self.scorer_fn.__name__})"
+        # Handle callables that don't have __name__ (partials, lambdas, callable instances)
+        fn_name = getattr(self.scorer_fn, "__name__", f"<{type(self.scorer_fn).__name__}>")
+        return f"LocalMetric(name='{self.name}', scorer_fn={fn_name})"
