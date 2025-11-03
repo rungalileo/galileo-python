@@ -4,9 +4,9 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from galileo.__future__.base import StateManagementMixin, SyncState
-from galileo.__future__.exceptions import APIError, ValidationError
 from galileo.__future__.log_stream import LogStream
+from galileo.__future__.shared.base import StateManagementMixin, SyncState
+from galileo.__future__.shared.exceptions import APIError, ValidationError
 from galileo.projects import Projects
 
 logger = logging.getLogger(__name__)

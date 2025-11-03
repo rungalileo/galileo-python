@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Any, Callable, TypeVar
 
-from galileo.__future__.exceptions import ValidationError
+from galileo.__future__.shared.exceptions import ValidationError
 
 R = TypeVar("R")
 
