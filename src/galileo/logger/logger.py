@@ -16,7 +16,7 @@ from pydantic import ValidationError
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
-from galileo.logger.utils import get_last_output, handle_galileo_http_exceptions_for_retry
+from galileo.logger.utils import handle_galileo_http_exceptions_for_retry
 from galileo.projects import Projects
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import (
@@ -321,16 +321,30 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
     @staticmethod
     @nop_sync
-    def _get_last_output(node: Union[BaseStep, None]) -> Optional[str]:
+    def _get_last_output(node: Union[BaseStep, None]) -> tuple[Optional[str], Optional[str]]:
         """Get the last output of a node or its child spans recursively."""
         if not node:
-            return None
+            return None, None
 
+        output = None
         if node.output:
-            return node.output if isinstance(node.output, str) else serialize_to_str(node.output)
+            output = node.output if isinstance(node.output, str) else serialize_to_str(node.output)
+
+        redacted_output = None
+        if node.redacted_output:
+            redacted_output = (
+                node.redacted_output
+                if isinstance(node.redacted_output, str)
+                else serialize_to_str(node.redacted_output)
+            )
+
+        if output or redacted_output:
+            return output, redacted_output
+
         if isinstance(node, StepWithChildSpans) and len(node.spans):
             return GalileoLogger._get_last_output(node.spans[-1])
-        return None
+
+        return None, None
 
     @nop_sync
     def _ingest_trace_streaming(self, trace: Trace, is_complete: bool = False) -> None:
@@ -1369,7 +1383,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         current_parent = self.current_parent()
         if current_parent is not None:
             self._logger.info("Concluding the active trace...")
-            output, redacted_output = get_last_output(current_parent)
+            output, redacted_output = GalileoLogger._get_last_output(current_parent)
             self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
 
         if self.local_metrics:

@@ -1059,7 +1059,9 @@ def test_get_last_output() -> None:
     workflow_span.spans = [llm_span]
     trace.spans = [workflow_span]
 
-    assert GalileoLogger._get_last_output(trace) == '{"content": "llm output", "role": "assistant"}'
+    output, redacted_output = GalileoLogger._get_last_output(trace)
+    assert output == '{"content": "llm output", "role": "assistant"}'
+    assert redacted_output is None
 
     workflow_span_2 = WorkflowSpan(
         input="input",
@@ -1076,10 +1078,14 @@ def test_get_last_output() -> None:
     workflow_span_2.spans = [llm_span]
     trace.spans = [workflow_span_2]
 
-    assert GalileoLogger._get_last_output(trace) == "workflow output"
+    output, redacted_output = GalileoLogger._get_last_output(trace)
+    assert output == "workflow output"
+    assert redacted_output is None
 
     trace.output = "trace output"
-    assert GalileoLogger._get_last_output(trace) == "trace output"
+    output, redacted_output = GalileoLogger._get_last_output(trace)
+    assert output == "trace output"
+    assert redacted_output is None
 
 
 def test_get_last_output_last_child_none() -> None:
@@ -1131,10 +1137,14 @@ def test_get_last_output_last_child_none() -> None:
     workflow_span_1.spans = [retrieval_span]
     trace.spans = [workflow_span_1, workflow_span_2]
 
-    assert GalileoLogger._get_last_output(trace) is None
+    output, redacted_output = GalileoLogger._get_last_output(trace)
+    assert output is None
+    assert redacted_output is None
 
     trace.spans = []
-    assert GalileoLogger._get_last_output(trace) is None
+    output, redacted_output = GalileoLogger._get_last_output(trace)
+    assert output is None
+    assert redacted_output is None
 
 
 def test_get_last_output_last_child_no_output() -> None:
@@ -1161,7 +1171,9 @@ def test_get_last_output_last_child_no_output() -> None:
     )
 
     trace.spans = [tool_span]
-    assert GalileoLogger._get_last_output(trace) is None
+    output, redacted_output = GalileoLogger._get_last_output(trace)
+    assert output is None
+    assert redacted_output is None
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1644,3 +1656,18 @@ def test_flush_with_unconcluded_trace_redaction(
 
     assert trace.output == '{"content": "response", "role": "assistant"}'
     assert trace.redacted_output == '{"content": "redacted_response", "role": "assistant"}'
+
+
+def test_get_last_output_with_redacted_output() -> None:
+    trace = Trace(input="input", name="test-trace", created_at=datetime.datetime.now())
+    llm_span = LlmSpan(
+        input="input",
+        output="llm output",
+        redacted_output="redacted llm output",
+        name="test-span",
+        created_at=datetime.datetime.now(),
+    )
+    trace.spans = [llm_span]
+    output, redacted_output = GalileoLogger._get_last_output(trace)
+    assert output == '{"content": "llm output", "role": "assistant"}'
+    assert redacted_output == '{"content": "redacted llm output", "role": "assistant"}'
