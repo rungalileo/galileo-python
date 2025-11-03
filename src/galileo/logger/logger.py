@@ -703,7 +703,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             name=name,
             created_at=created_at,
             duration_ns=duration_ns,
-            metadata=metadata,
+            user_metadata=metadata,
             tags=tags,
             num_input_tokens=num_input_tokens,
             num_output_tokens=num_output_tokens,
