@@ -231,24 +231,33 @@ class Dataset(StateManagementMixin):
         return cls._from_api_response(retrieved_dataset)
 
     @classmethod
-    def list(cls, *, limit: Unset | int = 100) -> list[Dataset]:
+    def list(
+        cls, *, limit: Unset | int = 100, project_id: str | None = None, project_name: str | None = None
+    ) -> list[Dataset]:
         """
-        List all available datasets.
+        List all available datasets, optionally filtered by project.
 
         Args:
             limit (Union[Unset, int]): Maximum number of datasets to return.
+            project_id (Optional[str]): Filter datasets used in this project by ID.
+            project_name (Optional[str]): Filter datasets used in this project by name.
 
         Returns
         -------
-            list[Dataset]: A list of all datasets.
+            list[Dataset]: A list of datasets matching the criteria.
 
         Examples
         --------
+            # List all datasets
             datasets = Dataset.list()
             datasets = Dataset.list(limit=50)
+
+            # List datasets used in a specific project
+            datasets = Dataset.list(project_id="project-123")
+            datasets = Dataset.list(project_name="My Project")
         """
         datasets_service = Datasets()
-        retrieved_datasets = datasets_service.list(limit=limit)
+        retrieved_datasets = datasets_service.list(limit=limit, project_id=project_id, project_name=project_name)
 
         return [cls._from_api_response(retrieved_dataset) for retrieved_dataset in retrieved_datasets]
 
