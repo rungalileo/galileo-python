@@ -13,7 +13,8 @@ _logger = logging.getLogger(__name__)
 
 @nop_sync
 def get_last_output(node: Union[BaseStep, None]) -> Optional[str]:
-    """Get the last output of a node or its child spans recursively."""
+    """DEPRECATED: Get the last output of a node or its child spans recursively."""
+    _logger.warning("DEPRECATED: get_last_output is deprecated and will be removed in a future version.")
     if not node:
         return None
 
