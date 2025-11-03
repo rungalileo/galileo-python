@@ -644,19 +644,19 @@ files = [
 
 [[package]]
 name = "chromadb"
-version = "1.1.1"
+version = "1.0.13"
 description = "Chroma."
 optional = true
 python-versions = ">=3.9"
 groups = ["main"]
 markers = "python_version >= \"3.10\" and (extra == \"crewai\" or extra == \"all\")"
 files = [
-    {file = "chromadb-1.1.1-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:27fe0e25ef0f83fb09c30355ab084fe6f246808a7ea29e8c19e85cf45785b90d"},
-    {file = "chromadb-1.1.1-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:95aed58869683f12e7dcbf68b039fe5f576dbe9d1b86b8f4d014c9d077ccafd2"},
-    {file = "chromadb-1.1.1-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:06776dad41389a00e7d63d936c3a15c179d502becaf99f75745ee11b062c9b6a"},
-    {file = "chromadb-1.1.1-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:bba0096a7f5e975875ead23a91c0d41d977fbd3767f60d3305a011b0ace7afd3"},
-    {file = "chromadb-1.1.1-cp39-abi3-win_amd64.whl", hash = "sha256:a77aa026a73a18181fd89bbbdb86191c9a82fd42aa0b549ff18d8cae56394c8b"},
-    {file = "chromadb-1.1.1.tar.gz", hash = "sha256:ebfce0122753e306a76f1e291d4ddaebe5f01b5979b97ae0bc80b1d4024ff223"},
+    {file = "chromadb-1.0.13-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:f70a2109cfbdbc680a17e1df15648e053ae68d5f99abcd63f6aae78152955b72"},
+    {file = "chromadb-1.0.13-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:78b7ce8893122c9f1f031c4fb6676aef7de6a05a6c756f1c29fdf8e32d243dfa"},
+    {file = "chromadb-1.0.13-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:10e1608144beb9eafee2a5e62445b29404f23178736ba0c6f1fd0ccd7835ad05"},
+    {file = "chromadb-1.0.13-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:43a36fd055f4f8a4a3d6c968e1ce41379f2afbcd0d39f2d7bf9dae891d87f5ca"},
+    {file = "chromadb-1.0.13-cp39-abi3-win_amd64.whl", hash = "sha256:c71a8b43b54f1ca9094d4d505bf2b8c77325319eec4761cc5977b36717f3910a"},
+    {file = "chromadb-1.0.13.tar.gz", hash = "sha256:48b78c860d63f722886891f9c5c6c32f9ab52ee9410162a0b4f0810ad157628f"},
 ]
 
 [package.dependencies]
@@ -675,7 +675,7 @@ opentelemetry-exporter-otlp-proto-grpc = ">=1.2.0"
 opentelemetry-sdk = ">=1.2.0"
 orjson = ">=3.9.12"
 overrides = ">=7.3.1"
-posthog = ">=2.4.0,<6.0.0"
+posthog = ">=2.4.0"
 pybase64 = ">=1.4.1"
 pydantic = ">=1.9"
 pypika = ">=0.48.9"
@@ -901,27 +901,28 @@ toml = ["tomli ; python_full_version <= \"3.11.0a6\""]
 
 [[package]]
 name = "crewai"
-version = "0.201.1"
+version = "0.193.2"
 description = "Cutting-edge framework for orchestrating role-playing, autonomous AI agents. By fostering collaborative intelligence, CrewAI empowers agents to work together seamlessly, tackling complex tasks."
 optional = true
 python-versions = "<3.14,>=3.10"
 groups = ["main"]
 markers = "python_version >= \"3.10\" and (extra == \"crewai\" or extra == \"all\")"
 files = [
-    {file = "crewai-0.201.1-py3-none-any.whl", hash = "sha256:798cb882da1d113b0322a574b9ae4b893821fd42a952f9ebcb239d66a68ee5de"},
-    {file = "crewai-0.201.1.tar.gz", hash = "sha256:8ed336a7c31c8eb2beb312a94e31c6b8ca54dc5178a76413bfcb5707eb5481c6"},
+    {file = "crewai-0.193.2-py3-none-any.whl", hash = "sha256:cad4d6a5f32e902a390ca3fc84698839e7720c1ae7acdba002da9a18405a01c8"},
+    {file = "crewai-0.193.2.tar.gz", hash = "sha256:239f1d299bbf493e76778434f6476604b585e1f228e2c75d39983a39a1522275"},
 ]
 
 [package.dependencies]
 appdirs = ">=1.4.4"
 blinker = ">=1.9.0"
-chromadb = ">=1.1.0,<1.2.0"
+chromadb = ">=0.5.23"
 click = ">=8.1.7"
 instructor = ">=1.3.3"
 json-repair = "0.25.2"
 json5 = ">=0.10.0"
 jsonref = ">=1.1.0"
 litellm = "1.74.9"
+onnxruntime = "1.22.0"
 openai = ">=1.13.3"
 openpyxl = ">=3.1.5"
 opentelemetry-api = ">=1.30.0"
@@ -929,10 +930,9 @@ opentelemetry-exporter-otlp-proto-http = ">=1.30.0"
 opentelemetry-sdk = ">=1.30.0"
 pdfplumber = ">=0.11.4"
 portalocker = "2.7.0"
-pydantic = ">=2.11.9"
-pydantic-settings = ">=2.10.1"
+pydantic = ">=2.4.2"
 pyjwt = ">=2.9.0"
-python-dotenv = ">=1.1.1"
+python-dotenv = ">=1.0.0"
 pyvis = ">=0.3.2"
 regex = ">=2024.9.11"
 tokenizers = ">=0.20.3"
@@ -942,7 +942,6 @@ uv = ">=0.4.25"
 
 [package.extras]
 aisuite = ["aisuite (>=0.1.10)"]
-aws = ["boto3 (>=1.40.38)"]
 docling = ["docling (>=2.12.0)"]
 embeddings = ["tiktoken (>=0.8.0,<0.9.0)"]
 mem0 = ["mem0ai (>=0.1.94)"]
@@ -950,9 +949,7 @@ openpyxl = ["openpyxl (>=3.1.5)"]
 pandas = ["pandas (>=2.2.3)"]
 pdfplumber = ["pdfplumber (>=0.11.4)"]
 qdrant = ["qdrant-client[fastembed] (>=1.14.3)"]
-tools = ["crewai-tools (>=0.74.0)"]
-voyageai = ["voyageai (>=0.3.5)"]
-watson = ["ibm-watsonx-ai (>=1.3.39)"]
+tools = ["crewai-tools (>=0.73.0,<0.74.0)"]
 
 [[package]]
 name = "crosshair-tool"
@@ -1445,14 +1442,14 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "galileo-core"
-version = "3.67.1"
+version = "3.67.3"
 description = "Shared schemas and configuration for Galileo's Python packages."
 optional = false
 python-versions = ">=3.8.1"
 groups = ["main", "test"]
 files = [
-    {file = "galileo_core-3.67.1-py3-none-any.whl", hash = "sha256:87989b42ef988cf28a5884aec6554d756b89023809498a0ac19e0724be9fe170"},
-    {file = "galileo_core-3.67.1.tar.gz", hash = "sha256:216f3bdd9b3383469c89bd26a9ef5ca2230fab83c4af7a294a0f22cbe6db8f98"},
+    {file = "galileo_core-3.67.3-py3-none-any.whl", hash = "sha256:c74c8db6c51b7eccee0f890fa1326ccd8e8be9f6824c3c6df297c936e0370e63"},
+    {file = "galileo_core-3.67.3.tar.gz", hash = "sha256:835ecd6f4c4f8d295d6ba7be42f648e83e0154285b108be14dea29bcf37bf6fb"},
 ]
 
 [package.dependencies]
@@ -4031,41 +4028,16 @@ tests = ["pytest (>=5.4.1)", "pytest-cov (>=2.8.1)", "pytest-mypy (>=0.8.0)", "p
 
 [[package]]
 name = "posthog"
-version = "5.4.0"
+version = "6.5.0"
 description = "Integrate PostHog into any python application."
 optional = false
 python-versions = ">=3.9"
 groups = ["main", "dev"]
 files = [
-    {file = "posthog-5.4.0-py3-none-any.whl", hash = "sha256:284dfa302f64353484420b52d4ad81ff5c2c2d1d607c4e2db602ac72761831bd"},
-    {file = "posthog-5.4.0.tar.gz", hash = "sha256:701669261b8d07cdde0276e5bc096b87f9e200e3b9589c5ebff14df658c5893c"},
-]
-markers = {main = "python_version >= \"3.10\" and (extra == \"crewai\" or extra == \"all\")", dev = "python_version >= \"3.10\""}
-
-[package.dependencies]
-backoff = ">=1.10.0"
-distro = ">=1.5.0"
-python-dateutil = ">=2.2"
-requests = ">=2.7,<3.0"
-six = ">=1.5"
-
-[package.extras]
-dev = ["django-stubs", "lxml", "mypy", "mypy-baseline", "packaging", "pre-commit", "pydantic", "ruff", "setuptools", "tomli", "tomli_w", "twine", "types-mock", "types-python-dateutil", "types-requests", "types-setuptools", "types-six", "wheel"]
-langchain = ["langchain (>=0.2.0)"]
-test = ["anthropic", "coverage", "django", "freezegun (==1.5.1)", "google-genai", "langchain-anthropic (>=0.3.15)", "langchain-community (>=0.3.25)", "langchain-core (>=0.3.65)", "langchain-openai (>=0.3.22)", "langgraph (>=0.4.8)", "mock (>=2.0.0)", "openai", "parameterized (>=0.8.1)", "pydantic", "pytest", "pytest-asyncio", "pytest-timeout"]
-
-[[package]]
-name = "posthog"
-version = "6.5.0"
-description = "Integrate PostHog into any python application."
-optional = false
-python-versions = ">=3.9"
-groups = ["dev"]
-markers = "python_version < \"3.10\""
-files = [
     {file = "posthog-6.5.0-py3-none-any.whl", hash = "sha256:1376f85c5382eae0985dd1ad48f2e6d7db18c6bf52cef3b4d8ff448a955bdb9f"},
     {file = "posthog-6.5.0.tar.gz", hash = "sha256:aa5fe322c30384b302c79c49aee59c8dce6fee84a5fa78734103cab177e4e640"},
 ]
+markers = {main = "python_version >= \"3.10\" and (extra == \"crewai\" or extra == \"all\")"}
 
 [package.dependencies]
 backoff = ">=1.10.0"
@@ -7203,4 +7175,4 @@ openai = ["openai", "openai-agents", "packaging"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "6780dbfd6c7eee0322bbf3a801e13da48ebef80c0b5578134aa2bfd24fd71605"
+content-hash = "d1393ee2f99acbe114b94c1dc15d2d0d56a1266970de16c3d29ed6fbb1bb8f77"
