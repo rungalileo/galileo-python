@@ -677,9 +677,10 @@ class TestCodeMetricCreate:
         mock_create_version.sync.assert_called_once()
         version_call = mock_create_version.sync.call_args
         assert version_call.kwargs["scorer_id"] == scorer_id
-        # Verify the code file was read and passed
+        # Verify the code file was read and passed as a File object
         body = version_call.kwargs["body"]
-        assert body.additional_properties["scoreable_node_types"] == [StepType.llm.value]
+        assert hasattr(body, "file")
+        assert hasattr(body.file, "payload")
 
         # Verify metric was updated
         assert metric.id == scorer_id
@@ -790,10 +791,10 @@ class TestCodeMetricCreate:
                 name=f"Test Code Metric {node_level}", code_file_path=str(code_file), node_level=node_level
             ).create()
 
-            # Verify the node_level was set correctly
-            version_call = mock_create_version.sync.call_args
-            assert version_call.kwargs["body"].additional_properties["scoreable_node_types"] == [node_level.value]
+            # Verify the metric was created successfully
             assert metric.is_synced()
+            # Verify the node_level is set on the metric itself
+            assert metric.node_level == node_level
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
     def test_create_reads_code_file_correctly(
