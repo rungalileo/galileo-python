@@ -14,10 +14,14 @@ def require_exactly_one(*param_names: str) -> Callable[[Callable[..., R]], Calla
     ------
         ValidationError: If neither or both parameters are provided.
 
-    Example:
-        @require_exactly_one("project_id", "project_name")
-        def list(*, project_id=None, project_name=None):
-            ...
+    Examples
+    --------
+
+    ```python
+    @require_exactly_one("project_id", "project_name")
+    def list(*, project_id=None, project_name=None):
+        ...
+    ```
     """
 
     def decorator(func: Callable[..., R]) -> Callable[..., R]:
