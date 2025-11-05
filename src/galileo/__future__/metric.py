@@ -723,9 +723,9 @@ class CodeMetric(Metric):
         ).create()
     """
 
-    # Type annotations for code-specific attributes
-    code_file_path: str
-    node_level: StepType
+    # Type annotations for code-specific attributes (optional for retrieved metrics)
+    code_file_path: str | None
+    node_level: StepType | None
 
     def __init__(
         self,
@@ -742,8 +742,8 @@ class CodeMetric(Metric):
 
         Args:
             name: The name of the metric.
-            code_file_path: Path to the code file for the scorer (required).
-            node_level: Node level for the metric (required).
+            code_file_path: Path to the code file for the scorer (required for creation).
+            node_level: Node level for the metric (required for creation).
             description: Description of the metric.
             tags: Tags associated with the metric.
             version: Specific version to reference (for existing metrics).
@@ -772,7 +772,7 @@ class CodeMetric(Metric):
 
         Raises
         ------
-            ValidationError: If configuration is invalid.
+            ValidationError: If configuration is invalid or code_file_path is not set.
             Exception: If the API call fails.
 
         Examples
@@ -784,6 +784,9 @@ class CodeMetric(Metric):
             ).create()
             assert metric.is_synced()
         """
+        if self.code_file_path is None:
+            raise ValidationError("'code_file_path' must be provided to create a code-based metric.")
+
         try:
             logger.info(f"CodeMetric.create: name='{self.name}' - started")
 
