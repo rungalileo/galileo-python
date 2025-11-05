@@ -807,9 +807,7 @@ class CodeMetric(Metric):
             with open(self.code_file_path, "rb") as f:
                 code_file = File(payload=f)
                 version_body = BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost(file=code_file)
-                version_body.additional_properties["scoreable_node_types"] = (
-                    [self.node_level.value] if self.node_level is not None else [StepType.llm.value]
-                )
+                version_body.additional_properties["scoreable_node_types"] = [self.node_level.value]
 
                 created_version = create_code_scorer_version_scorers_scorer_id_version_code_post.sync(
                     scorer_id=scorer_response.id, client=config.api_client, body=version_body
