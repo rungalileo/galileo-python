@@ -784,7 +784,6 @@ class CodeMetric(Metric):
             ).create()
             assert metric.is_synced()
         """
-
         try:
             logger.info(f"CodeMetric.create: name='{self.name}' - started")
 
@@ -792,8 +791,7 @@ class CodeMetric(Metric):
 
             # Step 1: Create the scorer
             scorer_request = CreateScorerRequest(
-                name=self.name, scorer_type=ScorerTypes.CODE, description=self.description,
-                **({"tags": self.tags} if self.tags is not None else {})
+                name=self.name, scorer_type=ScorerTypes.CODE, description=self.description, tags=self.tags
             )
 
             scorer_response = create_scorers_post.sync(client=config.api_client, body=scorer_request)
