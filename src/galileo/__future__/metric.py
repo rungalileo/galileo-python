@@ -784,8 +784,6 @@ class CodeMetric(Metric):
             ).create()
             assert metric.is_synced()
         """
-        if self.code_file_path is None:
-            raise ValidationError("'code_file_path' must be provided to create a code-based metric.")
 
         try:
             logger.info(f"CodeMetric.create: name='{self.name}' - started")
