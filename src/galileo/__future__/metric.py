@@ -374,6 +374,17 @@ class Metric(StateManagementMixin, ABC):
             else:
                 self.node_level = None
 
+        # Code-specific attributes (only set if this is a CodeMetric)
+        if isinstance(self, CodeMetric):
+            # Extract scoreable node types
+            if not isinstance(scorer_response.scoreable_node_types, Unset) and scorer_response.scoreable_node_types:
+                try:
+                    self.node_level = StepType(scorer_response.scoreable_node_types[0])
+                except (ValueError, IndexError):
+                    self.node_level = None
+            else:
+                self.node_level = None
+
     def update(self, **kwargs: Any) -> None:
         """
         Update this metric's properties.
@@ -702,6 +713,10 @@ class CodeMetric(Metric):
     This metric type is for code-based scorers that execute custom code
     to evaluate traces/spans.
 
+    Attributes
+    ----------
+        node_level (StepType | None): Node level for the metric.
+
     Examples
     --------
         # Get existing code metric
@@ -711,36 +726,45 @@ class CodeMetric(Metric):
         # Create code metric
         metric = CodeMetric(
             name="custom_code_scorer",
-            code_file_path="./scorers/my_scorer.py",
-            node_level=StepType.llm,
             description="Custom code-based scorer",
             tags=["custom", "code"],
-        ).create()
+            node_level=StepType.llm,
+        ).create(code_file_path="./scorers/my_scorer.py")
     """
 
+    # Type annotations for code-specific attributes
+    node_level: StepType | None
+
     def __init__(
-        self, name: str, *, description: str = "", tags: list[str] | None = None, version: int | None = None
+        self,
+        name: str,
+        *,
+        node_level: StepType | None = None,
+        description: str = "",
+        tags: list[str] | None = None,
+        version: int | None = None,
     ) -> None:
         """
         Initialize a Code metric.
 
         Args:
             name: The name of the metric.
+            node_level: Node level for the metric. Defaults to StepType.llm.
             description: Description of the metric.
             tags: Tags associated with the metric.
             version: Specific version to reference (for existing metrics).
         """
         super().__init__(name=name, description=description, tags=tags, version=version)
 
+        self.node_level = node_level or StepType.llm
         self.scorer_type = ScorerTypes.CODE
 
-    def create(self, *, code_file_path: str, node_level: StepType) -> CodeMetric:
+    def create(self, *, code_file_path: str) -> CodeMetric:
         """
         Persist this Code metric to the API.
 
         Args:
             code_file_path: Path to the Python file containing the scorer code (required).
-            node_level: Node level for the metric (required).
 
         Returns
         -------
@@ -757,10 +781,8 @@ class CodeMetric(Metric):
                 name="custom_code_scorer",
                 description="Custom code-based scorer",
                 tags=["custom", "code"],
-            ).create(
-                code_file_path="./scorers/my_scorer.py",
-                node_level=StepType.llm
-            )
+                node_level=StepType.llm,
+            ).create(code_file_path="./scorers/my_scorer.py")
             assert metric.is_synced()
         """
         # Validate that the file exists
@@ -772,13 +794,17 @@ class CodeMetric(Metric):
 
             config = GalileoPythonConfig.get()
 
+            # Ensure node_level is set (should always be set in __init__, but checking for type safety)
+            if self.node_level is None:
+                self.node_level = StepType.llm
+
             # Step 1: Create the scorer
             scorer_request = CreateScorerRequest(
                 name=self.name,
                 scorer_type=ScorerTypes.CODE,
                 description=self.description,
                 tags=self.tags,
-                scoreable_node_types=[node_level.value],
+                scoreable_node_types=[self.node_level.value],
             )
 
             scorer_response = create_scorers_post.sync(client=config.api_client, body=scorer_request)
