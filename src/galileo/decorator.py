@@ -60,6 +60,7 @@ from galileo.schema.datasets import DatasetRecord
 from galileo.schema.metrics import LocalMetricConfig
 from galileo.schema.trace import SPAN_TYPE
 from galileo.utils import _get_timestamp
+from galileo.utils.distributed_tracing import extract_tracing_headers
 from galileo.utils.logging import is_concludable_span_type, is_textual_span_type
 from galileo.utils.serialization import EventSerializer, serialize_to_str
 from galileo.utils.singleton import GalileoLoggerSingleton
@@ -311,7 +312,10 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params, dataset_record)
+            if span_params is None:
+                return await func(*args, **kwargs)
+
+            self._prepare_call(span_type, span_params, dataset_record, func_args=args, func_kwargs=kwargs)
             result = None
 
             try:
@@ -365,7 +369,10 @@ class GalileoDecorator:
                 func_args=args,
                 func_kwargs=kwargs,
             )
-            self._prepare_call(span_type, span_params, dataset_record)
+            if span_params is None:
+                return func(*args, **kwargs)
+
+            self._prepare_call(span_type, span_params, dataset_record, func_args=args, func_kwargs=kwargs)
             result = None
 
             try:
@@ -553,7 +560,12 @@ class GalileoDecorator:
         return span_params.get(span_type, common_params)
 
     def _prepare_call(
-        self, span_type: Optional[SPAN_TYPE], span_params: dict[str, Any], dataset_record: Optional[DatasetRecord]
+        self,
+        span_type: Optional[SPAN_TYPE],
+        span_params: dict[str, Any],
+        dataset_record: Optional[DatasetRecord],
+        func_args: tuple = (),
+        func_kwargs: Optional[dict] = None,
     ) -> None:
         """
         Prepare the call for logging by setting up trace and span contexts.
@@ -564,23 +576,45 @@ class GalileoDecorator:
             Type of span to create
         span_params
             Parameters for the span
+        dataset_record
+            Optional dataset record
+        func_args
+            Function arguments (used to extract distributed tracing headers)
+        func_kwargs
+            Function keyword arguments (used to extract distributed tracing headers)
         """
-        client_instance = self.get_logger_instance()
+        # Extract distributed tracing headers from function arguments
+        trace_id, span_id = extract_tracing_headers(func_args=func_args, func_kwargs=func_kwargs)
+
+        client_instance = self.get_logger_instance(trace_id=trace_id, span_id=span_id)
         _logger.debug(f"client_instance {id(client_instance)} {client_instance}")
 
         input_ = span_params.get("input_serialized", "")
         name = span_params.get("name", "")
 
-        if not _trace_context.get():
-            # If the singleton logger has an active trace, use it
-            if client_instance.has_active_trace():
+        # If we have trace_id/span_id (distributed tracing in streaming mode), the logger should have loaded an existing trace
+        # Set the trace context immediately so we don't create a new trace
+        # In streaming mode, traces are created immediately so we can add spans to them
+        if trace_id or span_id:
+            # In streaming mode with distributed tracing, the trace should be in traces[0] after _init_trace() or _init_span()
+            if client_instance.traces:
+                # Trace is loaded in traces list - use it!
+                _trace_context.set(client_instance.traces[0])
+                _logger.debug(f"Set trace context from distributed tracing: trace_id={client_instance.traces[0].id}")
+            else:
+                # This should not happen in streaming mode - if trace_id/span_id was provided, trace should be loaded
+                raise ValueError(
+                    f"Distributed tracing trace not found in streaming mode (trace_id={trace_id}, span_id={span_id}). "
+                    "The trace should have been loaded during logger initialization."
+                )
+        elif not _trace_context.get():
+            # Normal mode: no distributed tracing, start a new trace if needed
+            if client_instance.has_active_trace() and client_instance.traces:
                 trace = client_instance.traces[-1]
             else:
-                # If no trace is available, start a new one
                 trace = client_instance.start_trace(
                     input=input_,
                     name=name,
-                    # TODO: add dataset_row_id
                     dataset_input=dataset_record.input if dataset_record else None,
                     dataset_output=dataset_record.output if dataset_record else None,
                     dataset_metadata=dataset_record.metadata if dataset_record else None,
@@ -707,7 +741,10 @@ class GalileoDecorator:
                 span_params["created_at"] = created_at
                 span_params["duration_ns"] = 0
 
-            logger = self.get_logger_instance()
+            # Get logger instance - extract trace_id/span_id from context for nested calls
+            # to ensure we get the same cached logger instance (cache key includes trace_id/span_id)
+            trace_id, span_id = extract_tracing_headers()
+            logger = self.get_logger_instance(trace_id=trace_id, span_id=span_id)
 
             # If the span type is a workflow or agent, conclude it
             _logger.debug(f"{span_type=} {stack=} {span_params=}")
@@ -829,7 +866,12 @@ class GalileoDecorator:
             self._handle_call_result(span_type, span_params, output)
 
     def get_logger_instance(
-        self, project: Optional[str] = None, log_stream: Optional[str] = None, experiment_id: Optional[str] = None
+        self,
+        project: Optional[str] = None,
+        log_stream: Optional[str] = None,
+        experiment_id: Optional[str] = None,
+        trace_id: Optional[str] = None,
+        span_id: Optional[str] = None,
     ) -> GalileoLogger:
         """
         Get the Galileo Logger instance for the current decorator context.
@@ -840,15 +882,28 @@ class GalileoDecorator:
             Optional project name to use
         log_stream
             Optional log stream name to use
+        experiment_id
+            Optional experiment ID to use
+        trace_id
+            Optional trace ID for distributed tracing (automatically extracted from headers if not provided)
+        span_id
+            Optional span ID for distributed tracing (automatically extracted from headers if not provided)
 
         Returns
         -------
         GalileoLogger instance configured with the specified project and log stream
         """
+        # Get mode from context (defaults to "batch" if not set)
+        # Mode will be overridden to "streaming" if trace_id/span_id is provided
+        mode = _mode_context.get() or "batch"
+
         return GalileoLoggerSingleton().get(
             project=project or _project_context.get(),
             log_stream=log_stream or _log_stream_context.get(),
             experiment_id=experiment_id or _experiment_id_context.get(),
+            mode=mode,
+            trace_id=trace_id,
+            span_id=span_id,
         )
 
     def get_current_project(self) -> Optional[str]:
@@ -976,6 +1031,7 @@ class GalileoDecorator:
         log_stream: Optional[str] = None,
         experiment_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
+        mode: str = "batch",
     ) -> None:
         """
         Initialize the context with a project and log stream. Optionally, it can also be used
@@ -994,15 +1050,19 @@ class GalileoDecorator:
             The experiment id. Defaults to None.
         local_metrics
             Local metrics configs to run on the traces/spans before submitting them for ingestion.  Defaults to None.
+        mode
+            The logging mode. Use "streaming" for distributed tracing or real-time logging.
+            Use "batch" for batch processing. Defaults to "batch".
         """
         GalileoLoggerSingleton().reset(project=project, log_stream=log_stream, experiment_id=experiment_id)
         GalileoLoggerSingleton().get(
-            project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics
+            project=project, log_stream=log_stream, experiment_id=experiment_id, local_metrics=local_metrics, mode=mode
         )
 
         _project_context.set(project)
         _log_stream_context.set(log_stream)
         _experiment_id_context.set(experiment_id)
+        _mode_context.set(mode)
         _span_stack_context.set([])
         _trace_context.set(None)
 
@@ -1044,6 +1104,35 @@ class GalileoDecorator:
             The id of the session to set.
         """
         self.get_logger_instance().set_session(session_id)
+
+    def get_tracing_headers(self) -> dict[str, str]:
+        """
+        Get current trace and span IDs as headers for distributed tracing.
+
+        Similar to LangSmith's `get_current_run_tree().to_headers()`, this method
+        returns a dictionary of headers that can be passed to HTTP requests to
+        propagate distributed tracing context.
+
+        Returns
+        -------
+        dict[str, str]
+            Dictionary with X-Trace-ID and/or X-Span-ID headers if available
+        """
+        headers = {}
+        trace = self.get_current_trace()
+        span_stack = self.get_current_span_stack()
+
+        if trace:
+            headers["X-Trace-ID"] = str(trace.id)
+
+        # Get the most recent span (top of stack)
+        if span_stack:
+            headers["X-Span-ID"] = str(span_stack[-1].id)
+        elif trace:
+            # If no span but we have a trace, use trace ID as span ID
+            headers["X-Span-ID"] = str(trace.id)
+
+        return headers
 
 
 galileo_context = GalileoDecorator()
