@@ -197,23 +197,12 @@ class TestCodeMetric:
 
     def test_code_metric_initialization(self, tmp_path):
         """Test basic CodeMetric initialization."""
-        # Create a temporary code file
-        code_file = tmp_path / "scorer.py"
-        code_file.write_text("def score(trace): return 1.0")
-
-        metric = CodeMetric(
-            name="test_code",
-            code_file_path=str(code_file),
-            node_level=StepType.llm,
-            description="Test code metric",
-            tags=["code"],
-        )
+        metric = CodeMetric(name="test_code", description="Test code metric", tags=["code"])
 
         assert metric.name == "test_code"
         assert metric.description == "Test code metric"
         assert metric.tags == ["code"]
         assert metric.scorer_type == ScorerTypes.CODE
-        assert metric.node_level == StepType.llm
         assert isinstance(metric, CodeMetric)
         assert isinstance(metric, Metric)
 
@@ -223,7 +212,7 @@ class TestCodeMetric:
         code_file = tmp_path / "scorer.py"
         code_file.write_text("def score(trace): return 1.0")
 
-        metric = CodeMetric(name="test_code", code_file_path=str(code_file), node_level=StepType.llm)
+        metric = CodeMetric(name="test_code")
 
         # CodeMetric.create() is now implemented, so this test should be updated
         # to verify it works or test it separately
@@ -264,14 +253,10 @@ class TestMetricBase:
         def my_scorer(trace_or_span):
             return 0.5
 
-        # Create a temporary code file for CodeMetric
-        code_file = tmp_path / "scorer.py"
-        code_file.write_text("def score(trace): return 1.0")
-
         metrics = [
             LlmMetric(name="llm", prompt="Rate this"),
             LocalMetric(name="local", scorer_fn=my_scorer),
-            CodeMetric(name="code", code_file_path=str(code_file), node_level=StepType.llm),
+            CodeMetric(name="code"),
             GalileoMetric(name="galileo"),
         ]
 
@@ -339,7 +324,7 @@ class TestMetricInheritance:
 
         assert isinstance(LlmMetric(name="llm", prompt="Rate"), Metric)
         assert isinstance(LocalMetric(name="local", scorer_fn=my_scorer), Metric)
-        assert isinstance(CodeMetric(name="code", code_file_path=str(code_file), node_level=StepType.llm), Metric)
+        assert isinstance(CodeMetric(name="code"), Metric)
         assert isinstance(GalileoMetric(name="galileo"), Metric)
 
     def test_metric_type_checking(self, tmp_path):
@@ -348,13 +333,9 @@ class TestMetricInheritance:
         def my_scorer(trace_or_span):
             return 0.5
 
-        # Create a temporary code file for CodeMetric
-        code_file = tmp_path / "scorer.py"
-        code_file.write_text("def score(trace): return 1.0")
-
         llm = LlmMetric(name="llm", prompt="Rate")
         local = LocalMetric(name="local", scorer_fn=my_scorer)
-        code = CodeMetric(name="code", code_file_path=str(code_file), node_level=StepType.llm)
+        code = CodeMetric(name="code")
         galileo = GalileoMetric(name="galileo")
 
         assert isinstance(llm, LlmMetric) and not isinstance(llm, LocalMetric)

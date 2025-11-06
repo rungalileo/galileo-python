@@ -566,53 +566,22 @@ class TestMetricMethods:
 class TestCodeMetricInitialization:
     """Test suite for CodeMetric initialization."""
 
-    def test_init_with_required_fields(self, reset_configuration: None, create_temp_code_file) -> None:
-        """Test initializing a CodeMetric with required fields."""
-        code_file = create_temp_code_file()
-
-        metric = CodeMetric(name="Test Code Metric", code_file_path=str(code_file), node_level=StepType.llm)
+    def test_init_with_minimal_fields(self, reset_configuration: None) -> None:
+        """Test initializing a CodeMetric with just a name."""
+        metric = CodeMetric(name="Test Code Metric")
 
         assert metric.name == "Test Code Metric"
-        assert metric.code_file_path == str(code_file)
-        assert metric.node_level == StepType.llm
         assert metric.scorer_type == ScorerTypes.CODE
         assert metric.id is None
         assert metric.sync_state == SyncState.LOCAL_ONLY
 
-    def test_init_with_all_fields(self, reset_configuration: None, create_temp_code_file) -> None:
-        """Test initializing a CodeMetric with all fields."""
-        code_file = create_temp_code_file()
-
-        metric = CodeMetric(
-            name="Test Code Metric",
-            code_file_path=str(code_file),
-            node_level=StepType.workflow,
-            description="Test code metric description",
-            tags=["test", "code"],
-        )
+    def test_init_with_all_fields(self, reset_configuration: None) -> None:
+        """Test initializing a CodeMetric with all optional fields."""
+        metric = CodeMetric(name="Test Code Metric", description="Test code metric description", tags=["test", "code"])
 
         assert metric.name == "Test Code Metric"
-        assert metric.code_file_path == str(code_file)
-        assert metric.node_level == StepType.workflow
         assert metric.description == "Test code metric description"
         assert metric.tags == ["test", "code"]
-
-    def test_init_without_code_file_path_raises_error(self, reset_configuration: None) -> None:
-        """Test initializing a CodeMetric without code_file_path raises TypeError."""
-        with pytest.raises(TypeError, match="missing 1 required keyword-only argument: 'code_file_path'"):
-            CodeMetric(name="Test Metric", node_level=StepType.llm)  # type: ignore[call-arg]
-
-    def test_init_without_node_level_raises_error(self, reset_configuration: None, create_temp_code_file) -> None:
-        """Test initializing a CodeMetric without node_level raises TypeError."""
-        code_file = create_temp_code_file()
-
-        with pytest.raises(TypeError, match="missing 1 required keyword-only argument: 'node_level'"):
-            CodeMetric(name="Test Metric", code_file_path=str(code_file))  # type: ignore[call-arg]
-
-    def test_init_with_nonexistent_file_raises_error(self, reset_configuration: None) -> None:
-        """Test initializing a CodeMetric with nonexistent file raises ValidationError."""
-        with pytest.raises(ValidationError, match="Code file not found"):
-            CodeMetric(name="Test Metric", code_file_path="/path/to/nonexistent/file.py", node_level=StepType.llm)
 
 
 class TestCodeMetricCreate:
@@ -657,13 +626,9 @@ class TestCodeMetricCreate:
         mock_scorers_class.return_value = mock_scorers_service
 
         # Create the metric
-        metric = CodeMetric(
-            name="Test Code Metric",
-            code_file_path=str(code_file),
-            node_level=StepType.llm,
-            description="Test description",
-            tags=["test"],
-        ).create()
+        metric = CodeMetric(name="Test Code Metric", description="Test description", tags=["test"]).create(
+            code_file_path=str(code_file), node_level=StepType.llm
+        )
 
         # Verify scorer creation was called
         mock_create_scorers.sync.assert_called_once()
@@ -706,10 +671,10 @@ class TestCodeMetricCreate:
         # Mock scorer creation to fail
         mock_create_scorers.sync.side_effect = Exception("Scorer creation failed")
 
-        metric = CodeMetric(name="Test Code Metric", code_file_path=str(code_file), node_level=StepType.llm)
+        metric = CodeMetric(name="Test Code Metric")
 
         with pytest.raises(Exception, match="Scorer creation failed"):
-            metric.create()
+            metric.create(code_file_path=str(code_file), node_level=StepType.llm)
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
@@ -740,10 +705,10 @@ class TestCodeMetricCreate:
         # Mock version creation to fail
         mock_create_version.sync.side_effect = Exception("Version creation failed")
 
-        metric = CodeMetric(name="Test Code Metric", code_file_path=str(code_file), node_level=StepType.llm)
+        metric = CodeMetric(name="Test Code Metric")
 
         with pytest.raises(Exception, match="Version creation failed"):
-            metric.create()
+            metric.create(code_file_path=str(code_file), node_level=StepType.llm)
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
@@ -787,14 +752,12 @@ class TestCodeMetricCreate:
             mock_scorers_class.return_value = mock_scorers_service
 
             # Create the metric
-            metric = CodeMetric(
-                name=f"Test Code Metric {node_level}", code_file_path=str(code_file), node_level=node_level
-            ).create()
+            metric = CodeMetric(name=f"Test Code Metric {node_level}").create(
+                code_file_path=str(code_file), node_level=node_level
+            )
 
             # Verify the metric was created successfully
             assert metric.is_synced()
-            # Verify the node_level is set on the metric itself
-            assert metric.node_level == node_level
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
     def test_create_reads_code_file_correctly(
@@ -837,7 +800,7 @@ def score(trace):
             mock_scorers_class.return_value = mock_scorers_service
 
             # Create the metric
-            CodeMetric(name="Complex Scorer", code_file_path=str(code_file), node_level=StepType.llm).create()
+            CodeMetric(name="Complex Scorer").create(code_file_path=str(code_file), node_level=StepType.llm)
 
             # Verify the code file was read as bytes
             version_call = mock_create_version.sync.call_args
@@ -856,17 +819,15 @@ def score(trace):
         create_temp_code_file,
         mock_api_client,
     ) -> None:
-        """Test that create() raises ValidationError when code_file_path is None."""
+        """Test that create() raises ValidationError when code_file_path doesn't exist."""
         # Mock the config
         mock_config.return_value.api_client = mock_api_client
 
-        # Create a metric and manually set code_file_path to None (simulating a retrieved metric)
-        code_file = create_temp_code_file()
-        metric = CodeMetric(name="Test Code Metric", code_file_path=str(code_file), node_level=StepType.llm)
-        metric.code_file_path = None  # Simulate retrieved metric without file path
+        # Create a metric and pass a non-existent file path
+        metric = CodeMetric(name="Test Code Metric")
 
-        with pytest.raises(ValidationError, match="'code_file_path' must be provided"):
-            metric.create()
+        with pytest.raises(ValidationError, match="Code file not found"):
+            metric.create(code_file_path="/nonexistent/file.py", node_level=StepType.llm)
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
     @patch("galileo.__future__.metric.create_scorers_post")
@@ -888,10 +849,10 @@ def score(trace):
         # Mock scorer creation to return None
         mock_create_scorers.sync.return_value = None
 
-        metric = CodeMetric(name="Test Code Metric", code_file_path=str(code_file), node_level=StepType.llm)
+        metric = CodeMetric(name="Test Code Metric")
 
         with pytest.raises(ValueError, match="Failed to create code-based metric: No response from API"):
-            metric.create()
+            metric.create(code_file_path=str(code_file), node_level=StepType.llm)
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
@@ -922,10 +883,10 @@ def score(trace):
         # Mock version creation to return None
         mock_create_version.sync.return_value = None
 
-        metric = CodeMetric(name="Test Code Metric", code_file_path=str(code_file), node_level=StepType.llm)
+        metric = CodeMetric(name="Test Code Metric")
 
         with pytest.raises(ValueError, match="Failed to create code-based metric: No response from API"):
-            metric.create()
+            metric.create(code_file_path=str(code_file), node_level=StepType.llm)
 
         assert metric.sync_state == SyncState.FAILED_SYNC
 
@@ -950,11 +911,11 @@ def score(trace):
         validation_error = ValidationError("Invalid configuration")
         mock_create_scorers.sync.side_effect = validation_error
 
-        metric = CodeMetric(name="Test Code Metric", code_file_path=str(code_file), node_level=StepType.llm)
+        metric = CodeMetric(name="Test Code Metric")
 
         # ValidationError should be propagated as-is, not wrapped
         with pytest.raises(ValidationError, match="Invalid configuration"):
-            metric.create()
+            metric.create(code_file_path=str(code_file), node_level=StepType.llm)
 
     @patch("galileo.__future__.metric.GalileoPythonConfig.get")
     @patch("galileo.__future__.metric.create_scorers_post")
@@ -977,10 +938,10 @@ def score(trace):
         runtime_error = RuntimeError("Unexpected error")
         mock_create_scorers.sync.side_effect = runtime_error
 
-        metric = CodeMetric(name="Test Code Metric", code_file_path=str(code_file), node_level=StepType.llm)
+        metric = CodeMetric(name="Test Code Metric")
 
         with pytest.raises(RuntimeError, match="Unexpected error"):
-            metric.create()
+            metric.create(code_file_path=str(code_file), node_level=StepType.llm)
 
         # Verify the state was set to FAILED_SYNC
         assert metric.sync_state == SyncState.FAILED_SYNC

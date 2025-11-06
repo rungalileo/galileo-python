@@ -702,11 +702,6 @@ class CodeMetric(Metric):
     This metric type is for code-based scorers that execute custom code
     to evaluate traces/spans.
 
-    Attributes
-    ----------
-        code_file_path (str | None): Path to the code file for the scorer.
-        node_level (StepType | None): Node level for the metric.
-
     Examples
     --------
         # Get existing code metric
@@ -723,48 +718,29 @@ class CodeMetric(Metric):
         ).create()
     """
 
-    # Type annotations for code-specific attributes (optional for retrieved metrics)
-    code_file_path: str | None
-    node_level: StepType | None
-
     def __init__(
-        self,
-        name: str,
-        *,
-        code_file_path: str,
-        node_level: StepType,
-        description: str = "",
-        tags: list[str] | None = None,
-        version: int | None = None,
+        self, name: str, *, description: str = "", tags: list[str] | None = None, version: int | None = None
     ) -> None:
         """
         Initialize a Code metric.
 
         Args:
             name: The name of the metric.
-            code_file_path: Path to the code file for the scorer (required for creation).
-            node_level: Node level for the metric (required for creation).
             description: Description of the metric.
             tags: Tags associated with the metric.
             version: Specific version to reference (for existing metrics).
-
-        Raises
-        ------
-            ValidationError: If code_file_path file doesn't exist.
         """
         super().__init__(name=name, description=description, tags=tags, version=version)
 
-        # Validate that the file exists
-        if not os.path.isfile(code_file_path):
-            raise ValidationError(f"Code file not found: {code_file_path}")
-
-        self.code_file_path = code_file_path
-        self.node_level = node_level
         self.scorer_type = ScorerTypes.CODE
 
-    def create(self) -> CodeMetric:
+    def create(self, *, code_file_path: str, node_level: StepType) -> CodeMetric:
         """
         Persist this Code metric to the API.
+
+        Args:
+            code_file_path: Path to the Python file containing the scorer code (required).
+            node_level: Node level for the metric (required).
 
         Returns
         -------
@@ -772,20 +748,24 @@ class CodeMetric(Metric):
 
         Raises
         ------
-            ValidationError: If configuration is invalid or code_file_path is not set.
+            ValidationError: If configuration is invalid or code file doesn't exist.
             Exception: If the API call fails.
 
         Examples
         --------
             metric = CodeMetric(
                 name="custom_code_scorer",
+                description="Custom code-based scorer",
+                tags=["custom", "code"],
+            ).create(
                 code_file_path="./scorers/my_scorer.py",
                 node_level=StepType.llm
-            ).create()
+            )
             assert metric.is_synced()
         """
-        if self.code_file_path is None:
-            raise ValidationError("'code_file_path' must be provided to create a code-based metric.")
+        # Validate that the file exists
+        if not os.path.isfile(code_file_path):
+            raise ValidationError(f"Code file not found: {code_file_path}")
 
         try:
             logger.info(f"CodeMetric.create: name='{self.name}' - started")
@@ -794,7 +774,11 @@ class CodeMetric(Metric):
 
             # Step 1: Create the scorer
             scorer_request = CreateScorerRequest(
-                name=self.name, scorer_type=ScorerTypes.CODE, description=self.description, tags=self.tags
+                name=self.name,
+                scorer_type=ScorerTypes.CODE,
+                description=self.description,
+                tags=self.tags,
+                scoreable_node_types=[node_level.value],
             )
 
             scorer_response = create_scorers_post.sync(client=config.api_client, body=scorer_request)
@@ -805,7 +789,7 @@ class CodeMetric(Metric):
 
             # Step 2: Create the code scorer version with file upload
             # Read the code file
-            with open(self.code_file_path, "rb") as f:
+            with open(code_file_path, "rb") as f:
                 code_file = File(payload=f)
                 version_body = BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost(file=code_file)
 
@@ -838,7 +822,7 @@ class CodeMetric(Metric):
 
     def __repr__(self) -> str:
         """Detailed string representation of the metric."""
-        return f"CodeMetric(name='{self.name}', id='{self.id}', code_file_path='{self.code_file_path}')"
+        return f"CodeMetric(name='{self.name}', id='{self.id}'')"
 
 
 class GalileoMetric(Metric):
