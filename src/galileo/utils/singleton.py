@@ -5,9 +5,33 @@ from typing import ClassVar, Optional
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.logger import GalileoLogger
+from galileo.logger.logger import GalileoLoggerException
 from galileo.schema.metrics import LocalMetricConfig
 
 _logger = logging.getLogger(__name__)
+
+
+def _validate_distributed_tracing_mode(trace_id: Optional[str], span_id: Optional[str], mode: str) -> None:
+    """
+    Validate that distributed tracing (trace_id/span_id) is only used in streaming mode.
+
+    Parameters
+    ----------
+    trace_id
+        Optional trace ID for distributed tracing
+    span_id
+        Optional span ID for distributed tracing
+    mode
+        The logger mode (should be "streaming" if trace_id or span_id are provided)
+
+    Raises
+    ------
+    GalileoLoggerException
+        If trace_id or span_id are provided but mode is not "streaming"
+    """
+    if trace_id or span_id:
+        if mode != "streaming":
+            raise GalileoLoggerException("trace_id or span_id can only be used in streaming mode")
 
 
 class GalileoLoggerSingleton:
@@ -24,7 +48,7 @@ class GalileoLoggerSingleton:
 
     _instance = None  # Class-level attribute to hold the singleton instance.
     _lock = threading.Lock()  # Lock for thread-safe instantiation and operations.
-    _galileo_loggers: ClassVar[dict[tuple[str, str, str, str], GalileoLogger]] = {}  # Cache for loggers.
+    _galileo_loggers: ClassVar[dict[tuple[str, ...], GalileoLogger]] = {}  # Cache for loggers.
 
     def __new__(cls) -> "GalileoLoggerSingleton":
         """
@@ -39,14 +63,17 @@ class GalileoLoggerSingleton:
             with cls._lock:
                 if not cls._instance:  # Double-checked locking.
                     cls._instance = super().__new__(cls)
-                    # Initialize the logger dictionary in the new instance.
-                    cls._instance._galileo_loggers = {}
         return cls._instance
 
     @staticmethod
     def _get_key(
-        project: Optional[str], log_stream: Optional[str], experiment_id: Optional[str] = None, mode: str = "batch"
-    ) -> tuple[str, str, str, str]:
+        project: Optional[str],
+        log_stream: Optional[str],
+        experiment_id: Optional[str] = None,
+        mode: str = "batch",
+        trace_id: Optional[str] = None,
+        span_id: Optional[str] = None,
+    ) -> tuple[str, ...]:
         """
         Generate a key tuple based on project and log_stream parameters.
 
@@ -64,11 +91,16 @@ class GalileoLoggerSingleton:
             The experiment ID.
         mode: (Optional[str])
             The logger mode.
+        trace_id: (Optional[str])
+            Trace ID for distributed tracing (included in cache key for proper isolation).
+        span_id: (Optional[str])
+            Span ID for distributed tracing (included in cache key for proper isolation).
 
         Returns
         -------
-        Tuple[str, str, str, str]
-            A tuple key (project, log_stream, experiment_id, mode) used for caching.
+        Tuple[str, ...]
+            A tuple key used for caching. Includes trace_id/span_id when provided for distributed tracing
+            to ensure nested calls within the same request reuse the same logger instance.
         """
         _logger.debug("current thread is %s", threading.current_thread().name)
 
@@ -81,10 +113,16 @@ class GalileoLoggerSingleton:
         if log_stream is None:
             log_stream = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
 
-        if experiment_id is not None:
-            return (*key, project, experiment_id)
+        base_key = (*key, project, experiment_id) if experiment_id is not None else (*key, project, log_stream)
 
-        return (*key, project, log_stream)
+        # For distributed tracing, include trace_id/span_id in the cache key
+        # This allows nested calls within the same request to reuse the same logger instance
+        if trace_id or span_id:
+            # Assert that mode is streaming when distributed tracing is used
+            _validate_distributed_tracing_mode(trace_id, span_id, mode)
+            return (*base_key, trace_id or "", span_id or "")
+
+        return base_key
 
     def get(
         self,
@@ -94,6 +132,8 @@ class GalileoLoggerSingleton:
         experiment_id: Optional[str] = None,
         mode: str = "batch",
         local_metrics: Optional[list[LocalMetricConfig]] = None,
+        trace_id: Optional[str] = None,
+        span_id: Optional[str] = None,
     ) -> GalileoLogger:
         """
         Retrieve an existing GalileoLogger or create a new one if it does not exist.
@@ -113,14 +153,26 @@ class GalileoLoggerSingleton:
         local_metrics (Optional[list[LocalScorerConfig]], optional)
             Local scorers to run on traces/spans.
             Only used if initializing a new logger, ignored otherwise.  Defaults to None.
+        trace_id (Optional[str], optional)
+            Trace ID for distributed tracing. If provided, logger will use streaming mode.
+            Defaults to None.
+        span_id (Optional[str], optional)
+            Span ID for distributed tracing. If provided, logger will use streaming mode.
+            Defaults to None.
 
         Returns
         -------
         GalileoLogger
             An instance of GalileoLogger corresponding to the key.
         """
-        # Compute the key based on provided parameters or environment variables.
-        key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id, mode)
+        # If trace_id or span_id is provided, use streaming mode
+        if trace_id or span_id:
+            mode = "streaming"
+            # Assert that mode is streaming when distributed tracing is used
+            _validate_distributed_tracing_mode(trace_id, span_id, mode)
+
+        # Compute cache key (includes trace_id/span_id for distributed tracing)
+        key = GalileoLoggerSingleton._get_key(project, log_stream, experiment_id, mode, trace_id, span_id)
 
         # First check without acquiring lock for performance.
         if key in self._galileo_loggers:
@@ -139,11 +191,13 @@ class GalileoLoggerSingleton:
                 "experiment_id": experiment_id,
                 "local_metrics": local_metrics,
                 "experimental": {"mode": mode},
+                "trace_id": trace_id,
+                "span_id": span_id,
             }
             # Create the logger with filtered kwargs.
             logger = GalileoLogger(**{k: v for k, v in galileo_client_init_args.items() if v is not None})
 
-            # Cache the newly created logger.
+            # Cache the logger
             if logger:
                 self._galileo_loggers[key] = logger
             return logger
@@ -218,14 +272,14 @@ class GalileoLoggerSingleton:
             for logger in self._galileo_loggers.values():
                 logger.flush()
 
-    def get_all_loggers(self) -> dict[tuple[str, str, str, str], GalileoLogger]:
+    def get_all_loggers(self) -> dict[tuple[str, ...], GalileoLogger]:
         """
         Retrieve a copy of the dictionary containing all active loggers.
 
         Returns
         -------
-        Dict[Tuple[str, str, str], GalileoLogger]:
-            A dictionary mapping keys (project, log_stream) to their corresponding GalileoLogger instances.
+        Dict[Tuple[str, ...], GalileoLogger]:
+            A dictionary mapping keys (project, log_stream, ...) to their corresponding GalileoLogger instances.
         """
         # Return a shallow copy of the loggers dictionary to prevent external modifications.
-        return dict(self._galileo_loggers)
+        return self._galileo_loggers.copy()
