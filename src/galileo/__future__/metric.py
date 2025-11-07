@@ -707,7 +707,7 @@ class LlmMetric(Metric):
 
 
 class CodeMetric(Metric):
-    """
+    r"""
     Code-based metric.
 
     This metric type is for code-based scorers that execute custom code
@@ -716,6 +716,7 @@ class CodeMetric(Metric):
     Attributes
     ----------
         node_level (StepType | None): Node level for the metric.
+        code (str | None): The Python code for the scorer.
 
     Examples
     --------
@@ -723,22 +724,31 @@ class CodeMetric(Metric):
         metric = Metric.get(name="my-code-metric")
         assert isinstance(metric, CodeMetric)
 
-        # Create code metric
+        # Create code metric with inline code
         metric = CodeMetric(
             name="custom_code_scorer",
+            code="def scorer_fn(step_object):\\n    return 1.0",
             description="Custom code-based scorer",
             tags=["custom", "code"],
             node_level=StepType.llm,
-        ).create(code_file_path="./scorers/my_scorer.py")
+        ).create()
+
+        # Load code from file
+        metric = CodeMetric(
+            name="custom_code_scorer",
+            node_level=StepType.llm,
+        ).load_code("./scorers/my_scorer.py").create()
     """
 
     # Type annotations for code-specific attributes
     node_level: StepType | None
+    code: str | None
 
     def __init__(
         self,
         name: str,
         *,
+        code: str | None = None,
         node_level: StepType | None = None,
         description: str = "",
         tags: list[str] | None = None,
@@ -749,6 +759,7 @@ class CodeMetric(Metric):
 
         Args:
             name: The name of the metric.
+            code: The Python code for the scorer (optional, can be set later or loaded from file).
             node_level: Node level for the metric. Defaults to StepType.llm.
             description: Description of the metric.
             tags: Tags associated with the metric.
@@ -756,15 +767,47 @@ class CodeMetric(Metric):
         """
         super().__init__(name=name, description=description, tags=tags, version=version)
 
+        self.code = code
         self.node_level = node_level or StepType.llm
         self.scorer_type = ScorerTypes.CODE
 
-    def create(self, *, code_file_path: str) -> CodeMetric:
+    def load_code(self, code_file_path: str) -> CodeMetric:
         """
-        Persist this Code metric to the API.
+        Load code from a file into this metric instance.
 
         Args:
-            code_file_path: Path to the Python file containing the scorer code (required).
+            code_file_path: Path to the Python file containing the scorer code.
+
+        Returns
+        -------
+            CodeMetric: This metric instance with code loaded from the file (for chaining).
+
+        Raises
+        ------
+            ValidationError: If the code file doesn't exist or can't be read.
+
+        Examples
+        --------
+            # Load code from file
+            metric = CodeMetric(
+                name="custom_code_scorer",
+                node_level=StepType.llm,
+            ).load_code("./scorers/my_scorer.py").create()
+        """
+        if not os.path.isfile(code_file_path):
+            raise ValidationError(f"Code file not found: {code_file_path}")
+
+        try:
+            with open(code_file_path, encoding="utf-8") as f:
+                self.code = f.read()
+        except Exception as e:
+            raise ValidationError(f"Failed to read code file {code_file_path}: {e}")
+
+        return self
+
+    def create(self) -> CodeMetric:
+        r"""
+        Persist this Code metric to the API.
 
         Returns
         -------
@@ -772,22 +815,31 @@ class CodeMetric(Metric):
 
         Raises
         ------
-            ValidationError: If configuration is invalid or code file doesn't exist.
+            ValidationError: If code is not set or configuration is invalid.
             Exception: If the API call fails.
 
         Examples
         --------
+            # Create with inline code
             metric = CodeMetric(
                 name="custom_code_scorer",
-                description="Custom code-based scorer",
-                tags=["custom", "code"],
+                code="def scorer_fn(step_object):\\n    return 1.0",
                 node_level=StepType.llm,
-            ).create(code_file_path="./scorers/my_scorer.py")
+            ).create()
+            assert metric.is_synced()
+
+            # Create by loading from file
+            metric = CodeMetric(
+                name="custom_code_scorer",
+                node_level=StepType.llm,
+            ).load_code("./scorers/my_scorer.py").create()
             assert metric.is_synced()
         """
-        # Validate that the file exists
-        if not os.path.isfile(code_file_path):
-            raise ValidationError(f"Code file not found: {code_file_path}")
+        # Validate that code is set
+        if self.code is None:
+            raise ValidationError(
+                "Code is not set. Either pass 'code' to __init__() or use CodeMetric.load_code() to load from a file."
+            )
 
         try:
             logger.info(f"CodeMetric.create: name='{self.name}' - started")
@@ -795,8 +847,7 @@ class CodeMetric(Metric):
             config = GalileoPythonConfig.get()
 
             # Ensure node_level is set (should always be set in __init__, but checking for type safety)
-            if self.node_level is None:
-                self.node_level = StepType.llm
+            assert self.node_level is not None
 
             # Step 1: Create the scorer
             scorer_request = CreateScorerRequest(
@@ -814,31 +865,31 @@ class CodeMetric(Metric):
                 raise ValueError("Failed to create code-based metric: No response from API")
 
             # Step 2: Create the code scorer version with file upload
-            # Read the code file
-            with open(code_file_path, "rb") as f:
-                code_file = File(payload=f)
-                version_body = BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost(file=code_file)
+            # Convert the code string to bytes for file upload
+            code_bytes = self.code.encode("utf-8")
+            code_file = File(payload=code_bytes, file_name="scorer.py")
+            version_body = BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost(file=code_file)
 
-                created_version = create_code_scorer_version_scorers_scorer_id_version_code_post.sync(
-                    scorer_id=scorer_response.id, client=config.api_client, body=version_body
+            created_version = create_code_scorer_version_scorers_scorer_id_version_code_post.sync(
+                scorer_id=scorer_response.id, client=config.api_client, body=version_body
+            )
+
+            if created_version is None:
+                logger.debug(
+                    "CodeMetric.create: No response from create_code_scorer_version_scorers_scorer_id_version_code_post"
                 )
+                raise ValueError("Failed to create code-based metric: No response from API")
 
-                if created_version is None:
-                    logger.debug(
-                        "CodeMetric.create: No response from create_code_scorer_version_scorers_scorer_id_version_code_post"
-                    )
-                    raise ValueError("Failed to create code-based metric: No response from API")
+            # Update attributes from response
+            self.id = str(scorer_response.id)
+            self.created_at = scorer_response.created_at
+            self.updated_at = scorer_response.updated_at
 
-                # Update attributes from response
-                self.id = str(scorer_response.id)
-                self.created_at = scorer_response.created_at
-                self.updated_at = scorer_response.updated_at
+            # Refresh to get full scorer details
+            self.refresh()
 
-                # Refresh to get full scorer details
-                self.refresh()
-
-                logger.info(f"CodeMetric.create: id='{self.id}' - completed")
-                return self
+            logger.info(f"CodeMetric.create: id='{self.id}' - completed")
+            return self
         except ValidationError:
             raise
         except Exception as e:
