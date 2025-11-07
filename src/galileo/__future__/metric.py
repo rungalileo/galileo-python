@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import builtins
 import logging
+import os
 from abc import ABC
 from datetime import datetime
 from typing import Any, Callable
@@ -9,9 +10,19 @@ from typing import Any, Callable
 from galileo.__future__.configuration import Configuration
 from galileo.__future__.shared.base import StateManagementMixin, SyncState
 from galileo.__future__.shared.exceptions import ValidationError
+from galileo.config import GalileoPythonConfig
 from galileo.metrics import Metrics
-from galileo.resources.models import OutputTypeEnum, ScorerTypes
-from galileo.resources.types import Unset
+from galileo.resources.api.data import (
+    create_code_scorer_version_scorers_scorer_id_version_code_post,
+    create_scorers_post,
+)
+from galileo.resources.models import (
+    BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost,
+    CreateScorerRequest,
+    OutputTypeEnum,
+    ScorerTypes,
+)
+from galileo.resources.types import File, Unset
 from galileo.schema.metrics import GalileoScorers, LocalMetricConfig
 from galileo.schema.metrics import Metric as LegacyMetric
 from galileo.scorers import Scorers
@@ -363,6 +374,17 @@ class Metric(StateManagementMixin, ABC):
             else:
                 self.node_level = None
 
+        # Code-specific attributes (only set if this is a CodeMetric)
+        if isinstance(self, CodeMetric):
+            # Extract scoreable node types
+            if not isinstance(scorer_response.scoreable_node_types, Unset) and scorer_response.scoreable_node_types:
+                try:
+                    self.node_level = StepType(scorer_response.scoreable_node_types[0])
+                except (ValueError, IndexError):
+                    self.node_level = None
+            else:
+                self.node_level = None
+
     def update(self, **kwargs: Any) -> None:
         """
         Update this metric's properties.
@@ -685,45 +707,199 @@ class LlmMetric(Metric):
 
 
 class CodeMetric(Metric):
-    """
-    Code-based metric (future support).
+    r"""
+    Code-based metric.
 
     This metric type is for code-based scorers that execute custom code
     to evaluate traces/spans.
 
-    Note: Full support for creating CodeMetric instances is not yet implemented.
+    Attributes
+    ----------
+        node_level (StepType | None): Node level for the metric.
+        code (str | None): The Python code for the scorer.
 
     Examples
     --------
         # Get existing code metric
         metric = Metric.get(name="my-code-metric")
         assert isinstance(metric, CodeMetric)
+
+        # Create code metric with inline code
+        metric = CodeMetric(
+            name="custom_code_scorer",
+            code="def scorer_fn(step_object):\\n    return 1.0",
+            description="Custom code-based scorer",
+            tags=["custom", "code"],
+            node_level=StepType.llm,
+        ).create()
+
+        # Load code from file
+        metric = CodeMetric(
+            name="custom_code_scorer",
+            node_level=StepType.llm,
+        ).load_code("./scorers/my_scorer.py").create()
     """
 
+    # Type annotations for code-specific attributes
+    node_level: StepType | None
+    code: str | None
+
     def __init__(
-        self, name: str, *, description: str = "", tags: list[str] | None = None, version: int | None = None
+        self,
+        name: str,
+        *,
+        code: str | None = None,
+        node_level: StepType | None = None,
+        description: str = "",
+        tags: list[str] | None = None,
+        version: int | None = None,
     ) -> None:
         """
         Initialize a Code metric.
 
         Args:
             name: The name of the metric.
+            code: The Python code for the scorer (optional, can be set later or loaded from file).
+            node_level: Node level for the metric. Defaults to StepType.llm.
             description: Description of the metric.
             tags: Tags associated with the metric.
             version: Specific version to reference (for existing metrics).
         """
         super().__init__(name=name, description=description, tags=tags, version=version)
+
+        self.code = code
+        self.node_level = node_level or StepType.llm
         self.scorer_type = ScorerTypes.CODE
 
-    def create(self) -> CodeMetric:
+    def load_code(self, code_file_path: str) -> CodeMetric:
         """
-        Create a code metric.
+        Load code from a file into this metric instance.
+
+        Args:
+            code_file_path: Path to the Python file containing the scorer code.
+
+        Returns
+        -------
+            CodeMetric: This metric instance with code loaded from the file (for chaining).
 
         Raises
         ------
-            NotImplementedError: Creating code metrics is not yet supported.
+            ValidationError: If the code file doesn't exist or can't be read.
+
+        Examples
+        --------
+            # Load code from file
+            metric = CodeMetric(
+                name="custom_code_scorer",
+                node_level=StepType.llm,
+            ).load_code("./scorers/my_scorer.py").create()
         """
-        raise NotImplementedError("Creating CODE metrics is not yet supported by the API.")
+        if not os.path.isfile(code_file_path):
+            raise ValidationError(f"Code file not found: {code_file_path}")
+
+        try:
+            with open(code_file_path, encoding="utf-8") as f:
+                self.code = f.read()
+        except Exception as e:
+            raise ValidationError(f"Failed to read code file {code_file_path}: {e}")
+
+        return self
+
+    def create(self) -> CodeMetric:
+        r"""
+        Persist this Code metric to the API.
+
+        Returns
+        -------
+            CodeMetric: This metric instance with updated attributes from the API.
+
+        Raises
+        ------
+            ValidationError: If code is not set or configuration is invalid.
+            Exception: If the API call fails.
+
+        Examples
+        --------
+            # Create with inline code
+            metric = CodeMetric(
+                name="custom_code_scorer",
+                code="def scorer_fn(step_object):\\n    return 1.0",
+                node_level=StepType.llm,
+            ).create()
+            assert metric.is_synced()
+
+            # Create by loading from file
+            metric = CodeMetric(
+                name="custom_code_scorer",
+                node_level=StepType.llm,
+            ).load_code("./scorers/my_scorer.py").create()
+            assert metric.is_synced()
+        """
+        # Validate that code is set
+        if self.code is None:
+            raise ValidationError(
+                "Code is not set. Either pass 'code' to __init__() or use CodeMetric.load_code() to load from a file."
+            )
+
+        try:
+            logger.info(f"CodeMetric.create: name='{self.name}' - started")
+
+            config = GalileoPythonConfig.get()
+
+            # Ensure node_level is set (should always be set in __init__, but checking for type safety)
+            assert self.node_level is not None
+
+            # Step 1: Create the scorer
+            scorer_request = CreateScorerRequest(
+                name=self.name,
+                scorer_type=ScorerTypes.CODE,
+                description=self.description,
+                tags=self.tags,
+                scoreable_node_types=[self.node_level.value],
+            )
+
+            scorer_response = create_scorers_post.sync(client=config.api_client, body=scorer_request)
+
+            if scorer_response is None:
+                logger.debug("CodeMetric.create: No response from create_scorers_post")
+                raise ValueError("Failed to create code-based metric: No response from API")
+
+            # Step 2: Create the code scorer version with file upload
+            # Convert the code string to bytes for file upload
+            code_bytes = self.code.encode("utf-8")
+            code_file = File(payload=code_bytes, file_name="scorer.py")
+            version_body = BodyCreateCodeScorerVersionScorersScorerIdVersionCodePost(file=code_file)
+
+            created_version = create_code_scorer_version_scorers_scorer_id_version_code_post.sync(
+                scorer_id=scorer_response.id, client=config.api_client, body=version_body
+            )
+
+            if created_version is None:
+                logger.debug(
+                    "CodeMetric.create: No response from create_code_scorer_version_scorers_scorer_id_version_code_post"
+                )
+                raise ValueError("Failed to create code-based metric: No response from API")
+
+            # Update attributes from response
+            self.id = str(scorer_response.id)
+            self.created_at = scorer_response.created_at
+            self.updated_at = scorer_response.updated_at
+
+            # Refresh to get full scorer details
+            self.refresh()
+
+            logger.info(f"CodeMetric.create: id='{self.id}' - completed")
+            return self
+        except ValidationError:
+            raise
+        except Exception as e:
+            self._set_state(SyncState.FAILED_SYNC, error=e)
+            logger.error(f"CodeMetric.create: name='{self.name}' - failed: {e}")
+            raise
+
+    def __repr__(self) -> str:
+        """Detailed string representation of the metric."""
+        return f"CodeMetric(name='{self.name}', id='{self.id}'')"
 
 
 class GalileoMetric(Metric):

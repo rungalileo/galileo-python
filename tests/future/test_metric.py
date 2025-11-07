@@ -1,13 +1,90 @@
+from __future__ import annotations
+
 from unittest.mock import MagicMock, patch
 from uuid import uuid4
 
 import pytest
 
-from galileo.__future__ import LlmMetric, Metric
+from galileo.__future__ import CodeMetric, LlmMetric, Metric
 from galileo.__future__.shared.base import SyncState
 from galileo.__future__.shared.exceptions import ValidationError
 from galileo.resources.models import OutputTypeEnum, ScorerTypes
 from galileo_core.schemas.logging.step import StepType
+
+# Test fixtures and helper functions
+
+
+@pytest.fixture
+def mock_api_client():
+    """Create a mock API client."""
+    return MagicMock()
+
+
+@pytest.fixture
+def mock_scorer_response():
+    """Create a mock scorer response factory."""
+
+    def _create_scorer_response(scorer_id: str, name: str, scorer_type: ScorerTypes = ScorerTypes.CODE):
+        mock_response = MagicMock()
+        mock_response.id = scorer_id
+        mock_response.name = name
+        mock_response.scorer_type = scorer_type
+        mock_response.created_at = MagicMock()
+        mock_response.updated_at = MagicMock()
+        return mock_response
+
+    return _create_scorer_response
+
+
+@pytest.fixture
+def mock_version_response():
+    """Create a mock version response factory."""
+
+    def _create_version_response(scorer_id: str):
+        mock_response = MagicMock()
+        mock_response.id = str(uuid4())
+        mock_response.scorer_id = scorer_id
+        return mock_response
+
+    return _create_version_response
+
+
+@pytest.fixture
+def mock_scorer_full():
+    """Create a mock full scorer response factory."""
+
+    def _create_scorer_full(
+        scorer_id: str,
+        name: str,
+        scorer_type: ScorerTypes = ScorerTypes.CODE,
+        tags: list[str] | None = None,
+        description: str = "",
+        node_types: list[StepType] | None = None,
+    ):
+        mock_scorer = MagicMock()
+        mock_scorer.id = scorer_id
+        mock_scorer.name = name
+        mock_scorer.scorer_type = scorer_type
+        mock_scorer.tags = tags or []
+        mock_scorer.description = description
+        mock_scorer.created_at = MagicMock()
+        mock_scorer.updated_at = MagicMock()
+        mock_scorer.scoreable_node_types = node_types or [StepType.llm]
+        return mock_scorer
+
+    return _create_scorer_full
+
+
+@pytest.fixture
+def create_temp_code_file(tmp_path):
+    """Create a temporary Python file factory."""
+
+    def _create_file(filename: str = "test_scorer.py", content: str = "def score(trace): return 1.0"):
+        code_file = tmp_path / filename
+        code_file.write_text(content)
+        return code_file
+
+    return _create_file
 
 
 class TestMetricInitialization:
@@ -125,19 +202,6 @@ class TestMetricCreate:
             metric.create()
 
         assert metric.sync_state == SyncState.FAILED_SYNC
-
-    @patch("galileo.__future__.metric.Metrics")
-    def test_create_non_llm_scorer_raises_not_implemented(
-        self, mock_metrics_class: MagicMock, reset_configuration: None
-    ) -> None:
-        """Test create() with non-LLM scorer type raises NotImplementedError."""
-        # Test that CodeMetric.create() raises NotImplementedError
-        from galileo.__future__ import CodeMetric
-
-        metric = CodeMetric(name="Test Metric")
-
-        with pytest.raises(NotImplementedError, match="not yet supported"):
-            metric.create()
 
 
 class TestMetricGet:
@@ -497,3 +561,394 @@ class TestMetricMethods:
         assert metric.judges is None
         assert metric.cot_enabled is None
         assert metric.node_level is None
+
+
+class TestCodeMetricInitialization:
+    """Test suite for CodeMetric initialization."""
+
+    def test_init_with_minimal_fields(self, reset_configuration: None) -> None:
+        """Test initializing a CodeMetric with just a name."""
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm)
+
+        assert metric.name == "Test Code Metric"
+        assert metric.scorer_type == ScorerTypes.CODE
+        assert metric.id is None
+        assert metric.sync_state == SyncState.LOCAL_ONLY
+
+    def test_init_with_all_fields(self, reset_configuration: None) -> None:
+        """Test initializing a CodeMetric with all optional fields."""
+        metric = CodeMetric(name="Test Code Metric", description="Test code metric description", tags=["test", "code"])
+
+        assert metric.name == "Test Code Metric"
+        assert metric.description == "Test code metric description"
+        assert metric.tags == ["test", "code"]
+
+
+class TestCodeMetricCreate:
+    """Test suite for CodeMetric.create() method."""
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.__future__.metric.Scorers")
+    def test_create_persists_code_metric_to_api(
+        self,
+        mock_scorers_class: MagicMock,
+        mock_create_scorers: MagicMock,
+        mock_create_version: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_scorer_response,
+        mock_version_response,
+        mock_scorer_full,
+    ) -> None:
+        """Test create() persists the code metric to the API and updates attributes."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file(content="def score(trace):\n    return 1.0")
+
+        # Mock the scorer creation response
+        scorer_id = str(uuid4())
+        mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, "Test Code Metric")
+
+        # Mock the version creation response
+        mock_create_version.sync.return_value = mock_version_response(scorer_id)
+
+        # Mock the scorer list response for refresh
+        mock_scorers_service = MagicMock()
+        mock_scorers_service.list.return_value = [
+            mock_scorer_full(scorer_id, "Test Code Metric", tags=["test"], description="Test description")
+        ]
+        mock_scorers_class.return_value = mock_scorers_service
+
+        # Create the metric
+        metric = (
+            CodeMetric(name="Test Code Metric", description="Test description", tags=["test"], node_level=StepType.llm)
+            .load_code(str(code_file))
+            .create()
+        )
+
+        # Verify scorer creation was called
+        mock_create_scorers.sync.assert_called_once()
+        create_scorer_call = mock_create_scorers.sync.call_args
+        assert create_scorer_call.kwargs["body"].name == "Test Code Metric"
+        assert create_scorer_call.kwargs["body"].scorer_type == ScorerTypes.CODE
+        assert create_scorer_call.kwargs["body"].description == "Test description"
+        assert create_scorer_call.kwargs["body"].tags == ["test"]
+
+        # Verify version creation was called with code file
+        mock_create_version.sync.assert_called_once()
+        version_call = mock_create_version.sync.call_args
+        assert version_call.kwargs["scorer_id"] == scorer_id
+        # Verify the code file was read and passed as a File object
+        body = version_call.kwargs["body"]
+        assert hasattr(body, "file")
+        assert hasattr(body.file, "payload")
+
+        # Verify metric was updated
+        assert metric.id == scorer_id
+        assert metric.is_synced()
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    def test_create_handles_scorer_creation_failure(
+        self,
+        mock_create_scorers: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+    ) -> None:
+        """Test create() handles scorer creation API failures."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        # Mock scorer creation to fail
+        mock_create_scorers.sync.side_effect = Exception("Scorer creation failed")
+
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm)
+
+        with pytest.raises(Exception, match="Scorer creation failed"):
+            metric.load_code(str(code_file)).create()
+
+        assert metric.sync_state == SyncState.FAILED_SYNC
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    def test_create_handles_version_creation_failure(
+        self,
+        mock_create_scorers: MagicMock,
+        mock_create_version: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_scorer_response,
+    ) -> None:
+        """Test create() handles version creation API failures."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        # Mock scorer creation to succeed
+        scorer_id = str(uuid4())
+        mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, "Test Code Metric")
+
+        # Mock version creation to fail
+        mock_create_version.sync.side_effect = Exception("Version creation failed")
+
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm)
+
+        with pytest.raises(Exception, match="Version creation failed"):
+            metric.load_code(str(code_file)).create()
+
+        assert metric.sync_state == SyncState.FAILED_SYNC
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    @patch("galileo.__future__.metric.Scorers")
+    def test_create_with_different_node_levels(
+        self,
+        mock_scorers_class: MagicMock,
+        mock_create_scorers: MagicMock,
+        mock_create_version: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_scorer_response,
+        mock_version_response,
+        mock_scorer_full,
+    ) -> None:
+        """Test create() works with different node_level values."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        for node_level in [StepType.llm, StepType.workflow, StepType.retriever, StepType.tool]:
+            # Mock the scorer creation response
+            scorer_id = str(uuid4())
+            mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, f"Test Code Metric {node_level}")
+
+            # Mock the version creation response
+            mock_create_version.sync.return_value = mock_version_response(scorer_id)
+
+            # Mock the scorer list response for refresh
+            mock_scorers_service = MagicMock()
+            mock_scorers_service.list.return_value = [
+                mock_scorer_full(scorer_id, f"Test Code Metric {node_level}", node_types=[node_level])
+            ]
+            mock_scorers_class.return_value = mock_scorers_service
+
+            # Create the metric
+            metric = (
+                CodeMetric(name=f"Test Code Metric {node_level}", node_level=node_level)
+                .load_code(str(code_file))
+                .create()
+            )
+
+            # Verify the metric was created successfully
+            assert metric.is_synced()
+            # Verify the node_level is set on the metric itself
+            assert metric.node_level == node_level
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    def test_create_reads_code_file_correctly(
+        self,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_scorer_response,
+        mock_scorer_full,
+    ) -> None:
+        """Test that create() correctly reads and sends the code file content."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file with specific content
+        expected_content = """
+def score(trace):
+    # Complex scoring logic
+    if trace.input and trace.output:
+        return 1.0
+    return 0.0
+"""
+        code_file = create_temp_code_file(filename="complex_scorer.py", content=expected_content)
+
+        with (
+            patch("galileo.__future__.metric.create_scorers_post") as mock_create_scorers,
+            patch(
+                "galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post"
+            ) as mock_create_version,
+            patch("galileo.__future__.metric.Scorers") as mock_scorers_class,
+        ):
+            # Mock responses
+            scorer_id = str(uuid4())
+            mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, "Complex Scorer")
+            mock_create_version.sync.return_value = MagicMock()
+
+            mock_scorers_service = MagicMock()
+            mock_scorers_service.list.return_value = [mock_scorer_full(scorer_id, "Complex Scorer")]
+            mock_scorers_class.return_value = mock_scorers_service
+
+            # Create the metric
+            CodeMetric(name="Complex Scorer", node_level=StepType.llm).load_code(str(code_file)).create()
+
+            # Verify the code file was read as bytes
+            version_call = mock_create_version.sync.call_args
+            body = version_call.kwargs["body"]
+            # The file should be a File object with payload
+            assert hasattr(body, "file")
+            assert hasattr(body.file, "payload")
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    def test_load_code_with_nonexistent_file_raises_validation_error(
+        self,
+        mock_create_scorers: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+    ) -> None:
+        """Test that load_code() raises ValidationError when code_file_path doesn't exist."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a metric and pass a non-existent file path
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm)
+
+        with pytest.raises(ValidationError, match="Code file not found"):
+            metric.load_code("/nonexistent/file.py").create()
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    def test_create_handles_none_scorer_response(
+        self,
+        mock_create_scorers: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+    ) -> None:
+        """Test that create() raises ValueError when scorer creation returns None."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        # Mock scorer creation to return None
+        mock_create_scorers.sync.return_value = None
+
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm)
+
+        with pytest.raises(ValueError, match="Failed to create code-based metric: No response from API"):
+            metric.load_code(str(code_file)).create()
+
+        assert metric.sync_state == SyncState.FAILED_SYNC
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.create_code_scorer_version_scorers_scorer_id_version_code_post")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    def test_create_handles_none_version_response(
+        self,
+        mock_create_scorers: MagicMock,
+        mock_create_version: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+        mock_scorer_response,
+    ) -> None:
+        """Test that create() raises ValueError when version creation returns None."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        # Mock scorer creation to succeed
+        scorer_id = str(uuid4())
+        mock_create_scorers.sync.return_value = mock_scorer_response(scorer_id, "Test Code Metric")
+
+        # Mock version creation to return None
+        mock_create_version.sync.return_value = None
+
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm)
+
+        with pytest.raises(ValueError, match="Failed to create code-based metric: No response from API"):
+            metric.load_code(str(code_file)).create()
+
+        assert metric.sync_state == SyncState.FAILED_SYNC
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    def test_create_propagates_validation_error(
+        self,
+        mock_create_scorers: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+    ) -> None:
+        """Test that create() propagates ValidationError without wrapping it."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        # Mock scorer creation to raise ValidationError
+        validation_error = ValidationError("Invalid configuration")
+        mock_create_scorers.sync.side_effect = validation_error
+
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm)
+
+        # ValidationError should be propagated as-is, not wrapped
+        with pytest.raises(ValidationError, match="Invalid configuration"):
+            metric.load_code(str(code_file)).create()
+
+    @patch("galileo.__future__.metric.GalileoPythonConfig.get")
+    @patch("galileo.__future__.metric.create_scorers_post")
+    def test_create_sets_failed_sync_state_on_general_exception(
+        self,
+        mock_create_scorers: MagicMock,
+        mock_config: MagicMock,
+        reset_configuration: None,
+        create_temp_code_file,
+        mock_api_client,
+    ) -> None:
+        """Test that create() sets FAILED_SYNC state and logs error on general exceptions."""
+        # Mock the config
+        mock_config.return_value.api_client = mock_api_client
+
+        # Create a temporary Python file
+        code_file = create_temp_code_file()
+
+        # Mock scorer creation to raise a general exception
+        runtime_error = RuntimeError("Unexpected error")
+        mock_create_scorers.sync.side_effect = runtime_error
+
+        metric = CodeMetric(name="Test Code Metric", node_level=StepType.llm)
+
+        with pytest.raises(RuntimeError, match="Unexpected error"):
+            metric.load_code(str(code_file)).create()
+
+        # Verify the state was set to FAILED_SYNC
+        assert metric.sync_state == SyncState.FAILED_SYNC
+        assert metric._last_error == runtime_error
