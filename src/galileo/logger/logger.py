@@ -519,6 +519,59 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         current_parent = self.current_parent()
         return current_parent is not None
 
+    def get_tracing_headers(self) -> dict[str, str]:
+        """
+        Get tracing headers for distributed tracing.
+        Returns X-Galileo-Trace-ID and X-Galileo-Parent-ID headers that can be passed to downstream services.
+
+        Returns
+        -------
+        dict[str, str]
+            Dictionary with "X-Galileo-Trace-ID" and "X-Galileo-Parent-ID" headers.
+            X-Galileo-Parent-ID contains the ID of the current parent (trace or span) that downstream
+            spans should attach to.
+
+        Raises
+        ------
+        GalileoLoggerException
+            If not in streaming mode or if no trace has been started.
+
+        Examples
+        --------
+        ```python
+        logger = GalileoLogger(experimental={"mode": "streaming"})
+        logger.start_trace(input="question")
+        headers = logger.get_tracing_headers()
+        # headers = {"X-Galileo-Trace-ID": "...", "X-Galileo-Parent-ID": "..."}  # trace ID as parent
+
+        logger.add_workflow_span(input="workflow", name="orchestrator")
+        headers = logger.get_tracing_headers()
+        # headers = {"X-Galileo-Trace-ID": "...", "X-Galileo-Parent-ID": "..."}  # workflow span ID as parent
+
+        # Pass headers to HTTP request
+        response = httpx.post(url, headers=headers)
+        ```
+        """
+        if self.mode != "streaming":
+            raise GalileoLoggerException("get_tracing_headers is only supported in streaming mode.")
+
+        if len(self.traces) == 0:
+            raise GalileoLoggerException("Start trace before getting tracing headers.")
+
+        headers: dict[str, str] = {}
+
+        root_trace = self.traces[-1]
+        headers["X-Galileo-Trace-ID"] = str(root_trace.id)
+
+        current_parent = self.current_parent()
+
+        if not current_parent:
+            raise GalileoLoggerException("No parent trace or span found.")
+
+        headers["X-Galileo-Parent-ID"] = str(current_parent.id)
+
+        return headers
+
     @nop_sync
     def start_trace(
         self,

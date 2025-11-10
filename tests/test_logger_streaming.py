@@ -1772,3 +1772,92 @@ def test_catch_error_mismatched_trace_span_ids(
         )
 
     assert "does not belong to trace" in caplog.text
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_get_tracing_headers_with_workflow_span(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test get_tracing_headers when a workflow span exists."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="test input", name="test-trace")
+    workflow_span = logger.add_workflow_span(input="workflow input", name="orchestrator")
+
+    headers = logger.get_tracing_headers()
+
+    assert "X-Galileo-Trace-ID" in headers
+    assert headers["X-Galileo-Trace-ID"] == str(logger.traces[0].id)
+    assert "X-Galileo-Parent-ID" in headers
+    assert headers["X-Galileo-Parent-ID"] == str(workflow_span.id)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_get_tracing_headers_with_agent_span(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test get_tracing_headers when an agent span exists."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    setup_thread_pool_request_capture(logger)
+
+    logger.start_trace(input="test input", name="test-trace")
+    agent_span = logger.add_agent_span(input="agent input", name="agent")
+
+    headers = logger.get_tracing_headers()
+
+    assert "X-Galileo-Trace-ID" in headers
+    assert headers["X-Galileo-Trace-ID"] == str(logger.traces[0].id)
+    assert "X-Galileo-Parent-ID" in headers
+    assert headers["X-Galileo-Parent-ID"] == str(agent_span.id)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_get_tracing_headers_batch_mode_error(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test get_tracing_headers raises error in batch mode."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "batch"})
+    logger.start_trace(input="test input")
+
+    with pytest.raises(GalileoLoggerException) as exc_info:
+        logger.get_tracing_headers()
+
+    assert "only supported in streaming mode" in str(exc_info.value)
+
+
+@patch("galileo.logger.logger.LogStreams")
+@patch("galileo.logger.logger.Projects")
+@patch("galileo.logger.logger.Traces")
+def test_get_tracing_headers_no_trace_error(
+    mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock
+) -> None:
+    """Test get_tracing_headers raises error when no trace exists."""
+    setup_mock_traces_client(mock_traces_client)
+    setup_mock_projects_client(mock_projects_client)
+    setup_mock_logstreams_client(mock_logstreams_client)
+
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+
+    with pytest.raises(GalileoLoggerException) as exc_info:
+        logger.get_tracing_headers()
+
+    assert "Start trace before getting tracing headers" in str(exc_info.value)
