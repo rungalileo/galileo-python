@@ -68,8 +68,10 @@ def async_warn_catch_exception(
 class DecorateAllMethods:
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
+        # Methods to exclude from decoration (should raise exceptions)
+        excluded_methods = {"__init__", "get_tracing_headers"}
         for attr, f in cls.__dict__.items():
-            if attr == "__init__":
+            if attr in excluded_methods:
                 continue
             if callable(f):
                 if asyncio.iscoroutinefunction(f):
