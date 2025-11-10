@@ -558,17 +558,19 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if len(self.traces) == 0:
             raise GalileoLoggerException("Start trace before getting tracing headers.")
 
+        from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
+
         headers: dict[str, str] = {}
 
         root_trace = self.traces[-1]
-        headers["X-Galileo-Trace-ID"] = str(root_trace.id)
+        headers[TRACE_ID_HEADER] = str(root_trace.id)
 
         current_parent = self.current_parent()
 
         if not current_parent:
             raise GalileoLoggerException("No parent trace or span found.")
 
-        headers["X-Galileo-Parent-ID"] = str(current_parent.id)
+        headers[PARENT_ID_HEADER] = str(current_parent.id)
 
         return headers
 
