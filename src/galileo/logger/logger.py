@@ -13,6 +13,7 @@ from typing import Any, Callable, Literal, Optional, Union
 import backoff
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
+from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.logger.utils import handle_galileo_http_exceptions_for_retry
@@ -200,8 +201,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if trace_id or span_id:
             if self.mode != "streaming":
                 raise GalileoLoggerException("trace_id or span_id can only be used in streaming mode")
-            self.trace_id = trace_id
-            self.span_id = span_id
+            self.trace_id = trace_id if trace_id else None
+            self.span_id = span_id if span_id else None
 
         self.project_name = project or project_name_from_env
         self.project_id = project_id or project_id_from_env
@@ -299,7 +300,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             raise GalileoLoggerException(f"Span {self.span_id} not found")
 
         trace_id = span_obj["trace_id"]
-        if self.trace_id is not None and trace_id != self.trace_id:
+        # Convert self.trace_id (string) to UUID for comparison, since trace_id from span_obj is a UUID object.
+        if self.trace_id is not None and trace_id != uuid.UUID(self.trace_id):
             raise GalileoLoggerException(f"Span {self.span_id} does not belong to trace {self.trace_id}")
 
         span_type = span_obj["type"]
@@ -521,14 +523,15 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     def get_tracing_headers(self) -> dict[str, str]:
         """
         Get tracing headers for distributed tracing.
-        Returns X-Galileo-Trace-ID and X-Galileo-Parent-ID headers that can be passed to downstream services.
+        Returns headers that can be passed to downstream services to continue the distributed trace.
 
         Returns
         -------
         dict[str, str]
-            Dictionary with "X-Galileo-Trace-ID" and "X-Galileo-Parent-ID" headers.
-            X-Galileo-Parent-ID contains the ID of the current parent (trace or span) that downstream
-            spans should attach to.
+            Dictionary with the following headers:
+            - X-Galileo-Trace-ID: The root trace ID
+            - X-Galileo-Parent-ID: The ID of the current parent (trace or span) that downstream
+              spans should attach to
 
         Raises
         ------
@@ -541,15 +544,24 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         logger = GalileoLogger(experimental={"mode": "streaming"})
         logger.start_trace(input="question")
         headers = logger.get_tracing_headers()
-        # headers = {"X-Galileo-Trace-ID": "...", "X-Galileo-Parent-ID": "..."}  # trace ID as parent
+        # headers = {
+        #     "X-Galileo-Trace-ID": "...",
+        #     "X-Galileo-Parent-ID": "...",  # trace ID as parent
+        # }
 
         logger.add_workflow_span(input="workflow", name="orchestrator")
         headers = logger.get_tracing_headers()
-        # headers = {"X-Galileo-Trace-ID": "...", "X-Galileo-Parent-ID": "..."}  # workflow span ID as parent
+        # headers = {
+        #     "X-Galileo-Trace-ID": "...",
+        #     "X-Galileo-Parent-ID": "...",  # workflow span ID as parent
+        # }
 
         # Pass headers to HTTP request
         response = httpx.post(url, headers=headers)
         ```
+
+        Note: Project and log_stream are configured per service (via env vars or logger initialization),
+        not propagated via headers, following standard distributed tracing patterns.
         """
         if self.mode != "streaming":
             raise GalileoLoggerException("get_tracing_headers is only supported in streaming mode.")
@@ -560,14 +572,14 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         headers: dict[str, str] = {}
 
         root_trace = self.traces[-1]
-        headers["X-Galileo-Trace-ID"] = str(root_trace.id)
+        headers[TRACE_ID_HEADER] = str(root_trace.id)
 
         current_parent = self.current_parent()
 
         if not current_parent:
             raise GalileoLoggerException("No parent trace or span found.")
 
-        headers["X-Galileo-Parent-ID"] = str(current_parent.id)
+        headers[PARENT_ID_HEADER] = str(current_parent.id)
 
         return headers
 
