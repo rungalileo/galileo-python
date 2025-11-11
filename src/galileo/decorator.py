@@ -85,6 +85,10 @@ _experiment_id_context: ContextVar[Optional[str]] = ContextVar("experiment_id_co
 _mode_context: ContextVar[Optional[str]] = ContextVar("mode_context", default="batch")
 _span_stack_context: ContextVar[Optional[list[WorkflowSpan]]] = ContextVar("span_stack_context", default=None)
 
+# Distributed tracing context variables (for middleware)
+_trace_id_context: ContextVar[Optional[str]] = ContextVar("trace_id_context", default=None)
+_parent_id_context: ContextVar[Optional[str]] = ContextVar("parent_id_context", default=None)
+
 # Stack variables for storing previous values (for proper nesting)
 _project_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("project_stack", default=None)
 _log_stream_stack: ContextVar[Optional[list[Optional[str]]]] = ContextVar("log_stream_stack", default=None)
