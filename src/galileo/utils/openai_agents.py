@@ -45,19 +45,19 @@ def _map_span_name(span: Span[Any]) -> str:
     """Determine the name for a given OpenAI Agent span."""
     if hasattr(span.span_data, "name") and span.span_data.name:
         return span.span_data.name
-    
+
     if isinstance(span.span_data, GenerationSpanData):
         return "Generation"
 
     if isinstance(span.span_data, ResponseSpanData):
         return "Response"
-    
+
     if isinstance(span.span_data, HandoffSpanData):
         return f"Handoff: {span.span_data.from_agent} -> {span.span_data.to_agent}"
-    
+
     if hasattr(span.span_data, "type") and span.span_data.type:
         return span.span_data.type.capitalize()
-    
+
     return "Unknown Span"
 
 

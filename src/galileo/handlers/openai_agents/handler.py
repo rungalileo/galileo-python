@@ -2,13 +2,13 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Optional
 
-from agents import FunctionSpanData, Span, Trace, TracingProcessor
+from agents import Span, Trace, TracingProcessor
+from agents.tracing import ResponseSpanData
 
 from galileo import GalileoLogger, galileo_context
 from galileo.schema.handlers import Node
 from galileo.utils import _get_timestamp
 from galileo.utils.catch_log import DecorateAllMethods
-from agents.tracing import ResponseSpanData
 from galileo.utils.openai_agents import (
     _extract_llm_data,
     _extract_tool_data,
@@ -313,7 +313,7 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
                     and node.span_params["input"] != serialize_to_str(None)
                 ):
                     self._first_input = node.span_params["input"]
-            
+
             # Extract embedded tool calls and merge with existing tool definitions
             if isinstance(span.span_data, ResponseSpanData) and span.span_data.response:
                 embedded_tool_calls = self._extract_embedded_tool_calls(span.span_data.response)
@@ -374,39 +374,36 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
         """Extract embedded tool calls from response.output."""
         if not response or not hasattr(response, "output"):
             return []
-        
+
         output = response.output
         if not isinstance(output, list):
             return []
-        
+
         tool_calls = []
         for item in output:
             if hasattr(item, "model_dump"):
                 try:
                     item_dict = item.model_dump()
-                except Exception:
+                except Exception:  # noqa: S112
                     continue
             elif isinstance(item, dict):
                 item_dict = item
             else:
                 continue
-            
+
             item_type = item_dict.get("type", "")
             if item_type not in (
                 "code_interpreter_call",
                 "file_search_call",
-                "function_call",
                 "web_search_call",
                 "computer_call",
                 "custom_tool_call",
             ):
                 continue
-            
+
             tool_call = {
                 "type": "function",
-                "function": {
-                    "name": self._get_tool_name_from_type(item_type),
-                },
+                "function": {"name": self._get_tool_name_from_type(item_type)},
                 "tool_call_id": item_dict.get("id") or item_dict.get("call_id"),
                 "tool_call_type": item_type,
                 "tool_call_input": self._extract_tool_input(item_dict, item_type),
@@ -414,7 +411,7 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
                 "tool_call_status": item_dict.get("status", "completed"),
             }
             tool_calls.append(tool_call)
-        
+
         return tool_calls
 
     def _get_tool_name_from_type(self, item_type: str) -> str:
@@ -422,7 +419,6 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
         type_to_name = {
             "code_interpreter_call": "code_interpreter",
             "file_search_call": "file_search",
-            "function_call": "function",
             "web_search_call": "web_search",
             "computer_call": "computer",
             "custom_tool_call": "custom_tool",
@@ -433,20 +429,17 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
         """Extract input from tool call item per OpenAI schema."""
         if item_type == "code_interpreter_call":
             return serialize_to_str(item_dict.get("code"))
-        elif item_type == "file_search_call":
+        if item_type == "file_search_call":
             queries = item_dict.get("queries")
-            return serialize_to_str(queries if isinstance(queries, list) else queries)
-        elif item_type == "function_call":
-            return serialize_to_str(item_dict.get("arguments"))
-        elif item_type == "web_search_call":
+            return serialize_to_str(queries)
+        if item_type == "web_search_call":
             action = item_dict.get("action", {})
             if isinstance(action, dict) and action.get("type") == "search":
                 return serialize_to_str(action.get("query"))
             return serialize_to_str(action)
-        elif item_type == "custom_tool_call":
+        if item_type == "custom_tool_call":
             return serialize_to_str(item_dict.get("input"))
-        else:
-            return serialize_to_str(item_dict.get("input") or item_dict.get("action"))
+        return serialize_to_str(item_dict.get("input") or item_dict.get("action"))
 
     def _extract_tool_output(self, item_dict: dict[str, Any], item_type: str) -> str:
         """Extract output from tool call item per OpenAI schema."""
@@ -464,13 +457,10 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
                         output_parts.append(str(output_item))
                 return serialize_to_str("\n".join(output_parts) if output_parts else None)
             return serialize_to_str(None)
-        elif item_type == "file_search_call":
+        if item_type == "file_search_call":
             return serialize_to_str(item_dict.get("results"))
-        elif item_type == "web_search_call":
+        if item_type == "web_search_call":
             return serialize_to_str(item_dict.get("action"))
-        elif item_type == "function_call":
+        if item_type == "custom_tool_call":
             return serialize_to_str(None)
-        elif item_type == "custom_tool_call":
-            return serialize_to_str(None)
-        else:
-            return serialize_to_str(item_dict.get("output") or item_dict.get("results"))
+        return serialize_to_str(item_dict.get("output") or item_dict.get("results"))
