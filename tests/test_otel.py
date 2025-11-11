@@ -40,20 +40,14 @@ class TestGalileoOTLPExporter:
         logstream = "test-logstream"
         api_key = "test-api-key"
         base_url = "https://custom.galileo.ai"
-        headers = {"Custom-Header": "value"}
 
         exporter = GalileoOTLPExporter(
-            project=project, logstream=logstream, api_key=api_key, base_url=base_url, headers=headers, timeout=30
+            project=project, logstream=logstream, api_key=api_key, base_url=base_url, timeout=30
         )
 
         # Verify endpoint construction
         expected_endpoint = urljoin(base_url + "/", "/otel/traces")
-        expected_headers = {
-            "Galileo-API-Key": api_key,
-            "project": project,
-            "logstream": logstream,
-            "Custom-Header": "value",
-        }
+        expected_headers = {"Galileo-API-Key": api_key, "project": project, "logstream": logstream}
 
         mock_otlp_init.assert_called_once_with(endpoint=expected_endpoint, headers=expected_headers, timeout=30)
 
@@ -161,25 +155,6 @@ class TestGalileoOTLPExporter:
             assert call_kwargs["endpoint"] == expected_endpoint
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
-    def test_init_headers_merge(self, mock_otlp_init, clear_env_vars):
-        """Test that custom headers are properly merged with required headers."""
-        custom_headers = {"Custom-Header": "value", "Another-Header": "another-value"}
-
-        with patch.dict(os.environ, {"GALILEO_API_KEY": "test-key"}):
-            GalileoOTLPExporter(project="test-project", logstream="test-logstream", headers=custom_headers)
-
-            call_kwargs = mock_otlp_init.call_args[1]
-            headers = call_kwargs["headers"]
-
-            # Check that both custom and required headers are present
-            assert headers["Custom-Header"] == "value"
-            assert headers["Another-Header"] == "another-value"
-            assert headers["Galileo-API-Key"] == "test-key"
-            assert headers["project"] == "test-project"
-            assert headers["logstream"] == "test-logstream"
-
-    @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     def test_init_missing_api_key_raises_error(self, clear_env_vars):
         """Test that missing API key raises ValueError."""
         with pytest.raises(ValueError, match="API key is required"):
@@ -217,7 +192,7 @@ class TestGalileoSpanProcessor:
 
         # Verify exporter was created with correct parameters
         mocks["mock_exporter_class"].assert_called_once_with(
-            base_url=None, api_key="test-key", project="test-project", logstream="test-logstream", headers=None
+            base_url=None, api_key="test-key", project="test-project", logstream="test-logstream"
         )
 
         # Verify BatchSpanProcessor was created with the exporter
@@ -306,22 +281,13 @@ class TestGalileoSpanProcessor:
     def test_init_passes_all_parameters_to_exporter(self, mock_processor_setup):
         """Test that all initialization parameters are passed to the exporter."""
         mocks = mock_processor_setup
-        headers = {"Custom-Header": "value"}
 
         GalileoSpanProcessor(
-            project="test-project",
-            logstream="test-logstream",
-            api_key="test-key",
-            api_url="https://custom.galileo.ai",
-            headers=headers,
+            project="test-project", logstream="test-logstream", api_key="test-key", api_url="https://custom.galileo.ai"
         )
 
         mocks["mock_exporter_class"].assert_called_once_with(
-            base_url="https://custom.galileo.ai",
-            api_key="test-key",
-            project="test-project",
-            logstream="test-logstream",
-            headers=headers,
+            base_url="https://custom.galileo.ai", api_key="test-key", project="test-project", logstream="test-logstream"
         )
 
 

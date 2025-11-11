@@ -60,7 +60,6 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         logstream: Optional[str] = None,
         api_key: Optional[str] = None,
         base_url: Optional[str] = None,
-        headers: Optional[dict[str, str]] = None,
         **kwargs: Any,
     ) -> None:
         """
@@ -76,8 +75,6 @@ class GalileoOTLPExporter(OTLPSpanExporter):
             Base URL for OTLP endpoint. Constructs {base_url}/otel/traces as the final endpoint.
         api_key : str, optional
             Galileo platform API key. Falls back to GALILEO_API_KEY environment variable.
-        headers : dict[str, str], optional
-            Additional HTTP headers to include with trace export requests.
         **kwargs
             Additional configuration options passed to the underlying OTLPSpanExporter.
 
@@ -92,7 +89,6 @@ class GalileoOTLPExporter(OTLPSpanExporter):
             processed_base_url += "/"
         endpoint: str = urljoin(processed_base_url, "/otel/traces")
         api_key = api_key or os.environ.get("GALILEO_API_KEY")
-        headers = headers or {}
 
         # Resolve project and logstream from parameters or environment variables
         self.project = project or os.environ.get("GALILEO_PROJECT")
@@ -109,7 +105,7 @@ class GalileoOTLPExporter(OTLPSpanExporter):
                 "API key is required. Provide it via api_key parameter or GALILEO_API_KEY environment variable."
             )
 
-        exporter_headers = {"Galileo-API-Key": api_key, "project": self.project, "logstream": self.logstream, **headers}
+        exporter_headers = {"Galileo-API-Key": api_key, "project": self.project, "logstream": self.logstream}
 
         super().__init__(endpoint=endpoint, headers=exporter_headers, **kwargs)
 
@@ -133,7 +129,6 @@ class GalileoSpanProcessor(SpanProcessor):
         logstream: Optional[str] = None,
         api_key: Optional[str] = None,
         api_url: Optional[str] = None,
-        headers: Optional[dict[str, str]] = None,
         SpanProcessor: Optional[type] = None,
     ) -> None:
         """
@@ -149,8 +144,6 @@ class GalileoSpanProcessor(SpanProcessor):
             Galileo platform API key. Falls back to GALILEO_API_KEY environment variable.
         api_url : str, optional
             Base URL for Galileo API endpoints. Falls back to GALILEO_API_URL environment variable.
-        headers : dict[str, str], optional
-            Additional HTTP headers for trace export requests.
         SpanProcessor : type, optional
             Custom span processor class. Defaults to BatchSpanProcessor for optimal performance.
 
@@ -167,9 +160,7 @@ class GalileoSpanProcessor(SpanProcessor):
 
         # Create the exporter
         # Convert api_url to the full endpoint URL that GalileoOTLPExporter expects
-        self._exporter = GalileoOTLPExporter(
-            base_url=api_url, api_key=api_key, project=project, logstream=logstream, headers=headers
-        )
+        self._exporter = GalileoOTLPExporter(base_url=api_url, api_key=api_key, project=project, logstream=logstream)
 
         if SpanProcessor is None:
             SpanProcessor = BatchSpanProcessor
