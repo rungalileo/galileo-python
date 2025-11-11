@@ -182,7 +182,6 @@ class Experiment(StateManagementMixin):
         )
 
     @require_exactly_one("project_id", "project_name")
-    @require_exactly_one("dataset", "dataset_name")
     @require_exactly_one("prompt", "prompt_name")  # TODO: For function-based experiments, prompt is optional.
     def __init__(
         self,
@@ -207,8 +206,10 @@ class Experiment(StateManagementMixin):
 
         Args:
             name (str): The name of the experiment.
-            dataset: Dataset object, dataset name, or legacy Dataset object.
-            dataset_name: Name of the dataset (alternative to dataset parameter).
+            dataset: Dataset object, dataset name, or legacy Dataset object. Optional at creation,
+                    but required when running the experiment with a prompt template.
+            dataset_name: Name of the dataset (alternative to dataset parameter). Optional at creation,
+                         but required when running the experiment with a prompt template.
             prompt: Prompt object, prompt name, or legacy PromptTemplate object.
             prompt_name: Name of the prompt template (alternative to prompt parameter).
             metrics: List of metrics to evaluate.
@@ -624,12 +625,47 @@ class Experiment(StateManagementMixin):
             if retrieved_experiment is None:
                 raise ValueError(f"Experiment with id '{self.id}' no longer exists")
 
-            # Update all attributes from response
+            # Update all top-level attributes from response
             self.id = retrieved_experiment.id
             self.name = retrieved_experiment.name
             self.created_at = retrieved_experiment.created_at
             self.updated_at = retrieved_experiment.updated_at
             self.additional_properties = retrieved_experiment.additional_properties
+
+            # Extract and update dataset info from nested ExperimentDataset object
+            dataset_api = getattr(retrieved_experiment, "dataset", None)
+            if dataset_api is not None and not isinstance(dataset_api, Unset):
+                self.dataset_id = getattr(dataset_api, "dataset_id", None)
+                if isinstance(self.dataset_id, Unset):
+                    self.dataset_id = None
+                self.dataset_name = getattr(dataset_api, "name", None)
+                if isinstance(self.dataset_name, Unset):
+                    self.dataset_name = None
+            else:
+                self.dataset_id = None
+                self.dataset_name = None
+
+            # Extract and update prompt info from nested ExperimentPrompt object
+            prompt_api = getattr(retrieved_experiment, "prompt", None)
+            if prompt_api is not None and not isinstance(prompt_api, Unset):
+                self.prompt_id = getattr(prompt_api, "prompt_template_id", None)
+                if isinstance(self.prompt_id, Unset):
+                    self.prompt_id = None
+                self.prompt_name = getattr(prompt_api, "name", None)
+                if isinstance(self.prompt_name, Unset):
+                    self.prompt_name = None
+            else:
+                self.prompt_id = None
+                self.prompt_name = None
+
+            # Extract and update prompt settings if available
+            prompt_settings_api = getattr(retrieved_experiment, "prompt_run_settings", None)
+            if prompt_settings_api is not None and not isinstance(prompt_settings_api, Unset):
+                self.prompt_settings = prompt_settings_api
+            else:
+                self.prompt_settings = None
+
+            # Update the cached API response
             self._experiment_response = retrieved_experiment
 
             # Set state to synced
@@ -905,6 +941,15 @@ class Experiment(StateManagementMixin):
                 f"      project_name='{self.project_name}'\n"
                 "  ).create().run()"
             )
+
+        # Validate dataset requirement for prompt template experiments
+        # Check if we have or will have a prompt template (need to check before loading)
+        has_prompt_template = (
+            self._prompt_template is not None or self.prompt_id is not None or self.prompt_name is not None
+        )
+
+        if has_prompt_template and not self.dataset_id and not self.dataset_name and self._dataset_obj is None:
+            raise ValueError("A dataset must be provided when running an experiment with a prompt template.")
 
         try:
             _logger.info(f"Experiment.run: id='{self.id}' name='{self.name}' - started")
