@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 from agents import (
     AgentSpanData,
@@ -19,7 +19,7 @@ from galileo.utils.serialization import serialize_to_str
 _logger = logging.getLogger(__name__)
 
 
-def _map_span_type(span_data: SpanData) -> SPAN_TYPE:
+def _map_span_type(span_data: SpanData, span: Optional[Span[Any]] = None) -> SPAN_TYPE:
     """Determine the Galileo span type based on the OpenAI Agent span data."""
     if isinstance(span_data, (GenerationSpanData, ResponseSpanData)):
         return "llm"
@@ -27,23 +27,37 @@ def _map_span_type(span_data: SpanData) -> SPAN_TYPE:
         return "tool"
     if isinstance(span_data, (AgentSpanData, HandoffSpanData, CustomSpanData)):
         return "workflow"
-    # Default to workflow for unknown or base SpanData types
+
+    if hasattr(span_data, "type") and span_data.type:
+        span_type = span_data.type
+        if span_type in ["function", "guardrail", "tool"]:
+            return "tool"
+        if span_type in ["generation", "response"]:
+            return "llm"
+        if span_type in ["agent", "handoff", "custom"]:
+            return "workflow"
+
     _logger.debug(f"Unknown span data type {type(span_data)}, defaulting to workflow.")
     return "workflow"
 
 
 def _map_span_name(span: Span[Any]) -> str:
     """Determine the name for a given OpenAI Agent span."""
-    if name := getattr(span.span_data, "name", None):
-        return name
+    if hasattr(span.span_data, "name") and span.span_data.name:
+        return span.span_data.name
+    
     if isinstance(span.span_data, GenerationSpanData):
         return "Generation"
+
     if isinstance(span.span_data, ResponseSpanData):
         return "Response"
+    
     if isinstance(span.span_data, HandoffSpanData):
         return f"Handoff: {span.span_data.from_agent} -> {span.span_data.to_agent}"
-    if span.span_data.type:
+    
+    if hasattr(span.span_data, "type") and span.span_data.type:
         return span.span_data.type.capitalize()
+    
     return "Unknown Span"
 
 
@@ -59,19 +73,17 @@ def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Union[int, Non
             usage_dict = usage_data.model_dump()
         except Exception:
             _logger.debug("Failed to model_dump usage data.", exc_info=True)
-            # Fallback for GenerationSpanData usage which is already a dict
             if isinstance(usage_data, dict):
                 usage_dict = usage_data
             else:
-                return parsed  # Cannot parse
+                return parsed
     elif isinstance(usage_data, dict):
         usage_dict = usage_data
     else:
-        return parsed  # Cannot parse
+        return parsed
 
-    # Prioritize specific keys, fall back to alternatives
-    parsed["input_tokens"] = usage_dict.get("input_tokens", usage_dict.get("prompt_tokens"))
-    parsed["output_tokens"] = usage_dict.get("output_tokens", usage_dict.get("completion_tokens"))
+    parsed["input_tokens"] = usage_dict.get("input_tokens") or usage_dict.get("prompt_tokens")
+    parsed["output_tokens"] = usage_dict.get("output_tokens") or usage_dict.get("completion_tokens")
     parsed["total_tokens"] = usage_dict.get("total_tokens")
 
     # Ensure values are integers if not None
@@ -81,7 +93,7 @@ def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Union[int, Non
                 parsed[key] = int(parsed[key])  # type: ignore[arg-type]
             except (ValueError, TypeError):
                 _logger.warning(f"Could not convert usage value '{parsed[key]}' for key '{key}' to int.")
-                parsed[key] = None  # Reset if conversion fails
+                parsed[key] = None
 
     return parsed
 
@@ -125,7 +137,6 @@ def _extract_llm_data(span_data: Union[GenerationSpanData, ResponseSpanData]) ->
             data.update({f"num_{k}": v for k, v in usage.items() if v is not None})
             data["temperature"] = response.temperature
 
-            # Extract tools
             tools_raw = getattr(response, "tools", None)
             if tools_raw:
                 try:
@@ -223,8 +234,6 @@ def _extract_workflow_data(span_data: Union[AgentSpanData, HandoffSpanData, Cust
     }
     if isinstance(span_data, AgentSpanData):
         # Agent input/output is often implicit; capture config in metadata
-        # We might get input/output later from children spans
-        # Use getattr for safety in case these attributes aren't guaranteed
         data["metadata"]["tools"] = getattr(span_data, "tools", None)
         data["metadata"]["handoffs"] = getattr(span_data, "handoffs", None)
         data["metadata"]["output_type"] = getattr(span_data, "output_type", None)
