@@ -1758,11 +1758,13 @@ def test_catch_error_trace_span_ids_in_batch_mode(
 def test_catch_error_mismatched_trace_span_ids(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, caplog, enable_galileo_logging
 ) -> None:
+    """Test that mismatched trace_id and span_id raises GalileoLoggerException."""
+
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    with caplog.at_level(logging.WARNING):
+    with pytest.raises(GalileoLoggerException, match="does not belong to trace"):
         GalileoLogger(
             project="my_project",
             log_stream="my_log_stream",
@@ -1770,8 +1772,6 @@ def test_catch_error_mismatched_trace_span_ids(
             trace_id="00000000-0000-0000-0000-000000000000",
             span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
         )
-
-    assert "does not belong to trace" in caplog.text
 
 
 @patch("galileo.logger.logger.LogStreams")

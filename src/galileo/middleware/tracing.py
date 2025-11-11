@@ -47,7 +47,6 @@ Example usage with Starlette:
 """
 
 import logging
-from typing import Optional
 
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
@@ -65,21 +64,21 @@ class TracingMiddleware(BaseHTTPMiddleware):
     """
     Middleware that extracts distributed tracing headers from incoming requests.
 
-    This middleware looks for X-Galileo-Trace-ID and X-Galileo-Parent-ID headers
-    in incoming HTTP requests and stores them in context variables, making them
-    available to request handlers via the `get_request_logger()` function.
+    This middleware looks for the following headers in incoming HTTP requests:
+    - X-Galileo-Trace-ID: The root trace ID
+    - X-Galileo-Parent-ID: The parent span/trace ID to attach to
+
+    These values are stored in context variables, making them available to request
+    handlers via the `get_request_logger()` function.
 
     The middleware is compatible with FastAPI and any Starlette-based framework.
 
-    Attributes
-    ----------
-    project : Optional[str]
-        Default project name for loggers created within requests
-    log_stream : Optional[str]
-        Default log stream name for loggers created within requests
+    Note: Project and log_stream are configured per service via environment variables
+    (GALILEO_PROJECT and GALILEO_LOG_STREAM). They are not propagated via headers,
+    following standard distributed tracing patterns.
     """
 
-    def __init__(self, app: ASGIApp, project: Optional[str] = None, log_stream: Optional[str] = None) -> None:
+    def __init__(self, app: ASGIApp) -> None:
         """
         Initialize the tracing middleware.
 
@@ -87,14 +86,8 @@ class TracingMiddleware(BaseHTTPMiddleware):
         ----------
         app : ASGIApp
             The ASGI application
-        project : Optional[str]
-            Default project name (can be overridden by GALILEO_PROJECT env var)
-        log_stream : Optional[str]
-            Default log stream name (can be overridden by GALILEO_LOG_STREAM env var)
         """
         super().__init__(app)
-        self.project = project
-        self.log_stream = log_stream
 
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         """
@@ -129,7 +122,7 @@ class TracingMiddleware(BaseHTTPMiddleware):
             _parent_id_context.reset(parent_id_token)
 
 
-def get_request_logger(project: Optional[str] = None, log_stream: Optional[str] = None) -> GalileoLogger:
+def get_request_logger() -> GalileoLogger:
     """
     Get a request-scoped GalileoLogger configured with distributed tracing context.
 
@@ -137,17 +130,19 @@ def get_request_logger(project: Optional[str] = None, log_stream: Optional[str] 
     been registered. It creates a new GalileoLogger instance per request that automatically
     continues the distributed trace from the upstream service.
 
-    If no tracing headers were present in the request, a regular logger is returned.
+    The logger is configured using trace context extracted by the middleware:
+    - X-Galileo-Trace-ID: Root trace ID
+    - X-Galileo-Parent-ID: Parent span/trace ID to attach to
+
+    Project and log_stream are configured per service via environment variables
+    (GALILEO_PROJECT and GALILEO_LOG_STREAM), not propagated via headers, following
+    standard distributed tracing patterns.
+
+    If no tracing headers were present in the request, a regular logger is returned
+    (using GALILEO_PROJECT and GALILEO_LOG_STREAM env vars).
 
     Note: This creates a new logger per request, unlike the decorator's get_logger_instance()
     which uses a singleton pattern.
-
-    Parameters
-    ----------
-    project : Optional[str]
-        Project name (defaults to GALILEO_PROJECT env var)
-    log_stream : Optional[str]
-        Log stream name (defaults to GALILEO_LOG_STREAM env var)
 
     Returns
     -------
@@ -199,6 +194,10 @@ def get_request_logger(project: Optional[str] = None, log_stream: Optional[str] 
     parent_id = _parent_id_context.get()
 
     # Create logger with trace context
+    # Project and log_stream come from env vars (GALILEO_PROJECT, GALILEO_LOG_STREAM)
+    # If parent_id equals trace_id, it means the parent is the root trace itself,
+    # not a span. In this case, we should pass None as span_id to avoid
+    # GalileoLoggerException when it tries to look up a span with the trace_id.
     return GalileoLogger(
-        project=project, log_stream=log_stream, experimental={"mode": "streaming"}, trace_id=trace_id, span_id=parent_id
+        experimental={"mode": "streaming"}, trace_id=trace_id, span_id=parent_id if parent_id != trace_id else None
     )
