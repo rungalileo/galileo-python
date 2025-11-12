@@ -227,13 +227,22 @@ class Prompt(StateManagementMixin):
         return cls._from_api_response(retrieved_prompt)
 
     @classmethod
-    def list(cls, *, name_filter: str | None = None, limit: Unset | int = 100) -> list[Prompt]:
+    def list(
+        cls,
+        *,
+        name_filter: str | None = None,
+        limit: Unset | int = 100,
+        project_id: str | None = None,
+        project_name: str | None = None,
+    ) -> list[Prompt]:
         """
         List global prompt templates with optional filtering.
 
         Args:
             name_filter (Optional[str]): Filter prompts by name containing this string.
             limit (Union[Unset, int]): Maximum number of prompts to return.
+            project_id (Optional[str]): Filter prompts used in this project by ID.
+            project_name (Optional[str]): Filter prompts used in this project by name.
 
         Returns
         -------
@@ -246,10 +255,19 @@ class Prompt(StateManagementMixin):
 
             # List prompts with name filtering
             prompts = Prompt.list(name_filter="geography", limit=50)
+
+            # List prompts used in a specific project
+            prompts = Prompt.list(project_id="project-123")
+            prompts = Prompt.list(project_name="My Project")
         """
-        logger.debug(f"Prompt.list: name_filter='{name_filter}' limit={limit} - started")
+        logger.debug(
+            f"Prompt.list: name_filter='{name_filter}' project_id='{project_id}' "
+            f"project_name='{project_name}' limit={limit} - started"
+        )
         templates_service = GlobalPromptTemplates()
-        retrieved_prompts = templates_service.list(name_filter=name_filter, limit=limit)
+        retrieved_prompts = templates_service.list(
+            name_filter=name_filter, limit=limit, project_id=project_id, project_name=project_name
+        )
         logger.debug(f"Prompt.list: found {len(retrieved_prompts)} prompts - completed")
 
         return [cls._from_api_response(retrieved_prompt) for retrieved_prompt in retrieved_prompts]

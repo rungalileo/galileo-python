@@ -376,11 +376,6 @@ class LogStream(StateManagementMixin):
             current_metrics = log_stream.get_metrics()
             print(f"Currently enabled: {current_metrics}")
         """
-        from galileo.config import GalileoConfig
-        from galileo.resources.api.run_scorer_settings import (
-            get_settings_projects_project_id_runs_run_id_scorer_settings_get,
-        )
-
         logger.info(f"LogStream.get_metrics: id='{self.id}' - started")
         config = GalileoConfig.get()
 
@@ -925,3 +920,7 @@ class LogStream(StateManagementMixin):
 # Import at end to avoid circular import (project.py imports LogStream)
 from galileo.__future__.project import Project  # noqa: E402
 from galileo.__future__.shared.column import Column, ColumnCollection  # noqa: E402
+from galileo.config import GalileoConfig  # noqa: E402
+from galileo.resources.api.run_scorer_settings import (  # noqa: E402
+    get_settings_projects_project_id_runs_run_id_scorer_settings_get,
+)
