@@ -108,9 +108,10 @@ class GalileoSpanProcessor(SpanProcessor):
     component that can be directly attached to any OpenTelemetry TracerProvider.
     It handles the complete lifecycle of spans from creation to export to Galileo.
 
-    Usage Example:
-        >>> processor = GalileoSpanProcessor(project="my-project")
-        >>> tracer_provider.add_span_processor(processor)
+    Examples
+    --------
+    >>> processor = GalileoSpanProcessor(project="my-project")
+    >>> tracer_provider.add_span_processor(processor)
     """
 
     def __init__(

@@ -663,6 +663,26 @@ def write_class(parts: list[str], cls: Any) -> None:
                     parts.append(f"- `{name}` (`{t}`): {desc}\n")
                 else:
                     parts.append(f"- `{name}`: {desc}\n")
+
+        if cdoc.get("examples"):
+            parts.append("**Examples**\n")
+            is_in_code_block = False
+            for ex in cdoc.get("examples", []):
+                code = ex.get("code")
+                if code:
+                    if not is_in_code_block and code.startswith(">>>"):
+                        is_in_code_block = True
+                        parts.append("```python")
+                    if is_in_code_block and not code.startswith(">>>") and not code.startswith("..."):
+                        is_in_code_block = False
+                        parts.append("```\n")
+                    if not code.startswith(">>>") and not code.startswith("..."):
+                        parts.append(code)
+                    else:
+                        parts.append(code[4:])
+            if is_in_code_block:
+                parts.append("```\n")
+            parts.append("")
         if cdoc.get("returns"):
             parts.append("**Returns**\n")
             ret = cdoc.get("returns")
