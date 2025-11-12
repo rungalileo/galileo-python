@@ -82,9 +82,14 @@ def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Union[int, Non
     else:
         return parsed
 
-    parsed["input_tokens"] = usage_dict.get("input_tokens") or usage_dict.get("prompt_tokens")
-    parsed["output_tokens"] = usage_dict.get("output_tokens") or usage_dict.get("completion_tokens")
+    input_tokens = usage_dict.get("input_tokens")
+    parsed["input_tokens"] = input_tokens if input_tokens is not None else usage_dict.get("prompt_tokens")
+    output_tokens = usage_dict.get("output_tokens")
+    parsed["output_tokens"] = output_tokens if output_tokens is not None else usage_dict.get("completion_tokens")
     parsed["total_tokens"] = usage_dict.get("total_tokens")
+    if parsed["total_tokens"] is None:
+        if input_tokens is not None and output_tokens is not None:
+            parsed["total_tokens"] = input_tokens + output_tokens
 
     # Ensure values are integers if not None
     for key in parsed:
