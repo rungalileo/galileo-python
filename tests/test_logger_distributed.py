@@ -1823,10 +1823,10 @@ def test_get_tracing_headers_with_workflow_span(
 
     headers = logger.get_tracing_headers()
 
-    assert "X-Galileo-Trace-ID" in headers
-    assert headers["X-Galileo-Trace-ID"] == str(logger.traces[0].id)
-    assert "X-Galileo-Parent-ID" in headers
-    assert headers["X-Galileo-Parent-ID"] == str(workflow_span.id)
+    assert "X-Galileo-SDK-Trace-ID" in headers
+    assert headers["X-Galileo-SDK-Trace-ID"] == str(logger.traces[0].id)
+    assert "X-Galileo-SDK-Parent-ID" in headers
+    assert headers["X-Galileo-SDK-Parent-ID"] == str(workflow_span.id)
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1848,10 +1848,10 @@ def test_get_tracing_headers_with_agent_span(
 
     headers = logger.get_tracing_headers()
 
-    assert "X-Galileo-Trace-ID" in headers
-    assert headers["X-Galileo-Trace-ID"] == str(logger.traces[0].id)
-    assert "X-Galileo-Parent-ID" in headers
-    assert headers["X-Galileo-Parent-ID"] == str(agent_span.id)
+    assert "X-Galileo-SDK-Trace-ID" in headers
+    assert headers["X-Galileo-SDK-Trace-ID"] == str(logger.traces[0].id)
+    assert "X-Galileo-SDK-Parent-ID" in headers
+    assert headers["X-Galileo-SDK-Parent-ID"] == str(agent_span.id)
 
 
 @patch("galileo.logger.logger.LogStreams")

@@ -220,8 +220,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                     "trace_id is required when span_id is provided. "
                     "In distributed tracing, both trace_id and span_id must be propagated together."
                 )
-            self.trace_id = trace_id
-            self.span_id = span_id
+            self.trace_id = trace_id if trace_id else None
+            self.span_id = span_id if span_id else None
 
         self.project_name = project or project_name_from_env
         self.project_id = project_id or project_id_from_env
@@ -549,8 +549,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
         dict[str, str]
             Dictionary with the following headers:
-            - X-Galileo-Trace-ID: The root trace ID
-            - X-Galileo-Parent-ID: The ID of the current parent (trace or span) that downstream
+            - X-Galileo-SDK-Trace-ID: The root trace ID
+            - X-Galileo-SDK-Parent-ID: The ID of the current parent (trace or span) that downstream
               spans should attach to
 
         Raises
@@ -565,15 +565,15 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         logger.start_trace(input="question")
         headers = logger.get_tracing_headers()
         # headers = {
-        #     "X-Galileo-Trace-ID": "...",
-        #     "X-Galileo-Parent-ID": "...",  # trace ID as parent
+        #     "X-Galileo-SDK-Trace-ID": "...",
+        #     "X-Galileo-SDK-Parent-ID": "...",  # trace ID as parent
         # }
 
         logger.add_workflow_span(input="workflow", name="orchestrator")
         headers = logger.get_tracing_headers()
         # headers = {
-        #     "X-Galileo-Trace-ID": "...",
-        #     "X-Galileo-Parent-ID": "...",  # workflow span ID as parent
+        #     "X-Galileo-SDK-Trace-ID": "...",
+        #     "X-Galileo-SDK-Parent-ID": "...",  # workflow span ID as parent
         # }
 
         # Pass headers to HTTP request

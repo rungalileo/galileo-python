@@ -1,4 +1,4 @@
-"""Tests for decorator with distributed mode for distributed tracing."""
+"""Tests for decorator with distributed mode and distributed tracing."""
 
 import os
 from unittest.mock import Mock, patch
