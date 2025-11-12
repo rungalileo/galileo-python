@@ -20,6 +20,9 @@ openai-agents = { version = "<0.2.1", optional = true }
 galileo-core = "^3.69.0"
 backoff = "^2.2.1"
 crewai = { version = ">=0.152.0,<=0.201.1", optional = true, python = ">=3.10,<3.14" }
+opentelemetry-sdk = { version = "^1.38.0", optional = true }
+opentelemetry-api = { version = "^1.38.0", optional = true }
+opentelemetry-exporter-otlp = { version = "^1.38.0", optional = true }
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.0"
@@ -315,7 +318,8 @@ formatter-cmds = ["ruff check --exit-zero --fix $file", "ruff format $file"]
 langchain = ["langchain-core"]
 openai = ["openai", "packaging (>=24.2,<25.0)", "openai-agents"]
 crewai = ["crewai (>=0.152.0,<=0.201.1)"]
-all = ["langchain-core", "openai", "crewai"]
+otel = ["opentelemetry-sdk (>=1.38.0,<2.0.0)", "opentelemetry-api (>=1.38.0,<2.0.0)", "opentelemetry-exporter-otlp (>=1.38.0,<2.0.0)"]
+all = ["langchain-core", "openai", "packaging (>=24.2,<25.0)", "openai-agents", "opentelemetry-sdk (>=1.38.0,<2.0.0)", "opentelemetry-api (>=1.38.0,<2.0.0)", "opentelemetry-exporter-otlp (>=1.38.0,<2.0.0)", "crewai (>=0.152.0,<=0.201.1)"]
 
 
 [build-system]
