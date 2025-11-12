@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from typing import Any, Optional
 
 from agents import Span, Trace, TracingProcessor
+from agents.tracing import ResponseSpanData
 
 from galileo import GalileoLogger, galileo_context
 from galileo.schema.handlers import Node
@@ -79,7 +80,6 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
         node.span_params["duration_ns"] = convert_time_delta_to_ns(_get_timestamp() - node.span_params["start_time"])
 
         # Log the trace to Galileo
-
         self._commit_trace(trace)
         self._galileo_logger.conclude(output=self._last_output, status_code=self._last_status_code)
         self._nodes = {}
@@ -112,6 +112,8 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
         ----------
         node : Node
             The node to log.
+        first_node : bool
+            Whether this is the root trace node.
         """
         is_workflow_span = False
         input = node.span_params.get("input", "")
@@ -146,6 +148,7 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
             )
             is_workflow_span = True
         elif node.node_type in ("llm", "chat"):
+            tools = node.span_params.get("tools")
             self._galileo_logger.add_llm_span(
                 input=input,
                 output=output,
@@ -155,6 +158,7 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
                 temperature=node.span_params.get(
                     "temperature", node.span_params.get("metadata", {}).get("response_metadata", {}).get("temperature")
                 ),
+                tools=tools,
                 name=name,
                 metadata=metadata,
                 tags=tags,
@@ -310,6 +314,15 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
                 ):
                     self._first_input = node.span_params["input"]
 
+            # Extract embedded tool calls and merge with existing tool definitions
+            if isinstance(span.span_data, ResponseSpanData) and span.span_data.response:
+                embedded_tool_calls = self._extract_embedded_tool_calls(span.span_data.response)
+                if embedded_tool_calls:
+                    existing_tools = llm_data.get("tools") or []
+                    if not isinstance(existing_tools, list):
+                        existing_tools = []
+                    end_params["tools"] = existing_tools + embedded_tool_calls
+
         elif galileo_type == "tool":
             tool_data = _extract_tool_data(span.span_data)
             end_params.update(
@@ -356,3 +369,98 @@ class GalileoTracingProcessor(TracingProcessor, DecorateAllMethods):
     def force_flush(self) -> None:
         """Forces an immediate flush of all queued traces/spans."""
         self._galileo_logger.flush()
+
+    def _extract_embedded_tool_calls(self, response: Any) -> list[dict[str, Any]]:
+        """Extract embedded tool calls from response.output."""
+        if not response or not hasattr(response, "output"):
+            return []
+
+        output = response.output
+        if not isinstance(output, list):
+            return []
+
+        tool_calls = []
+        for item in output:
+            if hasattr(item, "model_dump"):
+                try:
+                    item_dict = item.model_dump()
+                except Exception:  # noqa: S112
+                    continue
+            elif isinstance(item, dict):
+                item_dict = item
+            else:
+                continue
+
+            item_type = item_dict.get("type", "")
+            if item_type not in (
+                "code_interpreter_call",
+                "file_search_call",
+                "web_search_call",
+                "computer_call",
+                "custom_tool_call",
+            ):
+                continue
+
+            tool_call = {
+                "type": "function",
+                "function": {"name": self._get_tool_name_from_type(item_type)},
+                "tool_call_id": item_dict.get("id") or item_dict.get("call_id"),
+                "tool_call_type": item_type,
+                "tool_call_input": self._extract_tool_input(item_dict, item_type),
+                "tool_call_output": self._extract_tool_output(item_dict, item_type),
+                "tool_call_status": item_dict.get("status", "completed"),
+            }
+            tool_calls.append(tool_call)
+
+        return tool_calls
+
+    def _get_tool_name_from_type(self, item_type: str) -> str:
+        """Map OpenAI tool call type to tool name."""
+        type_to_name = {
+            "code_interpreter_call": "code_interpreter",
+            "file_search_call": "file_search",
+            "web_search_call": "web_search",
+            "computer_call": "computer",
+            "custom_tool_call": "custom_tool",
+        }
+        return type_to_name.get(item_type, item_type)
+
+    def _extract_tool_input(self, item_dict: dict[str, Any], item_type: str) -> str:
+        """Extract input from tool call item per OpenAI schema."""
+        if item_type == "code_interpreter_call":
+            return serialize_to_str(item_dict.get("code"))
+        if item_type == "file_search_call":
+            queries = item_dict.get("queries")
+            return serialize_to_str(queries)
+        if item_type == "web_search_call":
+            action = item_dict.get("action", {})
+            if isinstance(action, dict) and action.get("type") == "search":
+                return serialize_to_str(action.get("query"))
+            return serialize_to_str(action)
+        if item_type == "custom_tool_call":
+            return serialize_to_str(item_dict.get("input"))
+        return serialize_to_str(item_dict.get("input") or item_dict.get("action"))
+
+    def _extract_tool_output(self, item_dict: dict[str, Any], item_type: str) -> str:
+        """Extract output from tool call item per OpenAI schema."""
+        if item_type == "code_interpreter_call":
+            outputs = item_dict.get("outputs")
+            if outputs and isinstance(outputs, list):
+                output_parts = []
+                for output_item in outputs:
+                    if isinstance(output_item, dict):
+                        if output_item.get("type") == "logs":
+                            output_parts.append(output_item.get("logs", ""))
+                        elif output_item.get("type") == "image":
+                            output_parts.append(output_item.get("url", ""))
+                    else:
+                        output_parts.append(str(output_item))
+                return serialize_to_str("\n".join(output_parts) if output_parts else None)
+            return serialize_to_str(None)
+        if item_type == "file_search_call":
+            return serialize_to_str(item_dict.get("results"))
+        if item_type == "web_search_call":
+            return serialize_to_str(item_dict.get("action"))
+        if item_type == "custom_tool_call":
+            return serialize_to_str(None)
+        return serialize_to_str(item_dict.get("output") or item_dict.get("results"))
