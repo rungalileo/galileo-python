@@ -37,7 +37,7 @@ def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog) -
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.WARNING):
-        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
         capture = setup_thread_pool_request_capture(logger)
 
@@ -74,7 +74,7 @@ def test_start_trace(mock_traces_client: Mock, mock_projects_client: Mock, mock_
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -107,7 +107,7 @@ def test_add_llm_span(mock_traces_client: Mock, mock_projects_client: Mock, mock
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -176,7 +176,7 @@ def test_add_protect_tool_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -279,7 +279,7 @@ def test_conclude_trace(mock_traces_client: Mock, mock_projects_client: Mock, mo
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -334,7 +334,7 @@ def test_conclude_trace_with_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -421,7 +421,7 @@ def test_conclude_trace_and_start_new_trace(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -540,7 +540,7 @@ def test_conclude_trace_with_nested_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -672,7 +672,7 @@ def test_conclude_all_with_nested_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -795,7 +795,7 @@ def test_conclude_trace_with_agent_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -931,7 +931,7 @@ def test_trace_with_multiple_nested_spans(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1200,7 +1200,7 @@ def test_trace_with_nested_span_and_sibling(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1358,15 +1358,17 @@ def test_add_llm_span_and_conclude_existing_trace(
         project="my_project",
         log_stream="my_log_stream",
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
-        experimental={"mode": "streaming"},
+        mode="streaming",
     )
 
-    mock_traces_client_instance.get_trace.assert_called_once()
+    # With stubs, get_trace is not called (to avoid race conditions in distributed tracing)
+    mock_traces_client_instance.get_trace.assert_not_called()
 
+    # Verify stub trace was created
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
     assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
-    assert logger._parent_stack[0].name == "test-trace"
+    assert logger._parent_stack[0].name == "stub_trace"
     assert logger._parent_stack[0].type == "trace"
     assert len(logger._parent_stack[0].spans) == 0
 
@@ -1433,16 +1435,18 @@ def test_add_nested_span_and_conclude_existing_trace(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        experimental={"mode": "streaming"},
+        mode="streaming",
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
     )
 
-    mock_traces_client_instance.get_trace.assert_called_once()
+    # With stubs, get_trace is not called (to avoid race conditions in distributed tracing)
+    mock_traces_client_instance.get_trace.assert_not_called()
 
+    # Verify stub trace was created
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
     assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
-    assert logger._parent_stack[0].name == "test-trace"
+    assert logger._parent_stack[0].name == "stub_trace"
     assert logger._parent_stack[0].type == "trace"
     assert len(logger._parent_stack[0].spans) == 0
 
@@ -1555,16 +1559,19 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        experimental={"mode": "streaming"},
+        mode="streaming",
+        trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
 
-    mock_traces_client_instance.get_span.assert_called_once()
+    # With stubs, get_span is not called (to avoid race conditions in distributed tracing)
+    mock_traces_client_instance.get_span.assert_not_called()
 
+    # Verify stub trace and span were created
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
     assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
-    assert logger._parent_stack[0].name == "test-workflow-span"
+    assert logger._parent_stack[0].name == "stub_parent_span"
     assert logger._parent_stack[0].type == "workflow"
     assert len(logger._parent_stack[0].spans) == 0
 
@@ -1591,6 +1598,7 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
     asyncio.run(captured_task.task_func())
     mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
+    # Verify trace_id from stub is used in the request
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
     assert request.spans[0].input == [Message(role="user", content="prompt")]
@@ -1630,16 +1638,19 @@ def test_add_nested_span_and_conclude_existing_span(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        experimental={"mode": "streaming"},
+        mode="streaming",
+        trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
 
-    mock_traces_client_instance.get_span.assert_called_once()
+    # With stubs, get_span is not called (to avoid race conditions in distributed tracing)
+    mock_traces_client_instance.get_span.assert_not_called()
 
+    # Verify stub trace and span were created
     assert len(logger.traces) == 1
     assert len(logger._parent_stack) == 1
     assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
-    assert logger._parent_stack[0].name == "test-workflow-span"
+    assert logger._parent_stack[0].name == "stub_parent_span"
     assert logger._parent_stack[0].type == "workflow"
     assert len(logger._parent_stack[0].spans) == 0
 
@@ -1681,6 +1692,7 @@ def test_add_nested_span_and_conclude_existing_span(
     asyncio.run(captured_task.task_func())
     mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
+    # Verify trace_id from stub is used in the request
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
     assert request.spans[0].type == "workflow"
@@ -1700,6 +1712,7 @@ def test_add_nested_span_and_conclude_existing_span(
     asyncio.run(captured_task.task_func())
     mock_traces_client_instance.ingest_spans.assert_called_with(request)
 
+    # Verify trace_id from stub is used in the request
     assert request.trace_id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
     assert request.parent_id == workflow_span_id
     assert request.spans[0].type == "llm"
@@ -1758,20 +1771,32 @@ def test_catch_error_trace_span_ids_in_batch_mode(
 def test_catch_error_mismatched_trace_span_ids(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, caplog, enable_galileo_logging
 ) -> None:
-    """Test that mismatched trace_id and span_id raises GalileoLoggerException."""
+    """Test that stubs are created without validation (to avoid race conditions in distributed tracing)."""
 
-    setup_mock_traces_client(mock_traces_client)
+    mock_traces_client_instance = setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    with pytest.raises(GalileoLoggerException, match="does not belong to trace"):
-        GalileoLogger(
-            project="my_project",
-            log_stream="my_log_stream",
-            experimental={"mode": "streaming"},
-            trace_id="00000000-0000-0000-0000-000000000000",
-            span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
-        )
+    # With stubs, no validation is performed - stubs are created as-is
+    # This is intentional to avoid race conditions where parent trace/span may not be ingested yet
+    # Using different trace_id and span_id to simulate potentially mismatched IDs (which would fail with fetch-based approach)
+    logger = GalileoLogger(
+        project="my_project",
+        log_stream="my_log_stream",
+        mode="streaming",
+        trace_id="7c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",  # Different trace
+        span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",  # Different span
+    )
+
+    # Verify no fetch calls were made
+    mock_traces_client_instance.get_trace.assert_not_called()
+    mock_traces_client_instance.get_span.assert_not_called()
+
+    # Verify stubs were created even with potentially mismatched IDs
+    assert len(logger.traces) == 1
+    assert logger.traces[0].id == UUID("7c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
+    assert len(logger._parent_stack) == 1
+    assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1785,7 +1810,7 @@ def test_get_tracing_headers_with_workflow_span(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
     setup_thread_pool_request_capture(logger)
 
     logger.start_trace(input="test input", name="test-trace")
@@ -1793,10 +1818,10 @@ def test_get_tracing_headers_with_workflow_span(
 
     headers = logger.get_tracing_headers()
 
-    assert "X-Galileo-Trace-ID" in headers
-    assert headers["X-Galileo-Trace-ID"] == str(logger.traces[0].id)
-    assert "X-Galileo-Parent-ID" in headers
-    assert headers["X-Galileo-Parent-ID"] == str(workflow_span.id)
+    assert "X-Galileo-SDK-Trace-ID" in headers
+    assert headers["X-Galileo-SDK-Trace-ID"] == str(logger.traces[0].id)
+    assert "X-Galileo-SDK-Parent-ID" in headers
+    assert headers["X-Galileo-SDK-Parent-ID"] == str(workflow_span.id)
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1810,7 +1835,7 @@ def test_get_tracing_headers_with_agent_span(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
     setup_thread_pool_request_capture(logger)
 
     logger.start_trace(input="test input", name="test-trace")
@@ -1818,10 +1843,10 @@ def test_get_tracing_headers_with_agent_span(
 
     headers = logger.get_tracing_headers()
 
-    assert "X-Galileo-Trace-ID" in headers
-    assert headers["X-Galileo-Trace-ID"] == str(logger.traces[0].id)
-    assert "X-Galileo-Parent-ID" in headers
-    assert headers["X-Galileo-Parent-ID"] == str(agent_span.id)
+    assert "X-Galileo-SDK-Trace-ID" in headers
+    assert headers["X-Galileo-SDK-Trace-ID"] == str(logger.traces[0].id)
+    assert "X-Galileo-SDK-Parent-ID" in headers
+    assert headers["X-Galileo-SDK-Parent-ID"] == str(agent_span.id)
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1835,7 +1860,7 @@ def test_get_tracing_headers_batch_mode_error(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "batch"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="batch")
     logger.start_trace(input="test input")
 
     with pytest.raises(GalileoLoggerException) as exc_info:
@@ -1855,7 +1880,7 @@ def test_get_tracing_headers_no_trace_error(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", experimental={"mode": "streaming"})
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
 
     with pytest.raises(GalileoLoggerException) as exc_info:
         logger.get_tracing_headers()

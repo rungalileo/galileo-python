@@ -69,7 +69,7 @@ class DecorateAllMethods:
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
         # Methods to exclude from decoration (should raise exceptions)
-        excluded_methods = {"__init__", "get_tracing_headers", "_init_span", "_init_trace"}
+        excluded_methods = {"__init__", "get_tracing_headers"}
         for attr, f in cls.__dict__.items():
             if attr in excluded_methods:
                 continue

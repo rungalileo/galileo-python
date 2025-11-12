@@ -65,8 +65,8 @@ class TracingMiddleware(BaseHTTPMiddleware):
     Middleware that extracts distributed tracing headers from incoming requests.
 
     This middleware looks for the following headers in incoming HTTP requests:
-    - X-Galileo-Trace-ID: The root trace ID
-    - X-Galileo-Parent-ID: The parent span/trace ID to attach to
+    - X-Galileo-SDK-Trace-ID: The root trace ID
+    - X-Galileo-SDK-Parent-ID: The parent span/trace ID to attach to
 
     These values are stored in context variables, making them available to request
     handlers via the `get_request_logger()` function.
@@ -124,15 +124,16 @@ class TracingMiddleware(BaseHTTPMiddleware):
 
 def get_request_logger() -> GalileoLogger:
     """
-    Get a request-scoped GalileoLogger configured with distributed tracing context.
+    Get a request-scoped GalileoLogger configured for streaming mode,
+    i.e. for distributed tracing.
 
     This function should be called within a request handler after the TracingMiddleware has
     been registered. It creates a new GalileoLogger instance per request that automatically
     continues the distributed trace from the upstream service.
 
     The logger is configured using trace context extracted by the middleware:
-    - X-Galileo-Trace-ID: Root trace ID
-    - X-Galileo-Parent-ID: Parent span/trace ID to attach to
+    - X-Galileo-SDK-Trace-ID: Root trace ID
+    - X-Galileo-SDK-Parent-ID: Parent span/trace ID to attach to
 
     Project and log_stream are configured per service via environment variables
     (GALILEO_PROJECT and GALILEO_LOG_STREAM), not propagated via headers, following
@@ -198,6 +199,4 @@ def get_request_logger() -> GalileoLogger:
     # If parent_id equals trace_id, it means the parent is the root trace itself,
     # not a span. In this case, we should pass None as span_id to avoid
     # GalileoLoggerException when it tries to look up a span with the trace_id.
-    return GalileoLogger(
-        experimental={"mode": "streaming"}, trace_id=trace_id, span_id=parent_id if parent_id != trace_id else None
-    )
+    return GalileoLogger(mode="streaming", trace_id=trace_id, span_id=parent_id if parent_id != trace_id else None)
