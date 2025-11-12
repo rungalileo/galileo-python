@@ -35,10 +35,10 @@ def app():
 
     @app.get("/test-add-span")
     async def test_add_span_endpoint():
-        """Endpoint that tries to add a span to test span validation.
+        """Endpoint that tries to add a span to test distributed tracing stub creation.
 
-        Note: The span validation happens during logger initialization (in __init__),
-        not when adding a span. So if span_id is set, _init_span() is called immediately.
+        Note: In distributed tracing with streaming mode, when span_id is provided,
+        the logger creates local stub objects in __init__ without fetching from backend.
         """
         try:
             logger = get_request_logger()
@@ -161,7 +161,7 @@ def test_middleware_handles_partial_headers(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    trace_id = "00000000-0000-0000-0000-000000000001"
+    trace_id = "12345678-1234-4678-9abc-123456789abc"
 
     response = client.get("/test", headers={TRACE_ID_HEADER: trace_id})
 
@@ -183,8 +183,8 @@ def test_context_cleanup_after_request(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    trace_id = "00000000-0000-0000-0000-000000000001"
-    parent_id = "00000000-0000-0000-0000-000000000002"
+    trace_id = "12345678-1234-4678-9abc-123456789abc"
+    parent_id = "87654321-4321-4876-9cba-987654321cba"
 
     # First request with headers
     response1 = client.get("/test-context", headers={TRACE_ID_HEADER: trace_id, PARENT_ID_HEADER: parent_id})
@@ -210,14 +210,14 @@ def test_get_request_logger_when_parent_id_equals_trace_id(
     """Test that get_request_logger handles the case when parent_id equals trace_id.
 
     When upstream services forward headers immediately after start_trace(), both
-    X-Galileo-Trace-ID and X-Galileo-Parent-ID are identical (the root trace id).
+    X-Galileo-SDK-Trace-ID and X-Galileo-SDK-Parent-ID are identical (the root trace id).
     In this case, we should pass None as span_id to avoid GalileoLoggerException.
     """
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    trace_id = "00000000-0000-0000-0000-000000000001"
+    trace_id = "12345678-1234-4678-9abc-123456789abc"
     # parent_id equals trace_id (first hop after start_trace)
     parent_id = trace_id
 
@@ -239,58 +239,29 @@ def test_get_request_logger_when_parent_id_equals_trace_id(
 def test_mismatched_trace_and_span_ids(
     mock_traces_client: Mock, mock_projects_client: Mock, mock_logstreams_client: Mock, client: TestClient
 ):
-    """Test that get_request_logger handles mismatched trace_id and span_id.
+    """Test that get_request_logger creates stubs for distributed tracing.
 
-    When a span_id is provided that doesn't belong to the trace_id, the logger
-    should raise a GalileoLoggerException during initialization when _init_span()
-    validates that the span belongs to the trace.
-
-    Note: The validation happens in _init_span() which compares the span's trace_id
-    (UUID) with self.trace_id (string). The comparison should work correctly.
+    In distributed tracing with streaming mode, when trace_id and span_id are provided,
+    the logger creates local stub objects instead of fetching from the backend.
+    This allows distributed tracing to work without backend validation, with eventual
+    consistency handling any mismatches during ingestion retries.
     """
     setup_mock_traces_client(mock_traces_client)
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    trace_id = "00000000-0000-0000-0000-000000000001"
-    # parent_id is a span from a different trace
-    parent_id = "00000000-0000-0000-0000-000000000099"
-
-    # Mock get_span to return a span that belongs to a different trace
-    # Override the get_span mock that was set up by setup_mock_traces_client
-    from unittest.mock import AsyncMock
-    from uuid import UUID
-
-    mock_span = {
-        "id": UUID(parent_id),
-        "trace_id": UUID("00000000-0000-0000-0000-000000000002"),  # Different trace!
-        "type": "workflow",
-        "name": "test-workflow-span",
-        "input": "test-input",
-        "output": None,
-        "created_at": None,
-        "updated_at": None,
-        "user_metadata": {},
-        "metrics": {},
-        "parent_id": None,
-    }
-    # Override on the instance that was already set up
-    mock_instance = mock_traces_client.return_value
-    mock_instance.get_span = AsyncMock(return_value=mock_span)
+    trace_id = "12345678-1234-4678-9abc-123456789abc"
+    parent_id = "99999999-9999-4999-9999-999999999999"
 
     response = client.get("/test-add-span", headers={TRACE_ID_HEADER: trace_id, PARENT_ID_HEADER: parent_id})
 
     assert response.status_code == 200
     data = response.json()
 
-    # The validation should fail during logger initialization
-    # _init_span() is called in __init__ when span_id is set, and it validates
-    # that span_obj["trace_id"] (UUID) matches self.trace_id (string)
-    #
-    # The comparison in _init_span() is: `trace_id != self.trace_id`
-    # where trace_id is UUID and self.trace_id is string. This comparison
-    # works correctly in Python, and should raise GalileoLoggerException when
-    # the span belongs to a different trace.
-    assert data["success"] is False, "Expected logger initialization to fail with mismatched trace_id and span_id"
-    assert data["error_type"] == "GalileoLoggerException"
-    assert "does not belong to trace" in data["error"]
+    # With stubs, logger initialization succeeds without backend validation
+    # The stub objects are created locally, allowing distributed tracing to work
+    # even when the parent span hasn't been ingested yet (eventual consistency)
+    assert data["success"] is True, "Expected logger initialization to succeed with stubs"
+    assert data["error"] is None
+    assert data["trace_id"] == trace_id
+    assert data["span_id"] == parent_id
