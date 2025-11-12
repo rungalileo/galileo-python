@@ -4,6 +4,8 @@ import uuid
 from typing import Any, NoReturn, Optional
 from urllib.parse import urljoin
 
+from galileo.config import GalileoPythonConfig
+
 logger = logging.getLogger(__name__)
 
 INSTALL_ERR_MSG = (
@@ -46,22 +48,9 @@ class GalileoOTLPExporter(OTLPSpanExporter):
     This exporter extends the standard OTLPSpanExporter with Galileo-specific
     configuration and authentication. For most applications, consider using
     GalileoSpanProcessor instead, which provides a complete tracing solution.
-
-    Supported Environment Variables:
-        GALILEO_API_KEY: Authentication key for Galileo platform access
-        GALILEO_CONSOLE_URL: Galileo Console base URL (default: https://api.galileo.ai)
-        GALILEO_PROJECT: Target project name for trace data
-        GALILEO_LOGSTREAM: Target logstream name for trace organization
     """
 
-    def __init__(
-        self,
-        project: Optional[str] = None,
-        logstream: Optional[str] = None,
-        api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
-        **kwargs: Any,
-    ) -> None:
+    def __init__(self, project: Optional[str] = None, logstream: Optional[str] = None, **kwargs: Any) -> None:
         """
         Initialize the Galileo OTLP exporter with authentication and endpoint configuration.
 
@@ -71,24 +60,30 @@ class GalileoOTLPExporter(OTLPSpanExporter):
             Target Galileo project name. Falls back to GALILEO_PROJECT environment variable.
         logstream : str, optional
             Target logstream for trace organization. Uses default logstream if not specified.
-        base_url : str, optional
-            Base URL for OTLP endpoint. Constructs {base_url}/otel/traces as the final endpoint.
-        api_key : str, optional
-            Galileo platform API key. Falls back to GALILEO_API_KEY environment variable.
         **kwargs
             Additional configuration options passed to the underlying OTLPSpanExporter.
 
         Raises
         ------
         ValueError
-            When no API key is provided via parameter or environment variable.
+            When configuration is not properly initialized with required credentials.
         """
-        processed_base_url = str(base_url or os.environ.get("GALILEO_CONSOLE_URL", "https://api.galileo.ai"))
+        # Get configuration from GalileoPythonConfig
+        config = GalileoPythonConfig.get()
+
+        if not config.api_url:
+            # This should never happen, but we'll raise an error just in case
+            raise ValueError("API URL is required.")
+
+        # Get API URL and construct OTLP endpoint
+        base_url = str(config.api_url)
         # Ensure base_url ends with / for proper joining
-        if not processed_base_url.endswith("/"):
-            processed_base_url += "/"
-        endpoint: str = urljoin(processed_base_url, "/otel/traces")
-        api_key = api_key or os.environ.get("GALILEO_API_KEY")
+        if not base_url.endswith("/"):
+            base_url += "/"
+        endpoint: str = urljoin(base_url, "otel/traces")
+
+        if not config.api_key:
+            raise ValueError("API key is required.")
 
         # Resolve project and logstream from parameters or environment variables
         self.project = project or os.environ.get("GALILEO_PROJECT")
@@ -100,12 +95,7 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         if not self.logstream:
             self.logstream = "default"
 
-        if not api_key:
-            raise ValueError(
-                "API key is required. Provide it via api_key parameter or GALILEO_API_KEY environment variable."
-            )
-
-        exporter_headers = {"Galileo-API-Key": api_key, "project": self.project, "logstream": self.logstream}
+        exporter_headers = {"Galileo-API-Key": config.api_key, "project": self.project, "logstream": self.logstream}
 
         super().__init__(endpoint=endpoint, headers=exporter_headers, **kwargs)
 
@@ -124,12 +114,7 @@ class GalileoSpanProcessor(SpanProcessor):
     """
 
     def __init__(
-        self,
-        project: Optional[str] = None,
-        logstream: Optional[str] = None,
-        api_key: Optional[str] = None,
-        api_url: Optional[str] = None,
-        SpanProcessor: Optional[type] = None,
+        self, project: Optional[str] = None, logstream: Optional[str] = None, SpanProcessor: Optional[type] = None
     ) -> None:
         """
         Initialize the Galileo span processor with export configuration.
@@ -140,10 +125,6 @@ class GalileoSpanProcessor(SpanProcessor):
             Target Galileo project for trace data. Falls back to GALILEO_PROJECT environment variable.
         logstream : str, optional
             Target logstream for trace organization. Uses default logstream if not specified.
-        api_key : str, optional
-            Galileo platform API key. Falls back to GALILEO_API_KEY environment variable.
-        api_url : str, optional
-            Base URL for Galileo API endpoints. Falls back to GALILEO_API_URL environment variable.
         SpanProcessor : type, optional
             Custom span processor class. Defaults to BatchSpanProcessor for optimal performance.
 
@@ -158,9 +139,8 @@ class GalileoSpanProcessor(SpanProcessor):
                 "Install optional OpenTelemetry dependencies with: pip install galileo[otel]"
             )
 
-        # Create the exporter
-        # Convert api_url to the full endpoint URL that GalileoOTLPExporter expects
-        self._exporter = GalileoOTLPExporter(base_url=api_url, api_key=api_key, project=project, logstream=logstream)
+        # Create the exporter using the config-based approach
+        self._exporter = GalileoOTLPExporter(project=project, logstream=logstream)
 
         if SpanProcessor is None:
             SpanProcessor = BatchSpanProcessor

@@ -34,16 +34,21 @@ class TestGalileoOTLPExporter:
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
-    def test_init_with_all_parameters(self, mock_otlp_init, clear_env_vars):
+    @patch("galileo.otel.GalileoPythonConfig.get")
+    def test_init_with_all_parameters(self, mock_config_get, mock_otlp_init, clear_env_vars):
         """Test initialization with all parameters provided."""
         project = "test-project"
         logstream = "test-logstream"
         api_key = "test-api-key"
         base_url = "https://custom.galileo.ai"
 
-        exporter = GalileoOTLPExporter(
-            project=project, logstream=logstream, api_key=api_key, base_url=base_url, timeout=30
-        )
+        # Mock the config
+        mock_config = Mock()
+        mock_config.api_url = base_url
+        mock_config.api_key = api_key
+        mock_config_get.return_value = mock_config
+
+        exporter = GalileoOTLPExporter(project=project, logstream=logstream, timeout=30)
 
         # Verify endpoint construction
         expected_endpoint = urljoin(base_url + "/", "/otel/traces")
@@ -56,16 +61,18 @@ class TestGalileoOTLPExporter:
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
-    def test_init_with_env_variables(self, mock_otlp_init):
+    @patch("galileo.otel.GalileoPythonConfig.get")
+    def test_init_with_env_variables(self, mock_config_get, mock_otlp_init):
         """Test initialization using environment variables and that they prevent auto-generation."""
+        # Mock the config
+        mock_config = Mock()
+        mock_config.api_url = "https://env.galileo.ai"
+        mock_config.api_key = "env-api-key"
+        mock_config_get.return_value = mock_config
+
         with patch.dict(
             os.environ,
-            {
-                "GALILEO_API_KEY": "env-api-key",
-                "GALILEO_CONSOLE_URL": "https://env.galileo.ai",
-                "GALILEO_PROJECT": "env-project",
-                "GALILEO_LOGSTREAM": "env-logstream",
-            },
+            {"GALILEO_API_KEY": "env-api-key", "GALILEO_PROJECT": "env-project", "GALILEO_LOGSTREAM": "env-logstream"},
         ):
             with patch("galileo.otel.uuid.uuid4") as mock_uuid:
                 exporter = GalileoOTLPExporter()
@@ -88,27 +95,24 @@ class TestGalileoOTLPExporter:
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
-    def test_init_parameter_priority_over_env(self, mock_otlp_init):
+    @patch("galileo.otel.GalileoPythonConfig.get")
+    def test_init_parameter_priority_over_env(self, mock_config_get, mock_otlp_init):
         """Test that parameters take priority over environment variables."""
+        # Mock the config
+        mock_config = Mock()
+        mock_config.api_url = "https://config.galileo.ai"
+        mock_config.api_key = "env-key"
+        mock_config_get.return_value = mock_config
+
         with patch.dict(
             os.environ,
-            {
-                "GALILEO_API_KEY": "env-key",
-                "GALILEO_CONSOLE_URL": "https://env.galileo.ai",
-                "GALILEO_PROJECT": "env-project",
-                "GALILEO_LOGSTREAM": "env-logstream",
-            },
+            {"GALILEO_API_KEY": "env-key", "GALILEO_PROJECT": "env-project", "GALILEO_LOGSTREAM": "env-logstream"},
         ):
-            GalileoOTLPExporter(
-                project="param-project",
-                logstream="param-logstream",
-                api_key="param-key",
-                base_url="https://param.galileo.ai",
-            )
+            GalileoOTLPExporter(project="param-project", logstream="param-logstream")
 
-            expected_endpoint = urljoin("https://param.galileo.ai/", "/otel/traces")
+            expected_endpoint = urljoin("https://config.galileo.ai/", "/otel/traces")
             expected_headers = {
-                "Galileo-API-Key": "param-key",
+                "Galileo-API-Key": "env-key",
                 "project": "param-project",
                 "logstream": "param-logstream",
             }
@@ -120,43 +124,60 @@ class TestGalileoOTLPExporter:
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.uuid.uuid4")
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
-    def test_init_auto_generate_project(self, mock_otlp_init, mock_uuid, clear_env_vars):
+    @patch("galileo.otel.GalileoPythonConfig.get")
+    def test_init_auto_generate_project(self, mock_config_get, mock_otlp_init, mock_uuid, clear_env_vars):
         """Test automatic project generation when no project is provided."""
         mock_uuid.return_value = uuid.UUID("12345678-1234-5678-9012-123456789012")
 
-        with patch.dict(os.environ, {"GALILEO_API_KEY": "test-key"}):
-            GalileoOTLPExporter()
+        # Mock the config
+        mock_config = Mock()
+        mock_config.api_url = "https://api.galileo.ai"
+        mock_config.api_key = "test-key"
+        mock_config_get.return_value = mock_config
 
-            expected_project = "project_12345678-1234-5678-9012-123456789012"
-            call_kwargs = mock_otlp_init.call_args[1]
-            assert call_kwargs["headers"]["project"] == expected_project
+        GalileoOTLPExporter()
+
+        expected_project = "project_12345678-1234-5678-9012-123456789012"
+        call_kwargs = mock_otlp_init.call_args[1]
+        assert call_kwargs["headers"]["project"] == expected_project
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
+    @patch("galileo.otel.GalileoPythonConfig.get")
     @pytest.mark.parametrize(
-        "base_url,expected_endpoint",
+        "api_url,expected_endpoint",
         [
             ("https://api.galileo.ai", "https://api.galileo.ai/otel/traces"),
             ("https://api.galileo.ai/", "https://api.galileo.ai/otel/traces"),
             ("http://localhost:8080", "http://localhost:8080/otel/traces"),
             ("http://localhost:8080/", "http://localhost:8080/otel/traces"),
-            (None, "https://api.galileo.ai/otel/traces"),  # Test default URL
         ],
     )
-    def test_url_construction_and_normalization(self, mock_otlp_init, base_url, expected_endpoint, clear_env_vars):
-        """Test URL construction with various edge cases and default behavior."""
-        with patch.dict(os.environ, {"GALILEO_API_KEY": "test-key"}):
-            if base_url:
-                GalileoOTLPExporter(base_url=base_url)
-            else:
-                GalileoOTLPExporter()  # Test default console URL
+    def test_url_construction_and_normalization(
+        self, mock_config_get, mock_otlp_init, api_url, expected_endpoint, clear_env_vars
+    ):
+        """Test URL construction with various edge cases."""
+        # Mock the config
+        mock_config = Mock()
+        mock_config.api_url = api_url
+        mock_config.api_key = "test-key"
+        mock_config_get.return_value = mock_config
 
-            call_kwargs = mock_otlp_init.call_args[1]
-            assert call_kwargs["endpoint"] == expected_endpoint
+        GalileoOTLPExporter()
+
+        call_kwargs = mock_otlp_init.call_args[1]
+        assert call_kwargs["endpoint"] == expected_endpoint
 
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
-    def test_init_missing_api_key_raises_error(self, clear_env_vars):
+    @patch("galileo.otel.GalileoPythonConfig.get")
+    def test_init_missing_api_key_raises_error(self, mock_config_get, clear_env_vars):
         """Test that missing API key raises ValueError."""
+        # Mock the config
+        mock_config = Mock()
+        mock_config.api_url = "https://api.galileo.ai"
+        mock_config.api_key = None
+        mock_config_get.return_value = mock_config
+
         with pytest.raises(ValueError, match="API key is required"):
             GalileoOTLPExporter()
 
@@ -188,12 +209,10 @@ class TestGalileoSpanProcessor:
         """Test initialization with default BatchSpanProcessor."""
         mocks = mock_processor_setup
 
-        processor = GalileoSpanProcessor(project="test-project", logstream="test-logstream", api_key="test-key")
+        processor = GalileoSpanProcessor(project="test-project", logstream="test-logstream")
 
         # Verify exporter was created with correct parameters
-        mocks["mock_exporter_class"].assert_called_once_with(
-            base_url=None, api_key="test-key", project="test-project", logstream="test-logstream"
-        )
+        mocks["mock_exporter_class"].assert_called_once_with(project="test-project", logstream="test-logstream")
 
         # Verify BatchSpanProcessor was created with the exporter
         mocks["mock_processor_class"].assert_called_once_with(mocks["mock_exporter_instance"])
@@ -214,9 +233,7 @@ class TestGalileoSpanProcessor:
         mock_custom_processor_instance = Mock()
         mock_custom_processor_class.return_value = mock_custom_processor_instance
 
-        processor = GalileoSpanProcessor(
-            project="test-project", api_key="test-key", SpanProcessor=mock_custom_processor_class
-        )
+        processor = GalileoSpanProcessor(project="test-project", SpanProcessor=mock_custom_processor_class)
 
         # Verify custom processor was used
         mock_custom_processor_class.assert_called_once_with(mock_exporter_instance)
@@ -226,7 +243,7 @@ class TestGalileoSpanProcessor:
     def test_on_start_delegates_to_processor(self, mock_processor_setup):
         """Test that on_start delegates to the underlying processor."""
         mocks = mock_processor_setup
-        processor = GalileoSpanProcessor(project="test", api_key="test-key")
+        processor = GalileoSpanProcessor(project="test")
 
         mock_span = Mock()
         mock_context = Mock()
@@ -238,7 +255,7 @@ class TestGalileoSpanProcessor:
     def test_on_end_delegates_to_processor(self, mock_processor_setup):
         """Test that on_end delegates to the underlying processor."""
         mocks = mock_processor_setup
-        processor = GalileoSpanProcessor(project="test", api_key="test-key")
+        processor = GalileoSpanProcessor(project="test")
 
         mock_span = Mock()
         processor.on_end(mock_span)
@@ -249,7 +266,7 @@ class TestGalileoSpanProcessor:
     def test_shutdown_delegates_to_processor(self, mock_processor_setup):
         """Test that shutdown delegates to the underlying processor."""
         mocks = mock_processor_setup
-        processor = GalileoSpanProcessor(project="test", api_key="test-key")
+        processor = GalileoSpanProcessor(project="test")
 
         processor.shutdown()
 
@@ -260,7 +277,7 @@ class TestGalileoSpanProcessor:
         """Test that force_flush delegates to the underlying processor."""
         mocks = mock_processor_setup
         mocks["mock_processor_instance"].force_flush.return_value = True
-        processor = GalileoSpanProcessor(project="test", api_key="test-key")
+        processor = GalileoSpanProcessor(project="test")
 
         result = processor.force_flush(30000)
 
@@ -271,7 +288,7 @@ class TestGalileoSpanProcessor:
     def test_force_flush_default_timeout(self, mock_processor_setup):
         """Test that force_flush uses default timeout when not specified."""
         mocks = mock_processor_setup
-        processor = GalileoSpanProcessor(project="test", api_key="test-key")
+        processor = GalileoSpanProcessor(project="test")
 
         processor.force_flush()
 
@@ -282,13 +299,9 @@ class TestGalileoSpanProcessor:
         """Test that all initialization parameters are passed to the exporter."""
         mocks = mock_processor_setup
 
-        GalileoSpanProcessor(
-            project="test-project", logstream="test-logstream", api_key="test-key", api_url="https://custom.galileo.ai"
-        )
+        GalileoSpanProcessor(project="test-project", logstream="test-logstream")
 
-        mocks["mock_exporter_class"].assert_called_once_with(
-            base_url="https://custom.galileo.ai", api_key="test-key", project="test-project", logstream="test-logstream"
-        )
+        mocks["mock_exporter_class"].assert_called_once_with(project="test-project", logstream="test-logstream")
 
 
 class TestOTelUnavailable:
@@ -298,7 +311,7 @@ class TestOTelUnavailable:
     def test_galileo_span_processor_raises_import_error_when_otel_unavailable(self):
         """Test that GalileoSpanProcessor raises ImportError when OpenTelemetry is not available."""
         with pytest.raises(ImportError, match=re.escape(INSTALL_ERR_MSG)):
-            GalileoSpanProcessor(project="test", api_key="test-key")
+            GalileoSpanProcessor(project="test")
 
     def test_stub_classes_raise_import_error(self):
         """Test that stub classes raise ImportError when instantiated."""
@@ -314,19 +327,25 @@ class TestOTelIntegration:
     @pytest.mark.skipif(not OTEL_AVAILABLE, reason="OpenTelemetry not available")
     @patch("galileo.otel.BatchSpanProcessor")
     @patch("galileo.otel.OTLPSpanExporter.__init__", return_value=None)
-    def test_exporter_and_processor_integration(self, mock_otlp_init, mock_batch_processor):
+    @patch("galileo.otel.GalileoPythonConfig.get")
+    def test_exporter_and_processor_integration(self, mock_config_get, mock_otlp_init, mock_batch_processor):
         """Test that GalileoSpanProcessor correctly integrates with GalileoOTLPExporter."""
         mock_batch_instance = Mock()
         mock_batch_processor.return_value = mock_batch_instance
 
-        with patch.dict(os.environ, {"GALILEO_API_KEY": "test-key"}):
-            processor = GalileoSpanProcessor(project="integration-test", logstream="integration-logstream")
+        # Mock the config
+        mock_config = Mock()
+        mock_config.api_url = "https://api.galileo.ai"
+        mock_config.api_key = "test-key"
+        mock_config_get.return_value = mock_config
 
-            # Verify the exporter was created and passed to the processor
-            assert mock_otlp_init.called
-            mock_batch_processor.assert_called_once()
+        processor = GalileoSpanProcessor(project="integration-test", logstream="integration-logstream")
 
-            # Verify the processor has access to both components
-            assert hasattr(processor, "exporter")
-            assert hasattr(processor, "processor")
-            assert processor.processor == mock_batch_instance
+        # Verify the exporter was created and passed to the processor
+        assert mock_otlp_init.called
+        mock_batch_processor.assert_called_once()
+
+        # Verify the processor has access to both components
+        assert hasattr(processor, "exporter")
+        assert hasattr(processor, "processor")
+        assert processor.processor == mock_batch_instance
