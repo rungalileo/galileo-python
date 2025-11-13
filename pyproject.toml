@@ -160,8 +160,6 @@ ignore = [
     "PLR0915",  # Too many statements
     "PLW2901",  # Redefined loop variable
     # Type annotation related (balance strictness)
-    "ANN101",   # Missing type annotation for `self` (unnecessary)
-    "ANN102",   # Missing type annotation for `cls` (unnecessary)
     "ANN002",   # Missing type annotation for `*args` (impractical to enforce)
     "ANN003",   # Missing type annotation for `**kwargs` (impractical to enforce)
     "ANN401",   # Dynamically typed expressions (Any) are disallowed
