@@ -46,6 +46,7 @@ class LogStream(LogStreamResponse):
 
     Examples
     --------
+    ```python
     # Create a new log stream in a project
     from galileo.log_streams import create_log_stream
 
@@ -96,6 +97,7 @@ class LogStream(LogStreamResponse):
         project_name="My AI Project",
         metrics=["correctness", "completeness"]
     )
+    ```
     """
 
     def __init__(self, log_stream: Union[None, LogStreamResponse] = None):
