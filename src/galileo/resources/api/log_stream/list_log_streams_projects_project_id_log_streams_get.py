@@ -67,6 +67,8 @@ def sync_detailed(
 
      Retrieve all log streams for a project.
 
+    DEPRECATED in favor of `list_log_streams_paginated`.
+
     Args:
         project_id (str):
 
@@ -91,6 +93,8 @@ def sync(project_id: str, *, client: ApiClient) -> Optional[Union[HTTPValidation
 
      Retrieve all log streams for a project.
 
+    DEPRECATED in favor of `list_log_streams_paginated`.
+
     Args:
         project_id (str):
 
@@ -112,6 +116,8 @@ async def asyncio_detailed(
     """List Log Streams.
 
      Retrieve all log streams for a project.
+
+    DEPRECATED in favor of `list_log_streams_paginated`.
 
     Args:
         project_id (str):
@@ -138,6 +144,8 @@ async def asyncio(
     """List Log Streams.
 
      Retrieve all log streams for a project.
+
+    DEPRECATED in favor of `list_log_streams_paginated`.
 
     Args:
         project_id (str):

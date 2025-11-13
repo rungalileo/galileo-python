@@ -16,6 +16,7 @@ class CoreScorerName(str, Enum):
     CONTEXT_ADHERENCE = "context_adherence"
     CONTEXT_ADHERENCE_LUNA = "context_adherence_luna"
     CONTEXT_RELEVANCE = "context_relevance"
+    CONTEXT_RELEVANCE_LUNA = "context_relevance_luna"
     CONVERSATION_QUALITY = "conversation_quality"
     CORRECTNESS = "correctness"
     GROUND_TRUTH_ADHERENCE = "ground_truth_adherence"

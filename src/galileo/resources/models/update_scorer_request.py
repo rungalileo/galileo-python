@@ -29,6 +29,7 @@ class UpdateScorerRequest:
         model_type (Union[ModelType, None, Unset]):
         name (Union[None, Unset, str]):
         output_type (Union[None, OutputTypeEnum, Unset]):
+        required_scorers (Union[None, Unset, list[str]]):
         scoreable_node_types (Union[None, Unset, list[str]]):
         tags (Union[None, Unset, list[str]]):
         user_prompt (Union[None, Unset, str]):
@@ -42,6 +43,7 @@ class UpdateScorerRequest:
     model_type: Union[ModelType, None, Unset] = UNSET
     name: Union[None, Unset, str] = UNSET
     output_type: Union[None, OutputTypeEnum, Unset] = UNSET
+    required_scorers: Union[None, Unset, list[str]] = UNSET
     scoreable_node_types: Union[None, Unset, list[str]] = UNSET
     tags: Union[None, Unset, list[str]] = UNSET
     user_prompt: Union[None, Unset, str] = UNSET
@@ -94,6 +96,15 @@ class UpdateScorerRequest:
         else:
             output_type = self.output_type
 
+        required_scorers: Union[None, Unset, list[str]]
+        if isinstance(self.required_scorers, Unset):
+            required_scorers = UNSET
+        elif isinstance(self.required_scorers, list):
+            required_scorers = self.required_scorers
+
+        else:
+            required_scorers = self.required_scorers
+
         scoreable_node_types: Union[None, Unset, list[str]]
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
@@ -134,6 +145,8 @@ class UpdateScorerRequest:
             field_dict["name"] = name
         if output_type is not UNSET:
             field_dict["output_type"] = output_type
+        if required_scorers is not UNSET:
+            field_dict["required_scorers"] = required_scorers
         if scoreable_node_types is not UNSET:
             field_dict["scoreable_node_types"] = scoreable_node_types
         if tags is not UNSET:
@@ -249,6 +262,22 @@ class UpdateScorerRequest:
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 
+        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
+
         def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
@@ -299,6 +328,7 @@ class UpdateScorerRequest:
             model_type=model_type,
             name=name,
             output_type=output_type,
+            required_scorers=required_scorers,
             scoreable_node_types=scoreable_node_types,
             tags=tags,
             user_prompt=user_prompt,

@@ -23,6 +23,8 @@ class LogTracesIngestRequest:
         traces (list['Trace']): List of traces to log.
         client_version (Union[None, Unset, str]):
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
+        include_trace_ids (Union[Unset, bool]): If True, include the list of ingested trace IDs in the response.
+            Default: False.
         is_complete (Union[Unset, bool]): Whether or not the records in this request are complete. Default: True.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         logging_method (Union[Unset, LoggingMethod]):
@@ -37,6 +39,7 @@ class LogTracesIngestRequest:
     traces: list["Trace"]
     client_version: Union[None, Unset, str] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
+    include_trace_ids: Union[Unset, bool] = False
     is_complete: Union[Unset, bool] = True
     log_stream_id: Union[None, Unset, str] = UNSET
     logging_method: Union[Unset, LoggingMethod] = UNSET
@@ -56,6 +59,8 @@ class LogTracesIngestRequest:
 
         experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
+
+        include_trace_ids = self.include_trace_ids
 
         is_complete = self.is_complete
 
@@ -81,6 +86,8 @@ class LogTracesIngestRequest:
             field_dict["client_version"] = client_version
         if experiment_id is not UNSET:
             field_dict["experiment_id"] = experiment_id
+        if include_trace_ids is not UNSET:
+            field_dict["include_trace_ids"] = include_trace_ids
         if is_complete is not UNSET:
             field_dict["is_complete"] = is_complete
         if log_stream_id is not UNSET:
@@ -126,6 +133,8 @@ class LogTracesIngestRequest:
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
+        include_trace_ids = d.pop("include_trace_ids", UNSET)
+
         is_complete = d.pop("is_complete", UNSET)
 
         def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
@@ -165,6 +174,7 @@ class LogTracesIngestRequest:
             traces=traces,
             client_version=client_version,
             experiment_id=experiment_id,
+            include_trace_ids=include_trace_ids,
             is_complete=is_complete,
             log_stream_id=log_stream_id,
             logging_method=logging_method,

@@ -6,21 +6,21 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="ProjectCreatedAtSort")
+T = TypeVar("T", bound="ProjectUpdatedAtSortV1")
 
 
 @_attrs_define
-class ProjectCreatedAtSort:
+class ProjectUpdatedAtSortV1:
     """
     Attributes
     ----------
         ascending (Union[Unset, bool]):  Default: True.
-        name (Union[Literal['created_at'], Unset]):  Default: 'created_at'.
+        name (Union[Literal['updated_at'], Unset]):  Default: 'updated_at'.
         sort_type (Union[Literal['column'], Unset]):  Default: 'column'.
     """
 
     ascending: Union[Unset, bool] = True
-    name: Union[Literal["created_at"], Unset] = "created_at"
+    name: Union[Literal["updated_at"], Unset] = "updated_at"
     sort_type: Union[Literal["column"], Unset] = "column"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -48,18 +48,18 @@ class ProjectCreatedAtSort:
         d = dict(src_dict)
         ascending = d.pop("ascending", UNSET)
 
-        name = cast(Union[Literal["created_at"], Unset], d.pop("name", UNSET))
-        if name != "created_at" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'created_at', got '{name}'")
+        name = cast(Union[Literal["updated_at"], Unset], d.pop("name", UNSET))
+        if name != "updated_at" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'updated_at', got '{name}'")
 
         sort_type = cast(Union[Literal["column"], Unset], d.pop("sort_type", UNSET))
         if sort_type != "column" and not isinstance(sort_type, Unset):
             raise ValueError(f"sort_type must match const 'column', got '{sort_type}'")
 
-        project_created_at_sort = cls(ascending=ascending, name=name, sort_type=sort_type)
+        project_updated_at_sort_v1 = cls(ascending=ascending, name=name, sort_type=sort_type)
 
-        project_created_at_sort.additional_properties = d
-        return project_created_at_sort
+        project_updated_at_sort_v1.additional_properties = d
+        return project_updated_at_sort_v1
 
     @property
     def additional_keys(self) -> list[str]:

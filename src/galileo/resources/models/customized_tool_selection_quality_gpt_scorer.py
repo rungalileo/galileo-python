@@ -64,6 +64,7 @@ class CustomizedToolSelectionQualityGPTScorer:
         prompt (Union[None, Unset, str]):
         regex_field (Union[Unset, str]):  Default: ''.
         registered_scorer_id (Union[None, Unset, str]):
+        required_scorers (Union[None, Unset, list[str]]):
         scoreable_node_types (Union[None, Unset, list[NodeType]]):
         scorer_name (Union[Literal['_customized_tool_selection_quality'], Unset]):  Default:
             '_customized_tool_selection_quality'.
@@ -100,6 +101,7 @@ class CustomizedToolSelectionQualityGPTScorer:
     prompt: Union[None, Unset, str] = UNSET
     regex_field: Union[Unset, str] = ""
     registered_scorer_id: Union[None, Unset, str] = UNSET
+    required_scorers: Union[None, Unset, list[str]] = UNSET
     scoreable_node_types: Union[None, Unset, list[NodeType]] = UNSET
     scorer_name: Union[Literal["_customized_tool_selection_quality"], Unset] = "_customized_tool_selection_quality"
     scores: Union[None, Unset, list[Any]] = UNSET
@@ -252,6 +254,15 @@ class CustomizedToolSelectionQualityGPTScorer:
         registered_scorer_id: Union[None, Unset, str]
         registered_scorer_id = UNSET if isinstance(self.registered_scorer_id, Unset) else self.registered_scorer_id
 
+        required_scorers: Union[None, Unset, list[str]]
+        if isinstance(self.required_scorers, Unset):
+            required_scorers = UNSET
+        elif isinstance(self.required_scorers, list):
+            required_scorers = self.required_scorers
+
+        else:
+            required_scorers = self.required_scorers
+
         scoreable_node_types: Union[None, Unset, list[str]]
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
@@ -333,6 +344,8 @@ class CustomizedToolSelectionQualityGPTScorer:
             field_dict["regex_field"] = regex_field
         if registered_scorer_id is not UNSET:
             field_dict["registered_scorer_id"] = registered_scorer_id
+        if required_scorers is not UNSET:
+            field_dict["required_scorers"] = required_scorers
         if scoreable_node_types is not UNSET:
             field_dict["scoreable_node_types"] = scoreable_node_types
         if scorer_name is not UNSET:
@@ -650,6 +663,22 @@ class CustomizedToolSelectionQualityGPTScorer:
 
         registered_scorer_id = _parse_registered_scorer_id(d.pop("registered_scorer_id", UNSET))
 
+        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
+
         def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[NodeType]]:
             if data is None:
                 return data
@@ -724,6 +753,7 @@ class CustomizedToolSelectionQualityGPTScorer:
             prompt=prompt,
             regex_field=regex_field,
             registered_scorer_id=registered_scorer_id,
+            required_scorers=required_scorers,
             scoreable_node_types=scoreable_node_types,
             scorer_name=scorer_name,
             scores=scores,

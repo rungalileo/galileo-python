@@ -10,17 +10,17 @@ if TYPE_CHECKING:
     from ..models.project_bookmark_filter import ProjectBookmarkFilter
     from ..models.project_bookmark_sort import ProjectBookmarkSort
     from ..models.project_created_at_filter import ProjectCreatedAtFilter
-    from ..models.project_created_at_sort import ProjectCreatedAtSort
+    from ..models.project_created_at_sort_v1 import ProjectCreatedAtSortV1
     from ..models.project_creator_filter import ProjectCreatorFilter
     from ..models.project_id_filter import ProjectIDFilter
     from ..models.project_name_filter import ProjectNameFilter
-    from ..models.project_name_sort import ProjectNameSort
+    from ..models.project_name_sort_v1 import ProjectNameSortV1
     from ..models.project_runs_filter import ProjectRunsFilter
     from ..models.project_runs_sort import ProjectRunsSort
     from ..models.project_type_filter import ProjectTypeFilter
     from ..models.project_type_sort import ProjectTypeSort
     from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
-    from ..models.project_updated_at_sort import ProjectUpdatedAtSort
+    from ..models.project_updated_at_sort_v1 import ProjectUpdatedAtSortV1
 
 
 T = TypeVar("T", bound="ProjectCollectionParams")
@@ -33,8 +33,8 @@ class ProjectCollectionParams:
     ----------
         filters (Union[Unset, list[Union['ProjectBookmarkFilter', 'ProjectCreatedAtFilter', 'ProjectCreatorFilter',
             'ProjectIDFilter', 'ProjectNameFilter', 'ProjectRunsFilter', 'ProjectTypeFilter', 'ProjectUpdatedAtFilter']]]):
-        sort (Union['ProjectBookmarkSort', 'ProjectCreatedAtSort', 'ProjectNameSort', 'ProjectRunsSort',
-            'ProjectTypeSort', 'ProjectUpdatedAtSort', None, Unset]):  Default: None.
+        sort (Union['ProjectBookmarkSort', 'ProjectCreatedAtSortV1', 'ProjectNameSortV1', 'ProjectRunsSort',
+            'ProjectTypeSort', 'ProjectUpdatedAtSortV1', None, Unset]):  Default: None.
     """
 
     filters: Union[
@@ -54,11 +54,11 @@ class ProjectCollectionParams:
     ] = UNSET
     sort: Union[
         "ProjectBookmarkSort",
-        "ProjectCreatedAtSort",
-        "ProjectNameSort",
+        "ProjectCreatedAtSortV1",
+        "ProjectNameSortV1",
         "ProjectRunsSort",
         "ProjectTypeSort",
-        "ProjectUpdatedAtSort",
+        "ProjectUpdatedAtSortV1",
         None,
         Unset,
     ] = None
@@ -67,17 +67,17 @@ class ProjectCollectionParams:
     def to_dict(self) -> dict[str, Any]:
         from ..models.project_bookmark_sort import ProjectBookmarkSort
         from ..models.project_created_at_filter import ProjectCreatedAtFilter
-        from ..models.project_created_at_sort import ProjectCreatedAtSort
+        from ..models.project_created_at_sort_v1 import ProjectCreatedAtSortV1
         from ..models.project_creator_filter import ProjectCreatorFilter
         from ..models.project_id_filter import ProjectIDFilter
         from ..models.project_name_filter import ProjectNameFilter
-        from ..models.project_name_sort import ProjectNameSort
+        from ..models.project_name_sort_v1 import ProjectNameSortV1
         from ..models.project_runs_filter import ProjectRunsFilter
         from ..models.project_runs_sort import ProjectRunsSort
         from ..models.project_type_filter import ProjectTypeFilter
         from ..models.project_type_sort import ProjectTypeSort
         from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
-        from ..models.project_updated_at_sort import ProjectUpdatedAtSort
+        from ..models.project_updated_at_sort_v1 import ProjectUpdatedAtSortV1
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -108,10 +108,10 @@ class ProjectCollectionParams:
         elif isinstance(
             self.sort,
             (
-                ProjectNameSort,
+                ProjectNameSortV1,
                 ProjectTypeSort,
-                ProjectCreatedAtSort,
-                ProjectUpdatedAtSort,
+                ProjectCreatedAtSortV1,
+                ProjectUpdatedAtSortV1,
                 ProjectRunsSort,
                 ProjectBookmarkSort,
             ),
@@ -135,17 +135,17 @@ class ProjectCollectionParams:
         from ..models.project_bookmark_filter import ProjectBookmarkFilter
         from ..models.project_bookmark_sort import ProjectBookmarkSort
         from ..models.project_created_at_filter import ProjectCreatedAtFilter
-        from ..models.project_created_at_sort import ProjectCreatedAtSort
+        from ..models.project_created_at_sort_v1 import ProjectCreatedAtSortV1
         from ..models.project_creator_filter import ProjectCreatorFilter
         from ..models.project_id_filter import ProjectIDFilter
         from ..models.project_name_filter import ProjectNameFilter
-        from ..models.project_name_sort import ProjectNameSort
+        from ..models.project_name_sort_v1 import ProjectNameSortV1
         from ..models.project_runs_filter import ProjectRunsFilter
         from ..models.project_runs_sort import ProjectRunsSort
         from ..models.project_type_filter import ProjectTypeFilter
         from ..models.project_type_sort import ProjectTypeSort
         from ..models.project_updated_at_filter import ProjectUpdatedAtFilter
-        from ..models.project_updated_at_sort import ProjectUpdatedAtSort
+        from ..models.project_updated_at_sort_v1 import ProjectUpdatedAtSortV1
 
         d = dict(src_dict)
         filters = []
@@ -225,11 +225,11 @@ class ProjectCollectionParams:
             data: object,
         ) -> Union[
             "ProjectBookmarkSort",
-            "ProjectCreatedAtSort",
-            "ProjectNameSort",
+            "ProjectCreatedAtSortV1",
+            "ProjectNameSortV1",
             "ProjectRunsSort",
             "ProjectTypeSort",
-            "ProjectUpdatedAtSort",
+            "ProjectUpdatedAtSortV1",
             None,
             Unset,
         ]:
@@ -240,7 +240,7 @@ class ProjectCollectionParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProjectNameSort.from_dict(data)
+                return ProjectNameSortV1.from_dict(data)
 
             except:  # noqa: E722
                 pass
@@ -254,14 +254,14 @@ class ProjectCollectionParams:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProjectCreatedAtSort.from_dict(data)
+                return ProjectCreatedAtSortV1.from_dict(data)
 
             except:  # noqa: E722
                 pass
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                return ProjectUpdatedAtSort.from_dict(data)
+                return ProjectUpdatedAtSortV1.from_dict(data)
 
             except:  # noqa: E722
                 pass
@@ -282,11 +282,11 @@ class ProjectCollectionParams:
             return cast(
                 Union[
                     "ProjectBookmarkSort",
-                    "ProjectCreatedAtSort",
-                    "ProjectNameSort",
+                    "ProjectCreatedAtSortV1",
+                    "ProjectNameSortV1",
                     "ProjectRunsSort",
                     "ProjectTypeSort",
-                    "ProjectUpdatedAtSort",
+                    "ProjectUpdatedAtSortV1",
                     None,
                     Unset,
                 ],

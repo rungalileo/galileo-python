@@ -21,9 +21,38 @@ from .aggregated_trace_view_node_metrics import AggregatedTraceViewNodeMetrics
 from .aggregated_trace_view_request import AggregatedTraceViewRequest
 from .aggregated_trace_view_response import AggregatedTraceViewResponse
 from .and_node import AndNode
+from .anthropic_authentication_type import AnthropicAuthenticationType
+from .anthropic_integration import AnthropicIntegration
+from .anthropic_integration_create import AnthropicIntegrationCreate
+from .anthropic_integration_create_custom_header_mapping_type_0 import (
+    AnthropicIntegrationCreateCustomHeaderMappingType0,
+)
+from .anthropic_integration_custom_header_mapping_type_0 import AnthropicIntegrationCustomHeaderMappingType0
+from .anthropic_integration_extra_type_0 import AnthropicIntegrationExtraType0
 from .api_key_action import ApiKeyAction
 from .api_key_login_request import ApiKeyLoginRequest
 from .auth_method import AuthMethod
+from .available_integrations import AvailableIntegrations
+from .aws_bedrock_integration import AwsBedrockIntegration
+from .aws_bedrock_integration_extra_type_0 import AwsBedrockIntegrationExtraType0
+from .aws_credential_type import AwsCredentialType
+from .aws_sage_maker_integration import AwsSageMakerIntegration
+from .aws_sage_maker_integration_create import AwsSageMakerIntegrationCreate
+from .aws_sage_maker_integration_create_token import AwsSageMakerIntegrationCreateToken
+from .aws_sage_maker_integration_extra_type_0 import AwsSageMakerIntegrationExtraType0
+from .azure_authentication_type import AzureAuthenticationType
+from .azure_integration import AzureIntegration
+from .azure_integration_create import AzureIntegrationCreate
+from .azure_integration_create_custom_header_mapping_type_0 import AzureIntegrationCreateCustomHeaderMappingType0
+from .azure_integration_create_default_headers_type_0 import AzureIntegrationCreateDefaultHeadersType0
+from .azure_integration_create_deployments import AzureIntegrationCreateDeployments
+from .azure_integration_custom_header_mapping_type_0 import AzureIntegrationCustomHeaderMappingType0
+from .azure_integration_default_headers_type_0 import AzureIntegrationDefaultHeadersType0
+from .azure_integration_deployments import AzureIntegrationDeployments
+from .azure_integration_extra_type_0 import AzureIntegrationExtraType0
+from .azure_model_deployment import AzureModelDeployment
+from .base_aws_integration_create import BaseAwsIntegrationCreate
+from .base_aws_integration_create_token import BaseAwsIntegrationCreateToken
 from .base_finetuned_scorer_db import BaseFinetunedScorerDB
 from .base_finetuned_scorer_db_class_name_to_vocab_ix_type_0 import BaseFinetunedScorerDBClassNameToVocabIxType0
 from .base_finetuned_scorer_db_class_name_to_vocab_ix_type_1 import BaseFinetunedScorerDBClassNameToVocabIxType1
@@ -59,8 +88,8 @@ from .bucketed_metric_buckets import BucketedMetricBuckets
 from .bucketed_metrics import BucketedMetrics
 from .bulk_delete_datasets_request import BulkDeleteDatasetsRequest
 from .bulk_delete_datasets_response import BulkDeleteDatasetsResponse
-from .bulk_delete_failure import BulkDeleteFailure
 from .bulk_delete_prompt_templates_request import BulkDeletePromptTemplatesRequest
+from .bulk_delete_prompt_templates_response import BulkDeletePromptTemplatesResponse
 from .chain_poll_template import ChainPollTemplate
 from .chain_poll_template_response_schema_type_0 import ChainPollTemplateResponseSchemaType0
 from .chunk_attribution_utilization_scorer import ChunkAttributionUtilizationScorer
@@ -96,8 +125,12 @@ from .create_prompt_template_with_version_request_body import CreatePromptTempla
 from .create_scorer_request import CreateScorerRequest
 from .create_scorer_version_request import CreateScorerVersionRequest
 from .create_update_registered_scorer_response import CreateUpdateRegisteredScorerResponse
+from .custom_authentication_type import CustomAuthenticationType
 from .custom_boolean_filter import CustomBooleanFilter
 from .custom_function_filter import CustomFunctionFilter
+from .custom_integration import CustomIntegration
+from .custom_integration_create import CustomIntegrationCreate
+from .custom_integration_extra_type_0 import CustomIntegrationExtraType0
 from .custom_number_filter import CustomNumberFilter
 from .custom_number_filter_operator import CustomNumberFilterOperator
 from .custom_uuid_filter import CustomUUIDFilter
@@ -253,14 +286,39 @@ from .customized_toxicity_gpt_scorer_extra_type_0 import CustomizedToxicityGPTSc
 from .data_type import DataType
 from .data_type_options import DataTypeOptions
 from .data_unit import DataUnit
+from .databricks_edit_export_request import DatabricksEditExportRequest
+from .databricks_edit_export_request_col_mapping_type_0 import DatabricksEditExportRequestColMappingType0
+from .databricks_edit_export_response import DatabricksEditExportResponse
+from .databricks_edit_export_response_col_mapping_type_0 import DatabricksEditExportResponseColMappingType0
+from .databricks_export_request import DatabricksExportRequest
+from .databricks_export_request_col_mapping_type_0 import DatabricksExportRequestColMappingType0
+from .databricks_export_response import DatabricksExportResponse
+from .databricks_export_response_col_mapping_type_0 import DatabricksExportResponseColMappingType0
+from .databricks_integration import DatabricksIntegration
+from .databricks_integration_create import DatabricksIntegrationCreate
+from .databricks_integration_extra_type_0 import DatabricksIntegrationExtraType0
+from .databricks_unity_catalog_edit_export_request import DatabricksUnityCatalogEditExportRequest
+from .databricks_unity_catalog_edit_export_request_col_mapping_type_0 import (
+    DatabricksUnityCatalogEditExportRequestColMappingType0,
+)
+from .databricks_unity_catalog_export_edits_response import DatabricksUnityCatalogExportEditsResponse
+from .databricks_unity_catalog_export_edits_response_col_mapping_type_0 import (
+    DatabricksUnityCatalogExportEditsResponseColMappingType0,
+)
+from .databricks_unity_catalog_export_response import DatabricksUnityCatalogExportResponse
+from .databricks_unity_catalog_export_response_col_mapping_type_0 import (
+    DatabricksUnityCatalogExportResponseColMappingType0,
+)
 from .dataset_action import DatasetAction
 from .dataset_append_row import DatasetAppendRow
 from .dataset_append_row_values import DatasetAppendRowValues
 from .dataset_append_row_values_additional_property_type_3 import DatasetAppendRowValuesAdditionalPropertyType3
+from .dataset_bulk_delete_failure import DatasetBulkDeleteFailure
 from .dataset_content import DatasetContent
 from .dataset_content_filter import DatasetContentFilter
 from .dataset_content_filter_operator import DatasetContentFilterOperator
 from .dataset_content_sort_clause import DatasetContentSortClause
+from .dataset_copy_record_data import DatasetCopyRecordData
 from .dataset_created_at_sort import DatasetCreatedAtSort
 from .dataset_data import DatasetData
 from .dataset_db import DatasetDB
@@ -302,6 +360,10 @@ from .delete_run_response import DeleteRunResponse
 from .delete_scorer_response import DeleteScorerResponse
 from .document import Document
 from .document_metadata import DocumentMetadata
+from .edit_action import EditAction
+from .edit_override import EditOverride
+from .edit_override_edit_spans_type_0 import EditOverrideEditSpansType0
+from .edit_span import EditSpan
 from .enum_filter import EnumFilter
 from .enum_filter_operator import EnumFilterOperator
 from .execution_status import ExecutionStatus
@@ -400,7 +462,9 @@ from .feedback_rating_db import FeedbackRatingDB
 from .feedback_rating_info import FeedbackRatingInfo
 from .feedback_type import FeedbackType
 from .few_shot_example import FewShotExample
+from .file_type import FileType
 from .filter_leaf import FilterLeaf
+from .filter_params import FilterParams
 from .fine_tuned_scorer import FineTunedScorer
 from .fine_tuned_scorer_action import FineTunedScorerAction
 from .fine_tuned_scorer_response import FineTunedScorerResponse
@@ -411,6 +475,9 @@ from .generated_scorer_configuration import GeneratedScorerConfiguration
 from .generated_scorer_response import GeneratedScorerResponse
 from .generated_scorer_validation_response import GeneratedScorerValidationResponse
 from .generation_response import GenerationResponse
+from .get_integration_status_integrations_name_status_get_response_get_integration_status_integrations_name_status_get import (
+    GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
+)
 from .get_projects_paginated_response import GetProjectsPaginatedResponse
 from .get_projects_paginated_response_v2 import GetProjectsPaginatedResponseV2
 from .ground_truth_adherence_scorer import GroundTruthAdherenceScorer
@@ -447,6 +514,8 @@ from .instruction_adherence_scorer import InstructionAdherenceScorer
 from .instruction_adherence_template import InstructionAdherenceTemplate
 from .instruction_adherence_template_response_schema_type_0 import InstructionAdherenceTemplateResponseSchemaType0
 from .integration_action import IntegrationAction
+from .integration_db import IntegrationDB
+from .integration_name import IntegrationName
 from .invoke_response import InvokeResponse
 from .invoke_response_headers_type_0 import InvokeResponseHeadersType0
 from .invoke_response_metadata_type_0 import InvokeResponseMetadataType0
@@ -454,6 +523,12 @@ from .invoke_response_metric_results import InvokeResponseMetricResults
 from .job_db import JobDB
 from .job_db_request_data import JobDBRequestData
 from .job_progress import JobProgress
+from .label_studio_export_request import LabelStudioExportRequest
+from .label_studio_integration import LabelStudioIntegration
+from .label_studio_integration_create import LabelStudioIntegrationCreate
+from .label_studio_integration_extra_type_0 import LabelStudioIntegrationExtraType0
+from .label_studio_project import LabelStudioProject
+from .lasso_selection import LassoSelection
 from .like_dislike_aggregate import LikeDislikeAggregate
 from .like_dislike_rating import LikeDislikeRating
 from .list_dataset_params import ListDatasetParams
@@ -463,6 +538,7 @@ from .list_dataset_version_params import ListDatasetVersionParams
 from .list_dataset_version_response import ListDatasetVersionResponse
 from .list_experiment_response import ListExperimentResponse
 from .list_group_collaborators_response import ListGroupCollaboratorsResponse
+from .list_log_stream_response import ListLogStreamResponse
 from .list_prompt_dataset_response import ListPromptDatasetResponse
 from .list_prompt_template_params import ListPromptTemplateParams
 from .list_prompt_template_response import ListPromptTemplateResponse
@@ -525,6 +601,7 @@ from .message import Message
 from .message_role import MessageRole
 from .messages_list_item import MessagesListItem
 from .messages_list_item_role import MessagesListItemRole
+from .meta_filter import MetaFilter
 from .metadata_filter import MetadataFilter
 from .metadata_filter_operator import MetadataFilterOperator
 from .metric_computation import MetricComputation
@@ -543,6 +620,9 @@ from .metric_success import MetricSuccess
 from .metric_threshold import MetricThreshold
 from .metrics import Metrics
 from .metrics_testing_available_columns_request import MetricsTestingAvailableColumnsRequest
+from .mistral_integration import MistralIntegration
+from .mistral_integration_create import MistralIntegrationCreate
+from .mistral_integration_extra_type_0 import MistralIntegrationExtraType0
 from .model import Model
 from .model_cost_by import ModelCostBy
 from .model_type import ModelType
@@ -551,7 +631,13 @@ from .node_name_filter import NodeNameFilter
 from .node_name_filter_operator import NodeNameFilterOperator
 from .node_type import NodeType
 from .not_node import NotNode
+from .nvidia_integration import NvidiaIntegration
+from .nvidia_integration_create import NvidiaIntegrationCreate
+from .nvidia_integration_extra_type_0 import NvidiaIntegrationExtraType0
 from .open_ai_function import OpenAIFunction
+from .open_ai_integration import OpenAIIntegration
+from .open_ai_integration_create import OpenAIIntegrationCreate
+from .open_ai_integration_extra_type_0 import OpenAIIntegrationExtraType0
 from .open_ai_tool_choice import OpenAIToolChoice
 from .or_node import OrNode
 from .organization_action import OrganizationAction
@@ -576,7 +662,7 @@ from .project_create import ProjectCreate
 from .project_create_response import ProjectCreateResponse
 from .project_created_at_filter import ProjectCreatedAtFilter
 from .project_created_at_filter_operator import ProjectCreatedAtFilterOperator
-from .project_created_at_sort import ProjectCreatedAtSort
+from .project_created_at_sort_v1 import ProjectCreatedAtSortV1
 from .project_creator_filter import ProjectCreatorFilter
 from .project_creator_filter_operator import ProjectCreatorFilterOperator
 from .project_db import ProjectDB
@@ -588,7 +674,7 @@ from .project_item import ProjectItem
 from .project_labels import ProjectLabels
 from .project_name_filter import ProjectNameFilter
 from .project_name_filter_operator import ProjectNameFilterOperator
-from .project_name_sort import ProjectNameSort
+from .project_name_sort_v1 import ProjectNameSortV1
 from .project_runs_filter import ProjectRunsFilter
 from .project_runs_filter_operator import ProjectRunsFilterOperator
 from .project_runs_sort import ProjectRunsSort
@@ -600,7 +686,8 @@ from .project_update import ProjectUpdate
 from .project_update_response import ProjectUpdateResponse
 from .project_updated_at_filter import ProjectUpdatedAtFilter
 from .project_updated_at_filter_operator import ProjectUpdatedAtFilterOperator
-from .project_updated_at_sort import ProjectUpdatedAtSort
+from .project_updated_at_sort_v1 import ProjectUpdatedAtSortV1
+from .prompt_bulk_delete_failure import PromptBulkDeleteFailure
 from .prompt_dataset_db import PromptDatasetDB
 from .prompt_injection_scorer import PromptInjectionScorer
 from .prompt_injection_scorer_type import PromptInjectionScorerType
@@ -689,6 +776,7 @@ from .session_create_request import SessionCreateRequest
 from .session_create_response import SessionCreateResponse
 from .sexist_template import SexistTemplate
 from .sexist_template_response_schema_type_0 import SexistTemplateResponseSchemaType0
+from .split import Split
 from .stage_db import StageDB
 from .stage_metadata import StageMetadata
 from .stage_type import StageType
@@ -706,6 +794,7 @@ from .synthetic_data_types import SyntheticDataTypes
 from .synthetic_dataset_extension_request import SyntheticDatasetExtensionRequest
 from .synthetic_dataset_extension_response import SyntheticDatasetExtensionResponse
 from .system_metric_info import SystemMetricInfo
+from .tagging_schema import TaggingSchema
 from .tags_aggregate import TagsAggregate
 from .tags_aggregate_counts import TagsAggregateCounts
 from .tags_rating import TagsRating
@@ -749,9 +838,18 @@ from .user_role import UserRole
 from .validate_llm_scorer_log_record_request import ValidateLLMScorerLogRecordRequest
 from .validate_llm_scorer_log_record_response import ValidateLLMScorerLogRecordResponse
 from .validation_error import ValidationError
+from .vegas_gateway_integration import VegasGatewayIntegration
+from .vegas_gateway_integration_create import VegasGatewayIntegrationCreate
+from .vegas_gateway_integration_extra_type_0 import VegasGatewayIntegrationExtraType0
+from .vertex_ai_integration import VertexAIIntegration
+from .vertex_ai_integration_create import VertexAIIntegrationCreate
+from .vertex_ai_integration_extra_type_0 import VertexAIIntegrationExtraType0
 from .workflow_span import WorkflowSpan
 from .workflow_span_dataset_metadata import WorkflowSpanDatasetMetadata
 from .workflow_span_user_metadata import WorkflowSpanUserMetadata
+from .writer_integration import WriterIntegration
+from .writer_integration_create import WriterIntegrationCreate
+from .writer_integration_extra_type_0 import WriterIntegrationExtraType0
 
 __all__ = (
     "ActionResult",
@@ -775,9 +873,36 @@ __all__ = (
     "AggregatedTraceViewRequest",
     "AggregatedTraceViewResponse",
     "AndNode",
+    "AnthropicAuthenticationType",
+    "AnthropicIntegration",
+    "AnthropicIntegrationCreate",
+    "AnthropicIntegrationCreateCustomHeaderMappingType0",
+    "AnthropicIntegrationCustomHeaderMappingType0",
+    "AnthropicIntegrationExtraType0",
     "ApiKeyAction",
     "ApiKeyLoginRequest",
     "AuthMethod",
+    "AvailableIntegrations",
+    "AwsBedrockIntegration",
+    "AwsBedrockIntegrationExtraType0",
+    "AwsCredentialType",
+    "AwsSageMakerIntegration",
+    "AwsSageMakerIntegrationCreate",
+    "AwsSageMakerIntegrationCreateToken",
+    "AwsSageMakerIntegrationExtraType0",
+    "AzureAuthenticationType",
+    "AzureIntegration",
+    "AzureIntegrationCreate",
+    "AzureIntegrationCreateCustomHeaderMappingType0",
+    "AzureIntegrationCreateDefaultHeadersType0",
+    "AzureIntegrationCreateDeployments",
+    "AzureIntegrationCustomHeaderMappingType0",
+    "AzureIntegrationDefaultHeadersType0",
+    "AzureIntegrationDeployments",
+    "AzureIntegrationExtraType0",
+    "AzureModelDeployment",
+    "BaseAwsIntegrationCreate",
+    "BaseAwsIntegrationCreateToken",
     "BaseFinetunedScorerDB",
     "BaseFinetunedScorerDBClassNameToVocabIxType0",
     "BaseFinetunedScorerDBClassNameToVocabIxType1",
@@ -807,8 +932,8 @@ __all__ = (
     "BucketedMetrics",
     "BulkDeleteDatasetsRequest",
     "BulkDeleteDatasetsResponse",
-    "BulkDeleteFailure",
     "BulkDeletePromptTemplatesRequest",
+    "BulkDeletePromptTemplatesResponse",
     "ChainPollTemplate",
     "ChainPollTemplateResponseSchemaType0",
     "ChunkAttributionUtilizationScorer",
@@ -842,8 +967,12 @@ __all__ = (
     "CreateScorerRequest",
     "CreateScorerVersionRequest",
     "CreateUpdateRegisteredScorerResponse",
+    "CustomAuthenticationType",
     "CustomBooleanFilter",
     "CustomFunctionFilter",
+    "CustomIntegration",
+    "CustomIntegrationCreate",
+    "CustomIntegrationExtraType0",
     "CustomNumberFilter",
     "CustomNumberFilterOperator",
     "CustomUUIDFilter",
@@ -925,14 +1054,33 @@ __all__ = (
     "DataType",
     "DataTypeOptions",
     "DataUnit",
+    "DatabricksEditExportRequest",
+    "DatabricksEditExportRequestColMappingType0",
+    "DatabricksEditExportResponse",
+    "DatabricksEditExportResponseColMappingType0",
+    "DatabricksExportRequest",
+    "DatabricksExportRequestColMappingType0",
+    "DatabricksExportResponse",
+    "DatabricksExportResponseColMappingType0",
+    "DatabricksIntegration",
+    "DatabricksIntegrationCreate",
+    "DatabricksIntegrationExtraType0",
+    "DatabricksUnityCatalogEditExportRequest",
+    "DatabricksUnityCatalogEditExportRequestColMappingType0",
+    "DatabricksUnityCatalogExportEditsResponse",
+    "DatabricksUnityCatalogExportEditsResponseColMappingType0",
+    "DatabricksUnityCatalogExportResponse",
+    "DatabricksUnityCatalogExportResponseColMappingType0",
     "DatasetAction",
     "DatasetAppendRow",
     "DatasetAppendRowValues",
     "DatasetAppendRowValuesAdditionalPropertyType3",
+    "DatasetBulkDeleteFailure",
     "DatasetContent",
     "DatasetContentFilter",
     "DatasetContentFilterOperator",
     "DatasetContentSortClause",
+    "DatasetCopyRecordData",
     "DatasetCreatedAtSort",
     "DatasetDB",
     "DatasetData",
@@ -974,6 +1122,10 @@ __all__ = (
     "DeleteScorerResponse",
     "Document",
     "DocumentMetadata",
+    "EditAction",
+    "EditOverride",
+    "EditOverrideEditSpansType0",
+    "EditSpan",
     "EnumFilter",
     "EnumFilterOperator",
     "ExecutionStatus",
@@ -1054,7 +1206,9 @@ __all__ = (
     "FeedbackRatingInfo",
     "FeedbackType",
     "FewShotExample",
+    "FileType",
     "FilterLeaf",
+    "FilterParams",
     "FineTunedScorer",
     "FineTunedScorerAction",
     "FineTunedScorerResponse",
@@ -1065,6 +1219,7 @@ __all__ = (
     "GeneratedScorerResponse",
     "GeneratedScorerValidationResponse",
     "GenerationResponse",
+    "GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet",
     "GetProjectsPaginatedResponse",
     "GetProjectsPaginatedResponseV2",
     "GroundTruthAdherenceScorer",
@@ -1101,6 +1256,8 @@ __all__ = (
     "InstructionAdherenceTemplate",
     "InstructionAdherenceTemplateResponseSchemaType0",
     "IntegrationAction",
+    "IntegrationDB",
+    "IntegrationName",
     "InvokeResponse",
     "InvokeResponseHeadersType0",
     "InvokeResponseMetadataType0",
@@ -1110,6 +1267,12 @@ __all__ = (
     "JobProgress",
     "LLMExportFormat",
     "LLMIntegration",
+    "LabelStudioExportRequest",
+    "LabelStudioIntegration",
+    "LabelStudioIntegrationCreate",
+    "LabelStudioIntegrationExtraType0",
+    "LabelStudioProject",
+    "LassoSelection",
     "LikeDislikeAggregate",
     "LikeDislikeRating",
     "ListDatasetParams",
@@ -1119,6 +1282,7 @@ __all__ = (
     "ListDatasetVersionResponse",
     "ListExperimentResponse",
     "ListGroupCollaboratorsResponse",
+    "ListLogStreamResponse",
     "ListPromptDatasetResponse",
     "ListPromptTemplateParams",
     "ListPromptTemplateResponse",
@@ -1179,6 +1343,7 @@ __all__ = (
     "MessageRole",
     "MessagesListItem",
     "MessagesListItemRole",
+    "MetaFilter",
     "MetadataFilter",
     "MetadataFilterOperator",
     "MetricComputation",
@@ -1197,6 +1362,9 @@ __all__ = (
     "MetricThreshold",
     "Metrics",
     "MetricsTestingAvailableColumnsRequest",
+    "MistralIntegration",
+    "MistralIntegrationCreate",
+    "MistralIntegrationExtraType0",
     "Model",
     "ModelCostBy",
     "ModelType",
@@ -1205,7 +1373,13 @@ __all__ = (
     "NodeNameFilterOperator",
     "NodeType",
     "NotNode",
+    "NvidiaIntegration",
+    "NvidiaIntegrationCreate",
+    "NvidiaIntegrationExtraType0",
     "OpenAIFunction",
+    "OpenAIIntegration",
+    "OpenAIIntegrationCreate",
+    "OpenAIIntegrationExtraType0",
     "OpenAIToolChoice",
     "OrNode",
     "OrganizationAction",
@@ -1230,7 +1404,7 @@ __all__ = (
     "ProjectCreateResponse",
     "ProjectCreatedAtFilter",
     "ProjectCreatedAtFilterOperator",
-    "ProjectCreatedAtSort",
+    "ProjectCreatedAtSortV1",
     "ProjectCreatorFilter",
     "ProjectCreatorFilterOperator",
     "ProjectDB",
@@ -1242,7 +1416,7 @@ __all__ = (
     "ProjectLabels",
     "ProjectNameFilter",
     "ProjectNameFilterOperator",
-    "ProjectNameSort",
+    "ProjectNameSortV1",
     "ProjectRunsFilter",
     "ProjectRunsFilterOperator",
     "ProjectRunsSort",
@@ -1254,7 +1428,8 @@ __all__ = (
     "ProjectUpdateResponse",
     "ProjectUpdatedAtFilter",
     "ProjectUpdatedAtFilterOperator",
-    "ProjectUpdatedAtSort",
+    "ProjectUpdatedAtSortV1",
+    "PromptBulkDeleteFailure",
     "PromptDatasetDB",
     "PromptInjectionScorer",
     "PromptInjectionScorerType",
@@ -1343,6 +1518,7 @@ __all__ = (
     "SessionCreateResponse",
     "SexistTemplate",
     "SexistTemplateResponseSchemaType0",
+    "Split",
     "StageDB",
     "StageMetadata",
     "StageType",
@@ -1360,6 +1536,7 @@ __all__ = (
     "SyntheticDatasetExtensionRequest",
     "SyntheticDatasetExtensionResponse",
     "SystemMetricInfo",
+    "TaggingSchema",
     "TagsAggregate",
     "TagsAggregateCounts",
     "TagsRating",
@@ -1403,7 +1580,16 @@ __all__ = (
     "ValidateLLMScorerLogRecordRequest",
     "ValidateLLMScorerLogRecordResponse",
     "ValidationError",
+    "VegasGatewayIntegration",
+    "VegasGatewayIntegrationCreate",
+    "VegasGatewayIntegrationExtraType0",
+    "VertexAIIntegration",
+    "VertexAIIntegrationCreate",
+    "VertexAIIntegrationExtraType0",
     "WorkflowSpan",
     "WorkflowSpanDatasetMetadata",
     "WorkflowSpanUserMetadata",
+    "WriterIntegration",
+    "WriterIntegrationCreate",
+    "WriterIntegrationExtraType0",
 )

@@ -6,6 +6,7 @@ from attrs import field as _attrs_field
 
 if TYPE_CHECKING:
     from ..models.dataset_append_row import DatasetAppendRow
+    from ..models.dataset_copy_record_data import DatasetCopyRecordData
     from ..models.dataset_delete_row import DatasetDeleteRow
     from ..models.dataset_filter_rows import DatasetFilterRows
     from ..models.dataset_prepend_row import DatasetPrependRow
@@ -27,25 +28,36 @@ class UpdateDatasetContentRequest:
 
     Attributes
     ----------
-            edits (list[Union['DatasetAppendRow', 'DatasetDeleteRow', 'DatasetFilterRows', 'DatasetPrependRow',
-                'DatasetUpdateRow']]):
+            edits (list[Union['DatasetAppendRow', 'DatasetCopyRecordData', 'DatasetDeleteRow', 'DatasetFilterRows',
+                'DatasetPrependRow', 'DatasetUpdateRow']]):
     """
 
     edits: list[
-        Union["DatasetAppendRow", "DatasetDeleteRow", "DatasetFilterRows", "DatasetPrependRow", "DatasetUpdateRow"]
+        Union[
+            "DatasetAppendRow",
+            "DatasetCopyRecordData",
+            "DatasetDeleteRow",
+            "DatasetFilterRows",
+            "DatasetPrependRow",
+            "DatasetUpdateRow",
+        ]
     ]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_append_row import DatasetAppendRow
         from ..models.dataset_delete_row import DatasetDeleteRow
+        from ..models.dataset_filter_rows import DatasetFilterRows
         from ..models.dataset_prepend_row import DatasetPrependRow
         from ..models.dataset_update_row import DatasetUpdateRow
 
         edits = []
         for edits_item_data in self.edits:
             edits_item: dict[str, Any]
-            if isinstance(edits_item_data, (DatasetPrependRow, DatasetAppendRow, DatasetUpdateRow, DatasetDeleteRow)):
+            if isinstance(
+                edits_item_data,
+                (DatasetPrependRow, DatasetAppendRow, DatasetUpdateRow, DatasetDeleteRow, DatasetFilterRows),
+            ):
                 edits_item = edits_item_data.to_dict()
             else:
                 edits_item = edits_item_data.to_dict()
@@ -61,6 +73,7 @@ class UpdateDatasetContentRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         from ..models.dataset_append_row import DatasetAppendRow
+        from ..models.dataset_copy_record_data import DatasetCopyRecordData
         from ..models.dataset_delete_row import DatasetDeleteRow
         from ..models.dataset_filter_rows import DatasetFilterRows
         from ..models.dataset_prepend_row import DatasetPrependRow
@@ -74,7 +87,12 @@ class UpdateDatasetContentRequest:
             def _parse_edits_item(
                 data: object,
             ) -> Union[
-                "DatasetAppendRow", "DatasetDeleteRow", "DatasetFilterRows", "DatasetPrependRow", "DatasetUpdateRow"
+                "DatasetAppendRow",
+                "DatasetCopyRecordData",
+                "DatasetDeleteRow",
+                "DatasetFilterRows",
+                "DatasetPrependRow",
+                "DatasetUpdateRow",
             ]:
                 try:
                     if not isinstance(data, dict):
@@ -104,9 +122,16 @@ class UpdateDatasetContentRequest:
 
                 except:  # noqa: E722
                     pass
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return DatasetFilterRows.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return DatasetFilterRows.from_dict(data)
+                return DatasetCopyRecordData.from_dict(data)
 
             edits_item = _parse_edits_item(edits_item_data)
 

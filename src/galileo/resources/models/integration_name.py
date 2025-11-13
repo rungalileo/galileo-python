@@ -1,0 +1,20 @@
+from enum import Enum
+
+
+class IntegrationName(str, Enum):
+    ANTHROPIC = "anthropic"
+    AWS_BEDROCK = "aws_bedrock"
+    AWS_SAGEMAKER = "aws_sagemaker"
+    AZURE = "azure"
+    CUSTOM = "custom"
+    DATABRICKS = "databricks"
+    LABELSTUDIO = "labelstudio"
+    MISTRAL = "mistral"
+    NVIDIA = "nvidia"
+    OPENAI = "openai"
+    VEGAS_GATEWAY = "vegas_gateway"
+    VERTEX_AI = "vertex_ai"
+    WRITER = "writer"
+
+    def __str__(self) -> str:
+        return str(self.value)
