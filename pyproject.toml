@@ -6,6 +6,10 @@ authors = [{ name = "Galileo Technologies Inc.", email = "team@galileo.ai" }]
 readme = "README.md"
 requires-python = ">=3.9,<3.14"
 dynamic = ["dependencies"]
+license = "Apache-2.0"
+
+[project.urls]
+Repository = "https://github.com/rungalileo/galileo-python"
 
 [tool.poetry.dependencies]
 python = "^3.9,<3.14"
