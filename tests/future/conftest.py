@@ -198,3 +198,17 @@ def mock_logstream() -> MagicMock:
     mock_ls.updated_at = MagicMock()
     mock_ls.additional_properties = {}
     return mock_ls
+
+
+@pytest.fixture
+def mock_integration() -> MagicMock:
+    """Create a mock integration object for testing."""
+    mock_int = MagicMock()
+    mock_int.id = str(uuid4())
+    mock_int.name = "openai"
+    mock_int.created_at = MagicMock()
+    mock_int.updated_at = MagicMock()
+    mock_int.created_by = str(uuid4())
+    mock_int.is_selected = True
+    mock_int.permissions = ["read", "update"]
+    return mock_int

@@ -24,8 +24,4 @@ openapi-python-client generate --meta none  --path "$OPENAPI_SPEC_PATH" --output
 # Remove the backup directory
 rm -r "$OUTPUT_PATH"_backup
 
-# Lint and format the generated code
-ruff check "$OUTPUT_PATH"/ --fix
-ruff format "$OUTPUT_PATH"/
-
 echo "OpenAPI Python client generated."

@@ -30,6 +30,7 @@ class ScorersConfiguration:
             completeness_nli (Union[Unset, bool]):  Default: False.
             context_adherence_luna (Union[Unset, bool]):  Default: False.
             context_relevance (Union[Unset, bool]):  Default: False.
+            context_relevance_luna (Union[Unset, bool]):  Default: False.
             cost (Union[Unset, bool]):  Default: True.
             factuality (Union[Unset, bool]):  Default: False.
             ground_truth_adherence (Union[Unset, bool]):  Default: False.
@@ -72,6 +73,7 @@ class ScorersConfiguration:
     completeness_nli: Union[Unset, bool] = False
     context_adherence_luna: Union[Unset, bool] = False
     context_relevance: Union[Unset, bool] = False
+    context_relevance_luna: Union[Unset, bool] = False
     cost: Union[Unset, bool] = True
     factuality: Union[Unset, bool] = False
     ground_truth_adherence: Union[Unset, bool] = False
@@ -126,6 +128,8 @@ class ScorersConfiguration:
         context_adherence_luna = self.context_adherence_luna
 
         context_relevance = self.context_relevance
+
+        context_relevance_luna = self.context_relevance_luna
 
         cost = self.cost
 
@@ -210,6 +214,8 @@ class ScorersConfiguration:
             field_dict["context_adherence_luna"] = context_adherence_luna
         if context_relevance is not UNSET:
             field_dict["context_relevance"] = context_relevance
+        if context_relevance_luna is not UNSET:
+            field_dict["context_relevance_luna"] = context_relevance_luna
         if cost is not UNSET:
             field_dict["cost"] = cost
         if factuality is not UNSET:
@@ -296,6 +302,8 @@ class ScorersConfiguration:
 
         context_relevance = d.pop("context_relevance", UNSET)
 
+        context_relevance_luna = d.pop("context_relevance_luna", UNSET)
+
         cost = d.pop("cost", UNSET)
 
         factuality = d.pop("factuality", UNSET)
@@ -365,6 +373,7 @@ class ScorersConfiguration:
             completeness_nli=completeness_nli,
             context_adherence_luna=context_adherence_luna,
             context_relevance=context_relevance,
+            context_relevance_luna=context_relevance_luna,
             cost=cost,
             factuality=factuality,
             ground_truth_adherence=ground_truth_adherence,

@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class InputTypeEnum(str, Enum):
+    AGENT_SPANS = "agent_spans"
     BASIC = "basic"
     LLM_SPANS = "llm_spans"
     RETRIEVER_SPANS = "retriever_spans"
@@ -12,6 +13,7 @@ class InputTypeEnum(str, Enum):
     TRACE_IO_ONLY = "trace_io_only"
     TRACE_NORMALIZED = "trace_normalized"
     TRACE_OUTPUT_ONLY = "trace_output_only"
+    WORKFLOW_SPANS = "workflow_spans"
 
     def __str__(self) -> str:
         return str(self.value)

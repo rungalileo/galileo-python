@@ -7,7 +7,7 @@ from attrs import field as _attrs_field
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.bulk_delete_failure import BulkDeleteFailure
+    from ..models.dataset_bulk_delete_failure import DatasetBulkDeleteFailure
 
 
 T = TypeVar("T", bound="BulkDeleteDatasetsResponse")
@@ -21,12 +21,12 @@ class BulkDeleteDatasetsResponse:
     ----------
         deleted_count (int):
         message (str):
-        failed_deletions (Union[Unset, list['BulkDeleteFailure']]):
+        failed_deletions (Union[Unset, list['DatasetBulkDeleteFailure']]):
     """
 
     deleted_count: int
     message: str
-    failed_deletions: Union[Unset, list["BulkDeleteFailure"]] = UNSET
+    failed_deletions: Union[Unset, list["DatasetBulkDeleteFailure"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -51,7 +51,7 @@ class BulkDeleteDatasetsResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.bulk_delete_failure import BulkDeleteFailure
+        from ..models.dataset_bulk_delete_failure import DatasetBulkDeleteFailure
 
         d = dict(src_dict)
         deleted_count = d.pop("deleted_count")
@@ -61,7 +61,7 @@ class BulkDeleteDatasetsResponse:
         failed_deletions = []
         _failed_deletions = d.pop("failed_deletions", UNSET)
         for failed_deletions_item_data in _failed_deletions or []:
-            failed_deletions_item = BulkDeleteFailure.from_dict(failed_deletions_item_data)
+            failed_deletions_item = DatasetBulkDeleteFailure.from_dict(failed_deletions_item_data)
 
             failed_deletions.append(failed_deletions_item)
 

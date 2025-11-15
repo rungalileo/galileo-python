@@ -22,6 +22,8 @@ class LogTracesIngestResponse:
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+        trace_ids (Union[None, Unset, list[str]]): List of trace IDs that were ingested. Only included if
+            include_trace_ids=True in request.
     """
 
     project_id: str
@@ -32,6 +34,7 @@ class LogTracesIngestResponse:
     experiment_id: Union[None, Unset, str] = UNSET
     log_stream_id: Union[None, Unset, str] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
+    trace_ids: Union[None, Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -54,6 +57,15 @@ class LogTracesIngestResponse:
         metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
+        trace_ids: Union[None, Unset, list[str]]
+        if isinstance(self.trace_ids, Unset):
+            trace_ids = UNSET
+        elif isinstance(self.trace_ids, list):
+            trace_ids = self.trace_ids
+
+        else:
+            trace_ids = self.trace_ids
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -71,6 +83,8 @@ class LogTracesIngestResponse:
             field_dict["log_stream_id"] = log_stream_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
+        if trace_ids is not UNSET:
+            field_dict["trace_ids"] = trace_ids
 
         return field_dict
 
@@ -114,6 +128,22 @@ class LogTracesIngestResponse:
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
+        def _parse_trace_ids(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        trace_ids = _parse_trace_ids(d.pop("trace_ids", UNSET))
+
         log_traces_ingest_response = cls(
             project_id=project_id,
             project_name=project_name,
@@ -123,6 +153,7 @@ class LogTracesIngestResponse:
             experiment_id=experiment_id,
             log_stream_id=log_stream_id,
             metrics_testing_id=metrics_testing_id,
+            trace_ids=trace_ids,
         )
 
         log_traces_ingest_response.additional_properties = d

@@ -80,6 +80,7 @@ class CreateJobRequest:
         job_id (Union[None, Unset, str]):
         job_name (Union[Unset, str]):  Default: 'default'.
         labels (Union[Unset, list[list[str]], list[str]]):
+        log_metric_computing_records (Union[Unset, bool]):  Default: False.
         luna_model (Union[None, Unset, str]):
         metric_critique_configuration (Union['MetricCritiqueJobConfiguration', None, Unset]):
         migration_name (Union[None, Unset, str]):
@@ -134,6 +135,7 @@ class CreateJobRequest:
     job_id: Union[None, Unset, str] = UNSET
     job_name: Union[Unset, str] = "default"
     labels: Union[Unset, list[list[str]], list[str]] = UNSET
+    log_metric_computing_records: Union[Unset, bool] = False
     luna_model: Union[None, Unset, str] = UNSET
     metric_critique_configuration: Union["MetricCritiqueJobConfiguration", None, Unset] = UNSET
     migration_name: Union[None, Unset, str] = UNSET
@@ -306,6 +308,8 @@ class CreateJobRequest:
 
         else:
             labels = self.labels
+
+        log_metric_computing_records = self.log_metric_computing_records
 
         luna_model: Union[None, Unset, str]
         luna_model = UNSET if isinstance(self.luna_model, Unset) else self.luna_model
@@ -598,6 +602,8 @@ class CreateJobRequest:
             field_dict["job_name"] = job_name
         if labels is not UNSET:
             field_dict["labels"] = labels
+        if log_metric_computing_records is not UNSET:
+            field_dict["log_metric_computing_records"] = log_metric_computing_records
         if luna_model is not UNSET:
             field_dict["luna_model"] = luna_model
         if metric_critique_configuration is not UNSET:
@@ -788,6 +794,8 @@ class CreateJobRequest:
             return cast(list[str], data)
 
         labels = _parse_labels(d.pop("labels", UNSET))
+
+        log_metric_computing_records = d.pop("log_metric_computing_records", UNSET)
 
         def _parse_luna_model(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -1664,6 +1672,7 @@ class CreateJobRequest:
             job_id=job_id,
             job_name=job_name,
             labels=labels,
+            log_metric_computing_records=log_metric_computing_records,
             luna_model=luna_model,
             metric_critique_configuration=metric_critique_configuration,
             migration_name=migration_name,

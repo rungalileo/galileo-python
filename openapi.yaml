@@ -1014,8 +1014,8 @@ components:
               - $ref: '#/components/schemas/LogRecordsDateFilter'
               - $ref: '#/components/schemas/LogRecordsNumberFilter'
               - $ref: '#/components/schemas/LogRecordsBooleanFilter'
-              - $ref: '#/components/schemas/LogRecordsTextFilter'
               - $ref: '#/components/schemas/LogRecordsCollectionFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
           title: Filters
           type: array
         log_stream_id:
@@ -1068,16 +1068,108 @@ components:
       properties:
         and:
           items:
-            anyOf:
-              - $ref: '#/components/schemas/FilterLeaf'
-              - $ref: '#/components/schemas/AndNode'
-              - $ref: '#/components/schemas/OrNode'
-              - $ref: '#/components/schemas/NotNode'
+            $ref: '#/components/schemas/FilterExpression'
           title: And
           type: array
       required:
         - and
       title: AndNode
+      type: object
+    AnthropicAuthenticationType:
+      enum:
+        - api_key
+        - custom_oauth2
+      title: AnthropicAuthenticationType
+      type: string
+    AnthropicIntegration:
+      properties:
+        authentication_scope:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Authentication Scope
+        authentication_type:
+          $ref: '#/components/schemas/AnthropicAuthenticationType'
+          default: api_key
+        custom_header_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          description: Custom header mapping from internal fields to be included in
+            the LLM request.
+          title: Custom Header Mapping
+        endpoint:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: Custom base URL for the Anthropic API. Required if `proxy`
+            is True.
+          title: Endpoint
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        name:
+          const: anthropic
+          default: anthropic
+          title: Name
+          type: string
+        oauth2_token_url:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: OAuth2 token URL for custom OAuth2 authentication
+          title: Oauth2 Token Url
+      title: AnthropicIntegration
+      type: object
+    AnthropicIntegrationCreate:
+      properties:
+        authentication_scope:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Authentication Scope
+        authentication_type:
+          $ref: '#/components/schemas/AnthropicAuthenticationType'
+          default: api_key
+        custom_header_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          description: Custom header mapping from internal fields to be included in
+            the LLM request.
+          title: Custom Header Mapping
+        endpoint:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: Custom base URL for the Anthropic API. Required if `proxy`
+            is True.
+          title: Endpoint
+        oauth2_token_url:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: OAuth2 token URL for custom OAuth2 authentication
+          title: Oauth2 Token Url
+        token:
+          title: Token
+          type: string
+      required:
+        - token
+      title: AnthropicIntegrationCreate
       type: object
     ApiKeyAction:
       enum:
@@ -1104,6 +1196,301 @@ components:
         - custom
       title: AuthMethod
       type: string
+    AvailableIntegrations:
+      properties:
+        integrations:
+          items:
+            $ref: '#/components/schemas/IntegrationName'
+          title: Integrations
+          type: array
+      required:
+        - integrations
+      title: AvailableIntegrations
+      type: object
+    AwsBedrockIntegration:
+      properties:
+        credential_type:
+          $ref: '#/components/schemas/AwsCredentialType'
+          default: key_secret
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        name:
+          const: aws_bedrock
+          default: aws_bedrock
+          title: Name
+          type: string
+        region:
+          default: us-west-2
+          title: Region
+          type: string
+      title: AwsBedrockIntegration
+      type: object
+    AwsCredentialType:
+      enum:
+        - assumed_role
+        - key_secret
+      title: AwsCredentialType
+      type: string
+    AwsSageMakerIntegration:
+      properties:
+        credential_type:
+          $ref: '#/components/schemas/AwsCredentialType'
+          default: key_secret
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        models:
+          items:
+            $ref: '#/components/schemas/Model'
+          title: Models
+          type: array
+        name:
+          const: aws_sagemaker
+          default: aws_sagemaker
+          title: Name
+          type: string
+        region:
+          default: us-west-2
+          title: Region
+          type: string
+      title: AwsSageMakerIntegration
+      type: object
+    AwsSageMakerIntegrationCreate:
+      properties:
+        credential_type:
+          $ref: '#/components/schemas/AwsCredentialType'
+          default: key_secret
+        models:
+          items:
+            $ref: '#/components/schemas/Model'
+          title: Models
+          type: array
+        region:
+          default: us-west-2
+          title: Region
+          type: string
+        token:
+          additionalProperties:
+            type: string
+          title: Token
+          type: object
+      required:
+        - token
+      title: AwsSageMakerIntegrationCreate
+      type: object
+    AzureAuthenticationType:
+      enum:
+        - api_key
+        - client_secret
+        - username_password
+        - custom_oauth2
+      title: AzureAuthenticationType
+      type: string
+    AzureIntegration:
+      properties:
+        api_version:
+          default: 2025-03-01-preview
+          title: Api Version
+          type: string
+        authentication_scope:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Authentication Scope
+        authentication_type:
+          $ref: '#/components/schemas/AzureAuthenticationType'
+          default: api_key
+        available_deployments:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/AzureModelDeployment'
+              type: array
+            - type: 'null'
+          description: The available deployments for this integration. If provided,
+            we will not try to get this list from Azure.
+          title: Available Deployments
+        azure_deployment:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Azure Deployment
+        custom_header_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          description: Custom header mapping from internal fields to be included in
+            the LLM request.
+          title: Custom Header Mapping
+        default_headers:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          title: Default Headers
+        deployments:
+          additionalProperties:
+            type: string
+          title: Deployments
+          type: object
+        endpoint:
+          title: Endpoint
+          type: string
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        name:
+          const: azure
+          default: azure
+          title: Name
+          type: string
+        oauth2_token_url:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: OAuth2 token URL for custom OAuth2 authentication
+          title: Oauth2 Token Url
+        proxy:
+          default: false
+          title: Proxy
+          type: boolean
+      required:
+        - endpoint
+      title: AzureIntegration
+      type: object
+    AzureIntegrationCreate:
+      properties:
+        api_version:
+          default: 2025-03-01-preview
+          title: Api Version
+          type: string
+        authentication_scope:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Authentication Scope
+        authentication_type:
+          $ref: '#/components/schemas/AzureAuthenticationType'
+          default: api_key
+        available_deployments:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/AzureModelDeployment'
+              type: array
+            - type: 'null'
+          description: The available deployments for this integration. If provided,
+            we will not try to get this list from Azure.
+          title: Available Deployments
+        azure_deployment:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Azure Deployment
+        custom_header_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          description: Custom header mapping from internal fields to be included in
+            the LLM request.
+          title: Custom Header Mapping
+        default_headers:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          title: Default Headers
+        deployments:
+          additionalProperties:
+            type: string
+          title: Deployments
+          type: object
+        endpoint:
+          title: Endpoint
+          type: string
+        oauth2_token_url:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: OAuth2 token URL for custom OAuth2 authentication
+          title: Oauth2 Token Url
+        proxy:
+          default: false
+          title: Proxy
+          type: boolean
+        token:
+          title: Token
+          type: string
+      required:
+        - endpoint
+        - token
+      title: AzureIntegrationCreate
+      type: object
+    AzureModelDeployment:
+      properties:
+        id:
+          description: The ID of the deployment.
+          title: Id
+          type: string
+        model:
+          description: The name of the model.
+          title: Model
+          type: string
+      required:
+        - model
+        - id
+      title: AzureModelDeployment
+      type: object
+    BaseAwsIntegrationCreate:
+      properties:
+        credential_type:
+          $ref: '#/components/schemas/AwsCredentialType'
+          default: key_secret
+        region:
+          default: us-west-2
+          title: Region
+          type: string
+        token:
+          additionalProperties:
+            type: string
+          title: Token
+          type: object
+      required:
+        - token
+      title: BaseAwsIntegrationCreate
+      type: object
     BaseFinetunedScorerDB:
       properties:
         class_name_to_vocab_ix:
@@ -1508,6 +1895,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -1922,7 +2316,7 @@ components:
           type: integer
         failed_deletions:
           items:
-            $ref: '#/components/schemas/api__schemas__content__dataset__BulkDeleteFailure'
+            $ref: '#/components/schemas/DatasetBulkDeleteFailure'
           title: Failed Deletions
           type: array
         message:
@@ -1956,7 +2350,7 @@ components:
           type: integer
         failed_deletions:
           items:
-            $ref: '#/components/schemas/api__schemas__content__prompt__BulkDeleteFailure'
+            $ref: '#/components/schemas/PromptBulkDeleteFailure'
           title: Failed Deletions
           type: array
         message:
@@ -2577,6 +2971,14 @@ components:
         lora_task_id:
           title: Lora Task Id
           type: integer
+        luna_input_type:
+          anyOf:
+            - $ref: '#/components/schemas/LunaInputTypeEnum'
+            - type: 'null'
+        luna_output_type:
+          anyOf:
+            - $ref: '#/components/schemas/LunaOutputTypeEnum'
+            - type: 'null'
         prompt:
           title: Prompt
           type: string
@@ -2630,6 +3032,10 @@ components:
                 type: string
               type: array
           title: Labels
+        log_metric_computing_records:
+          default: false
+          title: Log Metric Computing Records
+          type: boolean
         luna_model:
           anyOf:
             - type: string
@@ -2939,6 +3345,10 @@ components:
         link:
           title: Link
           type: string
+        log_metric_computing_records:
+          default: false
+          title: Log Metric Computing Records
+          type: boolean
         luna_model:
           anyOf:
             - type: string
@@ -3358,6 +3768,13 @@ components:
           anyOf:
             - $ref: '#/components/schemas/OutputTypeEnum'
             - type: 'null'
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -3464,6 +3881,11 @@ components:
         - scoreable_node_types
       title: CreateUpdateRegisteredScorerResponse
       type: object
+    CustomAuthenticationType:
+      enum:
+        - oauth2
+      title: CustomAuthenticationType
+      type: string
     CustomBooleanFilter:
       properties:
         name:
@@ -3489,6 +3911,109 @@ components:
       required:
         - name
       title: CustomFunctionFilter
+      type: object
+    CustomIntegration:
+      properties:
+        authentication_scope:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: Optional scope for OAuth2 authentication.
+          title: Authentication Scope
+        authentication_type:
+          $ref: '#/components/schemas/CustomAuthenticationType'
+          default: oauth2
+        default_model:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: Default model to use. If not provided, defaults to the first
+            model in the models list.
+          title: Default Model
+        endpoint:
+          description: Endpoint URL for the custom integration.
+          title: Endpoint
+          type: string
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        models:
+          description: List of model names for the custom integration
+          items:
+            type: string
+          minItems: 1
+          title: Models
+          type: array
+        name:
+          const: custom
+          default: custom
+          title: Name
+          type: string
+        oauth2_token_url:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: OAuth2 token URL for custom OAuth2 authentication. If not provided,
+            defaults to the endpoint.
+          title: Oauth2 Token Url
+      required:
+        - models
+        - endpoint
+      title: CustomIntegration
+      type: object
+    CustomIntegrationCreate:
+      properties:
+        authentication_scope:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: Optional scope for OAuth2 authentication.
+          title: Authentication Scope
+        authentication_type:
+          $ref: '#/components/schemas/CustomAuthenticationType'
+          default: oauth2
+        default_model:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: Default model to use. If not provided, defaults to the first
+            model in the models list.
+          title: Default Model
+        endpoint:
+          description: Endpoint URL for the custom integration.
+          title: Endpoint
+          type: string
+        models:
+          description: List of model names for the custom integration
+          items:
+            type: string
+          minItems: 1
+          title: Models
+          type: array
+        oauth2_token_url:
+          anyOf:
+            - type: string
+            - type: 'null'
+          description: OAuth2 token URL for custom OAuth2 authentication. If not provided,
+            defaults to the endpoint.
+          title: Oauth2 Token Url
+        token:
+          title: Token
+          type: string
+      required:
+        - models
+        - endpoint
+        - token
+      title: CustomIntegrationCreate
       type: object
     CustomNumberFilter:
       properties:
@@ -4028,6 +4553,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -4418,6 +4950,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -4602,6 +5141,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -4787,6 +5333,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -5170,6 +5723,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -5379,6 +5939,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -5617,6 +6184,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -5821,6 +6395,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -6033,6 +6614,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -6296,6 +6884,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -6497,6 +7092,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -6701,6 +7303,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -6912,6 +7521,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -7158,6 +7774,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -7370,6 +7993,13 @@ components:
               type: string
             - type: 'null'
           title: Registered Scorer Id
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -7450,6 +8080,671 @@ components:
         - count_and_total
       title: DataUnit
       type: string
+    DatabricksEditExportRequest:
+      properties:
+        all_but:
+          default: false
+          title: All But
+          type: boolean
+        col_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          title: Col Mapping
+        compare_to:
+          anyOf:
+            - $ref: '#/components/schemas/Split'
+            - type: 'null'
+        database_name:
+          title: Database Name
+          type: string
+        edit_ids:
+          items:
+            format: uuid4
+            type: string
+          title: Edit Ids
+          type: array
+        edit_overrides:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/EditOverride'
+              type: array
+            - type: 'null'
+          default: []
+          title: Edit Overrides
+        file_type:
+          $ref: '#/components/schemas/FileType'
+          default: csv
+        filter_params:
+          $ref: '#/components/schemas/FilterParams'
+          default:
+            data_embs: false
+            exclude_ids: []
+            ids: []
+            likely_mislabeled_dep_percentile: 0
+            span_regex: false
+        hf_format:
+          default: false
+          title: Hf Format
+          type: boolean
+        include_cols:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          default: []
+          title: Include Cols
+        map_threshold:
+          default: 0.5
+          title: Map Threshold
+          type: number
+        min_reviews:
+          anyOf:
+            - minimum: 0.0
+              type: integer
+            - type: 'null'
+          title: Min Reviews
+        only_export_edited:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          default: false
+          title: Only Export Edited
+        table_name:
+          title: Table Name
+          type: string
+        tagging_schema:
+          anyOf:
+            - $ref: '#/components/schemas/TaggingSchema'
+            - type: 'null'
+        task:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Task
+      required:
+        - edit_ids
+        - database_name
+        - table_name
+      title: DatabricksEditExportRequest
+      type: object
+    DatabricksEditExportResponse:
+      properties:
+        all_but:
+          default: false
+          title: All But
+          type: boolean
+        col_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          title: Col Mapping
+        compare_to:
+          anyOf:
+            - $ref: '#/components/schemas/Split'
+            - type: 'null'
+        context_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Context Id
+        database_name:
+          title: Database Name
+          type: string
+        edit_ids:
+          items:
+            format: uuid4
+            type: string
+          title: Edit Ids
+          type: array
+        edit_overrides:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/EditOverride'
+              type: array
+            - type: 'null'
+          default: []
+          title: Edit Overrides
+        file_type:
+          $ref: '#/components/schemas/FileType'
+          default: csv
+        filter_params:
+          $ref: '#/components/schemas/FilterParams'
+          default:
+            data_embs: false
+            exclude_ids: []
+            ids: []
+            likely_mislabeled_dep_percentile: 0
+            span_regex: false
+        hf_format:
+          default: false
+          title: Hf Format
+          type: boolean
+        include_cols:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          default: []
+          title: Include Cols
+        map_threshold:
+          default: 0.5
+          title: Map Threshold
+          type: number
+        min_reviews:
+          anyOf:
+            - minimum: 0.0
+              type: integer
+            - type: 'null'
+          title: Min Reviews
+        only_export_edited:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          default: false
+          title: Only Export Edited
+        table_name:
+          title: Table Name
+          type: string
+        tagging_schema:
+          anyOf:
+            - $ref: '#/components/schemas/TaggingSchema'
+            - type: 'null'
+        task:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Task
+      required:
+        - edit_ids
+        - database_name
+        - table_name
+      title: DatabricksEditExportResponse
+      type: object
+    DatabricksExportRequest:
+      description: Schema for exporting a dataframe to a Delta table.
+      properties:
+        all_but:
+          default: false
+          title: All But
+          type: boolean
+        catalog_name:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Catalog Name
+        col_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          title: Col Mapping
+        compare_to:
+          anyOf:
+            - $ref: '#/components/schemas/Split'
+            - type: 'null'
+        database_name:
+          title: Database Name
+          type: string
+        file_type:
+          $ref: '#/components/schemas/FileType'
+          default: csv
+        filter_params:
+          $ref: '#/components/schemas/FilterParams'
+          default:
+            data_embs: false
+            exclude_ids: []
+            ids: []
+            likely_mislabeled_dep_percentile: 0
+            span_regex: false
+        hf_format:
+          default: false
+          title: Hf Format
+          type: boolean
+        include_cols:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          default: []
+          title: Include Cols
+        inference_name:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Inference Name
+        map_threshold:
+          default: 0.5
+          title: Map Threshold
+          type: number
+        project_id:
+          format: uuid4
+          title: Project Id
+          type: string
+        run_id:
+          format: uuid4
+          title: Run Id
+          type: string
+        split:
+          $ref: '#/components/schemas/Split'
+        table_name:
+          title: Table Name
+          type: string
+        tagging_schema:
+          anyOf:
+            - $ref: '#/components/schemas/TaggingSchema'
+            - type: 'null'
+        task:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Task
+      required:
+        - database_name
+        - table_name
+        - project_id
+        - run_id
+        - split
+      title: DatabricksExportRequest
+      type: object
+    DatabricksExportResponse:
+      properties:
+        all_but:
+          default: false
+          title: All But
+          type: boolean
+        catalog_name:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Catalog Name
+        col_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          title: Col Mapping
+        compare_to:
+          anyOf:
+            - $ref: '#/components/schemas/Split'
+            - type: 'null'
+        database_name:
+          title: Database Name
+          type: string
+        file_type:
+          $ref: '#/components/schemas/FileType'
+          default: csv
+        filter_params:
+          $ref: '#/components/schemas/FilterParams'
+          default:
+            data_embs: false
+            exclude_ids: []
+            ids: []
+            likely_mislabeled_dep_percentile: 0
+            span_regex: false
+        hf_format:
+          default: false
+          title: Hf Format
+          type: boolean
+        include_cols:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          default: []
+          title: Include Cols
+        inference_name:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Inference Name
+        map_threshold:
+          default: 0.5
+          title: Map Threshold
+          type: number
+        project_id:
+          format: uuid4
+          title: Project Id
+          type: string
+        run_id:
+          format: uuid4
+          title: Run Id
+          type: string
+        split:
+          $ref: '#/components/schemas/Split'
+        table_name:
+          title: Table Name
+          type: string
+        tagging_schema:
+          anyOf:
+            - $ref: '#/components/schemas/TaggingSchema'
+            - type: 'null'
+        task:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Task
+      required:
+        - database_name
+        - table_name
+        - project_id
+        - run_id
+        - split
+      title: DatabricksExportResponse
+      type: object
+    DatabricksIntegration:
+      properties:
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        name:
+          const: databricks
+          default: databricks
+          title: Name
+          type: string
+      title: DatabricksIntegration
+      type: object
+    DatabricksIntegrationCreate:
+      properties:
+        default_catalog_name:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Default Catalog Name
+        hostname:
+          format: uri
+          maxLength: 2083
+          minLength: 1
+          title: Hostname
+          type: string
+        llm:
+          default: false
+          title: Llm
+          type: boolean
+        path:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Path
+        storage:
+          default: false
+          title: Storage
+          type: boolean
+        token:
+          title: Token
+          type: string
+      required:
+        - token
+        - hostname
+      title: DatabricksIntegrationCreate
+      type: object
+    DatabricksUnityCatalogEditExportRequest:
+      properties:
+        all_but:
+          default: false
+          title: All But
+          type: boolean
+        catalog_name:
+          title: Catalog Name
+          type: string
+        col_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          title: Col Mapping
+        compare_to:
+          anyOf:
+            - $ref: '#/components/schemas/Split'
+            - type: 'null'
+        edit_ids:
+          items:
+            format: uuid4
+            type: string
+          title: Edit Ids
+          type: array
+        edit_overrides:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/EditOverride'
+              type: array
+            - type: 'null'
+          default: []
+          title: Edit Overrides
+        file_type:
+          $ref: '#/components/schemas/FileType'
+          default: csv
+        filter_params:
+          $ref: '#/components/schemas/FilterParams'
+          default:
+            data_embs: false
+            exclude_ids: []
+            ids: []
+            likely_mislabeled_dep_percentile: 0
+            span_regex: false
+        hf_format:
+          default: false
+          title: Hf Format
+          type: boolean
+        include_cols:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          default: []
+          title: Include Cols
+        map_threshold:
+          default: 0.5
+          title: Map Threshold
+          type: number
+        min_reviews:
+          anyOf:
+            - minimum: 0.0
+              type: integer
+            - type: 'null'
+          title: Min Reviews
+        only_export_edited:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          default: false
+          title: Only Export Edited
+        psl_content_file_name:
+          title: Psl Content File Name
+          type: string
+        schema_name:
+          title: Schema Name
+          type: string
+        table_name:
+          title: Table Name
+          type: string
+        tagging_schema:
+          anyOf:
+            - $ref: '#/components/schemas/TaggingSchema'
+            - type: 'null'
+        task:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Task
+      required:
+        - edit_ids
+        - catalog_name
+        - schema_name
+        - psl_content_file_name
+        - table_name
+      title: DatabricksUnityCatalogEditExportRequest
+      type: object
+    DatabricksUnityCatalogExportEditsResponse:
+      properties:
+        all_but:
+          default: false
+          title: All But
+          type: boolean
+        col_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          title: Col Mapping
+        compare_to:
+          anyOf:
+            - $ref: '#/components/schemas/Split'
+            - type: 'null'
+        edit_ids:
+          items:
+            format: uuid4
+            type: string
+          title: Edit Ids
+          type: array
+        edit_overrides:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/EditOverride'
+              type: array
+            - type: 'null'
+          default: []
+          title: Edit Overrides
+        file_type:
+          $ref: '#/components/schemas/FileType'
+          default: csv
+        filter_params:
+          $ref: '#/components/schemas/FilterParams'
+          default:
+            data_embs: false
+            exclude_ids: []
+            ids: []
+            likely_mislabeled_dep_percentile: 0
+            span_regex: false
+        hf_format:
+          default: false
+          title: Hf Format
+          type: boolean
+        include_cols:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          default: []
+          title: Include Cols
+        map_threshold:
+          default: 0.5
+          title: Map Threshold
+          type: number
+        min_reviews:
+          anyOf:
+            - minimum: 0.0
+              type: integer
+            - type: 'null'
+          title: Min Reviews
+        only_export_edited:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          default: false
+          title: Only Export Edited
+        results:
+          items: {}
+          title: Results
+          type: array
+        tagging_schema:
+          anyOf:
+            - $ref: '#/components/schemas/TaggingSchema'
+            - type: 'null'
+        task:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Task
+      required:
+        - edit_ids
+        - results
+      title: DatabricksUnityCatalogExportEditsResponse
+      type: object
+    DatabricksUnityCatalogExportResponse:
+      properties:
+        all_but:
+          default: false
+          title: All But
+          type: boolean
+        col_mapping:
+          anyOf:
+            - additionalProperties:
+                type: string
+              type: object
+            - type: 'null'
+          title: Col Mapping
+        compare_to:
+          anyOf:
+            - $ref: '#/components/schemas/Split'
+            - type: 'null'
+        file_type:
+          $ref: '#/components/schemas/FileType'
+          default: csv
+        filter_params:
+          $ref: '#/components/schemas/FilterParams'
+          default:
+            data_embs: false
+            exclude_ids: []
+            ids: []
+            likely_mislabeled_dep_percentile: 0
+            span_regex: false
+        hf_format:
+          default: false
+          title: Hf Format
+          type: boolean
+        include_cols:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          default: []
+          title: Include Cols
+        map_threshold:
+          default: 0.5
+          title: Map Threshold
+          type: number
+        results:
+          items: {}
+          title: Results
+          type: array
+        tagging_schema:
+          anyOf:
+            - $ref: '#/components/schemas/TaggingSchema'
+            - type: 'null'
+        task:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Task
+      required:
+        - results
+      title: DatabricksUnityCatalogExportResponse
+      type: object
     DatasetAction:
       enum:
         - update
@@ -7491,6 +8786,25 @@ components:
       required:
         - values
       title: DatasetAppendRow
+      type: object
+    DatasetBulkDeleteFailure:
+      description: Details about a failed deletion.
+      properties:
+        dataset_id:
+          format: uuid4
+          title: Dataset Id
+          type: string
+        dataset_name:
+          title: Dataset Name
+          type: string
+        reason:
+          title: Reason
+          type: string
+      required:
+        - dataset_id
+        - dataset_name
+        - reason
+      title: DatasetBulkDeleteFailure
       type: object
     DatasetContent:
       properties:
@@ -7563,6 +8877,35 @@ components:
       required:
         - column_name
       title: DatasetContentSortClause
+      type: object
+    DatasetCopyRecordData:
+      description: Prepend or append trace or span data to dataset.
+      properties:
+        edit_type:
+          const: copy_record_data
+          default: copy_record_data
+          title: Edit Type
+          type: string
+        ids:
+          description: List of trace or span IDs to copy data from
+          items:
+            format: uuid4
+            type: string
+          title: Ids
+          type: array
+        prepend:
+          default: true
+          description: A flag to control appending vs prepending
+          title: Prepend
+          type: boolean
+        project_id:
+          format: uuid4
+          title: Project Id
+          type: string
+      required:
+        - project_id
+        - ids
+      title: DatasetCopyRecordData
       type: object
     DatasetCreatedAtSort:
       properties:
@@ -8267,6 +9610,149 @@ components:
         - page_content
       title: Document
       type: object
+    EditAction:
+      description: The available actions you can take in an edit.
+      enum:
+        - relabel
+        - delete
+        - select_for_label
+        - relabel_as_pred
+        - update_text
+        - shift_span
+        - add_span
+        - create_new_label
+      title: EditAction
+      type: string
+    EditOverride:
+      description: 'A class for specifying conflict overrides during an edit export
+        request.
+
+
+        If 2 edits in an edit export request are making edits on conflicting sample
+        IDs, (ie edit 1 removes samples
+
+        (1,2,3,4) and edit 2 relabels sample 2, that would be a conflict), the override
+        allows us to bypass the conflict.
+
+        The sample_ids correspond to the samples in the dataset of the run being exported.'
+      properties:
+        created_by:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Created By
+        edit_action:
+          $ref: '#/components/schemas/EditAction'
+        edit_spans:
+          anyOf:
+            - additionalProperties:
+                items:
+                  $ref: '#/components/schemas/EditSpan'
+                type: array
+              type: object
+            - type: 'null'
+          title: Edit Spans
+        filter:
+          anyOf:
+            - $ref: '#/components/schemas/FilterParams'
+            - type: 'null'
+        inference_name:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Inference Name
+        map_threshold:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Map Threshold
+        new_label:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: New Label
+        note:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Note
+        project_id:
+          format: uuid4
+          title: Project Id
+          type: string
+        run_id:
+          format: uuid4
+          title: Run Id
+          type: string
+        sample_ids:
+          items:
+            type: integer
+          title: Sample Ids
+          type: array
+        search_string:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Search String
+        shift_span_end_num_words:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Shift Span End Num Words
+        shift_span_start_num_words:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Shift Span Start Num Words
+        split:
+          $ref: '#/components/schemas/Split'
+        task:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Task
+        text_replacement:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Text Replacement
+        use_regex:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          default: false
+          title: Use Regex
+      required:
+        - edit_action
+        - sample_ids
+        - project_id
+        - run_id
+        - split
+      title: EditOverride
+      type: object
+    EditSpan:
+      properties:
+        end_index:
+          title: End Index
+          type: integer
+        id:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Id
+        label:
+          title: Label
+          type: string
+        start_index:
+          title: Start Index
+          type: integer
+      required:
+        - start_index
+        - end_index
+        - label
+      title: EditSpan
+      type: object
     EnumFilter:
       description: Filters on a string field, with limited categories.
       properties:
@@ -8426,8 +9912,8 @@ components:
               - $ref: '#/components/schemas/LogRecordsDateFilter'
               - $ref: '#/components/schemas/LogRecordsNumberFilter'
               - $ref: '#/components/schemas/LogRecordsBooleanFilter'
-              - $ref: '#/components/schemas/LogRecordsTextFilter'
               - $ref: '#/components/schemas/LogRecordsCollectionFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
           title: Filters
           type: array
       title: ExperimentMetricsRequest
@@ -11856,11 +13342,27 @@ components:
         - evaluating_response
       title: FewShotExample
       type: object
+    FileType:
+      enum:
+        - csv
+        - json
+        - parquet
+        - arrow
+        - zip
+      title: FileType
+      type: string
+    FilterExpression:
+      anyOf:
+        - $ref: '#/components/schemas/FilterLeaf'
+        - $ref: '#/components/schemas/AndNode'
+        - $ref: '#/components/schemas/OrNode'
+        - $ref: '#/components/schemas/NotNode'
     FilterLeaf:
       properties:
         filter:
           anyOf:
             - $ref: '#/components/schemas/CollectionFilter'
+            - $ref: '#/components/schemas/StringFilter'
             - $ref: '#/components/schemas/IDFilter'
             - $ref: '#/components/schemas/CustomUUIDFilter'
             - $ref: '#/components/schemas/DateFilter'
@@ -11868,13 +13370,190 @@ components:
             - $ref: '#/components/schemas/CustomNumberFilter'
             - $ref: '#/components/schemas/EnumFilter'
             - $ref: '#/components/schemas/MapFilter'
-            - $ref: '#/components/schemas/StringFilter'
             - $ref: '#/components/schemas/CustomBooleanFilter'
             - $ref: '#/components/schemas/CustomFunctionFilter'
           title: Filter
       required:
         - filter
       title: FilterLeaf
+      type: object
+    FilterParams:
+      properties:
+        cbo_clusters:
+          anyOf:
+            - items:
+                type: integer
+              type: array
+            - type: 'null'
+          title: Cbo Clusters
+        class_filter:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Class Filter
+        cluster_ids:
+          anyOf:
+            - items:
+                type: integer
+              type: array
+            - type: 'null'
+          title: Cluster Ids
+        confidence_high:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Confidence High
+        confidence_low:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Confidence Low
+        correctly_classified:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Correctly Classified
+        data_embs:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          default: false
+          title: Data Embs
+        data_error_potential_high:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Data Error Potential High
+        data_error_potential_low:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Data Error Potential Low
+        drift_score_threshold:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Drift Score Threshold
+        exclude_ids:
+          default: []
+          items:
+            type: integer
+          title: Exclude Ids
+          type: array
+        gold_filter:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Gold Filter
+        ids:
+          default: []
+          items:
+            type: integer
+          title: Ids
+          type: array
+        image_ids:
+          anyOf:
+            - items:
+                type: integer
+              type: array
+            - type: 'null'
+          title: Image Ids
+        is_drifted:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Is Drifted
+        is_edited:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Is Edited
+        is_otb:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Is Otb
+        lasso:
+          anyOf:
+            - $ref: '#/components/schemas/LassoSelection'
+            - type: 'null'
+        likely_mislabeled:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Likely Mislabeled
+        likely_mislabeled_dep_percentile:
+          anyOf:
+            - maximum: 100.0
+              minimum: 0.0
+              type: integer
+            - type: 'null'
+          default: 0
+          title: Likely Mislabeled Dep Percentile
+        meta_filter:
+          anyOf:
+            - items:
+                $ref: '#/components/schemas/MetaFilter'
+              type: array
+            - type: 'null'
+          title: Meta Filter
+        misclassified_only:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Misclassified Only
+        num_similar_to:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Num Similar To
+        pred_filter:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Pred Filter
+        regex:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          title: Regex
+        similar_to:
+          anyOf:
+            - items:
+                type: integer
+              type: array
+            - type: 'null'
+          title: Similar To
+        span_regex:
+          anyOf:
+            - type: boolean
+            - type: 'null'
+          default: false
+          title: Span Regex
+        span_sample_ids:
+          anyOf:
+            - items:
+                type: integer
+              type: array
+            - type: 'null'
+          title: Span Sample Ids
+        span_text:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Span Text
+        text_pat:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Text Pat
+      title: FilterParams
       type: object
     FineTunedScorer:
       properties:
@@ -12841,6 +14520,8 @@ components:
         - trace_io_only
         - trace_normalized
         - trace_output_only
+        - agent_spans
+        - workflow_spans
       title: InputTypeEnum
       type: string
     InsightType:
@@ -13022,6 +14703,61 @@ components:
         - delete
         - share
       title: IntegrationAction
+      type: string
+    IntegrationDB:
+      properties:
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        created_by:
+          format: uuid4
+          title: Created By
+          type: string
+        id:
+          format: uuid4
+          title: Id
+          type: string
+        is_selected:
+          default: false
+          title: Is Selected
+          type: boolean
+        name:
+          $ref: '#/components/schemas/IntegrationName'
+        permissions:
+          default: []
+          items:
+            $ref: '#/components/schemas/Permission'
+          title: Permissions
+          type: array
+        updated_at:
+          format: date-time
+          title: Updated At
+          type: string
+      required:
+        - id
+        - name
+        - created_at
+        - updated_at
+        - created_by
+      title: IntegrationDB
+      type: object
+    IntegrationName:
+      enum:
+        - anthropic
+        - aws_bedrock
+        - aws_sagemaker
+        - azure
+        - custom
+        - databricks
+        - labelstudio
+        - mistral
+        - nvidia
+        - openai
+        - vegas_gateway
+        - vertex_ai
+        - writer
+      title: IntegrationName
       type: string
     InvokeResponse:
       properties:
@@ -13218,6 +14954,160 @@ components:
         - writer
       title: LLMIntegration
       type: string
+    LabelStudioExportRequest:
+      description: 'Schema for requesting data to be sent to labelstudio.
+
+
+        Coming soon!'
+      properties:
+        compare_to:
+          anyOf:
+            - $ref: '#/components/schemas/Split'
+            - type: 'null'
+        filter_params:
+          $ref: '#/components/schemas/FilterParams'
+          default:
+            data_embs: false
+            exclude_ids: []
+            ids: []
+            likely_mislabeled_dep_percentile: 0
+            span_regex: false
+        inference_name:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Inference Name
+        labels:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Labels
+        map_threshold:
+          default: 0.5
+          title: Map Threshold
+          type: number
+        project_id:
+          format: uuid4
+          title: Project Id
+          type: string
+        project_name:
+          title: Project Name
+          type: string
+        run_id:
+          format: uuid4
+          title: Run Id
+          type: string
+        split:
+          $ref: '#/components/schemas/Split'
+        task:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Task
+        workspace:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Workspace
+      required:
+        - project_name
+        - project_id
+        - run_id
+        - split
+      title: LabelStudioExportRequest
+      type: object
+    LabelStudioIntegration:
+      description: The active labelstudio integration information.
+      properties:
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        is_enterprise:
+          title: Is Enterprise
+          type: boolean
+        name:
+          const: labelstudio
+          default: labelstudio
+          title: Name
+          type: string
+        url:
+          title: Url
+          type: string
+      required:
+        - url
+        - is_enterprise
+      title: LabelStudioIntegration
+      type: object
+    LabelStudioIntegrationCreate:
+      properties:
+        is_enterprise:
+          title: Is Enterprise
+          type: boolean
+        token:
+          title: Token
+          type: string
+        url:
+          format: uri
+          maxLength: 2083
+          minLength: 1
+          title: Url
+          type: string
+      required:
+        - token
+        - url
+        - is_enterprise
+      title: LabelStudioIntegrationCreate
+      type: object
+    LabelStudioProject:
+      properties:
+        labels:
+          items:
+            type: string
+          title: Labels
+          type: array
+        name:
+          title: Name
+          type: string
+      required:
+        - name
+        - labels
+      title: LabelStudioProject
+      type: object
+    LassoSelection:
+      description: 'Representation of a lasso selection (used by embeddings)
+
+
+        x and y correspond to the cursor movement while tracing the lasso. This is
+        natively provided by plotly when creating
+
+        a lasso selection, for example'
+      properties:
+        x:
+          items:
+            type: number
+          title: X
+          type: array
+        y:
+          items:
+            type: number
+          title: Y
+          type: array
+      required:
+        - x
+        - y
+      title: LassoSelection
+      type: object
     LikeDislikeAggregate:
       properties:
         dislike_count:
@@ -13446,6 +15336,34 @@ components:
       required:
         - collaborators
       title: ListGroupCollaboratorsResponse
+      type: object
+    ListLogStreamResponse:
+      properties:
+        limit:
+          default: 100
+          title: Limit
+          type: integer
+        log_streams:
+          items:
+            $ref: '#/components/schemas/LogStreamResponse'
+          title: Log Streams
+          type: array
+        next_starting_token:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Next Starting Token
+        paginated:
+          default: false
+          title: Paginated
+          type: boolean
+        starting_token:
+          default: 0
+          title: Starting Token
+          type: integer
+      required:
+        - log_streams
+      title: ListLogStreamResponse
       type: object
     ListPromptDatasetResponse:
       properties:
@@ -13927,13 +15845,13 @@ components:
       examples:
         - columns:
             - applicable_types:
-                - session
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - session
+                - agent
               category: standard
               complex: false
               data_type: text
@@ -13947,13 +15865,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - session
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - session
+                - agent
               category: standard
               complex: false
               data_type: text
@@ -13967,13 +15885,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - session
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - session
+                - agent
               category: standard
               complex: false
               data_type: text
@@ -13987,13 +15905,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - session
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - session
+                - agent
               category: standard
               complex: false
               data_type: timestamp
@@ -14007,12 +15925,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - agent
               category: standard
               complex: false
               data_type: string_list
@@ -14026,12 +15944,12 @@ components:
               multi_valued: true
               sortable: false
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - agent
               category: standard
               complex: false
               data_type: integer
@@ -14046,13 +15964,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - session
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - session
+                - agent
               category: standard
               complex: false
               data_type: text
@@ -14066,12 +15984,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - agent
               category: standard
               complex: false
               data_type: text
@@ -14085,12 +16003,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - agent
               category: standard
               complex: false
               data_type: text
@@ -14104,13 +16022,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - session
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - session
+                - agent
               category: standard
               complex: false
               data_type: uuid
@@ -14124,12 +16042,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - agent
               category: standard
               complex: false
               data_type: uuid
@@ -14144,12 +16062,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - agent
               category: standard
               complex: false
               data_type: uuid
@@ -14164,12 +16082,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - agent
               category: standard
               complex: false
               data_type: uuid
@@ -14184,12 +16102,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - agent
               category: standard
               complex: false
               data_type: timestamp
@@ -14203,12 +16121,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - agent
               category: standard
               complex: false
               data_type: boolean
@@ -14222,12 +16140,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
+                - agent
               category: standard
               complex: false
               data_type: boolean
@@ -14241,19 +16159,19 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - session
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
                 - trace
-              applicable_types:
-                - tool
-                - retriever
-                - llm
+                - session
                 - agent
+              applicable_types:
                 - workflow
+                - tool
+                - llm
+                - retriever
+                - agent
               category: standard
               complex: false
               data_type: text
@@ -14267,11 +16185,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
+                - agent
               category: standard
               complex: false
               data_type: uuid
@@ -14286,11 +16204,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
+                - agent
               category: standard
               complex: false
               data_type: uuid
@@ -14304,11 +16222,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - tool
-                - retriever
-                - llm
-                - agent
                 - workflow
+                - tool
+                - llm
+                - retriever
+                - agent
               category: standard
               complex: false
               data_type: integer
@@ -14322,12 +16240,12 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - classifier
                 - default
-                - planner
-                - reflection
-                - supervisor
                 - router
+                - reflection
+                - planner
+                - classifier
+                - supervisor
                 - react
                 - judge
               applicable_types:
@@ -14429,6 +16347,15 @@ components:
               label: Output Toxicity (SLM)
               multi_valued: false
               sortable: true
+              threshold:
+                buckets:
+                  - 0.5
+                  - 0.8
+                display_value_levels:
+                  - Low
+                  - Medium
+                  - High
+                inverted: true
             - applicable_types: []
               category: metric
               complex: false
@@ -14555,12 +16482,8 @@ components:
           title: Experiment Id
         filter_tree:
           anyOf:
-            - $ref: '#/components/schemas/FilterLeaf'
-            - $ref: '#/components/schemas/AndNode'
-            - $ref: '#/components/schemas/OrNode'
-            - $ref: '#/components/schemas/NotNode'
+            - $ref: '#/components/schemas/FilterExpression'
             - type: 'null'
-          title: Filter Tree
         filters:
           items:
             discriminator:
@@ -14577,8 +16500,8 @@ components:
               - $ref: '#/components/schemas/LogRecordsDateFilter'
               - $ref: '#/components/schemas/LogRecordsNumberFilter'
               - $ref: '#/components/schemas/LogRecordsBooleanFilter'
-              - $ref: '#/components/schemas/LogRecordsTextFilter'
               - $ref: '#/components/schemas/LogRecordsCollectionFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
           title: Filters
           type: array
         log_stream_id:
@@ -14664,8 +16587,8 @@ components:
               - $ref: '#/components/schemas/LogRecordsDateFilter'
               - $ref: '#/components/schemas/LogRecordsNumberFilter'
               - $ref: '#/components/schemas/LogRecordsBooleanFilter'
-              - $ref: '#/components/schemas/LogRecordsTextFilter'
               - $ref: '#/components/schemas/LogRecordsCollectionFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
           title: Filters
           type: array
         log_stream_id:
@@ -14778,8 +16701,8 @@ components:
               - $ref: '#/components/schemas/LogRecordsDateFilter'
               - $ref: '#/components/schemas/LogRecordsNumberFilter'
               - $ref: '#/components/schemas/LogRecordsBooleanFilter'
-              - $ref: '#/components/schemas/LogRecordsTextFilter'
               - $ref: '#/components/schemas/LogRecordsCollectionFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
           title: Filters
           type: array
         group_by:
@@ -14900,12 +16823,8 @@ components:
           title: Experiment Id
         filter_tree:
           anyOf:
-            - $ref: '#/components/schemas/FilterLeaf'
-            - $ref: '#/components/schemas/AndNode'
-            - $ref: '#/components/schemas/OrNode'
-            - $ref: '#/components/schemas/NotNode'
+            - $ref: '#/components/schemas/FilterExpression'
             - type: 'null'
-          title: Filter Tree
         filters:
           items:
             discriminator:
@@ -14922,8 +16841,8 @@ components:
               - $ref: '#/components/schemas/LogRecordsDateFilter'
               - $ref: '#/components/schemas/LogRecordsNumberFilter'
               - $ref: '#/components/schemas/LogRecordsBooleanFilter'
-              - $ref: '#/components/schemas/LogRecordsTextFilter'
               - $ref: '#/components/schemas/LogRecordsCollectionFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
           title: Filters
           type: array
         log_stream_id:
@@ -15004,12 +16923,8 @@ components:
           title: Experiment Id
         filter_tree:
           anyOf:
-            - $ref: '#/components/schemas/FilterLeaf'
-            - $ref: '#/components/schemas/AndNode'
-            - $ref: '#/components/schemas/OrNode'
-            - $ref: '#/components/schemas/NotNode'
+            - $ref: '#/components/schemas/FilterExpression'
             - type: 'null'
-          title: Filter Tree
         filters:
           items:
             discriminator:
@@ -15026,8 +16941,8 @@ components:
               - $ref: '#/components/schemas/LogRecordsDateFilter'
               - $ref: '#/components/schemas/LogRecordsNumberFilter'
               - $ref: '#/components/schemas/LogRecordsBooleanFilter'
-              - $ref: '#/components/schemas/LogRecordsTextFilter'
               - $ref: '#/components/schemas/LogRecordsCollectionFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
           title: Filters
           type: array
         limit:
@@ -15076,7 +16991,7 @@ components:
           num_rows: 2
           paginated: true
           records:
-            - created_at: '2025-10-17T22:53:09.267837Z'
+            - created_at: '2025-11-13T18:57:26.720133Z'
               dataset_metadata: {}
               feedback_rating_info: {}
               id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
@@ -15093,7 +17008,7 @@ components:
               trace_id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               type: trace
               user_metadata: {}
-            - created_at: '2025-10-17T22:53:09.267979Z'
+            - created_at: '2025-11-13T18:57:26.720281Z'
               dataset_metadata: {}
               id: 1edc2401-24b4-448c-a392-b36932293061
               input:
@@ -15365,14 +17280,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           parent_id: 11000011-0000-0000-0000-110000110000
           spans:
-            - created_at: '2025-10-17T22:53:09.236488Z'
+            - created_at: '2025-11-13T18:57:26.685600Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-10-17T22:53:09.221612Z'
+                - created_at: '2025-11-13T18:57:26.668577Z'
                   dataset_metadata: {}
                   id: 22222222-2222-4222-a222-222222222222
                   input:
@@ -15727,14 +17642,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           session_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-10-17T22:53:09.216710Z'
+            - created_at: '2025-11-13T18:57:26.663373Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-10-17T22:53:09.216679Z'
+                - created_at: '2025-11-13T18:57:26.663342Z'
                   dataset_metadata: {}
                   input:
                     - content: 'Question: who is a smart LLM?'
@@ -15752,14 +17667,14 @@ components:
               user_metadata: {}
         - experiment_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-10-17T22:53:09.217118Z'
+            - created_at: '2025-11-13T18:57:26.663862Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-10-17T22:53:09.217092Z'
+                - created_at: '2025-11-13T18:57:26.663826Z'
                   dataset_metadata: {}
                   id: 11111111-1111-4111-a111-111111111111
                   input:
@@ -15789,6 +17704,11 @@ components:
             - type: 'null'
           description: Experiment id associated with the traces.
           title: Experiment Id
+        include_trace_ids:
+          default: false
+          description: If True, include the list of ingested trace IDs in the response.
+          title: Include Trace Ids
+          type: boolean
         is_complete:
           default: true
           description: Whether or not the records in this request are complete.
@@ -15879,6 +17799,16 @@ components:
           format: uuid4
           title: Session Id
           type: string
+        trace_ids:
+          anyOf:
+            - items:
+                format: uuid4
+                type: string
+              type: array
+            - type: 'null'
+          description: List of trace IDs that were ingested. Only included if include_trace_ids=True
+            in request.
+          title: Trace Ids
         traces_count:
           description: total number of traces ingested
           title: Traces Count
@@ -15951,6 +17881,43 @@ components:
         $ref: '#/components/schemas/galileo_core__schemas__shared__message__Message'
       title: Messages
       type: array
+    MetaFilter:
+      description: A class for filtering arbitrary metadata columns.
+      properties:
+        greater_than:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Greater Than
+        is_equal:
+          anyOf:
+            - type: number
+            - type: integer
+            - type: 'null'
+          title: Is Equal
+        isin:
+          anyOf:
+            - items:
+                anyOf:
+                  - type: string
+                  - type: boolean
+                  - type: integer
+                  - type: 'null'
+              type: array
+            - type: 'null'
+          title: Isin
+        less_than:
+          anyOf:
+            - type: number
+            - type: 'null'
+          title: Less Than
+        name:
+          title: Name
+          type: string
+      required:
+        - name
+      title: MetaFilter
+      type: object
     MetadataFilter:
       description: Filters on metadata key-value pairs in scorer jobs.
       properties:
@@ -16431,6 +18398,36 @@ components:
         - name
       title: MetricsTestingAvailableColumnsRequest
       type: object
+    MistralIntegration:
+      properties:
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        name:
+          const: mistral
+          default: mistral
+          title: Name
+          type: string
+      title: MistralIntegration
+      type: object
+    MistralIntegrationCreate:
+      properties:
+        token:
+          title: Token
+          type: string
+      required:
+        - token
+      title: MistralIntegrationCreate
+      type: object
     Model:
       properties:
         alias:
@@ -16600,15 +18597,47 @@ components:
     NotNode:
       properties:
         not:
-          anyOf:
-            - $ref: '#/components/schemas/FilterLeaf'
-            - $ref: '#/components/schemas/AndNode'
-            - $ref: '#/components/schemas/OrNode'
-            - $ref: '#/components/schemas/NotNode'
-          title: Not
+          $ref: '#/components/schemas/FilterExpression'
       required:
         - not
       title: NotNode
+      type: object
+    NvidiaIntegration:
+      properties:
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        name:
+          const: nvidia
+          default: nvidia
+          title: Name
+          type: string
+      title: NvidiaIntegration
+      type: object
+    NvidiaIntegrationCreate:
+      properties:
+        hostname:
+          format: uri
+          maxLength: 2083
+          minLength: 1
+          title: Hostname
+          type: string
+        token:
+          title: Token
+          type: string
+      required:
+        - token
+        - hostname
+      title: NvidiaIntegrationCreate
       type: object
     OpenAIFunction:
       properties:
@@ -16618,6 +18647,46 @@ components:
       required:
         - name
       title: OpenAIFunction
+      type: object
+    OpenAIIntegration:
+      properties:
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        name:
+          const: openai
+          default: openai
+          title: Name
+          type: string
+        organization_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Organization Id
+      title: OpenAIIntegration
+      type: object
+    OpenAIIntegrationCreate:
+      properties:
+        organization_id:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Organization Id
+        token:
+          title: Token
+          type: string
+      required:
+        - token
+      title: OpenAIIntegrationCreate
       type: object
     OpenAIToolChoice:
       properties:
@@ -16635,11 +18704,7 @@ components:
       properties:
         or:
           items:
-            anyOf:
-              - $ref: '#/components/schemas/FilterLeaf'
-              - $ref: '#/components/schemas/AndNode'
-              - $ref: '#/components/schemas/OrNode'
-              - $ref: '#/components/schemas/NotNode'
+            $ref: '#/components/schemas/FilterExpression'
           title: Or
           type: array
       required:
@@ -17134,7 +19199,7 @@ components:
           default: column
           title: Sort Type
           type: string
-      title: ProjectCreatedAtSort
+      title: ProjectCreatedAtSortV1
       type: object
     ProjectCreatorFilter:
       properties:
@@ -17436,7 +19501,7 @@ components:
           default: column
           title: Sort Type
           type: string
-      title: ProjectNameSort
+      title: ProjectNameSortV1
       type: object
     ProjectRunsFilter:
       properties:
@@ -17670,7 +19735,22 @@ components:
           default: column
           title: Sort Type
           type: string
-      title: ProjectUpdatedAtSort
+      title: ProjectUpdatedAtSortV1
+      type: object
+    PromptBulkDeleteFailure:
+      description: Details about a failed deletion.
+      properties:
+        reason:
+          title: Reason
+          type: string
+        template_id:
+          format: uuid4
+          title: Template Id
+          type: string
+      required:
+        - template_id
+        - reason
+      title: PromptBulkDeleteFailure
       type: object
     PromptDatasetDB:
       properties:
@@ -18368,12 +20448,8 @@ components:
           title: Experiment Id
         filter_tree:
           anyOf:
-            - $ref: '#/components/schemas/FilterLeaf'
-            - $ref: '#/components/schemas/AndNode'
-            - $ref: '#/components/schemas/OrNode'
-            - $ref: '#/components/schemas/NotNode'
+            - $ref: '#/components/schemas/FilterExpression'
             - type: 'null'
-          title: Filter Tree
         filters:
           items:
             discriminator:
@@ -18390,8 +20466,8 @@ components:
               - $ref: '#/components/schemas/LogRecordsDateFilter'
               - $ref: '#/components/schemas/LogRecordsNumberFilter'
               - $ref: '#/components/schemas/LogRecordsBooleanFilter'
-              - $ref: '#/components/schemas/LogRecordsTextFilter'
               - $ref: '#/components/schemas/LogRecordsCollectionFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
           title: Filters
           type: array
         limit:
@@ -19748,6 +21824,13 @@ components:
           anyOf:
             - $ref: '#/components/schemas/OutputTypeEnum'
             - type: 'null'
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -19941,6 +22024,10 @@ components:
         context_relevance:
           default: false
           title: Context Relevance
+          type: boolean
+        context_relevance_luna:
+          default: false
+          title: Context Relevance Luna
           type: boolean
         cost:
           default: true
@@ -20274,6 +22361,14 @@ components:
           type: string
       title: SexistTemplate
       type: object
+    Split:
+      enum:
+        - training
+        - validation
+        - test
+        - inference
+      title: Split
+      type: string
     StageDB:
       properties:
         created_by:
@@ -20672,6 +22767,18 @@ components:
         - label
       title: SystemMetricInfo
       type: object
+    TaggingSchema:
+      description: "Supported NER Tagging schemas.\n\nA tagging schema is a definition\
+        \ of the way NER data is formatted. The schema\nletters define the tags used\
+        \ within it.\n    ex:\n        BIOES - B means before (a token), I means in\
+        \ (a token),\n            E means end (of a token), S means single (length\
+        \ token)\nSee https://en.wikipedia.org/wiki/Inside%E2%80%93outside%E2%80%93beginning_(tagging)"
+      enum:
+        - BIO
+        - BIOES
+        - BILOU
+      title: TaggingSchema
+      type: string
     TagsAggregate:
       properties:
         counts:
@@ -21531,6 +23638,7 @@ components:
             discriminator:
               mapping:
                 append_row: '#/components/schemas/DatasetAppendRow'
+                copy_record_data: '#/components/schemas/DatasetCopyRecordData'
                 delete_row: '#/components/schemas/DatasetDeleteRow'
                 filter_rows: '#/components/schemas/DatasetFilterRows'
                 prepend_row: '#/components/schemas/DatasetPrependRow'
@@ -21542,6 +23650,7 @@ components:
               - $ref: '#/components/schemas/DatasetUpdateRow'
               - $ref: '#/components/schemas/DatasetDeleteRow'
               - $ref: '#/components/schemas/DatasetFilterRows'
+              - $ref: '#/components/schemas/DatasetCopyRecordData'
           minItems: 1
           title: Edits
           type: array
@@ -21628,6 +23737,13 @@ components:
           anyOf:
             - $ref: '#/components/schemas/OutputTypeEnum'
             - type: 'null'
+        required_scorers:
+          anyOf:
+            - items:
+                type: string
+              type: array
+            - type: 'null'
+          title: Required Scorers
         scoreable_node_types:
           anyOf:
             - items:
@@ -21885,12 +24001,8 @@ components:
           title: Experiment Id
         filter_tree:
           anyOf:
-            - $ref: '#/components/schemas/FilterLeaf'
-            - $ref: '#/components/schemas/AndNode'
-            - $ref: '#/components/schemas/OrNode'
-            - $ref: '#/components/schemas/NotNode'
+            - $ref: '#/components/schemas/FilterExpression'
             - type: 'null'
-          title: Filter Tree
         filters:
           items:
             discriminator:
@@ -21907,8 +24019,8 @@ components:
               - $ref: '#/components/schemas/LogRecordsDateFilter'
               - $ref: '#/components/schemas/LogRecordsNumberFilter'
               - $ref: '#/components/schemas/LogRecordsBooleanFilter'
-              - $ref: '#/components/schemas/LogRecordsTextFilter'
               - $ref: '#/components/schemas/LogRecordsCollectionFilter'
+              - $ref: '#/components/schemas/LogRecordsTextFilter'
           title: Filters
           type: array
         limit:
@@ -22004,6 +24116,77 @@ components:
         - msg
         - type
       title: ValidationError
+      type: object
+    VegasGatewayIntegration:
+      properties:
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        name:
+          const: vegas_gateway
+          default: vegas_gateway
+          title: Name
+          type: string
+      title: VegasGatewayIntegration
+      type: object
+    VegasGatewayIntegrationCreate:
+      properties:
+        endpoint:
+          format: uri
+          maxLength: 2083
+          minLength: 1
+          title: Endpoint
+          type: string
+        token:
+          title: Token
+          type: string
+        use_case:
+          title: Use Case
+          type: string
+      required:
+        - endpoint
+        - use_case
+        - token
+      title: VegasGatewayIntegrationCreate
+      type: object
+    VertexAIIntegration:
+      properties:
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        name:
+          const: vertex_ai
+          default: vertex_ai
+          title: Name
+          type: string
+      title: VertexAIIntegration
+      type: object
+    VertexAIIntegrationCreate:
+      properties:
+        token:
+          title: Token
+          type: string
+      required:
+        - token
+      title: VertexAIIntegrationCreate
       type: object
     WorkflowSpan:
       properties:
@@ -22163,39 +24346,44 @@ components:
           type: object
       title: WorkflowSpan
       type: object
-    api__schemas__content__dataset__BulkDeleteFailure:
-      description: Details about a failed deletion.
+    WriterIntegration:
       properties:
-        dataset_id:
-          format: uuid4
-          title: Dataset Id
+        extra:
+          anyOf:
+            - additionalProperties: true
+              type: object
+            - type: 'null'
+          title: Extra
+        id:
+          anyOf:
+            - format: uuid4
+              type: string
+            - type: 'null'
+          title: Id
+        name:
+          const: writer
+          default: writer
+          title: Name
           type: string
-        dataset_name:
-          title: Dataset Name
-          type: string
-        reason:
-          title: Reason
+        organization_id:
+          title: Organization Id
           type: string
       required:
-        - dataset_id
-        - dataset_name
-        - reason
-      title: BulkDeleteFailure
+        - organization_id
+      title: WriterIntegration
       type: object
-    api__schemas__content__prompt__BulkDeleteFailure:
-      description: Details about a failed deletion.
+    WriterIntegrationCreate:
       properties:
-        reason:
-          title: Reason
+        organization_id:
+          title: Organization Id
           type: string
-        template_id:
-          format: uuid4
-          title: Template Id
+        token:
+          title: Token
           type: string
       required:
-        - template_id
-        - reason
-      title: BulkDeleteFailure
+        - organization_id
+        - token
+      title: WriterIntegrationCreate
       type: object
     api__schemas__project__GetProjectsPaginatedResponse:
       properties:
@@ -22336,6 +24524,7 @@ components:
         - context_adherence
         - context_adherence_luna
         - context_relevance
+        - context_relevance_luna
         - conversation_quality
         - correctness
         - ground_truth_adherence
@@ -22373,6 +24562,7 @@ components:
         - _completeness_gpt
         - _context_adherence_luna
         - _context_relevance
+        - _context_relevance_luna
         - _chunk_attribution_utilization_gpt
         - _factuality
         - _groundedness
@@ -22445,7 +24635,7 @@ components:
       flows:
         password:
           scopes: {}
-          tokenUrl: https://api.galileo.ai/login
+          tokenUrl: http://localhost:8088/login
       type: oauth2
 info:
   title: FastAPI
@@ -23676,6 +25866,1371 @@ paths:
       summary: Generate Template Input Stub
       tags:
         - prompts
+  /integrations:
+    get:
+      description: List the created integrations for the requesting user.
+      operationId: list_integrations_integrations_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/IntegrationDB'
+                title: Response List Integrations Integrations Get
+                type: array
+          description: Successful Response
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List Integrations
+      tags:
+        - integrations
+  /integrations/anthropic:
+    put:
+      description: Create or update an Anthropic integration for this user from Galileo.
+      operationId: create_or_update_integration_integrations_anthropic_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnthropicIntegrationCreate'
+              examples:
+                - token: my_secret_api_token
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/available:
+    get:
+      description: List all of the available integrations to be created in Galileo.
+      operationId: list_available_integrations_integrations_available_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailableIntegrations'
+          description: Successful Response
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List Available Integrations
+      tags:
+        - integrations
+  /integrations/aws_bedrock:
+    put:
+      description: Create or update an AWS integration for this user from Galileo.
+      operationId: create_or_update_integration_integrations_aws_bedrock_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BaseAwsIntegrationCreate'
+              examples:
+                - credential_type: key_secret
+                  region: us-west-2
+                  token:
+                    aws_access_key_id: AWSA46AWSAWSBEDR0C45K
+                    aws_secret_access_key: sagasg2t0-9527@$s1ashsahfahfddsg
+                - credential_type: assumed_role
+                  region: us-west-1
+                  token:
+                    aws_role_arn: arn:aws:iam::1234567901:role/AWSBedrockAccessRole
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/aws_sagemaker:
+    put:
+      description: Create or update an AWS integration for this user from Galileo.
+      operationId: create_or_update_integration_integrations_aws_sagemaker_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AwsSageMakerIntegrationCreate'
+              examples:
+                - credential_type: key_secret
+                  models:
+                    - alias: aws_hello_world
+                      alternative_names: []
+                      completion_only: true
+                      cost_by: tokens
+                      formatting_tokens: 0
+                      input_map:
+                        prefix: ''
+                        prompt: prompt
+                        suffix: ''
+                      input_price: 0.0
+                      integration: aws_sagemaker
+                      is_chat: false
+                      name: huggingface-pytorch-inference-2024-02-29-14-53-51-829
+                      output_price: 0.0
+                      params_map:
+                        model: model
+                      provides_log_probs: false
+                      response_prefix_tokens: 0
+                      system_supported: false
+                      token_limit: 4000
+                  region: us-west-2
+                  token:
+                    aws_access_key_id: AWSA46AWSAWSBEDR0C45K
+                    aws_secret_access_key: sagasg2t0-9527@$s1ashsahfahfddsg
+                - credential_type: assumed_role
+                  models: []
+                  region: us-west-1
+                  token:
+                    aws_role_arn: arn:aws:iam::1234567901:role/AWSSagemakerAccessRole
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/azure:
+    put:
+      description: Create or update an Azure integration for this user from Galileo.
+      operationId: create_or_update_integration_integrations_azure_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AzureIntegrationCreate'
+              examples:
+                - available_deployments:
+                    - id: id1
+                      model: gpt-35-turbo
+                    - id: id2
+                      model: gpt-4o-mini
+                  endpoint: https://example-proxy.rungalileo.io
+                  proxy: true
+                  token: my_secret_api_token
+                - available_deployments:
+                    - id: id1
+                      model: gpt-35-turbo
+                    - id: id2
+                      model: gpt-4o-mini
+                  endpoint: https://example-endpoint.openai.azure.com
+                  token: my_secret_api_token
+                - endpoint: https://example-endpoint.openai.azure.com
+                  headers:
+                    project_name: foo-bar
+                    user_id: user@example.com
+                  token: my_secret_api_token
+                - endpoint: https://example-proxy.rungalileo.io
+                  proxy: true
+                  token: my_secret_api_token
+                - endpoint: https://example-endpoint.openai.azure.com
+                  token: my_secret_api_token
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/custom:
+    put:
+      description: Create or update a custom integration for this user.
+      operationId: create_or_update_integration_integrations_custom_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomIntegrationCreate'
+              examples:
+                - authentication_scope: chat.completions
+                  authentication_type: oauth2
+                  default_model: custom-model-1
+                  endpoint: https://api.custom-provider.com/v1
+                  models:
+                    - custom-model-1
+                    - custom-model-2
+                  oauth2_token_url: https://api.custom-provider.com/oauth2/token
+                  token: your_oauth2_client_credentials_json
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/databricks:
+    put:
+      description: Create or update a databricks integration for this user from Galileo.
+      operationId: create_or_update_unity_catalog_integration_integrations_databricks_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabricksIntegrationCreate'
+              examples:
+                - hostname: https://dbc-00000000-0000.cloud.databricks.com
+                  path: /sql/1.0/warehouses/a000000000000000
+                  storage: true
+                  token: my_secret_api_token
+                - hostname: https://dbc-00000000-0000.cloud.databricks.com
+                  llm: true
+                  token: my_secret_api_token
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Unity Catalog Integration
+      tags:
+        - integrations
+  /integrations/databricks/catalogs:
+    get:
+      operationId: get_databricks_catalogs_integrations_databricks_catalogs_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                title: Response Get Databricks Catalogs Integrations Databricks Catalogs
+                  Get
+                type: array
+          description: Successful Response
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Databricks Catalogs
+      tags:
+        - integrations
+  /integrations/databricks/databases:
+    get:
+      operationId: get_databases_for_cluster_integrations_databricks_databases_get
+      parameters:
+        - in: query
+          name: catalog
+          required: false
+          schema:
+            anyOf:
+              - type: string
+              - type: 'null'
+            title: Catalog
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                title: Response Get Databases For Cluster Integrations Databricks
+                  Databases Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Databases For Cluster
+      tags:
+        - integrations
+  /integrations/databricks/edits/export:
+    post:
+      description: 'Exports the resulting dataframe after a series of edits to databricks
+        delta lake.
+
+
+        If overrides are provided, and the original edit had a task, the override
+        MUST explicitly have a task set (typically
+
+        the same task as the edit)'
+      operationId: export_edits_databricks_integrations_databricks_edits_export_post
+      parameters:
+        - in: query
+          name: ignore_conflicting_edits
+          required: false
+          schema:
+            default: true
+            title: Ignore Conflicting Edits
+            type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabricksEditExportRequest'
+              examples:
+                - database_name: galileo_delta_db
+                  edit_ids:
+                    - your-edit-uuid-1
+                    - your-edit-uuid-2
+                  table_name: table_1
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabricksEditExportResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Export Edits Databricks
+      tags:
+        - integrations
+        - integrations
+        - edits
+  /integrations/databricks/export:
+    post:
+      operationId: export_to_databricks_integrations_databricks_export_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabricksExportRequest'
+              examples:
+                - database_name: galileo_delta_db
+                  project_id: '{uuid4}'
+                  run_id: '{uuid4}'
+                  split: training
+                  table_name: table_1
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabricksExportResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Export To Databricks
+      tags:
+        - integrations
+  /integrations/databricks/unity-catalog/edits/export:
+    post:
+      operationId: export_edits_databricks_unity_catalog_integrations_databricks_unity_catalog_edits_export_post
+      parameters:
+        - in: query
+          name: ignore_conflicting_edits
+          required: false
+          schema:
+            default: true
+            title: Ignore Conflicting Edits
+            type: boolean
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabricksUnityCatalogEditExportRequest'
+              examples:
+                - catalog_name: catalog0
+                  edit_ids:
+                    - your-edit-uuid-1
+                    - your-edit-uuid-2
+                  psl_content_file_name: data0.parquet
+                  schema_name: schema0
+                  table_name: table0
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabricksUnityCatalogExportEditsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Export Edits Databricks Unity Catalog
+      tags:
+        - integrations
+        - integrations
+        - edits
+  /integrations/databricks/unity-catalog/export:
+    post:
+      operationId: export_to_databricks_unity_catalog_integrations_databricks_unity_catalog_export_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabricksExportRequest'
+              examples:
+                - catalog_name: catalog0
+                  project_id: '{uuid4}'
+                  psl_content_file_name: data0.parquet
+                  run_id: '{uuid4}'
+                  schema_name: schema0
+                  split: training
+                  table_name: table0
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabricksUnityCatalogExportResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Export To Databricks Unity Catalog
+      tags:
+        - integrations
+  /integrations/databricks/unity-catalog/sql:
+    put:
+      deprecated: true
+      description: Create or update a databricks integration for this user from Galileo.
+      operationId: create_or_update_unity_catalog_integration_integrations_databricks_unity_catalog_sql_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabricksIntegrationCreate'
+              examples:
+                - hostname: https://dbc-00000000-0000.cloud.databricks.com
+                  path: /sql/1.0/warehouses/a000000000000000
+                  storage: true
+                  token: my_secret_api_token
+                - hostname: https://dbc-00000000-0000.cloud.databricks.com
+                  llm: true
+                  token: my_secret_api_token
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Unity Catalog Integration
+      tags:
+        - integrations
+  /integrations/labelstudio:
+    put:
+      description: Create or update a labelstudio integration for this user from Galileo.
+      operationId: create_or_update_integration_integrations_labelstudio_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabelStudioIntegrationCreate'
+              examples:
+                - is_enterprise: false
+                  token: my_secret_api_token
+                  url: https://app.heartex.com
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/labelstudio/export:
+    post:
+      operationId: export_to_labelstudio_integrations_labelstudio_export_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabelStudioExportRequest'
+              examples:
+                - project_id: '{uuid4}'
+                  project_name: my_galileo_labelstudio_project
+                  run_id: '{uuid4}'
+                  split: training
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Export To Labelstudio
+      tags:
+        - integrations
+  /integrations/labelstudio/projects:
+    get:
+      operationId: get_labelstudio_projects_integrations_labelstudio_projects_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/LabelStudioProject'
+                title: Response Get Labelstudio Projects Integrations Labelstudio
+                  Projects Get
+                type: array
+          description: Successful Response
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Labelstudio Projects
+      tags:
+        - integrations
+  /integrations/mistral:
+    put:
+      description: Create or update an Mistral integration for this user from Galileo.
+      operationId: create_or_update_integration_integrations_mistral_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MistralIntegrationCreate'
+              examples:
+                - token: my_secret_api_token
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/nvidia:
+    put:
+      description: Create or update an Nvidia integration for this user from Galileo.
+      operationId: create_or_update_integration_integrations_nvidia_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NvidiaIntegrationCreate'
+              examples:
+                - hostname: https://integrate.api.nvidia.com/v1
+                  token: my_secret_api_token
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/openai:
+    put:
+      description: Create or update an OpenAI integration for this user from Galileo.
+      operationId: create_or_update_integration_integrations_openai_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpenAIIntegrationCreate'
+              examples:
+                - token: my_secret_api_token
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/vegas_gateway:
+    put:
+      description: Create or update a Vegas Gateway integration for this user from
+        Galileo.
+      operationId: create_or_update_integration_integrations_vegas_gateway_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VegasGatewayIntegrationCreate'
+              examples:
+                - endpoint: https://oa-uat.ebiz.verizon.com/vegas/apps/prompt/v2/relay/use_case
+                  token: my_secret_api_token
+                  use_case: LLM_EVALUATION_FRAMEWORK
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/vertex_ai:
+    put:
+      description: Create or update a Google Vertex AI integration for a user.
+      operationId: create_or_update_integration_integrations_vertex_ai_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VertexAIIntegrationCreate'
+              examples:
+                - token: '{"type": "service_account", "project_id": "project-id",
+                    "private_key_id": "foo-bar", "private_key": "-----BEGIN RSA PRIVATE
+                    KEY-----\n                ...\n                -----END RSA PRIVATE
+                    KEY-----", "client_email": "user@iam.gserviceaccount.com", "client_id":
+                    "12353152646346", "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                    "token_uri": "https://oauth2.googleapis.com/token", "auth_provider_x509_cert_url":
+                    "https://www.googleapis.com/oauth2/v1/certs", "client_x509_cert_url":
+                    "https://www.googleapis.com/robot/v1/metadata/x509/user%40iam.gserviceaccount.com",
+                    "universe_domain": "googleapis.com"}'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/writer:
+    put:
+      description: Create or update a Writer integration for a user.
+      operationId: create_or_update_integration_integrations_writer_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WriterIntegrationCreate'
+              examples:
+                - organization_id: '123456789'
+                  token: my_secret_api_token
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration
+      tags:
+        - integrations
+  /integrations/{integration_id}/groups:
+    get:
+      description: List the groups with which the integration has been shared.
+      operationId: list_group_integration_collaborators_integrations__integration_id__groups_get
+      parameters:
+        - in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid4
+            title: Integration Id
+            type: string
+        - in: query
+          name: starting_token
+          required: false
+          schema:
+            default: 0
+            title: Starting Token
+            type: integer
+        - in: query
+          name: limit
+          required: false
+          schema:
+            default: 100
+            title: Limit
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListGroupCollaboratorsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List Group Integration Collaborators
+      tags:
+        - integrations
+    post:
+      description: Share a integration with groups.
+      operationId: create_group_integration_collaborators_integrations__integration_id__groups_post
+      parameters:
+        - in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid4
+            title: Integration Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/GroupCollaboratorCreate'
+              title: Body
+              type: array
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/GroupCollaborator'
+                title: Response Create Group Integration Collaborators Integrations  Integration
+                  Id  Groups Post
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Group Integration Collaborators
+      tags:
+        - integrations
+  /integrations/{integration_id}/groups/{group_id}:
+    delete:
+      description: Remove a group's access to a integration.
+      operationId: delete_group_integration_collaborator_integrations__integration_id__groups__group_id__delete
+      parameters:
+        - in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid4
+            title: Integration Id
+            type: string
+        - in: path
+          name: group_id
+          required: true
+          schema:
+            format: uuid4
+            title: Group Id
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Delete Group Integration Collaborator
+      tags:
+        - integrations
+    patch:
+      description: Update the sharing permissions of a group on a integration.
+      operationId: update_group_integration_collaborator_integrations__integration_id__groups__group_id__patch
+      parameters:
+        - in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid4
+            title: Integration Id
+            type: string
+        - in: path
+          name: group_id
+          required: true
+          schema:
+            format: uuid4
+            title: Group Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupCollaborator'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Update Group Integration Collaborator
+      tags:
+        - integrations
+  /integrations/{integration_id}/select:
+    put:
+      description: Create or update an integration selection for this user from Galileo.
+      operationId: create_or_update_integration_selection_integrations__integration_id__select_put
+      parameters:
+        - in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid4
+            title: Integration Id
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationDB'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create Or Update Integration Selection
+      tags:
+        - integrations
+  /integrations/{integration_id}/users:
+    get:
+      description: List the users with which the integration has been shared.
+      operationId: list_user_integration_collaborators_integrations__integration_id__users_get
+      parameters:
+        - in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid4
+            title: Integration Id
+            type: string
+        - in: query
+          name: starting_token
+          required: false
+          schema:
+            default: 0
+            title: Starting Token
+            type: integer
+        - in: query
+          name: limit
+          required: false
+          schema:
+            default: 100
+            title: Limit
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserCollaboratorsResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List User Integration Collaborators
+      tags:
+        - integrations
+    post:
+      operationId: create_user_integration_collaborators_integrations__integration_id__users_post
+      parameters:
+        - in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid4
+            title: Integration Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/UserCollaboratorCreate'
+              title: Body
+              type: array
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/UserCollaborator'
+                title: Response Create User Integration Collaborators Integrations  Integration
+                  Id  Users Post
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Create User Integration Collaborators
+      tags:
+        - integrations
+  /integrations/{integration_id}/users/{user_id}:
+    delete:
+      description: Remove a user's access to a integration.
+      operationId: delete_user_integration_collaborator_integrations__integration_id__users__user_id__delete
+      parameters:
+        - in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid4
+            title: Integration Id
+            type: string
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            format: uuid4
+            title: User Id
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Delete User Integration Collaborator
+      tags:
+        - integrations
+    patch:
+      description: Update the sharing permissions of a user on a integration.
+      operationId: update_user_integration_collaborator_integrations__integration_id__users__user_id__patch
+      parameters:
+        - in: path
+          name: integration_id
+          required: true
+          schema:
+            format: uuid4
+            title: Integration Id
+            type: string
+        - in: path
+          name: user_id
+          required: true
+          schema:
+            format: uuid4
+            title: User Id
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollaboratorUpdate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserCollaborator'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Update User Integration Collaborator
+      tags:
+        - integrations
+  /integrations/{name}:
+    delete:
+      description: Delete the integration created by this user.
+      operationId: delete_integration_integrations__name__delete
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/IntegrationName'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Delete Integration
+      tags:
+        - integrations
+    get:
+      description: Gets the integration data formatted for the specified integration.
+      operationId: get_integration_integrations__name__get
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/IntegrationName'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                discriminator:
+                  mapping:
+                    anthropic: '#/components/schemas/AnthropicIntegration'
+                    aws_bedrock: '#/components/schemas/AwsBedrockIntegration'
+                    aws_sagemaker: '#/components/schemas/AwsSageMakerIntegration'
+                    azure: '#/components/schemas/AzureIntegration'
+                    custom: '#/components/schemas/CustomIntegration'
+                    databricks: '#/components/schemas/DatabricksIntegration'
+                    labelstudio: '#/components/schemas/LabelStudioIntegration'
+                    mistral: '#/components/schemas/MistralIntegration'
+                    nvidia: '#/components/schemas/NvidiaIntegration'
+                    openai: '#/components/schemas/OpenAIIntegration'
+                    vegas_gateway: '#/components/schemas/VegasGatewayIntegration'
+                    vertex_ai: '#/components/schemas/VertexAIIntegration'
+                    writer: '#/components/schemas/WriterIntegration'
+                  propertyName: name
+                oneOf:
+                  - $ref: '#/components/schemas/AwsBedrockIntegration'
+                  - $ref: '#/components/schemas/AwsSageMakerIntegration'
+                  - $ref: '#/components/schemas/AzureIntegration'
+                  - $ref: '#/components/schemas/AnthropicIntegration'
+                  - $ref: '#/components/schemas/CustomIntegration'
+                  - $ref: '#/components/schemas/DatabricksIntegration'
+                  - $ref: '#/components/schemas/LabelStudioIntegration'
+                  - $ref: '#/components/schemas/MistralIntegration'
+                  - $ref: '#/components/schemas/NvidiaIntegration'
+                  - $ref: '#/components/schemas/OpenAIIntegration'
+                  - $ref: '#/components/schemas/VegasGatewayIntegration'
+                  - $ref: '#/components/schemas/VertexAIIntegration'
+                  - $ref: '#/components/schemas/WriterIntegration'
+                title: Response Get Integration Integrations  Name  Get
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Integration
+      tags:
+        - integrations
+  /integrations/{name}/status:
+    get:
+      description: Checks if the integration status is active or not.
+      operationId: get_integration_status_integrations__name__status_get
+      parameters:
+        - in: path
+          name: name
+          required: true
+          schema:
+            $ref: '#/components/schemas/IntegrationName'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  type: string
+                title: Response Get Integration Status Integrations  Name  Status
+                  Get
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Integration Status
+      tags:
+        - integrations
   /jobs:
     post:
       operationId: create_job_jobs_post
@@ -24918,7 +28473,11 @@ paths:
         - projects
   /projects/{project_id}/log_streams:
     get:
-      description: Retrieve all log streams for a project.
+      deprecated: true
+      description: 'Retrieve all log streams for a project.
+
+
+        DEPRECATED in favor of `list_log_streams_paginated`.'
       operationId: list_log_streams_projects__project_id__log_streams_get
       parameters:
         - in: path
@@ -24989,6 +28548,52 @@ paths:
         - OAuth2PasswordBearer: []
         - HTTPBasic: []
       summary: Create Log Stream
+      tags:
+        - log_stream
+  /projects/{project_id}/log_streams/paginated:
+    get:
+      description: Retrieve all log streams for a project paginated.
+      operationId: list_log_streams_paginated_projects__project_id__log_streams_paginated_get
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: query
+          name: starting_token
+          required: false
+          schema:
+            default: 0
+            title: Starting Token
+            type: integer
+        - in: query
+          name: limit
+          required: false
+          schema:
+            default: 100
+            title: Limit
+            type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListLogStreamResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: List Log Streams Paginated
       tags:
         - log_stream
   /projects/{project_id}/log_streams/{log_stream_id}:
@@ -28844,5 +32449,5 @@ paths:
       tags:
         - prompts
 servers:
-  - description: Galileo Client APIs - galileo-v2
-    url: https://api.galileo.ai
+  - description: Galileo Client APIs - local
+    url: http://localhost:8088

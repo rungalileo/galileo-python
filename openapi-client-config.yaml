@@ -1,3 +1,5 @@
 post_hooks:
+  - "ruff check . --fix"
+  - "ruff format ."
   # Commenting this out for now as it's not working
   # - 'python ../../../scripts/patch_http_validation_error.py "../../../src/galileo/resources/models/http_validation_error.py"'

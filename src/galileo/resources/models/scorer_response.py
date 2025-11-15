@@ -43,6 +43,7 @@ class ScorerResponse:
         latest_version (Union['BaseScorerVersionDB', None, Unset]):
         model_type (Union[ModelType, None, Unset]):
         output_type (Union[None, OutputTypeEnum, Unset]):
+        required_scorers (Union[None, Unset, list[str]]):
         scoreable_node_types (Union[None, Unset, list[str]]):
         updated_at (Union[None, Unset, datetime.datetime]):
         user_prompt (Union[None, Unset, str]):
@@ -65,6 +66,7 @@ class ScorerResponse:
     latest_version: Union["BaseScorerVersionDB", None, Unset] = UNSET
     model_type: Union[ModelType, None, Unset] = UNSET
     output_type: Union[None, OutputTypeEnum, Unset] = UNSET
+    required_scorers: Union[None, Unset, list[str]] = UNSET
     scoreable_node_types: Union[None, Unset, list[str]] = UNSET
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
     user_prompt: Union[None, Unset, str] = UNSET
@@ -157,6 +159,15 @@ class ScorerResponse:
         else:
             output_type = self.output_type
 
+        required_scorers: Union[None, Unset, list[str]]
+        if isinstance(self.required_scorers, Unset):
+            required_scorers = UNSET
+        elif isinstance(self.required_scorers, list):
+            required_scorers = self.required_scorers
+
+        else:
+            required_scorers = self.required_scorers
+
         scoreable_node_types: Union[None, Unset, list[str]]
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
@@ -206,6 +217,8 @@ class ScorerResponse:
             field_dict["model_type"] = model_type
         if output_type is not UNSET:
             field_dict["output_type"] = output_type
+        if required_scorers is not UNSET:
+            field_dict["required_scorers"] = required_scorers
         if scoreable_node_types is not UNSET:
             field_dict["scoreable_node_types"] = scoreable_node_types
         if updated_at is not UNSET:
@@ -388,6 +401,22 @@ class ScorerResponse:
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 
+        def _parse_required_scorers(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        required_scorers = _parse_required_scorers(d.pop("required_scorers", UNSET))
+
         def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
@@ -447,6 +476,7 @@ class ScorerResponse:
             latest_version=latest_version,
             model_type=model_type,
             output_type=output_type,
+            required_scorers=required_scorers,
             scoreable_node_types=scoreable_node_types,
             updated_at=updated_at,
             user_prompt=user_prompt,

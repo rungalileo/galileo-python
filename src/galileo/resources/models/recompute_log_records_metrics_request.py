@@ -73,10 +73,10 @@ class RecomputeLogRecordsMetricsRequest:
         from ..models.and_node import AndNode
         from ..models.filter_leaf import FilterLeaf
         from ..models.log_records_boolean_filter import LogRecordsBooleanFilter
+        from ..models.log_records_collection_filter import LogRecordsCollectionFilter
         from ..models.log_records_date_filter import LogRecordsDateFilter
         from ..models.log_records_id_filter import LogRecordsIDFilter
         from ..models.log_records_number_filter import LogRecordsNumberFilter
-        from ..models.log_records_text_filter import LogRecordsTextFilter
         from ..models.not_node import NotNode
         from ..models.or_node import OrNode
 
@@ -105,7 +105,7 @@ class RecomputeLogRecordsMetricsRequest:
                         LogRecordsDateFilter,
                         LogRecordsNumberFilter,
                         LogRecordsBooleanFilter,
-                        LogRecordsTextFilter,
+                        LogRecordsCollectionFilter,
                     ),
                 ):
                     filters_item = filters_item_data.to_dict()
@@ -267,13 +267,13 @@ class RecomputeLogRecordsMetricsRequest:
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
-                    return LogRecordsTextFilter.from_dict(data)
+                    return LogRecordsCollectionFilter.from_dict(data)
 
                 except:  # noqa: E722
                     pass
                 if not isinstance(data, dict):
                     raise TypeError()
-                return LogRecordsCollectionFilter.from_dict(data)
+                return LogRecordsTextFilter.from_dict(data)
 
             filters_item = _parse_filters_item(filters_item_data)
 
