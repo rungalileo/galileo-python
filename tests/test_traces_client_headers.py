@@ -32,7 +32,7 @@ class TestTracesHeaders:
 
     @pytest.mark.asyncio
     async def test_make_async_request_includes_sdk_header(self, traces_client, mock_config) -> None:
-        """Test that _make_async_request includes the X-Galileo-SDK header."""
+        """Test that _make_async_request includes the X-Galileo-SDK header with dynamic method name."""
         # Call the private method directly to test header inclusion
         await traces_client._make_async_request(request_method=RequestMethod.GET, endpoint="/test-endpoint")
 
@@ -43,5 +43,8 @@ class TestTracesHeaders:
         # Check that content_headers contains X-Galileo-SDK header
         content_headers = call_args.kwargs.get("content_headers", {})
         assert "X-Galileo-SDK" in content_headers
-        expected_header_value = f"galileo-python/{get_package_version()} Traces"
-        assert content_headers["X-Galileo-SDK"] == expected_header_value
+        # The header should include version and dynamic method name from get_method_name()
+        header_value = content_headers["X-Galileo-SDK"]
+        assert header_value.startswith(f"galileo-python/{get_package_version()}")
+        # Should contain the method name (e.g., "_make_async_request@galileo.traces")
+        assert "@galileo.traces" in header_value
