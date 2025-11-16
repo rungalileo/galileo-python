@@ -1569,11 +1569,13 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
 
     # Verify stub trace and span were created
     assert len(logger.traces) == 1
-    assert len(logger._parent_stack) == 1
-    assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
-    assert logger._parent_stack[0].name == "stub_parent_span"
-    assert logger._parent_stack[0].type == "workflow"
-    assert len(logger._parent_stack[0].spans) == 0
+    assert len(logger._parent_stack) == 2  # Trace (root) and span (immediate parent)
+    assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
+    assert logger._parent_stack[0].type == "trace"
+    assert logger._parent_stack[1].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
+    assert logger._parent_stack[1].name == "stub_parent_span"
+    assert logger._parent_stack[1].type == "workflow"
+    assert len(logger._parent_stack[1].spans) == 0
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1648,11 +1650,13 @@ def test_add_nested_span_and_conclude_existing_span(
 
     # Verify stub trace and span were created
     assert len(logger.traces) == 1
-    assert len(logger._parent_stack) == 1
-    assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
-    assert logger._parent_stack[0].name == "stub_parent_span"
-    assert logger._parent_stack[0].type == "workflow"
-    assert len(logger._parent_stack[0].spans) == 0
+    assert len(logger._parent_stack) == 2  # Trace (root) and span (immediate parent)
+    assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
+    assert logger._parent_stack[0].type == "trace"
+    assert logger._parent_stack[1].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
+    assert logger._parent_stack[1].name == "stub_parent_span"
+    assert logger._parent_stack[1].type == "workflow"
+    assert len(logger._parent_stack[1].spans) == 0
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1795,8 +1799,9 @@ def test_catch_error_mismatched_trace_span_ids(
     # Verify stubs were created even with potentially mismatched IDs
     assert len(logger.traces) == 1
     assert logger.traces[0].id == UUID("7c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
-    assert len(logger._parent_stack) == 1
-    assert logger._parent_stack[0].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
+    assert len(logger._parent_stack) == 2  # Trace (root) and span (immediate parent)
+    assert logger._parent_stack[0].id == UUID("7c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d")
+    assert logger._parent_stack[1].id == UUID("6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e")
 
 
 @patch("galileo.logger.logger.LogStreams")

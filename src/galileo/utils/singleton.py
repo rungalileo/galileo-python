@@ -66,12 +66,12 @@ class GalileoLoggerSingleton:
             The log stream name.
         experiment_id: (Optional[str])
             The experiment ID.
-        mode: (Optional[str])
+        mode:
             The logger mode.
         trace_id: (Optional[str])
-            The distributed trace ID (for async web server isolation).
+            The distributed trace ID.
         span_id: (Optional[str])
-            The distributed parent span ID (for async web server isolation).
+            The distributed parent span ID.
 
         Returns
         -------

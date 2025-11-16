@@ -23,6 +23,7 @@ def _get_mode_or_default(mode: Optional[str]) -> Literal["batch", "streaming"]:
     """
     if mode is None:
         mode = getenv("GALILEO_MODE", DEFAULT_MODE)
+    mode = mode.lower()
     if mode in ("batch", "streaming"):
         return mode  # type: ignore[return-value]
     return DEFAULT_MODE  # type: ignore[return-value]

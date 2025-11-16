@@ -221,8 +221,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                     "trace_id is required when span_id is provided. "
                     "In distributed tracing, both trace_id and span_id must be propagated together."
                 )
-            self.trace_id = trace_id if trace_id else None
-            self.span_id = span_id if span_id else None
+            self.trace_id = trace_id
+            self.span_id = span_id
 
         self.project_name = project or project_name_from_env
         self.project_id = project_id or project_id_from_env
@@ -262,13 +262,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         elif self.experiment_id:
             self._traces_client = Traces(project_id=self.project_id, experiment_id=self.experiment_id)
 
-        # Check if we're continuing an existing distributed trace (downstream service)
-        # In streaming mode with trace_id/span_id provided, we create local stubs
-        # instead of fetching from backend to avoid race conditions with eventual consistency
-        #
+        # If continuing an existing distributed trace, create local stubs instead of
+        # fetching from the backend to avoid race conditions with eventual consistency.
         # Note: trace_id/span_id can ONLY be provided in streaming mode
-        # so if they exist, we're guaranteed to be in streaming mode
-        if self.trace_id or self.span_id:
+        if self.trace_id:
             self._init_distributed_trace_stubs()
 
         # cleans up when the python interpreter closes
@@ -325,11 +322,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         )
         self.traces.append(stub_trace)
 
-        # Only add trace to parent stack if no span_id (span will be the parent instead)
-        if not self.span_id:
-            self._parent_stack.append(stub_trace)
+        # Always add trace to parent stack (it's the root of the hierarchy)
+        self._parent_stack.append(stub_trace)
 
         if self.span_id:
+            # If span_id is provided, also add the span (it's the immediate parent)
+            # This matches normal flow where add_workflow_span() appends to _parent_stack
             stub_span = WorkflowSpan(
                 input="",
                 name="stub_parent_span",

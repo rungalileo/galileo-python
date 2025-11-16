@@ -124,8 +124,10 @@ class TracingMiddleware(BaseHTTPMiddleware):
 
 def get_request_logger() -> GalileoLogger:
     """
-    Get a request-scoped GalileoLogger configured for streaming mode,
-    i.e. for distributed tracing.
+    Get a request-scoped GalileoLogger configured for streaming mode.
+
+    Note: Streaming mode is required for distributed tracing, but streaming can also
+    be used independently for single-service immediate ingestion.
 
     This function should be called within a request handler after the TracingMiddleware has
     been registered. It creates a new GalileoLogger instance per request that automatically
