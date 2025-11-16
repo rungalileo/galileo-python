@@ -220,8 +220,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                     "trace_id is required when span_id is provided. "
                     "In distributed tracing, both trace_id and span_id must be propagated together."
                 )
-            self.trace_id = trace_id if trace_id else None
-            self.span_id = span_id if span_id else None
+            self.trace_id = trace_id
+            self.span_id = span_id
 
         self.project_name = project or project_name_from_env
         self.project_id = project_id or project_id_from_env
