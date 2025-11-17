@@ -11,6 +11,7 @@ from typing import Any, NoReturn, Optional
 from unittest.mock import patch
 
 import pytest
+from langchain_core.messages import AIMessage
 from pydantic import BaseModel
 
 from galileo.utils.serialization import EventSerializer, convert_to_string_dict, serialize_datetime, serialize_to_str
@@ -515,6 +516,73 @@ class TestConvertToStringDict:
         assert "large_int" in result
         # Should be converted to string directly, not via JSON serialization
         assert result["large_int"] == str(large_int)
+
+
+class TestLangChainToolCallsTransformation:
+    """Test transformation of LangChain tool_calls to Galileo ToolCall format."""
+
+    def test_langchain_format_transforms_to_galileo_format(self) -> None:
+        """Test that LangChain format tool_calls are transformed to Galileo ToolCall format."""
+        pytest.importorskip("langchain_core")
+
+        message = AIMessage(
+            content="",
+            tool_calls=[
+                {"name": "get_stock_price", "args": {"ticker": "AAPL"}, "id": "call_123", "type": "tool_call"},
+                {"name": "get_weather", "args": {"location": "NYC"}, "id": "call_456", "type": "tool_call"},
+            ],
+        )
+
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+
+        assert len(result["tool_calls"]) == 2
+        # Check both tool_calls for correct transformation
+        tool_1 = result["tool_calls"][0]
+        assert tool_1["id"] == "call_123"
+        assert tool_1["function"]["name"] == "get_stock_price"
+        assert tool_1["function"]["arguments"] == '{"ticker": "AAPL"}'
+
+        tool_2 = result["tool_calls"][1]
+        assert tool_2["id"] == "call_456"
+        assert tool_2["function"]["name"] == "get_weather"
+        assert tool_2["function"]["arguments"] == '{"location": "NYC"}'
+
+    def test_preserves_galileo_format_and_transforms_langchain_format(self) -> None:
+        """Test that already-transformed tool_calls stay unchanged and LangChain format in additional_kwargs gets transformed."""
+        pytest.importorskip("langchain_core")
+
+        # Already in Galileo format - should remain unchanged
+        message = AIMessage(
+            content="",
+            additional_kwargs={
+                "tool_calls": [
+                    {"id": "call_123", "function": {"name": "get_stock_price", "arguments": '{"ticker": "AAPL"}'}}
+                ]
+            },
+        )
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+        assert result["tool_calls"][0]["function"]["arguments"] == '{"ticker": "AAPL"}'
+
+        # LangChain format in additional_kwargs (older versions) - should transform
+        message = AIMessage(
+            content="",
+            additional_kwargs={
+                "tool_calls": [
+                    {"name": "get_weather", "args": {"location": "NYC"}, "id": "call_456", "type": "tool_call"}
+                ]
+            },
+        )
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+        assert result["tool_calls"][0]["function"]["name"] == "get_weather"
+
+    def test_empty_tool_calls(self) -> None:
+        """Test that empty tool_calls are excluded from output (matches previous behavior)."""
+        pytest.importorskip("langchain_core")
+
+        message = AIMessage(content="Hello", tool_calls=[])
+        result = json.loads(json.dumps(message, cls=EventSerializer))
+        # Empty tool_calls should not be in the output
+        assert "tool_calls" not in result
 
 
 class TestPydanticModelClassSerialization:

@@ -941,7 +941,7 @@ class TestGalileoCallback:
             content="I'll help you with that question.",
             additional_kwargs={
                 "reasoning": "The user is asking for help, so I should provide a helpful response",
-                "tool_calls": [{"id": "call_1", "type": "function", "function": {"name": "search", "arguments": "{}"}}],
+                "tool_calls": [{"id": "call_1", "function": {"name": "search", "arguments": "{}"}}],
             },
         )
 
@@ -965,9 +965,7 @@ class TestGalileoCallback:
         assert input_data[0]["content"] == "I'll help you with that question."
         assert input_data[0]["role"] == "assistant"
         assert input_data[0]["reasoning"] == "The user is asking for help, so I should provide a helpful response"
-        assert input_data[0]["tool_calls"] == [
-            {"id": "call_1", "type": "function", "function": {"name": "search", "arguments": "{}"}}
-        ]
+        assert input_data[0]["tool_calls"] == [{"id": "call_1", "function": {"name": "search", "arguments": "{}"}}]
 
     def _create_uuid7(self) -> UUID:
         """Create a mock UUID7 for testing."""
