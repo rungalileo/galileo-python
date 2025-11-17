@@ -12,7 +12,7 @@ from galileo.schema.trace import (
     TracesIngestRequest,
     TraceUpdateRequest,
 )
-from galileo.utils.headers_data import get_package_version
+from galileo.utils.headers_data import get_sdk_header
 from galileo_core.constants.http_headers import HttpHeaders
 from galileo_core.constants.request_method import RequestMethod
 
@@ -56,7 +56,7 @@ class Traces:
         files: Optional[dict] = None,
         params: Optional[dict] = None,
     ) -> Any:
-        headers = {"X-Galileo-SDK": f"galileo-python/{get_package_version()} Traces"} | HttpHeaders.json()
+        headers = {"X-Galileo-SDK": get_sdk_header()} | HttpHeaders.json()
 
         return await self.config.api_client.arequest(
             method=request_method,
