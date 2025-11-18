@@ -65,8 +65,8 @@ class TracingMiddleware(BaseHTTPMiddleware):
     Middleware that extracts distributed tracing headers from incoming requests.
 
     This middleware looks for the following headers in incoming HTTP requests:
-    - X-Galileo-SDK-Trace-ID: The root trace ID
-    - X-Galileo-SDK-Parent-ID: The parent span/trace ID to attach to
+    - X-Galileo-Trace-ID: The root trace ID
+    - X-Galileo-Parent-ID: The parent span/trace ID to attach to
 
     These values are stored in context variables, making them available to request
     handlers via the `get_request_logger()` function.
@@ -134,8 +134,8 @@ def get_request_logger() -> GalileoLogger:
     continues the distributed trace from the upstream service.
 
     The logger is configured using trace context extracted by the middleware:
-    - X-Galileo-SDK-Trace-ID: Root trace ID
-    - X-Galileo-SDK-Parent-ID: Parent span/trace ID to attach to
+    - X-Galileo-Trace-ID: Root trace ID
+    - X-Galileo-Parent-ID: Parent span/trace ID to attach to
 
     Project and log_stream are configured per service via environment variables
     (GALILEO_PROJECT and GALILEO_LOG_STREAM), not propagated via headers, following

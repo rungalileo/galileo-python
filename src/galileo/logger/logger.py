@@ -1,3 +1,4 @@
+import asyncio
 import atexit
 import copy
 import inspect
@@ -445,11 +446,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         try:
             trace_update_request = TraceUpdateRequest(
                 trace_id=trace.id,
-                session_id=self.session_id,
+                log_stream_id=self.log_stream_id,
+                experiment_id=self.experiment_id,
                 output=trace.output,
                 status_code=trace.status_code,
                 tags=trace.tags,
                 is_complete=is_complete,
+                duration_ns=trace.metrics.duration_ns,
                 reliable=True,
             )
 
@@ -484,10 +487,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     def _update_span_streaming(self, span: Span) -> None:
         span_update_request = SpanUpdateRequest(
             span_id=span.id,
-            session_id=self.session_id,
+            log_stream_id=self.log_stream_id,
+            experiment_id=self.experiment_id,
             output=span.output,
             status_code=span.status_code,
             tags=span.tags,
+            duration_ns=span.metrics.duration_ns,
             reliable=True,
         )
 
@@ -549,8 +554,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         -------
         dict[str, str]
             Dictionary with the following headers:
-            - X-Galileo-SDK-Trace-ID: The root trace ID
-            - X-Galileo-SDK-Parent-ID: The ID of the current parent (trace or span) that downstream
+            - X-Galileo-Trace-ID: The root trace ID
+            - X-Galileo-Parent-ID: The ID of the current parent (trace or span) that downstream
               spans should attach to
 
         Raises
@@ -565,15 +570,15 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         logger.start_trace(input="question")
         headers = logger.get_tracing_headers()
         # headers = {
-        #     "X-Galileo-SDK-Trace-ID": "...",
-        #     "X-Galileo-SDK-Parent-ID": "...",  # trace ID as parent
+        #     "X-Galileo-Trace-ID": "...",
+        #     "X-Galileo-Parent-ID": "...",  # trace ID as parent
         # }
 
         logger.add_workflow_span(input="workflow", name="orchestrator")
         headers = logger.get_tracing_headers()
         # headers = {
-        #     "X-Galileo-SDK-Trace-ID": "...",
-        #     "X-Galileo-SDK-Parent-ID": "...",  # workflow span ID as parent
+        #     "X-Galileo-Trace-ID": "...",
+        #     "X-Galileo-Parent-ID": "...",  # workflow span ID as parent
         # }
 
         # Pass headers to HTTP request
@@ -1376,9 +1381,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if current_parent is None:
             raise ValueError("No existing workflow to conclude.")
 
-        current_parent.output = output or current_parent.output
-        current_parent.redacted_output = redacted_output or current_parent.redacted_output
-        current_parent.status_code = status_code
+        # Explicitly set output if provided (even if empty string), otherwise keep existing
+        if output is not None:
+            current_parent.output = output
+        if redacted_output is not None:
+            current_parent.redacted_output = redacted_output
+        if status_code is not None:
+            current_parent.status_code = status_code
         if duration_ns is not None:
             current_parent.metrics.duration_ns = duration_ns
 
@@ -1459,7 +1468,21 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
     async def _flush_batch(self) -> list[Trace]:
         if self.mode == "distributed":
-            self._logger.warning("Flushing in distributed mode is not supported - traces are sent immediately.")
+            # In distributed mode, wait for all pending tasks to complete
+            self._logger.info("Waiting for all distributed tracing tasks to complete...")
+            timeout_seconds = 5
+            timeout_reached = False
+            start_wait = time.time()
+            while not self._task_handler.all_tasks_completed():
+                if time.time() - start_wait > timeout_seconds:
+                    timeout_reached = True
+                    break
+                await asyncio.sleep(0.1)
+
+            if timeout_reached:
+                self._logger.warning("Flush timeout reached. Some requests may not have completed.")
+            else:
+                self._logger.info("All distributed tracing requests are complete.")
             return []
 
         if not self.traces:

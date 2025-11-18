@@ -83,6 +83,9 @@ class TraceUpdateRequest(LogRecordsIngestRequest):
     is_complete: Union[bool, None] = Field(
         default=False, description="Whether or not the records in this request are complete."
     )
+    duration_ns: Union[int, None] = Field(
+        default=None, description="Duration in nanoseconds. Overwrites previous value if present."
+    )
 
 
 class SpanUpdateRequest(LogRecordsIngestRequest):
@@ -96,6 +99,9 @@ class SpanUpdateRequest(LogRecordsIngestRequest):
     tags: Union[list[str], None] = Field(default=None, description="Tags to add to the span.")
     status_code: Union[int, None] = Field(
         default=None, description="Status code of the span. Overwrites previous value if present."
+    )
+    duration_ns: Union[int, None] = Field(
+        default=None, description="Duration in nanoseconds. Overwrites previous value if present."
     )
 
 
