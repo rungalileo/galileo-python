@@ -98,7 +98,7 @@ class EventSerializer(JSONEncoder):
                     return self.default(obj.generations[0])
                 if isinstance(obj, (AIMessageChunk, AIMessage)):
                     # Map the `type` to `role`.
-                    dumped = obj.model_dump(mode="json", include={"content", "type", "additional_kwargs"})
+                    dumped = obj.model_dump(mode="json", include={"content", "type", "additional_kwargs", "tool_calls"})
                     content = dumped.get("content")
                     if isinstance(content, list):
                         # Responses API returns content as a list of dicts
@@ -107,8 +107,39 @@ class EventSerializer(JSONEncoder):
                             dumped["content"] = content[0].get("text", "")
                     dumped["role"] = map_langchain_role(dumped.pop("type"))
                     additional_kwargs = dumped.pop("additional_kwargs", {})
-                    if "tool_calls" in additional_kwargs:
+                    # Check both direct attribute and additional_kwargs for tool_calls
+                    if not dumped.get("tool_calls") and "tool_calls" in additional_kwargs:
                         dumped["tool_calls"] = additional_kwargs.pop("tool_calls")
+
+                    if dumped.get("tool_calls") == []:
+                        dumped.pop("tool_calls")
+
+                    # Transform LangChain tool_calls format to match Galileo's ToolCall schema
+                    if "tool_calls" in dumped and isinstance(dumped["tool_calls"], list):
+                        transformed_tool_calls = []
+                        for tool_call in dumped["tool_calls"]:
+                            if isinstance(tool_call, dict):
+                                # Check if it's already in Galileo ToolCall format (has 'function' key)
+                                if "function" in tool_call:
+                                    transformed_tool_calls.append(tool_call)
+                                # Otherwise transform from LangChain format
+                                elif "name" in tool_call and "id" in tool_call:
+                                    args = tool_call.get("args", {})
+                                    # Convert args to JSON string if it's a dict
+                                    arguments = args if isinstance(args, str) else json.dumps(args)
+                                    transformed_tool_calls.append(
+                                        {
+                                            "id": tool_call["id"],
+                                            "function": {"name": tool_call["name"], "arguments": arguments},
+                                        }
+                                    )
+                                else:
+                                    # Keep as-is if format is unknown
+                                    transformed_tool_calls.append(tool_call)
+                            else:
+                                transformed_tool_calls.append(tool_call)
+                        dumped["tool_calls"] = transformed_tool_calls
+
                     if "reasoning" in additional_kwargs:
                         dumped["reasoning"] = additional_kwargs.pop("reasoning")
                     return dumped

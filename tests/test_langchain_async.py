@@ -918,12 +918,13 @@ class TestGalileoAsyncCallback:
         # Create parent chain
         await callback.on_chain_start(serialized={}, inputs={"query": "test"}, run_id=parent_id)
 
-        # Create AIMessage with reasoning in additional_kwargs
+        # Create AIMessage with reasoning and tool_calls in additional_kwargs
+        # Tool calls are in Galileo format (already transformed)
         ai_message = AIMessage(
             content="I'll help you with that question.",
             additional_kwargs={
                 "reasoning": "The user is asking for help, so I should provide a helpful response",
-                "tool_calls": [{"id": "call_1", "type": "function", "function": {"name": "search", "arguments": "{}"}}],
+                "tool_calls": [{"id": "call_1", "function": {"name": "search", "arguments": "{}"}}],
             },
         )
 
@@ -947,9 +948,8 @@ class TestGalileoAsyncCallback:
         assert input_data[0]["content"] == "I'll help you with that question."
         assert input_data[0]["role"] == "assistant"
         assert input_data[0]["reasoning"] == "The user is asking for help, so I should provide a helpful response"
-        assert input_data[0]["tool_calls"] == [
-            {"id": "call_1", "type": "function", "function": {"name": "search", "arguments": "{}"}}
-        ]
+        # Tool calls should be in Galileo ToolCall format (id + function, no type field)
+        assert input_data[0]["tool_calls"] == [{"id": "call_1", "function": {"name": "search", "arguments": "{}"}}]
 
     @mark.asyncio
     async def test_on_chain_end_with_ingestion_hook(self, galileo_logger: GalileoLogger) -> None:
