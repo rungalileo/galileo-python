@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 from urllib.parse import urljoin
 
 import pytest
+from pydantic import SecretStr
 
 from galileo.otel import INSTALL_ERR_MSG, OTEL_AVAILABLE, GalileoOTLPExporter, GalileoSpanProcessor
 
@@ -45,7 +46,7 @@ class TestGalileoOTLPExporter:
         # Mock the config
         mock_config = Mock()
         mock_config.api_url = base_url
-        mock_config.api_key = api_key
+        mock_config.api_key = SecretStr(api_key)
         mock_config_get.return_value = mock_config
 
         exporter = GalileoOTLPExporter(project=project, logstream=logstream, timeout=30)
@@ -67,7 +68,7 @@ class TestGalileoOTLPExporter:
         # Mock the config
         mock_config = Mock()
         mock_config.api_url = "https://env.galileo.ai"
-        mock_config.api_key = "env-api-key"
+        mock_config.api_key = SecretStr("env-api-key")
         mock_config_get.return_value = mock_config
 
         with patch.dict(
@@ -101,7 +102,7 @@ class TestGalileoOTLPExporter:
         # Mock the config
         mock_config = Mock()
         mock_config.api_url = "https://config.galileo.ai"
-        mock_config.api_key = "env-key"
+        mock_config.api_key = SecretStr("env-key")
         mock_config_get.return_value = mock_config
 
         with patch.dict(
@@ -132,7 +133,7 @@ class TestGalileoOTLPExporter:
         # Mock the config
         mock_config = Mock()
         mock_config.api_url = "https://api.galileo.ai"
-        mock_config.api_key = "test-key"
+        mock_config.api_key = SecretStr("test-key")
         mock_config_get.return_value = mock_config
 
         GalileoOTLPExporter()
@@ -160,7 +161,7 @@ class TestGalileoOTLPExporter:
         # Mock the config
         mock_config = Mock()
         mock_config.api_url = api_url
-        mock_config.api_key = "test-key"
+        mock_config.api_key = SecretStr("test-key")
         mock_config_get.return_value = mock_config
 
         GalileoOTLPExporter()
@@ -336,7 +337,7 @@ class TestOTelIntegration:
         # Mock the config
         mock_config = Mock()
         mock_config.api_url = "https://api.galileo.ai"
-        mock_config.api_key = "test-key"
+        mock_config.api_key = SecretStr("test-key")
         mock_config_get.return_value = mock_config
 
         processor = GalileoSpanProcessor(project="integration-test", logstream="integration-logstream")
