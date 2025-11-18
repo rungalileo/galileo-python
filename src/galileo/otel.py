@@ -1,7 +1,7 @@
 import logging
 import os
 import uuid
-from typing import Any, NoReturn, Optional
+from typing import Any, NoReturn, Optional, Protocol
 from urllib.parse import urljoin
 
 from galileo.config import GalileoPythonConfig
@@ -13,11 +13,18 @@ INSTALL_ERR_MSG = (
     "Install optional OpenTelemetry dependencies with: pip install galileo[otel]"
 )
 
+
+class TracerProvider(Protocol):
+    def add_span_processor(self, span_processor: Any) -> None: ...
+
+
 try:
     from opentelemetry import context
-    from opentelemetry.exporter.otlp.proto.http.trace_exporter import OTLPSpanExporter
-    from opentelemetry.sdk.trace import Span, SpanProcessor
-    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+    from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
+        OTLPSpanExporter,  # pyright: ignore[reportAssignmentType]
+    )
+    from opentelemetry.sdk.trace import Span, SpanProcessor  # pyright: ignore[reportAssignmentType]
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor  # pyright: ignore[reportAssignmentType]
 
     OTEL_AVAILABLE = True
 except ImportError:
@@ -95,7 +102,11 @@ class GalileoOTLPExporter(OTLPSpanExporter):
         if not self.logstream:
             self.logstream = "default"
 
-        exporter_headers = {"Galileo-API-Key": config.api_key, "project": self.project, "logstream": self.logstream}
+        exporter_headers = {
+            "Galileo-API-Key": config.api_key.get_secret_value() if config.api_key else None,
+            "project": self.project,
+            "logstream": self.logstream,
+        }
 
         super().__init__(endpoint=endpoint, headers=exporter_headers, **kwargs)
 
@@ -110,8 +121,10 @@ class GalileoSpanProcessor(SpanProcessor):
 
     Examples
     --------
+    >>> from opentelemetry.sdk.trace import TracerProvider
+    >>> tracer_provider = TracerProvider()
     >>> processor = GalileoSpanProcessor(project="my-project")
-    >>> tracer_provider.add_span_processor(processor)
+    >>> add_galileo_span_processor(tracer_provider, processor)
     """
 
     def __init__(
@@ -178,3 +191,8 @@ class GalileoSpanProcessor(SpanProcessor):
     def processor(self) -> SpanProcessor:
         """Access to the underlying OpenTelemetry span processor instance."""
         return self._processor
+
+
+def add_galileo_span_processor(tracer_provider: TracerProvider, processor: GalileoSpanProcessor) -> None:
+    """Add the Galileo span processor to the tracer provider."""
+    tracer_provider.add_span_processor(processor)
