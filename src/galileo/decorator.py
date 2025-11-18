@@ -969,7 +969,7 @@ class GalileoDecorator:
         _span_stack_context.set([])
         _trace_context.set(None)
 
-        # Reset streaming/distributed tracing context
+        # Reset distributed tracing context
         _trace_id_context.set(None)
         _parent_id_context.set(None)
 

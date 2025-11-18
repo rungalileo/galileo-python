@@ -1,4 +1,4 @@
-"""Tests for decorator with streaming mode and distributed tracing."""
+"""Tests for decorator with distributed mode for distributed tracing."""
 
 import os
 from unittest.mock import Mock, patch
@@ -20,10 +20,10 @@ def reset_context():
 
 
 @pytest.fixture
-def set_streaming_mode():
-    """Set GALILEO_MODE to streaming for tests."""
+def set_distributed_mode():
+    """Set GALILEO_MODE to distributed for tests."""
     original = os.getenv("GALILEO_MODE")
-    os.environ["GALILEO_MODE"] = "streaming"
+    os.environ["GALILEO_MODE"] = "distributed"
     yield
     if original is None:
         os.environ.pop("GALILEO_MODE", None)
@@ -39,7 +39,7 @@ def test_decorator_get_tracing_headers(
     mock_projects_client: Mock,
     mock_logstreams_client: Mock,
     reset_context,
-    set_streaming_mode,
+    set_distributed_mode,
 ):
     """Test that decorator can get tracing headers for distributed tracing."""
     setup_mock_traces_client(mock_traces_client)
@@ -76,7 +76,7 @@ def test_decorator_with_middleware_context(
     mock_projects_client: Mock,
     mock_logstreams_client: Mock,
     reset_context,
-    set_streaming_mode,
+    set_distributed_mode,
 ):
     """Test that decorator respects middleware context (distributed tracing)."""
     setup_mock_traces_client(mock_traces_client)
@@ -102,7 +102,7 @@ def test_decorator_with_middleware_context(
 
     # Verify logger was created with distributed tracing context
     logger = galileo_context.get_logger_instance()
-    assert logger.mode == "streaming"
+    assert logger.mode == "distributed"
     assert len(logger.traces) == 1
 
     # Verify the stub trace was created with correct ID

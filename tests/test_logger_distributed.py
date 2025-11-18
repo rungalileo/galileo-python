@@ -37,7 +37,7 @@ def test_disable_galileo_logger(mock_traces_client: Mock, monkeypatch, caplog) -
     monkeypatch.setenv("GALILEO_LOGGING_DISABLED", "true")
 
     with caplog.at_level(logging.WARNING):
-        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+        logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
         capture = setup_thread_pool_request_capture(logger)
 
@@ -74,7 +74,7 @@ def test_start_trace(mock_traces_client: Mock, mock_projects_client: Mock, mock_
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -107,7 +107,7 @@ def test_add_llm_span(mock_traces_client: Mock, mock_projects_client: Mock, mock
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -176,7 +176,7 @@ def test_add_protect_tool_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -279,7 +279,7 @@ def test_conclude_trace(mock_traces_client: Mock, mock_projects_client: Mock, mo
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -334,7 +334,7 @@ def test_conclude_trace_with_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -421,7 +421,7 @@ def test_conclude_trace_and_start_new_trace(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -540,7 +540,7 @@ def test_conclude_trace_with_nested_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -672,7 +672,7 @@ def test_conclude_all_with_nested_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -795,7 +795,7 @@ def test_conclude_trace_with_agent_span(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -931,7 +931,7 @@ def test_trace_with_multiple_nested_spans(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1200,7 +1200,7 @@ def test_trace_with_nested_span_and_sibling(
 
     created_at = datetime.datetime.now()
     metadata = {"key": "value"}
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     capture = setup_thread_pool_request_capture(logger)
 
@@ -1358,7 +1358,7 @@ def test_add_llm_span_and_conclude_existing_trace(
         project="my_project",
         log_stream="my_log_stream",
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
-        mode="streaming",
+        mode="distributed",
     )
 
     # With stubs, get_trace is not called (to avoid race conditions in distributed tracing)
@@ -1435,7 +1435,7 @@ def test_add_nested_span_and_conclude_existing_trace(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        mode="streaming",
+        mode="distributed",
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
     )
 
@@ -1559,7 +1559,7 @@ def test_add_llm_span_and_conclude_existing_workflow_span(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        mode="streaming",
+        mode="distributed",
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
@@ -1640,7 +1640,7 @@ def test_add_nested_span_and_conclude_existing_span(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        mode="streaming",
+        mode="distributed",
         trace_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",
     )
@@ -1787,7 +1787,7 @@ def test_catch_error_mismatched_trace_span_ids(
     logger = GalileoLogger(
         project="my_project",
         log_stream="my_log_stream",
-        mode="streaming",
+        mode="distributed",
         trace_id="7c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9d",  # Different trace
         span_id="6c4e3f7e-4a9a-4e7e-8c1f-3a9a3a9a3a9e",  # Different span
     )
@@ -1815,7 +1815,7 @@ def test_get_tracing_headers_with_workflow_span(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
     setup_thread_pool_request_capture(logger)
 
     logger.start_trace(input="test input", name="test-trace")
@@ -1823,10 +1823,10 @@ def test_get_tracing_headers_with_workflow_span(
 
     headers = logger.get_tracing_headers()
 
-    assert "X-Galileo-SDK-Trace-ID" in headers
-    assert headers["X-Galileo-SDK-Trace-ID"] == str(logger.traces[0].id)
-    assert "X-Galileo-SDK-Parent-ID" in headers
-    assert headers["X-Galileo-SDK-Parent-ID"] == str(workflow_span.id)
+    assert "X-Galileo-Trace-ID" in headers
+    assert headers["X-Galileo-Trace-ID"] == str(logger.traces[0].id)
+    assert "X-Galileo-Parent-ID" in headers
+    assert headers["X-Galileo-Parent-ID"] == str(workflow_span.id)
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1840,7 +1840,7 @@ def test_get_tracing_headers_with_agent_span(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
     setup_thread_pool_request_capture(logger)
 
     logger.start_trace(input="test input", name="test-trace")
@@ -1848,10 +1848,10 @@ def test_get_tracing_headers_with_agent_span(
 
     headers = logger.get_tracing_headers()
 
-    assert "X-Galileo-SDK-Trace-ID" in headers
-    assert headers["X-Galileo-SDK-Trace-ID"] == str(logger.traces[0].id)
-    assert "X-Galileo-SDK-Parent-ID" in headers
-    assert headers["X-Galileo-SDK-Parent-ID"] == str(agent_span.id)
+    assert "X-Galileo-Trace-ID" in headers
+    assert headers["X-Galileo-Trace-ID"] == str(logger.traces[0].id)
+    assert "X-Galileo-Parent-ID" in headers
+    assert headers["X-Galileo-Parent-ID"] == str(agent_span.id)
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1871,7 +1871,7 @@ def test_get_tracing_headers_batch_mode_error(
     with pytest.raises(GalileoLoggerException) as exc_info:
         logger.get_tracing_headers()
 
-    assert "only supported in streaming mode" in str(exc_info.value)
+    assert "only supported in distributed mode" in str(exc_info.value)
 
 
 @patch("galileo.logger.logger.LogStreams")
@@ -1885,7 +1885,7 @@ def test_get_tracing_headers_no_trace_error(
     setup_mock_projects_client(mock_projects_client)
     setup_mock_logstreams_client(mock_logstreams_client)
 
-    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="streaming")
+    logger = GalileoLogger(project="my_project", log_stream="my_log_stream", mode="distributed")
 
     with pytest.raises(GalileoLoggerException) as exc_info:
         logger.get_tracing_headers()

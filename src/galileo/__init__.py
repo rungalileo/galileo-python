@@ -4,6 +4,7 @@
 # ruff: noqa: F401
 
 from galileo.decorator import GalileoDecorator, galileo_context, log
+from galileo.exceptions import GalileoLoggerException
 from galileo.logger import GalileoLogger
 from galileo.protect import ainvoke_protect, invoke_protect
 from galileo.schema.message import Message

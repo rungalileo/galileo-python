@@ -37,7 +37,7 @@ def app():
     async def test_add_span_endpoint():
         """Endpoint that tries to add a span to test distributed tracing stub creation.
 
-        Note: In distributed tracing with streaming mode, when span_id is provided,
+        Note: In distributed tracing (distributed mode), when span_id is provided,
         the logger creates local stub objects in __init__ without fetching from backend.
         """
         try:
@@ -210,7 +210,7 @@ def test_get_request_logger_when_parent_id_equals_trace_id(
     """Test that get_request_logger handles the case when parent_id equals trace_id.
 
     When upstream services forward headers immediately after start_trace(), both
-    X-Galileo-SDK-Trace-ID and X-Galileo-SDK-Parent-ID are identical (the root trace id).
+    X-Galileo-Trace-ID and X-Galileo-Parent-ID are identical (the root trace id).
     In this case, we should pass None as span_id to avoid GalileoLoggerException.
     """
     setup_mock_traces_client(mock_traces_client)
@@ -241,7 +241,7 @@ def test_mismatched_trace_and_span_ids(
 ):
     """Test that get_request_logger creates stubs for distributed tracing.
 
-    In distributed tracing with streaming mode, when trace_id and span_id are provided,
+    In distributed tracing (distributed mode), when trace_id and span_id are provided,
     the logger creates local stub objects instead of fetching from the backend.
     This allows distributed tracing to work without backend validation, with eventual
     consistency handling any mismatches during ingestion retries.

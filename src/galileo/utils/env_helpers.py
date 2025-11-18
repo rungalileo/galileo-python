@@ -4,9 +4,10 @@ from os import getenv
 from typing import Literal, Optional
 
 from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_MODE, DEFAULT_PROJECT_NAME
+from galileo.exceptions import GalileoLoggerException
 
 
-def _get_mode_or_default(mode: Optional[str]) -> Literal["batch", "streaming"]:
+def _get_mode_or_default(mode: Optional[str]) -> Literal["batch", "distributed"]:
     """
     Validates the mode value. If the environment variable contains
     an invalid value, falls back to default.
@@ -18,15 +19,22 @@ def _get_mode_or_default(mode: Optional[str]) -> Literal["batch", "streaming"]:
 
     Returns
     -------
-    Literal["batch", "streaming"]
-        The mode value to use ("batch" or "streaming").
+    Literal["batch", "distributed"]
+        The mode value to use:
+        - "batch": Batches traces and sends on flush() (default)
+        - "distributed": Enables distributed tracing with immediate updates
     """
     if mode is None:
         mode = getenv("GALILEO_MODE", DEFAULT_MODE)
+
+    if not isinstance(mode, str):
+        raise GalileoLoggerException(f"Invalid mode: {mode}. Mode must be 'batch' or 'distributed'.")
+
     mode = mode.lower()
-    if mode in ("batch", "streaming"):
-        return mode  # type: ignore[return-value]
-    return DEFAULT_MODE  # type: ignore[return-value]
+    if mode not in ("batch", "distributed"):
+        raise GalileoLoggerException(f"Invalid mode: '{mode}'. Mode must be 'batch' or 'distributed'.")
+
+    return mode  # type: ignore[return-value]
 
 
 def _get_project_or_default(project: Optional[str]) -> str:
