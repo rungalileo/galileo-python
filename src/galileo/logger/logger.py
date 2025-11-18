@@ -1,3 +1,4 @@
+import asyncio
 import atexit
 import copy
 import inspect
@@ -7,11 +8,12 @@ import time
 import uuid
 from collections import deque
 from datetime import datetime
-from typing import Any, Callable, Literal, Optional, Union
+from typing import Any, Callable, Optional, Union
 
 import backoff
 from pydantic import ValidationError
 
+from galileo.constants import LoggerModeType
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
 from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
@@ -64,9 +66,7 @@ from galileo_core.schemas.shared.document import Document
 from galileo_core.schemas.shared.traces_logger import TracesLogger
 
 STREAMING_MAX_RETRIES = 3
-
-
-LoggerModeType = Literal["batch", "distributed"]
+DISTRIBUTED_FLUSH_TIMEOUT_SECONDS = 30  # Timeout for waiting on background trace/span update tasks
 
 
 class GalileoLogger(TracesLogger, DecorateAllMethods):
@@ -445,11 +445,13 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         try:
             trace_update_request = TraceUpdateRequest(
                 trace_id=trace.id,
-                session_id=self.session_id,
+                log_stream_id=self.log_stream_id,
+                experiment_id=self.experiment_id,
                 output=trace.output,
                 status_code=trace.status_code,
                 tags=trace.tags,
                 is_complete=is_complete,
+                duration_ns=trace.metrics.duration_ns,
                 reliable=True,
             )
 
@@ -484,10 +486,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
     def _update_span_streaming(self, span: Span) -> None:
         span_update_request = SpanUpdateRequest(
             span_id=span.id,
-            session_id=self.session_id,
+            log_stream_id=self.log_stream_id,
+            experiment_id=self.experiment_id,
             output=span.output,
             status_code=span.status_code,
             tags=span.tags,
+            duration_ns=span.metrics.duration_ns,
             reliable=True,
         )
 
@@ -1376,9 +1380,18 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if current_parent is None:
             raise ValueError("No existing workflow to conclude.")
 
-        current_parent.output = output or current_parent.output
-        current_parent.redacted_output = redacted_output or current_parent.redacted_output
-        current_parent.status_code = status_code
+        # If no output provided, get the last child span's output
+        # This ensures parent traces/spans inherit their last child's output if not explicitly set
+        if output is None and redacted_output is None:
+            output, redacted_output = GalileoLogger._get_last_output(current_parent)
+
+        # Explicitly set output if provided (even if empty string), otherwise keep existing
+        if output is not None:
+            current_parent.output = output
+        if redacted_output is not None:
+            current_parent.redacted_output = redacted_output
+        if status_code is not None:
+            current_parent.status_code = status_code
         if duration_ns is not None:
             current_parent.metrics.duration_ns = duration_ns
 
@@ -1421,6 +1434,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 output=output, redacted_output=redacted_output, duration_ns=duration_ns, status_code=status_code
             )
             if self.mode == "distributed":
+                # In distributed mode, conclude() marks the trace as complete immediately
+                # Batch mode keeps traces in memory and sends them all during flush()
                 self._update_step_streaming(finished_step, is_complete=True)
         else:
             current_parent = None
@@ -1429,6 +1444,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                     output=output, redacted_output=redacted_output, duration_ns=duration_ns, status_code=status_code
                 )
                 if self.mode == "distributed":
+                    # Mark each concluded trace/span as complete
                     self._update_step_streaming(finished_step, is_complete=True)
 
         return current_parent
@@ -1443,6 +1459,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         List[Trace]
             The list of uploaded traces.
         """
+        if self.mode == "distributed":
+            return async_run(self._flush_distributed())
         return async_run(self._flush_batch())
 
     @nop_async
@@ -1455,22 +1473,66 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         List[Trace]
             The list of uploaded workflows.
         """
+        if self.mode == "distributed":
+            return await self._flush_distributed()
         return await self._flush_batch()
 
-    async def _flush_batch(self) -> list[Trace]:
-        if self.mode == "distributed":
-            self._logger.warning("Flushing in distributed mode is not supported - traces are sent immediately.")
-            return []
+    def _conclude_trace_if_needed(self) -> None:
+        """Helper to conclude any unconcluded trace before flushing."""
+        current_parent = self.current_parent()
+        if current_parent is not None and isinstance(current_parent, Trace):
+            self._logger.info("Concluding unconcluded trace before flush...")
+            # Get output from last child span if trace has no output
+            output, redacted_output = GalileoLogger._get_last_output(current_parent)
+            # conclude() will send the update with is_complete=True (in distributed mode)
+            # or mark trace as complete (in batch mode)
+            self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
 
+    async def _flush_distributed(self) -> list[Trace]:
+        """Flush in distributed mode: conclude traces and wait for pending tasks.
+
+        In distributed mode, traces/spans are sent immediately via conclude(). This method:
+        1. Concludes any unconcluded traces
+        2. Waits for all pending async HTTP requests to complete
+
+        Note: When using the decorator, traces are already concluded in the finally block,
+        so step 1 is typically a no-op. It only matters for direct logger usage.
+
+        What we're waiting for:
+        - Background ThreadPoolExecutor tasks that send trace/span updates to the backend
+        - These were submitted during conclude() calls throughout execution
+        - We poll (with timeout) because ThreadPoolExecutor doesn't support async await
+
+        Returns empty list since traces were already sent.
+        """
+        self._conclude_trace_if_needed()
+
+        # Wait for all pending trace/span update requests to complete
+        self._logger.info("Waiting for all distributed tracing tasks to complete...")
+        start_wait = time.time()
+
+        # Poll ThreadPoolExecutor completion status (no native async event support)
+        while not self._task_handler.all_tasks_completed():
+            if time.time() - start_wait > DISTRIBUTED_FLUSH_TIMEOUT_SECONDS:
+                self._logger.warning(
+                    f"Flush timeout reached after {DISTRIBUTED_FLUSH_TIMEOUT_SECONDS}s. "
+                    "Some trace/span update requests may still be in progress."
+                )
+                break
+            await asyncio.sleep(0.1)
+
+        if self._task_handler.all_tasks_completed():
+            self._logger.info("All distributed tracing requests are complete.")
+
+        return []
+
+    async def _flush_batch(self) -> list[Trace]:
+        """Flush in batch mode: conclude unconcluded traces and send all traces to backend."""
         if not self.traces:
             self._logger.info("No traces to flush.")
             return []
 
-        current_parent = self.current_parent()
-        if current_parent is not None:
-            self._logger.info("Concluding the active trace...")
-            output, redacted_output = GalileoLogger._get_last_output(current_parent)
-            self.conclude(output=output, redacted_output=redacted_output, conclude_all=True)
+        self._conclude_trace_if_needed()
 
         if self.local_metrics:
             self._logger.info("Computing metrics for local scorers...")
