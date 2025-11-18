@@ -1750,6 +1750,11 @@ components:
         name:
           title: Name
           type: string
+        score_type:
+          anyOf:
+            - type: string
+            - type: 'null'
+          title: Score Type
       required:
         - id
         - name
@@ -2316,7 +2321,7 @@ components:
           type: integer
         failed_deletions:
           items:
-            $ref: '#/components/schemas/DatasetBulkDeleteFailure'
+            $ref: '#/components/schemas/api__schemas__content__dataset__BulkDeleteFailure'
           title: Failed Deletions
           type: array
         message:
@@ -2350,7 +2355,7 @@ components:
           type: integer
         failed_deletions:
           items:
-            $ref: '#/components/schemas/PromptBulkDeleteFailure'
+            $ref: '#/components/schemas/api__schemas__content__prompt__BulkDeleteFailure'
           title: Failed Deletions
           type: array
         message:
@@ -3873,10 +3878,10 @@ components:
       required:
         - id
         - name
+        - score_type
         - created_at
         - updated_at
         - created_by
-        - score_type
         - data_type
         - scoreable_node_types
       title: CreateUpdateRegisteredScorerResponse
@@ -8135,7 +8140,6 @@ components:
                 type: string
               type: array
             - type: 'null'
-          default: []
           title: Include Cols
         map_threshold:
           default: 0.5
@@ -8231,7 +8235,6 @@ components:
                 type: string
               type: array
             - type: 'null'
-          default: []
           title: Include Cols
         map_threshold:
           default: 0.5
@@ -8314,7 +8317,6 @@ components:
                 type: string
               type: array
             - type: 'null'
-          default: []
           title: Include Cols
         inference_name:
           anyOf:
@@ -8401,7 +8403,6 @@ components:
                 type: string
               type: array
             - type: 'null'
-          default: []
           title: Include Cols
         inference_name:
           anyOf:
@@ -8552,7 +8553,6 @@ components:
                 type: string
               type: array
             - type: 'null'
-          default: []
           title: Include Cols
         map_threshold:
           default: 0.5
@@ -8648,7 +8648,6 @@ components:
                 type: string
               type: array
             - type: 'null'
-          default: []
           title: Include Cols
         map_threshold:
           default: 0.5
@@ -8722,7 +8721,6 @@ components:
                 type: string
               type: array
             - type: 'null'
-          default: []
           title: Include Cols
         map_threshold:
           default: 0.5
@@ -8786,25 +8784,6 @@ components:
       required:
         - values
       title: DatasetAppendRow
-      type: object
-    DatasetBulkDeleteFailure:
-      description: Details about a failed deletion.
-      properties:
-        dataset_id:
-          format: uuid4
-          title: Dataset Id
-          type: string
-        dataset_name:
-          title: Dataset Name
-          type: string
-        reason:
-          title: Reason
-          type: string
-      required:
-        - dataset_id
-        - dataset_name
-        - reason
-      title: DatasetBulkDeleteFailure
       type: object
     DatasetContent:
       properties:
@@ -10003,6 +9982,10 @@ components:
               type: string
             - type: 'null'
           title: Created By
+        created_by_user:
+          anyOf:
+            - $ref: '#/components/schemas/UserInfo'
+            - type: 'null'
         dataset:
           anyOf:
             - $ref: '#/components/schemas/ExperimentDataset'
@@ -10017,6 +10000,11 @@ components:
           description: Name of the experiment
           title: Name
           type: string
+        num_samples:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          title: Num Samples
         playground:
           anyOf:
             - $ref: '#/components/schemas/ExperimentPlayground'
@@ -14742,6 +14730,31 @@ components:
         - created_by
       title: IntegrationDB
       type: object
+    IntegrationModelsResponse:
+      properties:
+        integration_name:
+          title: Integration Name
+          type: string
+        models:
+          items:
+            type: string
+          title: Models
+          type: array
+        scorer_models:
+          items:
+            type: string
+          title: Scorer Models
+          type: array
+        supports_num_judges:
+          default: true
+          title: Supports Num Judges
+          type: boolean
+      required:
+        - integration_name
+        - models
+        - scorer_models
+      title: IntegrationModelsResponse
+      type: object
     IntegrationName:
       enum:
         - anthropic
@@ -15845,13 +15858,13 @@ components:
       examples:
         - columns:
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
-                - session
                 - agent
+                - tool
+                - session
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -15865,13 +15878,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
-                - session
                 - agent
+                - tool
+                - session
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -15885,13 +15898,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
-                - session
                 - agent
+                - tool
+                - session
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -15905,13 +15918,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
-                - session
                 - agent
+                - tool
+                - session
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: timestamp
@@ -15925,12 +15938,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: string_list
@@ -15944,12 +15957,12 @@ components:
               multi_valued: true
               sortable: false
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: integer
@@ -15964,13 +15977,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
-                - session
                 - agent
+                - tool
+                - session
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -15984,12 +15997,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -16003,12 +16016,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -16022,13 +16035,13 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
-                - session
                 - agent
+                - tool
+                - session
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -16042,12 +16055,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -16062,12 +16075,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -16082,12 +16095,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -16102,12 +16115,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: timestamp
@@ -16121,12 +16134,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: boolean
@@ -16140,12 +16153,12 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
-                - trace
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - trace
+                - llm
               category: standard
               complex: false
               data_type: boolean
@@ -16159,19 +16172,19 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - workflow
                 - tool
-                - llm
-                - retriever
-                - trace
+                - agent
                 - session
-                - agent
-              applicable_types:
-                - workflow
-                - tool
-                - llm
                 - retriever
+                - workflow
+                - trace
+                - llm
+              applicable_types:
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - llm
               category: standard
               complex: false
               data_type: text
@@ -16185,11 +16198,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -16204,11 +16217,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - llm
               category: standard
               complex: false
               data_type: uuid
@@ -16222,11 +16235,11 @@ components:
               multi_valued: false
               sortable: true
             - applicable_types:
-                - workflow
-                - tool
-                - llm
-                - retriever
                 - agent
+                - tool
+                - retriever
+                - workflow
+                - llm
               category: standard
               complex: false
               data_type: integer
@@ -16240,14 +16253,14 @@ components:
               multi_valued: false
               sortable: true
             - allowed_values:
-                - default
                 - router
-                - reflection
-                - planner
-                - classifier
                 - supervisor
+                - default
                 - react
                 - judge
+                - planner
+                - classifier
+                - reflection
               applicable_types:
                 - agent
               category: standard
@@ -16991,7 +17004,7 @@ components:
           num_rows: 2
           paginated: true
           records:
-            - created_at: '2025-11-13T18:57:26.720133Z'
+            - created_at: '2025-11-20T18:55:29.300261Z'
               dataset_metadata: {}
               feedback_rating_info: {}
               id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
@@ -17008,7 +17021,7 @@ components:
               trace_id: 1a0939d1-8b43-4fe3-a91c-196e2d9847e3
               type: trace
               user_metadata: {}
-            - created_at: '2025-11-13T18:57:26.720281Z'
+            - created_at: '2025-11-20T18:55:29.300404Z'
               dataset_metadata: {}
               id: 1edc2401-24b4-448c-a392-b36932293061
               input:
@@ -17138,13 +17151,19 @@ components:
       title: LogRecordsTextFilter
       type: object
     LogSpanUpdateRequest:
-      description: Request model for updating a trace.
+      description: Request model for updating a span.
       properties:
         client_version:
           anyOf:
             - type: string
             - type: 'null'
           title: Client Version
+        duration_ns:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          description: Duration in nanoseconds. Overwrites previous value if present.
+          title: Duration Ns
         experiment_id:
           anyOf:
             - format: uuid4
@@ -17186,10 +17205,10 @@ components:
                 $ref: '#/components/schemas/Document'
               type: array
             - type: 'null'
-          description: Output of the trace. Overwrites previous value if present.
+          description: Output of the span. Overwrites previous value if present.
           title: Output
         reliable:
-          default: false
+          default: true
           description: Whether or not to use reliable logging.  If set to False, the
             method will respond immediately before verifying that the traces have
             been successfully ingested, and no error message will be returned if ingestion
@@ -17206,7 +17225,7 @@ components:
           anyOf:
             - type: integer
             - type: 'null'
-          description: Status code of the trace. Overwrites previous value if present.
+          description: Status code of the span. Overwrites previous value if present.
           title: Status Code
         tags:
           anyOf:
@@ -17280,14 +17299,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           parent_id: 11000011-0000-0000-0000-110000110000
           spans:
-            - created_at: '2025-11-13T18:57:26.685600Z'
+            - created_at: '2025-11-20T18:55:29.252162Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-11-13T18:57:26.668577Z'
+                - created_at: '2025-11-20T18:55:29.226651Z'
                   dataset_metadata: {}
                   id: 22222222-2222-4222-a222-222222222222
                   input:
@@ -17341,7 +17360,7 @@ components:
           title: Parent Id
           type: string
         reliable:
-          default: false
+          default: true
           description: Whether or not to use reliable logging.  If set to False, the
             method will respond immediately before verifying that the traces have
             been successfully ingested, and no error message will be returned if ingestion
@@ -17507,6 +17526,12 @@ components:
             - type: string
             - type: 'null'
           title: Client Version
+        duration_ns:
+          anyOf:
+            - type: integer
+            - type: 'null'
+          description: Duration in nanoseconds. Overwrites previous value if present.
+          title: Duration Ns
         experiment_id:
           anyOf:
             - format: uuid4
@@ -17551,7 +17576,7 @@ components:
           description: Output of the trace. Overwrites previous value if present.
           title: Output
         reliable:
-          default: false
+          default: true
           description: Whether or not to use reliable logging.  If set to False, the
             method will respond immediately before verifying that the traces have
             been successfully ingested, and no error message will be returned if ingestion
@@ -17642,14 +17667,14 @@ components:
         - log_stream_id: 00000000-0000-0000-0000-000000000000
           session_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-11-13T18:57:26.663373Z'
+            - created_at: '2025-11-20T18:55:29.220615Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-11-13T18:57:26.663342Z'
+                - created_at: '2025-11-20T18:55:29.220582Z'
                   dataset_metadata: {}
                   input:
                     - content: 'Question: who is a smart LLM?'
@@ -17667,14 +17692,14 @@ components:
               user_metadata: {}
         - experiment_id: 00000000-0000-0000-0000-000000000000
           traces:
-            - created_at: '2025-11-13T18:57:26.663862Z'
+            - created_at: '2025-11-20T18:55:29.221130Z'
               dataset_metadata: {}
               input: who is a smart LLM?
               metrics: {}
               name: ''
               output: I am!
               spans:
-                - created_at: '2025-11-13T18:57:26.663826Z'
+                - created_at: '2025-11-20T18:55:29.221094Z'
                   dataset_metadata: {}
                   id: 11111111-1111-4111-a111-111111111111
                   input:
@@ -17732,7 +17757,7 @@ components:
           description: Metrics testing id associated with the traces.
           title: Metrics Testing Id
         reliable:
-          default: false
+          default: true
           description: Whether or not to use reliable logging.  If set to False, the
             method will respond immediately before verifying that the traces have
             been successfully ingested, and no error message will be returned if ingestion
@@ -19736,21 +19761,6 @@ components:
           title: Sort Type
           type: string
       title: ProjectUpdatedAtSortV1
-      type: object
-    PromptBulkDeleteFailure:
-      description: Details about a failed deletion.
-      properties:
-        reason:
-          title: Reason
-          type: string
-        template_id:
-          format: uuid4
-          title: Template Id
-          type: string
-      required:
-        - template_id
-        - reason
-      title: PromptBulkDeleteFailure
       type: object
     PromptDatasetDB:
       properties:
@@ -24385,6 +24395,40 @@ components:
         - token
       title: WriterIntegrationCreate
       type: object
+    api__schemas__content__dataset__BulkDeleteFailure:
+      description: Details about a failed deletion.
+      properties:
+        dataset_id:
+          format: uuid4
+          title: Dataset Id
+          type: string
+        dataset_name:
+          title: Dataset Name
+          type: string
+        reason:
+          title: Reason
+          type: string
+      required:
+        - dataset_id
+        - dataset_name
+        - reason
+      title: BulkDeleteFailure
+      type: object
+    api__schemas__content__prompt__BulkDeleteFailure:
+      description: Details about a failed deletion.
+      properties:
+        reason:
+          title: Reason
+          type: string
+        template_id:
+          format: uuid4
+          title: Template Id
+          type: string
+      required:
+        - template_id
+        - reason
+      title: BulkDeleteFailure
+      type: object
     api__schemas__project__GetProjectsPaginatedResponse:
       properties:
         limit:
@@ -26281,7 +26325,6 @@ paths:
       summary: Export Edits Databricks
       tags:
         - integrations
-        - integrations
         - edits
   /integrations/databricks/export:
     post:
@@ -26362,7 +26405,6 @@ paths:
         - HTTPBasic: []
       summary: Export Edits Databricks Unity Catalog
       tags:
-        - integrations
         - integrations
         - edits
   /integrations/databricks/unity-catalog/export:
@@ -27292,6 +27334,142 @@ paths:
       summary: Get Job
       tags:
         - jobs
+  /llm_integrations:
+    get:
+      description: Get the list of supported scorer models for the user's llm integrations.
+      operationId: get_integrations_and_model_info_llm_integrations_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  $ref: '#/components/schemas/IntegrationModelsResponse'
+                propertyNames:
+                  $ref: '#/components/schemas/LLMIntegration'
+                title: Response Get Integrations And Model Info Llm Integrations Get
+                type: object
+          description: Successful Response
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Integrations And Model Info
+      tags:
+        - llm_integrations
+  /llm_integrations/projects/{project_id}/runs/{run_id}:
+    get:
+      description: Get the list of supported scorer models for the run owner's llm
+        integrations.
+      operationId: get_integrations_and_model_info_for_run_llm_integrations_projects__project_id__runs__run_id__get
+      parameters:
+        - in: path
+          name: project_id
+          required: true
+          schema:
+            format: uuid4
+            title: Project Id
+            type: string
+        - in: path
+          name: run_id
+          required: true
+          schema:
+            format: uuid4
+            title: Run Id
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                additionalProperties:
+                  $ref: '#/components/schemas/IntegrationModelsResponse'
+                propertyNames:
+                  $ref: '#/components/schemas/LLMIntegration'
+                title: GetRunIntegrationsResponse
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Integrations And Model Info For Run
+      tags:
+        - llm_integrations
+  /llm_integrations/{llm_integration}/models:
+    get:
+      description: Get the list of supported models for the LLM integration.
+      operationId: get_available_models_llm_integrations__llm_integration__models_get
+      parameters:
+        - in: path
+          name: llm_integration
+          required: true
+          schema:
+            $ref: '#/components/schemas/LLMIntegration'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                title: Response Get Available Models Llm Integrations  Llm Integration  Models
+                  Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Available Models
+      tags:
+        - llm_integrations
+  /llm_integrations/{llm_integration}/scorer_models:
+    get:
+      description: Get the list of supported scorer models for the LLM integration.
+      operationId: get_available_scorer_models_llm_integrations__llm_integration__scorer_models_get
+      parameters:
+        - in: path
+          name: llm_integration
+          required: true
+          schema:
+            $ref: '#/components/schemas/LLMIntegration'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  type: string
+                title: Response Get Available Scorer Models Llm Integrations  Llm
+                  Integration  Scorer Models Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      security:
+        - APIKeyHeader: []
+        - OAuth2PasswordBearer: []
+        - HTTPBasic: []
+      summary: Get Available Scorer Models
+      tags:
+        - llm_integrations
   /login:
     post:
       operationId: login_email_login_post

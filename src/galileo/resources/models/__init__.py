@@ -88,8 +88,8 @@ from .bucketed_metric_buckets import BucketedMetricBuckets
 from .bucketed_metrics import BucketedMetrics
 from .bulk_delete_datasets_request import BulkDeleteDatasetsRequest
 from .bulk_delete_datasets_response import BulkDeleteDatasetsResponse
+from .bulk_delete_failure import BulkDeleteFailure
 from .bulk_delete_prompt_templates_request import BulkDeletePromptTemplatesRequest
-from .bulk_delete_prompt_templates_response import BulkDeletePromptTemplatesResponse
 from .chain_poll_template import ChainPollTemplate
 from .chain_poll_template_response_schema_type_0 import ChainPollTemplateResponseSchemaType0
 from .chunk_attribution_utilization_scorer import ChunkAttributionUtilizationScorer
@@ -313,7 +313,6 @@ from .dataset_action import DatasetAction
 from .dataset_append_row import DatasetAppendRow
 from .dataset_append_row_values import DatasetAppendRowValues
 from .dataset_append_row_values_additional_property_type_3 import DatasetAppendRowValuesAdditionalPropertyType3
-from .dataset_bulk_delete_failure import DatasetBulkDeleteFailure
 from .dataset_content import DatasetContent
 from .dataset_content_filter import DatasetContentFilter
 from .dataset_content_filter_operator import DatasetContentFilterOperator
@@ -478,6 +477,12 @@ from .generation_response import GenerationResponse
 from .get_integration_status_integrations_name_status_get_response_get_integration_status_integrations_name_status_get import (
     GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet,
 )
+from .get_integrations_and_model_info_for_run_llm_integrations_projects_project_id_runs_run_id_get_get_run_integrations_response import (
+    GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse,
+)
+from .get_integrations_and_model_info_llm_integrations_get_response_get_integrations_and_model_info_llm_integrations_get import (
+    GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet,
+)
 from .get_projects_paginated_response import GetProjectsPaginatedResponse
 from .get_projects_paginated_response_v2 import GetProjectsPaginatedResponseV2
 from .ground_truth_adherence_scorer import GroundTruthAdherenceScorer
@@ -515,6 +520,7 @@ from .instruction_adherence_template import InstructionAdherenceTemplate
 from .instruction_adherence_template_response_schema_type_0 import InstructionAdherenceTemplateResponseSchemaType0
 from .integration_action import IntegrationAction
 from .integration_db import IntegrationDB
+from .integration_models_response import IntegrationModelsResponse
 from .integration_name import IntegrationName
 from .invoke_response import InvokeResponse
 from .invoke_response_headers_type_0 import InvokeResponseHeadersType0
@@ -687,7 +693,6 @@ from .project_update_response import ProjectUpdateResponse
 from .project_updated_at_filter import ProjectUpdatedAtFilter
 from .project_updated_at_filter_operator import ProjectUpdatedAtFilterOperator
 from .project_updated_at_sort_v1 import ProjectUpdatedAtSortV1
-from .prompt_bulk_delete_failure import PromptBulkDeleteFailure
 from .prompt_dataset_db import PromptDatasetDB
 from .prompt_injection_scorer import PromptInjectionScorer
 from .prompt_injection_scorer_type import PromptInjectionScorerType
@@ -932,8 +937,8 @@ __all__ = (
     "BucketedMetrics",
     "BulkDeleteDatasetsRequest",
     "BulkDeleteDatasetsResponse",
+    "BulkDeleteFailure",
     "BulkDeletePromptTemplatesRequest",
-    "BulkDeletePromptTemplatesResponse",
     "ChainPollTemplate",
     "ChainPollTemplateResponseSchemaType0",
     "ChunkAttributionUtilizationScorer",
@@ -1075,7 +1080,6 @@ __all__ = (
     "DatasetAppendRow",
     "DatasetAppendRowValues",
     "DatasetAppendRowValuesAdditionalPropertyType3",
-    "DatasetBulkDeleteFailure",
     "DatasetContent",
     "DatasetContentFilter",
     "DatasetContentFilterOperator",
@@ -1220,6 +1224,8 @@ __all__ = (
     "GeneratedScorerValidationResponse",
     "GenerationResponse",
     "GetIntegrationStatusIntegrationsNameStatusGetResponseGetIntegrationStatusIntegrationsNameStatusGet",
+    "GetIntegrationsAndModelInfoForRunLlmIntegrationsProjectsProjectIdRunsRunIdGetGetRunIntegrationsResponse",
+    "GetIntegrationsAndModelInfoLlmIntegrationsGetResponseGetIntegrationsAndModelInfoLlmIntegrationsGet",
     "GetProjectsPaginatedResponse",
     "GetProjectsPaginatedResponseV2",
     "GroundTruthAdherenceScorer",
@@ -1257,6 +1263,7 @@ __all__ = (
     "InstructionAdherenceTemplateResponseSchemaType0",
     "IntegrationAction",
     "IntegrationDB",
+    "IntegrationModelsResponse",
     "IntegrationName",
     "InvokeResponse",
     "InvokeResponseHeadersType0",
@@ -1429,7 +1436,6 @@ __all__ = (
     "ProjectUpdatedAtFilter",
     "ProjectUpdatedAtFilterOperator",
     "ProjectUpdatedAtSortV1",
-    "PromptBulkDeleteFailure",
     "PromptDatasetDB",
     "PromptInjectionScorer",
     "PromptInjectionScorerType",

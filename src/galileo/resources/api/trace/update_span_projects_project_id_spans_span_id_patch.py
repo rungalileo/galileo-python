@@ -68,7 +68,7 @@ def sync_detailed(
     Args:
         project_id (str):
         span_id (str):
-        body (LogSpanUpdateRequest): Request model for updating a trace.
+        body (LogSpanUpdateRequest): Request model for updating a span.
 
     Raises
     ------
@@ -96,7 +96,7 @@ def sync(
     Args:
         project_id (str):
         span_id (str):
-        body (LogSpanUpdateRequest): Request model for updating a trace.
+        body (LogSpanUpdateRequest): Request model for updating a span.
 
     Raises
     ------
@@ -120,7 +120,7 @@ async def asyncio_detailed(
     Args:
         project_id (str):
         span_id (str):
-        body (LogSpanUpdateRequest): Request model for updating a trace.
+        body (LogSpanUpdateRequest): Request model for updating a span.
 
     Raises
     ------
@@ -148,7 +148,7 @@ async def asyncio(
     Args:
         project_id (str):
         span_id (str):
-        body (LogSpanUpdateRequest): Request model for updating a trace.
+        body (LogSpanUpdateRequest): Request model for updating a span.
 
     Raises
     ------

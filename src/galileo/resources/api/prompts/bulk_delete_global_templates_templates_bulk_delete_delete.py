@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import httpx
 
@@ -9,7 +9,6 @@ from galileo_core.helpers.api_client import ApiClient
 
 from ... import errors
 from ...models.bulk_delete_prompt_templates_request import BulkDeletePromptTemplatesRequest
-from ...models.bulk_delete_prompt_templates_response import BulkDeletePromptTemplatesResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...types import Response
 
@@ -33,12 +32,7 @@ def _get_kwargs(*, body: BulkDeletePromptTemplatesRequest) -> dict[str, Any]:
     return _kwargs
 
 
-def _parse_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Optional[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
-    if response.status_code == 200:
-        return BulkDeletePromptTemplatesResponse.from_dict(response.json())
-
+def _parse_response(*, client: ApiClient, response: httpx.Response) -> Optional[HTTPValidationError]:
     if response.status_code == 422:
         return HTTPValidationError.from_dict(response.json())
 
@@ -47,9 +41,7 @@ def _parse_response(
     return None
 
 
-def _build_response(
-    *, client: ApiClient, response: httpx.Response
-) -> Response[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
+def _build_response(*, client: ApiClient, response: httpx.Response) -> Response[HTTPValidationError]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -58,9 +50,7 @@ def _build_response(
     )
 
 
-def sync_detailed(
-    *, client: ApiClient, body: BulkDeletePromptTemplatesRequest
-) -> Response[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
+def sync_detailed(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> Response[HTTPValidationError]:
     """Bulk Delete Global Templates.
 
      Delete multiple global prompt templates in bulk.
@@ -94,7 +84,7 @@ def sync_detailed(
 
     Returns
     -------
-        Response[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]
+        Response[HTTPValidationError]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -103,9 +93,7 @@ def sync_detailed(
     return _build_response(client=client, response=response)
 
 
-def sync(
-    *, client: ApiClient, body: BulkDeletePromptTemplatesRequest
-) -> Optional[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
+def sync(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> Optional[HTTPValidationError]:
     """Bulk Delete Global Templates.
 
      Delete multiple global prompt templates in bulk.
@@ -139,14 +127,14 @@ def sync(
 
     Returns
     -------
-        Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]
+        HTTPValidationError
     """
     return sync_detailed(client=client, body=body).parsed
 
 
 async def asyncio_detailed(
     *, client: ApiClient, body: BulkDeletePromptTemplatesRequest
-) -> Response[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
+) -> Response[HTTPValidationError]:
     """Bulk Delete Global Templates.
 
      Delete multiple global prompt templates in bulk.
@@ -180,7 +168,7 @@ async def asyncio_detailed(
 
     Returns
     -------
-        Response[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]
+        Response[HTTPValidationError]
     """
     kwargs = _get_kwargs(body=body)
 
@@ -189,9 +177,7 @@ async def asyncio_detailed(
     return _build_response(client=client, response=response)
 
 
-async def asyncio(
-    *, client: ApiClient, body: BulkDeletePromptTemplatesRequest
-) -> Optional[Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]]:
+async def asyncio(*, client: ApiClient, body: BulkDeletePromptTemplatesRequest) -> Optional[HTTPValidationError]:
     """Bulk Delete Global Templates.
 
      Delete multiple global prompt templates in bulk.
@@ -225,6 +211,6 @@ async def asyncio(
 
     Returns
     -------
-        Union[BulkDeletePromptTemplatesResponse, HTTPValidationError]
+        HTTPValidationError
     """
     return (await asyncio_detailed(client=client, body=body)).parsed
