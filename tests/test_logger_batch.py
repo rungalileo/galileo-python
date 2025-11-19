@@ -37,10 +37,7 @@ def test_galileo_logger_exceptions() -> None:
 
     with pytest.raises(Exception) as exc_info:
         GalileoLogger(
-            project="my_project",
-            log_stream="my_log_stream",
-            experimental={"mode": "streaming"},
-            ingestion_hook=lambda x: None,
+            project="my_project", log_stream="my_log_stream", mode="distributed", ingestion_hook=lambda x: None
         )
     assert str(exc_info.value) == "ingestion_hook can only be used in batch mode"
 
