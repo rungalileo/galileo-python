@@ -1,0 +1,6 @@
+{
+    "include": ["src", "tests"],
+    "extraPaths": ["src", "../galileo-core/src"],
+    "useLibraryCodeForTypes": false,
+    "typeCheckingMode": "basic"
+}

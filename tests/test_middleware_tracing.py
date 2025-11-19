@@ -210,7 +210,7 @@ def test_get_request_logger_when_parent_id_equals_trace_id(
     """Test that get_request_logger handles the case when parent_id equals trace_id.
 
     When upstream services forward headers immediately after start_trace(), both
-    X-Galileo-Trace-ID and X-Galileo-Parent-ID are identical (the root trace id).
+    X-Galileo-SDK-Trace-ID and X-Galileo-SDK-Parent-ID are identical (the root trace id).
     In this case, we should pass None as span_id to avoid GalileoLoggerException.
     """
     setup_mock_traces_client(mock_traces_client)

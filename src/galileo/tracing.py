@@ -13,7 +13,7 @@ def get_tracing_headers() -> dict[str, str]:
     Returns
     -------
     dict[str, str]
-        Dictionary with X-Galileo-Trace-ID and X-Galileo-Parent-ID headers
+        Dictionary with X-Galileo-SDK-Trace-ID and X-Galileo-SDK-Parent-ID headers
 
     Raises
     ------
