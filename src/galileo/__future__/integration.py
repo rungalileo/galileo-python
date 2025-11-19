@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from galileo.__future__.shared.base import StateManagementMixin, SyncState
 from galileo.__future__.shared.exceptions import APIError, ValidationError
@@ -312,16 +312,6 @@ class Integration(StateManagementMixin):
             Provider: A provider-specific instance (OpenAIProvider, AzureProvider, etc.).
                      For unsupported integration types, returns a GenericProvider.
         """
-        # Import here to avoid circular imports
-        from galileo.__future__.provider import (
-            AnthropicProvider,
-            AzureProvider,
-            BedrockProvider,
-            GenericProvider,
-            OpenAIProvider,
-        )
-        from galileo.__future__.shared.base import StateManagementMixin
-
         name = str(integration_db.name)
 
         # Create appropriate provider instance based on name using __new__ to bypass __init__
@@ -385,8 +375,6 @@ class Integration(StateManagementMixin):
                 return None
 
             # Cast is safe because we checked for strings above
-            from typing import cast
-
             providers = cast(list[Provider], providers_list)
             matching = [p for p in providers if p.name == integration_name]
 
@@ -537,9 +525,6 @@ class Integration(StateManagementMixin):
             )
             print(f"Created: {provider.id}")
         """
-        # Import here to avoid circular imports
-        from galileo.__future__.provider import OpenAIProvider
-
         logger.info("Integration.create_openai: creating OpenAI integration")
         provider = OpenAIProvider(token=token, organization_id=organization_id)
         return provider.create()
@@ -568,9 +553,6 @@ class Integration(StateManagementMixin):
                 endpoint="https://your-resource.openai.azure.com"
             )
         """
-        # Import here to avoid circular imports
-        from galileo.__future__.provider import AzureProvider
-
         logger.info("Integration.create_azure: creating Azure integration")
         provider = AzureProvider(token=token, endpoint=endpoint)
         return provider.create()
@@ -609,9 +591,6 @@ class Integration(StateManagementMixin):
                 region="us-west-2"
             )
         """
-        # Import here to avoid circular imports
-        from galileo.__future__.provider import BedrockProvider
-
         logger.info("Integration.create_bedrock: creating Bedrock integration")
         provider = BedrockProvider(
             credential_type=credential_type,
@@ -641,9 +620,6 @@ class Integration(StateManagementMixin):
         --------
             provider = Integration.create_anthropic(token="sk-ant-...")
         """
-        # Import here to avoid circular imports
-        from galileo.__future__.provider import AnthropicProvider
-
         logger.info("Integration.create_anthropic: creating Anthropic integration")
         provider = AnthropicProvider(token=token)
         return provider.create()
@@ -654,6 +630,7 @@ from galileo.__future__.provider import (  # noqa: E402
     AnthropicProvider,
     AzureProvider,
     BedrockProvider,
+    GenericProvider,
     OpenAIProvider,
     Provider,
 )
