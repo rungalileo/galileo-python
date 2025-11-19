@@ -7,14 +7,13 @@ import time
 import uuid
 from collections import deque
 from datetime import datetime
-from os import getenv
 from typing import Any, Callable, Literal, Optional, Union
 
 import backoff
 from pydantic import ValidationError
 
-from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_PROJECT_NAME
 from galileo.constants.tracing import PARENT_ID_HEADER, TRACE_ID_HEADER
+from galileo.exceptions import GalileoLoggerException
 from galileo.log_streams import LogStreams
 from galileo.logger.task_handler import ThreadPoolTaskHandler
 from galileo.logger.utils import handle_galileo_http_exceptions_for_retry
@@ -34,6 +33,13 @@ from galileo.schema.trace import (
 )
 from galileo.traces import Traces
 from galileo.utils.catch_log import DecorateAllMethods
+from galileo.utils.env_helpers import (
+    _get_log_stream_id_from_env,
+    _get_log_stream_or_default,
+    _get_mode_or_default,
+    _get_project_id_from_env,
+    _get_project_or_default,
+)
 from galileo.utils.metrics import populate_local_metrics
 from galileo.utils.nop_logger import nop_async, nop_sync
 from galileo.utils.serialization import serialize_to_str
@@ -50,7 +56,7 @@ from galileo_core.schemas.logging.span import (
     ToolSpan,
     WorkflowSpan,
 )
-from galileo_core.schemas.logging.step import BaseStep, StepAllowedInputType, StepType
+from galileo_core.schemas.logging.step import BaseStep, Metrics, StepAllowedInputType, StepType
 from galileo_core.schemas.logging.trace import Trace
 from galileo_core.schemas.protect.payload import Payload
 from galileo_core.schemas.protect.response import Response
@@ -60,11 +66,7 @@ from galileo_core.schemas.shared.traces_logger import TracesLogger
 STREAMING_MAX_RETRIES = 3
 
 
-class GalileoLoggerException(Exception):
-    pass
-
-
-LoggerModeType = Literal["batch", "streaming"]
+LoggerModeType = Literal["batch", "distributed"]
 
 
 class GalileoLogger(TracesLogger, DecorateAllMethods):
@@ -153,7 +155,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         trace_id: Optional[str] = None,
         span_id: Optional[str] = None,
         local_metrics: Optional[list[LocalMetricConfig]] = None,
-        experimental: Optional[dict[str, str]] = None,
+        mode: Optional[str] = None,
         ingestion_hook: Optional[Callable[[TracesIngestRequest], None]] = None,
     ) -> None:
         """
@@ -172,11 +174,23 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         experiment_id: Optional[str]
             Experiment ID. Used by the experiment runner.
         trace_id: Optional[str]
-            Trace ID. Used to initialize the logger with an existing trace. Note: This can only be used in "streaming" mode.
+            Trace ID for distributed tracing. This can only be used in "distributed" mode.
+
+            When provided, creates a local stub trace without fetching from the backend.
+            This allows downstream services to continue a distributed trace without waiting
+            for backend ingestion.
         span_id: Optional[str]
-            Span ID. Used to initialize the logger with an existing workflow or agent span. Note: This can only be used in "streaming" mode.
+            Parent span ID for distributed tracing. This can only be used in "distributed" mode.
+
+            When provided, creates a local stub span without fetching from the backend.
+            This allows downstream services to continue a distributed trace without waiting
+            for backend ingestion.
         local_metrics: Optional[list[LocalMetricConfig]]
             Local metrics
+        mode: Optional[str]
+            Logger mode: "batch" or "distributed". Defaults to GALILEO_MODE env var, or "batch" if not set.
+            - "batch": Batches traces and sends on flush() (default)
+            - "distributed": Enables distributed tracing with immediate updates to backend
         ingestion_hook: Optional[Callable[[TracesIngestRequest], None]]
                 A callable that intercepts trace data before ingestion.
                 This hook is called when the logger is flushed and can be a
@@ -185,25 +199,29 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 Galileo via the `ingest_traces` method.
         """
         super().__init__()
-        experimental = experimental or {}
-        mode_str = experimental.get("mode", "batch")
-        self.mode: LoggerModeType = mode_str
+        mode = _get_mode_or_default(mode)
+        self.mode: LoggerModeType = mode
 
         self._ingestion_hook = ingestion_hook
-        if self._ingestion_hook and self.mode != "batch":
+        if self._ingestion_hook and self.mode == "distributed":
             raise GalileoLoggerException("ingestion_hook can only be used in batch mode")
 
-        project_name_from_env = getenv("GALILEO_PROJECT", DEFAULT_PROJECT_NAME)
-        log_stream_name_from_env = getenv("GALILEO_LOG_STREAM", DEFAULT_LOG_STREAM_NAME)
+        project_name_from_env = _get_project_or_default(None)
+        log_stream_name_from_env = _get_log_stream_or_default(None)
 
-        project_id_from_env = getenv("GALILEO_PROJECT_ID")
-        log_stream_id_from_env = getenv("GALILEO_LOG_STREAM_ID")
+        project_id_from_env = _get_project_id_from_env()
+        log_stream_id_from_env = _get_log_stream_id_from_env()
 
         if trace_id or span_id:
-            if self.mode != "streaming":
-                raise GalileoLoggerException("trace_id or span_id can only be used in streaming mode")
-            self.trace_id = trace_id if trace_id else None
-            self.span_id = span_id if span_id else None
+            if self.mode != "distributed":
+                raise GalileoLoggerException("trace_id or span_id can only be used in distributed mode")
+            if span_id and not trace_id:
+                raise GalileoLoggerException(
+                    "trace_id is required when span_id is provided. "
+                    "In distributed tracing, both trace_id and span_id must be propagated together."
+                )
+            self.trace_id = trace_id
+            self.span_id = span_id
 
         self.project_name = project or project_name_from_env
         self.project_id = project_id or project_id_from_env
@@ -228,7 +246,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if local_metrics:
             self.local_metrics = local_metrics
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._max_retries = STREAMING_MAX_RETRIES
             self._task_handler = ThreadPoolTaskHandler()
 
@@ -243,10 +261,11 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         elif self.experiment_id:
             self._traces_client = Traces(project_id=self.project_id, experiment_id=self.experiment_id)
 
+        # If continuing an existing distributed trace, create local stubs instead of
+        # fetching from the backend to avoid race conditions with eventual consistency.
+        # Note: trace_id/span_id can ONLY be provided in distributed mode for distributed tracing
         if self.trace_id:
-            self._init_trace()
-        if self.span_id:
-            self._init_span()
+            self._init_distributed_trace_stubs()
 
         # cleans up when the python interpreter closes
         atexit.register(self.terminate)
@@ -280,46 +299,42 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         else:
             self.log_stream_id = log_stream_obj.id
 
-    @nop_sync
-    def _init_trace(self, add_to_parent_stack: bool = True) -> None:
-        """Initializes the trace."""
-        trace_obj = async_run(self._traces_client.get_trace(trace_id=self.trace_id))
-        if trace_obj is None:
-            raise GalileoLoggerException(f"Trace {self.trace_id} not found")
+    def _init_distributed_trace_stubs(self) -> None:
+        """
+        Initialize local stub objects for distributed tracing. To only be used in distributed mode.
 
-        trace = Trace(**trace_obj)
-        trace.spans = []
-        self.traces.append(trace)
-        if add_to_parent_stack:
-            self._parent_stack.append(trace)
+        When a downstream service receives trace_id/span_id via headers, we create
+        local stub objects instead of fetching from the backend. This avoids race
+        conditions as the parent trace/span may not have been ingested yet when the downstream service starts.
 
-    @nop_sync
-    def _init_span(self) -> None:
-        """Initializes the span."""
-        span_obj = async_run(self._traces_client.get_span(span_id=self.span_id))
-        if span_obj is None:
-            raise GalileoLoggerException(f"Span {self.span_id} not found")
+        The stubs are placeholders that allow:
+        1. Adding new spans to the distributed trace
+        2. Proper parent-child relationships in _parent_stack
+        3. Correct trace_id in ingestion requests
+        """
+        stub_trace = Trace(
+            input="",
+            name="stub_trace",
+            created_at=datetime.now(),
+            id=uuid.UUID(self.trace_id),
+            metrics=Metrics(duration_ns=0),
+        )
+        self.traces.append(stub_trace)
 
-        trace_id = span_obj["trace_id"]
-        # Convert self.trace_id (string) to UUID for comparison, since trace_id from span_obj is a UUID object.
-        if self.trace_id is not None and trace_id != uuid.UUID(self.trace_id):
-            raise GalileoLoggerException(f"Span {self.span_id} does not belong to trace {self.trace_id}")
+        # Always add trace to parent stack (it's the root of the hierarchy)
+        self._parent_stack.append(stub_trace)
 
-        span_type = span_obj["type"]
-        if span_type == "workflow":
-            span = WorkflowSpan(**span_obj)
-        elif span_type == "agent":
-            span = AgentSpan(**span_obj)
-        else:
-            raise GalileoLoggerException(f"Only 'workflow' and 'agent' span types can be initialized, got {span_type}")
-
-        # if the trace hasn't been set yet, set it
-        if len(self.traces) == 0:
-            self.trace_id = trace_id
-            # skip adding the trace to parent stack to prevent modifications to it
-            self._init_trace(add_to_parent_stack=False)
-
-        self._parent_stack.append(span)
+        if self.span_id:
+            # If span_id is provided, also add the span (it's the immediate parent)
+            # This matches normal flow where add_workflow_span() appends to _parent_stack
+            stub_span = WorkflowSpan(
+                input="",
+                name="stub_parent_span",
+                created_at=datetime.now(),
+                id=uuid.UUID(self.span_id),
+                metrics=Metrics(duration_ns=0),
+            )
+            self._parent_stack.append(stub_span)
 
     @staticmethod
     @nop_sync
@@ -393,8 +408,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         if parent_step is None:
             raise ValueError("A trace needs to be created in order to add a span.")
 
+        # Use IDs from the current trace and parent step
+        trace_id = self.traces[0].id
+        parent_id = parent_step.id
+
         spans_ingest_request = SpansIngestRequest(
-            spans=[copy.deepcopy(span)], trace_id=self.traces[0].id, parent_id=parent_step.id, reliable=True
+            spans=[copy.deepcopy(span)], trace_id=trace_id, parent_id=parent_id, reliable=True
         )
 
         task_id = f"span-ingest-{span.id}"
@@ -516,7 +535,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
     @nop_sync
     def has_active_trace(self) -> bool:
-        if self.mode == "streaming" and (self.trace_id or self.span_id):
+        if self.mode == "distributed" and (self.trace_id or self.span_id):
             return True
         current_parent = self.current_parent()
         return current_parent is not None
@@ -537,12 +556,12 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Raises
         ------
         GalileoLoggerException
-            If not in streaming mode or if no trace has been started.
+            If not in distributed mode or if no trace has been started.
 
         Examples
         --------
         ```python
-        logger = GalileoLogger(experimental={"mode": "streaming"})
+        logger = GalileoLogger(mode="distributed")
         logger.start_trace(input="question")
         headers = logger.get_tracing_headers()
         # headers = {
@@ -564,8 +583,10 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         Note: Project and log_stream are configured per service (via env vars or logger initialization),
         not propagated via headers, following standard distributed tracing patterns.
         """
-        if self.mode != "streaming":
-            raise GalileoLoggerException("get_tracing_headers is only supported in streaming mode.")
+        if self.mode != "distributed":
+            raise GalileoLoggerException(
+                "get_tracing_headers is only supported in distributed mode for distributed tracing."
+            )
 
         if len(self.traces) == 0:
             raise GalileoLoggerException("Start trace before getting tracing headers.")
@@ -659,7 +680,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         trace = self.add_trace(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self.traces = [trace]
             self._parent_stack = deque([trace])
             self._ingest_step_streaming(trace)
@@ -798,7 +819,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             span_id=uuid.uuid4(),
         )
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self.traces = [trace]
             self._ingest_step_streaming(trace, is_complete=True)
 
@@ -923,7 +944,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
 
         span = super().add_llm_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1025,7 +1046,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         span = super().add_retriever_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1109,7 +1130,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         span = super().add_tool_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1183,7 +1204,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         span = super().add_tool_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1259,7 +1280,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         span = super().add_workflow_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1339,7 +1360,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         }
         span = super().add_agent_span(**kwargs)
 
-        if self.mode == "streaming":
+        if self.mode == "distributed":
             self._ingest_step_streaming(span)
 
         return span
@@ -1399,7 +1420,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
             finished_step, current_parent = self._conclude(
                 output=output, redacted_output=redacted_output, duration_ns=duration_ns, status_code=status_code
             )
-            if self.mode == "streaming":
+            if self.mode == "distributed":
                 self._update_step_streaming(finished_step, is_complete=True)
         else:
             current_parent = None
@@ -1407,7 +1428,7 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
                 finished_step, current_parent = self._conclude(
                     output=output, redacted_output=redacted_output, duration_ns=duration_ns, status_code=status_code
                 )
-                if self.mode == "streaming":
+                if self.mode == "distributed":
                     self._update_step_streaming(finished_step, is_complete=True)
 
         return current_parent
@@ -1437,8 +1458,8 @@ class GalileoLogger(TracesLogger, DecorateAllMethods):
         return await self._flush_batch()
 
     async def _flush_batch(self) -> list[Trace]:
-        if self.mode != "batch":
-            self._logger.warning("Flushing in streaming mode is not supported.")
+        if self.mode == "distributed":
+            self._logger.warning("Flushing in distributed mode is not supported - traces are sent immediately.")
             return []
 
         if not self.traces:

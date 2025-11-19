@@ -849,11 +849,19 @@ class GalileoDecorator:
         -------
         GalileoLogger instance configured with the specified project and log stream
         """
-        return GalileoLoggerSingleton().get(
-            project=project or _project_context.get(),
-            log_stream=log_stream or _log_stream_context.get(),
-            experiment_id=experiment_id or _experiment_id_context.get(),
-        )
+        kwargs = {
+            "project": project or _project_context.get(),
+            "log_stream": log_stream or _log_stream_context.get(),
+            "experiment_id": experiment_id or _experiment_id_context.get(),
+        }
+        trace_id_from_context = _trace_id_context.get()
+        span_id_from_context = _parent_id_context.get()
+        if trace_id_from_context:
+            kwargs["trace_id"] = trace_id_from_context
+        if span_id_from_context:
+            kwargs["span_id"] = span_id_from_context
+
+        return GalileoLoggerSingleton().get(**kwargs)
 
     def get_current_project(self) -> Optional[str]:
         """
@@ -960,6 +968,10 @@ class GalileoDecorator:
         _mode_context.set(None)
         _span_stack_context.set([])
         _trace_context.set(None)
+
+        # Reset distributed tracing context
+        _trace_id_context.set(None)
+        _parent_id_context.set(None)
 
         # Clear all stacks
         _get_or_init_list(_project_stack).clear()
