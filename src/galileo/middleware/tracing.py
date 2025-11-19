@@ -124,7 +124,10 @@ class TracingMiddleware(BaseHTTPMiddleware):
 
 def get_request_logger() -> GalileoLogger:
     """
-    Get a request-scoped GalileoLogger configured with distributed tracing context.
+    Get a request-scoped GalileoLogger configured for distributed mode.
+
+    Note: Distributed mode enables distributed tracing across services by propagating
+    trace context and sending updates immediately to the backend.
 
     This function should be called within a request handler after the TracingMiddleware has
     been registered. It creates a new GalileoLogger instance per request that automatically
@@ -198,6 +201,4 @@ def get_request_logger() -> GalileoLogger:
     # If parent_id equals trace_id, it means the parent is the root trace itself,
     # not a span. In this case, we should pass None as span_id to avoid
     # GalileoLoggerException when it tries to look up a span with the trace_id.
-    return GalileoLogger(
-        experimental={"mode": "streaming"}, trace_id=trace_id, span_id=parent_id if parent_id != trace_id else None
-    )
+    return GalileoLogger(mode="distributed", trace_id=trace_id, span_id=parent_id if parent_id != trace_id else None)
