@@ -1442,14 +1442,14 @@ tqdm = ["tqdm"]
 
 [[package]]
 name = "galileo-core"
-version = "3.69.0"
+version = "3.73.0"
 description = "Shared schemas and configuration for Galileo's Python packages."
 optional = false
 python-versions = ">=3.8.1"
 groups = ["main", "test"]
 files = [
-    {file = "galileo_core-3.69.0-py3-none-any.whl", hash = "sha256:c7b86633c9d54c0849695bf5f8224744c069d41bb915984d1230dfa76c7d316a"},
-    {file = "galileo_core-3.69.0.tar.gz", hash = "sha256:696ca2ec5951d9e7cb06335af5618ce3ff066cd93729c50d4f2120e60a2ad4e9"},
+    {file = "galileo_core-3.73.0-py3-none-any.whl", hash = "sha256:4c08b74df99f9e4dfaa4de9525eac68ceb5b2f073126d949aade67816ff301f5"},
+    {file = "galileo_core-3.73.0.tar.gz", hash = "sha256:a385bab8b0f813d61d2fa9bde05385ec238f8ae7706a274d2eee232ea494a008"},
 ]
 
 [package.dependencies]
@@ -7180,4 +7180,4 @@ otel = ["opentelemetry-api", "opentelemetry-exporter-otlp", "opentelemetry-sdk"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9,<3.14"
-content-hash = "5d8bde51afbeee7e5b9b05940541b49eb6a773ae9c4d1e5266df2ce772f67495"
+content-hash = "647825438112bafe9a8467cbf97bc86e9675897cc6016735e4fe57df43b5e5b5"
