@@ -9581,12 +9581,12 @@ components:
               - type: number
           title: Metadata
           type: object
-        page_content:
+        content:
           description: Content of the document.
-          title: Page Content
+          title: Content
           type: string
       required:
-        - page_content
+        - content
       title: Document
       type: object
     EditAction:

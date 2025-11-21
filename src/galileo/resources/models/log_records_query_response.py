@@ -117,14 +117,6 @@ class LogRecordsQueryResponse:
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
-        from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
-        from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
-        from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
-        from ..models.extended_session_record import ExtendedSessionRecord
-        from ..models.extended_tool_span_record import ExtendedToolSpanRecord
-        from ..models.extended_trace_record import ExtendedTraceRecord
-        from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
-
         d = dict(src_dict)
 
         def _parse_last_row_id(data: object) -> Union[None, Unset, str]:
@@ -164,6 +156,62 @@ class LogRecordsQueryResponse:
                 "ExtendedTraceRecord",
                 "ExtendedWorkflowSpanRecord",
             ]:
+                # Discriminator-aware parsing for Extended*Record types
+                if isinstance(data, dict) and "type" in data:
+                    type_value = data.get("type")
+
+                    # Hardcoded discriminator mapping for Extended*Record types
+                    if type_value == "trace":
+                        try:
+                            from ..models.extended_trace_record import ExtendedTraceRecord
+
+                            return ExtendedTraceRecord.from_dict(data)
+                        except:  # noqa: E722
+                            pass
+                    elif type_value == "agent":
+                        try:
+                            from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+
+                            return ExtendedAgentSpanRecord.from_dict(data)
+                        except:  # noqa: E722
+                            pass
+                    elif type_value == "workflow":
+                        try:
+                            from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
+
+                            return ExtendedWorkflowSpanRecord.from_dict(data)
+                        except:  # noqa: E722
+                            pass
+                    elif type_value == "llm":
+                        try:
+                            from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+
+                            return ExtendedLlmSpanRecord.from_dict(data)
+                        except:  # noqa: E722
+                            pass
+                    elif type_value == "tool":
+                        try:
+                            from ..models.extended_tool_span_record import ExtendedToolSpanRecord
+
+                            return ExtendedToolSpanRecord.from_dict(data)
+                        except:  # noqa: E722
+                            pass
+                    elif type_value == "retriever":
+                        try:
+                            from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
+
+                            return ExtendedRetrieverSpanRecord.from_dict(data)
+                        except:  # noqa: E722
+                            pass
+                    elif type_value == "session":
+                        try:
+                            from ..models.extended_session_record import ExtendedSessionRecord
+
+                            return ExtendedSessionRecord.from_dict(data)
+                        except:  # noqa: E722
+                            pass
+
+                # Fallback to standard union parsing
                 try:
                     if not isinstance(data, dict):
                         raise TypeError()
@@ -206,9 +254,16 @@ class LogRecordsQueryResponse:
 
                 except:  # noqa: E722
                     pass
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return ExtendedSessionRecord.from_dict(data)
+                try:
+                    if not isinstance(data, dict):
+                        raise TypeError()
+                    return ExtendedSessionRecord.from_dict(data)
+
+                except:  # noqa: E722
+                    pass
+                # If we reach here, none of the parsers succeeded
+                discriminator_info = f" (type={data.get('type')})" if isinstance(data, dict) and "type" in data else ""
+                raise ValueError(f"Could not parse union type for records_item{discriminator_info}")
 
             records_item = _parse_records_item(records_item_data)
 
