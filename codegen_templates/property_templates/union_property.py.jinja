@@ -1,0 +1,182 @@
+{% macro construct(property, source) %}
+def _parse_{{ property.python_name }}(data: object) -> {{ property.get_type_string() }}:
+    {% if "None" in property.get_type_strings_in_union(json=True) %}
+    if data is None:
+        return data
+    {% endif %}
+    {% if "Unset" in property.get_type_strings_in_union(json=True) %}
+    if isinstance(data, Unset):
+        return data
+    {% endif %}
+    {# Ad Hoc check for Extended*Record types #}
+    {# Ref.: https://app.shortcut.com/galileo/story/46169/error-when-fetching-spans-using-search-get-spans-via-python-sdk #}
+    {% set has_extended_records = false %}
+    {% set type_string = property.get_type_string() %}
+    {% if "ExtendedTraceRecord" in type_string or "ExtendedAgentSpanRecord" in type_string or "ExtendedRetrieverSpanRecord" in type_string %}
+        {% set has_extended_records = true %}
+    {% endif %}
+    {% if has_extended_records %}
+    # Discriminator-aware parsing for Extended*Record types
+    if isinstance(data, dict) and "type" in data:
+        type_value = data.get("type")
+
+        # Hardcoded discriminator mapping for Extended*Record types
+        if type_value == "trace":
+            try:
+                from ..models.extended_trace_record import ExtendedTraceRecord
+                return ExtendedTraceRecord.from_dict(data)
+            except:  # noqa: E722
+                pass
+        elif type_value == "agent":
+            try:
+                from ..models.extended_agent_span_record import ExtendedAgentSpanRecord
+                return ExtendedAgentSpanRecord.from_dict(data)
+            except:  # noqa: E722
+                pass
+        elif type_value == "workflow":
+            try:
+                from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
+                return ExtendedWorkflowSpanRecord.from_dict(data)
+            except:  # noqa: E722
+                pass
+        elif type_value == "llm":
+            try:
+                from ..models.extended_llm_span_record import ExtendedLlmSpanRecord
+                return ExtendedLlmSpanRecord.from_dict(data)
+            except:  # noqa: E722
+                pass
+        elif type_value == "tool":
+            try:
+                from ..models.extended_tool_span_record import ExtendedToolSpanRecord
+                return ExtendedToolSpanRecord.from_dict(data)
+            except:  # noqa: E722
+                pass
+        elif type_value == "retriever":
+            try:
+                from ..models.extended_retriever_span_record import ExtendedRetrieverSpanRecord
+                return ExtendedRetrieverSpanRecord.from_dict(data)
+            except:  # noqa: E722
+                pass
+        elif type_value == "session":
+            try:
+                from ..models.extended_session_record import ExtendedSessionRecord
+                return ExtendedSessionRecord.from_dict(data)
+            except:  # noqa: E722
+                pass
+
+    # Fallback to standard union parsing
+    {% endif %}
+    {% set ns = namespace(contains_unmodified_properties = false) %}
+    {% for inner_property in property.inner_properties %}
+    {% import "property_templates/" + inner_property.template as inner_template %}
+        {% if not inner_template.construct %}
+            {% set ns.contains_unmodified_properties = true %}
+            {% continue %}
+        {% endif %}
+    {% if has_extended_records %}{# For Extended*Record unions, always wrap in try-except #}
+    {% if inner_template.check_type_for_construct %}
+    try:
+        if not {{ inner_template.check_type_for_construct(inner_property, "data") }}:
+            raise TypeError()
+        {{ inner_template.construct(inner_property, "data") | indent(8) }}
+        return {{ inner_property.python_name }}
+    except: # noqa: E722
+        pass
+    {% else %}
+    try:
+        {{ inner_template.construct(inner_property, "data") | indent(8) }}
+        return {{ inner_property.python_name }}
+    except: # noqa: E722
+        pass
+    {% endif %}
+    {% else %}{# Original behavior for non-Extended*Record unions #}
+    {% if inner_template.check_type_for_construct and (not loop.last or ns.contains_unmodified_properties) %}
+    try:
+        if not {{ inner_template.check_type_for_construct(inner_property, "data") }}:
+            raise TypeError()
+        {{ inner_template.construct(inner_property, "data") | indent(8) }}
+        return {{ inner_property.python_name }}
+    except: # noqa: E722
+        pass
+    {% else %}
+    {% if inner_template.check_type_for_construct %}
+    if not {{ inner_template.check_type_for_construct(inner_property, "data") }}:
+        raise TypeError()
+    {% endif %}
+    {{ inner_template.construct(inner_property, "data") | indent(4) }}
+    return {{ inner_property.python_name }}
+    {% endif %}
+    {% endif %}
+    {% endfor %}
+    {% if ns.contains_unmodified_properties %}
+    return cast({{ property.get_type_string() }}, data)
+    {% elif has_extended_records %}
+    # If we reach here, none of the parsers succeeded
+    discriminator_info = f" (type={data.get('type')})" if isinstance(data, dict) and "type" in data else ""
+    raise ValueError(f"Could not parse union type for {{ property.python_name }}{discriminator_info}")
+    {% endif %}
+
+{{ property.python_name }} = _parse_{{ property.python_name }}({{ source }})
+{% endmacro %}
+
+{% macro transform(property, source, destination, declare_type=True) %}
+{% set ns = namespace(contains_properties_without_transform = false, contains_modified_properties = not property.required, has_if = false) %}
+{% if declare_type %}{{ destination }}: {{ property.get_type_string(json=True) }}{% endif %}
+
+{% if not property.required %}
+if isinstance({{ source }}, Unset):
+    {{ destination }} = UNSET
+    {% set ns.has_if = true %}
+{% endif %}
+{% for inner_property in property.inner_properties %}
+    {% import "property_templates/" + inner_property.template as inner_template %}
+    {% if not inner_template.transform %}
+        {% set ns.contains_properties_without_transform = true %}
+        {% continue %}
+    {% else %}
+        {% set ns.contains_modified_properties = true %}
+    {% endif %}
+    {% if not ns.has_if %}
+if isinstance({{ source }}, {{ inner_property.get_instance_type_string() }}):
+        {% set ns.has_if = true %}
+    {% elif not loop.last or ns.contains_properties_without_transform %}
+elif isinstance({{ source }}, {{ inner_property.get_instance_type_string() }}):
+    {% else %}
+else:
+    {% endif %}
+    {{ inner_template.transform(inner_property, source, destination, declare_type=False) | indent(4) }}
+{% endfor %}
+{% if ns.contains_properties_without_transform and ns.contains_modified_properties %}
+else:
+    {{ destination }} = {{ source }}
+{%- elif ns.contains_properties_without_transform %}
+{{ destination }} = {{ source }}
+{%- endif %}
+{% endmacro %}
+
+
+{% macro instance_check(inner_property, source) %}
+{% if inner_property.get_instance_type_string() == "None" %}
+if {{ source }} is None:
+{% else %}
+if isinstance({{ source }}, {{ inner_property.get_instance_type_string() }}):
+{% endif %}
+{% endmacro %}
+
+{% macro multipart(property, source, destination) %}
+{% set ns = namespace(has_if = false) %}
+{% for inner_property in property.inner_properties %}
+{% if not ns.has_if %}
+{{ instance_check(inner_property, source) }}
+{% set ns.has_if = true %}
+{% elif not loop.last %}
+
+el{{ instance_check(inner_property, source) }}
+{% else %}
+
+else:
+{% endif %}
+{% import "property_templates/" + inner_property.template as inner_template %}
+    {{ inner_template.multipart(inner_property, source, destination) | indent(4) | trim }}
+{%- endfor -%}
+{% endmacro %}
