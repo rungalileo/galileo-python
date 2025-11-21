@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from ..models.experiment_response_tags import ExperimentResponseTags
     from ..models.experiment_status import ExperimentStatus
     from ..models.prompt_run_settings import PromptRunSettings
+    from ..models.user_info import UserInfo
 
 
 T = TypeVar("T", bound="ExperimentResponse")
@@ -38,8 +39,10 @@ class ExperimentResponse:
         aggregate_metrics (Union[Unset, ExperimentResponseAggregateMetrics]):
         created_at (Union[Unset, datetime.datetime]): Timestamp of the experiment's creation
         created_by (Union[None, Unset, str]):
+        created_by_user (Union['UserInfo', None, Unset]):
         dataset (Union['ExperimentDataset', None, Unset]):
         name (Union[Unset, str]): Name of the experiment Default: ''.
+        num_samples (Union[None, Unset, int]):
         playground (Union['ExperimentPlayground', None, Unset]):
         playground_id (Union[None, Unset, str]):
         prompt (Union['ExperimentPrompt', None, Unset]):
@@ -60,8 +63,10 @@ class ExperimentResponse:
     aggregate_metrics: Union[Unset, "ExperimentResponseAggregateMetrics"] = UNSET
     created_at: Union[Unset, datetime.datetime] = UNSET
     created_by: Union[None, Unset, str] = UNSET
+    created_by_user: Union["UserInfo", None, Unset] = UNSET
     dataset: Union["ExperimentDataset", None, Unset] = UNSET
     name: Union[Unset, str] = ""
+    num_samples: Union[None, Unset, int] = UNSET
     playground: Union["ExperimentPlayground", None, Unset] = UNSET
     playground_id: Union[None, Unset, str] = UNSET
     prompt: Union["ExperimentPrompt", None, Unset] = UNSET
@@ -80,6 +85,7 @@ class ExperimentResponse:
         from ..models.experiment_playground import ExperimentPlayground
         from ..models.experiment_prompt import ExperimentPrompt
         from ..models.prompt_run_settings import PromptRunSettings
+        from ..models.user_info import UserInfo
 
         id = self.id
 
@@ -102,6 +108,14 @@ class ExperimentResponse:
         created_by: Union[None, Unset, str]
         created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
+        created_by_user: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.created_by_user, Unset):
+            created_by_user = UNSET
+        elif isinstance(self.created_by_user, UserInfo):
+            created_by_user = self.created_by_user.to_dict()
+        else:
+            created_by_user = self.created_by_user
+
         dataset: Union[None, Unset, dict[str, Any]]
         if isinstance(self.dataset, Unset):
             dataset = UNSET
@@ -111,6 +125,9 @@ class ExperimentResponse:
             dataset = self.dataset
 
         name = self.name
+
+        num_samples: Union[None, Unset, int]
+        num_samples = UNSET if isinstance(self.num_samples, Unset) else self.num_samples
 
         playground: Union[None, Unset, dict[str, Any]]
         if isinstance(self.playground, Unset):
@@ -178,10 +195,14 @@ class ExperimentResponse:
             field_dict["created_at"] = created_at
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
+        if created_by_user is not UNSET:
+            field_dict["created_by_user"] = created_by_user
         if dataset is not UNSET:
             field_dict["dataset"] = dataset
         if name is not UNSET:
             field_dict["name"] = name
+        if num_samples is not UNSET:
+            field_dict["num_samples"] = num_samples
         if playground is not UNSET:
             field_dict["playground"] = playground
         if playground_id is not UNSET:
@@ -217,6 +238,7 @@ class ExperimentResponse:
         from ..models.experiment_response_tags import ExperimentResponseTags
         from ..models.experiment_status import ExperimentStatus
         from ..models.prompt_run_settings import PromptRunSettings
+        from ..models.user_info import UserInfo
 
         d = dict(src_dict)
         id = d.pop("id")
@@ -252,6 +274,22 @@ class ExperimentResponse:
 
         created_by = _parse_created_by(d.pop("created_by", UNSET))
 
+        def _parse_created_by_user(data: object) -> Union["UserInfo", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return UserInfo.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["UserInfo", None, Unset], data)
+
+        created_by_user = _parse_created_by_user(d.pop("created_by_user", UNSET))
+
         def _parse_dataset(data: object) -> Union["ExperimentDataset", None, Unset]:
             if data is None:
                 return data
@@ -269,6 +307,15 @@ class ExperimentResponse:
         dataset = _parse_dataset(d.pop("dataset", UNSET))
 
         name = d.pop("name", UNSET)
+
+        def _parse_num_samples(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        num_samples = _parse_num_samples(d.pop("num_samples", UNSET))
 
         def _parse_playground(data: object) -> Union["ExperimentPlayground", None, Unset]:
             if data is None:
@@ -395,8 +442,10 @@ class ExperimentResponse:
             aggregate_metrics=aggregate_metrics,
             created_at=created_at,
             created_by=created_by,
+            created_by_user=created_by_user,
             dataset=dataset,
             name=name,
+            num_samples=num_samples,
             playground=playground,
             playground_id=playground_id,
             prompt=prompt,

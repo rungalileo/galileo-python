@@ -17,36 +17,38 @@ T = TypeVar("T", bound="LogSpanUpdateRequest")
 
 @_attrs_define
 class LogSpanUpdateRequest:
-    """Request model for updating a trace.
+    """Request model for updating a span.
 
     Attributes
     ----------
         span_id (str): Span id to update.
         client_version (Union[None, Unset, str]):
+        duration_ns (Union[None, Unset, int]): Duration in nanoseconds. Overwrites previous value if present.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         input_ (Union[None, Unset, list['Message'], str]): Input of the span. Overwrites previous value if present.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         logging_method (Union[Unset, LoggingMethod]):
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
-        output (Union['Message', None, Unset, list['Document'], str]): Output of the trace. Overwrites previous value if
+        output (Union['Message', None, Unset, list['Document'], str]): Output of the span. Overwrites previous value if
             present.
         reliable (Union[Unset, bool]): Whether or not to use reliable logging.  If set to False, the method will respond
             immediately before verifying that the traces have been successfully ingested, and no error message will be
             returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
-            return an error message if there is an ingestion failure. Default: False.
-        status_code (Union[None, Unset, int]): Status code of the trace. Overwrites previous value if present.
+            return an error message if there is an ingestion failure. Default: True.
+        status_code (Union[None, Unset, int]): Status code of the span. Overwrites previous value if present.
         tags (Union[None, Unset, list[str]]): Tags to add to the span.
     """
 
     span_id: str
     client_version: Union[None, Unset, str] = UNSET
+    duration_ns: Union[None, Unset, int] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
     input_: Union[None, Unset, list["Message"], str] = UNSET
     log_stream_id: Union[None, Unset, str] = UNSET
     logging_method: Union[Unset, LoggingMethod] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
     output: Union["Message", None, Unset, list["Document"], str] = UNSET
-    reliable: Union[Unset, bool] = False
+    reliable: Union[Unset, bool] = True
     status_code: Union[None, Unset, int] = UNSET
     tags: Union[None, Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -58,6 +60,9 @@ class LogSpanUpdateRequest:
 
         client_version: Union[None, Unset, str]
         client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
+
+        duration_ns: Union[None, Unset, int]
+        duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
 
         experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
@@ -117,6 +122,8 @@ class LogSpanUpdateRequest:
         field_dict.update({"span_id": span_id})
         if client_version is not UNSET:
             field_dict["client_version"] = client_version
+        if duration_ns is not UNSET:
+            field_dict["duration_ns"] = duration_ns
         if experiment_id is not UNSET:
             field_dict["experiment_id"] = experiment_id
         if input_ is not UNSET:
@@ -154,6 +161,15 @@ class LogSpanUpdateRequest:
             return cast(Union[None, Unset, str], data)
 
         client_version = _parse_client_version(d.pop("client_version", UNSET))
+
+        def _parse_duration_ns(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        duration_ns = _parse_duration_ns(d.pop("duration_ns", UNSET))
 
         def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -267,6 +283,7 @@ class LogSpanUpdateRequest:
         log_span_update_request = cls(
             span_id=span_id,
             client_version=client_version,
+            duration_ns=duration_ns,
             experiment_id=experiment_id,
             input_=input_,
             log_stream_id=log_stream_id,

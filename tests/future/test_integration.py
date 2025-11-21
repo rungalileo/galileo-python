@@ -248,3 +248,65 @@ class TestIntegrationToProvider:
         assert isinstance(provider, Provider)
         assert provider.name == "mistral"
         assert provider.is_synced()
+
+
+class TestProviderModels:
+    """Test Provider.models property."""
+
+    @patch("galileo.__future__.provider.GalileoPythonConfig.get")
+    @patch("galileo.__future__.provider.get_available_models_llm_integrations_llm_integration_models_get")
+    def test_models_returns_model_list(self, mock_get_models, mock_config):
+        """models property returns list of Model objects."""
+        # Create a synced provider
+        mock_integration = create_mock_integration(IntegrationName.OPENAI)
+        provider = Integration._to_provider(mock_integration)
+
+        # Mock API response with model names
+        mock_get_models.sync.return_value = ["gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo"]
+
+        # Get models
+        models = provider.models
+
+        # Verify models returned
+        assert len(models) == 3
+        assert all(hasattr(model, "name") for model in models)
+        assert all(hasattr(model, "alias") for model in models)
+        assert all(hasattr(model, "provider_name") for model in models)
+        assert models[0].name == "gpt-4o"
+        assert models[0].alias == "gpt-4o"
+        assert models[0].provider_name == "openai"
+        assert str(models[0]) == "gpt-4o"
+
+    @patch("galileo.__future__.provider.GalileoPythonConfig.get")
+    @patch("galileo.__future__.provider.get_available_models_llm_integrations_llm_integration_models_get")
+    def test_models_raises_error_when_not_synced(self, mock_get_models, mock_config):
+        """models property raises ValidationError when provider not synced."""
+        # Create a non-synced provider
+        provider = OpenAIProvider(token="sk-test")
+
+        # Attempt to get models should raise error
+        with pytest.raises(ValidationError, match="Cannot get models for provider without syncing"):
+            _ = provider.models
+
+    @patch("galileo.__future__.provider.GalileoPythonConfig.get")
+    @patch("galileo.__future__.provider.get_available_models_llm_integrations_llm_integration_models_get")
+    def test_models_works_for_different_provider_types(self, mock_get_models, mock_config):
+        """models property works for different provider types."""
+        # Test multiple provider types
+        test_cases = [
+            (IntegrationName.OPENAI, "openai", ["gpt-4o", "gpt-3.5-turbo"]),
+            (IntegrationName.ANTHROPIC, "anthropic", ["claude-3-5-sonnet-20241022"]),
+            (IntegrationName.AZURE, "azure", ["gpt-4"]),
+            (IntegrationName.AWS_BEDROCK, "aws_bedrock", ["anthropic.claude-v2"]),
+        ]
+
+        for integration_name, provider_name, model_names in test_cases:
+            mock_integration = create_mock_integration(integration_name)
+            provider = Integration._to_provider(mock_integration)
+            mock_get_models.sync.return_value = model_names
+
+            models = provider.models
+
+            assert len(models) == len(model_names)
+            assert all(model.provider_name == provider_name for model in models)
+            assert [model.name for model in models] == model_names

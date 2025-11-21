@@ -5,7 +5,10 @@ import logging
 import os
 from abc import ABC
 from datetime import datetime
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
+
+if TYPE_CHECKING:
+    from galileo.__future__.model import Model
 
 from galileo.__future__.configuration import Configuration
 from galileo.__future__.shared.base import StateManagementMixin, SyncState
@@ -519,7 +522,7 @@ class LlmMetric(Metric):
     Attributes
     ----------
         prompt (str | None): Prompt template for the LLM scorer.
-        model (str | None): Model name to use for scoring.
+        model (str | None): Model name/alias to use for scoring (stored as string).
         judges (int | None): Number of judges to use for scoring.
         cot_enabled (bool | None): Whether chain-of-thought is enabled.
         node_level (StepType | None): Node level for the metric.
@@ -533,7 +536,7 @@ class LlmMetric(Metric):
 
     Examples
     --------
-        # Create custom LLM metric
+        # Create custom LLM metric with string model name
         metric = LlmMetric(
             name="response_quality",
             prompt='''
@@ -544,13 +547,23 @@ class LlmMetric(Metric):
 
             Return only the numerical score (1-10).
             ''',
-            model="gpt-4o-mini",
+            model="gpt-4o-mini",  # String model name
             judges=3,
             node_level=StepType.llm,
             description="Rates response quality",
             tags=["quality", "custom"],
             output_type=OutputTypeEnum.PERCENTAGE,
             cot_enabled=True,
+        ).create()
+
+        # Or use a Model object from Integration
+        from galileo.__future__ import Integration
+        gpt_model = Integration.openai.get_model(alias="gpt-4o-mini")
+        metric = LlmMetric(
+            name="response_quality",
+            prompt="Rate quality 1-10: {input} -> {output}",
+            model=gpt_model,  # Model object
+            judges=3,
         ).create()
     """
 
@@ -568,7 +581,7 @@ class LlmMetric(Metric):
         *,
         # LLM metric parameters (improved API)
         prompt: str | None = None,
-        model: str | None = None,
+        model: Model | str | None = None,
         judges: int | None = None,
         # Backward compatibility aliases
         user_prompt: str | None = None,
@@ -589,7 +602,8 @@ class LlmMetric(Metric):
         Args:
             name: The name of the metric.
             prompt: Prompt template for LLM scorers (preferred over user_prompt).
-            model: Model name to use (preferred over model_name). Defaults to Configuration.default_scorer_model.
+            model: Model object or model name string to use (preferred over model_name).
+                   Defaults to Configuration.default_scorer_model.
             judges: Number of judges (preferred over num_judges). Defaults to Configuration.default_scorer_judges.
             user_prompt: [Deprecated] Use 'prompt' instead.
             model_name: [Deprecated] Use 'model' instead.
@@ -609,7 +623,16 @@ class LlmMetric(Metric):
 
         # Handle parameter aliases (new names preferred)
         final_prompt = prompt or user_prompt
-        final_model = model or model_name or Configuration.default_scorer_model
+
+        # Handle model parameter - extract alias from Model object if needed
+        if model is not None:
+            # Local import to avoid circular dependency
+            from galileo.__future__.model import Model
+
+            final_model = model.alias if isinstance(model, Model) else model
+        else:
+            final_model = model_name or Configuration.default_scorer_model
+
         final_judges = (
             judges
             if judges is not None
@@ -621,7 +644,7 @@ class LlmMetric(Metric):
 
         # Initialize LLM-specific attributes
         self.prompt = final_prompt
-        self.model = final_model
+        self.model = final_model  # Now always a string (alias)
         self.judges = final_judges
         self.node_level = node_level or StepType.llm
         self.cot_enabled = cot_enabled if cot_enabled is not None else True

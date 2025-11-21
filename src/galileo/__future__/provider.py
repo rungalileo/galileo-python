@@ -16,6 +16,7 @@ from galileo.resources.api.integrations import (
     delete_integration_integrations_name_delete,
     get_integration_integrations_name_get,
 )
+from galileo.resources.api.llm_integrations import get_available_models_llm_integrations_llm_integration_models_get
 from galileo.resources.models import (
     AnthropicIntegrationCreate,
     AzureIntegrationCreate,
@@ -190,11 +191,96 @@ class Provider(StateManagementMixin, ABC):
         -------
             list[Model]: List of available models for this provider.
 
-        Note: This is a placeholder. Implementation requires the models API endpoint.
+        Raises
+        ------
+            APIError: If the API call fails.
+            ValidationError: If the provider has not been synced with the API.
         """
-        # TODO: Implement once models API endpoint is available
-        logger.warning(f"{self.__class__.__name__}.models: Not yet implemented")
-        return []
+        if not self.is_synced():
+            error = ValidationError("Cannot get models for provider without syncing")
+            raise error
+
+        logger.info(f"{self.__class__.__name__}.models: Fetching models for '{self.name}'")
+
+        try:
+            config = GalileoPythonConfig.get()
+            integration_name = self._get_integration_name()
+
+            # Get models from API
+            response = get_available_models_llm_integrations_llm_integration_models_get.sync(
+                llm_integration=integration_name, client=config.api_client
+            )
+
+            if response is None or isinstance(response, HTTPValidationError):
+                raise APIError(f"Failed to get models for provider '{self.name}'")
+
+            # Convert list of model name strings to Model objects
+            models = [Model(name=model_name, alias=model_name, provider_name=self.name) for model_name in response]
+
+            logger.info(f"{self.__class__.__name__}.models: Found {len(models)} model(s) for '{self.name}'")
+            return models
+
+        except APIException as e:
+            error_msg = f"Failed to get models for provider: {e!s}"
+            logger.error(f"{self.__class__.__name__}.models: failed: {error_msg}")
+            raise APIError(error_msg) from e
+
+    def get_model(self, *, name: str | None = None, alias: str | None = None) -> Model | None:
+        """
+        Get a specific model by name or alias.
+
+        Args:
+            name (str | None): The model name to search for.
+            alias (str | None): The model alias to search for.
+
+        Returns
+        -------
+            Model | None: The matching Model object, or None if not found.
+
+        Raises
+        ------
+            ValidationError: If neither name nor alias is provided, or if both are provided.
+            APIError: If the API call to fetch models fails.
+
+        Examples
+        --------
+            # Get model by alias
+            openai = Integration.openai
+            model = openai.get_model(alias="gpt-4o-mini")
+
+            # Get model by name
+            model = openai.get_model(name="gpt-4o-mini")
+        """
+        if name is None and alias is None:
+            raise ValidationError("Must specify either 'name' or 'alias'")
+        if name is not None and alias is not None:
+            raise ValidationError("Cannot specify both 'name' and 'alias'")
+
+        logger.debug(
+            f"{self.__class__.__name__}.get_model: "
+            f"Searching for model with {'name' if name else 'alias'}="
+            f"'{name if name else alias}' in provider '{self.name}'"
+        )
+
+        # Get all available models
+        available_models = self.models
+
+        # Search by name or alias
+        search_value = name if name is not None else alias
+        search_attr = "name" if name is not None else "alias"
+
+        for model in available_models:
+            if getattr(model, search_attr) == search_value:
+                logger.debug(
+                    f"{self.__class__.__name__}.get_model: Found model '{model.name}' with alias '{model.alias}'"
+                )
+                return model
+
+        logger.debug(
+            f"{self.__class__.__name__}.get_model: "
+            f"No model found with {search_attr}='{search_value}' in provider '{self.name}'"
+        )
+        return None
 
 
 class OpenAIProvider(Provider):

@@ -18,6 +18,7 @@ class LogTraceUpdateRequest:
     ----------
         trace_id (str): Trace id to update.
         client_version (Union[None, Unset, str]):
+        duration_ns (Union[None, Unset, int]): Duration in nanoseconds. Overwrites previous value if present.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         input_ (Union[None, Unset, str]): Input of the trace. Overwrites previous value if present.
         is_complete (Union[None, Unset, bool]): Whether or not the records in this request are complete. Default: False.
@@ -28,13 +29,14 @@ class LogTraceUpdateRequest:
         reliable (Union[Unset, bool]): Whether or not to use reliable logging.  If set to False, the method will respond
             immediately before verifying that the traces have been successfully ingested, and no error message will be
             returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
-            return an error message if there is an ingestion failure. Default: False.
+            return an error message if there is an ingestion failure. Default: True.
         status_code (Union[None, Unset, int]): Status code of the trace. Overwrites previous value if present.
         tags (Union[None, Unset, list[str]]): Tags to add to the trace.
     """
 
     trace_id: str
     client_version: Union[None, Unset, str] = UNSET
+    duration_ns: Union[None, Unset, int] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
     input_: Union[None, Unset, str] = UNSET
     is_complete: Union[None, Unset, bool] = False
@@ -42,7 +44,7 @@ class LogTraceUpdateRequest:
     logging_method: Union[Unset, LoggingMethod] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
     output: Union[None, Unset, str] = UNSET
-    reliable: Union[Unset, bool] = False
+    reliable: Union[Unset, bool] = True
     status_code: Union[None, Unset, int] = UNSET
     tags: Union[None, Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -52,6 +54,9 @@ class LogTraceUpdateRequest:
 
         client_version: Union[None, Unset, str]
         client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
+
+        duration_ns: Union[None, Unset, int]
+        duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
 
         experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
@@ -94,6 +99,8 @@ class LogTraceUpdateRequest:
         field_dict.update({"trace_id": trace_id})
         if client_version is not UNSET:
             field_dict["client_version"] = client_version
+        if duration_ns is not UNSET:
+            field_dict["duration_ns"] = duration_ns
         if experiment_id is not UNSET:
             field_dict["experiment_id"] = experiment_id
         if input_ is not UNSET:
@@ -130,6 +137,15 @@ class LogTraceUpdateRequest:
             return cast(Union[None, Unset, str], data)
 
         client_version = _parse_client_version(d.pop("client_version", UNSET))
+
+        def _parse_duration_ns(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        duration_ns = _parse_duration_ns(d.pop("duration_ns", UNSET))
 
         def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -219,6 +235,7 @@ class LogTraceUpdateRequest:
         log_trace_update_request = cls(
             trace_id=trace_id,
             client_version=client_version,
+            duration_ns=duration_ns,
             experiment_id=experiment_id,
             input_=input_,
             is_complete=is_complete,

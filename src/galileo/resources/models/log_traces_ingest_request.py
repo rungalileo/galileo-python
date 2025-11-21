@@ -32,7 +32,7 @@ class LogTracesIngestRequest:
         reliable (Union[Unset, bool]): Whether or not to use reliable logging.  If set to False, the method will respond
             immediately before verifying that the traces have been successfully ingested, and no error message will be
             returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
-            return an error message if there is an ingestion failure. Default: False.
+            return an error message if there is an ingestion failure. Default: True.
         session_id (Union[None, Unset, str]): Session id associated with the traces.
     """
 
@@ -44,7 +44,7 @@ class LogTracesIngestRequest:
     log_stream_id: Union[None, Unset, str] = UNSET
     logging_method: Union[Unset, LoggingMethod] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
-    reliable: Union[Unset, bool] = False
+    reliable: Union[Unset, bool] = True
     session_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 

@@ -161,12 +161,14 @@ class Experiment(StateManagementMixin):
     metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str] | None
     # TODO: Function-based experiments temporarily disabled - need to validate implementation
     # function: Callable | None
+    model_alias: str | None
     prompt_settings: PromptRunSettings | None
     additional_properties: dict[str, Any]
 
     # Private attributes for runtime state
     _dataset_obj: LegacyDataset | None
     _prompt_template: PromptTemplate | None
+    _model_obj: Model | None
     _experiment_response: ExperimentResponse | None
     _job_id: str | None
 
@@ -191,6 +193,7 @@ class Experiment(StateManagementMixin):
         dataset_name: str | None = None,
         prompt: Prompt | PromptTemplate | str | None = None,
         prompt_name: str | None = None,
+        model: Model | str | None = None,
         metrics: builtins.list[GalileoScorers | Metric | LocalMetricConfig | str] | None = None,
         project_id: str | None = None,
         project_name: str | None = None,
@@ -212,10 +215,13 @@ class Experiment(StateManagementMixin):
                          but required when running the experiment with a prompt template.
             prompt: Prompt object, prompt name, or legacy PromptTemplate object.
             prompt_name: Name of the prompt template (alternative to prompt parameter).
+            model: Model object or model alias string to use for the experiment.
+                  This will be used to configure the prompt_settings when running the experiment.
             metrics: List of metrics to evaluate.
             project_id: The project ID. Exactly one of project_id or project_name must be provided.
             project_name: The project name. Exactly one of project_id or project_name must be provided.
-            prompt_settings: Settings for prompt runs.
+            prompt_settings: Settings for prompt runs. If provided along with model parameter,
+                           the model parameter takes precedence.
 
         Raises
         ------
@@ -231,11 +237,12 @@ class Experiment(StateManagementMixin):
                 project_name="My AI Project"
             )
 
-            # Create with object references
+            # Create with object references and model
             experiment = Experiment(
                 name="ml-evaluation",
                 dataset=Dataset.get(name="ml-dataset"),
                 prompt=Prompt.get(name="ml-prompt"),
+                model="gpt-4o-mini",
                 project_name="My AI Project"
             )
         """
@@ -259,6 +266,20 @@ class Experiment(StateManagementMixin):
         # self.function = function
         self.prompt_settings = prompt_settings
 
+        # Handle model parameter
+        self.model_alias = None
+        self._model_obj = None
+
+        if model is not None:
+            # Local import to avoid circular dependency
+            from galileo.__future__.model import Model
+
+            if isinstance(model, Model):
+                self._model_obj = model
+                self.model_alias = model.alias
+            elif isinstance(model, str):
+                self.model_alias = model
+
         # Handle dataset parameter
         self.dataset_id = None
         self.dataset_name = None
@@ -266,6 +287,9 @@ class Experiment(StateManagementMixin):
 
         # TODO: Improve serialization and delegate the responsibilities to the serializer.
         if dataset is not None:
+            # Local import to avoid circular dependency
+            from galileo.__future__.dataset import Dataset
+
             if isinstance(dataset, Dataset):
                 self.dataset_id = dataset.id
                 self.dataset_name = dataset.name
@@ -285,9 +309,16 @@ class Experiment(StateManagementMixin):
 
         # TODO: Delegate the responsibilities to the serializer.
         if prompt is not None:
+            # Local import to avoid circular dependency
+            from galileo.__future__.prompt import Prompt
+
             if isinstance(prompt, Prompt):
                 self.prompt_id = prompt.id
                 self.prompt_name = prompt.name
+                _logger.debug(
+                    f"Experiment.__init__: Prompt object provided - "
+                    f"prompt_id='{self.prompt_id}', prompt_name='{self.prompt_name}'"
+                )
             elif isinstance(prompt, PromptTemplate):
                 self._prompt_template = prompt
                 self.prompt_id = prompt.selected_version_id
@@ -371,6 +402,9 @@ class Experiment(StateManagementMixin):
             )
 
             # Update attributes from response
+            # Note: prompt_id, prompt_name, and _model_obj are not updated here
+            # because they are not included in the API response. They remain as set during __init__()
+            # Note: model_alias is not in the create response, but is extracted when retrieving/refreshing
             self.id = created_experiment.id
             self.name = created_experiment.name
             self.created_at = created_experiment.created_at
@@ -404,12 +438,14 @@ class Experiment(StateManagementMixin):
         # TODO: Function-based experiments temporarily disabled - need to validate implementation
         # instance.function = None
         instance.prompt_settings = None
+        instance.model_alias = None
         instance.dataset_id = None
         instance.dataset_name = None
         instance.prompt_id = None
         instance.prompt_name = None
         instance._dataset_obj = None
         instance._prompt_template = None
+        instance._model_obj = None
         instance._experiment_response = None
         instance._job_id = None
         return instance
@@ -481,14 +517,25 @@ class Experiment(StateManagementMixin):
         prompt_settings_api = getattr(retrieved_experiment, "prompt_run_settings", None)
         if prompt_settings_api is not None and not isinstance(prompt_settings_api, Unset):
             instance.prompt_settings = prompt_settings_api
+            # Extract model_alias from prompt_settings if available
+            model_alias_from_settings = getattr(prompt_settings_api, "model_alias", None)
+            if model_alias_from_settings is not None and not isinstance(model_alias_from_settings, Unset):
+                instance.model_alias = model_alias_from_settings
         else:
             instance.prompt_settings = None
+
+        # Also check for prompt_model field (alternative source for model info)
+        if instance.model_alias is None:
+            prompt_model_api = getattr(retrieved_experiment, "prompt_model", None)
+            if prompt_model_api is not None and not isinstance(prompt_model_api, Unset):
+                instance.model_alias = prompt_model_api
 
         instance.metrics = None
         # TODO: Function-based experiments temporarily disabled - need to validate implementation
         # instance.function = None
         instance._dataset_obj = None
         instance._prompt_template = None
+        instance._model_obj = None
         instance._experiment_response = retrieved_experiment
         instance._job_id = None
         # Set state to synced since we just retrieved from API
@@ -646,6 +693,10 @@ class Experiment(StateManagementMixin):
                 self.dataset_name = None
 
             # Extract and update prompt info from nested ExperimentPrompt object
+            # Preserve locally-set values if API doesn't have them
+            saved_prompt_id = self.prompt_id
+            saved_prompt_name = self.prompt_name
+
             prompt_api = getattr(retrieved_experiment, "prompt", None)
             if prompt_api is not None and not isinstance(prompt_api, Unset):
                 self.prompt_id = getattr(prompt_api, "prompt_template_id", None)
@@ -655,15 +706,31 @@ class Experiment(StateManagementMixin):
                 if isinstance(self.prompt_name, Unset):
                     self.prompt_name = None
             else:
-                self.prompt_id = None
-                self.prompt_name = None
+                # Preserve locally-set values if API doesn't have prompt info
+                self.prompt_id = saved_prompt_id
+                self.prompt_name = saved_prompt_name
 
             # Extract and update prompt settings if available
+            # Always reset model_alias and _model_obj first to avoid stale values
+            self.model_alias = None
+            self._model_obj = None
+
             prompt_settings_api = getattr(retrieved_experiment, "prompt_run_settings", None)
             if prompt_settings_api is not None and not isinstance(prompt_settings_api, Unset):
                 self.prompt_settings = prompt_settings_api
+                # Extract model_alias from prompt_settings if available
+                model_alias_from_settings = getattr(prompt_settings_api, "model_alias", None)
+                if model_alias_from_settings is not None and not isinstance(model_alias_from_settings, Unset):
+                    self.model_alias = model_alias_from_settings
             else:
                 self.prompt_settings = None
+
+            # Also check for prompt_model field (alternative source for model info)
+            # Only update if we haven't already set it from prompt_settings
+            if self.model_alias is None:
+                prompt_model_api = getattr(retrieved_experiment, "prompt_model", None)
+                if prompt_model_api is not None and not isinstance(prompt_model_api, Unset):
+                    self.model_alias = prompt_model_api
 
             # Update the cached API response
             self._experiment_response = retrieved_experiment
@@ -781,6 +848,9 @@ class Experiment(StateManagementMixin):
         # TODO: Fix serialization
         # Handle prompt parameter
         if prompt is not None:
+            # Local import to avoid circular dependency
+            from galileo.__future__.prompt import Prompt
+
             if isinstance(prompt, Prompt):
                 self.prompt_id = prompt.id
                 self.prompt_name = prompt.name
@@ -1019,10 +1089,22 @@ class Experiment(StateManagementMixin):
 
             # Load prompt template if needed
             if self._prompt_template is None:
+                _logger.debug(
+                    f"Experiment.run: id='{self.id}' - Loading prompt template: "
+                    f"prompt_id='{self.prompt_id}', prompt_name='{self.prompt_name}'"
+                )
                 if self.prompt_id:
+                    _logger.debug(f"Experiment.run: id='{self.id}' - Loading prompt by ID: {self.prompt_id}")
                     self._prompt_template = get_prompt(id=self.prompt_id)
+                    _logger.debug(
+                        f"Experiment.run: id='{self.id}' - Loaded prompt template: {self._prompt_template is not None}"
+                    )
                 elif self.prompt_name:
+                    _logger.debug(f"Experiment.run: id='{self.id}' - Loading prompt by name: {self.prompt_name}")
                     self._prompt_template = get_prompt(name=self.prompt_name)
+                    _logger.debug(
+                        f"Experiment.run: id='{self.id}' - Loaded prompt template: {self._prompt_template is not None}"
+                    )
 
             if self._prompt_template is None:
                 # Check if this is a playground experiment
@@ -1037,6 +1119,14 @@ class Experiment(StateManagementMixin):
                                 "The prompt used in that playground is not automatically linked to this experiment."
                             )
 
+                # Show debug info about what was attempted
+                debug_info = (
+                    f"\n\nDebug info:\n"
+                    f"  prompt_id: {self.prompt_id}\n"
+                    f"  prompt_name: {self.prompt_name}\n"
+                    f"  _prompt_template: {self._prompt_template}\n"
+                )
+
                 error_msg = (
                     "A prompt template must be provided to run this experiment. "
                     f"{playground_info}\n\n"
@@ -1048,6 +1138,7 @@ class Experiment(StateManagementMixin):
                     "  from galileo.__future__ import Prompt\n"
                     "  experiment.set_prompt(prompt=Prompt.get(name='your-prompt-name'))\n\n"
                     "Then call experiment.run() again."
+                    f"{debug_info}"
                 )
                 raise ValueError(error_msg)
 
@@ -1059,6 +1150,31 @@ class Experiment(StateManagementMixin):
                     "Local metrics can only be used with a locally run experiment, not a prompt experiment."
                 )
 
+            # Determine effective prompt settings
+            # Priority: 1. explicit prompt_settings, 2. model parameter, 3. None
+            effective_prompt_settings = self.prompt_settings
+
+            if self.model_alias:
+                if effective_prompt_settings is None:
+                    # Create default settings with the specified model
+                    effective_prompt_settings = PromptRunSettings(model_alias=self.model_alias)
+                    _logger.debug(
+                        f"Experiment.run: id='{self.id}' - Using model '{self.model_alias}' "
+                        "from model parameter (no prompt_settings provided)"
+                    )
+                else:
+                    # Override model in provided settings
+                    _logger.debug(
+                        f"Experiment.run: id='{self.id}' - Overriding model in prompt_settings "
+                        f"with '{self.model_alias}' from model parameter"
+                    )
+                    # Create a new PromptRunSettings with the model override
+                    settings_dict = (
+                        effective_prompt_settings.to_dict() if hasattr(effective_prompt_settings, "to_dict") else {}
+                    )
+                    settings_dict["model_alias"] = self.model_alias
+                    effective_prompt_settings = PromptRunSettings(**settings_dict)
+
             # Execute a prompt template experiment
             result = experiments_service.run(
                 project_obj,
@@ -1066,7 +1182,7 @@ class Experiment(StateManagementMixin):
                 self._prompt_template,
                 dataset_obj.dataset.id,
                 scorer_settings,
-                self.prompt_settings,
+                effective_prompt_settings,
             )
 
             # Store job ID for monitoring if available
@@ -1449,6 +1565,9 @@ class Experiment(StateManagementMixin):
     @property
     def project(self) -> Project | None:
         """Get the project this experiment belongs to."""
+        # Local import to avoid circular dependency
+        from galileo.__future__.project import Project
+
         return Project.get(id=self.project_id)
 
     @property
@@ -1456,6 +1575,9 @@ class Experiment(StateManagementMixin):
         """Get the dataset associated with this experiment."""
         if self.dataset_id is None and self.dataset_name is None:
             return None
+        # Local import to avoid circular dependency
+        from galileo.__future__.dataset import Dataset
+
         if self.dataset_id:
             return Dataset.get(id=self.dataset_id)
         return Dataset.get(name=self.dataset_name)
@@ -1471,6 +1593,9 @@ class Experiment(StateManagementMixin):
         """
         if self.prompt_id is None and self.prompt_name is None:
             return None
+        # Local import to avoid circular dependency
+        from galileo.__future__.prompt import Prompt
+
         if self.prompt_id:
             return Prompt.get(id=self.prompt_id)
         return Prompt.get(name=self.prompt_name)
@@ -1675,6 +1800,42 @@ class Experiment(StateManagementMixin):
         return False
 
     @property
+    def model(self) -> Model | None:
+        """
+        Get the Model object for this experiment.
+
+        Returns the Model if it was set during initialization, otherwise attempts
+        to create a basic Model representation from the model_alias.
+
+        Returns
+        -------
+            Model | None: Model object if available, None otherwise.
+
+        Examples
+        --------
+            experiment = Experiment(
+                name="ml-evaluation",
+                dataset_name="ml-dataset",
+                prompt_name="ml-prompt",
+                model="gpt-4o-mini",
+                project_name="My Project"
+            )
+            print(f"Model: {experiment.model.alias}")
+        """
+        if self._model_obj:
+            return self._model_obj
+
+        if self.model_alias:
+            # Local import to avoid circular dependency
+            from galileo.__future__.model import Model
+
+            # Create a basic Model representation from the alias
+            # Note: provider_name is unknown since we don't have integration context
+            return Model(name=self.model_alias, alias=self.model_alias, provider_name="unknown")
+
+        return None
+
+    @property
     def prompt_model(self) -> str | None:
         """
         Get the model used in the prompt for this experiment.
@@ -1813,6 +1974,7 @@ class Experiment(StateManagementMixin):
 
 # Import at end to avoid circular import (dataset.py, prompt.py, project.py import Experiment)
 from galileo.__future__.dataset import Dataset  # noqa: E402
+from galileo.__future__.model import Model  # noqa: E402
 from galileo.__future__.project import Project  # noqa: E402
 from galileo.__future__.prompt import Prompt  # noqa: E402
 from galileo.__future__.shared.column import Column, ColumnCollection  # noqa: E402

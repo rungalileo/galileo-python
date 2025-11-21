@@ -4,11 +4,11 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="DatasetBulkDeleteFailure")
+T = TypeVar("T", bound="BulkDeleteFailure")
 
 
 @_attrs_define
-class DatasetBulkDeleteFailure:
+class BulkDeleteFailure:
     """Details about a failed deletion.
 
     Attributes
@@ -45,10 +45,10 @@ class DatasetBulkDeleteFailure:
 
         reason = d.pop("reason")
 
-        dataset_bulk_delete_failure = cls(dataset_id=dataset_id, dataset_name=dataset_name, reason=reason)
+        bulk_delete_failure = cls(dataset_id=dataset_id, dataset_name=dataset_name, reason=reason)
 
-        dataset_bulk_delete_failure.additional_properties = d
-        return dataset_bulk_delete_failure
+        bulk_delete_failure.additional_properties = d
+        return bulk_delete_failure
 
     @property
     def additional_keys(self) -> list[str]:
