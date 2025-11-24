@@ -570,10 +570,13 @@ class GalileoDecorator:
             Parameters for the span
         """
         client_instance = self.get_logger_instance()
-        _logger.debug(f"client_instance {id(client_instance)} {client_instance}")
 
         input_ = span_params.get("input_serialized", "")
         name = span_params.get("name", "")
+
+        # Track if we start a trace in this call (vs using a pre-existing one)
+        # Store in span_params to pass to _handle_call_result (gets filtered out before backend)
+        started_trace = False
 
         if not _trace_context.get():
             # If the singleton logger has an active trace, use it
@@ -589,7 +592,10 @@ class GalileoDecorator:
                     dataset_output=dataset_record.output if dataset_record else None,
                     dataset_metadata=dataset_record.metadata if dataset_record else None,
                 )
+                started_trace = True
             _trace_context.set(trace)
+
+        span_params["started_trace"] = started_trace
 
         # Start a workflow or agent span here
         # If the user hasn't specified a span type, create and add a workflow span
@@ -680,12 +686,15 @@ class GalileoDecorator:
         -------
         The original result
         """
+        # Initialize output before try block so it's available in finally block
+        output = span_params.get("output")
+        if output is None:
+            output = result if result is not None else ""
+
+        # Initialize logger before try block so it's available in finally block
+        logger = self.get_logger_instance()
+
         try:
-            output = span_params.get("output")
-
-            if output is None:
-                output = result if result is not None else ""
-
             if not isinstance(output, str) and (
                 # an empty span_type means it's a workflow span
                 not span_type
@@ -711,17 +720,13 @@ class GalileoDecorator:
                 span_params["created_at"] = created_at
                 span_params["duration_ns"] = 0
 
-            logger = self.get_logger_instance()
-
             # If the span type is a workflow or agent, conclude it
-            _logger.debug(f"{span_type=} {stack=} {span_params=}")
             if not span_type or is_concludable_span_type(span_type):
                 if stack:
                     stack.pop()
                     _span_stack_context.set(stack)
 
                 status_code = span_params.get("status_code")
-                _logger.debug(f"conclude {output=} {status_code=}")
                 logger.conclude(output=output, duration_ns=span_params["duration_ns"], status_code=status_code)
             else:
                 # If the span type is not a workflow or agent, add it to the current parent (trace or span)
@@ -751,6 +756,26 @@ class GalileoDecorator:
                     method(**filtered_kwargs)
         except Exception as e:
             _logger.error(f"Failed to create trace: {e}", exc_info=True)
+        finally:
+            # If we started the trace and all decorator spans are done, conclude it with output and duration
+            # Re-fetch stack in finally block to ensure we have the current state
+            stack = _get_or_init_list(_span_stack_context)
+            if span_params.get("started_trace") and not stack:
+                current_parent = logger.current_parent()
+                if current_parent is not None:
+                    # Calculate trace duration from its creation time
+                    trace_duration_ns = None
+                    if hasattr(current_parent, "created_at") and current_parent.created_at:
+                        end_time_ns = round(_get_timestamp().timestamp() * 1e9)
+                        trace_start_ns = current_parent.created_at.timestamp() * 1e9
+                        trace_duration_ns = round(end_time_ns - trace_start_ns)
+
+                    logger.conclude(
+                        output=output, duration_ns=trace_duration_ns, status_code=span_params.get("status_code")
+                    )
+                    # Only clear trace context in distributed mode - in batch mode, trace should remain until flush
+                    if logger.mode == "distributed":
+                        _trace_context.set(None)
 
         return result
 
