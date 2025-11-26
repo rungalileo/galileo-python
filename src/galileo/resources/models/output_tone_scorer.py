@@ -19,17 +19,19 @@ class OutputToneScorer:
     """
     Attributes
     ----------
+        name (Union[Literal['output_tone'], Unset]):  Default: 'output_tone'.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
-        name (Union[Literal['output_tone'], Unset]):  Default: 'output_tone'.
     """
 
-    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     name: Union[Literal["output_tone"], Unset] = "output_tone"
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.node_name_filter import NodeNameFilter
+
+        name = self.name
 
         filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
@@ -48,15 +50,13 @@ class OutputToneScorer:
         else:
             filters = self.filters
 
-        name = self.name
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if filters is not UNSET:
-            field_dict["filters"] = filters
         if name is not UNSET:
             field_dict["name"] = name
+        if filters is not UNSET:
+            field_dict["filters"] = filters
 
         return field_dict
 
@@ -66,6 +66,9 @@ class OutputToneScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
+        name = cast(Union[Literal["output_tone"], Unset], d.pop("name", UNSET))
+        if name != "output_tone" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'output_tone', got '{name}'")
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -102,11 +105,7 @@ class OutputToneScorer:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
-        name = cast(Union[Literal["output_tone"], Unset], d.pop("name", UNSET))
-        if name != "output_tone" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'output_tone', got '{name}'")
-
-        output_tone_scorer = cls(filters=filters, name=name)
+        output_tone_scorer = cls(name=name, filters=filters)
 
         output_tone_scorer.additional_properties = d
         return output_tone_scorer

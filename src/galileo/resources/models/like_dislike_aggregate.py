@@ -14,22 +14,22 @@ class LikeDislikeAggregate:
     """
     Attributes
     ----------
-        dislike_count (int):
         like_count (int):
+        dislike_count (int):
         unrated_count (int):
         feedback_type (Union[Literal['like_dislike'], Unset]):  Default: 'like_dislike'.
     """
 
-    dislike_count: int
     like_count: int
+    dislike_count: int
     unrated_count: int
     feedback_type: Union[Literal["like_dislike"], Unset] = "like_dislike"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        dislike_count = self.dislike_count
-
         like_count = self.like_count
+
+        dislike_count = self.dislike_count
 
         unrated_count = self.unrated_count
 
@@ -37,7 +37,7 @@ class LikeDislikeAggregate:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"dislike_count": dislike_count, "like_count": like_count, "unrated_count": unrated_count})
+        field_dict.update({"like_count": like_count, "dislike_count": dislike_count, "unrated_count": unrated_count})
         if feedback_type is not UNSET:
             field_dict["feedback_type"] = feedback_type
 
@@ -46,9 +46,9 @@ class LikeDislikeAggregate:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        dislike_count = d.pop("dislike_count")
-
         like_count = d.pop("like_count")
+
+        dislike_count = d.pop("dislike_count")
 
         unrated_count = d.pop("unrated_count")
 
@@ -57,7 +57,7 @@ class LikeDislikeAggregate:
             raise ValueError(f"feedback_type must match const 'like_dislike', got '{feedback_type}'")
 
         like_dislike_aggregate = cls(
-            dislike_count=dislike_count, like_count=like_count, unrated_count=unrated_count, feedback_type=feedback_type
+            like_count=like_count, dislike_count=dislike_count, unrated_count=unrated_count, feedback_type=feedback_type
         )
 
         like_dislike_aggregate.additional_properties = d

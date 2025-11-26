@@ -16,62 +16,62 @@ class NodeNameFilter:
 
     Attributes
     ----------
-        operator (NodeNameFilterOperator):
         value (str):
-        case_sensitive (Union[Unset, bool]):  Default: True.
-        filter_type (Union[Literal['string'], Unset]):  Default: 'string'.
+        operator (NodeNameFilterOperator):
         name (Union[Literal['node_name'], Unset]):  Default: 'node_name'.
+        filter_type (Union[Literal['string'], Unset]):  Default: 'string'.
+        case_sensitive (Union[Unset, bool]):  Default: True.
     """
 
-    operator: NodeNameFilterOperator
     value: str
-    case_sensitive: Union[Unset, bool] = True
-    filter_type: Union[Literal["string"], Unset] = "string"
+    operator: NodeNameFilterOperator
     name: Union[Literal["node_name"], Unset] = "node_name"
+    filter_type: Union[Literal["string"], Unset] = "string"
+    case_sensitive: Union[Unset, bool] = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        operator = self.operator.value
-
         value = self.value
 
-        case_sensitive = self.case_sensitive
-
-        filter_type = self.filter_type
+        operator = self.operator.value
 
         name = self.name
 
+        filter_type = self.filter_type
+
+        case_sensitive = self.case_sensitive
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"operator": operator, "value": value})
-        if case_sensitive is not UNSET:
-            field_dict["case_sensitive"] = case_sensitive
-        if filter_type is not UNSET:
-            field_dict["filter_type"] = filter_type
+        field_dict.update({"value": value, "operator": operator})
         if name is not UNSET:
             field_dict["name"] = name
+        if filter_type is not UNSET:
+            field_dict["filter_type"] = filter_type
+        if case_sensitive is not UNSET:
+            field_dict["case_sensitive"] = case_sensitive
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        operator = NodeNameFilterOperator(d.pop("operator"))
-
         value = d.pop("value")
 
-        case_sensitive = d.pop("case_sensitive", UNSET)
-
-        filter_type = cast(Union[Literal["string"], Unset], d.pop("filter_type", UNSET))
-        if filter_type != "string" and not isinstance(filter_type, Unset):
-            raise ValueError(f"filter_type must match const 'string', got '{filter_type}'")
+        operator = NodeNameFilterOperator(d.pop("operator"))
 
         name = cast(Union[Literal["node_name"], Unset], d.pop("name", UNSET))
         if name != "node_name" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'node_name', got '{name}'")
 
+        filter_type = cast(Union[Literal["string"], Unset], d.pop("filter_type", UNSET))
+        if filter_type != "string" and not isinstance(filter_type, Unset):
+            raise ValueError(f"filter_type must match const 'string', got '{filter_type}'")
+
+        case_sensitive = d.pop("case_sensitive", UNSET)
+
         node_name_filter = cls(
-            operator=operator, value=value, case_sensitive=case_sensitive, filter_type=filter_type, name=name
+            value=value, operator=operator, name=name, filter_type=filter_type, case_sensitive=case_sensitive
         )
 
         node_name_filter.additional_properties = d

@@ -15,24 +15,24 @@ class OutputMap:
     Attributes
     ----------
         response (str):
-        completion_reason (Union[None, Unset, str]):
+        token_count (Union[None, Unset, str]):
         input_token_count (Union[None, Unset, str]):
         output_token_count (Union[None, Unset, str]):
-        token_count (Union[None, Unset, str]):
+        completion_reason (Union[None, Unset, str]):
     """
 
     response: str
-    completion_reason: Union[None, Unset, str] = UNSET
+    token_count: Union[None, Unset, str] = UNSET
     input_token_count: Union[None, Unset, str] = UNSET
     output_token_count: Union[None, Unset, str] = UNSET
-    token_count: Union[None, Unset, str] = UNSET
+    completion_reason: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         response = self.response
 
-        completion_reason: Union[None, Unset, str]
-        completion_reason = UNSET if isinstance(self.completion_reason, Unset) else self.completion_reason
+        token_count: Union[None, Unset, str]
+        token_count = UNSET if isinstance(self.token_count, Unset) else self.token_count
 
         input_token_count: Union[None, Unset, str]
         input_token_count = UNSET if isinstance(self.input_token_count, Unset) else self.input_token_count
@@ -40,20 +40,20 @@ class OutputMap:
         output_token_count: Union[None, Unset, str]
         output_token_count = UNSET if isinstance(self.output_token_count, Unset) else self.output_token_count
 
-        token_count: Union[None, Unset, str]
-        token_count = UNSET if isinstance(self.token_count, Unset) else self.token_count
+        completion_reason: Union[None, Unset, str]
+        completion_reason = UNSET if isinstance(self.completion_reason, Unset) else self.completion_reason
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"response": response})
-        if completion_reason is not UNSET:
-            field_dict["completion_reason"] = completion_reason
+        if token_count is not UNSET:
+            field_dict["token_count"] = token_count
         if input_token_count is not UNSET:
             field_dict["input_token_count"] = input_token_count
         if output_token_count is not UNSET:
             field_dict["output_token_count"] = output_token_count
-        if token_count is not UNSET:
-            field_dict["token_count"] = token_count
+        if completion_reason is not UNSET:
+            field_dict["completion_reason"] = completion_reason
 
         return field_dict
 
@@ -62,14 +62,14 @@ class OutputMap:
         d = dict(src_dict)
         response = d.pop("response")
 
-        def _parse_completion_reason(data: object) -> Union[None, Unset, str]:
+        def _parse_token_count(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        completion_reason = _parse_completion_reason(d.pop("completion_reason", UNSET))
+        token_count = _parse_token_count(d.pop("token_count", UNSET))
 
         def _parse_input_token_count(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -89,21 +89,21 @@ class OutputMap:
 
         output_token_count = _parse_output_token_count(d.pop("output_token_count", UNSET))
 
-        def _parse_token_count(data: object) -> Union[None, Unset, str]:
+        def _parse_completion_reason(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        token_count = _parse_token_count(d.pop("token_count", UNSET))
+        completion_reason = _parse_completion_reason(d.pop("completion_reason", UNSET))
 
         output_map = cls(
             response=response,
-            completion_reason=completion_reason,
+            token_count=token_count,
             input_token_count=input_token_count,
             output_token_count=output_token_count,
-            token_count=token_count,
+            completion_reason=completion_reason,
         )
 
         output_map.additional_properties = d

@@ -22,59 +22,46 @@ class UserDB:
     """
     Attributes
     ----------
-        created_at (datetime.datetime):
-        email (str):
         id (str):
+        email (str):
         organization_id (str):
         organization_name (str):
+        created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        auth_method (Union[Unset, AuthMethod]):
-        email_is_verified (Union[None, Unset, bool]):
+        permissions (Union[Unset, list['Permission']]):
         first_name (Union[None, Unset, str]):  Default: ''.
         last_name (Union[None, Unset, str]):  Default: ''.
-        permissions (Union[Unset, list['Permission']]):
+        auth_method (Union[Unset, AuthMethod]):
         role (Union[Unset, UserRole]):
+        email_is_verified (Union[None, Unset, bool]):
     """
 
-    created_at: datetime.datetime
-    email: str
     id: str
+    email: str
     organization_id: str
     organization_name: str
+    created_at: datetime.datetime
     updated_at: datetime.datetime
-    auth_method: Union[Unset, AuthMethod] = UNSET
-    email_is_verified: Union[None, Unset, bool] = UNSET
+    permissions: Union[Unset, list["Permission"]] = UNSET
     first_name: Union[None, Unset, str] = ""
     last_name: Union[None, Unset, str] = ""
-    permissions: Union[Unset, list["Permission"]] = UNSET
+    auth_method: Union[Unset, AuthMethod] = UNSET
     role: Union[Unset, UserRole] = UNSET
+    email_is_verified: Union[None, Unset, bool] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        created_at = self.created_at.isoformat()
+        id = self.id
 
         email = self.email
-
-        id = self.id
 
         organization_id = self.organization_id
 
         organization_name = self.organization_name
 
+        created_at = self.created_at.isoformat()
+
         updated_at = self.updated_at.isoformat()
-
-        auth_method: Union[Unset, str] = UNSET
-        if not isinstance(self.auth_method, Unset):
-            auth_method = self.auth_method.value
-
-        email_is_verified: Union[None, Unset, bool]
-        email_is_verified = UNSET if isinstance(self.email_is_verified, Unset) else self.email_is_verified
-
-        first_name: Union[None, Unset, str]
-        first_name = UNSET if isinstance(self.first_name, Unset) else self.first_name
-
-        last_name: Union[None, Unset, str]
-        last_name = UNSET if isinstance(self.last_name, Unset) else self.last_name
 
         permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
@@ -83,34 +70,47 @@ class UserDB:
                 permissions_item = permissions_item_data.to_dict()
                 permissions.append(permissions_item)
 
+        first_name: Union[None, Unset, str]
+        first_name = UNSET if isinstance(self.first_name, Unset) else self.first_name
+
+        last_name: Union[None, Unset, str]
+        last_name = UNSET if isinstance(self.last_name, Unset) else self.last_name
+
+        auth_method: Union[Unset, str] = UNSET
+        if not isinstance(self.auth_method, Unset):
+            auth_method = self.auth_method.value
+
         role: Union[Unset, str] = UNSET
         if not isinstance(self.role, Unset):
             role = self.role.value
+
+        email_is_verified: Union[None, Unset, bool]
+        email_is_verified = UNSET if isinstance(self.email_is_verified, Unset) else self.email_is_verified
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "created_at": created_at,
-                "email": email,
                 "id": id,
+                "email": email,
                 "organization_id": organization_id,
                 "organization_name": organization_name,
+                "created_at": created_at,
                 "updated_at": updated_at,
             }
         )
-        if auth_method is not UNSET:
-            field_dict["auth_method"] = auth_method
-        if email_is_verified is not UNSET:
-            field_dict["email_is_verified"] = email_is_verified
+        if permissions is not UNSET:
+            field_dict["permissions"] = permissions
         if first_name is not UNSET:
             field_dict["first_name"] = first_name
         if last_name is not UNSET:
             field_dict["last_name"] = last_name
-        if permissions is not UNSET:
-            field_dict["permissions"] = permissions
+        if auth_method is not UNSET:
+            field_dict["auth_method"] = auth_method
         if role is not UNSET:
             field_dict["role"] = role
+        if email_is_verified is not UNSET:
+            field_dict["email_is_verified"] = email_is_verified
 
         return field_dict
 
@@ -119,30 +119,24 @@ class UserDB:
         from ..models.permission import Permission
 
         d = dict(src_dict)
-        created_at = isoparse(d.pop("created_at"))
+        id = d.pop("id")
 
         email = d.pop("email")
-
-        id = d.pop("id")
 
         organization_id = d.pop("organization_id")
 
         organization_name = d.pop("organization_name")
 
+        created_at = isoparse(d.pop("created_at"))
+
         updated_at = isoparse(d.pop("updated_at"))
 
-        _auth_method = d.pop("auth_method", UNSET)
-        auth_method: Union[Unset, AuthMethod]
-        auth_method = UNSET if isinstance(_auth_method, Unset) else AuthMethod(_auth_method)
+        permissions = []
+        _permissions = d.pop("permissions", UNSET)
+        for permissions_item_data in _permissions or []:
+            permissions_item = Permission.from_dict(permissions_item_data)
 
-        def _parse_email_is_verified(data: object) -> Union[None, Unset, bool]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, bool], data)
-
-        email_is_verified = _parse_email_is_verified(d.pop("email_is_verified", UNSET))
+            permissions.append(permissions_item)
 
         def _parse_first_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -162,30 +156,36 @@ class UserDB:
 
         last_name = _parse_last_name(d.pop("last_name", UNSET))
 
-        permissions = []
-        _permissions = d.pop("permissions", UNSET)
-        for permissions_item_data in _permissions or []:
-            permissions_item = Permission.from_dict(permissions_item_data)
-
-            permissions.append(permissions_item)
+        _auth_method = d.pop("auth_method", UNSET)
+        auth_method: Union[Unset, AuthMethod]
+        auth_method = UNSET if isinstance(_auth_method, Unset) else AuthMethod(_auth_method)
 
         _role = d.pop("role", UNSET)
         role: Union[Unset, UserRole]
         role = UNSET if isinstance(_role, Unset) else UserRole(_role)
 
+        def _parse_email_is_verified(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        email_is_verified = _parse_email_is_verified(d.pop("email_is_verified", UNSET))
+
         user_db = cls(
-            created_at=created_at,
-            email=email,
             id=id,
+            email=email,
             organization_id=organization_id,
             organization_name=organization_name,
+            created_at=created_at,
             updated_at=updated_at,
-            auth_method=auth_method,
-            email_is_verified=email_is_verified,
+            permissions=permissions,
             first_name=first_name,
             last_name=last_name,
-            permissions=permissions,
+            auth_method=auth_method,
             role=role,
+            email_is_verified=email_is_verified,
         )
 
         user_db.additional_properties = d

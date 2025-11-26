@@ -21,23 +21,19 @@ class AwsSageMakerIntegrationCreate:
     Attributes
     ----------
         token (AwsSageMakerIntegrationCreateToken):
-        credential_type (Union[Unset, AwsCredentialType]):
         models (Union[Unset, list['Model']]):
+        credential_type (Union[Unset, AwsCredentialType]):
         region (Union[Unset, str]):  Default: 'us-west-2'.
     """
 
     token: "AwsSageMakerIntegrationCreateToken"
-    credential_type: Union[Unset, AwsCredentialType] = UNSET
     models: Union[Unset, list["Model"]] = UNSET
+    credential_type: Union[Unset, AwsCredentialType] = UNSET
     region: Union[Unset, str] = "us-west-2"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         token = self.token.to_dict()
-
-        credential_type: Union[Unset, str] = UNSET
-        if not isinstance(self.credential_type, Unset):
-            credential_type = self.credential_type.value
 
         models: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.models, Unset):
@@ -46,15 +42,19 @@ class AwsSageMakerIntegrationCreate:
                 models_item = models_item_data.to_dict()
                 models.append(models_item)
 
+        credential_type: Union[Unset, str] = UNSET
+        if not isinstance(self.credential_type, Unset):
+            credential_type = self.credential_type.value
+
         region = self.region
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"token": token})
-        if credential_type is not UNSET:
-            field_dict["credential_type"] = credential_type
         if models is not UNSET:
             field_dict["models"] = models
+        if credential_type is not UNSET:
+            field_dict["credential_type"] = credential_type
         if region is not UNSET:
             field_dict["region"] = region
 
@@ -68,10 +68,6 @@ class AwsSageMakerIntegrationCreate:
         d = dict(src_dict)
         token = AwsSageMakerIntegrationCreateToken.from_dict(d.pop("token"))
 
-        _credential_type = d.pop("credential_type", UNSET)
-        credential_type: Union[Unset, AwsCredentialType]
-        credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
-
         models = []
         _models = d.pop("models", UNSET)
         for models_item_data in _models or []:
@@ -79,10 +75,14 @@ class AwsSageMakerIntegrationCreate:
 
             models.append(models_item)
 
+        _credential_type = d.pop("credential_type", UNSET)
+        credential_type: Union[Unset, AwsCredentialType]
+        credential_type = UNSET if isinstance(_credential_type, Unset) else AwsCredentialType(_credential_type)
+
         region = d.pop("region", UNSET)
 
         aws_sage_maker_integration_create = cls(
-            token=token, credential_type=credential_type, models=models, region=region
+            token=token, models=models, credential_type=credential_type, region=region
         )
 
         aws_sage_maker_integration_create.additional_properties = d

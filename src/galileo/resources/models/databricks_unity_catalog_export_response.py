@@ -25,29 +25,29 @@ class DatabricksUnityCatalogExportResponse:
     Attributes
     ----------
         results (list[Any]):
-        all_but (Union[Unset, bool]):  Default: False.
-        col_mapping (Union['DatabricksUnityCatalogExportResponseColMappingType0', None, Unset]):
-        compare_to (Union[None, Split, Unset]):
-        file_type (Union[Unset, FileType]):
-        filter_params (Union[Unset, FilterParams]):
-        hf_format (Union[Unset, bool]):  Default: False.
-        include_cols (Union[None, Unset, list[str]]):
-        map_threshold (Union[Unset, float]):  Default: 0.5.
-        tagging_schema (Union[None, TaggingSchema, Unset]):
         task (Union[None, Unset, str]):
+        filter_params (Union[Unset, FilterParams]):
+        compare_to (Union[None, Split, Unset]):
+        map_threshold (Union[Unset, float]):  Default: 0.5.
+        all_but (Union[Unset, bool]):  Default: False.
+        file_type (Union[Unset, FileType]):
+        include_cols (Union[None, Unset, list[str]]):
+        col_mapping (Union['DatabricksUnityCatalogExportResponseColMappingType0', None, Unset]):
+        hf_format (Union[Unset, bool]):  Default: False.
+        tagging_schema (Union[None, TaggingSchema, Unset]):
     """
 
     results: list[Any]
-    all_but: Union[Unset, bool] = False
-    col_mapping: Union["DatabricksUnityCatalogExportResponseColMappingType0", None, Unset] = UNSET
-    compare_to: Union[None, Split, Unset] = UNSET
-    file_type: Union[Unset, FileType] = UNSET
-    filter_params: Union[Unset, "FilterParams"] = UNSET
-    hf_format: Union[Unset, bool] = False
-    include_cols: Union[None, Unset, list[str]] = UNSET
-    map_threshold: Union[Unset, float] = 0.5
-    tagging_schema: Union[None, TaggingSchema, Unset] = UNSET
     task: Union[None, Unset, str] = UNSET
+    filter_params: Union[Unset, "FilterParams"] = UNSET
+    compare_to: Union[None, Split, Unset] = UNSET
+    map_threshold: Union[Unset, float] = 0.5
+    all_but: Union[Unset, bool] = False
+    file_type: Union[Unset, FileType] = UNSET
+    include_cols: Union[None, Unset, list[str]] = UNSET
+    col_mapping: Union["DatabricksUnityCatalogExportResponseColMappingType0", None, Unset] = UNSET
+    hf_format: Union[Unset, bool] = False
+    tagging_schema: Union[None, TaggingSchema, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -57,15 +57,12 @@ class DatabricksUnityCatalogExportResponse:
 
         results = self.results
 
-        all_but = self.all_but
+        task: Union[None, Unset, str]
+        task = UNSET if isinstance(self.task, Unset) else self.task
 
-        col_mapping: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.col_mapping, Unset):
-            col_mapping = UNSET
-        elif isinstance(self.col_mapping, DatabricksUnityCatalogExportResponseColMappingType0):
-            col_mapping = self.col_mapping.to_dict()
-        else:
-            col_mapping = self.col_mapping
+        filter_params: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.filter_params, Unset):
+            filter_params = self.filter_params.to_dict()
 
         compare_to: Union[None, Unset, str]
         if isinstance(self.compare_to, Unset):
@@ -75,15 +72,13 @@ class DatabricksUnityCatalogExportResponse:
         else:
             compare_to = self.compare_to
 
+        map_threshold = self.map_threshold
+
+        all_but = self.all_but
+
         file_type: Union[Unset, str] = UNSET
         if not isinstance(self.file_type, Unset):
             file_type = self.file_type.value
-
-        filter_params: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.filter_params, Unset):
-            filter_params = self.filter_params.to_dict()
-
-        hf_format = self.hf_format
 
         include_cols: Union[None, Unset, list[str]]
         if isinstance(self.include_cols, Unset):
@@ -94,7 +89,15 @@ class DatabricksUnityCatalogExportResponse:
         else:
             include_cols = self.include_cols
 
-        map_threshold = self.map_threshold
+        col_mapping: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.col_mapping, Unset):
+            col_mapping = UNSET
+        elif isinstance(self.col_mapping, DatabricksUnityCatalogExportResponseColMappingType0):
+            col_mapping = self.col_mapping.to_dict()
+        else:
+            col_mapping = self.col_mapping
+
+        hf_format = self.hf_format
 
         tagging_schema: Union[None, Unset, str]
         if isinstance(self.tagging_schema, Unset):
@@ -104,32 +107,29 @@ class DatabricksUnityCatalogExportResponse:
         else:
             tagging_schema = self.tagging_schema
 
-        task: Union[None, Unset, str]
-        task = UNSET if isinstance(self.task, Unset) else self.task
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"results": results})
-        if all_but is not UNSET:
-            field_dict["all_but"] = all_but
-        if col_mapping is not UNSET:
-            field_dict["col_mapping"] = col_mapping
-        if compare_to is not UNSET:
-            field_dict["compare_to"] = compare_to
-        if file_type is not UNSET:
-            field_dict["file_type"] = file_type
-        if filter_params is not UNSET:
-            field_dict["filter_params"] = filter_params
-        if hf_format is not UNSET:
-            field_dict["hf_format"] = hf_format
-        if include_cols is not UNSET:
-            field_dict["include_cols"] = include_cols
-        if map_threshold is not UNSET:
-            field_dict["map_threshold"] = map_threshold
-        if tagging_schema is not UNSET:
-            field_dict["tagging_schema"] = tagging_schema
         if task is not UNSET:
             field_dict["task"] = task
+        if filter_params is not UNSET:
+            field_dict["filter_params"] = filter_params
+        if compare_to is not UNSET:
+            field_dict["compare_to"] = compare_to
+        if map_threshold is not UNSET:
+            field_dict["map_threshold"] = map_threshold
+        if all_but is not UNSET:
+            field_dict["all_but"] = all_but
+        if file_type is not UNSET:
+            field_dict["file_type"] = file_type
+        if include_cols is not UNSET:
+            field_dict["include_cols"] = include_cols
+        if col_mapping is not UNSET:
+            field_dict["col_mapping"] = col_mapping
+        if hf_format is not UNSET:
+            field_dict["hf_format"] = hf_format
+        if tagging_schema is not UNSET:
+            field_dict["tagging_schema"] = tagging_schema
 
         return field_dict
 
@@ -143,7 +143,58 @@ class DatabricksUnityCatalogExportResponse:
         d = dict(src_dict)
         results = cast(list[Any], d.pop("results"))
 
+        def _parse_task(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        task = _parse_task(d.pop("task", UNSET))
+
+        _filter_params = d.pop("filter_params", UNSET)
+        filter_params: Union[Unset, FilterParams]
+        filter_params = UNSET if isinstance(_filter_params, Unset) else FilterParams.from_dict(_filter_params)
+
+        def _parse_compare_to(data: object) -> Union[None, Split, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return Split(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Split, Unset], data)
+
+        compare_to = _parse_compare_to(d.pop("compare_to", UNSET))
+
+        map_threshold = d.pop("map_threshold", UNSET)
+
         all_but = d.pop("all_but", UNSET)
+
+        _file_type = d.pop("file_type", UNSET)
+        file_type: Union[Unset, FileType]
+        file_type = UNSET if isinstance(_file_type, Unset) else FileType(_file_type)
+
+        def _parse_include_cols(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        include_cols = _parse_include_cols(d.pop("include_cols", UNSET))
 
         def _parse_col_mapping(
             data: object,
@@ -163,49 +214,7 @@ class DatabricksUnityCatalogExportResponse:
 
         col_mapping = _parse_col_mapping(d.pop("col_mapping", UNSET))
 
-        def _parse_compare_to(data: object) -> Union[None, Split, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                return Split(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union[None, Split, Unset], data)
-
-        compare_to = _parse_compare_to(d.pop("compare_to", UNSET))
-
-        _file_type = d.pop("file_type", UNSET)
-        file_type: Union[Unset, FileType]
-        file_type = UNSET if isinstance(_file_type, Unset) else FileType(_file_type)
-
-        _filter_params = d.pop("filter_params", UNSET)
-        filter_params: Union[Unset, FilterParams]
-        filter_params = UNSET if isinstance(_filter_params, Unset) else FilterParams.from_dict(_filter_params)
-
         hf_format = d.pop("hf_format", UNSET)
-
-        def _parse_include_cols(data: object) -> Union[None, Unset, list[str]]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                return cast(list[str], data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union[None, Unset, list[str]], data)
-
-        include_cols = _parse_include_cols(d.pop("include_cols", UNSET))
-
-        map_threshold = d.pop("map_threshold", UNSET)
 
         def _parse_tagging_schema(data: object) -> Union[None, TaggingSchema, Unset]:
             if data is None:
@@ -223,27 +232,18 @@ class DatabricksUnityCatalogExportResponse:
 
         tagging_schema = _parse_tagging_schema(d.pop("tagging_schema", UNSET))
 
-        def _parse_task(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        task = _parse_task(d.pop("task", UNSET))
-
         databricks_unity_catalog_export_response = cls(
             results=results,
-            all_but=all_but,
-            col_mapping=col_mapping,
-            compare_to=compare_to,
-            file_type=file_type,
-            filter_params=filter_params,
-            hf_format=hf_format,
-            include_cols=include_cols,
-            map_threshold=map_threshold,
-            tagging_schema=tagging_schema,
             task=task,
+            filter_params=filter_params,
+            compare_to=compare_to,
+            map_threshold=map_threshold,
+            all_but=all_but,
+            file_type=file_type,
+            include_cols=include_cols,
+            col_mapping=col_mapping,
+            hf_format=hf_format,
+            tagging_schema=tagging_schema,
         )
 
         databricks_unity_catalog_export_response.additional_properties = d

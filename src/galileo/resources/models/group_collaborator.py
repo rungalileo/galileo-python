@@ -21,32 +21,32 @@ class GroupCollaborator:
     """
     Attributes
     ----------
+        id (str):
+        role (CollaboratorRole):
         created_at (datetime.datetime):
         group_id (str):
         group_name (str):
-        id (str):
-        role (CollaboratorRole):
         permissions (Union[Unset, list['Permission']]):
     """
 
+    id: str
+    role: CollaboratorRole
     created_at: datetime.datetime
     group_id: str
     group_name: str
-    id: str
-    role: CollaboratorRole
     permissions: Union[Unset, list["Permission"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        id = self.id
+
+        role = self.role.value
+
         created_at = self.created_at.isoformat()
 
         group_id = self.group_id
 
         group_name = self.group_name
-
-        id = self.id
-
-        role = self.role.value
 
         permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
@@ -58,7 +58,7 @@ class GroupCollaborator:
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {"created_at": created_at, "group_id": group_id, "group_name": group_name, "id": id, "role": role}
+            {"id": id, "role": role, "created_at": created_at, "group_id": group_id, "group_name": group_name}
         )
         if permissions is not UNSET:
             field_dict["permissions"] = permissions
@@ -70,15 +70,15 @@ class GroupCollaborator:
         from ..models.permission import Permission
 
         d = dict(src_dict)
+        id = d.pop("id")
+
+        role = CollaboratorRole(d.pop("role"))
+
         created_at = isoparse(d.pop("created_at"))
 
         group_id = d.pop("group_id")
 
         group_name = d.pop("group_name")
-
-        id = d.pop("id")
-
-        role = CollaboratorRole(d.pop("role"))
 
         permissions = []
         _permissions = d.pop("permissions", UNSET)
@@ -88,7 +88,7 @@ class GroupCollaborator:
             permissions.append(permissions_item)
 
         group_collaborator = cls(
-            created_at=created_at, group_id=group_id, group_name=group_name, id=id, role=role, permissions=permissions
+            id=id, role=role, created_at=created_at, group_id=group_id, group_name=group_name, permissions=permissions
         )
 
         group_collaborator.additional_properties = d

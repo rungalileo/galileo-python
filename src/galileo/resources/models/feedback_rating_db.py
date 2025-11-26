@@ -24,15 +24,15 @@ class FeedbackRatingDB:
     """
     Attributes
     ----------
+        rating (Union['LikeDislikeRating', 'ScoreRating', 'StarRating', 'TagsRating', 'TextRating']):
         created_at (datetime.datetime):
         created_by (Union[None, str]):
-        rating (Union['LikeDislikeRating', 'ScoreRating', 'StarRating', 'TagsRating', 'TextRating']):
         explanation (Union[None, Unset, str]):
     """
 
+    rating: Union["LikeDislikeRating", "ScoreRating", "StarRating", "TagsRating", "TextRating"]
     created_at: datetime.datetime
     created_by: Union[None, str]
-    rating: Union["LikeDislikeRating", "ScoreRating", "StarRating", "TagsRating", "TextRating"]
     explanation: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -42,23 +42,23 @@ class FeedbackRatingDB:
         from ..models.star_rating import StarRating
         from ..models.tags_rating import TagsRating
 
-        created_at = self.created_at.isoformat()
-
-        created_by: Union[None, str]
-        created_by = self.created_by
-
         rating: dict[str, Any]
         if isinstance(self.rating, (LikeDislikeRating, StarRating, ScoreRating, TagsRating)):
             rating = self.rating.to_dict()
         else:
             rating = self.rating.to_dict()
 
+        created_at = self.created_at.isoformat()
+
+        created_by: Union[None, str]
+        created_by = self.created_by
+
         explanation: Union[None, Unset, str]
         explanation = UNSET if isinstance(self.explanation, Unset) else self.explanation
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"created_at": created_at, "created_by": created_by, "rating": rating})
+        field_dict.update({"rating": rating, "created_at": created_at, "created_by": created_by})
         if explanation is not UNSET:
             field_dict["explanation"] = explanation
 
@@ -73,14 +73,6 @@ class FeedbackRatingDB:
         from ..models.text_rating import TextRating
 
         d = dict(src_dict)
-        created_at = isoparse(d.pop("created_at"))
-
-        def _parse_created_by(data: object) -> Union[None, str]:
-            if data is None:
-                return data
-            return cast(Union[None, str], data)
-
-        created_by = _parse_created_by(d.pop("created_by"))
 
         def _parse_rating(
             data: object,
@@ -119,6 +111,15 @@ class FeedbackRatingDB:
 
         rating = _parse_rating(d.pop("rating"))
 
+        created_at = isoparse(d.pop("created_at"))
+
+        def _parse_created_by(data: object) -> Union[None, str]:
+            if data is None:
+                return data
+            return cast(Union[None, str], data)
+
+        created_by = _parse_created_by(d.pop("created_by"))
+
         def _parse_explanation(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -128,7 +129,7 @@ class FeedbackRatingDB:
 
         explanation = _parse_explanation(d.pop("explanation", UNSET))
 
-        feedback_rating_db = cls(created_at=created_at, created_by=created_by, rating=rating, explanation=explanation)
+        feedback_rating_db = cls(rating=rating, created_at=created_at, created_by=created_by, explanation=explanation)
 
         feedback_rating_db.additional_properties = d
         return feedback_rating_db

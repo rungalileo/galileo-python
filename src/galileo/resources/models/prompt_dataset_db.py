@@ -14,16 +14,16 @@ class PromptDatasetDB:
     """
     Attributes
     ----------
-        dataset_id (str):
         id (str):
+        dataset_id (str):
         file_name (Union[None, Unset, str]):
         message (Union[None, Unset, str]):
         num_rows (Union[None, Unset, int]):
         rows (Union[None, Unset, int]):
     """
 
-    dataset_id: str
     id: str
+    dataset_id: str
     file_name: Union[None, Unset, str] = UNSET
     message: Union[None, Unset, str] = UNSET
     num_rows: Union[None, Unset, int] = UNSET
@@ -31,9 +31,9 @@ class PromptDatasetDB:
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        dataset_id = self.dataset_id
-
         id = self.id
+
+        dataset_id = self.dataset_id
 
         file_name: Union[None, Unset, str]
         file_name = UNSET if isinstance(self.file_name, Unset) else self.file_name
@@ -49,7 +49,7 @@ class PromptDatasetDB:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"dataset_id": dataset_id, "id": id})
+        field_dict.update({"id": id, "dataset_id": dataset_id})
         if file_name is not UNSET:
             field_dict["file_name"] = file_name
         if message is not UNSET:
@@ -64,9 +64,9 @@ class PromptDatasetDB:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        dataset_id = d.pop("dataset_id")
-
         id = d.pop("id")
+
+        dataset_id = d.pop("dataset_id")
 
         def _parse_file_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -105,7 +105,7 @@ class PromptDatasetDB:
         rows = _parse_rows(d.pop("rows", UNSET))
 
         prompt_dataset_db = cls(
-            dataset_id=dataset_id, id=id, file_name=file_name, message=message, num_rows=num_rows, rows=rows
+            id=id, dataset_id=dataset_id, file_name=file_name, message=message, num_rows=num_rows, rows=rows
         )
 
         prompt_dataset_db.additional_properties = d

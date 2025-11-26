@@ -15,22 +15,22 @@ class UserInfo:
 
     Attributes
     ----------
-        email (str):
         id (str):
+        email (str):
         first_name (Union[None, Unset, str]):
         last_name (Union[None, Unset, str]):
     """
 
-    email: str
     id: str
+    email: str
     first_name: Union[None, Unset, str] = UNSET
     last_name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        email = self.email
-
         id = self.id
+
+        email = self.email
 
         first_name: Union[None, Unset, str]
         first_name = UNSET if isinstance(self.first_name, Unset) else self.first_name
@@ -40,7 +40,7 @@ class UserInfo:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"email": email, "id": id})
+        field_dict.update({"id": id, "email": email})
         if first_name is not UNSET:
             field_dict["first_name"] = first_name
         if last_name is not UNSET:
@@ -51,9 +51,9 @@ class UserInfo:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        email = d.pop("email")
-
         id = d.pop("id")
+
+        email = d.pop("email")
 
         def _parse_first_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -73,7 +73,7 @@ class UserInfo:
 
         last_name = _parse_last_name(d.pop("last_name", UNSET))
 
-        user_info = cls(email=email, id=id, first_name=first_name, last_name=last_name)
+        user_info = cls(id=id, email=email, first_name=first_name, last_name=last_name)
 
         user_info.additional_properties = d
         return user_info

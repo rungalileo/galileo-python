@@ -19,17 +19,19 @@ class ContextRelevanceScorer:
     """
     Attributes
     ----------
+        name (Union[Literal['context_relevance'], Unset]):  Default: 'context_relevance'.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
-        name (Union[Literal['context_relevance'], Unset]):  Default: 'context_relevance'.
     """
 
-    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     name: Union[Literal["context_relevance"], Unset] = "context_relevance"
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.node_name_filter import NodeNameFilter
+
+        name = self.name
 
         filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
@@ -48,15 +50,13 @@ class ContextRelevanceScorer:
         else:
             filters = self.filters
 
-        name = self.name
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if filters is not UNSET:
-            field_dict["filters"] = filters
         if name is not UNSET:
             field_dict["name"] = name
+        if filters is not UNSET:
+            field_dict["filters"] = filters
 
         return field_dict
 
@@ -66,6 +66,9 @@ class ContextRelevanceScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
+        name = cast(Union[Literal["context_relevance"], Unset], d.pop("name", UNSET))
+        if name != "context_relevance" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'context_relevance', got '{name}'")
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -102,11 +105,7 @@ class ContextRelevanceScorer:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
-        name = cast(Union[Literal["context_relevance"], Unset], d.pop("name", UNSET))
-        if name != "context_relevance" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'context_relevance', got '{name}'")
-
-        context_relevance_scorer = cls(filters=filters, name=name)
+        context_relevance_scorer = cls(name=name, filters=filters)
 
         context_relevance_scorer.additional_properties = d
         return context_relevance_scorer

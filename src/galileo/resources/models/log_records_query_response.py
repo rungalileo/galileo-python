@@ -24,20 +24,21 @@ class LogRecordsQueryResponse:
     """
     Attributes
     ----------
-        last_row_id (Union[None, Unset, str]):
+        starting_token (Union[Unset, int]):  Default: 0.
         limit (Union[Unset, int]):  Default: 100.
-        next_starting_token (Union[None, Unset, int]):
         paginated (Union[Unset, bool]):  Default: False.
+        next_starting_token (Union[None, Unset, int]):
+        last_row_id (Union[None, Unset, str]):
         records (Union[Unset, list[Union['ExtendedAgentSpanRecord', 'ExtendedLlmSpanRecord',
             'ExtendedRetrieverSpanRecord', 'ExtendedSessionRecord', 'ExtendedToolSpanRecord', 'ExtendedTraceRecord',
-            'ExtendedWorkflowSpanRecord']]]): records matching the query
-        starting_token (Union[Unset, int]):  Default: 0.
+            'ExtendedWorkflowSpanRecord']]]): records matching the query.
     """
 
-    last_row_id: Union[None, Unset, str] = UNSET
+    starting_token: Union[Unset, int] = 0
     limit: Union[Unset, int] = 100
-    next_starting_token: Union[None, Unset, int] = UNSET
     paginated: Union[Unset, bool] = False
+    next_starting_token: Union[None, Unset, int] = UNSET
+    last_row_id: Union[None, Unset, str] = UNSET
     records: Union[
         Unset,
         list[
@@ -52,7 +53,6 @@ class LogRecordsQueryResponse:
             ]
         ],
     ] = UNSET
-    starting_token: Union[Unset, int] = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -63,15 +63,17 @@ class LogRecordsQueryResponse:
         from ..models.extended_trace_record import ExtendedTraceRecord
         from ..models.extended_workflow_span_record import ExtendedWorkflowSpanRecord
 
-        last_row_id: Union[None, Unset, str]
-        last_row_id = UNSET if isinstance(self.last_row_id, Unset) else self.last_row_id
+        starting_token = self.starting_token
 
         limit = self.limit
+
+        paginated = self.paginated
 
         next_starting_token: Union[None, Unset, int]
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
-        paginated = self.paginated
+        last_row_id: Union[None, Unset, str]
+        last_row_id = UNSET if isinstance(self.last_row_id, Unset) else self.last_row_id
 
         records: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.records, Unset):
@@ -95,40 +97,32 @@ class LogRecordsQueryResponse:
 
                 records.append(records_item)
 
-        starting_token = self.starting_token
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if last_row_id is not UNSET:
-            field_dict["last_row_id"] = last_row_id
-        if limit is not UNSET:
-            field_dict["limit"] = limit
-        if next_starting_token is not UNSET:
-            field_dict["next_starting_token"] = next_starting_token
-        if paginated is not UNSET:
-            field_dict["paginated"] = paginated
-        if records is not UNSET:
-            field_dict["records"] = records
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if limit is not UNSET:
+            field_dict["limit"] = limit
+        if paginated is not UNSET:
+            field_dict["paginated"] = paginated
+        if next_starting_token is not UNSET:
+            field_dict["next_starting_token"] = next_starting_token
+        if last_row_id is not UNSET:
+            field_dict["last_row_id"] = last_row_id
+        if records is not UNSET:
+            field_dict["records"] = records
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-
-        def _parse_last_row_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        last_row_id = _parse_last_row_id(d.pop("last_row_id", UNSET))
+        starting_token = d.pop("starting_token", UNSET)
 
         limit = d.pop("limit", UNSET)
+
+        paginated = d.pop("paginated", UNSET)
 
         def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -139,7 +133,14 @@ class LogRecordsQueryResponse:
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
-        paginated = d.pop("paginated", UNSET)
+        def _parse_last_row_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        last_row_id = _parse_last_row_id(d.pop("last_row_id", UNSET))
 
         records = []
         _records = d.pop("records", UNSET)
@@ -269,15 +270,13 @@ class LogRecordsQueryResponse:
 
             records.append(records_item)
 
-        starting_token = d.pop("starting_token", UNSET)
-
         log_records_query_response = cls(
-            last_row_id=last_row_id,
-            limit=limit,
-            next_starting_token=next_starting_token,
-            paginated=paginated,
-            records=records,
             starting_token=starting_token,
+            limit=limit,
+            paginated=paginated,
+            next_starting_token=next_starting_token,
+            last_row_id=last_row_id,
+            records=records,
         )
 
         log_records_query_response.additional_properties = d

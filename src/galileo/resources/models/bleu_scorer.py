@@ -19,17 +19,19 @@ class BleuScorer:
     """
     Attributes
     ----------
+        name (Union[Literal['bleu'], Unset]):  Default: 'bleu'.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
-        name (Union[Literal['bleu'], Unset]):  Default: 'bleu'.
     """
 
-    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     name: Union[Literal["bleu"], Unset] = "bleu"
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.node_name_filter import NodeNameFilter
+
+        name = self.name
 
         filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
@@ -48,15 +50,13 @@ class BleuScorer:
         else:
             filters = self.filters
 
-        name = self.name
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if filters is not UNSET:
-            field_dict["filters"] = filters
         if name is not UNSET:
             field_dict["name"] = name
+        if filters is not UNSET:
+            field_dict["filters"] = filters
 
         return field_dict
 
@@ -66,6 +66,9 @@ class BleuScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
+        name = cast(Union[Literal["bleu"], Unset], d.pop("name", UNSET))
+        if name != "bleu" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'bleu', got '{name}'")
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -102,11 +105,7 @@ class BleuScorer:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
-        name = cast(Union[Literal["bleu"], Unset], d.pop("name", UNSET))
-        if name != "bleu" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'bleu', got '{name}'")
-
-        bleu_scorer = cls(filters=filters, name=name)
+        bleu_scorer = cls(name=name, filters=filters)
 
         bleu_scorer.additional_properties = d
         return bleu_scorer

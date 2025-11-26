@@ -14,46 +14,46 @@ class LogSpansIngestResponse:
     """
     Attributes
     ----------
-        parent_id (str): Parent trace or span id.
         project_id (str): Project id associated with the traces.
         project_name (str): Project name associated with the traces.
-        records_count (int): Total number of records ingested
         session_id (str): Session id associated with the traces.
+        records_count (int): Total number of records ingested
         trace_id (str): Trace id associated with the spans.
-        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
+        parent_id (str): Parent trace or span id.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
     """
 
-    parent_id: str
     project_id: str
     project_name: str
-    records_count: int
     session_id: str
+    records_count: int
     trace_id: str
-    experiment_id: Union[None, Unset, str] = UNSET
+    parent_id: str
     log_stream_id: Union[None, Unset, str] = UNSET
+    experiment_id: Union[None, Unset, str] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        parent_id = self.parent_id
-
         project_id = self.project_id
 
         project_name = self.project_name
 
-        records_count = self.records_count
-
         session_id = self.session_id
+
+        records_count = self.records_count
 
         trace_id = self.trace_id
 
-        experiment_id: Union[None, Unset, str]
-        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
+        parent_id = self.parent_id
 
         log_stream_id: Union[None, Unset, str]
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
+
+        experiment_id: Union[None, Unset, str]
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
@@ -62,18 +62,18 @@ class LogSpansIngestResponse:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "parent_id": parent_id,
                 "project_id": project_id,
                 "project_name": project_name,
-                "records_count": records_count,
                 "session_id": session_id,
+                "records_count": records_count,
                 "trace_id": trace_id,
+                "parent_id": parent_id,
             }
         )
-        if experiment_id is not UNSET:
-            field_dict["experiment_id"] = experiment_id
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
+        if experiment_id is not UNSET:
+            field_dict["experiment_id"] = experiment_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
 
@@ -82,26 +82,17 @@ class LogSpansIngestResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        parent_id = d.pop("parent_id")
-
         project_id = d.pop("project_id")
 
         project_name = d.pop("project_name")
 
-        records_count = d.pop("records_count")
-
         session_id = d.pop("session_id")
+
+        records_count = d.pop("records_count")
 
         trace_id = d.pop("trace_id")
 
-        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
+        parent_id = d.pop("parent_id")
 
         def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -111,6 +102,15 @@ class LogSpansIngestResponse:
             return cast(Union[None, Unset, str], data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
+
+        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
         def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -122,14 +122,14 @@ class LogSpansIngestResponse:
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
         log_spans_ingest_response = cls(
-            parent_id=parent_id,
             project_id=project_id,
             project_name=project_name,
-            records_count=records_count,
             session_id=session_id,
+            records_count=records_count,
             trace_id=trace_id,
-            experiment_id=experiment_id,
+            parent_id=parent_id,
             log_stream_id=log_stream_id,
+            experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,
         )
 

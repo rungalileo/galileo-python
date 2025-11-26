@@ -15,57 +15,57 @@ class StageDB:
     """
     Attributes
     ----------
-        created_by (str):
-        id (str):
         name (str): Name of the stage. Must be unique within the project.
         project_id (str): ID of the project to which this stage belongs.
+        created_by (str):
+        id (str):
         description (Union[None, Unset, str]): Optional human-readable description of the goals of this guardrail.
+        type_ (Union[Unset, StageType]):
         paused (Union[Unset, bool]): Whether the action is enabled. If False, the action will not be applied. Default:
             False.
-        type_ (Union[Unset, StageType]):
         version (Union[None, Unset, int]):
     """
 
-    created_by: str
-    id: str
     name: str
     project_id: str
+    created_by: str
+    id: str
     description: Union[None, Unset, str] = UNSET
-    paused: Union[Unset, bool] = False
     type_: Union[Unset, StageType] = UNSET
+    paused: Union[Unset, bool] = False
     version: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        created_by = self.created_by
-
-        id = self.id
-
         name = self.name
 
         project_id = self.project_id
 
+        created_by = self.created_by
+
+        id = self.id
+
         description: Union[None, Unset, str]
         description = UNSET if isinstance(self.description, Unset) else self.description
-
-        paused = self.paused
 
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
+
+        paused = self.paused
 
         version: Union[None, Unset, int]
         version = UNSET if isinstance(self.version, Unset) else self.version
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"created_by": created_by, "id": id, "name": name, "project_id": project_id})
+        field_dict.update({"name": name, "project_id": project_id, "created_by": created_by, "id": id})
         if description is not UNSET:
             field_dict["description"] = description
-        if paused is not UNSET:
-            field_dict["paused"] = paused
         if type_ is not UNSET:
             field_dict["type"] = type_
+        if paused is not UNSET:
+            field_dict["paused"] = paused
         if version is not UNSET:
             field_dict["version"] = version
 
@@ -74,13 +74,13 @@ class StageDB:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        created_by = d.pop("created_by")
-
-        id = d.pop("id")
-
         name = d.pop("name")
 
         project_id = d.pop("project_id")
+
+        created_by = d.pop("created_by")
+
+        id = d.pop("id")
 
         def _parse_description(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -91,11 +91,11 @@ class StageDB:
 
         description = _parse_description(d.pop("description", UNSET))
 
-        paused = d.pop("paused", UNSET)
-
         _type_ = d.pop("type", UNSET)
         type_: Union[Unset, StageType]
         type_ = UNSET if isinstance(_type_, Unset) else StageType(_type_)
+
+        paused = d.pop("paused", UNSET)
 
         def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -107,13 +107,13 @@ class StageDB:
         version = _parse_version(d.pop("version", UNSET))
 
         stage_db = cls(
-            created_by=created_by,
-            id=id,
             name=name,
             project_id=project_id,
+            created_by=created_by,
+            id=id,
             description=description,
-            paused=paused,
             type_=type_,
+            paused=paused,
             version=version,
         )
 

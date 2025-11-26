@@ -18,48 +18,38 @@ class ProjectUpdateResponse:
     """
     Attributes
     ----------
-        created_at (datetime.datetime):
         id (str):
+        created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        created_by (Union[None, Unset, str]):
-        description (Union[None, Unset, str]):
-        labels (Union[Unset, list[ProjectLabels]]):
         name (Union[None, Unset, str]):
+        created_by (Union[None, Unset, str]):
         type_ (Union[None, ProjectType, Unset]):
+        labels (Union[Unset, list[ProjectLabels]]):
+        description (Union[None, Unset, str]):
     """
 
-    created_at: datetime.datetime
     id: str
+    created_at: datetime.datetime
     updated_at: datetime.datetime
-    created_by: Union[None, Unset, str] = UNSET
-    description: Union[None, Unset, str] = UNSET
-    labels: Union[Unset, list[ProjectLabels]] = UNSET
     name: Union[None, Unset, str] = UNSET
+    created_by: Union[None, Unset, str] = UNSET
     type_: Union[None, ProjectType, Unset] = UNSET
+    labels: Union[Unset, list[ProjectLabels]] = UNSET
+    description: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        created_at = self.created_at.isoformat()
-
         id = self.id
+
+        created_at = self.created_at.isoformat()
 
         updated_at = self.updated_at.isoformat()
 
-        created_by: Union[None, Unset, str]
-        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
-
-        description: Union[None, Unset, str]
-        description = UNSET if isinstance(self.description, Unset) else self.description
-
-        labels: Union[Unset, list[str]] = UNSET
-        if not isinstance(self.labels, Unset):
-            labels = []
-            for labels_item_data in self.labels:
-                labels_item = labels_item_data.value
-                labels.append(labels_item)
-
         name: Union[None, Unset, str]
         name = UNSET if isinstance(self.name, Unset) else self.name
+
+        created_by: Union[None, Unset, str]
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         type_: Union[None, Unset, str]
         if isinstance(self.type_, Unset):
@@ -69,55 +59,40 @@ class ProjectUpdateResponse:
         else:
             type_ = self.type_
 
+        labels: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.labels, Unset):
+            labels = []
+            for labels_item_data in self.labels:
+                labels_item = labels_item_data.value
+                labels.append(labels_item)
+
+        description: Union[None, Unset, str]
+        description = UNSET if isinstance(self.description, Unset) else self.description
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"created_at": created_at, "id": id, "updated_at": updated_at})
-        if created_by is not UNSET:
-            field_dict["created_by"] = created_by
-        if description is not UNSET:
-            field_dict["description"] = description
-        if labels is not UNSET:
-            field_dict["labels"] = labels
+        field_dict.update({"id": id, "created_at": created_at, "updated_at": updated_at})
         if name is not UNSET:
             field_dict["name"] = name
+        if created_by is not UNSET:
+            field_dict["created_by"] = created_by
         if type_ is not UNSET:
             field_dict["type"] = type_
+        if labels is not UNSET:
+            field_dict["labels"] = labels
+        if description is not UNSET:
+            field_dict["description"] = description
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        created_at = isoparse(d.pop("created_at"))
-
         id = d.pop("id")
 
+        created_at = isoparse(d.pop("created_at"))
+
         updated_at = isoparse(d.pop("updated_at"))
-
-        def _parse_created_by(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        created_by = _parse_created_by(d.pop("created_by", UNSET))
-
-        def _parse_description(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        description = _parse_description(d.pop("description", UNSET))
-
-        labels = []
-        _labels = d.pop("labels", UNSET)
-        for labels_item_data in _labels or []:
-            labels_item = ProjectLabels(labels_item_data)
-
-            labels.append(labels_item)
 
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -127,6 +102,15 @@ class ProjectUpdateResponse:
             return cast(Union[None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
+
+        def _parse_created_by(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        created_by = _parse_created_by(d.pop("created_by", UNSET))
 
         def _parse_type_(data: object) -> Union[None, ProjectType, Unset]:
             if data is None:
@@ -144,15 +128,31 @@ class ProjectUpdateResponse:
 
         type_ = _parse_type_(d.pop("type", UNSET))
 
+        labels = []
+        _labels = d.pop("labels", UNSET)
+        for labels_item_data in _labels or []:
+            labels_item = ProjectLabels(labels_item_data)
+
+            labels.append(labels_item)
+
+        def _parse_description(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        description = _parse_description(d.pop("description", UNSET))
+
         project_update_response = cls(
-            created_at=created_at,
             id=id,
+            created_at=created_at,
             updated_at=updated_at,
-            created_by=created_by,
-            description=description,
-            labels=labels,
             name=name,
+            created_by=created_by,
             type_=type_,
+            labels=labels,
+            description=description,
         )
 
         project_update_response.additional_properties = d
