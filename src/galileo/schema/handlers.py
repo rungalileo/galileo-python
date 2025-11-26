@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any, Literal, Optional
 from uuid import UUID
 
-SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow"]
+SPAN_TYPE = Literal["llm", "retriever", "tool", "workflow", "agent"]
 LANGCHAIN_NODE_TYPE = Literal["agent", "chain", "chat", "llm", "retriever", "tool", "workflow"]
 NODE_TYPE = LANGCHAIN_NODE_TYPE
 INTEGRATION = Literal["langchain", "crewai"]
