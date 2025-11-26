@@ -14,28 +14,28 @@ class CreateLLMScorerAutogenRequest:
     """
     Attributes
     ----------
-        cot_enabled (bool):
         instructions (str):
         model_name (str):
         output_type (OutputTypeEnum): Enumeration of output types.
+        cot_enabled (bool):
         scoreable_node_types (list[str]):
     """
 
-    cot_enabled: bool
     instructions: str
     model_name: str
     output_type: OutputTypeEnum
+    cot_enabled: bool
     scoreable_node_types: list[str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        cot_enabled = self.cot_enabled
-
         instructions = self.instructions
 
         model_name = self.model_name
 
         output_type = self.output_type.value
+
+        cot_enabled = self.cot_enabled
 
         scoreable_node_types = self.scoreable_node_types
 
@@ -43,10 +43,10 @@ class CreateLLMScorerAutogenRequest:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "cot_enabled": cot_enabled,
                 "instructions": instructions,
                 "model_name": model_name,
                 "output_type": output_type,
+                "cot_enabled": cot_enabled,
                 "scoreable_node_types": scoreable_node_types,
             }
         )
@@ -56,21 +56,21 @@ class CreateLLMScorerAutogenRequest:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        cot_enabled = d.pop("cot_enabled")
-
         instructions = d.pop("instructions")
 
         model_name = d.pop("model_name")
 
         output_type = OutputTypeEnum(d.pop("output_type"))
 
+        cot_enabled = d.pop("cot_enabled")
+
         scoreable_node_types = cast(list[str], d.pop("scoreable_node_types"))
 
         create_llm_scorer_autogen_request = cls(
-            cot_enabled=cot_enabled,
             instructions=instructions,
             model_name=model_name,
             output_type=output_type,
+            cot_enabled=cot_enabled,
             scoreable_node_types=scoreable_node_types,
         )
 

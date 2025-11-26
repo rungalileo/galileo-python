@@ -19,17 +19,19 @@ class OutputPIIScorer:
     """
     Attributes
     ----------
+        name (Union[Literal['output_pii'], Unset]):  Default: 'output_pii'.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
-        name (Union[Literal['output_pii'], Unset]):  Default: 'output_pii'.
     """
 
-    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     name: Union[Literal["output_pii"], Unset] = "output_pii"
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.node_name_filter import NodeNameFilter
+
+        name = self.name
 
         filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
@@ -48,15 +50,13 @@ class OutputPIIScorer:
         else:
             filters = self.filters
 
-        name = self.name
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if filters is not UNSET:
-            field_dict["filters"] = filters
         if name is not UNSET:
             field_dict["name"] = name
+        if filters is not UNSET:
+            field_dict["filters"] = filters
 
         return field_dict
 
@@ -66,6 +66,9 @@ class OutputPIIScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
+        name = cast(Union[Literal["output_pii"], Unset], d.pop("name", UNSET))
+        if name != "output_pii" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'output_pii', got '{name}'")
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -102,11 +105,7 @@ class OutputPIIScorer:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
-        name = cast(Union[Literal["output_pii"], Unset], d.pop("name", UNSET))
-        if name != "output_pii" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'output_pii', got '{name}'")
-
-        output_pii_scorer = cls(filters=filters, name=name)
+        output_pii_scorer = cls(name=name, filters=filters)
 
         output_pii_scorer.additional_properties = d
         return output_pii_scorer

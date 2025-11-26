@@ -18,27 +18,29 @@ class ListScorersResponse:
     """
     Attributes
     ----------
-        limit (Union[Unset, int]):  Default: 100.
-        next_starting_token (Union[None, Unset, int]):
-        paginated (Union[Unset, bool]):  Default: False.
-        scorers (Union[Unset, list['ScorerResponse']]):
         starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        paginated (Union[Unset, bool]):  Default: False.
+        next_starting_token (Union[None, Unset, int]):
+        scorers (Union[Unset, list['ScorerResponse']]):
     """
 
-    limit: Union[Unset, int] = 100
-    next_starting_token: Union[None, Unset, int] = UNSET
-    paginated: Union[Unset, bool] = False
-    scorers: Union[Unset, list["ScorerResponse"]] = UNSET
     starting_token: Union[Unset, int] = 0
+    limit: Union[Unset, int] = 100
+    paginated: Union[Unset, bool] = False
+    next_starting_token: Union[None, Unset, int] = UNSET
+    scorers: Union[Unset, list["ScorerResponse"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        starting_token = self.starting_token
+
         limit = self.limit
+
+        paginated = self.paginated
 
         next_starting_token: Union[None, Unset, int]
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
-
-        paginated = self.paginated
 
         scorers: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.scorers, Unset):
@@ -47,21 +49,19 @@ class ListScorersResponse:
                 scorers_item = scorers_item_data.to_dict()
                 scorers.append(scorers_item)
 
-        starting_token = self.starting_token
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if limit is not UNSET:
-            field_dict["limit"] = limit
-        if next_starting_token is not UNSET:
-            field_dict["next_starting_token"] = next_starting_token
-        if paginated is not UNSET:
-            field_dict["paginated"] = paginated
-        if scorers is not UNSET:
-            field_dict["scorers"] = scorers
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if limit is not UNSET:
+            field_dict["limit"] = limit
+        if paginated is not UNSET:
+            field_dict["paginated"] = paginated
+        if next_starting_token is not UNSET:
+            field_dict["next_starting_token"] = next_starting_token
+        if scorers is not UNSET:
+            field_dict["scorers"] = scorers
 
         return field_dict
 
@@ -70,7 +70,11 @@ class ListScorersResponse:
         from ..models.scorer_response import ScorerResponse
 
         d = dict(src_dict)
+        starting_token = d.pop("starting_token", UNSET)
+
         limit = d.pop("limit", UNSET)
+
+        paginated = d.pop("paginated", UNSET)
 
         def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -81,8 +85,6 @@ class ListScorersResponse:
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
-        paginated = d.pop("paginated", UNSET)
-
         scorers = []
         _scorers = d.pop("scorers", UNSET)
         for scorers_item_data in _scorers or []:
@@ -90,14 +92,12 @@ class ListScorersResponse:
 
             scorers.append(scorers_item)
 
-        starting_token = d.pop("starting_token", UNSET)
-
         list_scorers_response = cls(
-            limit=limit,
-            next_starting_token=next_starting_token,
-            paginated=paginated,
-            scorers=scorers,
             starting_token=starting_token,
+            limit=limit,
+            paginated=paginated,
+            next_starting_token=next_starting_token,
+            scorers=scorers,
         )
 
         list_scorers_response.additional_properties = d

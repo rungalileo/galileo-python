@@ -20,17 +20,17 @@ class BasePromptTemplateVersion:
     Attributes
     ----------
         template (Union[list['MessagesListItem'], str]):
-        output_type (Union[None, Unset, str]):
         raw (Union[Unset, bool]):  Default: False.
-        settings (Union[Unset, PromptRunSettings]): Prompt run settings.
         version (Union[None, Unset, int]):
+        settings (Union[Unset, PromptRunSettings]): Prompt run settings.
+        output_type (Union[None, Unset, str]):
     """
 
     template: Union[list["MessagesListItem"], str]
-    output_type: Union[None, Unset, str] = UNSET
     raw: Union[Unset, bool] = False
-    settings: Union[Unset, "PromptRunSettings"] = UNSET
     version: Union[None, Unset, int] = UNSET
+    settings: Union[Unset, "PromptRunSettings"] = UNSET
+    output_type: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -44,29 +44,29 @@ class BasePromptTemplateVersion:
         else:
             template = self.template
 
-        output_type: Union[None, Unset, str]
-        output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
-
         raw = self.raw
+
+        version: Union[None, Unset, int]
+        version = UNSET if isinstance(self.version, Unset) else self.version
 
         settings: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.settings, Unset):
             settings = self.settings.to_dict()
 
-        version: Union[None, Unset, int]
-        version = UNSET if isinstance(self.version, Unset) else self.version
+        output_type: Union[None, Unset, str]
+        output_type = UNSET if isinstance(self.output_type, Unset) else self.output_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"template": template})
-        if output_type is not UNSET:
-            field_dict["output_type"] = output_type
         if raw is not UNSET:
             field_dict["raw"] = raw
-        if settings is not UNSET:
-            field_dict["settings"] = settings
         if version is not UNSET:
             field_dict["version"] = version
+        if settings is not UNSET:
+            field_dict["settings"] = settings
+        if output_type is not UNSET:
+            field_dict["output_type"] = output_type
 
         return field_dict
 
@@ -95,20 +95,7 @@ class BasePromptTemplateVersion:
 
         template = _parse_template(d.pop("template"))
 
-        def _parse_output_type(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        output_type = _parse_output_type(d.pop("output_type", UNSET))
-
         raw = d.pop("raw", UNSET)
-
-        _settings = d.pop("settings", UNSET)
-        settings: Union[Unset, PromptRunSettings]
-        settings = UNSET if isinstance(_settings, Unset) else PromptRunSettings.from_dict(_settings)
 
         def _parse_version(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -119,8 +106,21 @@ class BasePromptTemplateVersion:
 
         version = _parse_version(d.pop("version", UNSET))
 
+        _settings = d.pop("settings", UNSET)
+        settings: Union[Unset, PromptRunSettings]
+        settings = UNSET if isinstance(_settings, Unset) else PromptRunSettings.from_dict(_settings)
+
+        def _parse_output_type(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        output_type = _parse_output_type(d.pop("output_type", UNSET))
+
         base_prompt_template_version = cls(
-            template=template, output_type=output_type, raw=raw, settings=settings, version=version
+            template=template, raw=raw, version=version, settings=settings, output_type=output_type
         )
 
         base_prompt_template_version.additional_properties = d

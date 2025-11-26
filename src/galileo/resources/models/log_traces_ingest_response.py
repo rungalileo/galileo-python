@@ -16,11 +16,11 @@ class LogTracesIngestResponse:
     ----------
         project_id (str): Project id associated with the traces.
         project_name (str): Project name associated with the traces.
-        records_count (int): Total number of records ingested
         session_id (str): Session id associated with the traces.
+        records_count (int): Total number of records ingested
         traces_count (int): total number of traces ingested
-        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         trace_ids (Union[None, Unset, list[str]]): List of trace IDs that were ingested. Only included if
             include_trace_ids=True in request.
@@ -28,11 +28,11 @@ class LogTracesIngestResponse:
 
     project_id: str
     project_name: str
-    records_count: int
     session_id: str
+    records_count: int
     traces_count: int
-    experiment_id: Union[None, Unset, str] = UNSET
     log_stream_id: Union[None, Unset, str] = UNSET
+    experiment_id: Union[None, Unset, str] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
     trace_ids: Union[None, Unset, list[str]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -42,17 +42,17 @@ class LogTracesIngestResponse:
 
         project_name = self.project_name
 
-        records_count = self.records_count
-
         session_id = self.session_id
+
+        records_count = self.records_count
 
         traces_count = self.traces_count
 
-        experiment_id: Union[None, Unset, str]
-        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
-
         log_stream_id: Union[None, Unset, str]
         log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
+
+        experiment_id: Union[None, Unset, str]
+        experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
         metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
@@ -72,15 +72,15 @@ class LogTracesIngestResponse:
             {
                 "project_id": project_id,
                 "project_name": project_name,
-                "records_count": records_count,
                 "session_id": session_id,
+                "records_count": records_count,
                 "traces_count": traces_count,
             }
         )
-        if experiment_id is not UNSET:
-            field_dict["experiment_id"] = experiment_id
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
+        if experiment_id is not UNSET:
+            field_dict["experiment_id"] = experiment_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
         if trace_ids is not UNSET:
@@ -95,20 +95,11 @@ class LogTracesIngestResponse:
 
         project_name = d.pop("project_name")
 
-        records_count = d.pop("records_count")
-
         session_id = d.pop("session_id")
 
+        records_count = d.pop("records_count")
+
         traces_count = d.pop("traces_count")
-
-        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
         def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -118,6 +109,15 @@ class LogTracesIngestResponse:
             return cast(Union[None, Unset, str], data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
+
+        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
         def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -147,11 +147,11 @@ class LogTracesIngestResponse:
         log_traces_ingest_response = cls(
             project_id=project_id,
             project_name=project_name,
-            records_count=records_count,
             session_id=session_id,
+            records_count=records_count,
             traces_count=traces_count,
-            experiment_id=experiment_id,
             log_stream_id=log_stream_id,
+            experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,
             trace_ids=trace_ids,
         )

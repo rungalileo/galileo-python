@@ -20,21 +20,23 @@ class ToolErrorRateScorer:
     """
     Attributes
     ----------
+        name (Union[Literal['tool_error_rate'], Unset]):  Default: 'tool_error_rate'.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
-        model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
-        name (Union[Literal['tool_error_rate'], Unset]):  Default: 'tool_error_rate'.
         type_ (Union[Unset, ToolErrorRateScorerType]):  Default: ToolErrorRateScorerType.PLUS.
+        model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
     """
 
-    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
-    model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["tool_error_rate"], Unset] = "tool_error_rate"
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     type_: Union[Unset, ToolErrorRateScorerType] = ToolErrorRateScorerType.PLUS
+    model_name: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.node_name_filter import NodeNameFilter
+
+        name = self.name
 
         filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
@@ -53,26 +55,24 @@ class ToolErrorRateScorer:
         else:
             filters = self.filters
 
-        model_name: Union[None, Unset, str]
-        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
-
-        name = self.name
-
         type_: Union[Unset, str] = UNSET
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
+        model_name: Union[None, Unset, str]
+        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if filters is not UNSET:
-            field_dict["filters"] = filters
-        if model_name is not UNSET:
-            field_dict["model_name"] = model_name
         if name is not UNSET:
             field_dict["name"] = name
+        if filters is not UNSET:
+            field_dict["filters"] = filters
         if type_ is not UNSET:
             field_dict["type"] = type_
+        if model_name is not UNSET:
+            field_dict["model_name"] = model_name
 
         return field_dict
 
@@ -82,6 +82,9 @@ class ToolErrorRateScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
+        name = cast(Union[Literal["tool_error_rate"], Unset], d.pop("name", UNSET))
+        if name != "tool_error_rate" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'tool_error_rate', got '{name}'")
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -118,6 +121,10 @@ class ToolErrorRateScorer:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
+        _type_ = d.pop("type", UNSET)
+        type_: Union[Unset, ToolErrorRateScorerType]
+        type_ = UNSET if isinstance(_type_, Unset) else ToolErrorRateScorerType(_type_)
+
         def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -127,15 +134,7 @@ class ToolErrorRateScorer:
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
 
-        name = cast(Union[Literal["tool_error_rate"], Unset], d.pop("name", UNSET))
-        if name != "tool_error_rate" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'tool_error_rate', got '{name}'")
-
-        _type_ = d.pop("type", UNSET)
-        type_: Union[Unset, ToolErrorRateScorerType]
-        type_ = UNSET if isinstance(_type_, Unset) else ToolErrorRateScorerType(_type_)
-
-        tool_error_rate_scorer = cls(filters=filters, model_name=model_name, name=name, type_=type_)
+        tool_error_rate_scorer = cls(name=name, filters=filters, type_=type_, model_name=model_name)
 
         tool_error_rate_scorer.additional_properties = d
         return tool_error_rate_scorer

@@ -18,27 +18,27 @@ class BucketedMetric:
     """
     Attributes
     ----------
-        buckets (BucketedMetricBuckets):
         name (str):
+        buckets (BucketedMetricBuckets):
         average (Union[None, Unset, float]):
     """
 
-    buckets: "BucketedMetricBuckets"
     name: str
+    buckets: "BucketedMetricBuckets"
     average: Union[None, Unset, float] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        buckets = self.buckets.to_dict()
-
         name = self.name
+
+        buckets = self.buckets.to_dict()
 
         average: Union[None, Unset, float]
         average = UNSET if isinstance(self.average, Unset) else self.average
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"buckets": buckets, "name": name})
+        field_dict.update({"name": name, "buckets": buckets})
         if average is not UNSET:
             field_dict["average"] = average
 
@@ -49,9 +49,9 @@ class BucketedMetric:
         from ..models.bucketed_metric_buckets import BucketedMetricBuckets
 
         d = dict(src_dict)
-        buckets = BucketedMetricBuckets.from_dict(d.pop("buckets"))
-
         name = d.pop("name")
+
+        buckets = BucketedMetricBuckets.from_dict(d.pop("buckets"))
 
         def _parse_average(data: object) -> Union[None, Unset, float]:
             if data is None:
@@ -62,7 +62,7 @@ class BucketedMetric:
 
         average = _parse_average(d.pop("average", UNSET))
 
-        bucketed_metric = cls(buckets=buckets, name=name, average=average)
+        bucketed_metric = cls(name=name, buckets=buckets, average=average)
 
         bucketed_metric.additional_properties = d
         return bucketed_metric

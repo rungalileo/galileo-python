@@ -31,22 +31,26 @@ class RecomputeLogRecordsMetricsRequest:
     Attributes
     ----------
             scorer_ids (list[str]): List of scorer IDs for which metrics should be recomputed.
+            starting_token (Union[Unset, int]):  Default: 0.
+            limit (Union[Unset, int]):  Default: 100.
+            previous_last_row_id (Union[None, Unset, str]):
+            log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
             experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
-            filter_tree (Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode', None, Unset]):
+            metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
             filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
                 'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
-            limit (Union[Unset, int]):  Default: 100.
-            log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
-            metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
-            previous_last_row_id (Union[None, Unset, str]):
+            filter_tree (Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode', None, Unset]):
             sort (Union[Unset, LogRecordsSortClause]):
-            starting_token (Union[Unset, int]):  Default: 0.
             truncate_fields (Union[Unset, bool]):  Default: False.
     """
 
     scorer_ids: list[str]
+    starting_token: Union[Unset, int] = 0
+    limit: Union[Unset, int] = 100
+    previous_last_row_id: Union[None, Unset, str] = UNSET
+    log_stream_id: Union[None, Unset, str] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
-    filter_tree: Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
     filters: Union[
         Unset,
         list[
@@ -60,12 +64,8 @@ class RecomputeLogRecordsMetricsRequest:
             ]
         ],
     ] = UNSET
-    limit: Union[Unset, int] = 100
-    log_stream_id: Union[None, Unset, str] = UNSET
-    metrics_testing_id: Union[None, Unset, str] = UNSET
-    previous_last_row_id: Union[None, Unset, str] = UNSET
+    filter_tree: Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset] = UNSET
     sort: Union[Unset, "LogRecordsSortClause"] = UNSET
-    starting_token: Union[Unset, int] = 0
     truncate_fields: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -82,16 +82,21 @@ class RecomputeLogRecordsMetricsRequest:
 
         scorer_ids = self.scorer_ids
 
+        starting_token = self.starting_token
+
+        limit = self.limit
+
+        previous_last_row_id: Union[None, Unset, str]
+        previous_last_row_id = UNSET if isinstance(self.previous_last_row_id, Unset) else self.previous_last_row_id
+
+        log_stream_id: Union[None, Unset, str]
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
+
         experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
-        filter_tree: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.filter_tree, Unset):
-            filter_tree = UNSET
-        elif isinstance(self.filter_tree, (FilterLeaf, AndNode, OrNode, NotNode)):
-            filter_tree = self.filter_tree.to_dict()
-        else:
-            filter_tree = self.filter_tree
+        metrics_testing_id: Union[None, Unset, str]
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -114,46 +119,41 @@ class RecomputeLogRecordsMetricsRequest:
 
                 filters.append(filters_item)
 
-        limit = self.limit
-
-        log_stream_id: Union[None, Unset, str]
-        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
-
-        metrics_testing_id: Union[None, Unset, str]
-        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
-
-        previous_last_row_id: Union[None, Unset, str]
-        previous_last_row_id = UNSET if isinstance(self.previous_last_row_id, Unset) else self.previous_last_row_id
+        filter_tree: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.filter_tree, Unset):
+            filter_tree = UNSET
+        elif isinstance(self.filter_tree, (FilterLeaf, AndNode, OrNode, NotNode)):
+            filter_tree = self.filter_tree.to_dict()
+        else:
+            filter_tree = self.filter_tree
 
         sort: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.sort, Unset):
             sort = self.sort.to_dict()
-
-        starting_token = self.starting_token
 
         truncate_fields = self.truncate_fields
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"scorer_ids": scorer_ids})
-        if experiment_id is not UNSET:
-            field_dict["experiment_id"] = experiment_id
-        if filter_tree is not UNSET:
-            field_dict["filter_tree"] = filter_tree
-        if filters is not UNSET:
-            field_dict["filters"] = filters
-        if limit is not UNSET:
-            field_dict["limit"] = limit
-        if log_stream_id is not UNSET:
-            field_dict["log_stream_id"] = log_stream_id
-        if metrics_testing_id is not UNSET:
-            field_dict["metrics_testing_id"] = metrics_testing_id
-        if previous_last_row_id is not UNSET:
-            field_dict["previous_last_row_id"] = previous_last_row_id
-        if sort is not UNSET:
-            field_dict["sort"] = sort
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if limit is not UNSET:
+            field_dict["limit"] = limit
+        if previous_last_row_id is not UNSET:
+            field_dict["previous_last_row_id"] = previous_last_row_id
+        if log_stream_id is not UNSET:
+            field_dict["log_stream_id"] = log_stream_id
+        if experiment_id is not UNSET:
+            field_dict["experiment_id"] = experiment_id
+        if metrics_testing_id is not UNSET:
+            field_dict["metrics_testing_id"] = metrics_testing_id
+        if filters is not UNSET:
+            field_dict["filters"] = filters
+        if filter_tree is not UNSET:
+            field_dict["filter_tree"] = filter_tree
+        if sort is not UNSET:
+            field_dict["sort"] = sort
         if truncate_fields is not UNSET:
             field_dict["truncate_fields"] = truncate_fields
 
@@ -176,6 +176,28 @@ class RecomputeLogRecordsMetricsRequest:
         d = dict(src_dict)
         scorer_ids = cast(list[str], d.pop("scorer_ids"))
 
+        starting_token = d.pop("starting_token", UNSET)
+
+        limit = d.pop("limit", UNSET)
+
+        def _parse_previous_last_row_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        previous_last_row_id = _parse_previous_last_row_id(d.pop("previous_last_row_id", UNSET))
+
+        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
+
         def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -185,42 +207,14 @@ class RecomputeLogRecordsMetricsRequest:
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_filter_tree(data: object) -> Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset]:
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return FilterLeaf.from_dict(data)
+            return cast(Union[None, Unset, str], data)
 
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return AndNode.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return OrNode.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return NotNode.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset], data)
-
-        filter_tree = _parse_filter_tree(d.pop("filter_tree", UNSET))
+        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
         filters = []
         _filters = d.pop("filters", UNSET)
@@ -279,54 +273,60 @@ class RecomputeLogRecordsMetricsRequest:
 
             filters.append(filters_item)
 
-        limit = d.pop("limit", UNSET)
-
-        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
+        def _parse_filter_tree(data: object) -> Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return FilterLeaf.from_dict(data)
 
-        log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return AndNode.from_dict(data)
 
-        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return OrNode.from_dict(data)
 
-        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return NotNode.from_dict(data)
 
-        def _parse_previous_last_row_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
+            except:  # noqa: E722
+                pass
+            return cast(Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset], data)
 
-        previous_last_row_id = _parse_previous_last_row_id(d.pop("previous_last_row_id", UNSET))
+        filter_tree = _parse_filter_tree(d.pop("filter_tree", UNSET))
 
         _sort = d.pop("sort", UNSET)
         sort: Union[Unset, LogRecordsSortClause]
         sort = UNSET if isinstance(_sort, Unset) else LogRecordsSortClause.from_dict(_sort)
 
-        starting_token = d.pop("starting_token", UNSET)
-
         truncate_fields = d.pop("truncate_fields", UNSET)
 
         recompute_log_records_metrics_request = cls(
             scorer_ids=scorer_ids,
-            experiment_id=experiment_id,
-            filter_tree=filter_tree,
-            filters=filters,
-            limit=limit,
-            log_stream_id=log_stream_id,
-            metrics_testing_id=metrics_testing_id,
-            previous_last_row_id=previous_last_row_id,
-            sort=sort,
             starting_token=starting_token,
+            limit=limit,
+            previous_last_row_id=previous_last_row_id,
+            log_stream_id=log_stream_id,
+            experiment_id=experiment_id,
+            metrics_testing_id=metrics_testing_id,
+            filters=filters,
+            filter_tree=filter_tree,
+            sort=sort,
             truncate_fields=truncate_fields,
         )
 

@@ -15,18 +15,18 @@ class MetricComputing:
     """
     Attributes
     ----------
-        message (Union[Unset, str]):  Default: 'Metric is computing.'.
-        scorer_type (Union[None, ScorerType, Unset]):
         status_type (Union[Literal['computing'], Unset]):  Default: 'computing'.
+        scorer_type (Union[None, ScorerType, Unset]):
+        message (Union[Unset, str]):  Default: 'Metric is computing.'.
     """
 
-    message: Union[Unset, str] = "Metric is computing."
-    scorer_type: Union[None, ScorerType, Unset] = UNSET
     status_type: Union[Literal["computing"], Unset] = "computing"
+    scorer_type: Union[None, ScorerType, Unset] = UNSET
+    message: Union[Unset, str] = "Metric is computing."
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        message = self.message
+        status_type = self.status_type
 
         scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
@@ -36,24 +36,26 @@ class MetricComputing:
         else:
             scorer_type = self.scorer_type
 
-        status_type = self.status_type
+        message = self.message
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if message is not UNSET:
-            field_dict["message"] = message
-        if scorer_type is not UNSET:
-            field_dict["scorer_type"] = scorer_type
         if status_type is not UNSET:
             field_dict["status_type"] = status_type
+        if scorer_type is not UNSET:
+            field_dict["scorer_type"] = scorer_type
+        if message is not UNSET:
+            field_dict["message"] = message
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        message = d.pop("message", UNSET)
+        status_type = cast(Union[Literal["computing"], Unset], d.pop("status_type", UNSET))
+        if status_type != "computing" and not isinstance(status_type, Unset):
+            raise ValueError(f"status_type must match const 'computing', got '{status_type}'")
 
         def _parse_scorer_type(data: object) -> Union[None, ScorerType, Unset]:
             if data is None:
@@ -71,11 +73,9 @@ class MetricComputing:
 
         scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
 
-        status_type = cast(Union[Literal["computing"], Unset], d.pop("status_type", UNSET))
-        if status_type != "computing" and not isinstance(status_type, Unset):
-            raise ValueError(f"status_type must match const 'computing', got '{status_type}'")
+        message = d.pop("message", UNSET)
 
-        metric_computing = cls(message=message, scorer_type=scorer_type, status_type=status_type)
+        metric_computing = cls(status_type=status_type, scorer_type=scorer_type, message=message)
 
         metric_computing.additional_properties = d
         return metric_computing

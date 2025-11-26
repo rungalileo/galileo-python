@@ -13,25 +13,25 @@ class RunTagCreateRequest:
     Attributes
     ----------
         key (str):
-        tag_type (str):
         value (str):
+        tag_type (str):
     """
 
     key: str
-    tag_type: str
     value: str
+    tag_type: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         key = self.key
 
-        tag_type = self.tag_type
-
         value = self.value
+
+        tag_type = self.tag_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"key": key, "tag_type": tag_type, "value": value})
+        field_dict.update({"key": key, "value": value, "tag_type": tag_type})
 
         return field_dict
 
@@ -40,11 +40,11 @@ class RunTagCreateRequest:
         d = dict(src_dict)
         key = d.pop("key")
 
-        tag_type = d.pop("tag_type")
-
         value = d.pop("value")
 
-        run_tag_create_request = cls(key=key, tag_type=tag_type, value=value)
+        tag_type = d.pop("tag_type")
+
+        run_tag_create_request = cls(key=key, value=value, tag_type=tag_type)
 
         run_tag_create_request.additional_properties = d
         return run_tag_create_request

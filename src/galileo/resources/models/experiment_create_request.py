@@ -21,24 +21,24 @@ class ExperimentCreateRequest:
     Attributes
     ----------
         name (str):
-        dataset (Union['ExperimentDatasetRequest', None, Unset]):
+        task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
         playground_id (Union[None, Unset, str]):
+        prompt_template_version_id (Union[None, Unset, str]):
+        dataset (Union['ExperimentDatasetRequest', None, Unset]):
         playground_prompt_id (Union[None, Unset, str]):
         prompt_settings (Union[Unset, PromptRunSettings]): Prompt run settings.
-        prompt_template_version_id (Union[None, Unset, str]):
         scorers (Union[Unset, list['ScorerConfig']]):
-        task_type (Union[Literal[16], Literal[17], Unset]):  Default: 16.
         trigger (Union[Unset, bool]):  Default: False.
     """
 
     name: str
-    dataset: Union["ExperimentDatasetRequest", None, Unset] = UNSET
+    task_type: Union[Literal[16], Literal[17], Unset] = 16
     playground_id: Union[None, Unset, str] = UNSET
+    prompt_template_version_id: Union[None, Unset, str] = UNSET
+    dataset: Union["ExperimentDatasetRequest", None, Unset] = UNSET
     playground_prompt_id: Union[None, Unset, str] = UNSET
     prompt_settings: Union[Unset, "PromptRunSettings"] = UNSET
-    prompt_template_version_id: Union[None, Unset, str] = UNSET
     scorers: Union[Unset, list["ScorerConfig"]] = UNSET
-    task_type: Union[Literal[16], Literal[17], Unset] = 16
     trigger: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -46,6 +46,18 @@ class ExperimentCreateRequest:
         from ..models.experiment_dataset_request import ExperimentDatasetRequest
 
         name = self.name
+
+        task_type: Union[Literal[16], Literal[17], Unset]
+        task_type = UNSET if isinstance(self.task_type, Unset) else self.task_type
+
+        playground_id: Union[None, Unset, str]
+        playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
+
+        prompt_template_version_id: Union[None, Unset, str]
+        if isinstance(self.prompt_template_version_id, Unset):
+            prompt_template_version_id = UNSET
+        else:
+            prompt_template_version_id = self.prompt_template_version_id
 
         dataset: Union[None, Unset, dict[str, Any]]
         if isinstance(self.dataset, Unset):
@@ -55,21 +67,12 @@ class ExperimentCreateRequest:
         else:
             dataset = self.dataset
 
-        playground_id: Union[None, Unset, str]
-        playground_id = UNSET if isinstance(self.playground_id, Unset) else self.playground_id
-
         playground_prompt_id: Union[None, Unset, str]
         playground_prompt_id = UNSET if isinstance(self.playground_prompt_id, Unset) else self.playground_prompt_id
 
         prompt_settings: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.prompt_settings, Unset):
             prompt_settings = self.prompt_settings.to_dict()
-
-        prompt_template_version_id: Union[None, Unset, str]
-        if isinstance(self.prompt_template_version_id, Unset):
-            prompt_template_version_id = UNSET
-        else:
-            prompt_template_version_id = self.prompt_template_version_id
 
         scorers: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.scorers, Unset):
@@ -78,28 +81,25 @@ class ExperimentCreateRequest:
                 scorers_item = scorers_item_data.to_dict()
                 scorers.append(scorers_item)
 
-        task_type: Union[Literal[16], Literal[17], Unset]
-        task_type = UNSET if isinstance(self.task_type, Unset) else self.task_type
-
         trigger = self.trigger
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"name": name})
-        if dataset is not UNSET:
-            field_dict["dataset"] = dataset
+        if task_type is not UNSET:
+            field_dict["task_type"] = task_type
         if playground_id is not UNSET:
             field_dict["playground_id"] = playground_id
+        if prompt_template_version_id is not UNSET:
+            field_dict["prompt_template_version_id"] = prompt_template_version_id
+        if dataset is not UNSET:
+            field_dict["dataset"] = dataset
         if playground_prompt_id is not UNSET:
             field_dict["playground_prompt_id"] = playground_prompt_id
         if prompt_settings is not UNSET:
             field_dict["prompt_settings"] = prompt_settings
-        if prompt_template_version_id is not UNSET:
-            field_dict["prompt_template_version_id"] = prompt_template_version_id
         if scorers is not UNSET:
             field_dict["scorers"] = scorers
-        if task_type is not UNSET:
-            field_dict["task_type"] = task_type
         if trigger is not UNSET:
             field_dict["trigger"] = trigger
 
@@ -113,6 +113,38 @@ class ExperimentCreateRequest:
 
         d = dict(src_dict)
         name = d.pop("name")
+
+        def _parse_task_type(data: object) -> Union[Literal[16], Literal[17], Unset]:
+            if isinstance(data, Unset):
+                return data
+            task_type_type_0 = cast(Literal[16], data)
+            if task_type_type_0 != 16:
+                raise ValueError(f"task_type_type_0 must match const 16, got '{task_type_type_0}'")
+            return task_type_type_0
+            task_type_type_1 = cast(Literal[17], data)
+            if task_type_type_1 != 17:
+                raise ValueError(f"task_type_type_1 must match const 17, got '{task_type_type_1}'")
+            return task_type_type_1
+
+        task_type = _parse_task_type(d.pop("task_type", UNSET))
+
+        def _parse_playground_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        playground_id = _parse_playground_id(d.pop("playground_id", UNSET))
+
+        def _parse_prompt_template_version_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        prompt_template_version_id = _parse_prompt_template_version_id(d.pop("prompt_template_version_id", UNSET))
 
         def _parse_dataset(data: object) -> Union["ExperimentDatasetRequest", None, Unset]:
             if data is None:
@@ -130,15 +162,6 @@ class ExperimentCreateRequest:
 
         dataset = _parse_dataset(d.pop("dataset", UNSET))
 
-        def _parse_playground_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        playground_id = _parse_playground_id(d.pop("playground_id", UNSET))
-
         def _parse_playground_prompt_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -155,15 +178,6 @@ class ExperimentCreateRequest:
         else:
             prompt_settings = PromptRunSettings.from_dict(_prompt_settings)
 
-        def _parse_prompt_template_version_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        prompt_template_version_id = _parse_prompt_template_version_id(d.pop("prompt_template_version_id", UNSET))
-
         scorers = []
         _scorers = d.pop("scorers", UNSET)
         for scorers_item_data in _scorers or []:
@@ -171,31 +185,17 @@ class ExperimentCreateRequest:
 
             scorers.append(scorers_item)
 
-        def _parse_task_type(data: object) -> Union[Literal[16], Literal[17], Unset]:
-            if isinstance(data, Unset):
-                return data
-            task_type_type_0 = cast(Literal[16], data)
-            if task_type_type_0 != 16:
-                raise ValueError(f"task_type_type_0 must match const 16, got '{task_type_type_0}'")
-            return task_type_type_0
-            task_type_type_1 = cast(Literal[17], data)
-            if task_type_type_1 != 17:
-                raise ValueError(f"task_type_type_1 must match const 17, got '{task_type_type_1}'")
-            return task_type_type_1
-
-        task_type = _parse_task_type(d.pop("task_type", UNSET))
-
         trigger = d.pop("trigger", UNSET)
 
         experiment_create_request = cls(
             name=name,
-            dataset=dataset,
+            task_type=task_type,
             playground_id=playground_id,
+            prompt_template_version_id=prompt_template_version_id,
+            dataset=dataset,
             playground_prompt_id=playground_prompt_id,
             prompt_settings=prompt_settings,
-            prompt_template_version_id=prompt_template_version_id,
             scorers=scorers,
-            task_type=task_type,
             trigger=trigger,
         )
 

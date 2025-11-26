@@ -14,20 +14,22 @@ class MetricThreshold:
     """
     Attributes
     ----------
+        inverted (Union[Unset, bool]): Whether the column should be inverted for thresholds, i.e. if True, lower is
+            better. Default: False.
         buckets (Union[Unset, list[Union[float, int]]]): Threshold buckets for the column. If the column is a metric,
             these are the thresholds for the column.
         display_value_levels (Union[Unset, list[str]]): Ordered list of strings that raw values get transformed to for
             displaying.
-        inverted (Union[Unset, bool]): Whether the column should be inverted for thresholds, i.e. if True, lower is
-            better. Default: False.
     """
 
+    inverted: Union[Unset, bool] = False
     buckets: Union[Unset, list[Union[float, int]]] = UNSET
     display_value_levels: Union[Unset, list[str]] = UNSET
-    inverted: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        inverted = self.inverted
+
         buckets: Union[Unset, list[Union[float, int]]] = UNSET
         if not isinstance(self.buckets, Unset):
             buckets = []
@@ -40,23 +42,23 @@ class MetricThreshold:
         if not isinstance(self.display_value_levels, Unset):
             display_value_levels = self.display_value_levels
 
-        inverted = self.inverted
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if inverted is not UNSET:
+            field_dict["inverted"] = inverted
         if buckets is not UNSET:
             field_dict["buckets"] = buckets
         if display_value_levels is not UNSET:
             field_dict["display_value_levels"] = display_value_levels
-        if inverted is not UNSET:
-            field_dict["inverted"] = inverted
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        inverted = d.pop("inverted", UNSET)
+
         buckets = []
         _buckets = d.pop("buckets", UNSET)
         for buckets_item_data in _buckets or []:
@@ -70,9 +72,7 @@ class MetricThreshold:
 
         display_value_levels = cast(list[str], d.pop("display_value_levels", UNSET))
 
-        inverted = d.pop("inverted", UNSET)
-
-        metric_threshold = cls(buckets=buckets, display_value_levels=display_value_levels, inverted=inverted)
+        metric_threshold = cls(inverted=inverted, buckets=buckets, display_value_levels=display_value_levels)
 
         metric_threshold.additional_properties = d
         return metric_threshold

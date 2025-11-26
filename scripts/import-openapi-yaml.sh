@@ -16,7 +16,7 @@ HOST_URL="${1%/}"
 HOME_DIR="$(pwd)"
 
 # Fetch the OpenAPI JSON and convert it to YAML
-curl -s "${HOST_URL}/openapi.json" | python3 -c 'import sys, json, yaml; yaml.safe_dump(json.load(sys.stdin), sys.stdout)' > "$HOME_DIR/openapi.yaml"
+curl -s "${HOST_URL}/openapi.json" | poetry run python -c 'import sys, json, yaml; yaml.safe_dump(json.load(sys.stdin), sys.stdout, default_flow_style=False, sort_keys=False)' > "$HOME_DIR/openapi.yaml"
 
 # **Patch the OpenAPI YAML to fix some schema issues**
 # OpenAPI doesn't respect aliases in the router code specifically for Pydantic-based models.
@@ -38,7 +38,7 @@ curl -s "${HOST_URL}/openapi.json" | python3 -c 'import sys, json, yaml; yaml.sa
 #   - Document.properties.page_content -> Document.properties.content (Fix field name mismatch with API)
 #
 # If you run into related issues with the auto-generate-api-client.sh script, add the openapi.yaml patches here.
-python -m yq --in-place -Y '.components.schemas.api__schemas__project_v2__GetProjectsPaginatedResponse.title = "GetProjectsPaginatedResponseV2" | .components.schemas.galileo_core__schemas__shared__message__Message.title = "MessagesListItem" | .components.schemas.galileo_core__schemas__shared__message_role__MessageRole.title = "MessagesListItemRole" | .components.schemas.ListDatasetParams.properties.sort.default = "None" | .components.schemas.ListPromptTemplateParams.properties.sort.default = "None" | .components.schemas.ProjectCollectionParams.properties.sort.default = "None" | .components.schemas.galileo_core__schemas__shared__scorers__scorer_name__ScorerName.title = "CoreScorerName" | .components.schemas.galileo_core__schemas__shared__scorers__scorer_name__ScorerName.enum |= unique | .paths["/llm_integrations/projects/{project_id}/runs/{run_id}"].get.responses["200"].content["application/json"].schema.title = "GetRunIntegrationsResponse" | .components.schemas.Document.properties.content = .components.schemas.Document.properties.page_content | del(.components.schemas.Document.properties.page_content) | .components.schemas.Document.properties.content.title = "Content" | .components.schemas.Document.required = ["content"]'  "$HOME_DIR/openapi.yaml"
+poetry run python -m yq --in-place -Y '.components.schemas.api__schemas__project_v2__GetProjectsPaginatedResponse.title = "GetProjectsPaginatedResponseV2" | .components.schemas.galileo_core__schemas__shared__message__Message.title = "MessagesListItem" | .components.schemas.galileo_core__schemas__shared__message_role__MessageRole.title = "MessagesListItemRole" | .components.schemas.ListDatasetParams.properties.sort.default = "None" | .components.schemas.ListPromptTemplateParams.properties.sort.default = "None" | .components.schemas.ProjectCollectionParams.properties.sort.default = "None" | .components.schemas.galileo_core__schemas__shared__scorers__scorer_name__ScorerName.title = "CoreScorerName" | .components.schemas.galileo_core__schemas__shared__scorers__scorer_name__ScorerName.enum |= unique | .paths["/llm_integrations/projects/{project_id}/runs/{run_id}"].get.responses["200"].content["application/json"].schema.title = "GetRunIntegrationsResponse" | .components.schemas.Document.properties.content = .components.schemas.Document.properties.page_content | del(.components.schemas.Document.properties.page_content) | .components.schemas.Document.properties.content.title = "Content" | .components.schemas.Document.required = ["content"]'  "$HOME_DIR/openapi.yaml"
 
 # Check if the command was successful
 if [ $? -eq 0 ]; then

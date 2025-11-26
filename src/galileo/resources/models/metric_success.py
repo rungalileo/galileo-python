@@ -34,15 +34,15 @@ class MetricSuccess:
             UUID, bool, datetime.datetime, float, int, str]]], list[list[list[Union['Document', 'FeedbackAggregate',
             'FeedbackRatingDB', 'HallucinationSegment', 'Segment', None, UUID, bool, datetime.datetime, float, int, str]]]],
             str]):
-        cost (Union[None, Unset, float]):
-        critique (Union['MetricCritiqueColumnar', None, Unset]):
+        status_type (Union[Literal['success'], Unset]):  Default: 'success'.
+        scorer_type (Union[None, ScorerType, Unset]):
         display_value (Union[None, Unset, str]):
         explanation (Union[None, Unset, str]):
+        rationale (Union[None, Unset, str]):
+        cost (Union[None, Unset, float]):
         model_alias (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
-        rationale (Union[None, Unset, str]):
-        scorer_type (Union[None, ScorerType, Unset]):
-        status_type (Union[Literal['success'], Unset]):  Default: 'success'.
+        critique (Union['MetricCritiqueColumnar', None, Unset]):
     """
 
     value: Union[
@@ -113,15 +113,15 @@ class MetricSuccess:
         ],
         str,
     ]
-    cost: Union[None, Unset, float] = UNSET
-    critique: Union["MetricCritiqueColumnar", None, Unset] = UNSET
+    status_type: Union[Literal["success"], Unset] = "success"
+    scorer_type: Union[None, ScorerType, Unset] = UNSET
     display_value: Union[None, Unset, str] = UNSET
     explanation: Union[None, Unset, str] = UNSET
+    rationale: Union[None, Unset, str] = UNSET
+    cost: Union[None, Unset, float] = UNSET
     model_alias: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
-    rationale: Union[None, Unset, str] = UNSET
-    scorer_type: Union[None, ScorerType, Unset] = UNSET
-    status_type: Union[Literal["success"], Unset] = "success"
+    critique: Union["MetricCritiqueColumnar", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -215,31 +215,7 @@ class MetricSuccess:
         else:
             value = self.value
 
-        cost: Union[None, Unset, float]
-        cost = UNSET if isinstance(self.cost, Unset) else self.cost
-
-        critique: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.critique, Unset):
-            critique = UNSET
-        elif isinstance(self.critique, MetricCritiqueColumnar):
-            critique = self.critique.to_dict()
-        else:
-            critique = self.critique
-
-        display_value: Union[None, Unset, str]
-        display_value = UNSET if isinstance(self.display_value, Unset) else self.display_value
-
-        explanation: Union[None, Unset, str]
-        explanation = UNSET if isinstance(self.explanation, Unset) else self.explanation
-
-        model_alias: Union[None, Unset, str]
-        model_alias = UNSET if isinstance(self.model_alias, Unset) else self.model_alias
-
-        num_judges: Union[None, Unset, int]
-        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
-
-        rationale: Union[None, Unset, str]
-        rationale = UNSET if isinstance(self.rationale, Unset) else self.rationale
+        status_type = self.status_type
 
         scorer_type: Union[None, Unset, str]
         if isinstance(self.scorer_type, Unset):
@@ -249,29 +225,53 @@ class MetricSuccess:
         else:
             scorer_type = self.scorer_type
 
-        status_type = self.status_type
+        display_value: Union[None, Unset, str]
+        display_value = UNSET if isinstance(self.display_value, Unset) else self.display_value
+
+        explanation: Union[None, Unset, str]
+        explanation = UNSET if isinstance(self.explanation, Unset) else self.explanation
+
+        rationale: Union[None, Unset, str]
+        rationale = UNSET if isinstance(self.rationale, Unset) else self.rationale
+
+        cost: Union[None, Unset, float]
+        cost = UNSET if isinstance(self.cost, Unset) else self.cost
+
+        model_alias: Union[None, Unset, str]
+        model_alias = UNSET if isinstance(self.model_alias, Unset) else self.model_alias
+
+        num_judges: Union[None, Unset, int]
+        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
+
+        critique: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.critique, Unset):
+            critique = UNSET
+        elif isinstance(self.critique, MetricCritiqueColumnar):
+            critique = self.critique.to_dict()
+        else:
+            critique = self.critique
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"value": value})
-        if cost is not UNSET:
-            field_dict["cost"] = cost
-        if critique is not UNSET:
-            field_dict["critique"] = critique
+        if status_type is not UNSET:
+            field_dict["status_type"] = status_type
+        if scorer_type is not UNSET:
+            field_dict["scorer_type"] = scorer_type
         if display_value is not UNSET:
             field_dict["display_value"] = display_value
         if explanation is not UNSET:
             field_dict["explanation"] = explanation
+        if rationale is not UNSET:
+            field_dict["rationale"] = rationale
+        if cost is not UNSET:
+            field_dict["cost"] = cost
         if model_alias is not UNSET:
             field_dict["model_alias"] = model_alias
         if num_judges is not UNSET:
             field_dict["num_judges"] = num_judges
-        if rationale is not UNSET:
-            field_dict["rationale"] = rationale
-        if scorer_type is not UNSET:
-            field_dict["scorer_type"] = scorer_type
-        if status_type is not UNSET:
-            field_dict["status_type"] = status_type
+        if critique is not UNSET:
+            field_dict["critique"] = critique
 
         return field_dict
 
@@ -795,30 +795,25 @@ class MetricSuccess:
 
         value = _parse_value(d.pop("value"))
 
-        def _parse_cost(data: object) -> Union[None, Unset, float]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, float], data)
+        status_type = cast(Union[Literal["success"], Unset], d.pop("status_type", UNSET))
+        if status_type != "success" and not isinstance(status_type, Unset):
+            raise ValueError(f"status_type must match const 'success', got '{status_type}'")
 
-        cost = _parse_cost(d.pop("cost", UNSET))
-
-        def _parse_critique(data: object) -> Union["MetricCritiqueColumnar", None, Unset]:
+        def _parse_scorer_type(data: object) -> Union[None, ScorerType, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             try:
-                if not isinstance(data, dict):
+                if not isinstance(data, str):
                     raise TypeError()
-                return MetricCritiqueColumnar.from_dict(data)
+                return ScorerType(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union["MetricCritiqueColumnar", None, Unset], data)
+            return cast(Union[None, ScorerType, Unset], data)
 
-        critique = _parse_critique(d.pop("critique", UNSET))
+        scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
 
         def _parse_display_value(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -838,6 +833,24 @@ class MetricSuccess:
 
         explanation = _parse_explanation(d.pop("explanation", UNSET))
 
+        def _parse_rationale(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        rationale = _parse_rationale(d.pop("rationale", UNSET))
+
+        def _parse_cost(data: object) -> Union[None, Unset, float]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, float], data)
+
+        cost = _parse_cost(d.pop("cost", UNSET))
+
         def _parse_model_alias(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -856,46 +869,33 @@ class MetricSuccess:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        def _parse_rationale(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        rationale = _parse_rationale(d.pop("rationale", UNSET))
-
-        def _parse_scorer_type(data: object) -> Union[None, ScorerType, Unset]:
+        def _parse_critique(data: object) -> Union["MetricCritiqueColumnar", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             try:
-                if not isinstance(data, str):
+                if not isinstance(data, dict):
                     raise TypeError()
-                return ScorerType(data)
+                return MetricCritiqueColumnar.from_dict(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, ScorerType, Unset], data)
+            return cast(Union["MetricCritiqueColumnar", None, Unset], data)
 
-        scorer_type = _parse_scorer_type(d.pop("scorer_type", UNSET))
-
-        status_type = cast(Union[Literal["success"], Unset], d.pop("status_type", UNSET))
-        if status_type != "success" and not isinstance(status_type, Unset):
-            raise ValueError(f"status_type must match const 'success', got '{status_type}'")
+        critique = _parse_critique(d.pop("critique", UNSET))
 
         metric_success = cls(
             value=value,
-            cost=cost,
-            critique=critique,
+            status_type=status_type,
+            scorer_type=scorer_type,
             display_value=display_value,
             explanation=explanation,
+            rationale=rationale,
+            cost=cost,
             model_alias=model_alias,
             num_judges=num_judges,
-            rationale=rationale,
-            scorer_type=scorer_type,
-            status_type=status_type,
+            critique=critique,
         )
 
         metric_success.additional_properties = d

@@ -19,18 +19,24 @@ class RegisteredScorer:
     """
     Attributes
     ----------
-        filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
         id (Union[None, Unset, str]):
         name (Union[None, Unset, str]):
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]):
     """
 
-    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     id: Union[None, Unset, str] = UNSET
     name: Union[None, Unset, str] = UNSET
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.node_name_filter import NodeNameFilter
+
+        id: Union[None, Unset, str]
+        id = UNSET if isinstance(self.id, Unset) else self.id
+
+        name: Union[None, Unset, str]
+        name = UNSET if isinstance(self.name, Unset) else self.name
 
         filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
@@ -49,21 +55,15 @@ class RegisteredScorer:
         else:
             filters = self.filters
 
-        id: Union[None, Unset, str]
-        id = UNSET if isinstance(self.id, Unset) else self.id
-
-        name: Union[None, Unset, str]
-        name = UNSET if isinstance(self.name, Unset) else self.name
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if filters is not UNSET:
-            field_dict["filters"] = filters
         if id is not UNSET:
             field_dict["id"] = id
         if name is not UNSET:
             field_dict["name"] = name
+        if filters is not UNSET:
+            field_dict["filters"] = filters
 
         return field_dict
 
@@ -73,6 +73,24 @@ class RegisteredScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
+
+        def _parse_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        id = _parse_id(d.pop("id", UNSET))
+
+        def _parse_name(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        name = _parse_name(d.pop("name", UNSET))
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -109,25 +127,7 @@ class RegisteredScorer:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
-        def _parse_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        id = _parse_id(d.pop("id", UNSET))
-
-        def _parse_name(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        name = _parse_name(d.pop("name", UNSET))
-
-        registered_scorer = cls(filters=filters, id=id, name=name)
+        registered_scorer = cls(id=id, name=name, filters=filters)
 
         registered_scorer.additional_properties = d
         return registered_scorer

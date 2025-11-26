@@ -14,33 +14,33 @@ class BucketedMetrics:
     """
     Attributes
     ----------
-        end_bucket_time (datetime.datetime):
         start_bucket_time (datetime.datetime):
+        end_bucket_time (datetime.datetime):
     """
 
-    end_bucket_time: datetime.datetime
     start_bucket_time: datetime.datetime
+    end_bucket_time: datetime.datetime
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        end_bucket_time = self.end_bucket_time.isoformat()
-
         start_bucket_time = self.start_bucket_time.isoformat()
+
+        end_bucket_time = self.end_bucket_time.isoformat()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"end_bucket_time": end_bucket_time, "start_bucket_time": start_bucket_time})
+        field_dict.update({"start_bucket_time": start_bucket_time, "end_bucket_time": end_bucket_time})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        end_bucket_time = isoparse(d.pop("end_bucket_time"))
-
         start_bucket_time = isoparse(d.pop("start_bucket_time"))
 
-        bucketed_metrics = cls(end_bucket_time=end_bucket_time, start_bucket_time=start_bucket_time)
+        end_bucket_time = isoparse(d.pop("end_bucket_time"))
+
+        bucketed_metrics = cls(start_bucket_time=start_bucket_time, end_bucket_time=end_bucket_time)
 
         bucketed_metrics.additional_properties = d
         return bucketed_metrics
