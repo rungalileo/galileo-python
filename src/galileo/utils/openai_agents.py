@@ -1,5 +1,5 @@
 import logging
-from typing import Any, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 from agents import (
     AgentSpanData,
@@ -15,16 +15,31 @@ from agents.tracing import ResponseSpanData
 
 from galileo.schema.handlers import SPAN_TYPE
 from galileo.utils.serialization import serialize_to_str
+from galileo_core.schemas.logging.span import Span as GalileoSpan
 
 _logger = logging.getLogger(__name__)
 
 
-def _map_span_type(span_data: SpanData, span: Optional[Span[Any]] = None) -> SPAN_TYPE:
+class GalileoCustomSpan(CustomSpanData):
+    def __init__(self, span: GalileoSpan, data: dict[str, Any]):
+        self.span = span
+        super().__init__(span.name, data)
+
+    @property
+    def type(self) -> Literal["galileo_custom"]:
+        return "galileo_custom"
+
+
+def _map_span_type(
+    span_data: SpanData, span: Optional[Span[Any]] = None
+) -> Union[SPAN_TYPE, Literal["galileo_custom"]]:
     """Determine the Galileo span type based on the OpenAI Agent span data."""
     if isinstance(span_data, (GenerationSpanData, ResponseSpanData)):
         return "llm"
     if isinstance(span_data, (FunctionSpanData, GuardrailSpanData)):
         return "tool"
+    if isinstance(span_data, GalileoCustomSpan):
+        return span_data.type
     if isinstance(span_data, (AgentSpanData, HandoffSpanData, CustomSpanData)):
         return "workflow"
 
@@ -82,23 +97,15 @@ def _parse_usage(usage_data: Union[dict, Any, None]) -> dict[str, Union[int, Non
     else:
         return parsed
 
-    input_tokens = usage_dict.get("input_tokens")
-    parsed["input_tokens"] = input_tokens if input_tokens is not None else usage_dict.get("prompt_tokens")
-    output_tokens = usage_dict.get("output_tokens")
-    parsed["output_tokens"] = output_tokens if output_tokens is not None else usage_dict.get("completion_tokens")
+    input_tokens = usage_dict.get("input_tokens", usage_dict.get("prompt_tokens", None))
+    output_tokens = usage_dict.get("output_tokens", usage_dict.get("completion_tokens", None))
+    parsed["input_tokens"] = input_tokens if isinstance(input_tokens, int) else None
+    parsed["output_tokens"] = output_tokens if isinstance(output_tokens, int) else None
     parsed["total_tokens"] = usage_dict.get("total_tokens")
-    if parsed["total_tokens"] is None:
-        if input_tokens is not None and output_tokens is not None:
-            parsed["total_tokens"] = input_tokens + output_tokens
 
-    # Ensure values are integers if not None
-    for key in parsed:
-        if parsed[key] is not None:
-            try:
-                parsed[key] = int(parsed[key])  # type: ignore[arg-type]
-            except (ValueError, TypeError):
-                _logger.warning(f"Could not convert usage value '{parsed[key]}' for key '{key}' to int.")
-                parsed[key] = None
+    if parsed["total_tokens"] is None:
+        if isinstance(parsed["input_tokens"], int) and isinstance(parsed["output_tokens"], int):
+            parsed["total_tokens"] = parsed["input_tokens"] + parsed["output_tokens"]
 
     return parsed
 
