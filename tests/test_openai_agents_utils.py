@@ -37,11 +37,23 @@ class TestParseUsage:
         [
             (
                 {"input_tokens": 10, "output_tokens": 20, "total_tokens": 30},
-                {"input_tokens": 10, "output_tokens": 20, "total_tokens": 30},
+                {
+                    "input_tokens": 10,
+                    "output_tokens": 20,
+                    "total_tokens": 30,
+                    "input_tokens_details": None,
+                    "output_tokens_details": None,
+                },
             ),
             (
                 {"prompt_tokens": 15, "completion_tokens": 25, "total_tokens": 40},
-                {"input_tokens": 15, "output_tokens": 25, "total_tokens": 40},
+                {
+                    "input_tokens": 15,
+                    "output_tokens": 25,
+                    "total_tokens": 40,
+                    "input_tokens_details": None,
+                    "output_tokens_details": None,
+                },
             ),
             (
                 {
@@ -51,11 +63,44 @@ class TestParseUsage:
                     "completion_tokens": 888,
                     "total_tokens": 30,
                 },
-                {"input_tokens": 10, "output_tokens": 20, "total_tokens": 30},
+                {
+                    "input_tokens": 10,
+                    "output_tokens": 20,
+                    "total_tokens": 30,
+                    "input_tokens_details": None,
+                    "output_tokens_details": None,
+                },
             ),
-            ({"input_tokens": 10, "output_tokens": 20}, {"input_tokens": 10, "output_tokens": 20, "total_tokens": 30}),
-            (None, {"input_tokens": None, "output_tokens": None, "total_tokens": None}),
-            ({"input_tokens": 10}, {"input_tokens": 10, "output_tokens": None, "total_tokens": None}),
+            (
+                {"input_tokens": 10, "output_tokens": 20},
+                {
+                    "input_tokens": 10,
+                    "output_tokens": 20,
+                    "total_tokens": 30,
+                    "input_tokens_details": None,
+                    "output_tokens_details": None,
+                },
+            ),
+            (
+                None,
+                {
+                    "input_tokens": None,
+                    "output_tokens": None,
+                    "total_tokens": None,
+                    "input_tokens_details": None,
+                    "output_tokens_details": None,
+                },
+            ),
+            (
+                {"input_tokens": 10},
+                {
+                    "input_tokens": 10,
+                    "output_tokens": None,
+                    "total_tokens": None,
+                    "input_tokens_details": None,
+                    "output_tokens_details": None,
+                },
+            ),
         ],
     )
     def test_parse_usage_variations(self, usage_data: dict[str, Any] | None, expected: dict[str, int | None]) -> None:
@@ -68,7 +113,13 @@ class TestParseUsage:
         mock_usage = Mock()
         mock_usage.model_dump.return_value = {"input_tokens": 5, "output_tokens": 10, "total_tokens": 15}
         result = _parse_usage(mock_usage)
-        assert result == {"input_tokens": 5, "output_tokens": 10, "total_tokens": 15}
+        assert result == {
+            "input_tokens": 5,
+            "output_tokens": 10,
+            "total_tokens": 15,
+            "input_tokens_details": None,
+            "output_tokens_details": None,
+        }
 
     def test_parse_usage_with_invalid_values(self) -> None:
         """Test parsing with invalid token values."""
