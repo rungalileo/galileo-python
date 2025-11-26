@@ -1,13 +1,13 @@
 """Utilities for reading environment variables with defaults."""
 
 from os import getenv
-from typing import Literal, Optional
+from typing import Optional
 
-from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_MODE, DEFAULT_PROJECT_NAME
+from galileo.constants import DEFAULT_LOG_STREAM_NAME, DEFAULT_MODE, DEFAULT_PROJECT_NAME, LoggerModeType
 from galileo.exceptions import GalileoLoggerException
 
 
-def _get_mode_or_default(mode: Optional[str]) -> Literal["batch", "distributed"]:
+def _get_mode_or_default(mode: Optional[str]) -> LoggerModeType:
     """
     Validates the mode value. If the environment variable contains
     an invalid value, falls back to default.
@@ -19,7 +19,7 @@ def _get_mode_or_default(mode: Optional[str]) -> Literal["batch", "distributed"]
 
     Returns
     -------
-    Literal["batch", "distributed"]
+    LoggerModeType
         The mode value to use:
         - "batch": Batches traces and sends on flush() (default)
         - "distributed": Enables distributed tracing with immediate updates
