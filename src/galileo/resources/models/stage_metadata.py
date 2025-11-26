@@ -17,15 +17,15 @@ class StageMetadata:
         project_id (str):
         stage_id (str):
         stage_name (str):
-        stage_type (StageType):
         stage_version (int):
+        stage_type (StageType):
     """
 
     project_id: str
     stage_id: str
     stage_name: str
-    stage_type: StageType
     stage_version: int
+    stage_type: StageType
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,9 +35,9 @@ class StageMetadata:
 
         stage_name = self.stage_name
 
-        stage_type = self.stage_type.value
-
         stage_version = self.stage_version
+
+        stage_type = self.stage_type.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -46,8 +46,8 @@ class StageMetadata:
                 "project_id": project_id,
                 "stage_id": stage_id,
                 "stage_name": stage_name,
-                "stage_type": stage_type,
                 "stage_version": stage_version,
+                "stage_type": stage_type,
             }
         )
 
@@ -62,16 +62,16 @@ class StageMetadata:
 
         stage_name = d.pop("stage_name")
 
-        stage_type = StageType(d.pop("stage_type"))
-
         stage_version = d.pop("stage_version")
+
+        stage_type = StageType(d.pop("stage_type"))
 
         stage_metadata = cls(
             project_id=project_id,
             stage_id=stage_id,
             stage_name=stage_name,
-            stage_type=stage_type,
             stage_version=stage_version,
+            stage_type=stage_type,
         )
 
         stage_metadata.additional_properties = d

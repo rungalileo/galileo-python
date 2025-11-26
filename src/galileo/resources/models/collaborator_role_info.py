@@ -14,39 +14,39 @@ class CollaboratorRoleInfo:
     """
     Attributes
     ----------
-        description (str):
-        display_name (str):
         name (CollaboratorRole):
+        display_name (str):
+        description (str):
     """
 
-    description: str
-    display_name: str
     name: CollaboratorRole
+    display_name: str
+    description: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        description = self.description
+        name = self.name.value
 
         display_name = self.display_name
 
-        name = self.name.value
+        description = self.description
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"description": description, "display_name": display_name, "name": name})
+        field_dict.update({"name": name, "display_name": display_name, "description": description})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        description = d.pop("description")
+        name = CollaboratorRole(d.pop("name"))
 
         display_name = d.pop("display_name")
 
-        name = CollaboratorRole(d.pop("name"))
+        description = d.pop("description")
 
-        collaborator_role_info = cls(description=description, display_name=display_name, name=name)
+        collaborator_role_info = cls(name=name, display_name=display_name, description=description)
 
         collaborator_role_info.additional_properties = d
         return collaborator_role_info

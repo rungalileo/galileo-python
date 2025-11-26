@@ -14,31 +14,31 @@ class EditSpan:
     """
     Attributes
     ----------
+        start_index (int):
         end_index (int):
         label (str):
-        start_index (int):
         id (Union[None, Unset, int]):
     """
 
+    start_index: int
     end_index: int
     label: str
-    start_index: int
     id: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        start_index = self.start_index
+
         end_index = self.end_index
 
         label = self.label
-
-        start_index = self.start_index
 
         id: Union[None, Unset, int]
         id = UNSET if isinstance(self.id, Unset) else self.id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"end_index": end_index, "label": label, "start_index": start_index})
+        field_dict.update({"start_index": start_index, "end_index": end_index, "label": label})
         if id is not UNSET:
             field_dict["id"] = id
 
@@ -47,11 +47,11 @@ class EditSpan:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        start_index = d.pop("start_index")
+
         end_index = d.pop("end_index")
 
         label = d.pop("label")
-
-        start_index = d.pop("start_index")
 
         def _parse_id(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -62,7 +62,7 @@ class EditSpan:
 
         id = _parse_id(d.pop("id", UNSET))
 
-        edit_span = cls(end_index=end_index, label=label, start_index=start_index, id=id)
+        edit_span = cls(start_index=start_index, end_index=end_index, label=label, id=id)
 
         edit_span.additional_properties = d
         return edit_span

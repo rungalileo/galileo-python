@@ -28,22 +28,22 @@ class LogRecordsExportRequest:
     Attributes
     ----------
         root_type (RootType):
-        column_ids (Union[None, Unset, list[str]]): Column IDs to include in export
+        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
-        export_format (Union[Unset, LLMExportFormat]):
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
             'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]): Filters to
             apply on the export
-        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
-        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
-        redact (Union[Unset, bool]): Redact sensitive data Default: True.
         sort (Union[Unset, LogRecordsSortClause]):
+        column_ids (Union[None, Unset, list[str]]): Column IDs to include in export
+        export_format (Union[Unset, LLMExportFormat]):
+        redact (Union[Unset, bool]): Redact sensitive data Default: True.
     """
 
     root_type: RootType
-    column_ids: Union[None, Unset, list[str]] = UNSET
+    log_stream_id: Union[None, Unset, str] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
-    export_format: Union[Unset, LLMExportFormat] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
     filters: Union[
         Unset,
         list[
@@ -57,10 +57,10 @@ class LogRecordsExportRequest:
             ]
         ],
     ] = UNSET
-    log_stream_id: Union[None, Unset, str] = UNSET
-    metrics_testing_id: Union[None, Unset, str] = UNSET
-    redact: Union[Unset, bool] = True
     sort: Union[Unset, "LogRecordsSortClause"] = UNSET
+    column_ids: Union[None, Unset, list[str]] = UNSET
+    export_format: Union[Unset, LLMExportFormat] = UNSET
+    redact: Union[Unset, bool] = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -72,21 +72,14 @@ class LogRecordsExportRequest:
 
         root_type = self.root_type.value
 
-        column_ids: Union[None, Unset, list[str]]
-        if isinstance(self.column_ids, Unset):
-            column_ids = UNSET
-        elif isinstance(self.column_ids, list):
-            column_ids = self.column_ids
-
-        else:
-            column_ids = self.column_ids
+        log_stream_id: Union[None, Unset, str]
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
-        export_format: Union[Unset, str] = UNSET
-        if not isinstance(self.export_format, Unset):
-            export_format = self.export_format.value
+        metrics_testing_id: Union[None, Unset, str]
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -109,37 +102,44 @@ class LogRecordsExportRequest:
 
                 filters.append(filters_item)
 
-        log_stream_id: Union[None, Unset, str]
-        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
-
-        metrics_testing_id: Union[None, Unset, str]
-        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
-
-        redact = self.redact
-
         sort: Union[Unset, dict[str, Any]] = UNSET
         if not isinstance(self.sort, Unset):
             sort = self.sort.to_dict()
 
+        column_ids: Union[None, Unset, list[str]]
+        if isinstance(self.column_ids, Unset):
+            column_ids = UNSET
+        elif isinstance(self.column_ids, list):
+            column_ids = self.column_ids
+
+        else:
+            column_ids = self.column_ids
+
+        export_format: Union[Unset, str] = UNSET
+        if not isinstance(self.export_format, Unset):
+            export_format = self.export_format.value
+
+        redact = self.redact
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"root_type": root_type})
-        if column_ids is not UNSET:
-            field_dict["column_ids"] = column_ids
-        if experiment_id is not UNSET:
-            field_dict["experiment_id"] = experiment_id
-        if export_format is not UNSET:
-            field_dict["export_format"] = export_format
-        if filters is not UNSET:
-            field_dict["filters"] = filters
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
+        if experiment_id is not UNSET:
+            field_dict["experiment_id"] = experiment_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
-        if redact is not UNSET:
-            field_dict["redact"] = redact
+        if filters is not UNSET:
+            field_dict["filters"] = filters
         if sort is not UNSET:
             field_dict["sort"] = sort
+        if column_ids is not UNSET:
+            field_dict["column_ids"] = column_ids
+        if export_format is not UNSET:
+            field_dict["export_format"] = export_format
+        if redact is not UNSET:
+            field_dict["redact"] = redact
 
         return field_dict
 
@@ -156,21 +156,14 @@ class LogRecordsExportRequest:
         d = dict(src_dict)
         root_type = RootType(d.pop("root_type"))
 
-        def _parse_column_ids(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                return cast(list[str], data)
+            return cast(Union[None, Unset, str], data)
 
-            except:  # noqa: E722
-                pass
-            return cast(Union[None, Unset, list[str]], data)
-
-        column_ids = _parse_column_ids(d.pop("column_ids", UNSET))
+        log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
         def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -181,9 +174,14 @@ class LogRecordsExportRequest:
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        _export_format = d.pop("export_format", UNSET)
-        export_format: Union[Unset, LLMExportFormat]
-        export_format = UNSET if isinstance(_export_format, Unset) else LLMExportFormat(_export_format)
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
         filters = []
         _filters = d.pop("filters", UNSET)
@@ -242,40 +240,42 @@ class LogRecordsExportRequest:
 
             filters.append(filters_item)
 
-        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
-
-        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
-
-        redact = d.pop("redact", UNSET)
-
         _sort = d.pop("sort", UNSET)
         sort: Union[Unset, LogRecordsSortClause]
         sort = UNSET if isinstance(_sort, Unset) else LogRecordsSortClause.from_dict(_sort)
 
+        def _parse_column_ids(data: object) -> Union[None, Unset, list[str]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                return cast(list[str], data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list[str]], data)
+
+        column_ids = _parse_column_ids(d.pop("column_ids", UNSET))
+
+        _export_format = d.pop("export_format", UNSET)
+        export_format: Union[Unset, LLMExportFormat]
+        export_format = UNSET if isinstance(_export_format, Unset) else LLMExportFormat(_export_format)
+
+        redact = d.pop("redact", UNSET)
+
         log_records_export_request = cls(
             root_type=root_type,
-            column_ids=column_ids,
-            experiment_id=experiment_id,
-            export_format=export_format,
-            filters=filters,
             log_stream_id=log_stream_id,
+            experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,
-            redact=redact,
+            filters=filters,
             sort=sort,
+            column_ids=column_ids,
+            export_format=export_format,
+            redact=redact,
         )
 
         log_records_export_request.additional_properties = d

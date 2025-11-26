@@ -13,25 +13,25 @@ class VegasGatewayIntegrationCreate:
     Attributes
     ----------
         endpoint (str):
-        token (str):
         use_case (str):
+        token (str):
     """
 
     endpoint: str
-    token: str
     use_case: str
+    token: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         endpoint = self.endpoint
 
-        token = self.token
-
         use_case = self.use_case
+
+        token = self.token
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"endpoint": endpoint, "token": token, "use_case": use_case})
+        field_dict.update({"endpoint": endpoint, "use_case": use_case, "token": token})
 
         return field_dict
 
@@ -40,11 +40,11 @@ class VegasGatewayIntegrationCreate:
         d = dict(src_dict)
         endpoint = d.pop("endpoint")
 
-        token = d.pop("token")
-
         use_case = d.pop("use_case")
 
-        vegas_gateway_integration_create = cls(endpoint=endpoint, token=token, use_case=use_case)
+        token = d.pop("token")
+
+        vegas_gateway_integration_create = cls(endpoint=endpoint, use_case=use_case, token=token)
 
         vegas_gateway_integration_create.additional_properties = d
         return vegas_gateway_integration_create

@@ -18,44 +18,41 @@ class DatasetVersionDB:
     """
     Attributes
     ----------
+        version_index (int):
+        name (Union[None, str]):
+        created_at (datetime.datetime):
+        created_by_user (Union['UserInfo', None]):
+        num_rows (int):
         column_names (list[str]):
+        rows_added (int):
+        rows_removed (int):
+        rows_edited (int):
         columns_added (int):
         columns_removed (int):
         columns_renamed (int):
-        created_at (datetime.datetime):
-        created_by_user (Union['UserInfo', None]):
-        name (Union[None, str]):
-        num_rows (int):
-        rows_added (int):
-        rows_edited (int):
-        rows_removed (int):
-        version_index (int):
     """
 
+    version_index: int
+    name: Union[None, str]
+    created_at: datetime.datetime
+    created_by_user: Union["UserInfo", None]
+    num_rows: int
     column_names: list[str]
+    rows_added: int
+    rows_removed: int
+    rows_edited: int
     columns_added: int
     columns_removed: int
     columns_renamed: int
-    created_at: datetime.datetime
-    created_by_user: Union["UserInfo", None]
-    name: Union[None, str]
-    num_rows: int
-    rows_added: int
-    rows_edited: int
-    rows_removed: int
-    version_index: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.user_info import UserInfo
 
-        column_names = self.column_names
+        version_index = self.version_index
 
-        columns_added = self.columns_added
-
-        columns_removed = self.columns_removed
-
-        columns_renamed = self.columns_renamed
+        name: Union[None, str]
+        name = self.name
 
         created_at = self.created_at.isoformat()
 
@@ -65,35 +62,38 @@ class DatasetVersionDB:
         else:
             created_by_user = self.created_by_user
 
-        name: Union[None, str]
-        name = self.name
-
         num_rows = self.num_rows
+
+        column_names = self.column_names
 
         rows_added = self.rows_added
 
-        rows_edited = self.rows_edited
-
         rows_removed = self.rows_removed
 
-        version_index = self.version_index
+        rows_edited = self.rows_edited
+
+        columns_added = self.columns_added
+
+        columns_removed = self.columns_removed
+
+        columns_renamed = self.columns_renamed
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "version_index": version_index,
+                "name": name,
+                "created_at": created_at,
+                "created_by_user": created_by_user,
+                "num_rows": num_rows,
                 "column_names": column_names,
+                "rows_added": rows_added,
+                "rows_removed": rows_removed,
+                "rows_edited": rows_edited,
                 "columns_added": columns_added,
                 "columns_removed": columns_removed,
                 "columns_renamed": columns_renamed,
-                "created_at": created_at,
-                "created_by_user": created_by_user,
-                "name": name,
-                "num_rows": num_rows,
-                "rows_added": rows_added,
-                "rows_edited": rows_edited,
-                "rows_removed": rows_removed,
-                "version_index": version_index,
             }
         )
 
@@ -104,13 +104,14 @@ class DatasetVersionDB:
         from ..models.user_info import UserInfo
 
         d = dict(src_dict)
-        column_names = cast(list[str], d.pop("column_names"))
+        version_index = d.pop("version_index")
 
-        columns_added = d.pop("columns_added")
+        def _parse_name(data: object) -> Union[None, str]:
+            if data is None:
+                return data
+            return cast(Union[None, str], data)
 
-        columns_removed = d.pop("columns_removed")
-
-        columns_renamed = d.pop("columns_renamed")
+        name = _parse_name(d.pop("name"))
 
         created_at = isoparse(d.pop("created_at"))
 
@@ -128,36 +129,35 @@ class DatasetVersionDB:
 
         created_by_user = _parse_created_by_user(d.pop("created_by_user"))
 
-        def _parse_name(data: object) -> Union[None, str]:
-            if data is None:
-                return data
-            return cast(Union[None, str], data)
-
-        name = _parse_name(d.pop("name"))
-
         num_rows = d.pop("num_rows")
+
+        column_names = cast(list[str], d.pop("column_names"))
 
         rows_added = d.pop("rows_added")
 
-        rows_edited = d.pop("rows_edited")
-
         rows_removed = d.pop("rows_removed")
 
-        version_index = d.pop("version_index")
+        rows_edited = d.pop("rows_edited")
+
+        columns_added = d.pop("columns_added")
+
+        columns_removed = d.pop("columns_removed")
+
+        columns_renamed = d.pop("columns_renamed")
 
         dataset_version_db = cls(
+            version_index=version_index,
+            name=name,
+            created_at=created_at,
+            created_by_user=created_by_user,
+            num_rows=num_rows,
             column_names=column_names,
+            rows_added=rows_added,
+            rows_removed=rows_removed,
+            rows_edited=rows_edited,
             columns_added=columns_added,
             columns_removed=columns_removed,
             columns_renamed=columns_renamed,
-            created_at=created_at,
-            created_by_user=created_by_user,
-            name=name,
-            num_rows=num_rows,
-            rows_added=rows_added,
-            rows_edited=rows_edited,
-            rows_removed=rows_removed,
-            version_index=version_index,
         )
 
         dataset_version_db.additional_properties = d

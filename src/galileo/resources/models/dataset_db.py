@@ -21,39 +21,50 @@ class DatasetDB:
     """
     Attributes
     ----------
-        column_names (Union[None, list[str]]):
+        id (str):
+        name (str):
         created_at (datetime.datetime):
+        updated_at (datetime.datetime):
+        project_count (int):
+        num_rows (Union[None, int]):
+        column_names (Union[None, list[str]]):
         created_by_user (Union['UserInfo', None]):
         current_version_index (int):
         draft (bool):
-        id (str):
-        name (str):
-        num_rows (Union[None, int]):
-        project_count (int):
-        updated_at (datetime.datetime):
         permissions (Union[Unset, list['Permission']]):
     """
 
-    column_names: Union[None, list[str]]
+    id: str
+    name: str
     created_at: datetime.datetime
+    updated_at: datetime.datetime
+    project_count: int
+    num_rows: Union[None, int]
+    column_names: Union[None, list[str]]
     created_by_user: Union["UserInfo", None]
     current_version_index: int
     draft: bool
-    id: str
-    name: str
-    num_rows: Union[None, int]
-    project_count: int
-    updated_at: datetime.datetime
     permissions: Union[Unset, list["Permission"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.user_info import UserInfo
 
-        column_names: Union[None, list[str]]
-        column_names = self.column_names if isinstance(self.column_names, list) else self.column_names
+        id = self.id
+
+        name = self.name
 
         created_at = self.created_at.isoformat()
+
+        updated_at = self.updated_at.isoformat()
+
+        project_count = self.project_count
+
+        num_rows: Union[None, int]
+        num_rows = self.num_rows
+
+        column_names: Union[None, list[str]]
+        column_names = self.column_names if isinstance(self.column_names, list) else self.column_names
 
         created_by_user: Union[None, dict[str, Any]]
         if isinstance(self.created_by_user, UserInfo):
@@ -64,17 +75,6 @@ class DatasetDB:
         current_version_index = self.current_version_index
 
         draft = self.draft
-
-        id = self.id
-
-        name = self.name
-
-        num_rows: Union[None, int]
-        num_rows = self.num_rows
-
-        project_count = self.project_count
-
-        updated_at = self.updated_at.isoformat()
 
         permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
@@ -87,16 +87,16 @@ class DatasetDB:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "column_names": column_names,
+                "id": id,
+                "name": name,
                 "created_at": created_at,
+                "updated_at": updated_at,
+                "project_count": project_count,
+                "num_rows": num_rows,
+                "column_names": column_names,
                 "created_by_user": created_by_user,
                 "current_version_index": current_version_index,
                 "draft": draft,
-                "id": id,
-                "name": name,
-                "num_rows": num_rows,
-                "project_count": project_count,
-                "updated_at": updated_at,
             }
         )
         if permissions is not UNSET:
@@ -110,6 +110,22 @@ class DatasetDB:
         from ..models.user_info import UserInfo
 
         d = dict(src_dict)
+        id = d.pop("id")
+
+        name = d.pop("name")
+
+        created_at = isoparse(d.pop("created_at"))
+
+        updated_at = isoparse(d.pop("updated_at"))
+
+        project_count = d.pop("project_count")
+
+        def _parse_num_rows(data: object) -> Union[None, int]:
+            if data is None:
+                return data
+            return cast(Union[None, int], data)
+
+        num_rows = _parse_num_rows(d.pop("num_rows"))
 
         def _parse_column_names(data: object) -> Union[None, list[str]]:
             if data is None:
@@ -124,8 +140,6 @@ class DatasetDB:
             return cast(Union[None, list[str]], data)
 
         column_names = _parse_column_names(d.pop("column_names"))
-
-        created_at = isoparse(d.pop("created_at"))
 
         def _parse_created_by_user(data: object) -> Union["UserInfo", None]:
             if data is None:
@@ -145,21 +159,6 @@ class DatasetDB:
 
         draft = d.pop("draft")
 
-        id = d.pop("id")
-
-        name = d.pop("name")
-
-        def _parse_num_rows(data: object) -> Union[None, int]:
-            if data is None:
-                return data
-            return cast(Union[None, int], data)
-
-        num_rows = _parse_num_rows(d.pop("num_rows"))
-
-        project_count = d.pop("project_count")
-
-        updated_at = isoparse(d.pop("updated_at"))
-
         permissions = []
         _permissions = d.pop("permissions", UNSET)
         for permissions_item_data in _permissions or []:
@@ -168,16 +167,16 @@ class DatasetDB:
             permissions.append(permissions_item)
 
         dataset_db = cls(
-            column_names=column_names,
+            id=id,
+            name=name,
             created_at=created_at,
+            updated_at=updated_at,
+            project_count=project_count,
+            num_rows=num_rows,
+            column_names=column_names,
             created_by_user=created_by_user,
             current_version_index=current_version_index,
             draft=draft,
-            id=id,
-            name=name,
-            num_rows=num_rows,
-            project_count=project_count,
-            updated_at=updated_at,
             permissions=permissions,
         )
 

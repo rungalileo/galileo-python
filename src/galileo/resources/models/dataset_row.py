@@ -18,30 +18,27 @@ class DatasetRow:
     """
     Attributes
     ----------
-        index (int):
-        metadata (Union['DatasetRowMetadata', None]):
         row_id (str):
+        index (int):
         values (list[Union['DatasetRowValuesItemType3', None, float, int, str]]):
         values_dict (DatasetRowValuesDict):
+        metadata (Union['DatasetRowMetadata', None]):
     """
 
-    index: int
-    metadata: Union["DatasetRowMetadata", None]
     row_id: str
+    index: int
     values: list[Union["DatasetRowValuesItemType3", None, float, int, str]]
     values_dict: "DatasetRowValuesDict"
+    metadata: Union["DatasetRowMetadata", None]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.dataset_row_metadata import DatasetRowMetadata
         from ..models.dataset_row_values_item_type_3 import DatasetRowValuesItemType3
 
-        index = self.index
-
-        metadata: Union[None, dict[str, Any]]
-        metadata = self.metadata.to_dict() if isinstance(self.metadata, DatasetRowMetadata) else self.metadata
-
         row_id = self.row_id
+
+        index = self.index
 
         values = []
         for values_item_data in self.values:
@@ -54,10 +51,13 @@ class DatasetRow:
 
         values_dict = self.values_dict.to_dict()
 
+        metadata: Union[None, dict[str, Any]]
+        metadata = self.metadata.to_dict() if isinstance(self.metadata, DatasetRowMetadata) else self.metadata
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {"index": index, "metadata": metadata, "row_id": row_id, "values": values, "values_dict": values_dict}
+            {"row_id": row_id, "index": index, "values": values, "values_dict": values_dict, "metadata": metadata}
         )
 
         return field_dict
@@ -69,23 +69,9 @@ class DatasetRow:
         from ..models.dataset_row_values_item_type_3 import DatasetRowValuesItemType3
 
         d = dict(src_dict)
-        index = d.pop("index")
-
-        def _parse_metadata(data: object) -> Union["DatasetRowMetadata", None]:
-            if data is None:
-                return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return DatasetRowMetadata.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union["DatasetRowMetadata", None], data)
-
-        metadata = _parse_metadata(d.pop("metadata"))
-
         row_id = d.pop("row_id")
+
+        index = d.pop("index")
 
         values = []
         _values = d.pop("values")
@@ -109,7 +95,21 @@ class DatasetRow:
 
         values_dict = DatasetRowValuesDict.from_dict(d.pop("values_dict"))
 
-        dataset_row = cls(index=index, metadata=metadata, row_id=row_id, values=values, values_dict=values_dict)
+        def _parse_metadata(data: object) -> Union["DatasetRowMetadata", None]:
+            if data is None:
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return DatasetRowMetadata.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["DatasetRowMetadata", None], data)
+
+        metadata = _parse_metadata(d.pop("metadata"))
+
+        dataset_row = cls(row_id=row_id, index=index, values=values, values_dict=values_dict, metadata=metadata)
 
         dataset_row.additional_properties = d
         return dataset_row

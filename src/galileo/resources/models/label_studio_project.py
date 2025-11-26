@@ -12,33 +12,33 @@ class LabelStudioProject:
     """
     Attributes
     ----------
-        labels (list[str]):
         name (str):
+        labels (list[str]):
     """
 
-    labels: list[str]
     name: str
+    labels: list[str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        labels = self.labels
-
         name = self.name
+
+        labels = self.labels
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"labels": labels, "name": name})
+        field_dict.update({"name": name, "labels": labels})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        labels = cast(list[str], d.pop("labels"))
-
         name = d.pop("name")
 
-        label_studio_project = cls(labels=labels, name=name)
+        labels = cast(list[str], d.pop("labels"))
+
+        label_studio_project = cls(name=name, labels=labels)
 
         label_studio_project.additional_properties = d
         return label_studio_project

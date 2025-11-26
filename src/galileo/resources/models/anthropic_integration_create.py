@@ -22,20 +22,20 @@ class AnthropicIntegrationCreate:
     Attributes
     ----------
         token (str):
-        authentication_scope (Union[None, Unset, str]):
         authentication_type (Union[Unset, AnthropicAuthenticationType]):
+        endpoint (Union[None, Unset, str]): Custom base URL for the Anthropic API. Required if `proxy` is True.
+        authentication_scope (Union[None, Unset, str]):
+        oauth2_token_url (Union[None, Unset, str]): OAuth2 token URL for custom OAuth2 authentication
         custom_header_mapping (Union['AnthropicIntegrationCreateCustomHeaderMappingType0', None, Unset]): Custom header
             mapping from internal fields to be included in the LLM request.
-        endpoint (Union[None, Unset, str]): Custom base URL for the Anthropic API. Required if `proxy` is True.
-        oauth2_token_url (Union[None, Unset, str]): OAuth2 token URL for custom OAuth2 authentication.
     """
 
     token: str
-    authentication_scope: Union[None, Unset, str] = UNSET
     authentication_type: Union[Unset, AnthropicAuthenticationType] = UNSET
-    custom_header_mapping: Union["AnthropicIntegrationCreateCustomHeaderMappingType0", None, Unset] = UNSET
     endpoint: Union[None, Unset, str] = UNSET
+    authentication_scope: Union[None, Unset, str] = UNSET
     oauth2_token_url: Union[None, Unset, str] = UNSET
+    custom_header_mapping: Union["AnthropicIntegrationCreateCustomHeaderMappingType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -45,12 +45,18 @@ class AnthropicIntegrationCreate:
 
         token = self.token
 
-        authentication_scope: Union[None, Unset, str]
-        authentication_scope = UNSET if isinstance(self.authentication_scope, Unset) else self.authentication_scope
-
         authentication_type: Union[Unset, str] = UNSET
         if not isinstance(self.authentication_type, Unset):
             authentication_type = self.authentication_type.value
+
+        endpoint: Union[None, Unset, str]
+        endpoint = UNSET if isinstance(self.endpoint, Unset) else self.endpoint
+
+        authentication_scope: Union[None, Unset, str]
+        authentication_scope = UNSET if isinstance(self.authentication_scope, Unset) else self.authentication_scope
+
+        oauth2_token_url: Union[None, Unset, str]
+        oauth2_token_url = UNSET if isinstance(self.oauth2_token_url, Unset) else self.oauth2_token_url
 
         custom_header_mapping: Union[None, Unset, dict[str, Any]]
         if isinstance(self.custom_header_mapping, Unset):
@@ -60,25 +66,19 @@ class AnthropicIntegrationCreate:
         else:
             custom_header_mapping = self.custom_header_mapping
 
-        endpoint: Union[None, Unset, str]
-        endpoint = UNSET if isinstance(self.endpoint, Unset) else self.endpoint
-
-        oauth2_token_url: Union[None, Unset, str]
-        oauth2_token_url = UNSET if isinstance(self.oauth2_token_url, Unset) else self.oauth2_token_url
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"token": token})
-        if authentication_scope is not UNSET:
-            field_dict["authentication_scope"] = authentication_scope
         if authentication_type is not UNSET:
             field_dict["authentication_type"] = authentication_type
-        if custom_header_mapping is not UNSET:
-            field_dict["custom_header_mapping"] = custom_header_mapping
         if endpoint is not UNSET:
             field_dict["endpoint"] = endpoint
+        if authentication_scope is not UNSET:
+            field_dict["authentication_scope"] = authentication_scope
         if oauth2_token_url is not UNSET:
             field_dict["oauth2_token_url"] = oauth2_token_url
+        if custom_header_mapping is not UNSET:
+            field_dict["custom_header_mapping"] = custom_header_mapping
 
         return field_dict
 
@@ -91,6 +91,22 @@ class AnthropicIntegrationCreate:
         d = dict(src_dict)
         token = d.pop("token")
 
+        _authentication_type = d.pop("authentication_type", UNSET)
+        authentication_type: Union[Unset, AnthropicAuthenticationType]
+        if isinstance(_authentication_type, Unset):
+            authentication_type = UNSET
+        else:
+            authentication_type = AnthropicAuthenticationType(_authentication_type)
+
+        def _parse_endpoint(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        endpoint = _parse_endpoint(d.pop("endpoint", UNSET))
+
         def _parse_authentication_scope(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -100,12 +116,14 @@ class AnthropicIntegrationCreate:
 
         authentication_scope = _parse_authentication_scope(d.pop("authentication_scope", UNSET))
 
-        _authentication_type = d.pop("authentication_type", UNSET)
-        authentication_type: Union[Unset, AnthropicAuthenticationType]
-        if isinstance(_authentication_type, Unset):
-            authentication_type = UNSET
-        else:
-            authentication_type = AnthropicAuthenticationType(_authentication_type)
+        def _parse_oauth2_token_url(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        oauth2_token_url = _parse_oauth2_token_url(d.pop("oauth2_token_url", UNSET))
 
         def _parse_custom_header_mapping(
             data: object,
@@ -125,31 +143,13 @@ class AnthropicIntegrationCreate:
 
         custom_header_mapping = _parse_custom_header_mapping(d.pop("custom_header_mapping", UNSET))
 
-        def _parse_endpoint(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        endpoint = _parse_endpoint(d.pop("endpoint", UNSET))
-
-        def _parse_oauth2_token_url(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        oauth2_token_url = _parse_oauth2_token_url(d.pop("oauth2_token_url", UNSET))
-
         anthropic_integration_create = cls(
             token=token,
-            authentication_scope=authentication_scope,
             authentication_type=authentication_type,
-            custom_header_mapping=custom_header_mapping,
             endpoint=endpoint,
+            authentication_scope=authentication_scope,
             oauth2_token_url=oauth2_token_url,
+            custom_header_mapping=custom_header_mapping,
         )
 
         anthropic_integration_create.additional_properties = d

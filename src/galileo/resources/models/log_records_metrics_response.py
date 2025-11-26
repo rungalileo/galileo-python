@@ -17,30 +17,30 @@ class LogRecordsMetricsResponse:
     """
     Attributes
     ----------
+        group_by_columns (list[str]):
         aggregate_metrics (LogRecordsMetricsResponseAggregateMetrics):
         bucketed_metrics (LogRecordsMetricsResponseBucketedMetrics):
-        group_by_columns (list[str]):
     """
 
+    group_by_columns: list[str]
     aggregate_metrics: "LogRecordsMetricsResponseAggregateMetrics"
     bucketed_metrics: "LogRecordsMetricsResponseBucketedMetrics"
-    group_by_columns: list[str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        group_by_columns = self.group_by_columns
+
         aggregate_metrics = self.aggregate_metrics.to_dict()
 
         bucketed_metrics = self.bucketed_metrics.to_dict()
-
-        group_by_columns = self.group_by_columns
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "group_by_columns": group_by_columns,
                 "aggregate_metrics": aggregate_metrics,
                 "bucketed_metrics": bucketed_metrics,
-                "group_by_columns": group_by_columns,
             }
         )
 
@@ -52,14 +52,14 @@ class LogRecordsMetricsResponse:
         from ..models.log_records_metrics_response_bucketed_metrics import LogRecordsMetricsResponseBucketedMetrics
 
         d = dict(src_dict)
+        group_by_columns = cast(list[str], d.pop("group_by_columns"))
+
         aggregate_metrics = LogRecordsMetricsResponseAggregateMetrics.from_dict(d.pop("aggregate_metrics"))
 
         bucketed_metrics = LogRecordsMetricsResponseBucketedMetrics.from_dict(d.pop("bucketed_metrics"))
 
-        group_by_columns = cast(list[str], d.pop("group_by_columns"))
-
         log_records_metrics_response = cls(
-            aggregate_metrics=aggregate_metrics, bucketed_metrics=bucketed_metrics, group_by_columns=group_by_columns
+            group_by_columns=group_by_columns, aggregate_metrics=aggregate_metrics, bucketed_metrics=bucketed_metrics
         )
 
         log_records_metrics_response.additional_properties = d

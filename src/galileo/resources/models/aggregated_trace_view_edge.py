@@ -12,45 +12,45 @@ class AggregatedTraceViewEdge:
     """
     Attributes
     ----------
-        occurrences (int):
         source (str):
         target (str):
         weight (float):
+        occurrences (int):
     """
 
-    occurrences: int
     source: str
     target: str
     weight: float
+    occurrences: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        occurrences = self.occurrences
-
         source = self.source
 
         target = self.target
 
         weight = self.weight
 
+        occurrences = self.occurrences
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"occurrences": occurrences, "source": source, "target": target, "weight": weight})
+        field_dict.update({"source": source, "target": target, "weight": weight, "occurrences": occurrences})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        occurrences = d.pop("occurrences")
-
         source = d.pop("source")
 
         target = d.pop("target")
 
         weight = d.pop("weight")
 
-        aggregated_trace_view_edge = cls(occurrences=occurrences, source=source, target=target, weight=weight)
+        occurrences = d.pop("occurrences")
+
+        aggregated_trace_view_edge = cls(source=source, target=target, weight=weight, occurrences=occurrences)
 
         aggregated_trace_view_edge.additional_properties = d
         return aggregated_trace_view_edge

@@ -16,34 +16,26 @@ class LogRecordsAvailableColumnsRequest:
     """
     Attributes
     ----------
-        end_time (Union[None, Unset, datetime.datetime]):
-        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
+        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         start_time (Union[None, Unset, datetime.datetime]):
+        end_time (Union[None, Unset, datetime.datetime]):
     """
 
-    end_time: Union[None, Unset, datetime.datetime] = UNSET
-    experiment_id: Union[None, Unset, str] = UNSET
     log_stream_id: Union[None, Unset, str] = UNSET
+    experiment_id: Union[None, Unset, str] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
     start_time: Union[None, Unset, datetime.datetime] = UNSET
+    end_time: Union[None, Unset, datetime.datetime] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        end_time: Union[None, Unset, str]
-        if isinstance(self.end_time, Unset):
-            end_time = UNSET
-        elif isinstance(self.end_time, datetime.datetime):
-            end_time = self.end_time.isoformat()
-        else:
-            end_time = self.end_time
+        log_stream_id: Union[None, Unset, str]
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
-
-        log_stream_id: Union[None, Unset, str]
-        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         metrics_testing_id: Union[None, Unset, str]
         metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
@@ -56,50 +48,33 @@ class LogRecordsAvailableColumnsRequest:
         else:
             start_time = self.start_time
 
+        end_time: Union[None, Unset, str]
+        if isinstance(self.end_time, Unset):
+            end_time = UNSET
+        elif isinstance(self.end_time, datetime.datetime):
+            end_time = self.end_time.isoformat()
+        else:
+            end_time = self.end_time
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if end_time is not UNSET:
-            field_dict["end_time"] = end_time
-        if experiment_id is not UNSET:
-            field_dict["experiment_id"] = experiment_id
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
+        if experiment_id is not UNSET:
+            field_dict["experiment_id"] = experiment_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
         if start_time is not UNSET:
             field_dict["start_time"] = start_time
+        if end_time is not UNSET:
+            field_dict["end_time"] = end_time
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-
-        def _parse_end_time(data: object) -> Union[None, Unset, datetime.datetime]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                return isoparse(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union[None, Unset, datetime.datetime], data)
-
-        end_time = _parse_end_time(d.pop("end_time", UNSET))
-
-        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
         def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -109,6 +84,15 @@ class LogRecordsAvailableColumnsRequest:
             return cast(Union[None, Unset, str], data)
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
+
+        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
         def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -135,12 +119,28 @@ class LogRecordsAvailableColumnsRequest:
 
         start_time = _parse_start_time(d.pop("start_time", UNSET))
 
+        def _parse_end_time(data: object) -> Union[None, Unset, datetime.datetime]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return isoparse(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, datetime.datetime], data)
+
+        end_time = _parse_end_time(d.pop("end_time", UNSET))
+
         log_records_available_columns_request = cls(
-            end_time=end_time,
-            experiment_id=experiment_id,
             log_stream_id=log_stream_id,
+            experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,
             start_time=start_time,
+            end_time=end_time,
         )
 
         log_records_available_columns_request.additional_properties = d

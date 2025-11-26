@@ -12,39 +12,39 @@ class LabelStudioIntegrationCreate:
     """
     Attributes
     ----------
-        is_enterprise (bool):
         token (str):
         url (str):
+        is_enterprise (bool):
     """
 
-    is_enterprise: bool
     token: str
     url: str
+    is_enterprise: bool
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        is_enterprise = self.is_enterprise
-
         token = self.token
 
         url = self.url
 
+        is_enterprise = self.is_enterprise
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"is_enterprise": is_enterprise, "token": token, "url": url})
+        field_dict.update({"token": token, "url": url, "is_enterprise": is_enterprise})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        is_enterprise = d.pop("is_enterprise")
-
         token = d.pop("token")
 
         url = d.pop("url")
 
-        label_studio_integration_create = cls(is_enterprise=is_enterprise, token=token, url=url)
+        is_enterprise = d.pop("is_enterprise")
+
+        label_studio_integration_create = cls(token=token, url=url, is_enterprise=is_enterprise)
 
         label_studio_integration_create.additional_properties = d
         return label_studio_integration_create

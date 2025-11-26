@@ -16,56 +16,56 @@ class PromptOptimizationConfiguration:
 
     Attributes
     ----------
+        prompt (str):
         evaluation_criteria (str):
-        evaluation_model_alias (str):
-        generation_model_alias (str):
+        task_description (str):
         includes_target (bool):
+        num_rows (int):
         iterations (int):
         max_tokens (int):
-        num_rows (int):
-        prompt (str):
-        task_description (str):
         temperature (float):
+        generation_model_alias (str):
+        evaluation_model_alias (str):
         integration_name (Union[Unset, LLMIntegration]):
         reasoning_effort (Union[None, Unset, str]):
         verbosity (Union[None, Unset, str]):
     """
 
+    prompt: str
     evaluation_criteria: str
-    evaluation_model_alias: str
-    generation_model_alias: str
+    task_description: str
     includes_target: bool
+    num_rows: int
     iterations: int
     max_tokens: int
-    num_rows: int
-    prompt: str
-    task_description: str
     temperature: float
+    generation_model_alias: str
+    evaluation_model_alias: str
     integration_name: Union[Unset, LLMIntegration] = UNSET
     reasoning_effort: Union[None, Unset, str] = UNSET
     verbosity: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        prompt = self.prompt
+
         evaluation_criteria = self.evaluation_criteria
 
-        evaluation_model_alias = self.evaluation_model_alias
-
-        generation_model_alias = self.generation_model_alias
+        task_description = self.task_description
 
         includes_target = self.includes_target
+
+        num_rows = self.num_rows
 
         iterations = self.iterations
 
         max_tokens = self.max_tokens
 
-        num_rows = self.num_rows
-
-        prompt = self.prompt
-
-        task_description = self.task_description
-
         temperature = self.temperature
+
+        generation_model_alias = self.generation_model_alias
+
+        evaluation_model_alias = self.evaluation_model_alias
 
         integration_name: Union[Unset, str] = UNSET
         if not isinstance(self.integration_name, Unset):
@@ -81,16 +81,16 @@ class PromptOptimizationConfiguration:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "prompt": prompt,
                 "evaluation_criteria": evaluation_criteria,
-                "evaluation_model_alias": evaluation_model_alias,
-                "generation_model_alias": generation_model_alias,
+                "task_description": task_description,
                 "includes_target": includes_target,
+                "num_rows": num_rows,
                 "iterations": iterations,
                 "max_tokens": max_tokens,
-                "num_rows": num_rows,
-                "prompt": prompt,
-                "task_description": task_description,
                 "temperature": temperature,
+                "generation_model_alias": generation_model_alias,
+                "evaluation_model_alias": evaluation_model_alias,
             }
         )
         if integration_name is not UNSET:
@@ -105,25 +105,25 @@ class PromptOptimizationConfiguration:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        prompt = d.pop("prompt")
+
         evaluation_criteria = d.pop("evaluation_criteria")
 
-        evaluation_model_alias = d.pop("evaluation_model_alias")
-
-        generation_model_alias = d.pop("generation_model_alias")
+        task_description = d.pop("task_description")
 
         includes_target = d.pop("includes_target")
+
+        num_rows = d.pop("num_rows")
 
         iterations = d.pop("iterations")
 
         max_tokens = d.pop("max_tokens")
 
-        num_rows = d.pop("num_rows")
-
-        prompt = d.pop("prompt")
-
-        task_description = d.pop("task_description")
-
         temperature = d.pop("temperature")
+
+        generation_model_alias = d.pop("generation_model_alias")
+
+        evaluation_model_alias = d.pop("evaluation_model_alias")
 
         _integration_name = d.pop("integration_name", UNSET)
         integration_name: Union[Unset, LLMIntegration]
@@ -148,16 +148,16 @@ class PromptOptimizationConfiguration:
         verbosity = _parse_verbosity(d.pop("verbosity", UNSET))
 
         prompt_optimization_configuration = cls(
+            prompt=prompt,
             evaluation_criteria=evaluation_criteria,
-            evaluation_model_alias=evaluation_model_alias,
-            generation_model_alias=generation_model_alias,
+            task_description=task_description,
             includes_target=includes_target,
+            num_rows=num_rows,
             iterations=iterations,
             max_tokens=max_tokens,
-            num_rows=num_rows,
-            prompt=prompt,
-            task_description=task_description,
             temperature=temperature,
+            generation_model_alias=generation_model_alias,
+            evaluation_model_alias=evaluation_model_alias,
             integration_name=integration_name,
             reasoning_effort=reasoning_effort,
             verbosity=verbosity,

@@ -21,36 +21,34 @@ class IntegrationDB:
     """
     Attributes
     ----------
-        created_at (datetime.datetime):
-        created_by (str):
         id (str):
         name (IntegrationName):
+        created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        is_selected (Union[Unset, bool]):  Default: False.
+        created_by (str):
         permissions (Union[Unset, list['Permission']]):
+        is_selected (Union[Unset, bool]):  Default: False.
     """
 
-    created_at: datetime.datetime
-    created_by: str
     id: str
     name: IntegrationName
+    created_at: datetime.datetime
     updated_at: datetime.datetime
-    is_selected: Union[Unset, bool] = False
+    created_by: str
     permissions: Union[Unset, list["Permission"]] = UNSET
+    is_selected: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        created_at = self.created_at.isoformat()
-
-        created_by = self.created_by
-
         id = self.id
 
         name = self.name.value
 
+        created_at = self.created_at.isoformat()
+
         updated_at = self.updated_at.isoformat()
 
-        is_selected = self.is_selected
+        created_by = self.created_by
 
         permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
@@ -59,15 +57,17 @@ class IntegrationDB:
                 permissions_item = permissions_item_data.to_dict()
                 permissions.append(permissions_item)
 
+        is_selected = self.is_selected
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
-            {"created_at": created_at, "created_by": created_by, "id": id, "name": name, "updated_at": updated_at}
+            {"id": id, "name": name, "created_at": created_at, "updated_at": updated_at, "created_by": created_by}
         )
-        if is_selected is not UNSET:
-            field_dict["is_selected"] = is_selected
         if permissions is not UNSET:
             field_dict["permissions"] = permissions
+        if is_selected is not UNSET:
+            field_dict["is_selected"] = is_selected
 
         return field_dict
 
@@ -76,17 +76,15 @@ class IntegrationDB:
         from ..models.permission import Permission
 
         d = dict(src_dict)
-        created_at = isoparse(d.pop("created_at"))
-
-        created_by = d.pop("created_by")
-
         id = d.pop("id")
 
         name = IntegrationName(d.pop("name"))
 
+        created_at = isoparse(d.pop("created_at"))
+
         updated_at = isoparse(d.pop("updated_at"))
 
-        is_selected = d.pop("is_selected", UNSET)
+        created_by = d.pop("created_by")
 
         permissions = []
         _permissions = d.pop("permissions", UNSET)
@@ -95,14 +93,16 @@ class IntegrationDB:
 
             permissions.append(permissions_item)
 
+        is_selected = d.pop("is_selected", UNSET)
+
         integration_db = cls(
-            created_at=created_at,
-            created_by=created_by,
             id=id,
             name=name,
+            created_at=created_at,
             updated_at=updated_at,
-            is_selected=is_selected,
+            created_by=created_by,
             permissions=permissions,
+            is_selected=is_selected,
         )
 
         integration_db.additional_properties = d

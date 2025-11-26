@@ -28,61 +28,61 @@ class ExtendedSessionRecord:
         id (str): Galileo ID of the session
         project_id (str): Galileo ID of the project associated with this trace or span
         run_id (str): Galileo ID of the run (log stream or experiment) associated with this trace or span
-        created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
-        dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
-        dataset_metadata (Union[Unset, ExtendedSessionRecordDatasetMetadata]): Metadata from the dataset associated with
-            this trace
-        dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
-        external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
-        has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
+        type_ (Union[Literal['session'], Unset]): Type of the trace, span or session. Default: 'session'.
         input_ (Union[Unset, list['Message'], str]):  Default: ''.
-        metric_info (Union['ExtendedSessionRecordMetricInfoType0', None, Unset]): Detailed information about the metrics
-            associated with this trace or span
-        metrics (Union[Unset, Metrics]):
-        metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
-        name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
-        output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
-        previous_session_id (Union[None, Unset, str]):
         redacted_input (Union[None, Unset, list['Message'], str]): Redacted input of the trace or span.
+        output (Union['Message', None, Unset, list['Document'], str]): Output of the trace or span.
         redacted_output (Union['Message', None, Unset, list['Document'], str]): Redacted output of the trace or span.
-        session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
-        session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
+        name (Union[Unset, str]): Name of the trace, span or session. Default: ''.
+        created_at (Union[Unset, datetime.datetime]): Timestamp of the trace or span's creation.
+        user_metadata (Union[Unset, ExtendedSessionRecordUserMetadata]): Metadata associated with this trace or span.
+        tags (Union[Unset, list[str]]): Tags associated with this trace or span.
         status_code (Union[None, Unset, int]): Status code of the trace or span. Used for logging failure or error
             states.
-        tags (Union[Unset, list[str]]): Tags associated with this trace or span.
+        metrics (Union[Unset, Metrics]):
+        external_id (Union[None, Unset, str]): A user-provided session, trace or span ID.
+        dataset_input (Union[None, Unset, str]): Input to the dataset associated with this trace
+        dataset_output (Union[None, Unset, str]): Output from the dataset associated with this trace
+        dataset_metadata (Union[Unset, ExtendedSessionRecordDatasetMetadata]): Metadata from the dataset associated with
+            this trace
+        session_id (Union[None, Unset, str]): Galileo ID of the session containing the trace or span or session
         trace_id (Union[None, Unset, str]): Galileo ID of the trace containing the span (or the same value as id for a
             trace)
-        type_ (Union[Literal['session'], Unset]): Type of the trace, span or session. Default: 'session'.
         updated_at (Union[None, Unset, datetime.datetime]): Timestamp of the session or trace or span's last update
-        user_metadata (Union[Unset, ExtendedSessionRecordUserMetadata]): Metadata associated with this trace or span.
+        has_children (Union[None, Unset, bool]): Whether or not this trace or span has child spans
+        metrics_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
+        session_batch_id (Union[None, Unset, str]): Galileo ID of the metrics batch associated with this trace or span
+        metric_info (Union['ExtendedSessionRecordMetricInfoType0', None, Unset]): Detailed information about the metrics
+            associated with this trace or span
+        previous_session_id (Union[None, Unset, str]):
     """
 
     id: str
     project_id: str
     run_id: str
-    created_at: Union[Unset, datetime.datetime] = UNSET
-    dataset_input: Union[None, Unset, str] = UNSET
-    dataset_metadata: Union[Unset, "ExtendedSessionRecordDatasetMetadata"] = UNSET
-    dataset_output: Union[None, Unset, str] = UNSET
-    external_id: Union[None, Unset, str] = UNSET
-    has_children: Union[None, Unset, bool] = UNSET
-    input_: Union[Unset, list["Message"], str] = ""
-    metric_info: Union["ExtendedSessionRecordMetricInfoType0", None, Unset] = UNSET
-    metrics: Union[Unset, "Metrics"] = UNSET
-    metrics_batch_id: Union[None, Unset, str] = UNSET
-    name: Union[Unset, str] = ""
-    output: Union["Message", None, Unset, list["Document"], str] = UNSET
-    previous_session_id: Union[None, Unset, str] = UNSET
-    redacted_input: Union[None, Unset, list["Message"], str] = UNSET
-    redacted_output: Union["Message", None, Unset, list["Document"], str] = UNSET
-    session_batch_id: Union[None, Unset, str] = UNSET
-    session_id: Union[None, Unset, str] = UNSET
-    status_code: Union[None, Unset, int] = UNSET
-    tags: Union[Unset, list[str]] = UNSET
-    trace_id: Union[None, Unset, str] = UNSET
     type_: Union[Literal["session"], Unset] = "session"
-    updated_at: Union[None, Unset, datetime.datetime] = UNSET
+    input_: Union[Unset, list["Message"], str] = ""
+    redacted_input: Union[None, Unset, list["Message"], str] = UNSET
+    output: Union["Message", None, Unset, list["Document"], str] = UNSET
+    redacted_output: Union["Message", None, Unset, list["Document"], str] = UNSET
+    name: Union[Unset, str] = ""
+    created_at: Union[Unset, datetime.datetime] = UNSET
     user_metadata: Union[Unset, "ExtendedSessionRecordUserMetadata"] = UNSET
+    tags: Union[Unset, list[str]] = UNSET
+    status_code: Union[None, Unset, int] = UNSET
+    metrics: Union[Unset, "Metrics"] = UNSET
+    external_id: Union[None, Unset, str] = UNSET
+    dataset_input: Union[None, Unset, str] = UNSET
+    dataset_output: Union[None, Unset, str] = UNSET
+    dataset_metadata: Union[Unset, "ExtendedSessionRecordDatasetMetadata"] = UNSET
+    session_id: Union[None, Unset, str] = UNSET
+    trace_id: Union[None, Unset, str] = UNSET
+    updated_at: Union[None, Unset, datetime.datetime] = UNSET
+    has_children: Union[None, Unset, bool] = UNSET
+    metrics_batch_id: Union[None, Unset, str] = UNSET
+    session_batch_id: Union[None, Unset, str] = UNSET
+    metric_info: Union["ExtendedSessionRecordMetricInfoType0", None, Unset] = UNSET
+    previous_session_id: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -95,25 +95,7 @@ class ExtendedSessionRecord:
 
         run_id = self.run_id
 
-        created_at: Union[Unset, str] = UNSET
-        if not isinstance(self.created_at, Unset):
-            created_at = self.created_at.isoformat()
-
-        dataset_input: Union[None, Unset, str]
-        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
-
-        dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.dataset_metadata, Unset):
-            dataset_metadata = self.dataset_metadata.to_dict()
-
-        dataset_output: Union[None, Unset, str]
-        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
-
-        external_id: Union[None, Unset, str]
-        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
-
-        has_children: Union[None, Unset, bool]
-        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
+        type_ = self.type_
 
         input_: Union[Unset, list[dict[str, Any]], str]
         if isinstance(self.input_, Unset):
@@ -127,22 +109,17 @@ class ExtendedSessionRecord:
         else:
             input_ = self.input_
 
-        metric_info: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.metric_info, Unset):
-            metric_info = UNSET
-        elif isinstance(self.metric_info, ExtendedSessionRecordMetricInfoType0):
-            metric_info = self.metric_info.to_dict()
+        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
+        if isinstance(self.redacted_input, Unset):
+            redacted_input = UNSET
+        elif isinstance(self.redacted_input, list):
+            redacted_input = []
+            for redacted_input_type_1_item_data in self.redacted_input:
+                redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
+                redacted_input.append(redacted_input_type_1_item)
+
         else:
-            metric_info = self.metric_info
-
-        metrics: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.metrics, Unset):
-            metrics = self.metrics.to_dict()
-
-        metrics_batch_id: Union[None, Unset, str]
-        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
-
-        name = self.name
+            redacted_input = self.redacted_input
 
         output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
         if isinstance(self.output, Unset):
@@ -158,21 +135,6 @@ class ExtendedSessionRecord:
         else:
             output = self.output
 
-        previous_session_id: Union[None, Unset, str]
-        previous_session_id = UNSET if isinstance(self.previous_session_id, Unset) else self.previous_session_id
-
-        redacted_input: Union[None, Unset, list[dict[str, Any]], str]
-        if isinstance(self.redacted_input, Unset):
-            redacted_input = UNSET
-        elif isinstance(self.redacted_input, list):
-            redacted_input = []
-            for redacted_input_type_1_item_data in self.redacted_input:
-                redacted_input_type_1_item = redacted_input_type_1_item_data.to_dict()
-                redacted_input.append(redacted_input_type_1_item)
-
-        else:
-            redacted_input = self.redacted_input
-
         redacted_output: Union[None, Unset, dict[str, Any], list[dict[str, Any]], str]
         if isinstance(self.redacted_output, Unset):
             redacted_output = UNSET
@@ -187,23 +149,45 @@ class ExtendedSessionRecord:
         else:
             redacted_output = self.redacted_output
 
-        session_batch_id: Union[None, Unset, str]
-        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
+        name = self.name
 
-        session_id: Union[None, Unset, str]
-        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
+        created_at: Union[Unset, str] = UNSET
+        if not isinstance(self.created_at, Unset):
+            created_at = self.created_at.isoformat()
 
-        status_code: Union[None, Unset, int]
-        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
+        user_metadata: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.user_metadata, Unset):
+            user_metadata = self.user_metadata.to_dict()
 
         tags: Union[Unset, list[str]] = UNSET
         if not isinstance(self.tags, Unset):
             tags = self.tags
 
+        status_code: Union[None, Unset, int]
+        status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
+
+        metrics: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.metrics, Unset):
+            metrics = self.metrics.to_dict()
+
+        external_id: Union[None, Unset, str]
+        external_id = UNSET if isinstance(self.external_id, Unset) else self.external_id
+
+        dataset_input: Union[None, Unset, str]
+        dataset_input = UNSET if isinstance(self.dataset_input, Unset) else self.dataset_input
+
+        dataset_output: Union[None, Unset, str]
+        dataset_output = UNSET if isinstance(self.dataset_output, Unset) else self.dataset_output
+
+        dataset_metadata: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.dataset_metadata, Unset):
+            dataset_metadata = self.dataset_metadata.to_dict()
+
+        session_id: Union[None, Unset, str]
+        session_id = UNSET if isinstance(self.session_id, Unset) else self.session_id
+
         trace_id: Union[None, Unset, str]
         trace_id = UNSET if isinstance(self.trace_id, Unset) else self.trace_id
-
-        type_ = self.type_
 
         updated_at: Union[None, Unset, str]
         if isinstance(self.updated_at, Unset):
@@ -213,59 +197,75 @@ class ExtendedSessionRecord:
         else:
             updated_at = self.updated_at
 
-        user_metadata: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.user_metadata, Unset):
-            user_metadata = self.user_metadata.to_dict()
+        has_children: Union[None, Unset, bool]
+        has_children = UNSET if isinstance(self.has_children, Unset) else self.has_children
+
+        metrics_batch_id: Union[None, Unset, str]
+        metrics_batch_id = UNSET if isinstance(self.metrics_batch_id, Unset) else self.metrics_batch_id
+
+        session_batch_id: Union[None, Unset, str]
+        session_batch_id = UNSET if isinstance(self.session_batch_id, Unset) else self.session_batch_id
+
+        metric_info: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.metric_info, Unset):
+            metric_info = UNSET
+        elif isinstance(self.metric_info, ExtendedSessionRecordMetricInfoType0):
+            metric_info = self.metric_info.to_dict()
+        else:
+            metric_info = self.metric_info
+
+        previous_session_id: Union[None, Unset, str]
+        previous_session_id = UNSET if isinstance(self.previous_session_id, Unset) else self.previous_session_id
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"id": id, "project_id": project_id, "run_id": run_id})
-        if created_at is not UNSET:
-            field_dict["created_at"] = created_at
-        if dataset_input is not UNSET:
-            field_dict["dataset_input"] = dataset_input
-        if dataset_metadata is not UNSET:
-            field_dict["dataset_metadata"] = dataset_metadata
-        if dataset_output is not UNSET:
-            field_dict["dataset_output"] = dataset_output
-        if external_id is not UNSET:
-            field_dict["external_id"] = external_id
-        if has_children is not UNSET:
-            field_dict["has_children"] = has_children
-        if input_ is not UNSET:
-            field_dict["input"] = input_
-        if metric_info is not UNSET:
-            field_dict["metric_info"] = metric_info
-        if metrics is not UNSET:
-            field_dict["metrics"] = metrics
-        if metrics_batch_id is not UNSET:
-            field_dict["metrics_batch_id"] = metrics_batch_id
-        if name is not UNSET:
-            field_dict["name"] = name
-        if output is not UNSET:
-            field_dict["output"] = output
-        if previous_session_id is not UNSET:
-            field_dict["previous_session_id"] = previous_session_id
-        if redacted_input is not UNSET:
-            field_dict["redacted_input"] = redacted_input
-        if redacted_output is not UNSET:
-            field_dict["redacted_output"] = redacted_output
-        if session_batch_id is not UNSET:
-            field_dict["session_batch_id"] = session_batch_id
-        if session_id is not UNSET:
-            field_dict["session_id"] = session_id
-        if status_code is not UNSET:
-            field_dict["status_code"] = status_code
-        if tags is not UNSET:
-            field_dict["tags"] = tags
-        if trace_id is not UNSET:
-            field_dict["trace_id"] = trace_id
         if type_ is not UNSET:
             field_dict["type"] = type_
-        if updated_at is not UNSET:
-            field_dict["updated_at"] = updated_at
+        if input_ is not UNSET:
+            field_dict["input"] = input_
+        if redacted_input is not UNSET:
+            field_dict["redacted_input"] = redacted_input
+        if output is not UNSET:
+            field_dict["output"] = output
+        if redacted_output is not UNSET:
+            field_dict["redacted_output"] = redacted_output
+        if name is not UNSET:
+            field_dict["name"] = name
+        if created_at is not UNSET:
+            field_dict["created_at"] = created_at
         if user_metadata is not UNSET:
             field_dict["user_metadata"] = user_metadata
+        if tags is not UNSET:
+            field_dict["tags"] = tags
+        if status_code is not UNSET:
+            field_dict["status_code"] = status_code
+        if metrics is not UNSET:
+            field_dict["metrics"] = metrics
+        if external_id is not UNSET:
+            field_dict["external_id"] = external_id
+        if dataset_input is not UNSET:
+            field_dict["dataset_input"] = dataset_input
+        if dataset_output is not UNSET:
+            field_dict["dataset_output"] = dataset_output
+        if dataset_metadata is not UNSET:
+            field_dict["dataset_metadata"] = dataset_metadata
+        if session_id is not UNSET:
+            field_dict["session_id"] = session_id
+        if trace_id is not UNSET:
+            field_dict["trace_id"] = trace_id
+        if updated_at is not UNSET:
+            field_dict["updated_at"] = updated_at
+        if has_children is not UNSET:
+            field_dict["has_children"] = has_children
+        if metrics_batch_id is not UNSET:
+            field_dict["metrics_batch_id"] = metrics_batch_id
+        if session_batch_id is not UNSET:
+            field_dict["session_batch_id"] = session_batch_id
+        if metric_info is not UNSET:
+            field_dict["metric_info"] = metric_info
+        if previous_session_id is not UNSET:
+            field_dict["previous_session_id"] = previous_session_id
 
         return field_dict
 
@@ -285,52 +285,9 @@ class ExtendedSessionRecord:
 
         run_id = d.pop("run_id")
 
-        _created_at = d.pop("created_at", UNSET)
-        created_at: Union[Unset, datetime.datetime]
-        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
-
-        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
-
-        _dataset_metadata = d.pop("dataset_metadata", UNSET)
-        dataset_metadata: Union[Unset, ExtendedSessionRecordDatasetMetadata]
-        if isinstance(_dataset_metadata, Unset):
-            dataset_metadata = UNSET
-        else:
-            dataset_metadata = ExtendedSessionRecordDatasetMetadata.from_dict(_dataset_metadata)
-
-        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
-
-        def _parse_external_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        external_id = _parse_external_id(d.pop("external_id", UNSET))
-
-        def _parse_has_children(data: object) -> Union[None, Unset, bool]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, bool], data)
-
-        has_children = _parse_has_children(d.pop("has_children", UNSET))
+        type_ = cast(Union[Literal["session"], Unset], d.pop("type", UNSET))
+        if type_ != "session" and not isinstance(type_, Unset):
+            raise ValueError(f"type must match const 'session', got '{type_}'")
 
         def _parse_input_(data: object) -> Union[Unset, list["Message"], str]:
             if isinstance(data, Unset):
@@ -352,36 +309,27 @@ class ExtendedSessionRecord:
 
         input_ = _parse_input_(d.pop("input", UNSET))
 
-        def _parse_metric_info(data: object) -> Union["ExtendedSessionRecordMetricInfoType0", None, Unset]:
+        def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"], str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             try:
-                if not isinstance(data, dict):
+                if not isinstance(data, list):
                     raise TypeError()
-                return ExtendedSessionRecordMetricInfoType0.from_dict(data)
+                redacted_input_type_1 = []
+                _redacted_input_type_1 = data
+                for redacted_input_type_1_item_data in _redacted_input_type_1:
+                    redacted_input_type_1_item = Message.from_dict(redacted_input_type_1_item_data)
 
+                    redacted_input_type_1.append(redacted_input_type_1_item)
+
+                return redacted_input_type_1
             except:  # noqa: E722
                 pass
-            return cast(Union["ExtendedSessionRecordMetricInfoType0", None, Unset], data)
+            return cast(Union[None, Unset, list["Message"], str], data)
 
-        metric_info = _parse_metric_info(d.pop("metric_info", UNSET))
-
-        _metrics = d.pop("metrics", UNSET)
-        metrics: Union[Unset, Metrics]
-        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
-
-        def _parse_metrics_batch_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        metrics_batch_id = _parse_metrics_batch_id(d.pop("metrics_batch_id", UNSET))
-
-        name = d.pop("name", UNSET)
+        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
 
         def _parse_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
             if data is None:
@@ -412,37 +360,6 @@ class ExtendedSessionRecord:
 
         output = _parse_output(d.pop("output", UNSET))
 
-        def _parse_previous_session_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        previous_session_id = _parse_previous_session_id(d.pop("previous_session_id", UNSET))
-
-        def _parse_redacted_input(data: object) -> Union[None, Unset, list["Message"], str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                redacted_input_type_1 = []
-                _redacted_input_type_1 = data
-                for redacted_input_type_1_item_data in _redacted_input_type_1:
-                    redacted_input_type_1_item = Message.from_dict(redacted_input_type_1_item_data)
-
-                    redacted_input_type_1.append(redacted_input_type_1_item)
-
-                return redacted_input_type_1
-            except:  # noqa: E722
-                pass
-            return cast(Union[None, Unset, list["Message"], str], data)
-
-        redacted_input = _parse_redacted_input(d.pop("redacted_input", UNSET))
-
         def _parse_redacted_output(data: object) -> Union["Message", None, Unset, list["Document"], str]:
             if data is None:
                 return data
@@ -472,23 +389,20 @@ class ExtendedSessionRecord:
 
         redacted_output = _parse_redacted_output(d.pop("redacted_output", UNSET))
 
-        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
+        name = d.pop("name", UNSET)
 
-        session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
+        _created_at = d.pop("created_at", UNSET)
+        created_at: Union[Unset, datetime.datetime]
+        created_at = UNSET if isinstance(_created_at, Unset) else isoparse(_created_at)
 
-        def _parse_session_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
+        _user_metadata = d.pop("user_metadata", UNSET)
+        user_metadata: Union[Unset, ExtendedSessionRecordUserMetadata]
+        if isinstance(_user_metadata, Unset):
+            user_metadata = UNSET
+        else:
+            user_metadata = ExtendedSessionRecordUserMetadata.from_dict(_user_metadata)
 
-        session_id = _parse_session_id(d.pop("session_id", UNSET))
+        tags = cast(list[str], d.pop("tags", UNSET))
 
         def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -499,7 +413,52 @@ class ExtendedSessionRecord:
 
         status_code = _parse_status_code(d.pop("status_code", UNSET))
 
-        tags = cast(list[str], d.pop("tags", UNSET))
+        _metrics = d.pop("metrics", UNSET)
+        metrics: Union[Unset, Metrics]
+        metrics = UNSET if isinstance(_metrics, Unset) else Metrics.from_dict(_metrics)
+
+        def _parse_external_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        external_id = _parse_external_id(d.pop("external_id", UNSET))
+
+        def _parse_dataset_input(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        dataset_input = _parse_dataset_input(d.pop("dataset_input", UNSET))
+
+        def _parse_dataset_output(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        dataset_output = _parse_dataset_output(d.pop("dataset_output", UNSET))
+
+        _dataset_metadata = d.pop("dataset_metadata", UNSET)
+        dataset_metadata: Union[Unset, ExtendedSessionRecordDatasetMetadata]
+        if isinstance(_dataset_metadata, Unset):
+            dataset_metadata = UNSET
+        else:
+            dataset_metadata = ExtendedSessionRecordDatasetMetadata.from_dict(_dataset_metadata)
+
+        def _parse_session_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_id = _parse_session_id(d.pop("session_id", UNSET))
 
         def _parse_trace_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -509,10 +468,6 @@ class ExtendedSessionRecord:
             return cast(Union[None, Unset, str], data)
 
         trace_id = _parse_trace_id(d.pop("trace_id", UNSET))
-
-        type_ = cast(Union[Literal["session"], Unset], d.pop("type", UNSET))
-        if type_ != "session" and not isinstance(type_, Unset):
-            raise ValueError(f"type must match const 'session', got '{type_}'")
 
         def _parse_updated_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
@@ -530,40 +485,85 @@ class ExtendedSessionRecord:
 
         updated_at = _parse_updated_at(d.pop("updated_at", UNSET))
 
-        _user_metadata = d.pop("user_metadata", UNSET)
-        user_metadata: Union[Unset, ExtendedSessionRecordUserMetadata]
-        if isinstance(_user_metadata, Unset):
-            user_metadata = UNSET
-        else:
-            user_metadata = ExtendedSessionRecordUserMetadata.from_dict(_user_metadata)
+        def _parse_has_children(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        has_children = _parse_has_children(d.pop("has_children", UNSET))
+
+        def _parse_metrics_batch_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metrics_batch_id = _parse_metrics_batch_id(d.pop("metrics_batch_id", UNSET))
+
+        def _parse_session_batch_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        session_batch_id = _parse_session_batch_id(d.pop("session_batch_id", UNSET))
+
+        def _parse_metric_info(data: object) -> Union["ExtendedSessionRecordMetricInfoType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return ExtendedSessionRecordMetricInfoType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["ExtendedSessionRecordMetricInfoType0", None, Unset], data)
+
+        metric_info = _parse_metric_info(d.pop("metric_info", UNSET))
+
+        def _parse_previous_session_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        previous_session_id = _parse_previous_session_id(d.pop("previous_session_id", UNSET))
 
         extended_session_record = cls(
             id=id,
             project_id=project_id,
             run_id=run_id,
-            created_at=created_at,
-            dataset_input=dataset_input,
-            dataset_metadata=dataset_metadata,
-            dataset_output=dataset_output,
-            external_id=external_id,
-            has_children=has_children,
-            input_=input_,
-            metric_info=metric_info,
-            metrics=metrics,
-            metrics_batch_id=metrics_batch_id,
-            name=name,
-            output=output,
-            previous_session_id=previous_session_id,
-            redacted_input=redacted_input,
-            redacted_output=redacted_output,
-            session_batch_id=session_batch_id,
-            session_id=session_id,
-            status_code=status_code,
-            tags=tags,
-            trace_id=trace_id,
             type_=type_,
-            updated_at=updated_at,
+            input_=input_,
+            redacted_input=redacted_input,
+            output=output,
+            redacted_output=redacted_output,
+            name=name,
+            created_at=created_at,
             user_metadata=user_metadata,
+            tags=tags,
+            status_code=status_code,
+            metrics=metrics,
+            external_id=external_id,
+            dataset_input=dataset_input,
+            dataset_output=dataset_output,
+            dataset_metadata=dataset_metadata,
+            session_id=session_id,
+            trace_id=trace_id,
+            updated_at=updated_at,
+            has_children=has_children,
+            metrics_batch_id=metrics_batch_id,
+            session_batch_id=session_batch_id,
+            metric_info=metric_info,
+            previous_session_id=previous_session_id,
         )
 
         extended_session_record.additional_properties = d

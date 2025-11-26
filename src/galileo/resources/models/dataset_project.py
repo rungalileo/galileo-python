@@ -18,24 +18,30 @@ class DatasetProject:
     """
     Attributes
     ----------
-        created_at (datetime.datetime):
-        created_by_user (Union['UserInfo', None]):
         id (str):
-        name (str):
+        created_at (datetime.datetime):
         updated_at (datetime.datetime):
+        name (str):
+        created_by_user (Union['UserInfo', None]):
     """
 
-    created_at: datetime.datetime
-    created_by_user: Union["UserInfo", None]
     id: str
-    name: str
+    created_at: datetime.datetime
     updated_at: datetime.datetime
+    name: str
+    created_by_user: Union["UserInfo", None]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.user_info import UserInfo
 
+        id = self.id
+
         created_at = self.created_at.isoformat()
+
+        updated_at = self.updated_at.isoformat()
+
+        name = self.name
 
         created_by_user: Union[None, dict[str, Any]]
         if isinstance(self.created_by_user, UserInfo):
@@ -43,21 +49,15 @@ class DatasetProject:
         else:
             created_by_user = self.created_by_user
 
-        id = self.id
-
-        name = self.name
-
-        updated_at = self.updated_at.isoformat()
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "created_at": created_at,
-                "created_by_user": created_by_user,
                 "id": id,
-                "name": name,
+                "created_at": created_at,
                 "updated_at": updated_at,
+                "name": name,
+                "created_by_user": created_by_user,
             }
         )
 
@@ -68,7 +68,13 @@ class DatasetProject:
         from ..models.user_info import UserInfo
 
         d = dict(src_dict)
+        id = d.pop("id")
+
         created_at = isoparse(d.pop("created_at"))
+
+        updated_at = isoparse(d.pop("updated_at"))
+
+        name = d.pop("name")
 
         def _parse_created_by_user(data: object) -> Union["UserInfo", None]:
             if data is None:
@@ -84,14 +90,8 @@ class DatasetProject:
 
         created_by_user = _parse_created_by_user(d.pop("created_by_user"))
 
-        id = d.pop("id")
-
-        name = d.pop("name")
-
-        updated_at = isoparse(d.pop("updated_at"))
-
         dataset_project = cls(
-            created_at=created_at, created_by_user=created_by_user, id=id, name=name, updated_at=updated_at
+            id=id, created_at=created_at, updated_at=updated_at, name=name, created_by_user=created_by_user
         )
 
         dataset_project.additional_properties = d

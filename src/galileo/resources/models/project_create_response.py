@@ -17,34 +17,34 @@ class ProjectCreateResponse:
     """
     Attributes
     ----------
-        created_at (datetime.datetime):
         id (str):
+        created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        created_by (Union[None, Unset, str]):
         name (Union[None, Unset, str]):
+        created_by (Union[None, Unset, str]):
         type_ (Union[None, ProjectType, Unset]):
     """
 
-    created_at: datetime.datetime
     id: str
+    created_at: datetime.datetime
     updated_at: datetime.datetime
-    created_by: Union[None, Unset, str] = UNSET
     name: Union[None, Unset, str] = UNSET
+    created_by: Union[None, Unset, str] = UNSET
     type_: Union[None, ProjectType, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        created_at = self.created_at.isoformat()
-
         id = self.id
+
+        created_at = self.created_at.isoformat()
 
         updated_at = self.updated_at.isoformat()
 
-        created_by: Union[None, Unset, str]
-        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
-
         name: Union[None, Unset, str]
         name = UNSET if isinstance(self.name, Unset) else self.name
+
+        created_by: Union[None, Unset, str]
+        created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
 
         type_: Union[None, Unset, str]
         if isinstance(self.type_, Unset):
@@ -56,11 +56,11 @@ class ProjectCreateResponse:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"created_at": created_at, "id": id, "updated_at": updated_at})
-        if created_by is not UNSET:
-            field_dict["created_by"] = created_by
+        field_dict.update({"id": id, "created_at": created_at, "updated_at": updated_at})
         if name is not UNSET:
             field_dict["name"] = name
+        if created_by is not UNSET:
+            field_dict["created_by"] = created_by
         if type_ is not UNSET:
             field_dict["type"] = type_
 
@@ -69,20 +69,11 @@ class ProjectCreateResponse:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        created_at = isoparse(d.pop("created_at"))
-
         id = d.pop("id")
 
+        created_at = isoparse(d.pop("created_at"))
+
         updated_at = isoparse(d.pop("updated_at"))
-
-        def _parse_created_by(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        created_by = _parse_created_by(d.pop("created_by", UNSET))
 
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -92,6 +83,15 @@ class ProjectCreateResponse:
             return cast(Union[None, Unset, str], data)
 
         name = _parse_name(d.pop("name", UNSET))
+
+        def _parse_created_by(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        created_by = _parse_created_by(d.pop("created_by", UNSET))
 
         def _parse_type_(data: object) -> Union[None, ProjectType, Unset]:
             if data is None:
@@ -110,7 +110,7 @@ class ProjectCreateResponse:
         type_ = _parse_type_(d.pop("type", UNSET))
 
         project_create_response = cls(
-            created_at=created_at, id=id, updated_at=updated_at, created_by=created_by, name=name, type_=type_
+            id=id, created_at=created_at, updated_at=updated_at, name=name, created_by=created_by, type_=type_
         )
 
         project_create_response.additional_properties = d

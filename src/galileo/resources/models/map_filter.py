@@ -15,39 +15,38 @@ class MapFilter:
 
     Attributes
     ----------
-        key (str):
         name (Union[None, str]):
         operator (MapFilterOperator):
+        key (str):
         value (Union[list[str], str]):
     """
 
-    key: str
     name: Union[None, str]
     operator: MapFilterOperator
+    key: str
     value: Union[list[str], str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        key = self.key
-
         name: Union[None, str]
         name = self.name
 
         operator = self.operator.value
+
+        key = self.key
 
         value: Union[list[str], str]
         value = self.value if isinstance(self.value, list) else self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"key": key, "name": name, "operator": operator, "value": value})
+        field_dict.update({"name": name, "operator": operator, "key": key, "value": value})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        key = d.pop("key")
 
         def _parse_name(data: object) -> Union[None, str]:
             if data is None:
@@ -57,6 +56,8 @@ class MapFilter:
         name = _parse_name(d.pop("name"))
 
         operator = MapFilterOperator(d.pop("operator"))
+
+        key = d.pop("key")
 
         def _parse_value(data: object) -> Union[list[str], str]:
             try:
@@ -70,7 +71,7 @@ class MapFilter:
 
         value = _parse_value(d.pop("value"))
 
-        map_filter = cls(key=key, name=name, operator=operator, value=value)
+        map_filter = cls(name=name, operator=operator, key=key, value=value)
 
         map_filter.additional_properties = d
         return map_filter

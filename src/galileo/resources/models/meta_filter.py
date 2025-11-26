@@ -17,16 +17,16 @@ class MetaFilter:
     ----------
         name (str):
         greater_than (Union[None, Unset, float]):
-        is_equal (Union[None, Unset, float, int]):
-        isin (Union[None, Unset, list[Union[None, bool, int, str]]]):
         less_than (Union[None, Unset, float]):
+        isin (Union[None, Unset, list[Union[None, bool, int, str]]]):
+        is_equal (Union[None, Unset, float, int]):
     """
 
     name: str
     greater_than: Union[None, Unset, float] = UNSET
-    is_equal: Union[None, Unset, float, int] = UNSET
-    isin: Union[None, Unset, list[Union[None, bool, int, str]]] = UNSET
     less_than: Union[None, Unset, float] = UNSET
+    isin: Union[None, Unset, list[Union[None, bool, int, str]]] = UNSET
+    is_equal: Union[None, Unset, float, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -35,8 +35,8 @@ class MetaFilter:
         greater_than: Union[None, Unset, float]
         greater_than = UNSET if isinstance(self.greater_than, Unset) else self.greater_than
 
-        is_equal: Union[None, Unset, float, int]
-        is_equal = UNSET if isinstance(self.is_equal, Unset) else self.is_equal
+        less_than: Union[None, Unset, float]
+        less_than = UNSET if isinstance(self.less_than, Unset) else self.less_than
 
         isin: Union[None, Unset, list[Union[None, bool, int, str]]]
         if isinstance(self.isin, Unset):
@@ -51,20 +51,20 @@ class MetaFilter:
         else:
             isin = self.isin
 
-        less_than: Union[None, Unset, float]
-        less_than = UNSET if isinstance(self.less_than, Unset) else self.less_than
+        is_equal: Union[None, Unset, float, int]
+        is_equal = UNSET if isinstance(self.is_equal, Unset) else self.is_equal
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"name": name})
         if greater_than is not UNSET:
             field_dict["greater_than"] = greater_than
-        if is_equal is not UNSET:
-            field_dict["is_equal"] = is_equal
-        if isin is not UNSET:
-            field_dict["isin"] = isin
         if less_than is not UNSET:
             field_dict["less_than"] = less_than
+        if isin is not UNSET:
+            field_dict["isin"] = isin
+        if is_equal is not UNSET:
+            field_dict["is_equal"] = is_equal
 
         return field_dict
 
@@ -82,14 +82,14 @@ class MetaFilter:
 
         greater_than = _parse_greater_than(d.pop("greater_than", UNSET))
 
-        def _parse_is_equal(data: object) -> Union[None, Unset, float, int]:
+        def _parse_less_than(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float, int], data)
+            return cast(Union[None, Unset, float], data)
 
-        is_equal = _parse_is_equal(d.pop("is_equal", UNSET))
+        less_than = _parse_less_than(d.pop("less_than", UNSET))
 
         def _parse_isin(data: object) -> Union[None, Unset, list[Union[None, bool, int, str]]]:
             if data is None:
@@ -119,16 +119,16 @@ class MetaFilter:
 
         isin = _parse_isin(d.pop("isin", UNSET))
 
-        def _parse_less_than(data: object) -> Union[None, Unset, float]:
+        def _parse_is_equal(data: object) -> Union[None, Unset, float, int]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, float], data)
+            return cast(Union[None, Unset, float, int], data)
 
-        less_than = _parse_less_than(d.pop("less_than", UNSET))
+        is_equal = _parse_is_equal(d.pop("is_equal", UNSET))
 
-        meta_filter = cls(name=name, greater_than=greater_than, is_equal=is_equal, isin=isin, less_than=less_than)
+        meta_filter = cls(name=name, greater_than=greater_than, less_than=less_than, isin=isin, is_equal=is_equal)
 
         meta_filter.additional_properties = d
         return meta_filter

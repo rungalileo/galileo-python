@@ -16,21 +16,19 @@ class MetricCritiqueColumnar:
     """
     Attributes
     ----------
-        critique_info (MetricCritiqueContent):
         id (str):
         is_computed (bool):
         revised_explanation (Union[None, str]):
+        critique_info (MetricCritiqueContent):
     """
 
-    critique_info: "MetricCritiqueContent"
     id: str
     is_computed: bool
     revised_explanation: Union[None, str]
+    critique_info: "MetricCritiqueContent"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        critique_info = self.critique_info.to_dict()
-
         id = self.id
 
         is_computed = self.is_computed
@@ -38,14 +36,16 @@ class MetricCritiqueColumnar:
         revised_explanation: Union[None, str]
         revised_explanation = self.revised_explanation
 
+        critique_info = self.critique_info.to_dict()
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "critique_info": critique_info,
                 "id": id,
                 "is_computed": is_computed,
                 "revised_explanation": revised_explanation,
+                "critique_info": critique_info,
             }
         )
 
@@ -56,8 +56,6 @@ class MetricCritiqueColumnar:
         from ..models.metric_critique_content import MetricCritiqueContent
 
         d = dict(src_dict)
-        critique_info = MetricCritiqueContent.from_dict(d.pop("critique_info"))
-
         id = d.pop("id")
 
         is_computed = d.pop("is_computed")
@@ -69,8 +67,10 @@ class MetricCritiqueColumnar:
 
         revised_explanation = _parse_revised_explanation(d.pop("revised_explanation"))
 
+        critique_info = MetricCritiqueContent.from_dict(d.pop("critique_info"))
+
         metric_critique_columnar = cls(
-            critique_info=critique_info, id=id, is_computed=is_computed, revised_explanation=revised_explanation
+            id=id, is_computed=is_computed, revised_explanation=revised_explanation, critique_info=critique_info
         )
 
         metric_critique_columnar.additional_properties = d

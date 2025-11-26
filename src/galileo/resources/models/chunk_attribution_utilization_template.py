@@ -21,13 +21,12 @@ class ChunkAttributionUtilizationTemplate:
     r"""
     Attributes
     ----------
+        metric_system_prompt (Union[None, Unset, str]): System prompt for the metric.
+        metric_description (Union[None, Unset, str]): Description of what the metric should do.
+        value_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the rating. Default:
+            'rating'.
         explanation_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the
             explanation. Default: 'explanation'.
-        metric_description (Union[None, Unset, str]): Description of what the metric should do.
-        metric_few_shot_examples (Union[Unset, list['FewShotExample']]): Few-shot examples for the metric.
-        metric_system_prompt (Union[None, Unset, str]): System prompt for the metric.
-        response_schema (Union['ChunkAttributionUtilizationTemplateResponseSchemaType0', None, Unset]): Response schema
-            for the output
         template (Union[Unset, str]):  Default: 'I asked someone to answer a question based on one or more documents.
             You will tell me which of the documents their answer was sourced from, and which specific sentences from the
             documents they used.\n\nHere are the documents, with each document split up into sentences. Each sentence is
@@ -40,19 +39,20 @@ class ChunkAttributionUtilizationTemplate:
             sentence that was used to construct the answer, even if it was not used in its entirety. Omit keys for sentences
             that were not used, and could have been removed from the document without affecting the answer.\n\nYou must
             respond with a valid JSON string.'.
-        value_field_name (Union[Unset, str]): Field name to look for in the chainpoll response, for the rating. Default:
-            'rating'.
+        metric_few_shot_examples (Union[Unset, list['FewShotExample']]): Few-shot examples for the metric.
+        response_schema (Union['ChunkAttributionUtilizationTemplateResponseSchemaType0', None, Unset]): Response schema
+            for the output.
     """
 
-    explanation_field_name: Union[Unset, str] = "explanation"
-    metric_description: Union[None, Unset, str] = UNSET
-    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
     metric_system_prompt: Union[None, Unset, str] = UNSET
-    response_schema: Union["ChunkAttributionUtilizationTemplateResponseSchemaType0", None, Unset] = UNSET
+    metric_description: Union[None, Unset, str] = UNSET
+    value_field_name: Union[Unset, str] = "rating"
+    explanation_field_name: Union[Unset, str] = "explanation"
     template: Union[Unset, str] = (
         "I asked someone to answer a question based on one or more documents. You will tell me which of the documents their answer was sourced from, and which specific sentences from the documents they used.\n\nHere are the documents, with each document split up into sentences. Each sentence is given a unique key, such as '0a' for the first sentence of Document 0. You'll use these keys in your response to identify which sentences were used.\n\n```\n{chunks}\n```\n\nThe question was:\n\n```\n{question}\n```\n\nTheir response was:\n\n```\n{response}\n```\n\nRespond with a JSON object matching this schema:\n\n```\n{{\n  \\\"source_sentence_keys\\\": [string]\n}}\n```\n\nThe source_sentence_keys field is a list identifying the sentences in the documents that were used to construct the answer. Each entry MUST be a sentence key, such as '0a', that appears in the document list above. Include the key of every sentence that was used to construct the answer, even if it was not used in its entirety. Omit keys for sentences that were not used, and could have been removed from the document without affecting the answer.\n\nYou must respond with a valid JSON string."
     )
-    value_field_name: Union[Unset, str] = "rating"
+    metric_few_shot_examples: Union[Unset, list["FewShotExample"]] = UNSET
+    response_schema: Union["ChunkAttributionUtilizationTemplateResponseSchemaType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -60,10 +60,17 @@ class ChunkAttributionUtilizationTemplate:
             ChunkAttributionUtilizationTemplateResponseSchemaType0,
         )
 
-        explanation_field_name = self.explanation_field_name
+        metric_system_prompt: Union[None, Unset, str]
+        metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
 
         metric_description: Union[None, Unset, str]
         metric_description = UNSET if isinstance(self.metric_description, Unset) else self.metric_description
+
+        value_field_name = self.value_field_name
+
+        explanation_field_name = self.explanation_field_name
+
+        template = self.template
 
         metric_few_shot_examples: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.metric_few_shot_examples, Unset):
@@ -71,9 +78,6 @@ class ChunkAttributionUtilizationTemplate:
             for metric_few_shot_examples_item_data in self.metric_few_shot_examples:
                 metric_few_shot_examples_item = metric_few_shot_examples_item_data.to_dict()
                 metric_few_shot_examples.append(metric_few_shot_examples_item)
-
-        metric_system_prompt: Union[None, Unset, str]
-        metric_system_prompt = UNSET if isinstance(self.metric_system_prompt, Unset) else self.metric_system_prompt
 
         response_schema: Union[None, Unset, dict[str, Any]]
         if isinstance(self.response_schema, Unset):
@@ -83,27 +87,23 @@ class ChunkAttributionUtilizationTemplate:
         else:
             response_schema = self.response_schema
 
-        template = self.template
-
-        value_field_name = self.value_field_name
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if explanation_field_name is not UNSET:
-            field_dict["explanation_field_name"] = explanation_field_name
-        if metric_description is not UNSET:
-            field_dict["metric_description"] = metric_description
-        if metric_few_shot_examples is not UNSET:
-            field_dict["metric_few_shot_examples"] = metric_few_shot_examples
         if metric_system_prompt is not UNSET:
             field_dict["metric_system_prompt"] = metric_system_prompt
-        if response_schema is not UNSET:
-            field_dict["response_schema"] = response_schema
-        if template is not UNSET:
-            field_dict["template"] = template
+        if metric_description is not UNSET:
+            field_dict["metric_description"] = metric_description
         if value_field_name is not UNSET:
             field_dict["value_field_name"] = value_field_name
+        if explanation_field_name is not UNSET:
+            field_dict["explanation_field_name"] = explanation_field_name
+        if template is not UNSET:
+            field_dict["template"] = template
+        if metric_few_shot_examples is not UNSET:
+            field_dict["metric_few_shot_examples"] = metric_few_shot_examples
+        if response_schema is not UNSET:
+            field_dict["response_schema"] = response_schema
 
         return field_dict
 
@@ -115,7 +115,15 @@ class ChunkAttributionUtilizationTemplate:
         from ..models.few_shot_example import FewShotExample
 
         d = dict(src_dict)
-        explanation_field_name = d.pop("explanation_field_name", UNSET)
+
+        def _parse_metric_system_prompt(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metric_system_prompt = _parse_metric_system_prompt(d.pop("metric_system_prompt", UNSET))
 
         def _parse_metric_description(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -126,21 +134,18 @@ class ChunkAttributionUtilizationTemplate:
 
         metric_description = _parse_metric_description(d.pop("metric_description", UNSET))
 
+        value_field_name = d.pop("value_field_name", UNSET)
+
+        explanation_field_name = d.pop("explanation_field_name", UNSET)
+
+        template = d.pop("template", UNSET)
+
         metric_few_shot_examples = []
         _metric_few_shot_examples = d.pop("metric_few_shot_examples", UNSET)
         for metric_few_shot_examples_item_data in _metric_few_shot_examples or []:
             metric_few_shot_examples_item = FewShotExample.from_dict(metric_few_shot_examples_item_data)
 
             metric_few_shot_examples.append(metric_few_shot_examples_item)
-
-        def _parse_metric_system_prompt(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        metric_system_prompt = _parse_metric_system_prompt(d.pop("metric_system_prompt", UNSET))
 
         def _parse_response_schema(
             data: object,
@@ -160,18 +165,14 @@ class ChunkAttributionUtilizationTemplate:
 
         response_schema = _parse_response_schema(d.pop("response_schema", UNSET))
 
-        template = d.pop("template", UNSET)
-
-        value_field_name = d.pop("value_field_name", UNSET)
-
         chunk_attribution_utilization_template = cls(
-            explanation_field_name=explanation_field_name,
-            metric_description=metric_description,
-            metric_few_shot_examples=metric_few_shot_examples,
             metric_system_prompt=metric_system_prompt,
-            response_schema=response_schema,
-            template=template,
+            metric_description=metric_description,
             value_field_name=value_field_name,
+            explanation_field_name=explanation_field_name,
+            template=template,
+            metric_few_shot_examples=metric_few_shot_examples,
+            response_schema=response_schema,
         )
 
         chunk_attribution_utilization_template.additional_properties = d

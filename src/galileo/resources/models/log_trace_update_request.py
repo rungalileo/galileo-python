@@ -17,70 +17,64 @@ class LogTraceUpdateRequest:
     Attributes
     ----------
         trace_id (str): Trace id to update.
-        client_version (Union[None, Unset, str]):
-        duration_ns (Union[None, Unset, int]): Duration in nanoseconds. Overwrites previous value if present.
-        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
-        input_ (Union[None, Unset, str]): Input of the trace. Overwrites previous value if present.
-        is_complete (Union[None, Unset, bool]): Whether or not the records in this request are complete. Default: False.
         log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
-        logging_method (Union[Unset, LoggingMethod]):
+        experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
         metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
-        output (Union[None, Unset, str]): Output of the trace. Overwrites previous value if present.
+        logging_method (Union[Unset, LoggingMethod]):
+        client_version (Union[None, Unset, str]):
         reliable (Union[Unset, bool]): Whether or not to use reliable logging.  If set to False, the method will respond
             immediately before verifying that the traces have been successfully ingested, and no error message will be
             returned if ingestion fails.  If set to True, the method will wait for the traces to be successfully ingested or
             return an error message if there is an ingestion failure. Default: True.
+        input_ (Union[None, Unset, str]): Input of the trace. Overwrites previous value if present.
+        output (Union[None, Unset, str]): Output of the trace. Overwrites previous value if present.
         status_code (Union[None, Unset, int]): Status code of the trace. Overwrites previous value if present.
         tags (Union[None, Unset, list[str]]): Tags to add to the trace.
+        is_complete (Union[None, Unset, bool]): Whether or not the records in this request are complete. Default: False.
+        duration_ns (Union[None, Unset, int]): Duration in nanoseconds. Overwrites previous value if present.
     """
 
     trace_id: str
-    client_version: Union[None, Unset, str] = UNSET
-    duration_ns: Union[None, Unset, int] = UNSET
-    experiment_id: Union[None, Unset, str] = UNSET
-    input_: Union[None, Unset, str] = UNSET
-    is_complete: Union[None, Unset, bool] = False
     log_stream_id: Union[None, Unset, str] = UNSET
-    logging_method: Union[Unset, LoggingMethod] = UNSET
+    experiment_id: Union[None, Unset, str] = UNSET
     metrics_testing_id: Union[None, Unset, str] = UNSET
-    output: Union[None, Unset, str] = UNSET
+    logging_method: Union[Unset, LoggingMethod] = UNSET
+    client_version: Union[None, Unset, str] = UNSET
     reliable: Union[Unset, bool] = True
+    input_: Union[None, Unset, str] = UNSET
+    output: Union[None, Unset, str] = UNSET
     status_code: Union[None, Unset, int] = UNSET
     tags: Union[None, Unset, list[str]] = UNSET
+    is_complete: Union[None, Unset, bool] = False
+    duration_ns: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         trace_id = self.trace_id
 
-        client_version: Union[None, Unset, str]
-        client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
-
-        duration_ns: Union[None, Unset, int]
-        duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
+        log_stream_id: Union[None, Unset, str]
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
 
         experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
-        input_: Union[None, Unset, str]
-        input_ = UNSET if isinstance(self.input_, Unset) else self.input_
-
-        is_complete: Union[None, Unset, bool]
-        is_complete = UNSET if isinstance(self.is_complete, Unset) else self.is_complete
-
-        log_stream_id: Union[None, Unset, str]
-        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
+        metrics_testing_id: Union[None, Unset, str]
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         logging_method: Union[Unset, str] = UNSET
         if not isinstance(self.logging_method, Unset):
             logging_method = self.logging_method.value
 
-        metrics_testing_id: Union[None, Unset, str]
-        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
+        client_version: Union[None, Unset, str]
+        client_version = UNSET if isinstance(self.client_version, Unset) else self.client_version
+
+        reliable = self.reliable
+
+        input_: Union[None, Unset, str]
+        input_ = UNSET if isinstance(self.input_, Unset) else self.input_
 
         output: Union[None, Unset, str]
         output = UNSET if isinstance(self.output, Unset) else self.output
-
-        reliable = self.reliable
 
         status_code: Union[None, Unset, int]
         status_code = UNSET if isinstance(self.status_code, Unset) else self.status_code
@@ -94,33 +88,39 @@ class LogTraceUpdateRequest:
         else:
             tags = self.tags
 
+        is_complete: Union[None, Unset, bool]
+        is_complete = UNSET if isinstance(self.is_complete, Unset) else self.is_complete
+
+        duration_ns: Union[None, Unset, int]
+        duration_ns = UNSET if isinstance(self.duration_ns, Unset) else self.duration_ns
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"trace_id": trace_id})
-        if client_version is not UNSET:
-            field_dict["client_version"] = client_version
-        if duration_ns is not UNSET:
-            field_dict["duration_ns"] = duration_ns
-        if experiment_id is not UNSET:
-            field_dict["experiment_id"] = experiment_id
-        if input_ is not UNSET:
-            field_dict["input"] = input_
-        if is_complete is not UNSET:
-            field_dict["is_complete"] = is_complete
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
-        if logging_method is not UNSET:
-            field_dict["logging_method"] = logging_method
+        if experiment_id is not UNSET:
+            field_dict["experiment_id"] = experiment_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
-        if output is not UNSET:
-            field_dict["output"] = output
+        if logging_method is not UNSET:
+            field_dict["logging_method"] = logging_method
+        if client_version is not UNSET:
+            field_dict["client_version"] = client_version
         if reliable is not UNSET:
             field_dict["reliable"] = reliable
+        if input_ is not UNSET:
+            field_dict["input"] = input_
+        if output is not UNSET:
+            field_dict["output"] = output
         if status_code is not UNSET:
             field_dict["status_code"] = status_code
         if tags is not UNSET:
             field_dict["tags"] = tags
+        if is_complete is not UNSET:
+            field_dict["is_complete"] = is_complete
+        if duration_ns is not UNSET:
+            field_dict["duration_ns"] = duration_ns
 
         return field_dict
 
@@ -128,51 +128,6 @@ class LogTraceUpdateRequest:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         trace_id = d.pop("trace_id")
-
-        def _parse_client_version(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        client_version = _parse_client_version(d.pop("client_version", UNSET))
-
-        def _parse_duration_ns(data: object) -> Union[None, Unset, int]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, int], data)
-
-        duration_ns = _parse_duration_ns(d.pop("duration_ns", UNSET))
-
-        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
-
-        def _parse_input_(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        input_ = _parse_input_(d.pop("input", UNSET))
-
-        def _parse_is_complete(data: object) -> Union[None, Unset, bool]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, bool], data)
-
-        is_complete = _parse_is_complete(d.pop("is_complete", UNSET))
 
         def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -183,9 +138,14 @@ class LogTraceUpdateRequest:
 
         log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
 
-        _logging_method = d.pop("logging_method", UNSET)
-        logging_method: Union[Unset, LoggingMethod]
-        logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
+        def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
         def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -196,6 +156,30 @@ class LogTraceUpdateRequest:
 
         metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
+        _logging_method = d.pop("logging_method", UNSET)
+        logging_method: Union[Unset, LoggingMethod]
+        logging_method = UNSET if isinstance(_logging_method, Unset) else LoggingMethod(_logging_method)
+
+        def _parse_client_version(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        client_version = _parse_client_version(d.pop("client_version", UNSET))
+
+        reliable = d.pop("reliable", UNSET)
+
+        def _parse_input_(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        input_ = _parse_input_(d.pop("input", UNSET))
+
         def _parse_output(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -204,8 +188,6 @@ class LogTraceUpdateRequest:
             return cast(Union[None, Unset, str], data)
 
         output = _parse_output(d.pop("output", UNSET))
-
-        reliable = d.pop("reliable", UNSET)
 
         def _parse_status_code(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -232,20 +214,38 @@ class LogTraceUpdateRequest:
 
         tags = _parse_tags(d.pop("tags", UNSET))
 
+        def _parse_is_complete(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        is_complete = _parse_is_complete(d.pop("is_complete", UNSET))
+
+        def _parse_duration_ns(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        duration_ns = _parse_duration_ns(d.pop("duration_ns", UNSET))
+
         log_trace_update_request = cls(
             trace_id=trace_id,
-            client_version=client_version,
-            duration_ns=duration_ns,
-            experiment_id=experiment_id,
-            input_=input_,
-            is_complete=is_complete,
             log_stream_id=log_stream_id,
-            logging_method=logging_method,
+            experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,
-            output=output,
+            logging_method=logging_method,
+            client_version=client_version,
             reliable=reliable,
+            input_=input_,
+            output=output,
             status_code=status_code,
             tags=tags,
+            is_complete=is_complete,
+            duration_ns=duration_ns,
         )
 
         log_trace_update_request.additional_properties = d

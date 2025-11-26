@@ -14,46 +14,46 @@ class DatabricksIntegrationCreate:
     """
     Attributes
     ----------
-        hostname (str):
         token (str):
+        hostname (str):
         default_catalog_name (Union[None, Unset, str]):
-        llm (Union[Unset, bool]):  Default: False.
         path (Union[None, Unset, str]):
+        llm (Union[Unset, bool]):  Default: False.
         storage (Union[Unset, bool]):  Default: False.
     """
 
-    hostname: str
     token: str
+    hostname: str
     default_catalog_name: Union[None, Unset, str] = UNSET
-    llm: Union[Unset, bool] = False
     path: Union[None, Unset, str] = UNSET
+    llm: Union[Unset, bool] = False
     storage: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        hostname = self.hostname
-
         token = self.token
+
+        hostname = self.hostname
 
         default_catalog_name: Union[None, Unset, str]
         default_catalog_name = UNSET if isinstance(self.default_catalog_name, Unset) else self.default_catalog_name
 
-        llm = self.llm
-
         path: Union[None, Unset, str]
         path = UNSET if isinstance(self.path, Unset) else self.path
+
+        llm = self.llm
 
         storage = self.storage
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"hostname": hostname, "token": token})
+        field_dict.update({"token": token, "hostname": hostname})
         if default_catalog_name is not UNSET:
             field_dict["default_catalog_name"] = default_catalog_name
-        if llm is not UNSET:
-            field_dict["llm"] = llm
         if path is not UNSET:
             field_dict["path"] = path
+        if llm is not UNSET:
+            field_dict["llm"] = llm
         if storage is not UNSET:
             field_dict["storage"] = storage
 
@@ -62,9 +62,9 @@ class DatabricksIntegrationCreate:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        hostname = d.pop("hostname")
-
         token = d.pop("token")
+
+        hostname = d.pop("hostname")
 
         def _parse_default_catalog_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -75,8 +75,6 @@ class DatabricksIntegrationCreate:
 
         default_catalog_name = _parse_default_catalog_name(d.pop("default_catalog_name", UNSET))
 
-        llm = d.pop("llm", UNSET)
-
         def _parse_path(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -86,14 +84,16 @@ class DatabricksIntegrationCreate:
 
         path = _parse_path(d.pop("path", UNSET))
 
+        llm = d.pop("llm", UNSET)
+
         storage = d.pop("storage", UNSET)
 
         databricks_integration_create = cls(
-            hostname=hostname,
             token=token,
+            hostname=hostname,
             default_catalog_name=default_catalog_name,
-            llm=llm,
             path=path,
+            llm=llm,
             storage=storage,
         )
 

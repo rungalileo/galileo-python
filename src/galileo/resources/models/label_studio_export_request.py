@@ -22,40 +22,47 @@ class LabelStudioExportRequest:
 
     Attributes
     ----------
-            project_id (str):
             project_name (str):
+            project_id (str):
             run_id (str):
             split (Split):
-            compare_to (Union[None, Split, Unset]):
+            task (Union[None, Unset, str]):
             filter_params (Union[Unset, FilterParams]):
+            compare_to (Union[None, Split, Unset]):
+            map_threshold (Union[Unset, float]):  Default: 0.5.
+            workspace (Union[None, Unset, str]):
             inference_name (Union[None, Unset, str]):
             labels (Union[None, Unset, list[str]]):
-            map_threshold (Union[Unset, float]):  Default: 0.5.
-            task (Union[None, Unset, str]):
-            workspace (Union[None, Unset, str]):
     """
 
-    project_id: str
     project_name: str
+    project_id: str
     run_id: str
     split: Split
-    compare_to: Union[None, Split, Unset] = UNSET
+    task: Union[None, Unset, str] = UNSET
     filter_params: Union[Unset, "FilterParams"] = UNSET
+    compare_to: Union[None, Split, Unset] = UNSET
+    map_threshold: Union[Unset, float] = 0.5
+    workspace: Union[None, Unset, str] = UNSET
     inference_name: Union[None, Unset, str] = UNSET
     labels: Union[None, Unset, list[str]] = UNSET
-    map_threshold: Union[Unset, float] = 0.5
-    task: Union[None, Unset, str] = UNSET
-    workspace: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        project_id = self.project_id
-
         project_name = self.project_name
+
+        project_id = self.project_id
 
         run_id = self.run_id
 
         split = self.split.value
+
+        task: Union[None, Unset, str]
+        task = UNSET if isinstance(self.task, Unset) else self.task
+
+        filter_params: Union[Unset, dict[str, Any]] = UNSET
+        if not isinstance(self.filter_params, Unset):
+            filter_params = self.filter_params.to_dict()
 
         compare_to: Union[None, Unset, str]
         if isinstance(self.compare_to, Unset):
@@ -65,9 +72,10 @@ class LabelStudioExportRequest:
         else:
             compare_to = self.compare_to
 
-        filter_params: Union[Unset, dict[str, Any]] = UNSET
-        if not isinstance(self.filter_params, Unset):
-            filter_params = self.filter_params.to_dict()
+        map_threshold = self.map_threshold
+
+        workspace: Union[None, Unset, str]
+        workspace = UNSET if isinstance(self.workspace, Unset) else self.workspace
 
         inference_name: Union[None, Unset, str]
         inference_name = UNSET if isinstance(self.inference_name, Unset) else self.inference_name
@@ -81,31 +89,23 @@ class LabelStudioExportRequest:
         else:
             labels = self.labels
 
-        map_threshold = self.map_threshold
-
-        task: Union[None, Unset, str]
-        task = UNSET if isinstance(self.task, Unset) else self.task
-
-        workspace: Union[None, Unset, str]
-        workspace = UNSET if isinstance(self.workspace, Unset) else self.workspace
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"project_id": project_id, "project_name": project_name, "run_id": run_id, "split": split})
-        if compare_to is not UNSET:
-            field_dict["compare_to"] = compare_to
+        field_dict.update({"project_name": project_name, "project_id": project_id, "run_id": run_id, "split": split})
+        if task is not UNSET:
+            field_dict["task"] = task
         if filter_params is not UNSET:
             field_dict["filter_params"] = filter_params
+        if compare_to is not UNSET:
+            field_dict["compare_to"] = compare_to
+        if map_threshold is not UNSET:
+            field_dict["map_threshold"] = map_threshold
+        if workspace is not UNSET:
+            field_dict["workspace"] = workspace
         if inference_name is not UNSET:
             field_dict["inference_name"] = inference_name
         if labels is not UNSET:
             field_dict["labels"] = labels
-        if map_threshold is not UNSET:
-            field_dict["map_threshold"] = map_threshold
-        if task is not UNSET:
-            field_dict["task"] = task
-        if workspace is not UNSET:
-            field_dict["workspace"] = workspace
 
         return field_dict
 
@@ -114,13 +114,26 @@ class LabelStudioExportRequest:
         from ..models.filter_params import FilterParams
 
         d = dict(src_dict)
-        project_id = d.pop("project_id")
-
         project_name = d.pop("project_name")
+
+        project_id = d.pop("project_id")
 
         run_id = d.pop("run_id")
 
         split = Split(d.pop("split"))
+
+        def _parse_task(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        task = _parse_task(d.pop("task", UNSET))
+
+        _filter_params = d.pop("filter_params", UNSET)
+        filter_params: Union[Unset, FilterParams]
+        filter_params = UNSET if isinstance(_filter_params, Unset) else FilterParams.from_dict(_filter_params)
 
         def _parse_compare_to(data: object) -> Union[None, Split, Unset]:
             if data is None:
@@ -138,9 +151,16 @@ class LabelStudioExportRequest:
 
         compare_to = _parse_compare_to(d.pop("compare_to", UNSET))
 
-        _filter_params = d.pop("filter_params", UNSET)
-        filter_params: Union[Unset, FilterParams]
-        filter_params = UNSET if isinstance(_filter_params, Unset) else FilterParams.from_dict(_filter_params)
+        map_threshold = d.pop("map_threshold", UNSET)
+
+        def _parse_workspace(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        workspace = _parse_workspace(d.pop("workspace", UNSET))
 
         def _parse_inference_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -167,38 +187,18 @@ class LabelStudioExportRequest:
 
         labels = _parse_labels(d.pop("labels", UNSET))
 
-        map_threshold = d.pop("map_threshold", UNSET)
-
-        def _parse_task(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        task = _parse_task(d.pop("task", UNSET))
-
-        def _parse_workspace(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        workspace = _parse_workspace(d.pop("workspace", UNSET))
-
         label_studio_export_request = cls(
-            project_id=project_id,
             project_name=project_name,
+            project_id=project_id,
             run_id=run_id,
             split=split,
-            compare_to=compare_to,
+            task=task,
             filter_params=filter_params,
+            compare_to=compare_to,
+            map_threshold=map_threshold,
+            workspace=workspace,
             inference_name=inference_name,
             labels=labels,
-            map_threshold=map_threshold,
-            task=task,
-            workspace=workspace,
         )
 
         label_studio_export_request.additional_properties = d

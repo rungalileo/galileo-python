@@ -14,26 +14,31 @@ class BodyLoginEmailLoginPost:
     """
     Attributes
     ----------
-        password (str):
         username (str):
-        client_id (Union[None, Unset, str]):
-        client_secret (Union[None, Unset, str]):
+        password (str):
         grant_type (Union[None, Unset, str]):
         scope (Union[Unset, str]):  Default: ''.
+        client_id (Union[None, Unset, str]):
+        client_secret (Union[None, Unset, str]):
     """
 
-    password: str
     username: str
-    client_id: Union[None, Unset, str] = UNSET
-    client_secret: Union[None, Unset, str] = UNSET
+    password: str
     grant_type: Union[None, Unset, str] = UNSET
     scope: Union[Unset, str] = ""
+    client_id: Union[None, Unset, str] = UNSET
+    client_secret: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        username = self.username
+
         password = self.password
 
-        username = self.username
+        grant_type: Union[None, Unset, str]
+        grant_type = UNSET if isinstance(self.grant_type, Unset) else self.grant_type
+
+        scope = self.scope
 
         client_id: Union[None, Unset, str]
         client_id = UNSET if isinstance(self.client_id, Unset) else self.client_id
@@ -41,31 +46,37 @@ class BodyLoginEmailLoginPost:
         client_secret: Union[None, Unset, str]
         client_secret = UNSET if isinstance(self.client_secret, Unset) else self.client_secret
 
-        grant_type: Union[None, Unset, str]
-        grant_type = UNSET if isinstance(self.grant_type, Unset) else self.grant_type
-
-        scope = self.scope
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"password": password, "username": username})
-        if client_id is not UNSET:
-            field_dict["client_id"] = client_id
-        if client_secret is not UNSET:
-            field_dict["client_secret"] = client_secret
+        field_dict.update({"username": username, "password": password})
         if grant_type is not UNSET:
             field_dict["grant_type"] = grant_type
         if scope is not UNSET:
             field_dict["scope"] = scope
+        if client_id is not UNSET:
+            field_dict["client_id"] = client_id
+        if client_secret is not UNSET:
+            field_dict["client_secret"] = client_secret
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        username = d.pop("username")
+
         password = d.pop("password")
 
-        username = d.pop("username")
+        def _parse_grant_type(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        grant_type = _parse_grant_type(d.pop("grant_type", UNSET))
+
+        scope = d.pop("scope", UNSET)
 
         def _parse_client_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -85,24 +96,13 @@ class BodyLoginEmailLoginPost:
 
         client_secret = _parse_client_secret(d.pop("client_secret", UNSET))
 
-        def _parse_grant_type(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        grant_type = _parse_grant_type(d.pop("grant_type", UNSET))
-
-        scope = d.pop("scope", UNSET)
-
         body_login_email_login_post = cls(
-            password=password,
             username=username,
-            client_id=client_id,
-            client_secret=client_secret,
+            password=password,
             grant_type=grant_type,
             scope=scope,
+            client_id=client_id,
+            client_secret=client_secret,
         )
 
         body_login_email_login_post.additional_properties = d

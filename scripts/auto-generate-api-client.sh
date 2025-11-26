@@ -19,7 +19,7 @@ cd "$HOME_DIR"
 mv "$OUTPUT_PATH"  "$OUTPUT_PATH"_backup
 
 # Run the OpenAPI Python client generator
-openapi-python-client generate --meta none  --path "$OPENAPI_SPEC_PATH" --output-path "$OUTPUT_PATH" --custom-template-path ../codegen_templates --config "$CONFIG_PATH"
+poetry run openapi-python-client generate --meta none  --path "$OPENAPI_SPEC_PATH" --output-path "$OUTPUT_PATH" --custom-template-path ../codegen_templates --config "$CONFIG_PATH" --overwrite
 
 # Remove the backup directory
 rm -r "$OUTPUT_PATH"_backup

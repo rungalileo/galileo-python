@@ -31,16 +31,17 @@ class LogRecordsDeleteRequest:
 
     Attributes
     ----------
+        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
         experiment_id (Union[None, Unset, str]): Experiment id associated with the traces.
-        filter_tree (Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode', None, Unset]):
+        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
         filters (Union[Unset, list[Union['LogRecordsBooleanFilter', 'LogRecordsCollectionFilter',
             'LogRecordsDateFilter', 'LogRecordsIDFilter', 'LogRecordsNumberFilter', 'LogRecordsTextFilter']]]):
-        log_stream_id (Union[None, Unset, str]): Log stream id associated with the traces.
-        metrics_testing_id (Union[None, Unset, str]): Metrics testing id associated with the traces.
+        filter_tree (Union['AndNode', 'FilterLeaf', 'NotNode', 'OrNode', None, Unset]):
     """
 
+    log_stream_id: Union[None, Unset, str] = UNSET
     experiment_id: Union[None, Unset, str] = UNSET
-    filter_tree: Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset] = UNSET
+    metrics_testing_id: Union[None, Unset, str] = UNSET
     filters: Union[
         Unset,
         list[
@@ -54,8 +55,7 @@ class LogRecordsDeleteRequest:
             ]
         ],
     ] = UNSET
-    log_stream_id: Union[None, Unset, str] = UNSET
-    metrics_testing_id: Union[None, Unset, str] = UNSET
+    filter_tree: Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -69,16 +69,14 @@ class LogRecordsDeleteRequest:
         from ..models.not_node import NotNode
         from ..models.or_node import OrNode
 
+        log_stream_id: Union[None, Unset, str]
+        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
+
         experiment_id: Union[None, Unset, str]
         experiment_id = UNSET if isinstance(self.experiment_id, Unset) else self.experiment_id
 
-        filter_tree: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.filter_tree, Unset):
-            filter_tree = UNSET
-        elif isinstance(self.filter_tree, (FilterLeaf, AndNode, OrNode, NotNode)):
-            filter_tree = self.filter_tree.to_dict()
-        else:
-            filter_tree = self.filter_tree
+        metrics_testing_id: Union[None, Unset, str]
+        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
 
         filters: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.filters, Unset):
@@ -101,25 +99,27 @@ class LogRecordsDeleteRequest:
 
                 filters.append(filters_item)
 
-        log_stream_id: Union[None, Unset, str]
-        log_stream_id = UNSET if isinstance(self.log_stream_id, Unset) else self.log_stream_id
-
-        metrics_testing_id: Union[None, Unset, str]
-        metrics_testing_id = UNSET if isinstance(self.metrics_testing_id, Unset) else self.metrics_testing_id
+        filter_tree: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.filter_tree, Unset):
+            filter_tree = UNSET
+        elif isinstance(self.filter_tree, (FilterLeaf, AndNode, OrNode, NotNode)):
+            filter_tree = self.filter_tree.to_dict()
+        else:
+            filter_tree = self.filter_tree
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if experiment_id is not UNSET:
-            field_dict["experiment_id"] = experiment_id
-        if filter_tree is not UNSET:
-            field_dict["filter_tree"] = filter_tree
-        if filters is not UNSET:
-            field_dict["filters"] = filters
         if log_stream_id is not UNSET:
             field_dict["log_stream_id"] = log_stream_id
+        if experiment_id is not UNSET:
+            field_dict["experiment_id"] = experiment_id
         if metrics_testing_id is not UNSET:
             field_dict["metrics_testing_id"] = metrics_testing_id
+        if filters is not UNSET:
+            field_dict["filters"] = filters
+        if filter_tree is not UNSET:
+            field_dict["filter_tree"] = filter_tree
 
         return field_dict
 
@@ -138,6 +138,15 @@ class LogRecordsDeleteRequest:
 
         d = dict(src_dict)
 
+        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
+
         def _parse_experiment_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -147,42 +156,14 @@ class LogRecordsDeleteRequest:
 
         experiment_id = _parse_experiment_id(d.pop("experiment_id", UNSET))
 
-        def _parse_filter_tree(data: object) -> Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset]:
+        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return FilterLeaf.from_dict(data)
+            return cast(Union[None, Unset, str], data)
 
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return AndNode.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return OrNode.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return NotNode.from_dict(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset], data)
-
-        filter_tree = _parse_filter_tree(d.pop("filter_tree", UNSET))
+        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
 
         filters = []
         _filters = d.pop("filters", UNSET)
@@ -241,30 +222,49 @@ class LogRecordsDeleteRequest:
 
             filters.append(filters_item)
 
-        def _parse_log_stream_id(data: object) -> Union[None, Unset, str]:
+        def _parse_filter_tree(data: object) -> Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return FilterLeaf.from_dict(data)
 
-        log_stream_id = _parse_log_stream_id(d.pop("log_stream_id", UNSET))
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return AndNode.from_dict(data)
 
-        def _parse_metrics_testing_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return OrNode.from_dict(data)
 
-        metrics_testing_id = _parse_metrics_testing_id(d.pop("metrics_testing_id", UNSET))
+            except:  # noqa: E722
+                pass
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return NotNode.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["AndNode", "FilterLeaf", "NotNode", "OrNode", None, Unset], data)
+
+        filter_tree = _parse_filter_tree(d.pop("filter_tree", UNSET))
 
         log_records_delete_request = cls(
-            experiment_id=experiment_id,
-            filter_tree=filter_tree,
-            filters=filters,
             log_stream_id=log_stream_id,
+            experiment_id=experiment_id,
             metrics_testing_id=metrics_testing_id,
+            filters=filters,
+            filter_tree=filter_tree,
         )
 
         log_records_delete_request.additional_properties = d

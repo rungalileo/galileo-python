@@ -19,17 +19,17 @@ class RuleResult:
         metric (str): Name of the metric.
         operator (RuleOperator):
         target_value (Union[None, float, int, list[Any], str]): Value to compare with for this metric (right hand side).
-        execution_time (Union[None, Unset, float]): Execution time for the rule in seconds.
         status (Union[Unset, ExecutionStatus]): Status of the execution.
         value (Union[Any, None, Unset]): Result of the metric computation.
+        execution_time (Union[None, Unset, float]): Execution time for the rule in seconds.
     """
 
     metric: str
     operator: RuleOperator
     target_value: Union[None, float, int, list[Any], str]
-    execution_time: Union[None, Unset, float] = UNSET
     status: Union[Unset, ExecutionStatus] = UNSET
     value: Union[Any, None, Unset] = UNSET
+    execution_time: Union[None, Unset, float] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -40,9 +40,6 @@ class RuleResult:
         target_value: Union[None, float, int, list[Any], str]
         target_value = self.target_value if isinstance(self.target_value, list) else self.target_value
 
-        execution_time: Union[None, Unset, float]
-        execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
-
         status: Union[Unset, str] = UNSET
         if not isinstance(self.status, Unset):
             status = self.status.value
@@ -50,15 +47,18 @@ class RuleResult:
         value: Union[Any, None, Unset]
         value = UNSET if isinstance(self.value, Unset) else self.value
 
+        execution_time: Union[None, Unset, float]
+        execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"metric": metric, "operator": operator, "target_value": target_value})
-        if execution_time is not UNSET:
-            field_dict["execution_time"] = execution_time
         if status is not UNSET:
             field_dict["status"] = status
         if value is not UNSET:
             field_dict["value"] = value
+        if execution_time is not UNSET:
+            field_dict["execution_time"] = execution_time
 
         return field_dict
 
@@ -83,15 +83,6 @@ class RuleResult:
 
         target_value = _parse_target_value(d.pop("target_value"))
 
-        def _parse_execution_time(data: object) -> Union[None, Unset, float]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, float], data)
-
-        execution_time = _parse_execution_time(d.pop("execution_time", UNSET))
-
         _status = d.pop("status", UNSET)
         status: Union[Unset, ExecutionStatus]
         status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
@@ -105,13 +96,22 @@ class RuleResult:
 
         value = _parse_value(d.pop("value", UNSET))
 
+        def _parse_execution_time(data: object) -> Union[None, Unset, float]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, float], data)
+
+        execution_time = _parse_execution_time(d.pop("execution_time", UNSET))
+
         rule_result = cls(
             metric=metric,
             operator=operator,
             target_value=target_value,
-            execution_time=execution_time,
             status=status,
             value=value,
+            execution_time=execution_time,
         )
 
         rule_result.additional_properties = d

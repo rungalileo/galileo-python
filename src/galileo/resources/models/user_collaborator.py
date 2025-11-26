@@ -21,42 +21,42 @@ class UserCollaborator:
     """
     Attributes
     ----------
-        created_at (datetime.datetime):
-        email (str):
-        first_name (Union[None, str]):
         id (str):
-        last_name (Union[None, str]):
         role (CollaboratorRole):
+        created_at (datetime.datetime):
         user_id (str):
+        first_name (Union[None, str]):
+        last_name (Union[None, str]):
+        email (str):
         permissions (Union[Unset, list['Permission']]):
     """
 
-    created_at: datetime.datetime
-    email: str
-    first_name: Union[None, str]
     id: str
-    last_name: Union[None, str]
     role: CollaboratorRole
+    created_at: datetime.datetime
     user_id: str
+    first_name: Union[None, str]
+    last_name: Union[None, str]
+    email: str
     permissions: Union[Unset, list["Permission"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        id = self.id
+
+        role = self.role.value
+
         created_at = self.created_at.isoformat()
 
-        email = self.email
+        user_id = self.user_id
 
         first_name: Union[None, str]
         first_name = self.first_name
 
-        id = self.id
-
         last_name: Union[None, str]
         last_name = self.last_name
 
-        role = self.role.value
-
-        user_id = self.user_id
+        email = self.email
 
         permissions: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.permissions, Unset):
@@ -69,13 +69,13 @@ class UserCollaborator:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "created_at": created_at,
-                "email": email,
-                "first_name": first_name,
                 "id": id,
-                "last_name": last_name,
                 "role": role,
+                "created_at": created_at,
                 "user_id": user_id,
+                "first_name": first_name,
+                "last_name": last_name,
+                "email": email,
             }
         )
         if permissions is not UNSET:
@@ -88,9 +88,13 @@ class UserCollaborator:
         from ..models.permission import Permission
 
         d = dict(src_dict)
+        id = d.pop("id")
+
+        role = CollaboratorRole(d.pop("role"))
+
         created_at = isoparse(d.pop("created_at"))
 
-        email = d.pop("email")
+        user_id = d.pop("user_id")
 
         def _parse_first_name(data: object) -> Union[None, str]:
             if data is None:
@@ -99,8 +103,6 @@ class UserCollaborator:
 
         first_name = _parse_first_name(d.pop("first_name"))
 
-        id = d.pop("id")
-
         def _parse_last_name(data: object) -> Union[None, str]:
             if data is None:
                 return data
@@ -108,9 +110,7 @@ class UserCollaborator:
 
         last_name = _parse_last_name(d.pop("last_name"))
 
-        role = CollaboratorRole(d.pop("role"))
-
-        user_id = d.pop("user_id")
+        email = d.pop("email")
 
         permissions = []
         _permissions = d.pop("permissions", UNSET)
@@ -120,13 +120,13 @@ class UserCollaborator:
             permissions.append(permissions_item)
 
         user_collaborator = cls(
-            created_at=created_at,
-            email=email,
-            first_name=first_name,
             id=id,
-            last_name=last_name,
             role=role,
+            created_at=created_at,
             user_id=user_id,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
             permissions=permissions,
         )
 

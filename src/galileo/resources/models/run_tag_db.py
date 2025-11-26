@@ -14,60 +14,60 @@ class RunTagDB:
     """
     Attributes
     ----------
-        created_at (datetime.datetime):
-        created_by (str):
-        id (str):
         key (str):
+        value (str):
+        tag_type (str):
         project_id (str):
         run_id (str):
-        tag_type (str):
+        created_by (str):
+        id (str):
+        created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        value (str):
     """
 
-    created_at: datetime.datetime
-    created_by: str
-    id: str
     key: str
+    value: str
+    tag_type: str
     project_id: str
     run_id: str
-    tag_type: str
+    created_by: str
+    id: str
+    created_at: datetime.datetime
     updated_at: datetime.datetime
-    value: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        created_at = self.created_at.isoformat()
-
-        created_by = self.created_by
-
-        id = self.id
-
         key = self.key
+
+        value = self.value
+
+        tag_type = self.tag_type
 
         project_id = self.project_id
 
         run_id = self.run_id
 
-        tag_type = self.tag_type
+        created_by = self.created_by
+
+        id = self.id
+
+        created_at = self.created_at.isoformat()
 
         updated_at = self.updated_at.isoformat()
-
-        value = self.value
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "created_at": created_at,
-                "created_by": created_by,
-                "id": id,
                 "key": key,
+                "value": value,
+                "tag_type": tag_type,
                 "project_id": project_id,
                 "run_id": run_id,
-                "tag_type": tag_type,
+                "created_by": created_by,
+                "id": id,
+                "created_at": created_at,
                 "updated_at": updated_at,
-                "value": value,
             }
         )
 
@@ -76,34 +76,34 @@ class RunTagDB:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        created_at = isoparse(d.pop("created_at"))
-
-        created_by = d.pop("created_by")
-
-        id = d.pop("id")
-
         key = d.pop("key")
+
+        value = d.pop("value")
+
+        tag_type = d.pop("tag_type")
 
         project_id = d.pop("project_id")
 
         run_id = d.pop("run_id")
 
-        tag_type = d.pop("tag_type")
+        created_by = d.pop("created_by")
+
+        id = d.pop("id")
+
+        created_at = isoparse(d.pop("created_at"))
 
         updated_at = isoparse(d.pop("updated_at"))
 
-        value = d.pop("value")
-
         run_tag_db = cls(
-            created_at=created_at,
-            created_by=created_by,
-            id=id,
             key=key,
+            value=value,
+            tag_type=tag_type,
             project_id=project_id,
             run_id=run_id,
-            tag_type=tag_type,
+            created_by=created_by,
+            id=id,
+            created_at=created_at,
             updated_at=updated_at,
-            value=value,
         )
 
         run_tag_db.additional_properties = d

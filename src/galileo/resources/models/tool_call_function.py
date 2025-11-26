@@ -12,33 +12,33 @@ class ToolCallFunction:
     """
     Attributes
     ----------
-        arguments (str):
         name (str):
+        arguments (str):
     """
 
-    arguments: str
     name: str
+    arguments: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        arguments = self.arguments
-
         name = self.name
+
+        arguments = self.arguments
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"arguments": arguments, "name": name})
+        field_dict.update({"name": name, "arguments": arguments})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        arguments = d.pop("arguments")
-
         name = d.pop("name")
 
-        tool_call_function = cls(arguments=arguments, name=name)
+        arguments = d.pop("arguments")
+
+        tool_call_function = cls(name=name, arguments=arguments)
 
         tool_call_function.additional_properties = d
         return tool_call_function

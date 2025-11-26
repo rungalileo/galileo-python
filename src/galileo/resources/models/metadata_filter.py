@@ -16,48 +16,48 @@ class MetadataFilter:
 
     Attributes
     ----------
-        key (str):
         operator (MetadataFilterOperator):
+        key (str):
         value (Union[list[str], str]):
-        filter_type (Union[Literal['map'], Unset]):  Default: 'map'.
         name (Union[Literal['metadata'], Unset]):  Default: 'metadata'.
+        filter_type (Union[Literal['map'], Unset]):  Default: 'map'.
     """
 
-    key: str
     operator: MetadataFilterOperator
+    key: str
     value: Union[list[str], str]
-    filter_type: Union[Literal["map"], Unset] = "map"
     name: Union[Literal["metadata"], Unset] = "metadata"
+    filter_type: Union[Literal["map"], Unset] = "map"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        key = self.key
-
         operator = self.operator.value
+
+        key = self.key
 
         value: Union[list[str], str]
         value = self.value if isinstance(self.value, list) else self.value
 
-        filter_type = self.filter_type
-
         name = self.name
+
+        filter_type = self.filter_type
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"key": key, "operator": operator, "value": value})
-        if filter_type is not UNSET:
-            field_dict["filter_type"] = filter_type
+        field_dict.update({"operator": operator, "key": key, "value": value})
         if name is not UNSET:
             field_dict["name"] = name
+        if filter_type is not UNSET:
+            field_dict["filter_type"] = filter_type
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        key = d.pop("key")
-
         operator = MetadataFilterOperator(d.pop("operator"))
+
+        key = d.pop("key")
 
         def _parse_value(data: object) -> Union[list[str], str]:
             try:
@@ -71,15 +71,15 @@ class MetadataFilter:
 
         value = _parse_value(d.pop("value"))
 
-        filter_type = cast(Union[Literal["map"], Unset], d.pop("filter_type", UNSET))
-        if filter_type != "map" and not isinstance(filter_type, Unset):
-            raise ValueError(f"filter_type must match const 'map', got '{filter_type}'")
-
         name = cast(Union[Literal["metadata"], Unset], d.pop("name", UNSET))
         if name != "metadata" and not isinstance(name, Unset):
             raise ValueError(f"name must match const 'metadata', got '{name}'")
 
-        metadata_filter = cls(key=key, operator=operator, value=value, filter_type=filter_type, name=name)
+        filter_type = cast(Union[Literal["map"], Unset], d.pop("filter_type", UNSET))
+        if filter_type != "map" and not isinstance(filter_type, Unset):
+            raise ValueError(f"filter_type must match const 'map', got '{filter_type}'")
+
+        metadata_filter = cls(operator=operator, key=key, value=value, name=name, filter_type=filter_type)
 
         metadata_filter.additional_properties = d
         return metadata_filter

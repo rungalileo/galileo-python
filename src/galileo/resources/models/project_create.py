@@ -16,21 +16,19 @@ class ProjectCreate:
     Attributes
     ----------
         name (str):
-        create_example_templates (Union[Unset, bool]):  Default: False.
         created_by (Union[None, Unset, str]):
         type_ (Union[Unset, ProjectType]):
+        create_example_templates (Union[Unset, bool]):  Default: False.
     """
 
     name: str
-    create_example_templates: Union[Unset, bool] = False
     created_by: Union[None, Unset, str] = UNSET
     type_: Union[Unset, ProjectType] = UNSET
+    create_example_templates: Union[Unset, bool] = False
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         name = self.name
-
-        create_example_templates = self.create_example_templates
 
         created_by: Union[None, Unset, str]
         created_by = UNSET if isinstance(self.created_by, Unset) else self.created_by
@@ -39,15 +37,17 @@ class ProjectCreate:
         if not isinstance(self.type_, Unset):
             type_ = self.type_.value
 
+        create_example_templates = self.create_example_templates
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"name": name})
-        if create_example_templates is not UNSET:
-            field_dict["create_example_templates"] = create_example_templates
         if created_by is not UNSET:
             field_dict["created_by"] = created_by
         if type_ is not UNSET:
             field_dict["type"] = type_
+        if create_example_templates is not UNSET:
+            field_dict["create_example_templates"] = create_example_templates
 
         return field_dict
 
@@ -55,8 +55,6 @@ class ProjectCreate:
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
         name = d.pop("name")
-
-        create_example_templates = d.pop("create_example_templates", UNSET)
 
         def _parse_created_by(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -71,8 +69,10 @@ class ProjectCreate:
         type_: Union[Unset, ProjectType]
         type_ = UNSET if isinstance(_type_, Unset) else ProjectType(_type_)
 
+        create_example_templates = d.pop("create_example_templates", UNSET)
+
         project_create = cls(
-            name=name, create_example_templates=create_example_templates, created_by=created_by, type_=type_
+            name=name, created_by=created_by, type_=type_, create_example_templates=create_example_templates
         )
 
         project_create.additional_properties = d

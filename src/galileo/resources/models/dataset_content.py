@@ -18,35 +18,40 @@ class DatasetContent:
     """
     Attributes
     ----------
-        column_names (Union[Unset, list[str]]):
-        limit (Union[Unset, int]):  Default: 100.
-        next_starting_token (Union[None, Unset, int]):
-        paginated (Union[Unset, bool]):  Default: False.
-        rows (Union[Unset, list['DatasetRow']]):
         starting_token (Union[Unset, int]):  Default: 0.
+        limit (Union[Unset, int]):  Default: 100.
+        paginated (Union[Unset, bool]):  Default: False.
+        next_starting_token (Union[None, Unset, int]):
+        column_names (Union[Unset, list[str]]):
         warning_message (Union[None, Unset, str]):
+        rows (Union[Unset, list['DatasetRow']]):
     """
 
-    column_names: Union[Unset, list[str]] = UNSET
-    limit: Union[Unset, int] = 100
-    next_starting_token: Union[None, Unset, int] = UNSET
-    paginated: Union[Unset, bool] = False
-    rows: Union[Unset, list["DatasetRow"]] = UNSET
     starting_token: Union[Unset, int] = 0
+    limit: Union[Unset, int] = 100
+    paginated: Union[Unset, bool] = False
+    next_starting_token: Union[None, Unset, int] = UNSET
+    column_names: Union[Unset, list[str]] = UNSET
     warning_message: Union[None, Unset, str] = UNSET
+    rows: Union[Unset, list["DatasetRow"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        column_names: Union[Unset, list[str]] = UNSET
-        if not isinstance(self.column_names, Unset):
-            column_names = self.column_names
+        starting_token = self.starting_token
 
         limit = self.limit
+
+        paginated = self.paginated
 
         next_starting_token: Union[None, Unset, int]
         next_starting_token = UNSET if isinstance(self.next_starting_token, Unset) else self.next_starting_token
 
-        paginated = self.paginated
+        column_names: Union[Unset, list[str]] = UNSET
+        if not isinstance(self.column_names, Unset):
+            column_names = self.column_names
+
+        warning_message: Union[None, Unset, str]
+        warning_message = UNSET if isinstance(self.warning_message, Unset) else self.warning_message
 
         rows: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.rows, Unset):
@@ -55,28 +60,23 @@ class DatasetContent:
                 rows_item = rows_item_data.to_dict()
                 rows.append(rows_item)
 
-        starting_token = self.starting_token
-
-        warning_message: Union[None, Unset, str]
-        warning_message = UNSET if isinstance(self.warning_message, Unset) else self.warning_message
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if column_names is not UNSET:
-            field_dict["column_names"] = column_names
-        if limit is not UNSET:
-            field_dict["limit"] = limit
-        if next_starting_token is not UNSET:
-            field_dict["next_starting_token"] = next_starting_token
-        if paginated is not UNSET:
-            field_dict["paginated"] = paginated
-        if rows is not UNSET:
-            field_dict["rows"] = rows
         if starting_token is not UNSET:
             field_dict["starting_token"] = starting_token
+        if limit is not UNSET:
+            field_dict["limit"] = limit
+        if paginated is not UNSET:
+            field_dict["paginated"] = paginated
+        if next_starting_token is not UNSET:
+            field_dict["next_starting_token"] = next_starting_token
+        if column_names is not UNSET:
+            field_dict["column_names"] = column_names
         if warning_message is not UNSET:
             field_dict["warning_message"] = warning_message
+        if rows is not UNSET:
+            field_dict["rows"] = rows
 
         return field_dict
 
@@ -85,9 +85,11 @@ class DatasetContent:
         from ..models.dataset_row import DatasetRow
 
         d = dict(src_dict)
-        column_names = cast(list[str], d.pop("column_names", UNSET))
+        starting_token = d.pop("starting_token", UNSET)
 
         limit = d.pop("limit", UNSET)
+
+        paginated = d.pop("paginated", UNSET)
 
         def _parse_next_starting_token(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -98,16 +100,7 @@ class DatasetContent:
 
         next_starting_token = _parse_next_starting_token(d.pop("next_starting_token", UNSET))
 
-        paginated = d.pop("paginated", UNSET)
-
-        rows = []
-        _rows = d.pop("rows", UNSET)
-        for rows_item_data in _rows or []:
-            rows_item = DatasetRow.from_dict(rows_item_data)
-
-            rows.append(rows_item)
-
-        starting_token = d.pop("starting_token", UNSET)
+        column_names = cast(list[str], d.pop("column_names", UNSET))
 
         def _parse_warning_message(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -118,14 +111,21 @@ class DatasetContent:
 
         warning_message = _parse_warning_message(d.pop("warning_message", UNSET))
 
+        rows = []
+        _rows = d.pop("rows", UNSET)
+        for rows_item_data in _rows or []:
+            rows_item = DatasetRow.from_dict(rows_item_data)
+
+            rows.append(rows_item)
+
         dataset_content = cls(
-            column_names=column_names,
-            limit=limit,
-            next_starting_token=next_starting_token,
-            paginated=paginated,
-            rows=rows,
             starting_token=starting_token,
+            limit=limit,
+            paginated=paginated,
+            next_starting_token=next_starting_token,
+            column_names=column_names,
             warning_message=warning_message,
+            rows=rows,
         )
 
         dataset_content.additional_properties = d

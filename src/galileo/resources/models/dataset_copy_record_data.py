@@ -15,22 +15,22 @@ class DatasetCopyRecordData:
 
     Attributes
     ----------
-        ids (list[str]): List of trace or span IDs to copy data from
         project_id (str):
+        ids (list[str]): List of trace or span IDs to copy data from
         edit_type (Union[Literal['copy_record_data'], Unset]):  Default: 'copy_record_data'.
         prepend (Union[Unset, bool]): A flag to control appending vs prepending Default: True.
     """
 
-    ids: list[str]
     project_id: str
+    ids: list[str]
     edit_type: Union[Literal["copy_record_data"], Unset] = "copy_record_data"
     prepend: Union[Unset, bool] = True
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        ids = self.ids
-
         project_id = self.project_id
+
+        ids = self.ids
 
         edit_type = self.edit_type
 
@@ -38,7 +38,7 @@ class DatasetCopyRecordData:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"ids": ids, "project_id": project_id})
+        field_dict.update({"project_id": project_id, "ids": ids})
         if edit_type is not UNSET:
             field_dict["edit_type"] = edit_type
         if prepend is not UNSET:
@@ -49,9 +49,9 @@ class DatasetCopyRecordData:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        ids = cast(list[str], d.pop("ids"))
-
         project_id = d.pop("project_id")
+
+        ids = cast(list[str], d.pop("ids"))
 
         edit_type = cast(Union[Literal["copy_record_data"], Unset], d.pop("edit_type", UNSET))
         if edit_type != "copy_record_data" and not isinstance(edit_type, Unset):
@@ -59,7 +59,7 @@ class DatasetCopyRecordData:
 
         prepend = d.pop("prepend", UNSET)
 
-        dataset_copy_record_data = cls(ids=ids, project_id=project_id, edit_type=edit_type, prepend=prepend)
+        dataset_copy_record_data = cls(project_id=project_id, ids=ids, edit_type=edit_type, prepend=prepend)
 
         dataset_copy_record_data.additional_properties = d
         return dataset_copy_record_data

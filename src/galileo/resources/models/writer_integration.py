@@ -19,21 +19,26 @@ class WriterIntegration:
     Attributes
     ----------
         organization_id (str):
-        extra (Union['WriterIntegrationExtraType0', None, Unset]):
         id (Union[None, Unset, str]):
         name (Union[Literal['writer'], Unset]):  Default: 'writer'.
+        extra (Union['WriterIntegrationExtraType0', None, Unset]):
     """
 
     organization_id: str
-    extra: Union["WriterIntegrationExtraType0", None, Unset] = UNSET
     id: Union[None, Unset, str] = UNSET
     name: Union[Literal["writer"], Unset] = "writer"
+    extra: Union["WriterIntegrationExtraType0", None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.writer_integration_extra_type_0 import WriterIntegrationExtraType0
 
         organization_id = self.organization_id
+
+        id: Union[None, Unset, str]
+        id = UNSET if isinstance(self.id, Unset) else self.id
+
+        name = self.name
 
         extra: Union[None, Unset, dict[str, Any]]
         if isinstance(self.extra, Unset):
@@ -43,20 +48,15 @@ class WriterIntegration:
         else:
             extra = self.extra
 
-        id: Union[None, Unset, str]
-        id = UNSET if isinstance(self.id, Unset) else self.id
-
-        name = self.name
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"organization_id": organization_id})
-        if extra is not UNSET:
-            field_dict["extra"] = extra
         if id is not UNSET:
             field_dict["id"] = id
         if name is not UNSET:
             field_dict["name"] = name
+        if extra is not UNSET:
+            field_dict["extra"] = extra
 
         return field_dict
 
@@ -66,6 +66,19 @@ class WriterIntegration:
 
         d = dict(src_dict)
         organization_id = d.pop("organization_id")
+
+        def _parse_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        id = _parse_id(d.pop("id", UNSET))
+
+        name = cast(Union[Literal["writer"], Unset], d.pop("name", UNSET))
+        if name != "writer" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'writer', got '{name}'")
 
         def _parse_extra(data: object) -> Union["WriterIntegrationExtraType0", None, Unset]:
             if data is None:
@@ -83,20 +96,7 @@ class WriterIntegration:
 
         extra = _parse_extra(d.pop("extra", UNSET))
 
-        def _parse_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        id = _parse_id(d.pop("id", UNSET))
-
-        name = cast(Union[Literal["writer"], Unset], d.pop("name", UNSET))
-        if name != "writer" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'writer', got '{name}'")
-
-        writer_integration = cls(organization_id=organization_id, extra=extra, id=id, name=name)
+        writer_integration = cls(organization_id=organization_id, id=id, name=name, extra=extra)
 
         writer_integration.additional_properties = d
         return writer_integration

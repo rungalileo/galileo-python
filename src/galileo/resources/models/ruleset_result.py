@@ -22,22 +22,33 @@ class RulesetResult:
     """
     Attributes
     ----------
+        status (Union[Unset, ExecutionStatus]): Status of the execution.
+        rules (Union[Unset, list['Rule']]): List of rules to evaluate. Atleast 1 rule is required.
         action (Union['OverrideAction', 'PassthroughAction', Unset]): Action to take if all the rules are met.
         description (Union[None, Unset, str]): Description of the ruleset.
         rule_results (Union[Unset, list['RuleResult']]): Results of the rule execution.
-        rules (Union[Unset, list['Rule']]): List of rules to evaluate. Atleast 1 rule is required.
-        status (Union[Unset, ExecutionStatus]): Status of the execution.
     """
 
+    status: Union[Unset, ExecutionStatus] = UNSET
+    rules: Union[Unset, list["Rule"]] = UNSET
     action: Union["OverrideAction", "PassthroughAction", Unset] = UNSET
     description: Union[None, Unset, str] = UNSET
     rule_results: Union[Unset, list["RuleResult"]] = UNSET
-    rules: Union[Unset, list["Rule"]] = UNSET
-    status: Union[Unset, ExecutionStatus] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.override_action import OverrideAction
+
+        status: Union[Unset, str] = UNSET
+        if not isinstance(self.status, Unset):
+            status = self.status.value
+
+        rules: Union[Unset, list[dict[str, Any]]] = UNSET
+        if not isinstance(self.rules, Unset):
+            rules = []
+            for rules_item_data in self.rules:
+                rules_item = rules_item_data.to_dict()
+                rules.append(rules_item)
 
         action: Union[Unset, dict[str, Any]]
         if isinstance(self.action, Unset):
@@ -57,30 +68,19 @@ class RulesetResult:
                 rule_results_item = rule_results_item_data.to_dict()
                 rule_results.append(rule_results_item)
 
-        rules: Union[Unset, list[dict[str, Any]]] = UNSET
-        if not isinstance(self.rules, Unset):
-            rules = []
-            for rules_item_data in self.rules:
-                rules_item = rules_item_data.to_dict()
-                rules.append(rules_item)
-
-        status: Union[Unset, str] = UNSET
-        if not isinstance(self.status, Unset):
-            status = self.status.value
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if status is not UNSET:
+            field_dict["status"] = status
+        if rules is not UNSET:
+            field_dict["rules"] = rules
         if action is not UNSET:
             field_dict["action"] = action
         if description is not UNSET:
             field_dict["description"] = description
         if rule_results is not UNSET:
             field_dict["rule_results"] = rule_results
-        if rules is not UNSET:
-            field_dict["rules"] = rules
-        if status is not UNSET:
-            field_dict["status"] = status
 
         return field_dict
 
@@ -92,6 +92,16 @@ class RulesetResult:
         from ..models.rule_result import RuleResult
 
         d = dict(src_dict)
+        _status = d.pop("status", UNSET)
+        status: Union[Unset, ExecutionStatus]
+        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
+
+        rules = []
+        _rules = d.pop("rules", UNSET)
+        for rules_item_data in _rules or []:
+            rules_item = Rule.from_dict(rules_item_data)
+
+            rules.append(rules_item)
 
         def _parse_action(data: object) -> Union["OverrideAction", "PassthroughAction", Unset]:
             if isinstance(data, Unset):
@@ -125,19 +135,8 @@ class RulesetResult:
 
             rule_results.append(rule_results_item)
 
-        rules = []
-        _rules = d.pop("rules", UNSET)
-        for rules_item_data in _rules or []:
-            rules_item = Rule.from_dict(rules_item_data)
-
-            rules.append(rules_item)
-
-        _status = d.pop("status", UNSET)
-        status: Union[Unset, ExecutionStatus]
-        status = UNSET if isinstance(_status, Unset) else ExecutionStatus(_status)
-
         ruleset_result = cls(
-            action=action, description=description, rule_results=rule_results, rules=rules, status=status
+            status=status, rules=rules, action=action, description=description, rule_results=rule_results
         )
 
         ruleset_result.additional_properties = d

@@ -19,36 +19,22 @@ class MetricComputation:
     """
     Attributes
     ----------
-        error_message (Union[None, Unset, str]):
+        value (Union['MetricComputationValueType4', None, Unset, float, int, list[Union[None, float, int, str]], str]):
         execution_time (Union[None, Unset, float]):
         status (Union[MetricComputationStatus, None, Unset]):
-        value (Union['MetricComputationValueType4', None, Unset, float, int, list[Union[None, float, int, str]], str]):
+        error_message (Union[None, Unset, str]):
     """
 
-    error_message: Union[None, Unset, str] = UNSET
-    execution_time: Union[None, Unset, float] = UNSET
-    status: Union[MetricComputationStatus, None, Unset] = UNSET
     value: Union["MetricComputationValueType4", None, Unset, float, int, list[Union[None, float, int, str]], str] = (
         UNSET
     )
+    execution_time: Union[None, Unset, float] = UNSET
+    status: Union[MetricComputationStatus, None, Unset] = UNSET
+    error_message: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.metric_computation_value_type_4 import MetricComputationValueType4
-
-        error_message: Union[None, Unset, str]
-        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
-
-        execution_time: Union[None, Unset, float]
-        execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
-
-        status: Union[None, Unset, str]
-        if isinstance(self.status, Unset):
-            status = UNSET
-        elif isinstance(self.status, MetricComputationStatus):
-            status = self.status.value
-        else:
-            status = self.status
 
         value: Union[None, Unset, dict[str, Any], float, int, list[Union[None, float, int, str]], str]
         if isinstance(self.value, Unset):
@@ -65,17 +51,31 @@ class MetricComputation:
         else:
             value = self.value
 
+        execution_time: Union[None, Unset, float]
+        execution_time = UNSET if isinstance(self.execution_time, Unset) else self.execution_time
+
+        status: Union[None, Unset, str]
+        if isinstance(self.status, Unset):
+            status = UNSET
+        elif isinstance(self.status, MetricComputationStatus):
+            status = self.status.value
+        else:
+            status = self.status
+
+        error_message: Union[None, Unset, str]
+        error_message = UNSET if isinstance(self.error_message, Unset) else self.error_message
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if error_message is not UNSET:
-            field_dict["error_message"] = error_message
+        if value is not UNSET:
+            field_dict["value"] = value
         if execution_time is not UNSET:
             field_dict["execution_time"] = execution_time
         if status is not UNSET:
             field_dict["status"] = status
-        if value is not UNSET:
-            field_dict["value"] = value
+        if error_message is not UNSET:
+            field_dict["error_message"] = error_message
 
         return field_dict
 
@@ -84,40 +84,6 @@ class MetricComputation:
         from ..models.metric_computation_value_type_4 import MetricComputationValueType4
 
         d = dict(src_dict)
-
-        def _parse_error_message(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        error_message = _parse_error_message(d.pop("error_message", UNSET))
-
-        def _parse_execution_time(data: object) -> Union[None, Unset, float]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, float], data)
-
-        execution_time = _parse_execution_time(d.pop("execution_time", UNSET))
-
-        def _parse_status(data: object) -> Union[MetricComputationStatus, None, Unset]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                return MetricComputationStatus(data)
-
-            except:  # noqa: E722
-                pass
-            return cast(Union[MetricComputationStatus, None, Unset], data)
-
-        status = _parse_status(d.pop("status", UNSET))
 
         def _parse_value(
             data: object,
@@ -159,7 +125,41 @@ class MetricComputation:
 
         value = _parse_value(d.pop("value", UNSET))
 
-        metric_computation = cls(error_message=error_message, execution_time=execution_time, status=status, value=value)
+        def _parse_execution_time(data: object) -> Union[None, Unset, float]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, float], data)
+
+        execution_time = _parse_execution_time(d.pop("execution_time", UNSET))
+
+        def _parse_status(data: object) -> Union[MetricComputationStatus, None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                return MetricComputationStatus(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union[MetricComputationStatus, None, Unset], data)
+
+        status = _parse_status(d.pop("status", UNSET))
+
+        def _parse_error_message(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        error_message = _parse_error_message(d.pop("error_message", UNSET))
+
+        metric_computation = cls(value=value, execution_time=execution_time, status=status, error_message=error_message)
 
         metric_computation.additional_properties = d
         return metric_computation

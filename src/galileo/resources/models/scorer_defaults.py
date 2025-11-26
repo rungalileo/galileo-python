@@ -21,34 +21,37 @@ class ScorerDefaults:
     """
     Attributes
     ----------
-        cot_enabled (Union[None, Unset, bool]): Whether to enable chain of thought for this scorer. Defaults to False
-            for llm scorers.
-        filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
-            scorer.
-        input_type (Union[InputTypeEnum, None, Unset]): What type of input to use for model-based scorers
-            (sessions_normalized, trace_io_only, etc..).
         model_name (Union[None, Unset, str]):
         num_judges (Union[None, Unset, int]):
-        output_type (Union[None, OutputTypeEnum, Unset]): What type of output to use for model-based scorers (boolean,
-            categorical, etc.).
+        filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
+            scorer.
         scoreable_node_types (Union[None, Unset, list[str]]): List of node types that can be scored by this scorer.
             Defaults to llm/chat.
+        cot_enabled (Union[None, Unset, bool]): Whether to enable chain of thought for this scorer. Defaults to False
+            for llm scorers.
+        output_type (Union[None, OutputTypeEnum, Unset]): What type of output to use for model-based scorers (boolean,
+            categorical, etc.).
+        input_type (Union[InputTypeEnum, None, Unset]): What type of input to use for model-based scorers
+            (sessions_normalized, trace_io_only, etc..).
     """
 
-    cot_enabled: Union[None, Unset, bool] = UNSET
-    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
-    input_type: Union[InputTypeEnum, None, Unset] = UNSET
     model_name: Union[None, Unset, str] = UNSET
     num_judges: Union[None, Unset, int] = UNSET
-    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     scoreable_node_types: Union[None, Unset, list[str]] = UNSET
+    cot_enabled: Union[None, Unset, bool] = UNSET
+    output_type: Union[None, OutputTypeEnum, Unset] = UNSET
+    input_type: Union[InputTypeEnum, None, Unset] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.node_name_filter import NodeNameFilter
 
-        cot_enabled: Union[None, Unset, bool]
-        cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
+        model_name: Union[None, Unset, str]
+        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
+
+        num_judges: Union[None, Unset, int]
+        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
         filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
@@ -67,28 +70,6 @@ class ScorerDefaults:
         else:
             filters = self.filters
 
-        input_type: Union[None, Unset, str]
-        if isinstance(self.input_type, Unset):
-            input_type = UNSET
-        elif isinstance(self.input_type, InputTypeEnum):
-            input_type = self.input_type.value
-        else:
-            input_type = self.input_type
-
-        model_name: Union[None, Unset, str]
-        model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
-
-        num_judges: Union[None, Unset, int]
-        num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
-
-        output_type: Union[None, Unset, str]
-        if isinstance(self.output_type, Unset):
-            output_type = UNSET
-        elif isinstance(self.output_type, OutputTypeEnum):
-            output_type = self.output_type.value
-        else:
-            output_type = self.output_type
-
         scoreable_node_types: Union[None, Unset, list[str]]
         if isinstance(self.scoreable_node_types, Unset):
             scoreable_node_types = UNSET
@@ -98,23 +79,42 @@ class ScorerDefaults:
         else:
             scoreable_node_types = self.scoreable_node_types
 
+        cot_enabled: Union[None, Unset, bool]
+        cot_enabled = UNSET if isinstance(self.cot_enabled, Unset) else self.cot_enabled
+
+        output_type: Union[None, Unset, str]
+        if isinstance(self.output_type, Unset):
+            output_type = UNSET
+        elif isinstance(self.output_type, OutputTypeEnum):
+            output_type = self.output_type.value
+        else:
+            output_type = self.output_type
+
+        input_type: Union[None, Unset, str]
+        if isinstance(self.input_type, Unset):
+            input_type = UNSET
+        elif isinstance(self.input_type, InputTypeEnum):
+            input_type = self.input_type.value
+        else:
+            input_type = self.input_type
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if cot_enabled is not UNSET:
-            field_dict["cot_enabled"] = cot_enabled
-        if filters is not UNSET:
-            field_dict["filters"] = filters
-        if input_type is not UNSET:
-            field_dict["input_type"] = input_type
         if model_name is not UNSET:
             field_dict["model_name"] = model_name
         if num_judges is not UNSET:
             field_dict["num_judges"] = num_judges
-        if output_type is not UNSET:
-            field_dict["output_type"] = output_type
+        if filters is not UNSET:
+            field_dict["filters"] = filters
         if scoreable_node_types is not UNSET:
             field_dict["scoreable_node_types"] = scoreable_node_types
+        if cot_enabled is not UNSET:
+            field_dict["cot_enabled"] = cot_enabled
+        if output_type is not UNSET:
+            field_dict["output_type"] = output_type
+        if input_type is not UNSET:
+            field_dict["input_type"] = input_type
 
         return field_dict
 
@@ -125,14 +125,23 @@ class ScorerDefaults:
 
         d = dict(src_dict)
 
-        def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
+        def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, bool], data)
+            return cast(Union[None, Unset, str], data)
 
-        cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
+        model_name = _parse_model_name(d.pop("model_name", UNSET))
+
+        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -169,39 +178,30 @@ class ScorerDefaults:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
-        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
+        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             try:
-                if not isinstance(data, str):
+                if not isinstance(data, list):
                     raise TypeError()
-                return InputTypeEnum(data)
+                return cast(list[str], data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union[InputTypeEnum, None, Unset], data)
+            return cast(Union[None, Unset, list[str]], data)
 
-        input_type = _parse_input_type(d.pop("input_type", UNSET))
+        scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
 
-        def _parse_model_name(data: object) -> Union[None, Unset, str]:
+        def _parse_cot_enabled(data: object) -> Union[None, Unset, bool]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[None, Unset, str], data)
+            return cast(Union[None, Unset, bool], data)
 
-        model_name = _parse_model_name(d.pop("model_name", UNSET))
-
-        def _parse_num_judges(data: object) -> Union[None, Unset, int]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, int], data)
-
-        num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
+        cot_enabled = _parse_cot_enabled(d.pop("cot_enabled", UNSET))
 
         def _parse_output_type(data: object) -> Union[None, OutputTypeEnum, Unset]:
             if data is None:
@@ -219,30 +219,30 @@ class ScorerDefaults:
 
         output_type = _parse_output_type(d.pop("output_type", UNSET))
 
-        def _parse_scoreable_node_types(data: object) -> Union[None, Unset, list[str]]:
+        def _parse_input_type(data: object) -> Union[InputTypeEnum, None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             try:
-                if not isinstance(data, list):
+                if not isinstance(data, str):
                     raise TypeError()
-                return cast(list[str], data)
+                return InputTypeEnum(data)
 
             except:  # noqa: E722
                 pass
-            return cast(Union[None, Unset, list[str]], data)
+            return cast(Union[InputTypeEnum, None, Unset], data)
 
-        scoreable_node_types = _parse_scoreable_node_types(d.pop("scoreable_node_types", UNSET))
+        input_type = _parse_input_type(d.pop("input_type", UNSET))
 
         scorer_defaults = cls(
-            cot_enabled=cot_enabled,
-            filters=filters,
-            input_type=input_type,
             model_name=model_name,
             num_judges=num_judges,
-            output_type=output_type,
+            filters=filters,
             scoreable_node_types=scoreable_node_types,
+            cot_enabled=cot_enabled,
+            output_type=output_type,
+            input_type=input_type,
         )
 
         scorer_defaults.additional_properties = d

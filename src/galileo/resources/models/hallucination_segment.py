@@ -14,30 +14,30 @@ class HallucinationSegment:
     """
     Attributes
     ----------
+        start (int):
         end (int):
         hallucination (float):
-        start (int):
         hallucination_severity (Union[Unset, int]):  Default: 0.
     """
 
+    start: int
     end: int
     hallucination: float
-    start: int
     hallucination_severity: Union[Unset, int] = 0
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        start = self.start
+
         end = self.end
 
         hallucination = self.hallucination
-
-        start = self.start
 
         hallucination_severity = self.hallucination_severity
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"end": end, "hallucination": hallucination, "start": start})
+        field_dict.update({"start": start, "end": end, "hallucination": hallucination})
         if hallucination_severity is not UNSET:
             field_dict["hallucination_severity"] = hallucination_severity
 
@@ -46,16 +46,16 @@ class HallucinationSegment:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
+        start = d.pop("start")
+
         end = d.pop("end")
 
         hallucination = d.pop("hallucination")
 
-        start = d.pop("start")
-
         hallucination_severity = d.pop("hallucination_severity", UNSET)
 
         hallucination_segment = cls(
-            end=end, hallucination=hallucination, start=start, hallucination_severity=hallucination_severity
+            start=start, end=end, hallucination=hallucination, hallucination_severity=hallucination_severity
         )
 
         hallucination_segment.additional_properties = d

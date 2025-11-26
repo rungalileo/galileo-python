@@ -14,42 +14,34 @@ class FeedbackRatingInfo:
     """
     Attributes
     ----------
-        explanation (Union[None, str]):
         feedback_type (FeedbackType):
         value (Union[bool, int, list[str], str]):
+        explanation (Union[None, str]):
     """
 
-    explanation: Union[None, str]
     feedback_type: FeedbackType
     value: Union[bool, int, list[str], str]
+    explanation: Union[None, str]
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        explanation: Union[None, str]
-        explanation = self.explanation
-
         feedback_type = self.feedback_type.value
 
         value: Union[bool, int, list[str], str]
         value = self.value if isinstance(self.value, list) else self.value
 
+        explanation: Union[None, str]
+        explanation = self.explanation
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"explanation": explanation, "feedback_type": feedback_type, "value": value})
+        field_dict.update({"feedback_type": feedback_type, "value": value, "explanation": explanation})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-
-        def _parse_explanation(data: object) -> Union[None, str]:
-            if data is None:
-                return data
-            return cast(Union[None, str], data)
-
-        explanation = _parse_explanation(d.pop("explanation"))
-
         feedback_type = FeedbackType(d.pop("feedback_type"))
 
         def _parse_value(data: object) -> Union[bool, int, list[str], str]:
@@ -64,7 +56,14 @@ class FeedbackRatingInfo:
 
         value = _parse_value(d.pop("value"))
 
-        feedback_rating_info = cls(explanation=explanation, feedback_type=feedback_type, value=value)
+        def _parse_explanation(data: object) -> Union[None, str]:
+            if data is None:
+                return data
+            return cast(Union[None, str], data)
+
+        explanation = _parse_explanation(d.pop("explanation"))
+
+        feedback_rating_info = cls(feedback_type=feedback_type, value=value, explanation=explanation)
 
         feedback_rating_info.additional_properties = d
         return feedback_rating_info

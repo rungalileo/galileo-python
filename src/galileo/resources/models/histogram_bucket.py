@@ -12,39 +12,39 @@ class HistogramBucket:
     """
     Attributes
     ----------
-        count (int): Number of data points that fall within this bucket
         lower (float): Lower bound of the histogram bucket (inclusive)
-        upper (float): Upper bound of the histogram bucket (exclusive, but inclusive for the last bucket).
+        upper (float): Upper bound of the histogram bucket (exclusive, but inclusive for the last bucket)
+        count (int): Number of data points that fall within this bucket.
     """
 
-    count: int
     lower: float
     upper: float
+    count: int
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        count = self.count
-
         lower = self.lower
 
         upper = self.upper
 
+        count = self.count
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"count": count, "lower": lower, "upper": upper})
+        field_dict.update({"lower": lower, "upper": upper, "count": count})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        count = d.pop("count")
-
         lower = d.pop("lower")
 
         upper = d.pop("upper")
 
-        histogram_bucket = cls(count=count, lower=lower, upper=upper)
+        count = d.pop("count")
+
+        histogram_bucket = cls(lower=lower, upper=upper, count=count)
 
         histogram_bucket.additional_properties = d
         return histogram_bucket

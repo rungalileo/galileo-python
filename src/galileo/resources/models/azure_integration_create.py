@@ -26,32 +26,32 @@ class AzureIntegrationCreate:
     ----------
         endpoint (str):
         token (str):
+        proxy (Union[Unset, bool]):  Default: False.
         api_version (Union[Unset, str]):  Default: '2025-03-01-preview'.
-        authentication_scope (Union[None, Unset, str]):
-        authentication_type (Union[Unset, AzureAuthenticationType]):
-        available_deployments (Union[None, Unset, list['AzureModelDeployment']]): The available deployments for this
-            integration. If provided, we will not try to get this list from Azure.
         azure_deployment (Union[None, Unset, str]):
-        custom_header_mapping (Union['AzureIntegrationCreateCustomHeaderMappingType0', None, Unset]): Custom header
-            mapping from internal fields to be included in the LLM request.
+        authentication_type (Union[Unset, AzureAuthenticationType]):
+        authentication_scope (Union[None, Unset, str]):
         default_headers (Union['AzureIntegrationCreateDefaultHeadersType0', None, Unset]):
         deployments (Union[Unset, AzureIntegrationCreateDeployments]):
         oauth2_token_url (Union[None, Unset, str]): OAuth2 token URL for custom OAuth2 authentication
-        proxy (Union[Unset, bool]):  Default: False.
+        custom_header_mapping (Union['AzureIntegrationCreateCustomHeaderMappingType0', None, Unset]): Custom header
+            mapping from internal fields to be included in the LLM request.
+        available_deployments (Union[None, Unset, list['AzureModelDeployment']]): The available deployments for this
+            integration. If provided, we will not try to get this list from Azure.
     """
 
     endpoint: str
     token: str
+    proxy: Union[Unset, bool] = False
     api_version: Union[Unset, str] = "2025-03-01-preview"
-    authentication_scope: Union[None, Unset, str] = UNSET
-    authentication_type: Union[Unset, AzureAuthenticationType] = UNSET
-    available_deployments: Union[None, Unset, list["AzureModelDeployment"]] = UNSET
     azure_deployment: Union[None, Unset, str] = UNSET
-    custom_header_mapping: Union["AzureIntegrationCreateCustomHeaderMappingType0", None, Unset] = UNSET
+    authentication_type: Union[Unset, AzureAuthenticationType] = UNSET
+    authentication_scope: Union[None, Unset, str] = UNSET
     default_headers: Union["AzureIntegrationCreateDefaultHeadersType0", None, Unset] = UNSET
     deployments: Union[Unset, "AzureIntegrationCreateDeployments"] = UNSET
     oauth2_token_url: Union[None, Unset, str] = UNSET
-    proxy: Union[Unset, bool] = False
+    custom_header_mapping: Union["AzureIntegrationCreateCustomHeaderMappingType0", None, Unset] = UNSET
+    available_deployments: Union[None, Unset, list["AzureModelDeployment"]] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -64,37 +64,19 @@ class AzureIntegrationCreate:
 
         token = self.token
 
+        proxy = self.proxy
+
         api_version = self.api_version
 
-        authentication_scope: Union[None, Unset, str]
-        authentication_scope = UNSET if isinstance(self.authentication_scope, Unset) else self.authentication_scope
+        azure_deployment: Union[None, Unset, str]
+        azure_deployment = UNSET if isinstance(self.azure_deployment, Unset) else self.azure_deployment
 
         authentication_type: Union[Unset, str] = UNSET
         if not isinstance(self.authentication_type, Unset):
             authentication_type = self.authentication_type.value
 
-        available_deployments: Union[None, Unset, list[dict[str, Any]]]
-        if isinstance(self.available_deployments, Unset):
-            available_deployments = UNSET
-        elif isinstance(self.available_deployments, list):
-            available_deployments = []
-            for available_deployments_type_0_item_data in self.available_deployments:
-                available_deployments_type_0_item = available_deployments_type_0_item_data.to_dict()
-                available_deployments.append(available_deployments_type_0_item)
-
-        else:
-            available_deployments = self.available_deployments
-
-        azure_deployment: Union[None, Unset, str]
-        azure_deployment = UNSET if isinstance(self.azure_deployment, Unset) else self.azure_deployment
-
-        custom_header_mapping: Union[None, Unset, dict[str, Any]]
-        if isinstance(self.custom_header_mapping, Unset):
-            custom_header_mapping = UNSET
-        elif isinstance(self.custom_header_mapping, AzureIntegrationCreateCustomHeaderMappingType0):
-            custom_header_mapping = self.custom_header_mapping.to_dict()
-        else:
-            custom_header_mapping = self.custom_header_mapping
+        authentication_scope: Union[None, Unset, str]
+        authentication_scope = UNSET if isinstance(self.authentication_scope, Unset) else self.authentication_scope
 
         default_headers: Union[None, Unset, dict[str, Any]]
         if isinstance(self.default_headers, Unset):
@@ -111,31 +93,49 @@ class AzureIntegrationCreate:
         oauth2_token_url: Union[None, Unset, str]
         oauth2_token_url = UNSET if isinstance(self.oauth2_token_url, Unset) else self.oauth2_token_url
 
-        proxy = self.proxy
+        custom_header_mapping: Union[None, Unset, dict[str, Any]]
+        if isinstance(self.custom_header_mapping, Unset):
+            custom_header_mapping = UNSET
+        elif isinstance(self.custom_header_mapping, AzureIntegrationCreateCustomHeaderMappingType0):
+            custom_header_mapping = self.custom_header_mapping.to_dict()
+        else:
+            custom_header_mapping = self.custom_header_mapping
+
+        available_deployments: Union[None, Unset, list[dict[str, Any]]]
+        if isinstance(self.available_deployments, Unset):
+            available_deployments = UNSET
+        elif isinstance(self.available_deployments, list):
+            available_deployments = []
+            for available_deployments_type_0_item_data in self.available_deployments:
+                available_deployments_type_0_item = available_deployments_type_0_item_data.to_dict()
+                available_deployments.append(available_deployments_type_0_item)
+
+        else:
+            available_deployments = self.available_deployments
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({"endpoint": endpoint, "token": token})
+        if proxy is not UNSET:
+            field_dict["proxy"] = proxy
         if api_version is not UNSET:
             field_dict["api_version"] = api_version
-        if authentication_scope is not UNSET:
-            field_dict["authentication_scope"] = authentication_scope
-        if authentication_type is not UNSET:
-            field_dict["authentication_type"] = authentication_type
-        if available_deployments is not UNSET:
-            field_dict["available_deployments"] = available_deployments
         if azure_deployment is not UNSET:
             field_dict["azure_deployment"] = azure_deployment
-        if custom_header_mapping is not UNSET:
-            field_dict["custom_header_mapping"] = custom_header_mapping
+        if authentication_type is not UNSET:
+            field_dict["authentication_type"] = authentication_type
+        if authentication_scope is not UNSET:
+            field_dict["authentication_scope"] = authentication_scope
         if default_headers is not UNSET:
             field_dict["default_headers"] = default_headers
         if deployments is not UNSET:
             field_dict["deployments"] = deployments
         if oauth2_token_url is not UNSET:
             field_dict["oauth2_token_url"] = oauth2_token_url
-        if proxy is not UNSET:
-            field_dict["proxy"] = proxy
+        if custom_header_mapping is not UNSET:
+            field_dict["custom_header_mapping"] = custom_header_mapping
+        if available_deployments is not UNSET:
+            field_dict["available_deployments"] = available_deployments
 
         return field_dict
 
@@ -153,47 +153,9 @@ class AzureIntegrationCreate:
 
         token = d.pop("token")
 
+        proxy = d.pop("proxy", UNSET)
+
         api_version = d.pop("api_version", UNSET)
-
-        def _parse_authentication_scope(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        authentication_scope = _parse_authentication_scope(d.pop("authentication_scope", UNSET))
-
-        _authentication_type = d.pop("authentication_type", UNSET)
-        authentication_type: Union[Unset, AzureAuthenticationType]
-        if isinstance(_authentication_type, Unset):
-            authentication_type = UNSET
-        else:
-            authentication_type = AzureAuthenticationType(_authentication_type)
-
-        def _parse_available_deployments(data: object) -> Union[None, Unset, list["AzureModelDeployment"]]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, list):
-                    raise TypeError()
-                available_deployments_type_0 = []
-                _available_deployments_type_0 = data
-                for available_deployments_type_0_item_data in _available_deployments_type_0:
-                    available_deployments_type_0_item = AzureModelDeployment.from_dict(
-                        available_deployments_type_0_item_data
-                    )
-
-                    available_deployments_type_0.append(available_deployments_type_0_item)
-
-                return available_deployments_type_0
-            except:  # noqa: E722
-                pass
-            return cast(Union[None, Unset, list["AzureModelDeployment"]], data)
-
-        available_deployments = _parse_available_deployments(d.pop("available_deployments", UNSET))
 
         def _parse_azure_deployment(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -204,23 +166,21 @@ class AzureIntegrationCreate:
 
         azure_deployment = _parse_azure_deployment(d.pop("azure_deployment", UNSET))
 
-        def _parse_custom_header_mapping(
-            data: object,
-        ) -> Union["AzureIntegrationCreateCustomHeaderMappingType0", None, Unset]:
+        _authentication_type = d.pop("authentication_type", UNSET)
+        authentication_type: Union[Unset, AzureAuthenticationType]
+        if isinstance(_authentication_type, Unset):
+            authentication_type = UNSET
+        else:
+            authentication_type = AzureAuthenticationType(_authentication_type)
+
+        def _parse_authentication_scope(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            try:
-                if not isinstance(data, dict):
-                    raise TypeError()
-                return AzureIntegrationCreateCustomHeaderMappingType0.from_dict(data)
+            return cast(Union[None, Unset, str], data)
 
-            except:  # noqa: E722
-                pass
-            return cast(Union["AzureIntegrationCreateCustomHeaderMappingType0", None, Unset], data)
-
-        custom_header_mapping = _parse_custom_header_mapping(d.pop("custom_header_mapping", UNSET))
+        authentication_scope = _parse_authentication_scope(d.pop("authentication_scope", UNSET))
 
         def _parse_default_headers(data: object) -> Union["AzureIntegrationCreateDefaultHeadersType0", None, Unset]:
             if data is None:
@@ -254,21 +214,61 @@ class AzureIntegrationCreate:
 
         oauth2_token_url = _parse_oauth2_token_url(d.pop("oauth2_token_url", UNSET))
 
-        proxy = d.pop("proxy", UNSET)
+        def _parse_custom_header_mapping(
+            data: object,
+        ) -> Union["AzureIntegrationCreateCustomHeaderMappingType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                return AzureIntegrationCreateCustomHeaderMappingType0.from_dict(data)
+
+            except:  # noqa: E722
+                pass
+            return cast(Union["AzureIntegrationCreateCustomHeaderMappingType0", None, Unset], data)
+
+        custom_header_mapping = _parse_custom_header_mapping(d.pop("custom_header_mapping", UNSET))
+
+        def _parse_available_deployments(data: object) -> Union[None, Unset, list["AzureModelDeployment"]]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, list):
+                    raise TypeError()
+                available_deployments_type_0 = []
+                _available_deployments_type_0 = data
+                for available_deployments_type_0_item_data in _available_deployments_type_0:
+                    available_deployments_type_0_item = AzureModelDeployment.from_dict(
+                        available_deployments_type_0_item_data
+                    )
+
+                    available_deployments_type_0.append(available_deployments_type_0_item)
+
+                return available_deployments_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, Unset, list["AzureModelDeployment"]], data)
+
+        available_deployments = _parse_available_deployments(d.pop("available_deployments", UNSET))
 
         azure_integration_create = cls(
             endpoint=endpoint,
             token=token,
+            proxy=proxy,
             api_version=api_version,
-            authentication_scope=authentication_scope,
-            authentication_type=authentication_type,
-            available_deployments=available_deployments,
             azure_deployment=azure_deployment,
-            custom_header_mapping=custom_header_mapping,
+            authentication_type=authentication_type,
+            authentication_scope=authentication_scope,
             default_headers=default_headers,
             deployments=deployments,
             oauth2_token_url=oauth2_token_url,
-            proxy=proxy,
+            custom_header_mapping=custom_header_mapping,
+            available_deployments=available_deployments,
         )
 
         azure_integration_create.additional_properties = d

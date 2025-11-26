@@ -12,33 +12,33 @@ class NvidiaIntegrationCreate:
     """
     Attributes
     ----------
-        hostname (str):
         token (str):
+        hostname (str):
     """
 
-    hostname: str
     token: str
+    hostname: str
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        hostname = self.hostname
-
         token = self.token
+
+        hostname = self.hostname
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"hostname": hostname, "token": token})
+        field_dict.update({"token": token, "hostname": hostname})
 
         return field_dict
 
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        hostname = d.pop("hostname")
-
         token = d.pop("token")
 
-        nvidia_integration_create = cls(hostname=hostname, token=token)
+        hostname = d.pop("hostname")
+
+        nvidia_integration_create = cls(token=token, hostname=hostname)
 
         nvidia_integration_create.additional_properties = d
         return nvidia_integration_create

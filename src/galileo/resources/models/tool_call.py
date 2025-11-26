@@ -16,22 +16,22 @@ class ToolCall:
     """
     Attributes
     ----------
-        function (ToolCallFunction):
         id (str):
+        function (ToolCallFunction):
     """
 
-    function: "ToolCallFunction"
     id: str
+    function: "ToolCallFunction"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        function = self.function.to_dict()
-
         id = self.id
+
+        function = self.function.to_dict()
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"function": function, "id": id})
+        field_dict.update({"id": id, "function": function})
 
         return field_dict
 
@@ -40,11 +40,11 @@ class ToolCall:
         from ..models.tool_call_function import ToolCallFunction
 
         d = dict(src_dict)
-        function = ToolCallFunction.from_dict(d.pop("function"))
-
         id = d.pop("id")
 
-        tool_call = cls(function=function, id=id)
+        function = ToolCallFunction.from_dict(d.pop("function"))
+
+        tool_call = cls(id=id, function=function)
 
         tool_call.additional_properties = d
         return tool_call

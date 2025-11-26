@@ -14,26 +14,26 @@ class RecomputeSettingsLogStream:
     """
     Attributes
     ----------
-        filters (list[Any]):
         run_id (str):
+        filters (list[Any]):
         mode (Union[Literal['log_stream_filters'], Unset]):  Default: 'log_stream_filters'.
     """
 
-    filters: list[Any]
     run_id: str
+    filters: list[Any]
     mode: Union[Literal["log_stream_filters"], Unset] = "log_stream_filters"
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        filters = self.filters
-
         run_id = self.run_id
+
+        filters = self.filters
 
         mode = self.mode
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"filters": filters, "run_id": run_id})
+        field_dict.update({"run_id": run_id, "filters": filters})
         if mode is not UNSET:
             field_dict["mode"] = mode
 
@@ -42,15 +42,15 @@ class RecomputeSettingsLogStream:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        filters = cast(list[Any], d.pop("filters"))
-
         run_id = d.pop("run_id")
+
+        filters = cast(list[Any], d.pop("filters"))
 
         mode = cast(Union[Literal["log_stream_filters"], Unset], d.pop("mode", UNSET))
         if mode != "log_stream_filters" and not isinstance(mode, Unset):
             raise ValueError(f"mode must match const 'log_stream_filters', got '{mode}'")
 
-        recompute_settings_log_stream = cls(filters=filters, run_id=run_id, mode=mode)
+        recompute_settings_log_stream = cls(run_id=run_id, filters=filters, mode=mode)
 
         recompute_settings_log_stream.additional_properties = d
         return recompute_settings_log_stream

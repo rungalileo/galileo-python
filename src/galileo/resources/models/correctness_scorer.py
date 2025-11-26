@@ -19,23 +19,25 @@ class CorrectnessScorer:
     """
     Attributes
     ----------
+        name (Union[Literal['correctness'], Unset]):  Default: 'correctness'.
         filters (Union[None, Unset, list[Union['MetadataFilter', 'NodeNameFilter']]]): List of filters to apply to the
             scorer.
-        model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
-        name (Union[Literal['correctness'], Unset]):  Default: 'correctness'.
-        num_judges (Union[None, Unset, int]): Number of judges for the scorer.
         type_ (Union[Literal['plus'], Unset]):  Default: 'plus'.
+        model_name (Union[None, Unset, str]): Alias of the model to use for the scorer.
+        num_judges (Union[None, Unset, int]): Number of judges for the scorer.
     """
 
-    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
-    model_name: Union[None, Unset, str] = UNSET
     name: Union[Literal["correctness"], Unset] = "correctness"
-    num_judges: Union[None, Unset, int] = UNSET
+    filters: Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]] = UNSET
     type_: Union[Literal["plus"], Unset] = "plus"
+    model_name: Union[None, Unset, str] = UNSET
+    num_judges: Union[None, Unset, int] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         from ..models.node_name_filter import NodeNameFilter
+
+        name = self.name
 
         filters: Union[None, Unset, list[dict[str, Any]]]
         if isinstance(self.filters, Unset):
@@ -54,29 +56,27 @@ class CorrectnessScorer:
         else:
             filters = self.filters
 
+        type_ = self.type_
+
         model_name: Union[None, Unset, str]
         model_name = UNSET if isinstance(self.model_name, Unset) else self.model_name
-
-        name = self.name
 
         num_judges: Union[None, Unset, int]
         num_judges = UNSET if isinstance(self.num_judges, Unset) else self.num_judges
 
-        type_ = self.type_
-
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
-        if filters is not UNSET:
-            field_dict["filters"] = filters
-        if model_name is not UNSET:
-            field_dict["model_name"] = model_name
         if name is not UNSET:
             field_dict["name"] = name
-        if num_judges is not UNSET:
-            field_dict["num_judges"] = num_judges
+        if filters is not UNSET:
+            field_dict["filters"] = filters
         if type_ is not UNSET:
             field_dict["type"] = type_
+        if model_name is not UNSET:
+            field_dict["model_name"] = model_name
+        if num_judges is not UNSET:
+            field_dict["num_judges"] = num_judges
 
         return field_dict
 
@@ -86,6 +86,9 @@ class CorrectnessScorer:
         from ..models.node_name_filter import NodeNameFilter
 
         d = dict(src_dict)
+        name = cast(Union[Literal["correctness"], Unset], d.pop("name", UNSET))
+        if name != "correctness" and not isinstance(name, Unset):
+            raise ValueError(f"name must match const 'correctness', got '{name}'")
 
         def _parse_filters(data: object) -> Union[None, Unset, list[Union["MetadataFilter", "NodeNameFilter"]]]:
             if data is None:
@@ -122,6 +125,10 @@ class CorrectnessScorer:
 
         filters = _parse_filters(d.pop("filters", UNSET))
 
+        type_ = cast(Union[Literal["plus"], Unset], d.pop("type", UNSET))
+        if type_ != "plus" and not isinstance(type_, Unset):
+            raise ValueError(f"type must match const 'plus', got '{type_}'")
+
         def _parse_model_name(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -130,10 +137,6 @@ class CorrectnessScorer:
             return cast(Union[None, Unset, str], data)
 
         model_name = _parse_model_name(d.pop("model_name", UNSET))
-
-        name = cast(Union[Literal["correctness"], Unset], d.pop("name", UNSET))
-        if name != "correctness" and not isinstance(name, Unset):
-            raise ValueError(f"name must match const 'correctness', got '{name}'")
 
         def _parse_num_judges(data: object) -> Union[None, Unset, int]:
             if data is None:
@@ -144,11 +147,7 @@ class CorrectnessScorer:
 
         num_judges = _parse_num_judges(d.pop("num_judges", UNSET))
 
-        type_ = cast(Union[Literal["plus"], Unset], d.pop("type", UNSET))
-        if type_ != "plus" and not isinstance(type_, Unset):
-            raise ValueError(f"type must match const 'plus', got '{type_}'")
-
-        correctness_scorer = cls(filters=filters, model_name=model_name, name=name, num_judges=num_judges, type_=type_)
+        correctness_scorer = cls(name=name, filters=filters, type_=type_, model_name=model_name, num_judges=num_judges)
 
         correctness_scorer.additional_properties = d
         return correctness_scorer

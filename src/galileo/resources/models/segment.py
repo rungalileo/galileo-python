@@ -14,22 +14,22 @@ class Segment:
     """
     Attributes
     ----------
-        end (int):
         start (int):
+        end (int):
         value (Union[float, int, str]):
         prob (Union[None, Unset, float]):
     """
 
-    end: int
     start: int
+    end: int
     value: Union[float, int, str]
     prob: Union[None, Unset, float] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
-        end = self.end
-
         start = self.start
+
+        end = self.end
 
         value: Union[float, int, str]
         value = self.value
@@ -39,7 +39,7 @@ class Segment:
 
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
-        field_dict.update({"end": end, "start": start, "value": value})
+        field_dict.update({"start": start, "end": end, "value": value})
         if prob is not UNSET:
             field_dict["prob"] = prob
 
@@ -48,9 +48,9 @@ class Segment:
     @classmethod
     def from_dict(cls: type[T], src_dict: Mapping[str, Any]) -> T:
         d = dict(src_dict)
-        end = d.pop("end")
-
         start = d.pop("start")
+
+        end = d.pop("end")
 
         def _parse_value(data: object) -> Union[float, int, str]:
             return cast(Union[float, int, str], data)
@@ -66,7 +66,7 @@ class Segment:
 
         prob = _parse_prob(d.pop("prob", UNSET))
 
-        segment = cls(end=end, start=start, value=value, prob=prob)
+        segment = cls(start=start, end=end, value=value, prob=prob)
 
         segment.additional_properties = d
         return segment
